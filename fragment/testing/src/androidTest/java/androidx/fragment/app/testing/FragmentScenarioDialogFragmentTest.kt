@@ -16,7 +16,7 @@
 
 package androidx.fragment.app.testing
 
-import androidx.core.os.BuildCompat.isAtLeastQ
+import android.os.Build
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
@@ -68,7 +68,7 @@ class FragmentScenarioDialogFragmentTest {
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
                 assertThat(fragment.dialog).isNotNull()
-                if (isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertThat(fragment.requireDialog().isShowing).isFalse()
                 } else {
                     // Dialog#isShowing should've returned false but it returns true due to a
@@ -119,7 +119,7 @@ class FragmentScenarioDialogFragmentTest {
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
                 assertThat(fragment.dialog).isNotNull()
-                if (isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertThat(fragment.requireDialog().isShowing).isFalse()
                 } else {
                     // Dialog#isShowing should've returned false but it returns true due to a
@@ -174,7 +174,7 @@ class FragmentScenarioDialogFragmentTest {
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
                 assertThat(fragment.dialog).isNotNull()
-                if (isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertThat(fragment.requireDialog().isShowing).isFalse()
                 } else {
                     // Dialog#isShowing should've returned false but it returns true due to a
@@ -244,7 +244,7 @@ class FragmentScenarioDialogFragmentTest {
             onFragment { fragment ->
                 assertThat(fragment.lifecycle.currentState).isEqualTo(State.CREATED)
                 assertThat(fragment.dialog).isNotNull()
-                if (isAtLeastQ()) {
+                if (Build.VERSION.SDK_INT >= 29) {
                     assertThat(fragment.requireDialog().isShowing).isFalse()
                 } else {
                     // Dialog#isShowing should've returned false but it returns true due to a
