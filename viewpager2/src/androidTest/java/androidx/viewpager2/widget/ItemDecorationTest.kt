@@ -16,7 +16,8 @@
 
 package androidx.viewpager2.widget
 
-import androidx.recyclerview.widget.DividerItemDecoration
+import android.graphics.Canvas
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -24,13 +25,10 @@ import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.atLeastOnce
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
 
@@ -62,13 +60,13 @@ class ItemDecorationTest : BaseTest() {
             assertThat(viewPager.itemDecorationCount, equalTo(0))
 
             // when
-            val decoration1 = spy(DividerItemDecoration(activity, orientation))
+            val decoration1 = ItemDecorationStub()
             viewPager.addItemDecorationSync(decoration1)
             // then
             assertThat(viewPager.itemDecorationCount, equalTo(1))
 
             // when
-            val decoration2 = spy(DividerItemDecoration(activity, orientation))
+            val decoration2 = ItemDecorationStub()
             viewPager.addItemDecorationSync(decoration2)
             // then
             assertThat(viewPager.itemDecorationCount, equalTo(2))
@@ -77,8 +75,8 @@ class ItemDecorationTest : BaseTest() {
             swipeForwardSync()
             // then
             assertBasicState(1)
-            verify(decoration1, atLeastOnce()).onDraw(any(), any(), any())
-            verify(decoration2, atLeastOnce()).onDraw(any(), any(), any())
+            assertThat(decoration1.drawCount, greaterThan(0))
+            assertThat(decoration2.drawCount, greaterThan(0))
 
             // when
             val layoutChangeLatch = viewPager.addWaitForLayoutChangeLatch()
@@ -144,5 +142,13 @@ class ItemDecorationTest : BaseTest() {
             latch.countDown()
         }
         latch.await(operationTimeoutSeconds, SECONDS)
+    }
+
+    private class ItemDecorationStub : ItemDecoration() {
+        var drawCount = 0
+
+        override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+            drawCount++
+        }
     }
 }
