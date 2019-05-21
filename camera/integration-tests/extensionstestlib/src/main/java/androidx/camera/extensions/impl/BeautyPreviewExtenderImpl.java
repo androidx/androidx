@@ -19,6 +19,9 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Implementation for beauty preview use case.
  *
@@ -37,8 +40,8 @@ public final class BeautyPreviewExtenderImpl implements PreviewExtenderImpl {
     }
 
     @Override
-    public boolean isExtensionAvailable(String cameraId,
-            CameraCharacteristics cameraCharacteristics) {
+    public boolean isExtensionAvailable(@NonNull String cameraId,
+            @Nullable CameraCharacteristics cameraCharacteristics) {
         // Implement the logic to check whether the extension function is supported or not.
         return true;
     }

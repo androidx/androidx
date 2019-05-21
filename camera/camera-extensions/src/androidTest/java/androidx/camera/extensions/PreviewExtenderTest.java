@@ -80,6 +80,8 @@ public class PreviewExtenderTest {
                 PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR);
         when(mockPreviewExtenderImpl.getProcessor()).thenReturn(
                 mock(PreviewImageProcessorImpl.class));
+        when(mockPreviewExtenderImpl.isExtensionAvailable(any(String.class),
+                any(CameraCharacteristics.class))).thenReturn(true);
 
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
                 CameraX.LensFacing.BACK);
@@ -140,6 +142,8 @@ public class PreviewExtenderTest {
         when(mockPreviewExtenderImpl.getProcessorType()).thenReturn(
                 PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY);
         when(mockPreviewExtenderImpl.getProcessor()).thenReturn(mockRequestUpdateProcessorImpl);
+        when(mockPreviewExtenderImpl.isExtensionAvailable(any(String.class),
+                any(CameraCharacteristics.class))).thenReturn(true);
 
         when(mockPreviewExtenderImpl.getCaptureStage()).thenReturn(fakeCaptureStageImpl);
 

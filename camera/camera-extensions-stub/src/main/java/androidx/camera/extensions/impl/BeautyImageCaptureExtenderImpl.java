@@ -18,6 +18,9 @@ package androidx.camera.extensions.impl;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.List;
 
 /**
@@ -29,8 +32,8 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     public BeautyImageCaptureExtenderImpl() {}
 
     @Override
-    public boolean isExtensionAvailable(String cameraId,
-            CameraCharacteristics cameraCharacteristics) {
+    public boolean isExtensionAvailable(@NonNull String cameraId,
+            @Nullable CameraCharacteristics cameraCharacteristics) {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 

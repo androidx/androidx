@@ -27,6 +27,9 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,8 +57,8 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     }
 
     @Override
-    public boolean isExtensionAvailable(String cameraId,
-            CameraCharacteristics cameraCharacteristics) {
+    public boolean isExtensionAvailable(@NonNull String cameraId,
+            @Nullable CameraCharacteristics cameraCharacteristics) {
         // Requires API 23 for ImageWriter
         return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M;
     }
