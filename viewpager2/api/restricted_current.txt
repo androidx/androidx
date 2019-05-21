@@ -1,1 +1,14 @@
 // Signature format: 3.0
+package androidx.viewpager2.widget {
+
+  @IntDef({androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT}) @IntRange(from=1) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewPager2.OffscreenPageLimit {
+  }
+
+  @IntDef({androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL, androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewPager2.Orientation {
+  }
+
+  @IntDef({androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE, androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING, androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewPager2.ScrollState {
+  }
+
+}
+
