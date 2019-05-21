@@ -271,8 +271,10 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
     if (!docsDir.exists()) {
         val createSuccess = docsDir.mkdir()
         if (!createSuccess) {
-            Toast.makeText(activity, "Documents" + " creation failed.",
-                Toast.LENGTH_SHORT).show()
+            activity.runOnUiThread {
+                Toast.makeText(activity, "Documents" + " creation failed.",
+                    Toast.LENGTH_SHORT).show()
+            }
             MainActivity.logd("Log storage directory Documents" + " creation failed!!")
         } else {
             MainActivity.logd("Log storage directory Documents" + " did not exist. Created.")
@@ -282,8 +284,10 @@ fun writeCSV(activity: MainActivity, filePrefix: String, csv: String) {
     if (!csvDir.exists()) {
         val createSuccess = csvDir.mkdir()
         if (!createSuccess) {
-            Toast.makeText(activity, "Documents/" + MainActivity.LOG_DIR +
-                " creation failed.", Toast.LENGTH_SHORT).show()
+            activity.runOnUiThread {
+                Toast.makeText(activity, "Documents/" + MainActivity.LOG_DIR +
+                    " creation failed.", Toast.LENGTH_SHORT).show()
+            }
             MainActivity.logd("Log storage directory Documents/" +
                 MainActivity.LOG_DIR + " creation failed!!")
         } else {
@@ -330,8 +334,10 @@ fun deleteCSVFiles(activity: MainActivity) {
         scannerIntent.data = Uri.fromFile(csvDir)
         activity.sendBroadcast(scannerIntent)
 
-        Toast.makeText(activity, "CSV logs deleted", Toast.LENGTH_SHORT).show()
-        logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
+        activity.runOnUiThread {
+            Toast.makeText(activity, "CSV logs deleted", Toast.LENGTH_SHORT).show()
+        }
+            logd("All csv logs in directory DOCUMENTS/" + MainActivity.LOG_DIR + " deleted.")
     }
 }
 
