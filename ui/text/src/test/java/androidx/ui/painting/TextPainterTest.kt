@@ -33,7 +33,7 @@ class TextPainterTest() {
         val textPainter = TextPainter()
 
         assertThat(textPainter.text).isNull()
-        assertThat(textPainter.textAlign).isEqualTo(TextAlign.START)
+        assertThat(textPainter.textAlign).isEqualTo(TextAlign.Start)
         assertThat(textPainter.textDirection).isNull()
         assertThat(textPainter.textScaleFactor).isEqualTo(1.0f)
         assertThat(textPainter.maxLines).isNull()
@@ -52,9 +52,9 @@ class TextPainterTest() {
 
     @Test
     fun `constructor with customized textAlign`() {
-        val textPainter = TextPainter(textAlign = TextAlign.LEFT)
+        val textPainter = TextPainter(textAlign = TextAlign.Left)
 
-        assertThat(textPainter.textAlign).isEqualTo(TextAlign.LEFT)
+        assertThat(textPainter.textAlign).isEqualTo(TextAlign.Left)
     }
 
     @Test
@@ -116,9 +116,9 @@ class TextPainterTest() {
     fun `textAlign setter`() {
         val textPainter = TextPainter()
 
-        textPainter.textAlign = TextAlign.LEFT
+        textPainter.textAlign = TextAlign.Left
 
-        assertThat(textPainter.textAlign).isEqualTo(TextAlign.LEFT)
+        assertThat(textPainter.textAlign).isEqualTo(TextAlign.Left)
         assertThat(textPainter.paragraph).isNull()
         assertThat(textPainter.needsLayout).isTrue()
     }
@@ -195,7 +195,7 @@ class TextPainterTest() {
         val textSpan = TextSpan(text = "Hello", style = textStyle)
         val textPainter = TextPainter(
             text = textSpan,
-            textAlign = TextAlign.CENTER,
+            textAlign = TextAlign.Center,
             textDirection = TextDirection.RTL,
             textScaleFactor = scaleFactor,
             maxLines = maxLines,
@@ -206,7 +206,7 @@ class TextPainterTest() {
         val paragraphStyle = textPainter.createParagraphStyle()
 
         assertThat(paragraphStyle.getTextStyle().fontSize).isEqualTo(fontSize * scaleFactor)
-        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.CENTER)
+        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.RTL)
         assertThat(paragraphStyle.maxLines).isEqualTo(maxLines)
         assertThat(paragraphStyle.ellipsis).isEqualTo(ellipsis)
@@ -222,7 +222,7 @@ class TextPainterTest() {
         val textSpan = TextSpan(text = "Hello")
         val textPainter = TextPainter(
             text = textSpan,
-            textAlign = TextAlign.CENTER,
+            textAlign = TextAlign.Center,
             textDirection = TextDirection.RTL,
             textScaleFactor = scaleFactor,
             maxLines = maxLines,
@@ -233,7 +233,7 @@ class TextPainterTest() {
         val paragraphStyle = textPainter.createParagraphStyle()
 
         assertThat(paragraphStyle.getTextStyle().fontSize).isNull()
-        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.CENTER)
+        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.RTL)
         assertThat(paragraphStyle.maxLines).isEqualTo(maxLines)
         assertThat(paragraphStyle.ellipsis).isEqualTo(ellipsis)
@@ -251,7 +251,7 @@ class TextPainterTest() {
         val textSpan = TextSpan(text = "Hello", style = textStyle)
         val textPainter = TextPainter(
             text = textSpan,
-            textAlign = TextAlign.CENTER,
+            textAlign = TextAlign.Center,
             textScaleFactor = scaleFactor,
             maxLines = maxLines,
             ellipsis = ellipsis,
@@ -261,7 +261,7 @@ class TextPainterTest() {
         val paragraphStyle = textPainter.createParagraphStyle(TextDirection.RTL)
 
         assertThat(paragraphStyle.getTextStyle().fontSize).isEqualTo(fontSize * scaleFactor)
-        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.CENTER)
+        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.RTL)
         assertThat(paragraphStyle.maxLines).isEqualTo(maxLines)
         assertThat(paragraphStyle.ellipsis).isEqualTo(ellipsis)

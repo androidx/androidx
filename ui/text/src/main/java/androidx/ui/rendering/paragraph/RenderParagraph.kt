@@ -76,7 +76,7 @@ private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
 
 class RenderParagraph(
     text: TextSpan,
-    textAlign: TextAlign = TextAlign.START,
+    textAlign: TextAlign = TextAlign.Start,
     textDirection: TextDirection,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.CLIP,

@@ -55,7 +55,7 @@ class ParagraphStyleTest {
 
     @Test
     fun `getTextStyle with non-null values`() {
-        val textAlign = TextAlign.END
+        val textAlign = TextAlign.End
         val textDirection = TextDirection.RTL
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
@@ -123,7 +123,7 @@ class ParagraphStyleTest {
 
     @Test
     fun `toString with values`() {
-        val textAlign = TextAlign.END
+        val textAlign = TextAlign.End
         val textDirection = TextDirection.RTL
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
