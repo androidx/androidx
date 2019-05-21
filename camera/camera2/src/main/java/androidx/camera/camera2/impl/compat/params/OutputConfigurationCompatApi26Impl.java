@@ -21,10 +21,13 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Field;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Implementation of the OutputConfiguration compat methods for API 26 and above.
@@ -36,11 +39,18 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
     private static final String SURFACES_FIELD = "mSurfaces";
 
     OutputConfigurationCompatApi26Impl(@NonNull Surface surface) {
-        super(new OutputConfiguration(surface));
+        this(new OutputConfigurationParamsApi26(new OutputConfiguration(surface)));
     }
 
     OutputConfigurationCompatApi26Impl(@NonNull Object outputConfiguration) {
         super(outputConfiguration);
+    }
+
+    @RequiresApi(26)
+    static OutputConfigurationCompatApi26Impl wrap(
+            @NonNull OutputConfiguration outputConfiguration) {
+        return new OutputConfigurationCompatApi26Impl(
+                new OutputConfigurationParamsApi26(outputConfiguration));
     }
 
     // The following methods use reflection to call into the framework code, These methods are
@@ -65,12 +75,16 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
     //=========================================================================================
 
     /**
-     * Enable multiple surfaces sharing the same OutputConfiguration
+     * Enable multiple surfaces sharing the same OutputConfiguration.
      */
     @Override
     public void enableSurfaceSharing() {
-        OutputConfiguration outputConfig = (OutputConfiguration) mObject;
-        outputConfig.enableSurfaceSharing();
+        ((OutputConfiguration) getOutputConfiguration()).enableSurfaceSharing();
+    }
+
+    @Override
+    final boolean isSurfaceSharingEnabled() {
+        throw new AssertionError("isSurfaceSharingEnabled() should not be called on API >= 26");
     }
 
     /**
@@ -78,8 +92,21 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
      */
     @Override
     public void addSurface(@NonNull Surface surface) {
-        OutputConfiguration outputConfig = (OutputConfiguration) mObject;
-        outputConfig.addSurface(surface);
+        ((OutputConfiguration) getOutputConfiguration()).addSurface(surface);
+    }
+
+    /**
+     * Set the id of the physical camera for this OutputConfiguration.
+     */
+    @Override
+    public void setPhysicalCameraId(@Nullable String physicalCameraId) {
+        ((OutputConfigurationParamsApi26) mObject).mPhysicalCameraId = physicalCameraId;
+    }
+
+    @Nullable
+    @Override
+    public String getPhysicalCameraId() {
+        return ((OutputConfigurationParamsApi26) mObject).mPhysicalCameraId;
     }
 
     /**
@@ -93,7 +120,8 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
         }
 
         try {
-            List<Surface> surfaces = getMutableSurfaceListApi26((OutputConfiguration) mObject);
+            List<Surface> surfaces = getMutableSurfaceListApi26(
+                    (OutputConfiguration) getOutputConfiguration());
             if (!surfaces.remove(surface)) {
                 throw new IllegalArgumentException(
                         "Surface is not part of this output configuration");
@@ -123,8 +151,49 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
     @Override
     @NonNull
     public List<Surface> getSurfaces() {
-        OutputConfiguration outputConfig = (OutputConfiguration) mObject;
-        return outputConfig.getSurfaces();
+        return ((OutputConfiguration) getOutputConfiguration()).getSurfaces();
+    }
+
+    @Override
+    public Object getOutputConfiguration() {
+        Preconditions.checkArgument(mObject instanceof OutputConfigurationParamsApi26);
+        return ((OutputConfigurationParamsApi26) mObject).mOutputConfiguration;
+    }
+
+    private static final class OutputConfigurationParamsApi26 {
+        final OutputConfiguration mOutputConfiguration;
+        @Nullable
+        String mPhysicalCameraId;
+
+        OutputConfigurationParamsApi26(@NonNull OutputConfiguration configuration) {
+            mOutputConfiguration = configuration;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof OutputConfigurationParamsApi26)) {
+                return false;
+            }
+
+            OutputConfigurationParamsApi26 otherOutputConfig = (OutputConfigurationParamsApi26) obj;
+
+            return Objects.equals(mOutputConfiguration, otherOutputConfig.mOutputConfiguration)
+                    && Objects.equals(mPhysicalCameraId, otherOutputConfig.mPhysicalCameraId);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int h = 1;
+            // Strength reduction; in case the compiler has illusions about divisions being faster
+            // (h * 31) XOR mOutputConfiguration.hashCode()
+            h = ((h << 5) - h) ^ mOutputConfiguration.hashCode();
+            // (h * 31) XOR mPhysicalCameraId.hashCode()
+            h = ((h << 5) - h)
+                    ^ (mPhysicalCameraId == null ? 0 : mPhysicalCameraId.hashCode());
+
+            return h;
+        }
     }
 }
 

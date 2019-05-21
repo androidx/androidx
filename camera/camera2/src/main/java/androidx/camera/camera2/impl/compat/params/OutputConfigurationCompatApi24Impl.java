@@ -26,26 +26,60 @@ import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Implementation of the OutputConfiguration compat methods for API 24 and above.
  */
 @RequiresApi(24)
-class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseImpl{
+class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseImpl {
 
     OutputConfigurationCompatApi24Impl(@NonNull Surface surface) {
-        super(new OutputConfiguration(surface));
+        this(new OutputConfigurationParamsApi24(new OutputConfiguration(surface)));
     }
 
     OutputConfigurationCompatApi24Impl(@NonNull Object outputConfiguration) {
         super(outputConfiguration);
     }
 
+    @RequiresApi(24)
+    static OutputConfigurationCompatApi24Impl wrap(
+            @NonNull OutputConfiguration outputConfiguration) {
+        return new OutputConfigurationCompatApi24Impl(
+                new OutputConfigurationParamsApi24(outputConfiguration));
+    }
+
+    /**
+     * Enable multiple surfaces sharing the same OutputConfiguration.
+     */
+    @Override
+    public void enableSurfaceSharing() {
+        ((OutputConfigurationParamsApi24) mObject).mIsShared = true;
+    }
+
+    @Override
+    boolean isSurfaceSharingEnabled() {
+        return ((OutputConfigurationParamsApi24) mObject).mIsShared;
+    }
+
+    /**
+     * Set the id of the physical camera for this OutputConfiguration.
+     */
+    @Override
+    public void setPhysicalCameraId(@Nullable String physicalCameraId) {
+        ((OutputConfigurationParamsApi24) mObject).mPhysicalCameraId = physicalCameraId;
+    }
+
+    @Nullable
+    @Override
+    public String getPhysicalCameraId() {
+        return ((OutputConfigurationParamsApi24) mObject).mPhysicalCameraId;
+    }
+
     @Override
     @Nullable
     public Surface getSurface() {
-        OutputConfiguration outputConfig = (OutputConfiguration) mObject;
-        return outputConfig.getSurface();
+        return ((OutputConfiguration) getOutputConfiguration()).getSurface();
     }
 
     @Override
@@ -56,15 +90,52 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
 
     @Override
     public int getSurfaceGroupId() {
-        OutputConfiguration outputConfig = (OutputConfiguration) mObject;
-        return outputConfig.getSurfaceGroupId();
+        return ((OutputConfiguration) getOutputConfiguration()).getSurfaceGroupId();
     }
 
-    @Nullable
     @Override
     public Object getOutputConfiguration() {
-        Preconditions.checkArgument(mObject instanceof OutputConfiguration);
-        return mObject;
+        Preconditions.checkArgument(mObject instanceof OutputConfigurationParamsApi24);
+        return ((OutputConfigurationParamsApi24) mObject).mOutputConfiguration;
+    }
+
+    private static final class OutputConfigurationParamsApi24 {
+        final OutputConfiguration mOutputConfiguration;
+        @Nullable
+        String mPhysicalCameraId;
+        boolean mIsShared;
+
+        OutputConfigurationParamsApi24(@NonNull OutputConfiguration configuration) {
+            mOutputConfiguration = configuration;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof OutputConfigurationParamsApi24)) {
+                return false;
+            }
+
+            OutputConfigurationParamsApi24 otherOutputConfig = (OutputConfigurationParamsApi24) obj;
+
+            return Objects.equals(mOutputConfiguration, otherOutputConfig.mOutputConfiguration)
+                    && mIsShared == otherOutputConfig.mIsShared
+                    && Objects.equals(mPhysicalCameraId, otherOutputConfig.mPhysicalCameraId);
+
+        }
+
+        @Override
+        public int hashCode() {
+            int h = 1;
+            // Strength reduction; in case the compiler has illusions about divisions being faster
+            // (h * 31) XOR mOutputConfiguration.hashCode()
+            h = ((h << 5) - h) ^ mOutputConfiguration.hashCode();
+            h = ((h << 5) - h) ^ (mIsShared ? 1 : 0); // (h * 31) XOR mIsShared
+            // (h * 31) XOR mPhysicalCameraId.hashCode()
+            h = ((h << 5) - h)
+                    ^ (mPhysicalCameraId == null ? 0 : mPhysicalCameraId.hashCode());
+
+            return h;
+        }
     }
 }
 

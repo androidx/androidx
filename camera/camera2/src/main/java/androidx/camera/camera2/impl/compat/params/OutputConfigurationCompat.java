@@ -26,6 +26,8 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 import java.util.List;
 
@@ -59,8 +61,8 @@ public final class OutputConfigurationCompat {
 
 
     /**
-     * Create a new {@link OutputConfiguration} instance, with desired Surface size and Surface
-     * source class.
+     * Create a new {@link OutputConfigurationCompat} instance, with desired Surface size and
+     * Surface source class.
      *
      * <p>
      * This constructor takes an argument for desired Surface size and the Surface source class
@@ -92,9 +94,9 @@ public final class OutputConfigurationCompat {
     public <T> OutputConfigurationCompat(@NonNull Size surfaceSize, @NonNull Class<T> klass) {
         OutputConfiguration deferredConfig = new OutputConfiguration(surfaceSize, klass);
         if (Build.VERSION.SDK_INT >= 28) {
-            mImpl = new OutputConfigurationCompatApi28Impl(deferredConfig);
+            mImpl = OutputConfigurationCompatApi28Impl.wrap(deferredConfig);
         } else {
-            mImpl = new OutputConfigurationCompatApi26Impl(deferredConfig);
+            mImpl = OutputConfigurationCompatApi26Impl.wrap(deferredConfig);
         }
     }
 
@@ -121,14 +123,14 @@ public final class OutputConfigurationCompat {
 
         OutputConfigurationCompatImpl outputConfigurationCompatImpl = null;
         if (Build.VERSION.SDK_INT >= 28) {
-            outputConfigurationCompatImpl = new OutputConfigurationCompatApi28Impl(
-                    outputConfiguration);
+            outputConfigurationCompatImpl = OutputConfigurationCompatApi28Impl.wrap(
+                    (OutputConfiguration) outputConfiguration);
         } else if (Build.VERSION.SDK_INT >= 26) {
-            outputConfigurationCompatImpl = new OutputConfigurationCompatApi26Impl(
-                    outputConfiguration);
+            outputConfigurationCompatImpl = OutputConfigurationCompatApi26Impl.wrap(
+                    (OutputConfiguration) outputConfiguration);
         } else if (Build.VERSION.SDK_INT >= 24) {
-            outputConfigurationCompatImpl = new OutputConfigurationCompatApi24Impl(
-                    outputConfiguration);
+            outputConfigurationCompatImpl = OutputConfigurationCompatApi24Impl.wrap(
+                    (OutputConfiguration) outputConfiguration);
         }
 
         if (outputConfigurationCompatImpl == null) {
@@ -178,9 +180,18 @@ public final class OutputConfigurationCompat {
     }
 
     /**
-     * Set the id of the physical camera for this OutputConfiguration.
+     * Retrieve the physical camera ID set by {@link #setPhysicalCameraId(String)}.
      *
-     * <p>This method is a no-op on API &lt;= 27, as these APIs do not support logical cameras.
+     * @hide Not supported on all API levels. Used for compatibility checks on lower API levels.
+     */
+    @RestrictTo(Scope.LIBRARY)
+    @Nullable
+    public String getPhysicalCameraId() {
+        return mImpl.getPhysicalCameraId();
+    }
+
+    /**
+     * Set the id of the physical camera for this OutputConfiguration.
      *
      * <p>In the case one logical camera is made up of multiple physical cameras, it could be
      * desirable for the camera application to request streams from individual physical cameras.
@@ -188,6 +199,10 @@ public final class OutputConfigurationCompat {
      *
      * <p>The valid physical camera ids can be queried by {@code
      * CameraCharacteristics.getPhysicalCameraIds} on API &gt;= 28.
+     * </p>
+     *
+     * <p>On API &lt;= 27, the physical camera id will be ignored since logical camera is not
+     * supported on these API levels.
      * </p>
      *
      * <p>Passing in a null physicalCameraId means that the OutputConfiguration is for a logical
@@ -242,7 +257,7 @@ public final class OutputConfigurationCompat {
      *                                  would exceed number of
      *                                  shared surfaces supported.
      * @throws IllegalStateException    if the Surface was already added to this
-     * OutputConfiguration,
+     *                                  OutputConfiguration,
      *                                  or if the OutputConfiguration is not shared and it
      *                                  already has a surface associated
      *                                  with it.
@@ -356,6 +371,9 @@ public final class OutputConfigurationCompat {
 
     interface OutputConfigurationCompatImpl {
         void enableSurfaceSharing();
+
+        @Nullable
+        String getPhysicalCameraId();
 
         void setPhysicalCameraId(@Nullable String physicalCameraId);
 
