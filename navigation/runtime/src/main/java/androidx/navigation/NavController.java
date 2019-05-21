@@ -27,7 +27,6 @@ import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
-import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.CallSuper;
 import androidx.annotation.IdRes;
 import androidx.annotation.NavigationRes;
@@ -995,11 +994,11 @@ public class NavController {
         mLifecycleOwner = owner;
     }
 
-    void setOnBackPressedDispatcherOwner(@NonNull OnBackPressedDispatcherOwner owner) {
+    void setOnBackPressedDispatcher(@NonNull OnBackPressedDispatcher dispatcher) {
         if (mLifecycleOwner == null) {
-            mLifecycleOwner = owner;
+            throw new IllegalStateException("You must call setLifecycleOwner() before calling "
+                    + "setOnBackPressedDispatcher()");
         }
-        OnBackPressedDispatcher dispatcher = owner.getOnBackPressedDispatcher();
         // Remove the callback from any previous dispatcher
         mOnBackPressedCallback.remove();
         // Then add it to the new dispatcher

@@ -19,7 +19,6 @@ package androidx.navigation;
 import android.os.Bundle;
 import android.view.View;
 
-import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
@@ -39,7 +38,7 @@ import androidx.lifecycle.ViewModelStore;
  * <li>Call {@link Navigation#setViewNavController(View, NavController)} on their root view</li>
  * <li>Route system Back button events to the NavController either by manually calling
  * {@link NavController#popBackStack()} or by calling
- * {@link NavHostController#setOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)}
+ * {@link NavHostController#setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher)}
  * when constructing the NavController.</li>
  * </ul>
  * Optionally, a navigation host should consider calling:

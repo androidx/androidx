@@ -21,7 +21,6 @@ import android.content.Context;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
-import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
@@ -58,7 +57,7 @@ public final class NavHostController extends NavController {
      * Sets the host's {@link LifecycleOwner}.
      *
      * @param owner The {@link LifecycleOwner} associated with the containing {@link NavHost}.
-     * @see #setOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)
+     * @see NavHostController#setOnBackPressedDispatcher(OnBackPressedDispatcher)
      */
     @Override
     public void setLifecycleOwner(@NonNull LifecycleOwner owner) {
@@ -66,24 +65,25 @@ public final class NavHostController extends NavController {
     }
 
     /**
-     * Sets the host's {@link OnBackPressedDispatcherOwner}. If set, NavController will
+     * Sets the host's {@link OnBackPressedDispatcher}. If set, NavController will
      * register a {@link OnBackPressedCallback} to handle system Back button events.
      * <p>
-     * If you have not explicitly called {@link #setLifecycleOwner(LifecycleOwner)},
-     * the owner you pass here will be used as the {@link LifecycleOwner} for registering
+     * You must explicitly called {@link #setLifecycleOwner(LifecycleOwner)} before calling this
+     * method as the owner set there will be used as the {@link LifecycleOwner} for registering
      * the {@link OnBackPressedCallback}.
      * <p>
      * You can dynamically enable and disable whether the NavController should handle the
      * system Back button events by calling {@link #enableOnBackPressed(boolean)}.
      *
-     * @param owner The {@link OnBackPressedDispatcherOwner} associated with the containing
+     * @param dispatcher The {@link OnBackPressedDispatcher} associated with the containing
      * {@link NavHost}.
+     * @throws IllegalStateException if you have not called
+     * {@link #setLifecycleOwner(LifecycleOwner)} before calling this method.
      * @see #setLifecycleOwner(LifecycleOwner)
      */
     @Override
-    public void setOnBackPressedDispatcherOwner(
-            @NonNull OnBackPressedDispatcherOwner owner) {
-        super.setOnBackPressedDispatcherOwner(owner);
+    public void setOnBackPressedDispatcher(@NonNull OnBackPressedDispatcher dispatcher) {
+        super.setOnBackPressedDispatcher(dispatcher);
     }
 
     /**
