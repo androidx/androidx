@@ -149,7 +149,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized decoration`() {
-        val decoration = TextDecoration.underline
+        val decoration = TextDecoration.Underline
 
         val textStyle = TextStyle(decoration = decoration)
 
@@ -463,7 +463,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's decoration is null should use this' decoration`() {
-        val decoration = TextDecoration.lineThrough
+        val decoration = TextDecoration.LineThrough
         val textStyle = TextStyle(decoration = decoration)
         val otherTextStyle = TextStyle()
 
@@ -474,8 +474,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's decoration is set should use other's decoration`() {
-        val decoration = TextDecoration.lineThrough
-        val otherDecoration = TextDecoration.underline
+        val decoration = TextDecoration.LineThrough
+        val otherDecoration = TextDecoration.Underline
         val textStyle = TextStyle(decoration = decoration)
         val otherTextStyle = TextStyle(decoration = otherDecoration)
 
@@ -1712,7 +1712,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp decoration with a is Null and t is smaller than half`() {
-        val decoration = TextDecoration.lineThrough
+        val decoration = TextDecoration.LineThrough
         val t = 0.2f
         val textStyle = TextStyle(decoration = decoration)
 
@@ -1723,7 +1723,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp decoration with a is Null and t is larger than half`() {
-        val decoration = TextDecoration.lineThrough
+        val decoration = TextDecoration.LineThrough
         val t = 0.8f
         val textStyle = TextStyle(decoration = decoration)
 
@@ -1734,7 +1734,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp decoration with b is Null and t is smaller than half`() {
-        val decoration = TextDecoration.lineThrough
+        val decoration = TextDecoration.LineThrough
         val t = 0.2f
         val textStyle = TextStyle(decoration = decoration)
 
@@ -1745,7 +1745,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp decoration with b is Null and t is larger than half`() {
-        val decoration = TextDecoration.lineThrough
+        val decoration = TextDecoration.LineThrough
         val t = 0.8f
         val textStyle = TextStyle(decoration = decoration)
 
@@ -1756,8 +1756,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp decoration with a and b are not Null and t is smaller than half`() {
-        val decoration1 = TextDecoration.lineThrough
-        val decoration2 = TextDecoration.underline
+        val decoration1 = TextDecoration.LineThrough
+        val decoration2 = TextDecoration.Underline
         val t = 0.2f
         val textStyle1 = TextStyle(
             fontSize = 4.0f,
@@ -1781,8 +1781,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp decoration with a and b are not Null and t is larger than half`() {
-        val decoration1 = TextDecoration.lineThrough
-        val decoration2 = TextDecoration.underline
+        val decoration1 = TextDecoration.LineThrough
+        val decoration2 = TextDecoration.Underline
         val t = 0.8f
         val textStyle1 = TextStyle(
             fontSize = 4.0f,
@@ -2067,7 +2067,7 @@ class TextStyleTest {
             height = height,
             locale = Locale("en", "US"),
             background = bgColor,
-            decoration = TextDecoration.underline,
+            decoration = TextDecoration.Underline,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif"),
             shadow = Shadow(Color(0xFF0000FF.toInt()), Offset(1f, 2f), 3.px)
@@ -2135,7 +2135,7 @@ class TextStyleTest {
             textGeometricTransform = TextGeometricTransform(null, null),
             height = height,
             locale = Locale("en", "US"),
-            decoration = TextDecoration.underline,
+            decoration = TextDecoration.Underline,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif"),
             shadow = shadow1
@@ -2144,7 +2144,7 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(color = color2)))
             .isEqualTo(RenderComparison.PAINT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(decoration = TextDecoration.lineThrough)))
+        assertThat(textStyle.compareTo(textStyle.copy(decoration = TextDecoration.LineThrough)))
             .isEqualTo(RenderComparison.PAINT)
 
         assertThat(textStyle.compareTo(textStyle.copy(shadow = shadow2)))

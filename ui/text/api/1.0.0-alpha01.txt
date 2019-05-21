@@ -184,9 +184,9 @@ package androidx.ui.engine.text {
     method public androidx.ui.engine.text.TextDecoration getLineThrough();
     method public androidx.ui.engine.text.TextDecoration getNone();
     method public androidx.ui.engine.text.TextDecoration getUnderline();
-    property public final androidx.ui.engine.text.TextDecoration lineThrough;
-    property public final androidx.ui.engine.text.TextDecoration none;
-    property public final androidx.ui.engine.text.TextDecoration underline;
+    property public final androidx.ui.engine.text.TextDecoration LineThrough;
+    property public final androidx.ui.engine.text.TextDecoration None;
+    property public final androidx.ui.engine.text.TextDecoration Underline;
   }
 
   public final class TextGeometricTransform {

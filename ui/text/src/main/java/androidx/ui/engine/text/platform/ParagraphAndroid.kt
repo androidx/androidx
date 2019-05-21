@@ -371,7 +371,7 @@ internal class ParagraphAndroid constructor(
             }
 
             style.decoration?.let {
-                if (it.contains(TextDecoration.underline)) {
+                if (it.contains(TextDecoration.Underline)) {
                     spannableString.setSpan(
                         UnderlineSpan(),
                         start,
@@ -379,7 +379,7 @@ internal class ParagraphAndroid constructor(
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                 }
-                if (it.contains(TextDecoration.lineThrough)) {
+                if (it.contains(TextDecoration.LineThrough)) {
                     spannableString.setSpan(
                         StrikethroughSpan(),
                         start,
