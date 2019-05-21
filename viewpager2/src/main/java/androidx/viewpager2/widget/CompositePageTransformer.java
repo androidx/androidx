@@ -39,13 +39,13 @@ public final class CompositePageTransformer implements PageTransformer {
      * <p>
      * Transformers will be executed in the order that they were added.
      */
-    public boolean addTransformer(@NonNull PageTransformer transformer) {
-        return mTransformers.add(transformer);
+    public void addTransformer(@NonNull PageTransformer transformer) {
+        mTransformers.add(transformer);
     }
 
     /** Removes a page transformer from the list. */
-    public boolean removeTransformer(@NonNull PageTransformer transformer) {
-        return mTransformers.remove(transformer);
+    public void removeTransformer(@NonNull PageTransformer transformer) {
+        mTransformers.remove(transformer);
     }
 
     @Override
