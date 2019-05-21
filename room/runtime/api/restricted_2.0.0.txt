@@ -22,10 +22,10 @@ package androidx.room {
     method public final long insertAndReturnId(T!);
     method public final long[]! insertAndReturnIdsArray(java.util.Collection<T>!);
     method public final long[]! insertAndReturnIdsArray(T[]!);
-    method public final Long[]! insertAndReturnIdsArrayBox(java.util.Collection<T>!);
-    method public final Long[]! insertAndReturnIdsArrayBox(T[]!);
-    method public final java.util.List<java.lang.Long>! insertAndReturnIdsList(T[]!);
-    method public final java.util.List<java.lang.Long>! insertAndReturnIdsList(java.util.Collection<T>!);
+    method public final Long![]! insertAndReturnIdsArrayBox(java.util.Collection<T>!);
+    method public final Long![]! insertAndReturnIdsArrayBox(T[]!);
+    method public final java.util.List<java.lang.Long!>! insertAndReturnIdsList(T[]!);
+    method public final java.util.List<java.lang.Long!>! insertAndReturnIdsList(java.util.Collection<T>!);
   }
 
   public class InvalidationTracker {
@@ -91,7 +91,7 @@ package androidx.room.paging {
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class LimitOffsetDataSource<T> {
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean, java.lang.String...!);
     ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.room.RoomSQLiteQuery!, boolean, java.lang.String...!);
-    method protected abstract java.util.List<T>! convertRows(android.database.Cursor!);
+    method protected abstract java.util.List<T!>! convertRows(android.database.Cursor!);
     method public boolean isInvalid();
     method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T>);
     method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T>);
@@ -105,8 +105,8 @@ package androidx.room.util {
     method public static void appendPlaceholders(StringBuilder!, int);
     method public static String? joinIntoString(java.util.List<java.lang.Integer>?);
     method public static StringBuilder! newStringBuilder();
-    method public static java.util.List<java.lang.Integer>? splitToIntList(String?);
-    field public static final String[]! EMPTY_STRING_ARRAY;
+    method public static java.util.List<java.lang.Integer!>? splitToIntList(String?);
+    field public static final String![]! EMPTY_STRING_ARRAY;
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class TableInfo {
@@ -116,9 +116,9 @@ package androidx.room.util {
     method public int hashCode();
     method public static androidx.room.util.TableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
     method public String toString();
-    field public final java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>! columns;
-    field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey>! foreignKeys;
-    field public final java.util.Set<androidx.room.util.TableInfo.Index>? indices;
+    field public final java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>! columns;
+    field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey!>! foreignKeys;
+    field public final java.util.Set<androidx.room.util.TableInfo.Index!>? indices;
     field public final String! name;
   }
 
@@ -140,10 +140,10 @@ package androidx.room.util {
     method public boolean equals(Object?);
     method public int hashCode();
     method public String toString();
-    field public final java.util.List<java.lang.String> columnNames;
+    field public final java.util.List<java.lang.String!> columnNames;
     field public final String onDelete;
     field public final String onUpdate;
-    field public final java.util.List<java.lang.String> referenceColumnNames;
+    field public final java.util.List<java.lang.String!> referenceColumnNames;
     field public final String referenceTable;
   }
 
@@ -153,7 +153,7 @@ package androidx.room.util {
     method public int hashCode();
     method public String toString();
     field public static final String DEFAULT_PREFIX = "index_";
-    field public final java.util.List<java.lang.String>! columns;
+    field public final java.util.List<java.lang.String!>! columns;
     field public final String! name;
     field public final boolean unique;
   }

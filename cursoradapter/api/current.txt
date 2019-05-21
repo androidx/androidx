@@ -36,10 +36,10 @@ package androidx.cursoradapter.widget {
   }
 
   public class SimpleCursorAdapter extends androidx.cursoradapter.widget.ResourceCursorAdapter {
-    ctor @Deprecated public SimpleCursorAdapter(android.content.Context!, int, android.database.Cursor!, String[]!, int[]!);
-    ctor public SimpleCursorAdapter(android.content.Context!, int, android.database.Cursor!, String[]!, int[]!, int);
+    ctor @Deprecated public SimpleCursorAdapter(android.content.Context!, int, android.database.Cursor!, String![]!, int[]!);
+    ctor public SimpleCursorAdapter(android.content.Context!, int, android.database.Cursor!, String![]!, int[]!, int);
     method public void bindView(android.view.View!, android.content.Context!, android.database.Cursor!);
-    method public void changeCursorAndColumns(android.database.Cursor!, String[]!, int[]!);
+    method public void changeCursorAndColumns(android.database.Cursor!, String![]!, int[]!);
     method public androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter! getCursorToStringConverter();
     method public int getStringConversionColumn();
     method public androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder! getViewBinder();

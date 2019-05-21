@@ -322,7 +322,7 @@ package androidx.leanback.widget {
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class GuidedActionAdapter {
     ctor public GuidedActionAdapter(java.util.List<androidx.leanback.widget.GuidedAction>!, androidx.leanback.widget.GuidedActionAdapter.ClickListener!, androidx.leanback.widget.GuidedActionAdapter.FocusListener!, androidx.leanback.widget.GuidedActionsStylist!, boolean);
     method public androidx.leanback.widget.GuidedActionsStylist.ViewHolder! findSubChildViewHolder(android.view.View!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.List<androidx.leanback.widget.GuidedAction>! getActions();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.List<androidx.leanback.widget.GuidedAction!>! getActions();
     method public int getCount();
     method public androidx.leanback.widget.GuidedActionsStylist! getGuidedActionsStylist();
     method public androidx.leanback.widget.GuidedAction! getItem(int);
@@ -423,7 +423,7 @@ package androidx.leanback.widget {
   }
 
   public abstract class ParallaxEffect {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final java.util.List<java.lang.Float>! getWeights();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final java.util.List<java.lang.Float!>! getWeights();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final void setWeights(float...!);
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final androidx.leanback.widget.ParallaxEffect! weights(float...!);
   }

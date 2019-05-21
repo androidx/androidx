@@ -2,8 +2,6 @@
 package androidx.ui.core {
 
   public final class AndroidCraneView extends android.view.ViewGroup implements androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
-    method @RestrictTo({RestrictTo.Scope.LIBRARY}) public androidx.ui.input.TextInputService getTextInputService();
-    property @RestrictTo({RestrictTo.Scope.LIBRARY}) public final androidx.ui.input.TextInputService textInputService;
   }
 
 }

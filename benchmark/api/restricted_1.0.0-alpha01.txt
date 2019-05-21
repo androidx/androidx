@@ -1,13 +1,6 @@
 // Signature format: 3.0
 package androidx.benchmark {
 
-  @RestrictTo({RestrictTo.Scope.LIBRARY}) public final class IsolationActivity extends android.app.Activity {
-    method public void actuallyFinish();
-    method public boolean getResumed();
-    method public void setResumed(boolean p);
-    property public final boolean resumed;
-    field public static final androidx.benchmark.IsolationActivity.Companion! Companion;
-  }
 
   public static final class IsolationActivity.Companion {
     method @AnyThread public void finishSingleton();

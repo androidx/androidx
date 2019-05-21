@@ -3,7 +3,7 @@ package androidx.versionedparcelable {
 
   public class ParcelUtils {
     method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? getVersionedParcelable(android.os.Bundle, String);
-    method public static <T extends androidx.versionedparcelable.VersionedParcelable> java.util.List<T>? getVersionedParcelableList(android.os.Bundle!, String!);
+    method public static <T extends androidx.versionedparcelable.VersionedParcelable> java.util.List<T!>? getVersionedParcelableList(android.os.Bundle!, String!);
     method public static void putVersionedParcelable(android.os.Bundle, String, androidx.versionedparcelable.VersionedParcelable?);
     method public static void putVersionedParcelableList(android.os.Bundle, String, java.util.List<? extends androidx.versionedparcelable.VersionedParcelable>);
   }
