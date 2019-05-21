@@ -25,7 +25,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelStore
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import androidx.navigation.navGraphViewModels
 import androidx.navigation.navigation
@@ -43,7 +43,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavGraphViewModelLazyTest {
     private val navController =
-        NavController(
+        NavHostController(
             ApplicationProvider.getApplicationContext() as Context
         ).apply {
             navigatorProvider += TestNavigator()
@@ -52,7 +52,7 @@ class NavGraphViewModelLazyTest {
     @Test
     fun vmInitialization() {
         val scenario = launchFragmentInContainer<TestVMFragment>()
-        navController.setHostViewModelStore(ViewModelStore())
+        navController.setViewModelStore(ViewModelStore())
         scenario.onFragment { fragment ->
             Navigation.setViewNavController(fragment.requireView(), navController)
         }

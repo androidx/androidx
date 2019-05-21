@@ -68,14 +68,7 @@ package androidx.navigation {
     method @CallSuper public void setGraph(@NavigationRes int, android.os.Bundle?);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph);
     method @CallSuper public void setGraph(androidx.navigation.NavGraph, android.os.Bundle?);
-    method public final void setHostLifecycleOwner(androidx.lifecycle.LifecycleOwner);
-    method public final androidx.navigation.NavController.NavHostOnBackPressedManager setHostOnBackPressedDispatcherOwner(androidx.activity.OnBackPressedDispatcherOwner);
-    method public final void setHostViewModelStore(androidx.lifecycle.ViewModelStore);
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
-  }
-
-  public final class NavController.NavHostOnBackPressedManager {
-    method public void enableOnBackPressed(boolean);
   }
 
   public static interface NavController.OnDestinationChangedListener {
@@ -96,6 +89,14 @@ package androidx.navigation {
 
   public interface NavHost {
     method public androidx.navigation.NavController getNavController();
+  }
+
+  public final class NavHostController extends androidx.navigation.NavController {
+    ctor public NavHostController(android.content.Context);
+    method public void enableOnBackPressed(boolean);
+    method public void setLifecycleOwner(androidx.lifecycle.LifecycleOwner);
+    method public void setOnBackPressedDispatcherOwner(androidx.activity.OnBackPressedDispatcherOwner);
+    method public void setViewModelStore(androidx.lifecycle.ViewModelStore);
   }
 
   public final class NavInflater {

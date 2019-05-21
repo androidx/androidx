@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavHost;
+import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
 import androidx.navigation.Navigator;
 
@@ -120,8 +121,7 @@ public class NavHostFragment extends Fragment implements NavHost {
                 + " does not have a NavController set");
     }
 
-    private NavController mNavController;
-    private NavController.NavHostOnBackPressedManager mOnBackPressedManager;
+    private NavHostController mNavController;
     private Boolean mIsPrimaryBeforeOnCreate = null;
 
     // State that will be saved and restored
@@ -207,16 +207,15 @@ public class NavHostFragment extends Fragment implements NavHost {
         // TODO Fix Fragments to register their OnBackPressedCallback eagerly
         getChildFragmentManager();
 
-        mNavController = new NavController(context);
-        mNavController.setHostLifecycleOwner(this);
-        mOnBackPressedManager = mNavController
-                .setHostOnBackPressedDispatcherOwner(requireActivity());
+        mNavController = new NavHostController(context);
+        mNavController.setLifecycleOwner(this);
+        mNavController.setOnBackPressedDispatcherOwner(requireActivity());
         // Set the default state - this will be updated whenever
         // onPrimaryNavigationFragmentChanged() is called
-        mOnBackPressedManager.enableOnBackPressed(
+        mNavController.enableOnBackPressed(
                 mIsPrimaryBeforeOnCreate != null && mIsPrimaryBeforeOnCreate);
         mIsPrimaryBeforeOnCreate = null;
-        mNavController.setHostViewModelStore(getViewModelStore());
+        mNavController.setViewModelStore(getViewModelStore());
         onCreateNavController(mNavController);
 
         Bundle navState = null;
@@ -273,8 +272,8 @@ public class NavHostFragment extends Fragment implements NavHost {
     @CallSuper
     @Override
     public void onPrimaryNavigationFragmentChanged(boolean isPrimaryNavigationFragment) {
-        if (mOnBackPressedManager != null) {
-            mOnBackPressedManager.enableOnBackPressed(isPrimaryNavigationFragment);
+        if (mNavController != null) {
+            mNavController.enableOnBackPressed(isPrimaryNavigationFragment);
         } else {
             mIsPrimaryBeforeOnCreate = isPrimaryNavigationFragment;
         }
