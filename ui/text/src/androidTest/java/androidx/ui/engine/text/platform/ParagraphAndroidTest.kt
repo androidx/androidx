@@ -565,7 +565,7 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setBaselineShiftOnWholeText() {
         val text = "abcde"
-        val textStyle = TextStyle(baselineShift = BaselineShift.SUBSCRIPT)
+        val textStyle = TextStyle(baselineShift = BaselineShift.Subscript)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -580,7 +580,7 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setBaselineShiftOnPartText() {
         val text = "abcde"
-        val textStyle = TextStyle(baselineShift = BaselineShift.SUPERSCRIPT)
+        val textStyle = TextStyle(baselineShift = BaselineShift.Superscript)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -595,8 +595,8 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setBaselineShiftTwice_LastOneOnTop() {
         val text = "abcde"
-        val textStyle = TextStyle(baselineShift = BaselineShift.SUBSCRIPT)
-        val textStyleOverwrite = TextStyle(baselineShift = BaselineShift.SUPERSCRIPT)
+        val textStyle = TextStyle(baselineShift = BaselineShift.Subscript)
+        val textStyleOverwrite = TextStyle(baselineShift = BaselineShift.Superscript)
 
         val paragraph = simpleParagraph(
             text = text,

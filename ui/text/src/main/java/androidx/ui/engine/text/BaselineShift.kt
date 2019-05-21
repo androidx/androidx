@@ -31,11 +31,12 @@ data class BaselineShift constructor(
         /**
          * Default baselineShift for superscript.
          */
-        val SUPERSCRIPT = BaselineShift(0.5f)
+        val Superscript = BaselineShift(0.5f)
+
         /**
          * Default baselineShift for subscript
          */
-        val SUBSCRIPT = BaselineShift(-0.5f)
+        val Subscript = BaselineShift(-0.5f)
 
         /**
          * Linearly interpolate two [BaselineShift]s.

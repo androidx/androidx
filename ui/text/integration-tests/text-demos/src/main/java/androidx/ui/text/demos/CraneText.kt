@@ -305,14 +305,14 @@ fun TextDemoBaselineShift() {
                 Span(
                     text = "superscript",
                     style = TextStyle(
-                        baselineShift = BaselineShift.SUPERSCRIPT,
+                        baselineShift = BaselineShift.Superscript,
                         fontSize = fontSize4
                     )
                 ) {
                     Span(
                         text = "subscript",
                         style = TextStyle(
-                            baselineShift = BaselineShift.SUBSCRIPT,
+                            baselineShift = BaselineShift.Subscript,
                             fontSize = fontSize4
                         )
                     )
