@@ -18,6 +18,7 @@ package androidx.viewpager2.integration.testapp.test
 
 import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.content.res.Configuration.ORIENTATION_PORTRAIT
+import android.os.Build
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.ViewAction
@@ -31,12 +32,22 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.viewpager2.integration.testapp.FakeDragActivity
 import androidx.viewpager2.integration.testapp.R
+import androidx.viewpager2.integration.testapp.test.util.EventRecorder
+import androidx.viewpager2.integration.testapp.test.util.OnPageChangeCallbackEvent.OnPageScrollStateChangedEvent
+import androidx.viewpager2.integration.testapp.test.util.OnPageChangeCallbackEvent.OnPageScrolledEvent
+import androidx.viewpager2.integration.testapp.test.util.OnPageChangeCallbackEvent.OnPageSelectedEvent
+import androidx.viewpager2.integration.testapp.test.util.RetryException
+import androidx.viewpager2.integration.testapp.test.util.tryNTimes
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import kotlin.math.sign
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -82,15 +93,19 @@ class FakeDragTest(private val config: TestConfig) :
     }
 
     private fun fakeDragForward() {
-        onTouchpad().perform(swipeNext())
-        idleWatcher.waitForIdle()
-        onIdle()
+        ensureSettleDirection {
+            onTouchpad().perform(swipeNext())
+            idleWatcher.waitForIdle()
+            onIdle()
+        }
     }
 
     private fun fakeDragBackward() {
-        onTouchpad().perform(swipePrevious())
-        idleWatcher.waitForIdle()
-        onIdle()
+        ensureSettleDirection {
+            onTouchpad().perform(swipePrevious())
+            idleWatcher.waitForIdle()
+            onIdle()
+        }
     }
 
     private fun onTouchpad(): ViewInteraction {
@@ -112,4 +127,51 @@ class FakeDragTest(private val config: TestConfig) :
             else -> throw RuntimeException("Orientation should be landscape or portrait")
         }
     }
+
+    private fun ensureSettleDirection(swipeAction: () -> Unit) {
+        var recorder: EventRecorder
+        val initialPage = viewPager.currentItem
+        val resetViewPager = {
+            activityTestRule.runOnUiThread { viewPager.setCurrentItem(initialPage, false) }
+        }
+
+        tryNTimes(if (Build.VERSION.SDK_INT == 23) 3 else 1, resetBlock = resetViewPager) {
+            recorder = EventRecorder().also { viewPager.registerOnPageChangeCallback(it) }
+            swipeAction()
+            if (!recorder.settleDirectionSameAsSwipeDirection()) {
+                throw RetryException("Swipe settled in different direction than the swipe itself")
+            }
+        }
+    }
+
+    // region EventRecorder related extensions
+
+    private val OnPageScrolledEvent.exactPosition
+        get() = position + positionOffset
+
+    private val List<OnPageScrolledEvent>.deltaSigns
+        get() = zipWithNext().map { sign(it.second.exactPosition - it.first.exactPosition) }
+
+    private fun EventRecorder.settleDirectionSameAsSwipeDirection(): Boolean {
+        val startDraggingEvent = OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING)
+        val startSettlingEvent = OnPageScrollStateChangedEvent(SCROLL_STATE_SETTLING)
+        val idleEvent = OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE)
+
+        val swipeEvents = allEvents
+            .dropWhile { it != startDraggingEvent }.drop(1)
+            .takeWhile { it != startSettlingEvent }
+            .map { it as OnPageScrolledEvent }
+        val settleEvents = allEvents
+            .dropWhile { it != startSettlingEvent }.drop(1)
+            .dropWhile { it is OnPageSelectedEvent }
+            .takeWhile { it != idleEvent }
+            .map { it as OnPageScrolledEvent }
+
+        val swipeDeltaSigns = swipeEvents.deltaSigns.distinct()
+        val settleDeltaSigns = settleEvents.deltaSigns.distinct()
+
+        return swipeDeltaSigns.size == 1 && swipeDeltaSigns == settleDeltaSigns
+    }
+
+    // endregion
 }
