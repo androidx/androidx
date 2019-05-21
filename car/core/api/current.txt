@@ -31,8 +31,8 @@ package androidx.car.app {
     method public androidx.car.app.CarListDialog! create();
     method public androidx.car.app.CarListDialog.Builder setCancelable(boolean);
     method public androidx.car.app.CarListDialog.Builder setInitialPosition(int);
-    method public androidx.car.app.CarListDialog.Builder setItems(CharSequence[], android.content.DialogInterface.OnClickListener?);
-    method public androidx.car.app.CarListDialog.Builder setItems(androidx.car.app.CarListDialog.DialogSubSection[], android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarListDialog.Builder setItems(CharSequence![], android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarListDialog.Builder setItems(androidx.car.app.CarListDialog.DialogSubSection![], android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarListDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener!);
     method public androidx.car.app.CarListDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener!);
     method public androidx.car.app.CarListDialog.Builder setTitle(@StringRes int);
@@ -40,9 +40,9 @@ package androidx.car.app {
   }
 
   public static class CarListDialog.DialogSubSection {
-    ctor public CarListDialog.DialogSubSection(CharSequence, CharSequence[]);
+    ctor public CarListDialog.DialogSubSection(CharSequence, CharSequence![]);
     method public int getItemCount();
-    method public CharSequence[] getItems();
+    method public CharSequence![] getItems();
     method public CharSequence getTitle();
   }
 
@@ -55,7 +55,7 @@ package androidx.car.app {
     method public androidx.car.app.CarSingleChoiceDialog.Builder setBody(@StringRes int);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setBody(CharSequence?);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setCancelable(boolean);
-    method public androidx.car.app.CarSingleChoiceDialog.Builder setItems(java.util.List<androidx.car.app.CarSingleChoiceDialog.Item>, @IntRange(from=0) int);
+    method public androidx.car.app.CarSingleChoiceDialog.Builder setItems(java.util.List<androidx.car.app.CarSingleChoiceDialog.Item!>, @IntRange(from=0) int);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setNegativeButton(@StringRes int);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setNegativeButton(CharSequence);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener?);
@@ -215,7 +215,7 @@ package androidx.car.widget {
   }
 
   public interface AlphaJumpAdapter {
-    method public java.util.List<androidx.car.widget.AlphaJumpBucket>! getAlphaJumpBuckets();
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! getAlphaJumpBuckets();
     method public void onAlphaJumpEnter();
     method public void onAlphaJumpLeave(androidx.car.widget.AlphaJumpBucket!);
   }
@@ -228,10 +228,10 @@ package androidx.car.widget {
 
   public class AlphaJumpBucketer {
     ctor public AlphaJumpBucketer();
-    ctor public AlphaJumpBucketer(androidx.car.widget.AlphaJumpBucketer.Bucket[]!);
-    method public java.util.List<androidx.car.widget.AlphaJumpBucket>! createBuckets(String[]!);
-    method public java.util.List<androidx.car.widget.AlphaJumpBucket>! createBuckets(Iterable<java.lang.String>!);
-    method public java.util.List<androidx.car.widget.AlphaJumpBucket>! createBuckets(java.util.Iterator<java.lang.String>!);
+    ctor public AlphaJumpBucketer(androidx.car.widget.AlphaJumpBucketer.Bucket![]!);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! createBuckets(String![]!);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! createBuckets(Iterable<java.lang.String!>!);
+    method public java.util.List<androidx.car.widget.AlphaJumpBucket!>! createBuckets(java.util.Iterator<java.lang.String!>!);
   }
 
   public static class AlphaJumpBucketer.Bucket implements androidx.car.widget.AlphaJumpBucket {
@@ -289,11 +289,11 @@ package androidx.car.widget {
     ctor public CarToolbar(android.content.Context!, android.util.AttributeSet!);
     ctor public CarToolbar(android.content.Context!, android.util.AttributeSet!, int);
     ctor public CarToolbar(android.content.Context!, android.util.AttributeSet!, int, int);
-    method public java.util.List<androidx.car.widget.CarMenuItem>? getMenuItems();
+    method public java.util.List<androidx.car.widget.CarMenuItem!>? getMenuItems();
     method public CharSequence? getSubtitle();
     method public CharSequence! getTitle();
     method public boolean isOverflowMenuShowing();
-    method public void setMenuItems(java.util.List<androidx.car.widget.CarMenuItem>?);
+    method public void setMenuItems(java.util.List<androidx.car.widget.CarMenuItem!>?);
     method public void setNavigationIcon(@DrawableRes int);
     method public void setNavigationIcon(android.graphics.drawable.Drawable?);
     method public void setNavigationIconContainerWidth(@Px int);
@@ -375,15 +375,15 @@ package androidx.car.widget {
 
   public abstract class ListItem<VH extends androidx.car.widget.ListItem.ViewHolder> {
     ctor public ListItem();
-    method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>!);
-    method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>!, androidx.car.widget.ListItem.ViewBinder<VH>?);
+    method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH!>!);
+    method public final void addViewBinder(androidx.car.widget.ListItem.ViewBinder<VH!>!, androidx.car.widget.ListItem.ViewBinder<VH!>?);
     method public boolean getShowDivider();
     method public abstract int getViewType();
     method protected boolean isDirty();
     method protected void markClean();
     method protected void markDirty();
     method protected abstract void onBind(VH!);
-    method public boolean removeViewBinder(androidx.car.widget.ListItem.ViewBinder<VH>!);
+    method public boolean removeViewBinder(androidx.car.widget.ListItem.ViewBinder<VH!>!);
     method protected abstract void resolveDirtyState();
     method public abstract void setEnabled(boolean);
     method public void setShowDivider(boolean);
@@ -395,7 +395,7 @@ package androidx.car.widget {
 
   public abstract static class ListItem.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
     ctor public ListItem.ViewHolder(android.view.View!);
-    method public final void addCleanUp(androidx.car.widget.ListItem.ViewBinder<androidx.car.widget.ListItem.ViewHolder>?);
+    method public final void addCleanUp(androidx.car.widget.ListItem.ViewBinder<androidx.car.widget.ListItem.ViewHolder!>?);
     method public final void cleanUp();
   }
 
@@ -407,7 +407,7 @@ package androidx.car.widget {
     method public boolean getShowDivider(@IntRange(from=0) int);
     method public void onBindViewHolder(androidx.car.widget.ListItem.ViewHolder!, int);
     method public androidx.car.widget.ListItem.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
-    method public void registerListItemViewType(@IntRange(from=java.lang.Integer.MIN_VALUE, to=0xffffffff) int, @LayoutRes int, java.util.function.Function<android.view.View,androidx.car.widget.ListItem.ViewHolder>!);
+    method public void registerListItemViewType(@IntRange(from=java.lang.Integer.MIN_VALUE, to=0xffffffff) int, @LayoutRes int, java.util.function.Function<android.view.View!,androidx.car.widget.ListItem.ViewHolder!>!);
     method public void setMaxItems(int);
     method public void start();
     method public void stop();
@@ -426,13 +426,13 @@ package androidx.car.widget {
 
   public abstract class ListItemProvider<VH extends androidx.car.widget.ListItem.ViewHolder> {
     ctor public ListItemProvider();
-    method public abstract androidx.car.widget.ListItem<VH> get(int);
+    method public abstract androidx.car.widget.ListItem<VH!> get(int);
     method public abstract int size();
   }
 
   public static class ListItemProvider.ListProvider<VH extends androidx.car.widget.ListItem.ViewHolder> extends androidx.car.widget.ListItemProvider {
-    ctor public ListItemProvider.ListProvider(java.util.List<androidx.car.widget.ListItem<VH>>);
-    method public androidx.car.widget.ListItem<VH> get(int);
+    ctor public ListItemProvider.ListProvider(java.util.List<androidx.car.widget.ListItem<VH!>!>);
+    method public androidx.car.widget.ListItem<VH!> get(int);
     method public int size();
   }
 

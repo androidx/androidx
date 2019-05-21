@@ -2,39 +2,39 @@
 package androidx.room {
 
   public class DatabaseConfiguration {
-    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>?, boolean, androidx.room.RoomDatabase.JournalMode!, java.util.concurrent.Executor, boolean, java.util.Set<java.lang.Integer>?);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback>?, boolean, androidx.room.RoomDatabase.JournalMode!, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer>?);
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode!, java.util.concurrent.Executor, boolean, java.util.Set<java.lang.Integer!>?);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DatabaseConfiguration(android.content.Context, String?, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory, androidx.room.RoomDatabase.MigrationContainer, java.util.List<androidx.room.RoomDatabase.Callback!>?, boolean, androidx.room.RoomDatabase.JournalMode!, java.util.concurrent.Executor, java.util.concurrent.Executor, boolean, boolean, boolean, java.util.Set<java.lang.Integer!>?);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeletionOrUpdateAdapter<T> extends androidx.room.SharedSQLiteStatement {
     ctor public EntityDeletionOrUpdateAdapter(androidx.room.RoomDatabase!);
     method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement!, T!);
     method public final int handle(T!);
-    method public final int handleMultiple(Iterable<T>!);
-    method public final int handleMultiple(T[]!);
+    method public final int handleMultiple(Iterable<T!>!);
+    method public final int handleMultiple(T![]!);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
     ctor public EntityInsertionAdapter(androidx.room.RoomDatabase!);
     method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement!, T!);
     method public final void insert(T!);
-    method public final void insert(T[]!);
-    method public final void insert(Iterable<T>!);
+    method public final void insert(T![]!);
+    method public final void insert(Iterable<T!>!);
     method public final long insertAndReturnId(T!);
-    method public final long[]! insertAndReturnIdsArray(java.util.Collection<T>!);
-    method public final long[]! insertAndReturnIdsArray(T[]!);
-    method public final Long[]! insertAndReturnIdsArrayBox(java.util.Collection<T>!);
-    method public final Long[]! insertAndReturnIdsArrayBox(T[]!);
-    method public final java.util.List<java.lang.Long>! insertAndReturnIdsList(T[]!);
-    method public final java.util.List<java.lang.Long>! insertAndReturnIdsList(java.util.Collection<T>!);
+    method public final long[]! insertAndReturnIdsArray(java.util.Collection<T!>!);
+    method public final long[]! insertAndReturnIdsArray(T![]!);
+    method public final Long![]! insertAndReturnIdsArrayBox(java.util.Collection<T!>!);
+    method public final Long![]! insertAndReturnIdsArrayBox(T![]!);
+    method public final java.util.List<java.lang.Long!>! insertAndReturnIdsList(T![]!);
+    method public final java.util.List<java.lang.Long!>! insertAndReturnIdsList(java.util.Collection<T!>!);
   }
 
   public class InvalidationTracker {
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.lang.String...!);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.util.Map<java.lang.String,java.lang.String>!, java.util.Map<java.lang.String,java.util.Set<java.lang.String>>!, java.lang.String...!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.lang.String!...);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public InvalidationTracker(androidx.room.RoomDatabase!, java.util.Map<java.lang.String!,java.lang.String!>!, java.util.Map<java.lang.String!,java.util.Set<java.lang.String!>!>!, java.lang.String!...);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addWeakObserver(androidx.room.InvalidationTracker.Observer!);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T>! createLiveData(String[]!, java.util.concurrent.Callable<T>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T>! createLiveData(String[]!, boolean, java.util.concurrent.Callable<T>!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, java.util.concurrent.Callable<T!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> androidx.lifecycle.LiveData<T!>! createLiveData(String![]!, boolean, java.util.concurrent.Callable<T!>!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @WorkerThread public void refreshVersionsSync();
   }
 
@@ -98,11 +98,11 @@ package androidx.room {
 package androidx.room.paging {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class LimitOffsetDataSource<T> extends androidx.paging.PositionalDataSource<T> {
-    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean, java.lang.String...!);
-    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.room.RoomSQLiteQuery!, boolean, java.lang.String...!);
-    method protected abstract java.util.List<T>! convertRows(android.database.Cursor!);
-    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T>);
-    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T>);
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean, java.lang.String!...);
+    ctor protected LimitOffsetDataSource(androidx.room.RoomDatabase!, androidx.room.RoomSQLiteQuery!, boolean, java.lang.String!...);
+    method protected abstract java.util.List<T!>! convertRows(android.database.Cursor!);
+    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T!>);
+    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T!>);
   }
 
 }
@@ -121,29 +121,29 @@ package androidx.room.util {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsTableInfo {
-    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String>!, java.util.Set<java.lang.String>!);
-    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String>!, String!);
+    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String!>!, java.util.Set<java.lang.String!>!);
+    ctor public FtsTableInfo(String!, java.util.Set<java.lang.String!>!, String!);
     method public static androidx.room.util.FtsTableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
-    field public final java.util.Set<java.lang.String>! columns;
+    field public final java.util.Set<java.lang.String!>! columns;
     field public final String! name;
-    field public final java.util.Set<java.lang.String>! options;
+    field public final java.util.Set<java.lang.String!>! options;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class StringUtil {
     method public static void appendPlaceholders(StringBuilder!, int);
-    method public static String? joinIntoString(java.util.List<java.lang.Integer>?);
+    method public static String? joinIntoString(java.util.List<java.lang.Integer!>?);
     method public static StringBuilder! newStringBuilder();
-    method public static java.util.List<java.lang.Integer>? splitToIntList(String?);
-    field public static final String[]! EMPTY_STRING_ARRAY;
+    method public static java.util.List<java.lang.Integer!>? splitToIntList(String?);
+    field public static final String![]! EMPTY_STRING_ARRAY;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TableInfo {
-    ctor public TableInfo(String!, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey>!, java.util.Set<androidx.room.util.TableInfo.Index>!);
-    ctor public TableInfo(String!, java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey>!);
+    ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!, java.util.Set<androidx.room.util.TableInfo.Index!>!);
+    ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!);
     method public static androidx.room.util.TableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
-    field public final java.util.Map<java.lang.String,androidx.room.util.TableInfo.Column>! columns;
-    field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey>! foreignKeys;
-    field public final java.util.Set<androidx.room.util.TableInfo.Index>? indices;
+    field public final java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>! columns;
+    field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey!>! foreignKeys;
+    field public final java.util.Set<androidx.room.util.TableInfo.Index!>? indices;
     field public final String! name;
   }
 
@@ -158,18 +158,18 @@ package androidx.room.util {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class TableInfo.ForeignKey {
-    ctor public TableInfo.ForeignKey(String, String, String, java.util.List<java.lang.String>, java.util.List<java.lang.String>);
-    field public final java.util.List<java.lang.String> columnNames;
+    ctor public TableInfo.ForeignKey(String, String, String, java.util.List<java.lang.String!>, java.util.List<java.lang.String!>);
+    field public final java.util.List<java.lang.String!> columnNames;
     field public final String onDelete;
     field public final String onUpdate;
-    field public final java.util.List<java.lang.String> referenceColumnNames;
+    field public final java.util.List<java.lang.String!> referenceColumnNames;
     field public final String referenceTable;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class TableInfo.Index {
-    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String>!);
+    ctor public TableInfo.Index(String!, boolean, java.util.List<java.lang.String!>!);
     field public static final String DEFAULT_PREFIX = "index_";
-    field public final java.util.List<java.lang.String>! columns;
+    field public final java.util.List<java.lang.String!>! columns;
     field public final String! name;
     field public final boolean unique;
   }

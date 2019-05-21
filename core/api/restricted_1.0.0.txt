@@ -17,7 +17,7 @@ package android.support.v4.os {
     method protected void onReceiveResult(int, android.os.Bundle!);
     method public void send(int, android.os.Bundle!);
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<android.support.v4.os.ResultReceiver>! CREATOR;
+    field public static final android.os.Parcelable.Creator<android.support.v4.os.ResultReceiver!>! CREATOR;
   }
 
 }
@@ -78,7 +78,7 @@ package androidx.core.app {
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.widget.RemoteViews! getHeadsUpContentView();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getPriority();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public long getWhenIfShowing();
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.ArrayList<androidx.core.app.NotificationCompat.Action>! mActions;
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.ArrayList<androidx.core.app.NotificationCompat.Action!>! mActions;
     field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.Context! mContext;
   }
 
@@ -151,7 +151,7 @@ package androidx.core.content.res {
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class FontResourcesParserCompat {
     method public static androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry? parse(org.xmlpull.v1.XmlPullParser!, android.content.res.Resources!);
-    method public static java.util.List<java.util.List<byte[]>>! readCerts(android.content.res.Resources!, @ArrayRes int);
+    method public static java.util.List<java.util.List<byte[]!>!>! readCerts(android.content.res.Resources!, @ArrayRes int);
     field public static final int FETCH_STRATEGY_ASYNC = 1; // 0x1
     field public static final int FETCH_STRATEGY_BLOCKING = 0; // 0x0
     field public static final int INFINITE_TIMEOUT_VALUE = -1; // 0xffffffff
@@ -165,7 +165,7 @@ package androidx.core.content.res {
 
   public static final class FontResourcesParserCompat.FontFamilyFilesResourceEntry implements androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry {
     ctor public FontResourcesParserCompat.FontFamilyFilesResourceEntry(androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry[]);
-    method public androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry[] getEntries();
+    method public androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry![] getEntries();
   }
 
   public static final class FontResourcesParserCompat.FontFileResourceEntry {
@@ -209,7 +209,7 @@ package androidx.core.content.res {
     method @AnyRes public static int getResourceId(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int, @AnyRes int);
     method public static String? getString(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
     method public static CharSequence? getText(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
-    method public static CharSequence[]? getTextArray(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
+    method public static CharSequence![]? getTextArray(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
     method public static boolean hasAttribute(org.xmlpull.v1.XmlPullParser, String);
     method public static android.content.res.TypedArray obtainAttributes(android.content.res.Resources, android.content.res.Resources.Theme?, android.util.AttributeSet, int[]);
     method public static android.util.TypedValue? peekNamedValue(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, int);
@@ -384,7 +384,7 @@ package androidx.core.provider {
   public class FontsContractCompat {
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static android.graphics.Typeface! getFontSync(android.content.Context!, androidx.core.provider.FontRequest!, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean, int, int);
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting public static android.content.pm.ProviderInfo? getProvider(android.content.pm.PackageManager, androidx.core.provider.FontRequest, android.content.res.Resources?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public static java.util.Map<android.net.Uri,java.nio.ByteBuffer>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo[]!, android.os.CancellationSignal!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo[]!, android.os.CancellationSignal!);
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static void resetCache();
     field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String PARCEL_FONT_RESULTS = "font_results";
   }

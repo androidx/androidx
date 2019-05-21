@@ -31,7 +31,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isLive();
     method public boolean isTransient();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.ContentValues! toContentValues(boolean);
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String[]! PROJECTION;
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String![]! PROJECTION;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface BasePreviewProgram.AspectRatio {
@@ -85,9 +85,9 @@ package androidx.tvprovider.media.tv {
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public abstract class BaseProgram {
     method public boolean equals(Object?);
-    method public String[]! getAudioLanguages();
-    method public String[]! getCanonicalGenres();
-    method public android.media.tv.TvContentRating[]! getContentRatings();
+    method public String![]! getAudioLanguages();
+    method public String![]! getCanonicalGenres();
+    method public android.media.tv.TvContentRating![]! getContentRatings();
     method public String! getDescription();
     method public String! getEpisodeNumber();
     method public String! getEpisodeTitle();
@@ -112,7 +112,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isSearchable();
     method public android.content.ContentValues! toContentValues();
     method public String toString();
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String[]! PROJECTION;
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String![]! PROJECTION;
     field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected android.content.ContentValues! mValues;
   }
 
@@ -151,7 +151,7 @@ package androidx.tvprovider.media.tv {
   public final class Channel {
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isSystemApproved();
     method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.ContentValues! toContentValues(boolean);
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String[]! PROJECTION;
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String![]! PROJECTION;
   }
 
   public static final class Channel.Builder {
@@ -161,7 +161,7 @@ package androidx.tvprovider.media.tv {
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class CollectionUtils {
-    method public static <T> T[]! concatAll(T[]!, T[]...!);
+    method public static <T> T![]! concatAll(T[]!, T[]...!);
   }
 
   public class PreviewChannel {
@@ -181,7 +181,7 @@ package androidx.tvprovider.media.tv {
     field public static final int COL_INTERNAL_PROVIDER_ID = 6; // 0x6
     field public static final int COL_PACKAGE_NAME = 1; // 0x1
     field public static final int COL_TYPE = 2; // 0x2
-    field public static final String[]! PROJECTION;
+    field public static final String![]! PROJECTION;
   }
 
   @WorkerThread public class PreviewChannelHelper {
@@ -189,11 +189,11 @@ package androidx.tvprovider.media.tv {
   }
 
   public final class PreviewProgram extends androidx.tvprovider.media.tv.BasePreviewProgram {
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String[]! PROJECTION;
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String![]! PROJECTION;
   }
 
   public final class Program extends androidx.tvprovider.media.tv.BaseProgram {
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String[]! PROJECTION;
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String![]! PROJECTION;
   }
 
   public final class TvContractCompat {
@@ -299,12 +299,12 @@ package androidx.tvprovider.media.tv {
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class TvContractUtils {
     method public static String! audioLanguagesToString(String[]!);
     method public static String! contentRatingsToString(android.media.tv.TvContentRating[]!);
-    method public static String[]! stringToAudioLanguages(String!);
-    method public static android.media.tv.TvContentRating[]! stringToContentRatings(String!);
+    method public static String![]! stringToAudioLanguages(String!);
+    method public static android.media.tv.TvContentRating![]! stringToContentRatings(String!);
   }
 
   public final class WatchNextProgram extends androidx.tvprovider.media.tv.BasePreviewProgram {
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String[]! PROJECTION;
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final String![]! PROJECTION;
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface WatchNextProgram.WatchNextType {

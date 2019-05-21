@@ -2,9 +2,9 @@
 package androidx.sqlite.db {
 
   public final class SimpleSQLiteQuery implements androidx.sqlite.db.SupportSQLiteQuery {
-    ctor public SimpleSQLiteQuery(String!, Object[]?);
+    ctor public SimpleSQLiteQuery(String!, Object![]?);
     ctor public SimpleSQLiteQuery(String!);
-    method public static void bind(androidx.sqlite.db.SupportSQLiteProgram!, Object[]!);
+    method public static void bind(androidx.sqlite.db.SupportSQLiteProgram!, Object![]!);
     method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram!);
     method public int getArgCount();
     method public String! getSql();
@@ -16,13 +16,13 @@ package androidx.sqlite.db {
     method public void beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener!);
     method public void beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener!);
     method public androidx.sqlite.db.SupportSQLiteStatement! compileStatement(String!);
-    method public int delete(String!, String!, Object[]!);
+    method public int delete(String!, String!, Object![]!);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void disableWriteAheadLogging();
     method public boolean enableWriteAheadLogging();
     method public void endTransaction();
     method public void execSQL(String!) throws android.database.SQLException;
-    method public void execSQL(String!, Object[]!) throws android.database.SQLException;
-    method public java.util.List<android.util.Pair<java.lang.String,java.lang.String>>! getAttachedDbs();
+    method public void execSQL(String!, Object![]!) throws android.database.SQLException;
+    method public java.util.List<android.util.Pair<java.lang.String!,java.lang.String!>!>! getAttachedDbs();
     method public long getMaximumSize();
     method public long getPageSize();
     method public String! getPath();
@@ -36,7 +36,7 @@ package androidx.sqlite.db {
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public boolean isWriteAheadLoggingEnabled();
     method public boolean needUpgrade(int);
     method public android.database.Cursor! query(String!);
-    method public android.database.Cursor! query(String!, Object[]!);
+    method public android.database.Cursor! query(String!, Object![]!);
     method public android.database.Cursor! query(androidx.sqlite.db.SupportSQLiteQuery!);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public android.database.Cursor! query(androidx.sqlite.db.SupportSQLiteQuery!, android.os.CancellationSignal!);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void setForeignKeyConstraintsEnabled(boolean);
@@ -46,7 +46,7 @@ package androidx.sqlite.db {
     method public void setPageSize(long);
     method public void setTransactionSuccessful();
     method public void setVersion(int);
-    method public int update(String!, int, android.content.ContentValues!, String!, Object[]!);
+    method public int update(String!, int, android.content.ContentValues!, String!, Object![]!);
     method public boolean yieldIfContendedSafely();
     method public boolean yieldIfContendedSafely(long);
   }
@@ -104,14 +104,14 @@ package androidx.sqlite.db {
 
   public final class SupportSQLiteQueryBuilder {
     method public static androidx.sqlite.db.SupportSQLiteQueryBuilder! builder(String!);
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! columns(String[]!);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! columns(String![]!);
     method public androidx.sqlite.db.SupportSQLiteQuery! create();
     method public androidx.sqlite.db.SupportSQLiteQueryBuilder! distinct();
     method public androidx.sqlite.db.SupportSQLiteQueryBuilder! groupBy(String!);
     method public androidx.sqlite.db.SupportSQLiteQueryBuilder! having(String!);
     method public androidx.sqlite.db.SupportSQLiteQueryBuilder! limit(String!);
     method public androidx.sqlite.db.SupportSQLiteQueryBuilder! orderBy(String!);
-    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! selection(String!, Object[]!);
+    method public androidx.sqlite.db.SupportSQLiteQueryBuilder! selection(String!, Object![]!);
   }
 
   public interface SupportSQLiteStatement extends androidx.sqlite.db.SupportSQLiteProgram {

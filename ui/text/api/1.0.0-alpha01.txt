@@ -18,13 +18,11 @@ package androidx.ui.engine.text {
   }
 
   public enum FontStyle {
-    ctor protected FontStyle();
     enum_constant public static final androidx.ui.engine.text.FontStyle italic;
     enum_constant public static final androidx.ui.engine.text.FontStyle normal;
   }
 
   public enum FontSynthesis {
-    ctor protected FontSynthesis();
     enum_constant public static final androidx.ui.engine.text.FontSynthesis all;
     enum_constant public static final androidx.ui.engine.text.FontSynthesis none;
     enum_constant public static final androidx.ui.engine.text.FontSynthesis style;
@@ -142,7 +140,6 @@ package androidx.ui.engine.text {
   }
 
   public enum TextAlign {
-    ctor protected TextAlign();
     enum_constant public static final androidx.ui.engine.text.TextAlign CENTER;
     enum_constant public static final androidx.ui.engine.text.TextAlign END;
     enum_constant public static final androidx.ui.engine.text.TextAlign JUSTIFY;
@@ -298,18 +295,18 @@ package androidx.ui.engine.text.font {
     ctor public FontFamily(androidx.ui.engine.text.font.Font... fonts);
     method public String? component1();
     method public java.util.List<androidx.ui.engine.text.font.Font> component2();
-    method public boolean contains(androidx.ui.engine.text.font.Font! element);
-    method public boolean containsAll(java.util.Collection<?>! elements);
+    method public boolean contains(androidx.ui.engine.text.font.Font element);
+    method public boolean containsAll(java.util.Collection<?> elements);
     method public androidx.ui.engine.text.font.FontFamily copy(String? genericFamily, java.util.List<androidx.ui.engine.text.font.Font> fonts);
     method public androidx.ui.engine.text.font.Font get(int index);
     method public android.content.Context getContext();
     method public java.util.List<androidx.ui.engine.text.font.Font> getFonts();
     method public String? getGenericFamily();
     method public int getSize();
-    method public int indexOf(androidx.ui.engine.text.font.Font! element);
+    method public int indexOf(androidx.ui.engine.text.font.Font element);
     method public boolean isEmpty();
     method public java.util.Iterator<androidx.ui.engine.text.font.Font> iterator();
-    method public int lastIndexOf(androidx.ui.engine.text.font.Font! element);
+    method public int lastIndexOf(androidx.ui.engine.text.font.Font element);
     method public java.util.ListIterator<androidx.ui.engine.text.font.Font> listIterator();
     method public java.util.ListIterator<androidx.ui.engine.text.font.Font> listIterator(int index);
     method public void setContext(android.content.Context p);
@@ -323,16 +320,16 @@ package androidx.ui.engine.text.font {
     ctor public FontFamilyList(androidx.ui.engine.text.font.FontFamily fontFamily);
     ctor public FontFamilyList(androidx.ui.engine.text.font.FontFamily... fontFamily);
     method public java.util.List<androidx.ui.engine.text.font.FontFamily> component1();
-    method public boolean contains(androidx.ui.engine.text.font.FontFamily! element);
-    method public boolean containsAll(java.util.Collection<?>! elements);
+    method public boolean contains(androidx.ui.engine.text.font.FontFamily element);
+    method public boolean containsAll(java.util.Collection<?> elements);
     method public androidx.ui.engine.text.font.FontFamilyList copy(java.util.List<androidx.ui.engine.text.font.FontFamily> fontFamilies);
     method public androidx.ui.engine.text.font.FontFamily get(int index);
     method public java.util.List<androidx.ui.engine.text.font.FontFamily> getFontFamilies();
     method public int getSize();
-    method public int indexOf(androidx.ui.engine.text.font.FontFamily! element);
+    method public int indexOf(androidx.ui.engine.text.font.FontFamily element);
     method public boolean isEmpty();
     method public java.util.Iterator<androidx.ui.engine.text.font.FontFamily> iterator();
-    method public int lastIndexOf(androidx.ui.engine.text.font.FontFamily! element);
+    method public int lastIndexOf(androidx.ui.engine.text.font.FontFamily element);
     method public java.util.ListIterator<androidx.ui.engine.text.font.FontFamily> listIterator();
     method public java.util.ListIterator<androidx.ui.engine.text.font.FontFamily> listIterator(int index);
     method public java.util.List<androidx.ui.engine.text.font.FontFamily> subList(int fromIndex, int toIndex);
@@ -361,11 +358,11 @@ package androidx.ui.engine.window {
     method public String component1();
     method public String? component2();
     method public androidx.ui.engine.window.Locale copy(String _languageCode, String? _countryCode);
-    method public String? getCountryCode();
+    method public String! getCountryCode();
     method public String getLanguageCode();
     method public String? get_countryCode();
     method public String get_languageCode();
-    property public final String? countryCode;
+    property public final String! countryCode;
     property public final String languageCode;
     field public static final androidx.ui.engine.window.Locale.Companion! Companion;
   }
@@ -545,7 +542,6 @@ package androidx.ui.painting {
 package androidx.ui.painting.basictypes {
 
   public enum RenderComparison {
-    ctor protected RenderComparison();
     enum_constant public static final androidx.ui.painting.basictypes.RenderComparison IDENTICAL;
     enum_constant public static final androidx.ui.painting.basictypes.RenderComparison LAYOUT;
     enum_constant public static final androidx.ui.painting.basictypes.RenderComparison METADATA;
@@ -606,7 +602,6 @@ package androidx.ui.rendering.paragraph {
   }
 
   public enum TextOverflow {
-    ctor protected TextOverflow();
     enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow CLIP;
     enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow ELLIPSIS;
     enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow FADE;

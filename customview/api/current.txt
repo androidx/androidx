@@ -8,7 +8,7 @@ package androidx.customview.view {
     method public int describeContents();
     method public final android.os.Parcelable? getSuperState();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.customview.view.AbsSavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.customview.view.AbsSavedState!>! CREATOR;
     field public static final androidx.customview.view.AbsSavedState! EMPTY_STATE;
   }
 
@@ -25,7 +25,7 @@ package androidx.customview.widget {
     method @Deprecated public int getFocusedVirtualView();
     method public final int getKeyboardFocusedVirtualViewId();
     method protected abstract int getVirtualViewAt(float, float);
-    method protected abstract void getVisibleVirtualViews(java.util.List<java.lang.Integer>!);
+    method protected abstract void getVisibleVirtualViews(java.util.List<java.lang.Integer!>!);
     method public final void invalidateRoot();
     method public final void invalidateVirtualView(int);
     method public final void invalidateVirtualView(int, int);

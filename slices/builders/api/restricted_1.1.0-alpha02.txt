@@ -28,7 +28,7 @@ package androidx.slice.builders {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public class MessagingSliceBuilder extends androidx.slice.builders.TemplateSliceBuilder {
     ctor public MessagingSliceBuilder(android.content.Context, android.net.Uri);
     method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!);
-    method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.core.util.Consumer<androidx.slice.builders.MessagingSliceBuilder.MessageBuilder>!);
+    method public androidx.slice.builders.MessagingSliceBuilder! add(androidx.core.util.Consumer<androidx.slice.builders.MessagingSliceBuilder.MessageBuilder!>!);
     field public static final int MAXIMUM_RETAINED_MESSAGES = 50; // 0x32
   }
 

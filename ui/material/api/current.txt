@@ -3,9 +3,9 @@ package  {
 
   public final class ProgressIndicatorKt {
     ctor public ProgressIndicatorKt();
-    method public static void CircularProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.graphics.Color? color = null);
+    method public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color? color = null);
     method public static void CircularProgressIndicator(androidx.ui.graphics.Color? color = null);
-    method public static void LinearProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, androidx.ui.graphics.Color? color = null);
+    method public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color? color = null);
     method public static void LinearProgressIndicator(androidx.ui.graphics.Color? color = null);
   }
 
@@ -26,7 +26,7 @@ package androidx.ui.baseui {
 
   public final class DeterminateProgressIndicatorKt {
     ctor public DeterminateProgressIndicatorKt();
-    method public static void DeterminateProgressIndicator(@FloatRange(value=0.0, value=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class SimpleImageKt {
@@ -49,7 +49,6 @@ package androidx.ui.baseui.selection {
   }
 
   public enum ToggleableState {
-    ctor protected ToggleableState();
     enum_constant public static final androidx.ui.baseui.selection.ToggleableState Checked;
     enum_constant public static final androidx.ui.baseui.selection.ToggleableState Indeterminate;
     enum_constant public static final androidx.ui.baseui.selection.ToggleableState Unchecked;
@@ -128,8 +127,8 @@ package androidx.ui.material {
     method public static androidx.compose.Ambient<androidx.ui.material.MaterialTypography> getTypography();
     method public static androidx.compose.Effect<androidx.ui.graphics.Color> orFromTheme(androidx.ui.graphics.Color?, kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.graphics.Color> choosingBlock);
     method public static androidx.compose.Effect<androidx.ui.material.borders.ShapeBorder> orFromTheme(androidx.ui.material.borders.ShapeBorder?, kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.material.borders.ShapeBorder> choosingBlock);
-    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.graphics.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.graphics.Color> choosingBlock);
-    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.graphics.Color> choosingBlock);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
   }
 
   public final class MaterialTypography {
@@ -301,13 +300,11 @@ package androidx.ui.material.borders {
   }
 
   public enum BorderStyle {
-    ctor protected BorderStyle();
     enum_constant public static final androidx.ui.material.borders.BorderStyle None;
     enum_constant public static final androidx.ui.material.borders.BorderStyle Solid;
   }
 
   public enum BoxShape {
-    ctor protected BoxShape();
     enum_constant public static final androidx.ui.material.borders.BoxShape Circle;
     enum_constant public static final androidx.ui.material.borders.BoxShape Rectangle;
   }
@@ -437,7 +434,7 @@ package androidx.ui.material.ripple {
   public final class RippleSurfaceKt {
     ctor public RippleSurfaceKt();
     method public static void RippleSurface(androidx.ui.graphics.Color? color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.material.ripple.RippleSurfaceOwner> ambientRippleSurface();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.material.ripple.RippleSurfaceOwner> ambientRippleSurface();
   }
 
   public interface RippleSurfaceOwner {

@@ -431,7 +431,6 @@ package androidx.ui.core.semantics {
   }
 
   public enum SemanticsFlag {
-    ctor protected SemanticsFlag();
     enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasCheckedState;
     enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasEnabledState;
     enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasImplicitScrolling;

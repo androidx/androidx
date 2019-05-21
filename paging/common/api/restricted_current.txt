@@ -4,9 +4,9 @@ package androidx.paging {
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class TiledDataSource<T> extends androidx.paging.PositionalDataSource<T> {
     ctor @Deprecated public TiledDataSource();
     method @Deprecated @WorkerThread public abstract int countItems();
-    method @Deprecated public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T>);
-    method @Deprecated @WorkerThread public abstract java.util.List<T>? loadRange(int, int);
-    method @Deprecated public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T>);
+    method @Deprecated public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T!>);
+    method @Deprecated @WorkerThread public abstract java.util.List<T!>? loadRange(int, int);
+    method @Deprecated public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T!>);
   }
 
 }
@@ -24,8 +24,8 @@ package androidx.paging.futures {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class Futures {
-    method public static <V> void addCallback(com.google.common.util.concurrent.ListenableFuture<V>, androidx.paging.futures.FutureCallback<? super V>, java.util.concurrent.Executor);
-    method public static <I, O> com.google.common.util.concurrent.ListenableFuture<O> transform(com.google.common.util.concurrent.ListenableFuture<I>, androidx.arch.core.util.Function<? super I,? extends O>, java.util.concurrent.Executor);
+    method public static <V> void addCallback(com.google.common.util.concurrent.ListenableFuture<V!>, androidx.paging.futures.FutureCallback<? super V>, java.util.concurrent.Executor);
+    method public static <I, O> com.google.common.util.concurrent.ListenableFuture<O!> transform(com.google.common.util.concurrent.ListenableFuture<I!>, androidx.arch.core.util.Function<? super I,? extends O>, java.util.concurrent.Executor);
   }
 
 }

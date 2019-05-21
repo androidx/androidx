@@ -25,7 +25,7 @@ package androidx.ui.test {
   }
 
   public final class DisableTransitions.DisableTransitionsStatement extends org.junit.runners.model.Statement {
-    ctor public DisableTransitions.DisableTransitionsStatement(org.junit.runners.model.Statement $outer);
+    ctor public DisableTransitions.DisableTransitionsStatement(org.junit.runners.model.Statement base);
     method public void evaluate();
   }
 

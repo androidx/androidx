@@ -71,7 +71,7 @@ package androidx.ui.core {
     ctor public LayoutKt();
     method public static void ComplexLayout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexLayoutReceiver,kotlin.Unit> block);
     method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.LayoutReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,kotlin.Unit> layoutBlock);
-    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>[] childrenArray, kotlin.jvm.functions.Function3<? super androidx.ui.core.LayoutReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,kotlin.Unit> layoutBlock);
+    method public static void Layout(kotlin.jvm.functions.Function0<kotlin.Unit>![] childrenArray, kotlin.jvm.functions.Function3<? super androidx.ui.core.LayoutReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,kotlin.Unit> layoutBlock);
     method public static void OnChildPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> onPositioned);
     method public static void WithConstraints(kotlin.jvm.functions.Function1<? super androidx.ui.core.Constraints,kotlin.Unit> children);
@@ -175,10 +175,10 @@ package androidx.ui.core {
     ctor public WrapperKt();
     method public static void CraneWrapper(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,kotlin.Unit> block);
-    method @CheckResult("+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
     method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
-    method @CheckResult("+") public static <R> androidx.compose.Effect<R> withDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
+    method @CheckResult(suggest="+") public static <R> androidx.compose.Effect<R> withDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
   }
 
 }
@@ -279,7 +279,7 @@ package androidx.ui.core.vectorgraphics {
   }
 
   public final class LinearGradient implements androidx.ui.core.vectorgraphics.Brush {
-    ctor public LinearGradient(kotlin.Pair<androidx.ui.graphics.Color,java.lang.Float>[] colorStops, float startX, float startY, float endX, float endY, androidx.ui.painting.TileMode tileMode);
+    ctor public LinearGradient(kotlin.Pair<androidx.ui.graphics.Color,java.lang.Float>![] colorStops, float startX, float startY, float endX, float endY, androidx.ui.painting.TileMode tileMode);
     method public void applyBrush(androidx.ui.painting.Paint p);
     method public float getEndX();
     method public float getEndY();
@@ -295,7 +295,7 @@ package androidx.ui.core.vectorgraphics {
     method public androidx.ui.core.vectorgraphics.PathBuilder close();
     method public androidx.ui.core.vectorgraphics.PathBuilder curveTo(float x1, float y1, float x2, float y2, float x3, float y3);
     method public androidx.ui.core.vectorgraphics.PathBuilder curveToRelative(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
-    method public androidx.ui.core.vectorgraphics.PathNode[] getNodes();
+    method public androidx.ui.core.vectorgraphics.PathNode![] getNodes();
     method public androidx.ui.core.vectorgraphics.PathBuilder horizontalLineTo(float x);
     method public androidx.ui.core.vectorgraphics.PathBuilder horizontalLineToRelative(float x);
     method public androidx.ui.core.vectorgraphics.PathBuilder lineTo(float x, float y);
@@ -313,7 +313,6 @@ package androidx.ui.core.vectorgraphics {
   }
 
   public enum PathCommand {
-    ctor protected PathCommand(char mKey);
     method public final char toKey();
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand ArcTo;
     enum_constant public static final androidx.ui.core.vectorgraphics.PathCommand Close;
@@ -363,10 +362,10 @@ package androidx.ui.core.vectorgraphics {
 
   public final class PathParser {
     ctor public PathParser();
-    method public androidx.ui.core.vectorgraphics.PathParser addPathNodes(androidx.ui.core.vectorgraphics.PathNode[] nodes);
+    method public androidx.ui.core.vectorgraphics.PathParser addPathNodes(androidx.ui.core.vectorgraphics.PathNode![] nodes);
     method public void clear();
     method public androidx.ui.core.vectorgraphics.PathParser parsePathString(String pathData) throws java.lang.IllegalArgumentException, java.lang.NumberFormatException;
-    method public androidx.ui.core.vectorgraphics.PathNode[] toNodes();
+    method public androidx.ui.core.vectorgraphics.PathNode![] toNodes();
     method public androidx.ui.painting.Path toPath(androidx.ui.painting.Path target = Path());
   }
 
@@ -375,7 +374,7 @@ package androidx.ui.core.vectorgraphics {
   }
 
   public final class RadialGradient implements androidx.ui.core.vectorgraphics.Brush {
-    ctor public RadialGradient(kotlin.Pair<androidx.ui.graphics.Color,java.lang.Float>[] colorStops, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode);
+    ctor public RadialGradient(kotlin.Pair<androidx.ui.graphics.Color,java.lang.Float>![] colorStops, float centerX, float centerY, float radius, androidx.ui.painting.TileMode tileMode);
     method public void applyBrush(androidx.ui.painting.Paint p);
   }
 
@@ -386,11 +385,11 @@ package androidx.ui.core.vectorgraphics {
 
   public final class VectorKt {
     ctor public VectorKt();
-    method public static androidx.ui.core.vectorgraphics.PathNode[] addPathNodes(String? pathStr);
+    method public static androidx.ui.core.vectorgraphics.PathNode![] addPathNodes(String? pathStr);
     method public static android.view.View? adoptVectorGraphic(Object? parent, Object? child);
     method public static androidx.ui.painting.StrokeCap getDefaultStrokeLineCap();
     method public static androidx.ui.painting.StrokeJoin getDefaultStrokeLineJoin();
-    method public static androidx.ui.core.vectorgraphics.PathNode[] getEmptyPath();
+    method public static androidx.ui.core.vectorgraphics.PathNode![] getEmptyPath();
     method public static void group(String name = "", float rotate = 0.0f, float pivotX = 0.0f, float pivotY = 0.0f, float scaleX = 1.0f, float scaleY = 1.0f, float translateX = 0.0f, float translateY = 0.0f, Object? clipPathData = EmptyPath, kotlin.jvm.functions.Function0<kotlin.Unit> childNodes);
     method public static void path(Object? pathData, String name = "", Object fill = EmptyBrush, float fillAlpha = 1.0f, Object stroke = EmptyBrush, float strokeAlpha = 1.0f, float strokeLineWidth = 0.0f, androidx.ui.painting.StrokeCap strokeLineCap = DefaultStrokeLineCap, androidx.ui.painting.StrokeJoin strokeLineJoin = DefaultStrokeLineJoin, float strokeLineMiter = 4.0f);
     method public static void vector(String name = "", float viewportWidth, float viewportHeight, float defaultWidth = viewportWidth, float defaultHeight = viewportHeight, kotlin.jvm.functions.Function0<kotlin.Unit> children);

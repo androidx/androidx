@@ -67,7 +67,7 @@ package androidx.drawerlayout.widget {
   protected static class DrawerLayout.SavedState extends androidx.customview.view.AbsSavedState {
     ctor public DrawerLayout.SavedState(android.os.Parcel, ClassLoader?);
     ctor public DrawerLayout.SavedState(android.os.Parcelable);
-    field public static final android.os.Parcelable.Creator<androidx.drawerlayout.widget.DrawerLayout.SavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.drawerlayout.widget.DrawerLayout.SavedState!>! CREATOR;
   }
 
   public abstract static class DrawerLayout.SimpleDrawerListener implements androidx.drawerlayout.widget.DrawerLayout.DrawerListener {

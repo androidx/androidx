@@ -15,8 +15,8 @@ package androidx.browser.browseractions {
     method @Deprecated public static String? getUntrustedCreatorPackageName(android.content.Intent);
     method @Deprecated public static void launchIntent(android.content.Context!, android.content.Intent!);
     method @Deprecated public static void openBrowserAction(android.content.Context!, android.net.Uri!);
-    method @Deprecated public static void openBrowserAction(android.content.Context!, android.net.Uri!, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>!, android.app.PendingIntent!);
-    method @Deprecated public static java.util.List<androidx.browser.browseractions.BrowserActionItem>! parseBrowserActionItems(java.util.ArrayList<android.os.Bundle>!);
+    method @Deprecated public static void openBrowserAction(android.content.Context!, android.net.Uri!, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem!>!, android.app.PendingIntent!);
+    method @Deprecated public static java.util.List<androidx.browser.browseractions.BrowserActionItem!>! parseBrowserActionItems(java.util.ArrayList<android.os.Bundle!>!);
     field @Deprecated public static final String ACTION_BROWSER_ACTIONS_OPEN = "androidx.browser.browseractions.browser_action_open";
     field @Deprecated public static final String EXTRA_APP_ID = "androidx.browser.browseractions.APP_ID";
     field @Deprecated public static final String EXTRA_MENU_ITEMS = "androidx.browser.browseractions.extra.MENU_ITEMS";
@@ -43,8 +43,8 @@ package androidx.browser.browseractions {
   @Deprecated public static final class BrowserActionsIntent.Builder {
     ctor @Deprecated public BrowserActionsIntent.Builder(android.content.Context!, android.net.Uri!);
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent! build();
-    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder! setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>!);
-    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder! setCustomItems(androidx.browser.browseractions.BrowserActionItem...!);
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder! setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem!>!);
+    method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder! setCustomItems(androidx.browser.browseractions.BrowserActionItem!...);
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder! setOnItemSelectedAction(android.app.PendingIntent!);
     method @Deprecated public androidx.browser.browseractions.BrowserActionsIntent.Builder! setUrlType(int);
   }
@@ -72,8 +72,8 @@ package androidx.browser.customtabs {
     method public static boolean bindCustomTabsService(android.content.Context!, String!, androidx.browser.customtabs.CustomTabsServiceConnection!);
     method public static boolean connectAndInitialize(android.content.Context!, String!);
     method public android.os.Bundle! extraCommand(String!, android.os.Bundle!);
-    method public static String! getPackageName(android.content.Context!, java.util.List<java.lang.String>?);
-    method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String>?, boolean);
+    method public static String! getPackageName(android.content.Context!, java.util.List<java.lang.String!>?);
+    method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?, boolean);
     method public androidx.browser.customtabs.CustomTabsSession! newSession(androidx.browser.customtabs.CustomTabsCallback!);
     method public boolean warmup(long);
   }
@@ -141,7 +141,7 @@ package androidx.browser.customtabs {
     ctor public CustomTabsService();
     method protected boolean cleanUpSession(androidx.browser.customtabs.CustomTabsSessionToken!);
     method protected abstract android.os.Bundle! extraCommand(String!, android.os.Bundle!);
-    method protected abstract boolean mayLaunchUrl(androidx.browser.customtabs.CustomTabsSessionToken!, android.net.Uri!, android.os.Bundle!, java.util.List<android.os.Bundle>!);
+    method protected abstract boolean mayLaunchUrl(androidx.browser.customtabs.CustomTabsSessionToken!, android.net.Uri!, android.os.Bundle!, java.util.List<android.os.Bundle!>!);
     method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken!);
     method public android.os.IBinder! onBind(android.content.Intent!);
     method @androidx.browser.customtabs.CustomTabsService.Result protected abstract int postMessage(androidx.browser.customtabs.CustomTabsSessionToken!, String!, android.os.Bundle!);
@@ -173,7 +173,7 @@ package androidx.browser.customtabs {
 
   public final class CustomTabsSession {
     method @VisibleForTesting public static androidx.browser.customtabs.CustomTabsSession createMockSessionForTesting(android.content.ComponentName);
-    method public boolean mayLaunchUrl(android.net.Uri!, android.os.Bundle!, java.util.List<android.os.Bundle>!);
+    method public boolean mayLaunchUrl(android.net.Uri!, android.os.Bundle!, java.util.List<android.os.Bundle!>!);
     method @androidx.browser.customtabs.CustomTabsService.Result public int postMessage(String!, android.os.Bundle!);
     method public boolean requestPostMessageChannel(android.net.Uri!);
     method public boolean setActionButton(android.graphics.Bitmap, String);

@@ -24,13 +24,13 @@ package androidx.versionedparcelable {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class VersionedParcel {
-    ctor public VersionedParcel(androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>!, androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>!, androidx.collection.ArrayMap<java.lang.String,java.lang.Class>!);
+    ctor public VersionedParcel(androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.Class!>!);
     method protected abstract void closeField();
     method protected abstract androidx.versionedparcelable.VersionedParcel! createSubParcel();
     method protected static Throwable getRootCause(Throwable);
     method public boolean isStream();
-    method public <T> T[]! readArray(T[]!, int);
-    method protected <T> T[]! readArray(T[]!);
+    method public <T> T![]! readArray(T![]!, int);
+    method protected <T> T![]! readArray(T![]!);
     method protected abstract boolean readBoolean();
     method public boolean readBoolean(boolean, int);
     method public boolean[]! readBooleanArray(boolean[]!, int);
@@ -58,16 +58,16 @@ package androidx.versionedparcelable {
     method public int readInt(int, int);
     method public int[]! readIntArray(int[]!, int);
     method protected int[]! readIntArray();
-    method public <T> java.util.List<T>! readList(java.util.List<T>!, int);
+    method public <T> java.util.List<T!>! readList(java.util.List<T!>!, int);
     method protected abstract long readLong();
     method public long readLong(long, int);
     method public long[]! readLongArray(long[]!, int);
     method protected long[]! readLongArray();
-    method public <K, V> java.util.Map<K,V>! readMap(java.util.Map<K,V>!, int);
+    method public <K, V> java.util.Map<K!,V!>! readMap(java.util.Map<K!,V!>!, int);
     method protected abstract <T extends android.os.Parcelable> T! readParcelable();
     method public <T extends android.os.Parcelable> T! readParcelable(T!, int);
     method protected java.io.Serializable! readSerializable();
-    method public <T> java.util.Set<T>! readSet(java.util.Set<T>!, int);
+    method public <T> java.util.Set<T!>! readSet(java.util.Set<T!>!, int);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public android.util.Size! readSize(android.util.Size!, int);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public android.util.SizeF! readSizeF(android.util.SizeF!, int);
     method public android.util.SparseBooleanArray! readSparseBooleanArray(android.util.SparseBooleanArray!, int);
@@ -79,8 +79,8 @@ package androidx.versionedparcelable {
     method protected <T extends androidx.versionedparcelable.VersionedParcelable> T! readVersionedParcelable();
     method protected abstract void setOutputField(int);
     method public void setSerializationFlags(boolean, boolean);
-    method public <T> void writeArray(T[]!, int);
-    method protected <T> void writeArray(T[]!);
+    method public <T> void writeArray(T![]!, int);
+    method protected <T> void writeArray(T![]!);
     method protected abstract void writeBoolean(boolean);
     method public void writeBoolean(boolean, int);
     method public void writeBooleanArray(boolean[]!, int);
@@ -108,17 +108,17 @@ package androidx.versionedparcelable {
     method public void writeInt(int, int);
     method public void writeIntArray(int[]!, int);
     method protected void writeIntArray(int[]!);
-    method public <T> void writeList(java.util.List<T>!, int);
+    method public <T> void writeList(java.util.List<T!>!, int);
     method protected abstract void writeLong(long);
     method public void writeLong(long, int);
     method public void writeLongArray(long[]!, int);
     method protected void writeLongArray(long[]!);
-    method public <K, V> void writeMap(java.util.Map<K,V>!, int);
+    method public <K, V> void writeMap(java.util.Map<K!,V!>!, int);
     method protected void writeNoException();
     method protected abstract void writeParcelable(android.os.Parcelable!);
     method public void writeParcelable(android.os.Parcelable!, int);
     method public void writeSerializable(java.io.Serializable!, int);
-    method public <T> void writeSet(java.util.Set<T>!, int);
+    method public <T> void writeSet(java.util.Set<T!>!, int);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public void writeSize(android.util.Size!, int);
     method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public void writeSizeF(android.util.SizeF!, int);
     method public void writeSparseBooleanArray(android.util.SparseBooleanArray!, int);
@@ -131,9 +131,9 @@ package androidx.versionedparcelable {
     method protected <T extends androidx.versionedparcelable.VersionedParcelable> void writeToParcel(T!, androidx.versionedparcelable.VersionedParcel!);
     method public void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!, int);
     method protected void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!);
-    field protected final androidx.collection.ArrayMap<java.lang.String,java.lang.Class>! mParcelizerCache;
-    field protected final androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>! mReadCache;
-    field protected final androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>! mWriteCache;
+    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.Class!>! mParcelizerCache;
+    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>! mReadCache;
+    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>! mWriteCache;
   }
 
   public static class VersionedParcel.ParcelException extends java.lang.RuntimeException {
