@@ -156,6 +156,15 @@ data class TextStyle(
             return lerp(start, end, t)
         }
 
+        private fun lerpFloat(a: Float?, b: Float?, t: Float, default: Float = 0f): Float? {
+            if (a == null && b == null) return null
+            val start = a ?: default
+            val end = b ?: default
+            return lerp(start, end, t)
+        }
+
+        private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
+
         fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Float): TextStyle? {
             val aIsNull = a == null
             val bIsNull = b == null
@@ -199,43 +208,26 @@ data class TextStyle(
                 }
             }
 
-            // TODO(Migration/qqd): Currently [fontSize], [letterSpacing], [wordSpacing] and
-            // [height] of textstyles a and b cannot be null if both a and b are not null, because
-            // [lerp(Float, Float, Float)] API cannot take null parameters. We could have a
-            // workaround by using 0.0, but for now let's keep it this way.
             return TextStyle(
                 color = lerpColor(a.color, b.color, t),
-                fontFamily = if (t < 0.5) a.fontFamily else b.fontFamily,
-                fontSize = lerp(a.fontSize ?: b.fontSize!!, b.fontSize ?: a.fontSize!!, t),
+                fontFamily = lerpDiscrete(a.fontFamily, b.fontFamily, t),
+                fontSize = lerpFloat(a.fontSize, b.fontSize, t),
                 fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),
-                fontStyle = if (t < 0.5) a.fontStyle else b.fontStyle,
-                fontSynthesis = if (t < 0.5) a.fontSynthesis else b.fontSynthesis,
-                fontFeatureSettings = if (t < 0.5) {
-                    a.fontFeatureSettings
-                } else {
-                    b.fontFeatureSettings
-                },
-                letterSpacing = lerp(
-                    a.letterSpacing ?: b.letterSpacing!!,
-                    b.letterSpacing ?: a.letterSpacing!!,
-                    t
-                ),
-                wordSpacing = lerp(
-                    a.wordSpacing ?: b.wordSpacing!!,
-                    b.wordSpacing ?: a.wordSpacing!!,
-                    t
-                ),
-
+                fontStyle = lerpDiscrete(a.fontStyle, b.fontStyle, t),
+                fontSynthesis = lerpDiscrete(a.fontSynthesis, b.fontSynthesis, t),
+                fontFeatureSettings = lerpDiscrete(a.fontFeatureSettings, b.fontFeatureSettings, t),
+                letterSpacing = lerpFloat(a.letterSpacing, b.letterSpacing, t),
+                wordSpacing = lerpFloat(a.wordSpacing, b.wordSpacing, t),
                 baselineShift = BaselineShift.lerp(a.baselineShift, b.baselineShift, t),
                 textGeometricTransform = lerp(
                     a.textGeometricTransform ?: TextGeometricTransform.None,
                     b.textGeometricTransform ?: TextGeometricTransform.None,
                     t
                 ),
-                height = lerp(a.height ?: b.height!!, b.height ?: a.height!!, t),
-                locale = if (t < 0.5) a.locale else b.locale,
-                background = if (t < 0.5) a.background else b.background,
-                decoration = if (t < 0.5) a.decoration else b.decoration,
+                height = lerpFloat(a.height, b.height, t),
+                locale = lerpDiscrete(a.locale, b.locale, t),
+                background = lerpDiscrete(a.background, b.background, t),
+                decoration = lerpDiscrete(a.decoration, b.decoration, t),
                 textIndent = lerp(
                     a.textIndent ?: TextIndent.NONE,
                     b.textIndent ?: TextIndent.NONE,
