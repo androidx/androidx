@@ -53,24 +53,24 @@ class IsTypefaceOf(
 ) : BaseMatcher<Typeface>() {
 
     private val DEFINED_CHARACTERS = arrayOf(
-        CharacterInfo('a', FontWeight.w100, FontStyle.italic),
-        CharacterInfo('b', FontWeight.w100, FontStyle.normal),
-        CharacterInfo('c', FontWeight.w200, FontStyle.italic),
-        CharacterInfo('d', FontWeight.w200, FontStyle.normal),
-        CharacterInfo('e', FontWeight.w300, FontStyle.italic),
-        CharacterInfo('f', FontWeight.w300, FontStyle.normal),
-        CharacterInfo('g', FontWeight.w400, FontStyle.italic),
-        CharacterInfo('h', FontWeight.w400, FontStyle.normal),
-        CharacterInfo('i', FontWeight.w500, FontStyle.italic),
-        CharacterInfo('j', FontWeight.w500, FontStyle.normal),
-        CharacterInfo('k', FontWeight.w600, FontStyle.italic),
-        CharacterInfo('l', FontWeight.w600, FontStyle.normal),
-        CharacterInfo('m', FontWeight.w700, FontStyle.italic),
-        CharacterInfo('n', FontWeight.w700, FontStyle.normal),
-        CharacterInfo('o', FontWeight.w800, FontStyle.italic),
-        CharacterInfo('p', FontWeight.w800, FontStyle.normal),
-        CharacterInfo('q', FontWeight.w900, FontStyle.italic),
-        CharacterInfo('r', FontWeight.w900, FontStyle.normal)
+        CharacterInfo('a', FontWeight.w100, FontStyle.Italic),
+        CharacterInfo('b', FontWeight.w100, FontStyle.Normal),
+        CharacterInfo('c', FontWeight.w200, FontStyle.Italic),
+        CharacterInfo('d', FontWeight.w200, FontStyle.Normal),
+        CharacterInfo('e', FontWeight.w300, FontStyle.Italic),
+        CharacterInfo('f', FontWeight.w300, FontStyle.Normal),
+        CharacterInfo('g', FontWeight.w400, FontStyle.Italic),
+        CharacterInfo('h', FontWeight.w400, FontStyle.Normal),
+        CharacterInfo('i', FontWeight.w500, FontStyle.Italic),
+        CharacterInfo('j', FontWeight.w500, FontStyle.Normal),
+        CharacterInfo('k', FontWeight.w600, FontStyle.Italic),
+        CharacterInfo('l', FontWeight.w600, FontStyle.Normal),
+        CharacterInfo('m', FontWeight.w700, FontStyle.Italic),
+        CharacterInfo('n', FontWeight.w700, FontStyle.Normal),
+        CharacterInfo('o', FontWeight.w800, FontStyle.Italic),
+        CharacterInfo('p', FontWeight.w800, FontStyle.Normal),
+        CharacterInfo('q', FontWeight.w900, FontStyle.Italic),
+        CharacterInfo('r', FontWeight.w900, FontStyle.Normal)
     )
 
     private val FONT_SIZE = 10f
@@ -101,7 +101,7 @@ class IsTypefaceOf(
 
         if (Build.VERSION.SDK_INT >= 28) {
             return isSelectedFont && typeface.weight == fontWeight.weight
-            // cannot check typeface.isItalic == (fontStyle == FontStyle.italic) since it is for
+            // cannot check typeface.isItalic == (fontStyle == FontStyle.Italic) since it is for
             // fake italic, and for cases where synthesis is disable this does not give correct
             // signal
         } else {
