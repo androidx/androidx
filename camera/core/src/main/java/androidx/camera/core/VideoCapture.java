@@ -207,7 +207,7 @@ public class VideoCapture extends UseCase {
             mVideoEncoder.release();
             mAudioEncoder.stop();
             mAudioEncoder.release();
-            releaseCameraSurface();
+            releaseCameraSurface(false);
         }
 
         try {
@@ -374,11 +374,6 @@ public class VideoCapture extends UseCase {
     public void clear() {
         mVideoHandlerThread.quitSafely();
 
-        if (mVideoEncoder != null) {
-            mVideoEncoder.release();
-            mVideoEncoder = null;
-        }
-
         // audio encoder release
         mAudioHandlerThread.quitSafely();
         if (mAudioEncoder != null) {
@@ -392,29 +387,38 @@ public class VideoCapture extends UseCase {
         }
 
         if (mCameraSurface != null) {
-            releaseCameraSurface();
+            releaseCameraSurface(true);
         }
 
         super.clear();
     }
 
-    private void releaseCameraSurface() {
+    private void releaseCameraSurface(final boolean releaseVideoEncoder) {
         if (mDeferrableSurface == null) {
             return;
         }
 
         final Surface surface = mCameraSurface;
+        final MediaCodec videoEncoder = mVideoEncoder;
+
         mDeferrableSurface.setOnSurfaceDetachedListener(
                 CameraXExecutors.mainThreadExecutor(),
                 new DeferrableSurface.OnSurfaceDetachedListener() {
                     @Override
                     public void onSurfaceDetached() {
+                        if (releaseVideoEncoder && videoEncoder != null) {
+                            videoEncoder.release();
+                        }
+
                         if (surface != null) {
                             surface.release();
                         }
                     }
                 });
 
+        if (releaseVideoEncoder) {
+            mVideoEncoder = null;
+        }
         mCameraSurface = null;
         mDeferrableSurface = null;
     }
@@ -454,7 +458,7 @@ public class VideoCapture extends UseCase {
                 null,
                 MediaCodec.CONFIGURE_FLAG_ENCODE);
         if (mCameraSurface != null) {
-            releaseCameraSurface();
+            releaseCameraSurface(false);
         }
         mCameraSurface = mVideoEncoder.createInputSurface();
 
