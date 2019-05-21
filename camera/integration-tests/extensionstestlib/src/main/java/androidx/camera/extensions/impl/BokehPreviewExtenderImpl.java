@@ -19,6 +19,8 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.util.Size;
+import android.view.Surface;
 
 /**
  * Implementation for bokeh preview use case.
@@ -83,11 +85,20 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
 
             return null;
         }
+
+        @Override
+        public void onOutputSurface(Surface surface, int imageFormat) {}
+
+        @Override
+        public void onResolutionUpdate(Size size) {}
+
+        @Override
+        public void onImageFormatUpdate(int imageFormat) {}
     };
 
 
     @Override
-    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+    public ProcessorImpl getProcessor() {
         return mRequestUpdateProcessor;
     }
 

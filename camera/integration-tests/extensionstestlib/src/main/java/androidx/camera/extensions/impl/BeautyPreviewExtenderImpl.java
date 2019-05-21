@@ -60,7 +60,7 @@ public final class BeautyPreviewExtenderImpl implements PreviewExtenderImpl {
     }
 
     @Override
-    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+    public ProcessorImpl getProcessor() {
         return RequestUpdateProcessorImpls.noUpdateProcessor();
     }
 

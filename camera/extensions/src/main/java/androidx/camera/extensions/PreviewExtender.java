@@ -39,6 +39,7 @@ import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -122,13 +123,9 @@ public abstract class PreviewExtender {
                         }
 
                         CaptureStageImpl captureStageImpl =
-                                mImpl.getRequestUpdatePreviewProcessor().process(
+                                ((RequestUpdateProcessorImpl) mImpl.getProcessor()).process(
                                         totalCaptureResult);
-                        if (captureStageImpl == null) {
-                            return false;
-                        }
-
-                        return true;
+                        return captureStageImpl != null;
                     }
                 });
         }

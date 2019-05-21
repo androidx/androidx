@@ -18,7 +18,11 @@ package androidx.camera.extensions.impl;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
+import android.media.Image;
+import android.util.Log;
+import android.util.Size;
+import android.view.Surface;
 
 /**
  * Implementation for HDR preview use case.
@@ -27,6 +31,7 @@ import android.hardware.camera2.CaptureRequest;
  * don't need to implement this, unless this is used for related testing usage.
  */
 public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
+    private static final String TAG = "HDRImpl";
     private static final int DEFAULT_STAGE_ID = 0;
 
     public HdrPreviewExtenderImpl() { }
@@ -47,21 +52,42 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_AQUA);
 
         return captureStage;
     }
 
     @Override
     public ProcessorType getProcessorType() {
-        return ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY;
+        return ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR;
     }
 
     @Override
-    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
-        return RequestUpdateProcessorImpls.noUpdateProcessor();
+    public ProcessorImpl getProcessor() {
+        return mProcessor;
     }
+
+    private PreviewImageProcessorImpl mProcessor = new PreviewImageProcessorImpl() {
+
+        @Override
+        public void onOutputSurface(Surface surface, int imageFormat) {
+        }
+
+        @Override
+        public void process(Image image, TotalCaptureResult result) {
+            Log.d(TAG, "process image");
+        }
+
+        Size mSize;
+        @Override
+        public void onResolutionUpdate(Size size) {
+            mSize = size;
+        }
+
+        @Override
+        public void onImageFormatUpdate(int imageFormat) {
+
+        }
+    };
 
     @Override
     public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,

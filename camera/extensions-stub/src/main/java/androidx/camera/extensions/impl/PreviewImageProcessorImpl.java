@@ -17,18 +17,22 @@
 package androidx.camera.extensions.impl;
 
 import android.hardware.camera2.TotalCaptureResult;
+import android.media.Image;
 
 /**
- * Processes a {@link TotalCaptureResult} to update a CaptureStage.
+ * Processes a single {@link Image} and {@link TotalCaptureResult} to produce an output to a
+ * stream.
  */
-public interface RequestUpdateProcessorImpl extends ProcessorImpl {
+public interface PreviewImageProcessorImpl extends ProcessorImpl {
     /**
-     * Process the {@link TotalCaptureResult} to update the {@link CaptureStageImpl}
+     * Processes the requested image capture.
      *
-     * @param result The metadata associated with the image. Can be null if the image and meta have
-     *               not been synced.
-     * @return The updated parameters used for the repeating requests. If this is {@code null} then
-     * the previous parameters will be used.
+     * <p> The result of the processing step should be written to the {@link android.view.Surface}
+     * that was received by {@link ProcessorImpl#onOutputSurface(android.view.Surface, int)}.
+     *
+     * @param image The image to process. This will be invalid after the method completes so no
+     *              reference to it should be kept.
+     * @param result The metadata associated with the image to process.
      */
-    CaptureStageImpl process(TotalCaptureResult result);
+    void process(Image image, TotalCaptureResult result);
 }
