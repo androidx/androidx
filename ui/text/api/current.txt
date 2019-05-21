@@ -602,9 +602,9 @@ package androidx.ui.rendering.paragraph {
   }
 
   public enum TextOverflow {
-    enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow CLIP;
-    enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow ELLIPSIS;
-    enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow FADE;
+    enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow Clip;
+    enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow Ellipsis;
+    enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow Fade;
   }
 
 }
