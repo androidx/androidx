@@ -207,7 +207,7 @@ class TextPainter(
             if (layoutTemplate == null) {
                 val builder = ParagraphBuilder(
                     // TODO(Migration/qqd): The textDirection below used to be RTL.
-                    createParagraphStyle(TextDirection.LTR)
+                    createParagraphStyle(TextDirection.Ltr)
                 ) // direction doesn't matter, text is just a space
                 if (text?.style != null) {
                     builder.pushStyle(text?.style!!.getTextStyle(textScaleFactor = textScaleFactor))

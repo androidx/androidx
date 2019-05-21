@@ -10,7 +10,6 @@ package androidx.ui {
   }
 
   public enum VertexMode {
-    ctor protected VertexMode(android.graphics.Canvas.VertexMode frameworkVertex);
     method public final android.graphics.Canvas.VertexMode toFrameworkVertexMode();
     enum_constant public static final androidx.ui.VertexMode triangleFan;
     enum_constant public static final androidx.ui.VertexMode triangleStrip;
@@ -134,7 +133,6 @@ package androidx.ui.core {
   }
 
   public enum Direction {
-    ctor protected Direction();
     enum_constant public static final androidx.ui.core.Direction DOWN;
     enum_constant public static final androidx.ui.core.Direction LEFT;
     enum_constant public static final androidx.ui.core.Direction RIGHT;
@@ -149,14 +147,14 @@ package androidx.ui.core {
     method public inline operator androidx.ui.core.Dp div(float other);
     method public inline operator androidx.ui.core.Dp div(int other);
     method public inline operator float div(androidx.ui.core.Dp other);
-    method public inline operator float div(float other);
+    method public inline operator float div-KkBJKWw(float other);
     method public float getValue();
     method public inline operator androidx.ui.core.Dp minus(androidx.ui.core.Dp other);
     method public inline operator androidx.ui.core.Dp plus(androidx.ui.core.Dp other);
     method public inline operator androidx.ui.core.Dp times(float other);
     method public inline operator androidx.ui.core.Dp times(int other);
     method public inline operator float times(androidx.ui.core.Dp other);
-    method public inline operator float times(float other);
+    method public inline operator float times-KkBJKWw(float other);
     method public inline operator androidx.ui.core.Dp unaryMinus();
     field public static final androidx.ui.core.Dp.Companion! Companion;
   }
@@ -169,31 +167,39 @@ package androidx.ui.core {
   }
 
   public final inline class DpCubed {
-    ctor public DpCubed(float value);
-    method public inline operator int compareTo(float p);
-    method public inline operator float div(float p);
-    method public inline operator float div(androidx.ui.core.Dp p);
-    method public inline operator androidx.ui.core.Dp div(float p);
-    method public inline operator float div(float p);
+    ctor public DpCubed();
+    method public static inline operator int compareTo-zqpl1kg(float $this, float other);
+    method public static float constructor-impl(float value);
+    method public static inline operator androidx.ui.core.Dp div-KkBJKWw(float $this, float other);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static inline operator float div-impl(float $this, androidx.ui.core.Dp other);
+    method public static inline operator float div-zqpl1kg(float $this, float other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator float minus(float p);
-    method public inline operator float plus(float p);
-    method public inline operator float times(float p);
-    method public float unbox();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-zqpl1kg(float $this, float dimension);
+    method public static inline operator float plus-zqpl1kg(float $this, float dimension);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static String toString-impl(float p);
   }
 
   public final inline class DpInverse {
-    ctor public DpInverse(float value);
-    method public inline operator int compareTo(float p);
-    method public inline operator float div(float p);
+    ctor public DpInverse();
+    method public static inline operator int compareTo-ASDJgtI(float $this, float other);
+    method public static float constructor-impl(float value);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator float minus(float p);
-    method public inline operator float plus(float p);
-    method public inline operator float times(float p);
-    method public inline operator float times(androidx.ui.core.Dp p);
-    method public inline operator androidx.ui.core.Dp times(float p);
-    method public inline operator float times(float p);
-    method public float unbox();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-ASDJgtI(float $this, float dimension);
+    method public static inline operator float plus-ASDJgtI(float $this, float dimension);
+    method public static inline operator androidx.ui.core.Dp times-KkBJKWw(float $this, float other);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static inline operator float times-impl(float $this, androidx.ui.core.Dp other);
+    method public static inline operator float times-zqpl1kg(float $this, float other);
+    method public static String toString-impl(float p);
   }
 
   public final class DpKt {
@@ -224,18 +230,22 @@ package androidx.ui.core {
   }
 
   public final inline class DpSquared {
-    ctor public DpSquared(float value);
-    method public inline operator int compareTo(float p);
-    method public inline operator float div(float p);
-    method public inline operator androidx.ui.core.Dp div(androidx.ui.core.Dp p);
-    method public inline operator float div(float p);
-    method public inline operator float div(float p);
+    ctor public DpSquared();
+    method public static inline operator int compareTo-KkBJKWw(float $this, float other);
+    method public static float constructor-impl(float value);
+    method public static inline operator float div-KkBJKWw(float $this, float other);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static inline operator androidx.ui.core.Dp div-impl(float $this, androidx.ui.core.Dp other);
+    method public static inline operator float div-zqpl1kg(float $this, float other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator float minus(float p);
-    method public inline operator float plus(float p);
-    method public inline operator float times(float p);
-    method public inline operator float times(androidx.ui.core.Dp p);
-    method public float unbox();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-KkBJKWw(float $this, float other);
+    method public static inline operator float plus-KkBJKWw(float $this, float other);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static inline operator float times-impl(float $this, androidx.ui.core.Dp other);
+    method public static String toString-impl(float p);
   }
 
   public final class Duration implements java.lang.Comparable<androidx.ui.core.Duration> {
@@ -378,7 +388,6 @@ package androidx.ui.core {
   }
 
   public enum PointerEventPass {
-    ctor protected PointerEventPass();
     enum_constant public static final androidx.ui.core.PointerEventPass InitialDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostDown;
     enum_constant public static final androidx.ui.core.PointerEventPass PostUp;
@@ -445,7 +454,7 @@ package androidx.ui.core {
     method public inline operator androidx.ui.core.Px div(float other);
     method public inline operator androidx.ui.core.Px div(int other);
     method public inline operator float div(androidx.ui.core.Px other);
-    method public inline operator float div(float other);
+    method public inline operator float div-kVJEwbQ(float other);
     method public float getValue();
     method public inline operator androidx.ui.core.Px minus(androidx.ui.core.Px other);
     method public inline operator androidx.ui.core.Px minus(androidx.ui.core.IntPx other);
@@ -454,7 +463,7 @@ package androidx.ui.core {
     method public inline operator androidx.ui.core.Px times(float other);
     method public inline operator androidx.ui.core.Px times(int other);
     method public inline operator float times(androidx.ui.core.Px other);
-    method public inline operator float times(float other);
+    method public inline operator float times-kVJEwbQ(float other);
     method public inline operator androidx.ui.core.Px unaryMinus();
     field public static final androidx.ui.core.Px.Companion! Companion;
   }
@@ -478,31 +487,39 @@ package androidx.ui.core {
   }
 
   public final inline class PxCubed {
-    ctor public PxCubed(float value);
-    method public inline operator int compareTo(float p);
-    method public inline operator float div(float p);
-    method public inline operator float div(androidx.ui.core.Px p);
-    method public inline operator androidx.ui.core.Px div(float p);
-    method public inline operator float div(float p);
+    ctor public PxCubed();
+    method public static inline operator int compareTo-syUR1PY(float $this, float other);
+    method public static float constructor-impl(float value);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static inline operator float div-impl(float $this, androidx.ui.core.Px other);
+    method public static inline operator androidx.ui.core.Px div-kVJEwbQ(float $this, float other);
+    method public static inline operator float div-syUR1PY(float $this, float other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator float minus(float p);
-    method public inline operator float plus(float p);
-    method public inline operator float times(float p);
-    method public float unbox();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-syUR1PY(float $this, float dimension);
+    method public static inline operator float plus-syUR1PY(float $this, float dimension);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static String toString-impl(float p);
   }
 
   public final inline class PxInverse {
-    ctor public PxInverse(float value);
-    method public inline operator int compareTo(float p);
-    method public inline operator float div(float p);
+    ctor public PxInverse();
+    method public static inline operator int compareTo-MXEAIGs(float $this, float other);
+    method public static float constructor-impl(float value);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator float minus(float p);
-    method public inline operator float plus(float p);
-    method public inline operator float times(float p);
-    method public inline operator float times(androidx.ui.core.Px p);
-    method public inline operator androidx.ui.core.Px times(float p);
-    method public inline operator float times(float p);
-    method public float unbox();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-MXEAIGs(float $this, float dimension);
+    method public static inline operator float plus-MXEAIGs(float $this, float dimension);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static inline operator float times-impl(float $this, androidx.ui.core.Px other);
+    method public static inline operator androidx.ui.core.Px times-kVJEwbQ(float $this, float other);
+    method public static inline operator float times-syUR1PY(float $this, float other);
+    method public static String toString-impl(float p);
   }
 
   public final class PxKt {
@@ -564,18 +581,22 @@ package androidx.ui.core {
   }
 
   public final inline class PxSquared {
-    ctor public PxSquared(float value);
-    method public inline operator int compareTo(float p);
-    method public inline operator float div(float p);
-    method public inline operator androidx.ui.core.Px div(androidx.ui.core.Px p);
-    method public inline operator float div(float p);
-    method public inline operator float div(float p);
+    ctor public PxSquared();
+    method public static inline operator int compareTo-kVJEwbQ(float $this, float other);
+    method public static float constructor-impl(float value);
+    method public static inline operator float div-impl(float $this, float other);
+    method public static inline operator androidx.ui.core.Px div-impl(float $this, androidx.ui.core.Px other);
+    method public static inline operator float div-kVJEwbQ(float $this, float other);
+    method public static inline operator float div-syUR1PY(float $this, float other);
+    method public static boolean equals-impl(float p, Object? p1);
+    method public static boolean equals-impl0(float p1, float p2);
     method public float getValue();
-    method public inline operator float minus(float p);
-    method public inline operator float plus(float p);
-    method public inline operator float times(float p);
-    method public inline operator float times(androidx.ui.core.Px p);
-    method public float unbox();
+    method public static int hashCode-impl(float p);
+    method public static inline operator float minus-kVJEwbQ(float $this, float other);
+    method public static inline operator float plus-kVJEwbQ(float $this, float other);
+    method public static inline operator float times-impl(float $this, float other);
+    method public static inline operator float times-impl(float $this, androidx.ui.core.Px other);
+    method public static String toString-impl(float p);
   }
 
   public final class RectHelperKt {
@@ -1022,15 +1043,13 @@ package androidx.ui.engine.geometry {
 package androidx.ui.engine.text {
 
   public enum TextAffinity {
-    ctor protected TextAffinity();
     enum_constant public static final androidx.ui.engine.text.TextAffinity downstream;
     enum_constant public static final androidx.ui.engine.text.TextAffinity upstream;
   }
 
   public enum TextDirection {
-    ctor protected TextDirection();
-    enum_constant public static final androidx.ui.engine.text.TextDirection LTR;
-    enum_constant public static final androidx.ui.engine.text.TextDirection RTL;
+    enum_constant public static final androidx.ui.engine.text.TextDirection Ltr;
+    enum_constant public static final androidx.ui.engine.text.TextDirection Rtl;
   }
 
   public final class TextPosition {
@@ -1047,17 +1066,16 @@ package androidx.ui.engine.text {
 package androidx.ui.graphics {
 
   @AnyThread public final class Color {
-    ctor public Color(error.NonExistentClass value);
     method public operator int compareTo(androidx.ui.graphics.Color other);
     method public androidx.ui.graphics.Color convert(androidx.ui.graphics.ColorSpace colorSpace);
     method public androidx.ui.graphics.Color copy(float alpha = this.alpha, float red = this.red, float green = this.green, float blue = this.blue);
     method public float getAlpha();
     method public float getBlue();
     method public androidx.ui.graphics.ColorSpace getColorSpace();
-    method public float getComponent(@IntRange(value=0L, value=3L) int component);
+    method public float getComponent(@IntRange(from=0, to=3) int component);
     method public int getComponentCount();
-    method @Size(4L) public float[] getComponents();
-    method @Size(4L) public float[] getComponents(@Size(4L) float[] components);
+    method @Size(4) public float[] getComponents();
+    method @Size(4) public float[] getComponents(@Size(4) float[] components);
     method public float getGreen();
     method public androidx.ui.graphics.ColorSpace.Model getModel();
     method public float getRed();
@@ -1078,49 +1096,49 @@ package androidx.ui.graphics {
   }
 
   public static final class Color.Companion {
-    method public error.NonExistentClass getAqua();
-    method public error.NonExistentClass getBlack();
-    method public error.NonExistentClass getBlue();
-    method public error.NonExistentClass getCyan();
-    method public error.NonExistentClass getDarkGray();
-    method public error.NonExistentClass getFuchsia();
-    method public error.NonExistentClass getGray();
-    method public error.NonExistentClass getGreen();
-    method public error.NonExistentClass getLightGray();
-    method public error.NonExistentClass getLime();
-    method public error.NonExistentClass getMagenta();
-    method public error.NonExistentClass getMaroon();
-    method public error.NonExistentClass getNavy();
-    method public error.NonExistentClass getOlive();
-    method public error.NonExistentClass getPurple();
-    method public error.NonExistentClass getRed();
-    method public error.NonExistentClass getSilver();
-    method public error.NonExistentClass getTeal();
-    method public error.NonExistentClass getTransparent();
-    method public error.NonExistentClass getWhite();
-    method public error.NonExistentClass getYellow();
-    method public androidx.ui.graphics.Color parse(@Size(3L) String colorString);
-    property public final error.NonExistentClass Aqua;
-    property public final error.NonExistentClass Black;
-    property public final error.NonExistentClass Blue;
-    property public final error.NonExistentClass Cyan;
-    property public final error.NonExistentClass DarkGray;
-    property public final error.NonExistentClass Fuchsia;
-    property public final error.NonExistentClass Gray;
-    property public final error.NonExistentClass Green;
-    property public final error.NonExistentClass LightGray;
-    property public final error.NonExistentClass Lime;
-    property public final error.NonExistentClass Magenta;
-    property public final error.NonExistentClass Maroon;
-    property public final error.NonExistentClass Navy;
-    property public final error.NonExistentClass Olive;
-    property public final error.NonExistentClass Purple;
-    property public final error.NonExistentClass Red;
-    property public final error.NonExistentClass Silver;
-    property public final error.NonExistentClass Teal;
-    property public final error.NonExistentClass Transparent;
-    property public final error.NonExistentClass White;
-    property public final error.NonExistentClass Yellow;
+    method public androidx.ui.graphics.Color getAqua();
+    method public androidx.ui.graphics.Color getBlack();
+    method public androidx.ui.graphics.Color getBlue();
+    method public androidx.ui.graphics.Color getCyan();
+    method public androidx.ui.graphics.Color getDarkGray();
+    method public androidx.ui.graphics.Color getFuchsia();
+    method public androidx.ui.graphics.Color getGray();
+    method public androidx.ui.graphics.Color getGreen();
+    method public androidx.ui.graphics.Color getLightGray();
+    method public androidx.ui.graphics.Color getLime();
+    method public androidx.ui.graphics.Color getMagenta();
+    method public androidx.ui.graphics.Color getMaroon();
+    method public androidx.ui.graphics.Color getNavy();
+    method public androidx.ui.graphics.Color getOlive();
+    method public androidx.ui.graphics.Color getPurple();
+    method public androidx.ui.graphics.Color getRed();
+    method public androidx.ui.graphics.Color getSilver();
+    method public androidx.ui.graphics.Color getTeal();
+    method public androidx.ui.graphics.Color getTransparent();
+    method public androidx.ui.graphics.Color getWhite();
+    method public androidx.ui.graphics.Color getYellow();
+    method public androidx.ui.graphics.Color parse(@Size(min=3) String colorString);
+    property public final androidx.ui.graphics.Color Aqua;
+    property public final androidx.ui.graphics.Color Black;
+    property public final androidx.ui.graphics.Color Blue;
+    property public final androidx.ui.graphics.Color Cyan;
+    property public final androidx.ui.graphics.Color DarkGray;
+    property public final androidx.ui.graphics.Color Fuchsia;
+    property public final androidx.ui.graphics.Color Gray;
+    property public final androidx.ui.graphics.Color Green;
+    property public final androidx.ui.graphics.Color LightGray;
+    property public final androidx.ui.graphics.Color Lime;
+    property public final androidx.ui.graphics.Color Magenta;
+    property public final androidx.ui.graphics.Color Maroon;
+    property public final androidx.ui.graphics.Color Navy;
+    property public final androidx.ui.graphics.Color Olive;
+    property public final androidx.ui.graphics.Color Purple;
+    property public final androidx.ui.graphics.Color Red;
+    property public final androidx.ui.graphics.Color Silver;
+    property public final androidx.ui.graphics.Color Teal;
+    property public final androidx.ui.graphics.Color Transparent;
+    property public final androidx.ui.graphics.Color White;
+    property public final androidx.ui.graphics.Color Yellow;
   }
 
   public final class ColorKt {
@@ -1128,25 +1146,25 @@ package androidx.ui.graphics {
     method public static androidx.ui.graphics.Color Color(float red, float green, float blue, float alpha = 1f, androidx.ui.graphics.ColorSpace colorSpace = colorSpace);
     method public static androidx.ui.graphics.Color Color(float[] components, androidx.ui.graphics.ColorSpace colorSpace);
     method public static androidx.ui.graphics.Color Color(@ColorInt int color);
-    method public static androidx.ui.graphics.Color Color(@IntRange(value=0L, value=255L) int red, @IntRange(value=0L, value=255L) int green, @IntRange(value=0L, value=255L) int blue, @IntRange(value=0L, value=255L) int alpha = 0xFF);
-    method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color a, androidx.ui.graphics.Color b, @FloatRange(value=0.0, value=1.0) float t);
+    method public static androidx.ui.graphics.Color Color(@IntRange(from=0, to=255) int red, @IntRange(from=0, to=255) int green, @IntRange(from=0, to=255) int blue, @IntRange(from=0, to=255) int alpha = 0xFF);
+    method public static androidx.ui.graphics.Color lerp(androidx.ui.graphics.Color a, androidx.ui.graphics.Color b, @FloatRange(from=0.0, to=1.0) float t);
   }
 
   @AnyThread public abstract class ColorSpace {
-    method @Size(3L) public final float[] fromXyz(float x, float y, float z);
-    method @Size(3L) public abstract float[] fromXyz(@Size(3L) float[] v);
-    method @IntRange(value=1L, value=4L) public final int getComponentCount();
+    method @Size(min=3) public final float[] fromXyz(float x, float y, float z);
+    method @Size(min=3) public abstract float[] fromXyz(@Size(min=3) float[] v);
+    method @IntRange(from=1, to=4) public final int getComponentCount();
     method public final int getId();
-    method public abstract float getMaxValue(@IntRange(value=0L, value=3L) int component);
-    method public abstract float getMinValue(@IntRange(value=0L, value=3L) int component);
+    method public abstract float getMaxValue(@IntRange(from=0, to=3) int component);
+    method public abstract float getMinValue(@IntRange(from=0, to=3) int component);
     method public final androidx.ui.graphics.ColorSpace.Model getModel();
     method public final String getName();
     method public boolean isSrgb();
     method public abstract boolean isWideGamut();
     method public final void setId$lintWithKotlin(int p);
-    method @Size(3L) public final float[] toXyz(float r, float g, float b);
-    method @Size(3L) public abstract float[] toXyz(@Size(3L) float[] v);
-    property @IntRange(value=1L, value=4L) public final int componentCount;
+    method @Size(3) public final float[] toXyz(float r, float g, float b);
+    method @Size(min=3) public abstract float[] toXyz(@Size(min=3) float[] v);
+    property @IntRange(from=1, to=4) public final int componentCount;
     property public final int id;
     property public boolean isSrgb;
     property public abstract boolean isWideGamut;
@@ -1156,15 +1174,14 @@ package androidx.ui.graphics {
   }
 
   public enum ColorSpace.Adaptation {
-    ctor protected ColorSpace.Adaptation(internal float[] transform);
     enum_constant public static final androidx.ui.graphics.ColorSpace.Adaptation Bradford;
     enum_constant public static final androidx.ui.graphics.ColorSpace.Adaptation Ciecat02;
     enum_constant public static final androidx.ui.graphics.ColorSpace.Adaptation VonKries;
   }
 
   public static final class ColorSpace.Companion {
-    method public androidx.ui.graphics.ColorSpace adapt(androidx.ui.graphics.ColorSpace colorSpace, @Size(value=2L, value=3L) float[] whitePoint, androidx.ui.graphics.ColorSpace.Adaptation adaptation = Adaptation.Bradford);
-    method public androidx.ui.graphics.ColorSpace adapt(androidx.ui.graphics.ColorSpace colorSpace, @Size(value=2L, value=3L) float[] whitePoint);
+    method public androidx.ui.graphics.ColorSpace adapt(androidx.ui.graphics.ColorSpace colorSpace, @Size(min=2, max=3) float[] whitePoint, androidx.ui.graphics.ColorSpace.Adaptation adaptation = Adaptation.Bradford);
+    method public androidx.ui.graphics.ColorSpace adapt(androidx.ui.graphics.ColorSpace colorSpace, @Size(min=2, max=3) float[] whitePoint);
     method public androidx.ui.graphics.ColorSpace.Connector connect(androidx.ui.graphics.ColorSpace source, androidx.ui.graphics.ColorSpace destination);
     method public androidx.ui.graphics.ColorSpace.Connector connect(androidx.ui.graphics.ColorSpace source, androidx.ui.graphics.ColorSpace destination, androidx.ui.graphics.ColorSpace.RenderIntent intent);
     method public androidx.ui.graphics.ColorSpace.Connector connect(androidx.ui.graphics.ColorSpace source, androidx.ui.graphics.ColorSpace.RenderIntent intent = RenderIntent.Perceptual);
@@ -1179,7 +1196,7 @@ package androidx.ui.graphics {
     method public float[] getIlluminantD65();
     method public float[] getIlluminantD75();
     method public float[] getIlluminantE();
-    method public androidx.ui.graphics.ColorSpace? match(@Size(9L) float[] toXYZD50, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
+    method public androidx.ui.graphics.ColorSpace? match(@Size(9) float[] toXYZD50, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
     property public final float[] IlluminantA;
     property public final float[] IlluminantB;
     property public final float[] IlluminantC;
@@ -1195,8 +1212,8 @@ package androidx.ui.graphics {
     method public final androidx.ui.graphics.ColorSpace getDestination();
     method public final androidx.ui.graphics.ColorSpace.RenderIntent getRenderIntent();
     method public final androidx.ui.graphics.ColorSpace getSource();
-    method @Size(3L) public final float[] transform(float r, float g, float b);
-    method @Size(3L) public float[] transform(@Size(3L) float[] v);
+    method @Size(3) public final float[] transform(float r, float g, float b);
+    method @Size(min=3) public float[] transform(@Size(min=3) float[] v);
     field public static final androidx.ui.graphics.ColorSpace.Connector.Companion! Companion;
   }
 
@@ -1204,7 +1221,6 @@ package androidx.ui.graphics {
   }
 
   public enum ColorSpace.Model {
-    ctor protected ColorSpace.Model(@IntRange(value=1L, value=4L) int componentCount);
     method public final int getComponentCount();
     enum_constant public static final androidx.ui.graphics.ColorSpace.Model Cmyk;
     enum_constant public static final androidx.ui.graphics.ColorSpace.Model Lab;
@@ -1213,7 +1229,6 @@ package androidx.ui.graphics {
   }
 
   public enum ColorSpace.Named {
-    ctor protected ColorSpace.Named(internal androidx.ui.graphics.ColorSpace colorSpace);
     enum_constant public static final androidx.ui.graphics.ColorSpace.Named Aces;
     enum_constant public static final androidx.ui.graphics.ColorSpace.Named Acescg;
     enum_constant public static final androidx.ui.graphics.ColorSpace.Named AdobeRgb;
@@ -1237,7 +1252,6 @@ package androidx.ui.graphics {
   }
 
   public enum ColorSpace.RenderIntent {
-    ctor protected ColorSpace.RenderIntent();
     enum_constant public static final androidx.ui.graphics.ColorSpace.RenderIntent Absolute;
     enum_constant public static final androidx.ui.graphics.ColorSpace.RenderIntent Perceptual;
     enum_constant public static final androidx.ui.graphics.ColorSpace.RenderIntent Relative;
@@ -1245,32 +1259,32 @@ package androidx.ui.graphics {
   }
 
   @AnyThread public static final class ColorSpace.Rgb extends androidx.ui.graphics.ColorSpace {
-    ctor public ColorSpace.Rgb(@Size(1L) String name, @Size(9L) float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
-    ctor public ColorSpace.Rgb(@Size(1L) String name, @Size(value=6L, value=9L) float[] primaries, @Size(value=2L, value=3L) float[] whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
-    ctor public ColorSpace.Rgb(@Size(1L) String name, @Size(9L) float[] toXYZ, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
-    ctor public ColorSpace.Rgb(@Size(1L) String name, @Size(value=6L, value=9L) float[] primaries, @Size(value=2L, value=3L) float[] whitePoint, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
-    ctor public ColorSpace.Rgb(@Size(1L) String name, @Size(9L) float[] toXYZ, double gamma);
-    ctor public ColorSpace.Rgb(@Size(1L) String name, @Size(value=6L, value=9L) float[] primaries, @Size(value=2L, value=3L) float[] whitePoint, double gamma);
-    method @Size(3L) public float[] fromLinear(float r, float g, float b);
-    method @Size(3L) public float[] fromLinear(@Size(3L) float[] v);
-    method @Size(3L) public float[] fromXyz(@Size(3L) float[] v);
+    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
+    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, @Size(min=null, max=null) float[] whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
+    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
+    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, @Size(min=null, max=null) float[] whitePoint, androidx.ui.graphics.ColorSpace.Rgb.TransferParameters function);
+    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, double gamma);
+    ctor public ColorSpace.Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, @Size(min=null, max=null) float[] whitePoint, double gamma);
+    method @Size(3) public float[] fromLinear(float r, float g, float b);
+    method @Size(min=3) public float[] fromLinear(@Size(min=3) float[] v);
+    method @Size(min=3) public float[] fromXyz(@Size(min=3) float[] v);
     method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getEotf();
-    method @Size(9L) public float[] getInverseTransform();
-    method @Size(9L) public float[] getInverseTransform(@Size(9L) float[] inverseTransform);
+    method @Size(9) public float[] getInverseTransform();
+    method @Size(min=9) public float[] getInverseTransform(@Size(min=9) float[] inverseTransform);
     method public float getMaxValue(int component);
     method public float getMinValue(int component);
     method public kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> getOetf();
-    method @Size(6L) public float[] getPrimaries();
-    method @Size(6L) public float[] getPrimaries(@Size(6L) float[] primaries);
+    method @Size(6) public float[] getPrimaries();
+    method @Size(min=6) public float[] getPrimaries(@Size(min=6) float[] primaries);
     method public androidx.ui.graphics.ColorSpace.Rgb.TransferParameters? getTransferParameters();
-    method @Size(9L) public float[] getTransform();
-    method @Size(9L) public float[] getTransform(@Size(9L) float[] transform);
-    method @Size(2L) public float[] getWhitePoint();
-    method @Size(2L) public float[] getWhitePoint(@Size(2L) float[] whitePoint);
+    method @Size(9) public float[] getTransform();
+    method @Size(min=9) public float[] getTransform(@Size(min=9) float[] transform);
+    method @Size(2) public float[] getWhitePoint();
+    method @Size(min=2) public float[] getWhitePoint(@Size(min=2) float[] whitePoint);
     method public boolean isWideGamut();
-    method @Size(3L) public float[] toLinear(float r, float g, float b);
-    method @Size(3L) public float[] toLinear(@Size(3L) float[] v);
-    method @Size(3L) public float[] toXyz(@Size(3L) float[] v);
+    method @Size(3) public float[] toLinear(float r, float g, float b);
+    method @Size(min=3) public float[] toLinear(@Size(min=3) float[] v);
+    method @Size(min=3) public float[] toXyz(@Size(min=3) float[] v);
     property public final kotlin.jvm.functions.Function1<java.lang.Double,java.lang.Double> eotf;
     property public boolean isSrgb;
     property public boolean isWideGamut;
@@ -1319,7 +1333,6 @@ package androidx.ui.input {
 package androidx.ui.painting {
 
   public enum BlendMode {
-    ctor protected BlendMode(android.graphics.PorterDuff.Mode? porterDuffMode);
     method public final android.graphics.PorterDuff.Mode toPorterDuffMode();
     enum_constant public static final androidx.ui.painting.BlendMode clear;
     enum_constant public static final androidx.ui.painting.BlendMode color;
@@ -1353,7 +1366,6 @@ package androidx.ui.painting {
   }
 
   public enum BlurStyle {
-    ctor protected BlurStyle();
     enum_constant public static final androidx.ui.painting.BlurStyle inner;
     enum_constant public static final androidx.ui.painting.BlurStyle normal;
     enum_constant public static final androidx.ui.painting.BlurStyle outer;
@@ -1395,7 +1407,6 @@ package androidx.ui.painting {
   }
 
   public enum ClipOp {
-    ctor protected ClipOp();
     enum_constant public static final androidx.ui.painting.ClipOp difference;
     enum_constant public static final androidx.ui.painting.ClipOp intersect;
   }
@@ -1410,7 +1421,6 @@ package androidx.ui.painting {
   }
 
   public enum FilterQuality {
-    ctor protected FilterQuality();
     enum_constant public static final androidx.ui.painting.FilterQuality high;
     enum_constant public static final androidx.ui.painting.FilterQuality low;
     enum_constant public static final androidx.ui.painting.FilterQuality medium;
@@ -1439,14 +1449,12 @@ package androidx.ui.painting {
   }
 
   public enum ImageByteFormat {
-    ctor protected ImageByteFormat();
     enum_constant public static final androidx.ui.painting.ImageByteFormat png;
     enum_constant public static final androidx.ui.painting.ImageByteFormat rawRgba;
     enum_constant public static final androidx.ui.painting.ImageByteFormat rawUnmodified;
   }
 
   public enum ImageRepeat {
-    ctor protected ImageRepeat();
     enum_constant public static final androidx.ui.painting.ImageRepeat noRepeat;
     enum_constant public static final androidx.ui.painting.ImageRepeat repeat;
     enum_constant public static final androidx.ui.painting.ImageRepeat repeatX;
@@ -1512,7 +1520,6 @@ package androidx.ui.painting {
   }
 
   public enum PaintingStyle {
-    ctor protected PaintingStyle();
     enum_constant public static final androidx.ui.painting.PaintingStyle fill;
     enum_constant public static final androidx.ui.painting.PaintingStyle stroke;
   }
@@ -1559,13 +1566,11 @@ package androidx.ui.painting {
   }
 
   public enum PathFillType {
-    ctor protected PathFillType();
     enum_constant public static final androidx.ui.painting.PathFillType evenOdd;
     enum_constant public static final androidx.ui.painting.PathFillType nonZero;
   }
 
   public enum PathOperation {
-    ctor protected PathOperation();
     enum_constant public static final androidx.ui.painting.PathOperation difference;
     enum_constant public static final androidx.ui.painting.PathOperation intersect;
     enum_constant public static final androidx.ui.painting.PathOperation reverseDifference;
@@ -1588,7 +1593,6 @@ package androidx.ui.painting {
   }
 
   public enum PointMode {
-    ctor protected PointMode();
     enum_constant public static final androidx.ui.painting.PointMode lines;
     enum_constant public static final androidx.ui.painting.PointMode points;
     enum_constant public static final androidx.ui.painting.PointMode polygon;
@@ -1616,21 +1620,18 @@ package androidx.ui.painting {
   }
 
   public enum StrokeCap {
-    ctor protected StrokeCap();
     enum_constant public static final androidx.ui.painting.StrokeCap butt;
     enum_constant public static final androidx.ui.painting.StrokeCap round;
     enum_constant public static final androidx.ui.painting.StrokeCap square;
   }
 
   public enum StrokeJoin {
-    ctor protected StrokeJoin();
     enum_constant public static final androidx.ui.painting.StrokeJoin bevel;
     enum_constant public static final androidx.ui.painting.StrokeJoin miter;
     enum_constant public static final androidx.ui.painting.StrokeJoin round;
   }
 
   public enum TileMode {
-    ctor protected TileMode();
     enum_constant public static final androidx.ui.painting.TileMode clamp;
     enum_constant public static final androidx.ui.painting.TileMode mirror;
     enum_constant public static final androidx.ui.painting.TileMode repeated;
@@ -1951,7 +1952,6 @@ package androidx.ui.vectormath64 {
   }
 
   public enum MatrixColumn {
-    ctor protected MatrixColumn();
     enum_constant public static final androidx.ui.vectormath64.MatrixColumn W;
     enum_constant public static final androidx.ui.vectormath64.MatrixColumn X;
     enum_constant public static final androidx.ui.vectormath64.MatrixColumn Y;
@@ -2246,7 +2246,6 @@ package androidx.ui.vectormath64 {
   }
 
   public enum VectorComponent {
-    ctor protected VectorComponent();
     enum_constant public static final androidx.ui.vectormath64.VectorComponent A;
     enum_constant public static final androidx.ui.vectormath64.VectorComponent B;
     enum_constant public static final androidx.ui.vectormath64.VectorComponent G;
