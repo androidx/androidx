@@ -55,9 +55,10 @@ dependencies {
         implementation(ARCH_ROOM_RUNTIME)
         androidTestImplementation(ARCH_ROOM_TESTING)
     }
-
-    api(ARCH_LIFECYCLE_EXTENSIONS)
     api(GUAVA_LISTENABLE_FUTURE)
+    api(ARCH_LIFECYCLE_LIVEDATA)
+    implementation(ANDROIDX_CORE)
+    implementation(ARCH_LIFECYCLE_SERVICE)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
