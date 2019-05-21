@@ -92,6 +92,7 @@ fun Text(
     val context = composer.composer.context
     val internalSelection = +state<TextSelection?> { null }
     val registrar = +ambient(SelectionRegistrarAmbient)
+    val layoutCoordinates = +state<LayoutCoordinates?> { null }
 
     fun attachContextToFont(
         text: TextSpan,
@@ -139,6 +140,9 @@ fun Text(
         attachContextToFont(styledText, context)
 
         val children = @Composable {
+            // Get the layout coordinates of the text widget. This is for hit test of cross-widget
+            // selection.
+            OnPositioned(onPositioned = { layoutCoordinates.value = it })
             Draw { canvas, _ ->
                 internalSelection.value?.let { renderParagraph.paintSelection(canvas, it) }
                 renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
@@ -151,10 +155,19 @@ fun Text(
 
         +onCommit(renderParagraph) {
             val id = registrar.subscribe(object : TextSelectionHandler {
-                override fun getSelection(coordinates: Pair<PxPosition, PxPosition>):
-                        Selection? {
-                    val start = Offset(coordinates.first.x.value, coordinates.first.y.value)
-                    val end = Offset(coordinates.second.x.value, coordinates.second.y.value)
+                // Get selection for the start and end coordinates pair.
+                override fun getSelection(
+                    selectionCoordinates: Pair<PxPosition, PxPosition>,
+                    containerLayoutCoordinates: LayoutCoordinates
+                ): Selection? {
+                    val relativePosition = containerLayoutCoordinates.childToLocal(
+                        layoutCoordinates.value!!, PxPosition.Origin
+                    )
+                    val startPx = selectionCoordinates.first - relativePosition
+                    val endPx = selectionCoordinates.second - relativePosition
+
+                    val start = Offset(startPx.x.value, startPx.y.value)
+                    val end = Offset(endPx.x.value, endPx.y.value)
 
                     var selectionStart = renderParagraph.getPositionForOffset(start)
                     var selectionEnd = renderParagraph.getPositionForOffset(end)
@@ -171,11 +184,14 @@ fun Text(
 
                     // TODO(qqd): Determine a set of coordinates around a character that we need.
                     // Clean up the lower layer's getCaretForTextPosition methods.
+                    // Currently the left bottom corner of a character is returned.
                     return Selection(
                         startOffset =
                         renderParagraph.getCaretForTextPosition(selectionStart).second,
                         endOffset =
-                        renderParagraph.getCaretForTextPosition(selectionEnd).second
+                        renderParagraph.getCaretForTextPosition(selectionEnd).second,
+                        startLayoutCoordinates = layoutCoordinates.value!!,
+                        endLayoutCoordinates = layoutCoordinates.value!!
                     )
                 }
             })

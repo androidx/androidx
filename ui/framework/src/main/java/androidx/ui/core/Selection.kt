@@ -18,7 +18,6 @@ package androidx.ui.core
 
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Ambient
@@ -28,30 +27,45 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 
-private const val HANDLE_WIDTH = 20f
-private const val HANDLE_HEIGHT = 100f
+private val HANDLE_WIDTH = 20.px
+private val HANDLE_HEIGHT = 100.px
 
 /**
  * Data class of Selection.
  */
 data class Selection(
     /**
-     * The coordinate of the start offset of the selection. For text, it's the left bottom corner
+     * The coordinates of the start offset of the selection. For text, it's the left bottom corner
      * of the character at the start offset.
      */
     val startOffset: Offset,
     /**
-     * The coordinate of the end offset of the selection. For text, it's the left bottom corner
+     * The coordinates of the end offset of the selection. For text, it's the left bottom corner
      * of the character at the end offset.
      */
-    val endOffset: Offset
+    val endOffset: Offset,
+    /**
+     * The layout coordinates of the child which contains the start of the selection. If the child
+     * does not contain the start of the selection, this should be null.
+     */
+    val startLayoutCoordinates: LayoutCoordinates?,
+    /**
+     * The layout coordinates of the child which contains the end of the selection. If the child
+     * does not contain the end of the selection, this should be null.
+     */
+    val endLayoutCoordinates: LayoutCoordinates?
 )
 
 /**
- * An interface handling selection. Get selection from a widget by passing in a coordinate.
+ * An interface handling selection. Get selection from a widget by passing in the start and end of
+ * selection in a selection container as a pair, and the layout coordinates of the selection
+ * container.
  */
 interface TextSelectionHandler {
-    fun getSelection(coordinates: Pair<PxPosition, PxPosition>): Selection?
+    fun getSelection(
+        selectionCoordinates: Pair<PxPosition, PxPosition>,
+        containerLayoutCoordinates: LayoutCoordinates
+    ): Selection?
 }
 
 /**
@@ -71,6 +85,11 @@ internal class SelectionManager : SelectionRegistrar {
      * to handle text selection that are below the SelectionContainer.
      */
     val handlers = mutableSetOf<TextSelectionHandler>()
+
+    /**
+     * Layout Coordinates of the selection container.
+     */
+    var containerLayoutCoordinates: LayoutCoordinates? = null
 
     /**
      * Allow a Text composable to "register" itself with the manager
@@ -94,7 +113,7 @@ internal class SelectionManager : SelectionRegistrar {
     fun onPress(position: PxPosition) {
         var result: Selection? = null
         for (handler in handlers) {
-            result = handler.getSelection(Pair(position, position))
+            result = handler.getSelection(Pair(position, position), containerLayoutCoordinates!!)
         }
         onSelectionChange(result)
     }
@@ -119,14 +138,31 @@ fun SelectionContainer(
     @Children children: @Composable() () -> Unit
 ) {
     val manager = +memo { SelectionManager() }
-    +memo(selection) { manager.selection = selection }
-    +memo(onSelectionChange) { manager.onSelectionChange = onSelectionChange }
+    // TODO (qqd): After selection widget is fully implemented, evaluate if the following 2 items
+    // are expensive. If so, use
+    // +memo(selection) { manager.selection = selection }
+    // +memo(onSelectionChange) { manager.onSelectionChange = onSelectionChange }
+    manager.selection = selection
+    manager.onSelectionChange = onSelectionChange
 
     SelectionRegistrarAmbient.Provider(value = manager) {
         val content = @Composable {
-            PressIndicatorGestureDetector(onStart = { position -> manager.onPress(position) }) {
-                children()
+            val content = @Composable() {
+                // Get the layout coordinates of the selection container. This is for hit test of
+                // cross-widget selection.
+                OnPositioned(onPositioned = { manager.containerLayoutCoordinates = it })
+                PressIndicatorGestureDetector(onStart = { position -> manager.onPress(position) }) {
+                    children()
+                }
             }
+            Layout(children = content, layoutBlock = { measurables, constraints ->
+                val placeable = measurables.firstOrNull()?.measure(constraints)
+                val width = placeable?.width ?: constraints.minWidth
+                val height = placeable?.height ?: constraints.minHeight
+                layout(width, height) {
+                    placeable?.place(0.ipx, 0.ipx)
+                }
+            })
         }
         val startHandle = @Composable {
             Layout(children = { SelectionHandle() }, layoutBlock = { _, constraints ->
@@ -148,28 +184,32 @@ fun SelectionContainer(
                 val start =
                     measurables[startHandle as () -> Unit].first().measure(
                         Constraints.tightConstraints(
-                            HANDLE_WIDTH.toInt().ipx,
-                            HANDLE_HEIGHT.toInt().ipx
+                            HANDLE_WIDTH.round(),
+                            HANDLE_HEIGHT.round()
                         )
                     )
                 val end =
                     measurables[endHandle as () -> Unit].first().measure(
                         Constraints.tightConstraints(
-                            HANDLE_WIDTH.toInt().ipx,
-                            HANDLE_HEIGHT.toInt().ipx
+                            HANDLE_WIDTH.round(),
+                            HANDLE_HEIGHT.round()
                         )
                     )
                 layout(width, height) {
                     placeable.place(IntPx.Zero, IntPx.Zero)
-                    selection?.let {
-                        start.place(
-                            it.startOffset.dx.px,
-                            it.startOffset.dy.px - HANDLE_HEIGHT.px
+                    if (selection != null &&
+                        selection.startLayoutCoordinates != null &&
+                        selection.endLayoutCoordinates != null) {
+                        val startOffset = manager.containerLayoutCoordinates!!.childToLocal(
+                            selection.startLayoutCoordinates,
+                            PxPosition(selection.startOffset.dx.px, selection.startOffset.dy.px)
                         )
-                        end.place(
-                            it.endOffset.dx.px - HANDLE_WIDTH.px,
-                            it.endOffset.dy.px - HANDLE_HEIGHT.px
+                        val endOffset = manager.containerLayoutCoordinates!!.childToLocal(
+                            selection.endLayoutCoordinates,
+                            PxPosition(selection.endOffset.dx.px, selection.endOffset.dy.px)
                         )
+                        start.place(startOffset.x, startOffset.y - HANDLE_HEIGHT)
+                        end.place(endOffset.x - HANDLE_WIDTH, endOffset.y - HANDLE_HEIGHT)
                     }
                 }
             })
@@ -179,12 +219,9 @@ fun SelectionContainer(
 @Suppress("FunctionName")
 @Composable
 internal fun SelectionHandle() {
-    val paint = Paint()
+    val paint = +memo { Paint() }
     paint.color = Color(0xAAD94633.toInt())
-    Draw { canvas, _ ->
-        canvas.drawRect(
-            Rect(left = 0f, top = 0f, right = HANDLE_WIDTH, bottom = HANDLE_HEIGHT),
-            paint
-        )
+    Draw { canvas, parentSize ->
+        canvas.drawRect(parentSize.toRect(), paint)
     }
 }
