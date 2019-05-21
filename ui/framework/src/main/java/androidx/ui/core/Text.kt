@@ -41,7 +41,7 @@ import androidx.compose.unaryPlus
 private val DefaultTextAlign: TextAlign = TextAlign.START
 private val DefaultTextDirection: TextDirection = TextDirection.LTR
 private val DefaultSoftWrap: Boolean = true
-private val DefaultOverflow: TextOverflow = TextOverflow.CLIP
+private val DefaultOverflow: TextOverflow = TextOverflow.Clip
 private val DefaultMaxLines: Int? = null
 
 /** The default selection color if none is specified. */

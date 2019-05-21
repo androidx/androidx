@@ -79,7 +79,7 @@ class RenderParagraph(
     textAlign: TextAlign = TextAlign.START,
     textDirection: TextDirection,
     softWrap: Boolean = true,
-    overflow: TextOverflow = TextOverflow.CLIP,
+    overflow: TextOverflow = TextOverflow.Clip,
     textScaleFactor: Float = 1.0f,
     maxLines: Int? = null,
     selectionColor: Color = DEFAULT_SELECTION_COLOR
@@ -101,7 +101,7 @@ class RenderParagraph(
             textDirection = textDirection,
             textScaleFactor = textScaleFactor,
             maxLines = maxLines,
-            ellipsis = overflow == TextOverflow.ELLIPSIS
+            ellipsis = overflow == TextOverflow.Ellipsis
         )
         selectionPaint = Paint()
         selectionPaint.color = selectionColor
@@ -157,7 +157,7 @@ class RenderParagraph(
         set(value) {
             if (field == value) return
             field = value
-            textPainter.ellipsis = value === TextOverflow.ELLIPSIS
+            textPainter.ellipsis = value === TextOverflow.Ellipsis
             // markNeedsLayout()
         }
 
@@ -195,7 +195,7 @@ class RenderParagraph(
     // TODO(b/130800659): IR compiler bug, should be internal
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     fun layoutText(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
-        val widthMatters = softWrap || overflow == TextOverflow.ELLIPSIS
+        val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
         textPainter.layout(
             minWidth = minWidth, maxWidth =
             if (widthMatters) maxWidth else Float.POSITIVE_INFINITY
@@ -283,8 +283,8 @@ class RenderParagraph(
         hasVisualOverflow = didOverflowWidth || didOverflowHeight
         if (hasVisualOverflow) {
             when (overflow) {
-                TextOverflow.CLIP, TextOverflow.ELLIPSIS -> overflowShader = null
-                TextOverflow.FADE -> {
+                TextOverflow.Clip, TextOverflow.Ellipsis -> overflowShader = null
+                TextOverflow.Fade -> {
                     val fadeSizePainter = TextPainter(
                         text = TextSpan(style = textPainter.text?.style, text = "\u2026"),
                         textDirection = textDirection,

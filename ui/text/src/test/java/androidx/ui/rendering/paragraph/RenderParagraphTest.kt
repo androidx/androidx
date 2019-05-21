@@ -38,7 +38,7 @@ class RenderParagraphTest {
         assertThat(paragraph.textAlign).isEqualTo(TextAlign.START)
         assertThat(paragraph.textDirection).isEqualTo(TextDirection.LTR)
         assertThat(paragraph.softWrap).isTrue()
-        assertThat(paragraph.overflow).isEqualTo(TextOverflow.CLIP)
+        assertThat(paragraph.overflow).isEqualTo(TextOverflow.Clip)
         assertThat(paragraph.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.maxLines).isNull()
         assertThat(paragraph.textPainter.text).isEqualTo(text)
@@ -61,7 +61,7 @@ class RenderParagraphTest {
                 textAlign = TextAlign.CENTER,
                 textDirection = TextDirection.RTL,
                 softWrap = false,
-                overflow = TextOverflow.ELLIPSIS,
+                overflow = TextOverflow.Ellipsis,
                 textScaleFactor = textScaleFactor,
                 maxLines = maxLines
             )
@@ -70,7 +70,7 @@ class RenderParagraphTest {
         assertThat(paragraph.textAlign).isEqualTo(TextAlign.CENTER)
         assertThat(paragraph.textDirection).isEqualTo(TextDirection.RTL)
         assertThat(paragraph.softWrap).isFalse()
-        assertThat(paragraph.overflow).isEqualTo(TextOverflow.ELLIPSIS)
+        assertThat(paragraph.overflow).isEqualTo(TextOverflow.Ellipsis)
         assertThat(paragraph.textScaleFactor).isEqualTo(textScaleFactor)
         assertThat(paragraph.maxLines).isEqualTo(maxLines)
         assertThat(paragraph.textPainter.text).isEqualTo(text)
@@ -149,9 +149,9 @@ class RenderParagraphTest {
         val text = TextSpan()
         val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
 
-        paragraph.overflow = TextOverflow.FADE
+        paragraph.overflow = TextOverflow.Fade
 
-        assertThat(paragraph.overflow).isEqualTo(TextOverflow.FADE)
+        assertThat(paragraph.overflow).isEqualTo(TextOverflow.Fade)
         assertThat(paragraph.textPainter.ellipsis).isFalse()
     }
 
@@ -160,9 +160,9 @@ class RenderParagraphTest {
         val text = TextSpan()
         val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
 
-        paragraph.overflow = TextOverflow.ELLIPSIS
+        paragraph.overflow = TextOverflow.Ellipsis
 
-        assertThat(paragraph.overflow).isEqualTo((TextOverflow.ELLIPSIS))
+        assertThat(paragraph.overflow).isEqualTo((TextOverflow.Ellipsis))
         assertThat(paragraph.textPainter.ellipsis).isEqualTo(true)
     }
 
