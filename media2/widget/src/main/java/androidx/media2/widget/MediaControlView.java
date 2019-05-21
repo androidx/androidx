@@ -1537,8 +1537,8 @@ public class MediaControlView extends ViewGroup {
     boolean shouldNotHideBars() {
         return (isCurrentItemMusic() && mSizeType == SIZE_TYPE_FULL)
                 || mAccessibilityManager.isTouchExplorationEnabled()
-                || mPlayer.getPlaybackState() == SessionPlayer.PLAYER_STATE_ERROR
-                || mPlayer.getPlaybackState() == SessionPlayer.PLAYER_STATE_IDLE;
+                || mPlayer.getPlayerState() == SessionPlayer.PLAYER_STATE_ERROR
+                || mPlayer.getPlayerState() == SessionPlayer.PLAYER_STATE_IDLE;
     }
 
     void seekTo(long newPosition, boolean shouldSeekNow) {
