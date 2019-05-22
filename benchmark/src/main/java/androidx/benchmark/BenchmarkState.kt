@@ -326,42 +326,30 @@ class BenchmarkState internal constructor() {
         }
     }
 
-    private fun mean(): Long = stats.mean.toLong()
-
-    private fun median(): Long = stats.median
-
-    private fun min(): Long = stats.min
-
-    private fun standardDeviation(): Long = stats.standardDeviation.toLong()
-
-    private fun count(): Long = maxIterations.toLong()
-
     internal data class Report(
         val className: String,
         val testName: String,
-        val nanos: Long,
         val data: List<Long>,
         val repeatIterations: Int,
         val warmupIterations: Int
-    )
-
-    internal fun getReport(testName: String, className: String): Report {
-        return Report(
-            className = className,
-            testName = testName,
-            nanos = min(),
-            data = results,
-            repeatIterations = maxIterations,
-            warmupIterations = warmupIteration
-        )
+    ) {
+        val stats = Stats(data)
     }
 
+    internal fun getReport(testName: String, className: String) = Report(
+        className = className,
+        testName = testName,
+        data = results,
+        repeatIterations = maxIterations,
+        warmupIterations = warmupIteration
+    )
+
     private fun summaryLine() = "Summary: " +
-            "median=${median()}ns, " +
-            "mean=${mean()}ns, " +
-            "min=${min()}ns, " +
-            "stddev=${standardDeviation()}ns, " +
-            "count=${count()}"
+            "median=${stats.median}ns, " +
+            "mean=${stats.mean.toLong()}ns, " +
+            "min=${stats.min}ns, " +
+            "stddev=${stats.standardDeviation.toLong()}ns, " +
+            "count=$maxIterations"
 
     /**
      * Acquires a status report bundle
@@ -373,12 +361,12 @@ class BenchmarkState internal constructor() {
         val status = Bundle()
 
         val prefix = WarningState.WARNING_PREFIX
-        status.putLong("${prefix}median", median())
-        status.putLong("${prefix}mean", mean())
-        status.putLong("${prefix}min", min())
-        status.putLong("${prefix}standardDeviation", standardDeviation())
-        status.putLong("${prefix}count", count())
-        status.putIdeSummaryLine(key, min())
+        status.putLong("${prefix}median", stats.median)
+        status.putLong("${prefix}mean", stats.mean.toLong())
+        status.putLong("${prefix}min", stats.min)
+        status.putLong("${prefix}standardDeviation", stats.standardDeviation.toLong())
+        status.putLong("${prefix}count", maxIterations.toLong())
+        status.putIdeSummaryLine(key, stats.min)
         return status
     }
 
@@ -416,11 +404,7 @@ class BenchmarkState internal constructor() {
          *
          * @param className Name of class the benchmark runs in
          * @param testName Name of the benchmark
-         * @param nanos Summary number for benchmark result, in nanoseconds. Generally this is the
-         *              minimum value observed. If your existing external benchmark infrastructure
-         *              has a standard way of summarizing results, such as average or median, you
-         *              can use that instead.
-         * @param data List of all measured results, in nanoseconds
+         * @param dataNs List of all measured results, in nanoseconds
          * @param warmupIterations Number of iterations of warmup before measurements started.
          *                         Should be no less than 0.
          * @param repeatIterations Number of iterations in between each measurement. Should be no
@@ -431,29 +415,27 @@ class BenchmarkState internal constructor() {
         fun reportData(
             className: String,
             testName: String,
-            nanos: Long,
-            data: List<Long>,
+            dataNs: List<Long>,
             @androidx.annotation.IntRange(from = 0) warmupIterations: Int,
             @androidx.annotation.IntRange(from = 1) repeatIterations: Int
         ) {
+            val report = Report(
+                className = className,
+                testName = testName,
+                data = dataNs,
+                repeatIterations = repeatIterations,
+                warmupIterations = warmupIterations
+            )
+
             // Report value to Studio console
             val bundle = Bundle()
             val fullTestName = WarningState.WARNING_PREFIX +
                     if (className.isNotEmpty()) "$className.$testName" else testName
-            bundle.putIdeSummaryLine(fullTestName, nanos)
+            bundle.putIdeSummaryLine(fullTestName, report.stats.min)
             InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
 
             // Report values to file output
-            ResultWriter.appendReport(
-                BenchmarkState.Report(
-                    className = className,
-                    testName = testName,
-                    nanos = nanos,
-                    data = data,
-                    repeatIterations = repeatIterations,
-                    warmupIterations = warmupIterations
-                )
-            )
+            ResultWriter.appendReport(report)
         }
 
         internal fun sleepIfThermalThrottled(): Boolean {
