@@ -49,6 +49,7 @@ public class Lifecycling {
     /**
      * @deprecated Left for compatibility with lifecycle-runtime:2.0
      */
+    @SuppressWarnings("deprecation")
     @Deprecated
     @NonNull
     static GenericLifecycleObserver getCallback(final Object object) {
