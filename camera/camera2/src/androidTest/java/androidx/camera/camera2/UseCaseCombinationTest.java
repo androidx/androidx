@@ -22,18 +22,11 @@ import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
 import android.content.Context;
-import android.graphics.SurfaceTexture;
-import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
-import android.util.Size;
-import android.view.Surface;
 
-import androidx.camera.camera2.impl.Camera2CameraFactory;
-import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks;
-import androidx.camera.core.CameraFactory;
-import androidx.camera.core.CameraRepository;
+import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysis;
@@ -41,11 +34,8 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.core.SessionConfig;
-import androidx.camera.core.UseCaseGroup;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
@@ -61,7 +51,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -80,13 +69,10 @@ public final class UseCaseCombinationTest {
     private FakeLifecycleOwner mLifecycle;
     private HandlerThread mHandlerThread;
     private Handler mMainThreadHandler;
-    private CallbackAttachingImageCapture mImageCapture;
+    private ImageCapture mImageCapture;
     private ImageAnalysis mImageAnalysis;
     private Preview mPreview;
     private ImageAnalysis.Analyzer mImageAnalyzer;
-    private CameraRepository mCameraRepository;
-    private CameraFactory mCameraFactory;
-    private UseCaseGroup mUseCaseGroup;
 
     private Observer<Long> createCountIncrementingObserver() {
         return new Observer<Long>() {
@@ -100,8 +86,12 @@ public final class UseCaseCombinationTest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
+
         Context context = ApplicationProvider.getApplicationContext();
-        CameraX.init(context, Camera2AppConfig.create(context));
+        AppConfig config = Camera2AppConfig.create(context);
+
+        CameraX.init(context, config);
+
         mLifecycle = new FakeLifecycleOwner();
         mHandlerThread = new HandlerThread("ErrorHandlerThread");
         mHandlerThread.start();
@@ -127,21 +117,12 @@ public final class UseCaseCombinationTest {
      * Test Combination: Preview + ImageCapture
      */
     @Test
-    public void previewCombinesImageCapture() throws InterruptedException {
+    public void previewCombinesImageCapture() {
         initPreview();
         initImageCapture();
 
-        mUseCaseGroup.addUseCase(mImageCapture);
-        mUseCaseGroup.addUseCase(mPreview);
-
         CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
         mLifecycle.startAndResume();
-
-        mImageCapture.doNotifyActive();
-        mCameraRepository.onGroupActive(mUseCaseGroup);
-
-        // Wait for the CameraCaptureSession.onConfigured callback.
-        mImageCapture.mSessionStateCallback.waitForOnConfigured(1);
 
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
         assertThat(CameraX.isBound(mPreview)).isTrue();
@@ -163,11 +144,11 @@ public final class UseCaseCombinationTest {
 
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
-
-                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
-                mLifecycle.startAndResume();
             }
         });
+
+        CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
+        mLifecycle.startAndResume();
 
         // Wait for 10 frames to be analyzed.
         mSemaphore.acquire(10);
@@ -185,13 +166,6 @@ public final class UseCaseCombinationTest {
         initImageAnalysis();
         initImageCapture();
 
-        mUseCaseGroup.addUseCase(mImageCapture);
-        mUseCaseGroup.addUseCase(mImageAnalysis);
-        mUseCaseGroup.addUseCase(mPreview);
-
-        mImageCapture.doNotifyActive();
-        mCameraRepository.onGroupActive(mUseCaseGroup);
-
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
@@ -208,13 +182,7 @@ public final class UseCaseCombinationTest {
         // Wait for 10 frames to be analyzed.
         mSemaphore.acquire(10);
 
-        // Wait for the CameraCaptureSession.onConfigured callback.
-        try {
-            mImageCapture.mSessionStateCallback.waitForOnConfigured(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
+        assertThat(mLifecycle.getObserverCount()).isEqualTo(3);
         assertThat(CameraX.isBound(mPreview)).isTrue();
         assertThat(CameraX.isBound(mImageAnalysis)).isTrue();
         assertThat(CameraX.isBound(mImageCapture)).isTrue();
@@ -238,20 +206,10 @@ public final class UseCaseCombinationTest {
     }
 
     private void initImageCapture() {
-        mCameraRepository = new CameraRepository();
-        mCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
-        mCameraRepository.init(mCameraFactory);
-        mUseCaseGroup = new UseCaseGroup();
-
         ImageCaptureConfig imageCaptureConfig =
                 new ImageCaptureConfig.Builder().setLensFacing(LensFacing.BACK).build();
-        String cameraId = getCameraIdForLensFacingUnchecked(imageCaptureConfig.getLensFacing());
-        mImageCapture = new CallbackAttachingImageCapture(imageCaptureConfig, cameraId);
 
-        mImageCapture.addStateChangeListener(
-                mCameraRepository.getCamera(
-                        getCameraIdForLensFacingUnchecked(
-                                imageCaptureConfig.getLensFacing())));
+        mImageCapture = new ImageCapture(imageCaptureConfig);
     }
 
     private void initPreview() {
@@ -262,45 +220,5 @@ public final class UseCaseCombinationTest {
                         .build();
 
         mPreview = new Preview(previewConfig);
-    }
-
-    private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
-        try {
-            return mCameraFactory.cameraIdForLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing " + lensFacing, e);
-        }
-    }
-
-    /** A use case which attaches to a camera with various callbacks. */
-    private static class CallbackAttachingImageCapture extends ImageCapture {
-        private final SemaphoreReleasingCamera2Callbacks.SessionStateCallback
-                mSessionStateCallback =
-                new SemaphoreReleasingCamera2Callbacks.SessionStateCallback();
-        private final SurfaceTexture mSurfaceTexture = new SurfaceTexture(0);
-
-        CallbackAttachingImageCapture(ImageCaptureConfig config, String cameraId) {
-            super(config);
-            // Use most supported resolution for different supported hardware level devices,
-            // especially for legacy devices.
-            mSurfaceTexture.setDefaultBufferSize(640, 480);
-            SessionConfig.Builder builder = new SessionConfig.Builder();
-            builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));
-            builder.addSessionStateCallback(mSessionStateCallback);
-
-            attachToCamera(cameraId, builder.build());
-        }
-
-        @Override
-        protected Map<String, Size> onSuggestedResolutionUpdated(
-                Map<String, Size> suggestedResolutionMap) {
-            return suggestedResolutionMap;
-        }
-
-        void doNotifyActive() {
-            super.notifyActive();
-        }
     }
 }
