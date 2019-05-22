@@ -22,8 +22,9 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
-import androidx.concurrent.ListenableFuture;
-import androidx.concurrent.callback.AbstractResolvableFuture;
+import androidx.concurrent.futures.AbstractResolvableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;

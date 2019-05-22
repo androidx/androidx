@@ -6,12 +6,12 @@ package androidx.sharetarget {
     method public java.util.List<android.service.chooser.ChooserTarget!>! onGetChooserTargets(android.content.ComponentName!, android.content.IntentFilter!);
   }
 
-  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ShortcutInfoCompatSaverImpl extends androidx.core.content.pm.ShortcutInfoCompatSaver<androidx.concurrent.ListenableFuture<java.lang.Void>> {
-    method @AnyThread public androidx.concurrent.ListenableFuture<java.lang.Void!>! addShortcuts(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>!);
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ShortcutInfoCompatSaverImpl extends androidx.core.content.pm.ShortcutInfoCompatSaver<com.google.common.util.concurrent.ListenableFuture<java.lang.Void>> {
+    method @AnyThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>! addShortcuts(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>!);
     method @AnyThread public static androidx.sharetarget.ShortcutInfoCompatSaverImpl! getInstance(android.content.Context!);
     method @WorkerThread public androidx.core.graphics.drawable.IconCompat! getShortcutIcon(String!) throws java.lang.Exception;
-    method @AnyThread public androidx.concurrent.ListenableFuture<java.lang.Void!>! removeAllShortcuts();
-    method @AnyThread public androidx.concurrent.ListenableFuture<java.lang.Void!>! removeShortcuts(java.util.List<java.lang.String!>!);
+    method @AnyThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>! removeAllShortcuts();
+    method @AnyThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>! removeShortcuts(java.util.List<java.lang.String!>!);
   }
 
 }

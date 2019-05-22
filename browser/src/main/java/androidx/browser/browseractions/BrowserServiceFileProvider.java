@@ -36,10 +36,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
-import androidx.concurrent.ListenableFuture;
-import androidx.concurrent.callback.ResolvableFuture;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.content.FileProvider;
 import androidx.core.util.AtomicFile;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.io.FileDescriptor;

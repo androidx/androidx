@@ -30,12 +30,13 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
-import androidx.concurrent.ListenableFuture;
-import androidx.concurrent.callback.ResolvableFuture;
+import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutInfoCompatSaver;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.sharetarget.ShortcutsInfoSerialization.ShortcutContainer;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.io.FileOutputStream;

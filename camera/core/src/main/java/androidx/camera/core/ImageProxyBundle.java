@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import androidx.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 
