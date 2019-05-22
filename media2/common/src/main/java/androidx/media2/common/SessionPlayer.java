@@ -860,6 +860,15 @@ public abstract class SessionPlayer implements AutoCloseable {
     }
 
     /**
+     * Gets the list of tracks.
+     * <p>
+     * The types of tracks supported may vary based on player implementation.
+     *
+     * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+     * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+     *
      * TODO: Change this into getTrackInfo() (b/132928418)
      * @hide
      */
@@ -870,6 +879,18 @@ public abstract class SessionPlayer implements AutoCloseable {
     };
 
     /**
+     * Selects a track.
+     * <p>
+     * Generally one track will be selected for each track type.
+     * <p>
+     * The types of tracks supported may vary based on player implementation.
+     *
+     * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+     * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+     * @see PlayerCallback#onTrackSelected(SessionPlayer, TrackInfo)
+     *
      * TODO: Change this into selectTrack(TrackInfo) (b/132928418)
      * @hide
      */
@@ -881,6 +902,19 @@ public abstract class SessionPlayer implements AutoCloseable {
     }
 
     /**
+     * Deselects a track.
+     * <p>
+     * Generally, a track should already be selected in order to be deselected and audio and video
+     * tracks should not be deselected.
+     * <p>
+     * The types of tracks supported may vary based on player implementation.
+     *
+     * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+     * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+     * @see PlayerCallback#onTrackDeselected(SessionPlayer, TrackInfo)
+     *
      * TODO: Change this into deselectTrack(TrackInfo) (b/132928418)
      * @hide
      */
@@ -892,6 +926,13 @@ public abstract class SessionPlayer implements AutoCloseable {
     }
 
     /**
+     * Gets currently selected track's {@link TrackInfo} for the given track type.
+     *
+     * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+     * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+     * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+     *
      * TODO: Change this into getSelectedTrack(int) (b/132928418)
      * @hide
      */
@@ -1311,16 +1352,10 @@ public abstract class SessionPlayer implements AutoCloseable {
          * When it's called, you should invalidate previous track information and use the new
          * tracks to call {@link #selectTrackInternal(SessionPlayer.TrackInfo)} or
          * {@link #deselectTrackInternal(SessionPlayer.TrackInfo)}.
-         * <p>
-         * The types of tracks supported may vary based on player implementation.
-         *
-         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
-         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
          * @param player the player associated with this callback
          * @param trackInfos the list of track
+         * @see #getTrackInfoInternal()
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
@@ -1330,17 +1365,10 @@ public abstract class SessionPlayer implements AutoCloseable {
 
         /**
          * Called when a track is selected.
-         * <p>
-         * The types of tracks supported may vary based on player implementation, but generally
-         * one track will be selected for each track type.
-         *
-         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
-         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
          * @param player the player associated with this callback
          * @param trackInfo the selected track
+         * @see #selectTrackInternal(TrackInfo)
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
@@ -1350,17 +1378,12 @@ public abstract class SessionPlayer implements AutoCloseable {
         /**
          * Called when a track is deselected.
          * <p>
-         * The types of tracks supported may vary based on player implementation, but generally
-         * a track should already be selected in order to be deselected and audio and video tracks
-         * should not be deselected.
-         *
-         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
-         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+         * This callback will generally be called only after calling
+         * {@link #deselectTrackInternal(TrackInfo)}.
          *
          * @param player the player associated with this callback
          * @param trackInfo the deselected track
+         * @see #deselectTrackInternal(TrackInfo)
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)

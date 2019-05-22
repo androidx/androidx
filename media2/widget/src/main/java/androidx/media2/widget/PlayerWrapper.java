@@ -16,8 +16,6 @@
 
 package androidx.media2.widget;
 
-import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
@@ -29,7 +27,6 @@ import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
-import androidx.media2.session.SessionResult;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -134,12 +131,10 @@ class PlayerWrapper {
                 SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO);
     }
 
-    boolean canShowHideSubtitle() {
+    boolean canSelectDeselectTrack() {
         return mAllowedCommands != null
-                && mAllowedCommands.hasCommand(
-                        new SessionCommand(MediaControlView.COMMAND_SHOW_SUBTITLE, null))
-                && mAllowedCommands.hasCommand(
-                        new SessionCommand(MediaControlView.COMMAND_HIDE_SUBTITLE, null));
+                && mAllowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK)
+                && mAllowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK);
     }
 
     void pause() {
@@ -178,29 +173,15 @@ class PlayerWrapper {
         }
     }
 
-    void selectAudioTrack(int trackIndex) {
+    void selectTrack(TrackInfo trackInfo) {
         if (mController != null) {
-            Bundle extra = new Bundle();
-            extra.putInt(MediaControlView.KEY_SELECTED_AUDIO_INDEX, trackIndex);
-            mController.sendCustomCommand(
-                    new SessionCommand(MediaControlView.COMMAND_SELECT_AUDIO_TRACK, null),
-                    extra);
+            mController.selectTrack(trackInfo);
         }
     }
 
-    void showSubtitle(int trackIndex) {
+    void deselectTrack(TrackInfo trackInfo) {
         if (mController != null) {
-            Bundle extra = new Bundle();
-            extra.putInt(MediaControlView.KEY_SELECTED_SUBTITLE_INDEX, trackIndex);
-            mController.sendCustomCommand(
-                    new SessionCommand(MediaControlView.COMMAND_SHOW_SUBTITLE, null), extra);
-        }
-    }
-
-    void hideSubtitle() {
-        if (mController != null) {
-            mController.sendCustomCommand(
-                    new SessionCommand(MediaControlView.COMMAND_HIDE_SUBTITLE, null), null);
+            mController.deselectTrack(trackInfo);
         }
     }
 
@@ -243,6 +224,27 @@ class PlayerWrapper {
         mMediaMetadata = item == null ? null : item.getMetadata();
     }
 
+    VideoSize getVideoSize() {
+        if (mController != null) {
+            return mController.getVideoSize();
+        }
+        return null;
+    }
+
+    List<TrackInfo> getTrackInfo() {
+        if (mController != null) {
+            return mController.getTrackInfo();
+        }
+        return null;
+    }
+
+    TrackInfo getSelectedTrack(int trackType) {
+        if (mController != null) {
+            return mController.getSelectedTrack(trackType);
+        }
+        return null;
+    }
+
     private class MediaControllerCallback extends MediaController.ControllerCallback {
         private final PlayerCallback mWrapperCallback;
 
@@ -262,13 +264,6 @@ class PlayerWrapper {
                 @NonNull SessionCommandGroup commands) {
             mAllowedCommands = commands;
             mWrapperCallback.onAllowedCommandsChanged(PlayerWrapper.this, commands);
-        }
-
-        @NonNull
-        @Override
-        public SessionResult onCustomCommand(@NonNull MediaController controller,
-                @NonNull SessionCommand command, @Nullable Bundle args) {
-            return mWrapperCallback.onCustomCommand(PlayerWrapper.this, command, args);
         }
 
         @Override
@@ -336,11 +331,6 @@ class PlayerWrapper {
                 @NonNull SessionCommandGroup commands) {
         }
         void onCurrentMediaItemChanged(@NonNull PlayerWrapper player, @Nullable MediaItem item) {
-        }
-        // TODO: Remove onCustomCommand (b/133124026)
-        SessionResult onCustomCommand(@NonNull PlayerWrapper player,
-                @NonNull SessionCommand command, @Nullable Bundle args) {
-            return new SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED, null);
         }
         void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
         }
