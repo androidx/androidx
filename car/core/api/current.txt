@@ -119,7 +119,7 @@ package androidx.car.drawer {
 package androidx.car.util {
 
   public class CarUxRestrictionsHelper {
-    ctor public CarUxRestrictionsHelper(android.content.Context!, androidx.car.uxrestrictions.OnUxRestrictionsChangedListener);
+    ctor public CarUxRestrictionsHelper(android.content.Context, androidx.car.uxrestrictions.OnUxRestrictionsChangedListener);
     method public androidx.car.uxrestrictions.CarUxRestrictions getCurrentCarUxRestrictions();
     method public void start();
     method public void stop();
