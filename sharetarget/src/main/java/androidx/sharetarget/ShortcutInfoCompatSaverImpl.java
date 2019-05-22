@@ -62,7 +62,7 @@ import java.util.concurrent.TimeUnit;
 @RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 //TODO: we need Futures.addCallback and CallbackToFutureAdapter, update once they're available
-public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver {
+public class ShortcutInfoCompatSaverImpl extends ShortcutInfoCompatSaver<ListenableFuture<Void>> {
 
     static final String TAG = "ShortcutInfoCompatSaver";
 

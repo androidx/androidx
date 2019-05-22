@@ -129,13 +129,14 @@ package androidx.core.content.pm {
     ctor @RequiresApi(25) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(android.content.Context, android.content.pm.ShortcutInfo);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ShortcutInfoCompatSaver {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoCompatSaver<T> {
     ctor public ShortcutInfoCompatSaver();
-    method @AnyThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>! addShortcuts(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>!);
+    method @AnyThread public abstract T! addShortcuts(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>!);
     method @WorkerThread public java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>! getShortcuts() throws java.lang.Exception;
-    method @AnyThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>! removeAllShortcuts();
-    method @AnyThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!>! removeShortcuts(java.util.List<java.lang.String!>!);
+    method @AnyThread public abstract T! removeAllShortcuts();
+    method @AnyThread public abstract T! removeShortcuts(java.util.List<java.lang.String!>!);
   }
+
 
 }
 
