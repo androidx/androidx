@@ -130,7 +130,9 @@ internal object WarningState {
                 |    dynamic frequency scaling, and thermal throttling. On a rooted device,
                 |    lock your device clocks to a stable frequency with `./gradlew lockClocks`
             """.trimMarginWrapNewlines()
-        } else if (
+        }
+
+        if (!Clocks.areLocked &&
             AndroidBenchmarkRunner.isSustainedPerformanceModeSupported() &&
             !AndroidBenchmarkRunner.sustainedPerformanceModeInUse
         ) {
