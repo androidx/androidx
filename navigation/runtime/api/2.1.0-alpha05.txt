@@ -95,7 +95,7 @@ package androidx.navigation {
     ctor public NavHostController(android.content.Context);
     method public void enableOnBackPressed(boolean);
     method public void setLifecycleOwner(androidx.lifecycle.LifecycleOwner);
-    method public void setOnBackPressedDispatcherOwner(androidx.activity.OnBackPressedDispatcherOwner);
+    method public void setOnBackPressedDispatcher(androidx.activity.OnBackPressedDispatcher);
     method public void setViewModelStore(androidx.lifecycle.ViewModelStore);
   }
 
