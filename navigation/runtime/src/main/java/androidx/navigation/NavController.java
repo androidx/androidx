@@ -126,31 +126,6 @@ public class NavController {
     }
 
     /**
-     * Class returned by
-     * {@link #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)} to
-     * allow the {@link NavHost} to manually disable or enable whether the NavController
-     * should actively handle system Back button events.
-     */
-    public final class NavHostOnBackPressedManager {
-        /**
-         * This class should only be instantiated by NavController itself as part of
-         * {@link #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)}.
-         */
-        NavHostOnBackPressedManager(){
-        }
-
-        /**
-         * Set whether the NavController should handle the system Back button events via the
-         * registered {@link OnBackPressedDispatcher}.
-         *
-         * @param enabled True if the NavController should handle system Back button events.
-         */
-        public void enableOnBackPressed(boolean enabled) {
-            setEnableOnBackPressedCallback(enabled);
-        }
-    }
-
-    /**
      * Constructs a new controller for a given {@link Context}. Controllers should not be
      * used outside of their context and retain a hard reference to the context supplied.
      * If you need a global controller, pass {@link Context#getApplicationContext()}.
@@ -1016,34 +991,11 @@ public class NavController {
         mBackStackArgsToRestore = navState.getParcelableArray(KEY_BACK_STACK_ARGS);
     }
 
-    /**
-     * Sets the host's {@link LifecycleOwner}.
-     *
-     * @param owner The {@link LifecycleOwner} associated with the containing {@link NavHost}.
-     * @see #setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)
-     */
-    public final void setHostLifecycleOwner(@NonNull LifecycleOwner owner) {
+    void setLifecycleOwner(@NonNull LifecycleOwner owner) {
         mLifecycleOwner = owner;
     }
 
-    /**
-     * Sets the host's {@link OnBackPressedDispatcherOwner}. If set, NavController will
-     * register a {@link OnBackPressedCallback} to handle system Back button events.
-     * <p>
-     * If you have not explicitly called {@link #setHostLifecycleOwner(LifecycleOwner)},
-     * the owner you pass here will be used as the {@link LifecycleOwner} for registering
-     * the {@link OnBackPressedCallback}.
-     *
-     * @param owner The {@link OnBackPressedDispatcherOwner} associated with the containing
-     * {@link NavHost}.
-     * @return a {@link NavHostOnBackPressedManager} that allows you to enable or disable
-     * whether this NavController should intercept the system Back button events using this
-     * {@link OnBackPressedDispatcher}.
-     * @see #setHostLifecycleOwner(LifecycleOwner)
-     */
-    @NonNull
-    public final NavHostOnBackPressedManager setHostOnBackPressedDispatcherOwner(
-            @NonNull OnBackPressedDispatcherOwner owner) {
+    void setOnBackPressedDispatcherOwner(@NonNull OnBackPressedDispatcherOwner owner) {
         if (mLifecycleOwner == null) {
             mLifecycleOwner = owner;
         }
@@ -1052,12 +1004,10 @@ public class NavController {
         mOnBackPressedCallback.remove();
         // Then add it to the new dispatcher
         dispatcher.addCallback(mLifecycleOwner, mOnBackPressedCallback);
-        return new NavHostOnBackPressedManager();
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void setEnableOnBackPressedCallback(boolean enableOnBackPressedCallback) {
-        mEnableOnBackPressedCallback = enableOnBackPressedCallback;
+    void enableOnBackPressed(boolean enabled) {
+        mEnableOnBackPressedCallback = enabled;
         updateOnBackPressedCallbackEnabled();
     }
 
@@ -1066,14 +1016,7 @@ public class NavController {
                 && getDestinationCountOnBackStack() > 1);
     }
 
-    /**
-     * Sets the host's ViewModelStore used by the NavController to store ViewModels at the
-     * navigation graph level. This is required to call {@link #getViewModelStore} and
-     * should generally be called for you by your {@link NavHost}.
-     *
-     * @param viewModelStore ViewModelStore used to store ViewModels at the navigation graph level
-     */
-    public final void setHostViewModelStore(@NonNull ViewModelStore viewModelStore) {
+    void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
         mViewModel = NavControllerViewModel.getInstance(viewModelStore);
     }
 
@@ -1082,7 +1025,8 @@ public class NavController {
      * store one.
      *
      * @param navGraphId ID of a NavGraph that exists on the back stack
-     * @throws IllegalStateException if called before {@link #setHostViewModelStore}.
+     * @throws IllegalStateException if called before the {@link NavHost} has called
+     * {@link NavHostController#setViewModelStore}.
      * @throws IllegalArgumentException if the NavGraph is not on the back stack
      */
     @NonNull
