@@ -16,13 +16,13 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"மின்னஞ்சல்"</string>
+    <string name="email" msgid="5568050657313893478">"மின்னஞ்சல் அனுப்பு"</string>
     <string name="email_desc" msgid="6941280589171810022">"தேர்ந்தெடுத்த முகவரிக்கு மின்னஞ்சலை அனுப்பும்"</string>
     <string name="dial" msgid="7317293545368448453">"அழை"</string>
     <string name="dial_desc" msgid="5129451396208040332">"தேர்ந்தெடுத்த ஃபோன் எண்ணை அழைக்கும்"</string>
     <string name="browse" msgid="3733970143542020945">"திற"</string>
     <string name="browse_desc" msgid="3898254913938219011">"தேர்ந்தெடுத்த URLலைத் திறக்கும்"</string>
-    <string name="sms" msgid="5495416906312064886">"மெசேஜ்"</string>
+    <string name="sms" msgid="5495416906312064886">"செய்தி அனுப்பு"</string>
     <string name="sms_desc" msgid="8293660783374489324">"தேர்ந்தெடுத்த ஃபோன் எண்ணிற்கு மெசேஜ் அனுப்பும்"</string>
     <string name="add_contact" msgid="9005634177208282449">"சேர்"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"தொடர்புகளில் சேர்க்கும்"</string>
