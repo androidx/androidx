@@ -22,7 +22,7 @@
     <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"\'ਕਾਸਟ ਕਰੋ\' ਬਟਨ। ਡਿਸਕਨੈਕਟ ਕੀਤਾ ਗਿਆ"</string>
     <string name="mr_cast_button_connecting" msgid="8959304318293841992">"\'ਕਾਸਟ ਕਰੋ\' ਬਟਨ। ਕਨੈਕਟ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="mr_cast_button_connected" msgid="1350095112462806159">"\'ਕਾਸਟ ਕਰੋ\' ਬਟਨ। ਕਨੈਕਟ ਕੀਤਾ ਗਿਆ"</string>
-    <string name="mr_chooser_title" msgid="7548226170787476564">"ਏਥੇ ਕਾਸਟ ਕਰੋ"</string>
+    <string name="mr_chooser_title" msgid="7548226170787476564">"ਇਸਦੇ ਨਾਲ ਕਾਸਟ ਕਰੋ"</string>
     <string name="mr_chooser_searching" msgid="5504553798429329689">"ਡੀਵਾਈਸ ਲੱਭੇ ਜਾ ਰਹੇ ਹਨ"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"ਡਿਸਕਨੈਕਟ ਕਰੋ"</string>
     <string name="mr_controller_stop_casting" msgid="7617024847862349259">"ਕਾਸਟ ਕਰਨਾ ਬੰਦ ਕਰੋ"</string>
