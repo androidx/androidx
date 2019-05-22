@@ -10,11 +10,11 @@ package androidx.ui.engine.text {
   }
 
   public static final class BaselineShift.Companion {
-    method public androidx.ui.engine.text.BaselineShift getSUBSCRIPT();
-    method public androidx.ui.engine.text.BaselineShift getSUPERSCRIPT();
+    method public androidx.ui.engine.text.BaselineShift getSubscript();
+    method public androidx.ui.engine.text.BaselineShift getSuperscript();
     method public androidx.ui.engine.text.BaselineShift? lerp(androidx.ui.engine.text.BaselineShift? a, androidx.ui.engine.text.BaselineShift? b, float t);
-    property public final androidx.ui.engine.text.BaselineShift SUBSCRIPT;
-    property public final androidx.ui.engine.text.BaselineShift SUPERSCRIPT;
+    property public final androidx.ui.engine.text.BaselineShift Subscript;
+    property public final androidx.ui.engine.text.BaselineShift Superscript;
   }
 
   public enum FontStyle {

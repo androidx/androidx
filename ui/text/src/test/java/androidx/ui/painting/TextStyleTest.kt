@@ -113,7 +113,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized baselineShift`() {
-        val baselineShift = BaselineShift.SUPERSCRIPT
+        val baselineShift = BaselineShift.Superscript
 
         val textStyle = TextStyle(baselineShift = baselineShift)
 
@@ -394,7 +394,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's baselineShift is null should use this' baselineShift`() {
-        val baselineShift = BaselineShift.SUPERSCRIPT
+        val baselineShift = BaselineShift.Superscript
         val textStyle = TextStyle(baselineShift = baselineShift)
         val otherTextStyle = TextStyle()
 
@@ -405,8 +405,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's baselineShift is set should use other's baselineShift`() {
-        val baselineShift = BaselineShift.SUPERSCRIPT
-        val otherBaselineShift = BaselineShift.SUBSCRIPT
+        val baselineShift = BaselineShift.Superscript
+        val otherBaselineShift = BaselineShift.Subscript
         val textStyle = TextStyle(baselineShift = baselineShift)
         val otherTextStyle = TextStyle(baselineShift = otherBaselineShift)
 
@@ -1187,7 +1187,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp baselineShift with a is Null and t is smaller than half`() {
-        val baselineShift = BaselineShift.SUPERSCRIPT
+        val baselineShift = BaselineShift.Superscript
         val t = 0.3f
         val textStyle = TextStyle(baselineShift = baselineShift)
 
@@ -1198,7 +1198,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp baselineShift with a is Null and t is larger than half`() {
-        val baselineShift = BaselineShift.SUPERSCRIPT
+        val baselineShift = BaselineShift.Superscript
         val t = 0.7f
         val textStyle = TextStyle(baselineShift = baselineShift)
 
@@ -1209,7 +1209,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp baselineShift with b is Null and t is smaller than half`() {
-        val baselineShift = BaselineShift.SUPERSCRIPT
+        val baselineShift = BaselineShift.Superscript
         val t = 0.3f
         val textStyle = TextStyle(baselineShift = baselineShift)
 
@@ -1220,7 +1220,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp baselineShift with b is Null and t is larger than half`() {
-        val baselineShift = BaselineShift.SUPERSCRIPT
+        val baselineShift = BaselineShift.Superscript
         val t = 0.7f
         val textStyle = TextStyle(baselineShift = baselineShift)
 
@@ -1626,7 +1626,7 @@ class TextStyleTest {
         val color = Color(0xFF00FF00.toInt())
         val fontSynthesis = FontSynthesis.style
         val fontFeatureSettings = "\"kern\" 0"
-        val baselineShift = BaselineShift.SUPERSCRIPT
+        val baselineShift = BaselineShift.Superscript
         val textStyle = TextStyle(
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
@@ -1764,7 +1764,7 @@ class TextStyleTest {
             fontFeatureSettings = fontFeatureSettings,
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
-            baselineShift = BaselineShift.SUBSCRIPT,
+            baselineShift = BaselineShift.Subscript,
             textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
             height = height,
             locale = Locale("en", "US"),
@@ -1802,7 +1802,7 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(wordSpacing = 4.0f)))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.SUPERSCRIPT)))
+        assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.Superscript)))
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle
@@ -1833,7 +1833,7 @@ class TextStyleTest {
             fontStyle = FontStyle.Italic,
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
-            baselineShift = BaselineShift.SUPERSCRIPT,
+            baselineShift = BaselineShift.Superscript,
             textGeometricTransform = TextGeometricTransform(null, null),
             height = height,
             locale = Locale("en", "US"),
