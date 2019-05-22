@@ -20,7 +20,7 @@ import android.location.Location;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageUtil.EncodeFailedException;
+import androidx.camera.core.ImageUtil.CodecFailedException;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -93,9 +93,22 @@ final class ImageSaver implements Runnable {
             saveError = SaveError.FILE_IO_FAILED;
             errorMessage = "Failed to write or close the file";
             exception = e;
-        } catch (EncodeFailedException e) {
-            saveError = SaveError.ENCODE_FAILED;
-            errorMessage = "Failed to encode mImage";
+        } catch (CodecFailedException e) {
+            switch (e.getFailureType()) {
+                case ENCODE_FAILED:
+                    saveError = SaveError.ENCODE_FAILED;
+                    errorMessage = "Failed to encode mImage";
+                    break;
+                case DECODE_FAILED:
+                    saveError = SaveError.CROP_FAILED;
+                    errorMessage = "Failed to crop mImage";
+                    break;
+                case UNKNOWN:
+                default:
+                    saveError = SaveError.UNKNOWN;
+                    errorMessage = "Failed to transcode mImage";
+                    break;
+            }
             exception = e;
         }
 
@@ -130,7 +143,10 @@ final class ImageSaver implements Runnable {
         /** Failed to write to or close the file */
         FILE_IO_FAILED,
         /** Failure when attempting to encode image */
-        ENCODE_FAILED
+        ENCODE_FAILED,
+        /** Failure when attempting to crop image */
+        CROP_FAILED,
+        UNKNOWN
     }
 
     public interface OnImageSavedListener {
