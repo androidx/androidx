@@ -28,7 +28,7 @@
     <string name="abc_searchview_description_submit" msgid="8203855622131699655">"Anfrage senden"</string>
     <string name="abc_searchview_description_voice" msgid="3478748990613108725">"Sprachsuche"</string>
     <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"App auswählen"</string>
-    <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"Alle ansehen"</string>
+    <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"Alle anzeigen"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"Mit <xliff:g id="APPLICATION_NAME">%s</xliff:g> teilen"</string>
     <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Teilen mit"</string>
     <string name="abc_capital_on" msgid="7831734969929204599">"AN"</string>
