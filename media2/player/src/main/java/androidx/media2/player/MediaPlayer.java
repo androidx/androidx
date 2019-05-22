@@ -3118,6 +3118,14 @@ public final class MediaPlayer extends SessionPlayer {
                     setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_STARVED);
                     break;
                 case MediaPlayer2.MEDIA_INFO_PREPARED:
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer.PlayerCallback callback) {
+                            callback.onTrackInfoChanged(MediaPlayer.this, getTrackInfoInternal());
+                        }
+                    });
+                    setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+                    break;
                 case MediaPlayer2.MEDIA_INFO_BUFFERING_END:
                     setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
                     break;
@@ -3136,11 +3144,10 @@ public final class MediaPlayer extends SessionPlayer {
                     });
                     break;
                 case MediaPlayer2.MEDIA_INFO_METADATA_UPDATE:
-                    final List<SessionPlayer.TrackInfo> trackInfos = getTrackInfoInternal();
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(SessionPlayer.PlayerCallback callback) {
-                            callback.onTrackInfoChanged(MediaPlayer.this, trackInfos);
+                            callback.onTrackInfoChanged(MediaPlayer.this, getTrackInfoInternal());
                         }
                     });
                     break;
