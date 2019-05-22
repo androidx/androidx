@@ -22,8 +22,8 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.os.Looper
 import androidx.fragment.app.test.EmptyFragmentTestActivity
-import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
@@ -110,7 +110,7 @@ class DialogFragmentDismissTest(
         var onDismissCalledCount = 0
         val countDownLatch = CountDownLatch(3)
         activityTestRule.runOnUiThread {
-            fragment.lifecycle.addObserver(GenericLifecycleObserver { _, event ->
+            fragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
                 if (event == Lifecycle.Event.ON_STOP) {
                     val dialog = fragment.dialog
                     dialogIsNonNull = dialog != null

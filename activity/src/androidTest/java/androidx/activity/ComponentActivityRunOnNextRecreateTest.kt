@@ -17,7 +17,7 @@
 package androidx.activity
 
 import android.os.Bundle
-import androidx.lifecycle.GenericLifecycleObserver
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -61,7 +61,7 @@ class AutoRestarterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
-            lifecycle.addObserver(GenericLifecycleObserver { _, _ ->
+            lifecycle.addObserver(LifecycleEventObserver { _, _ ->
                 Truth.assertThat(restartedValue).isEqualTo("restarted")
                 observerExecuted = true
             })
