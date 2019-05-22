@@ -22,8 +22,6 @@ plugins {
     id("com.android.library")
 }
 
-android.defaultConfig.testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
-
 dependencies {
     androidTestImplementation(project(":core"))
     androidTestImplementation(project(":slice-view"))
