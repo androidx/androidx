@@ -80,25 +80,26 @@ public class SystemJobScheduler implements Scheduler {
         for (WorkSpec workSpec : workSpecs) {
             workDatabase.beginTransaction();
             try {
-                // It is possible that this WorkSpec got cancelled/pruned since this isn't part of
-                // the same database transaction as marking it enqueued (for example, if we using
-                // any of the synchronous operations).  For now, handle this gracefully by exiting
-                // the loop.  When we plumb ListenableFutures all the way through, we can remove the
-                // *sync methods and return ListenableFutures, which will block on an operation on
-                // the background task thread so all database operations happen on the same thread.
-                // See b/114705286.
                 WorkSpec currentDbWorkSpec = workDatabase.workSpecDao().getWorkSpec(workSpec.id);
                 if (currentDbWorkSpec == null) {
                     Logger.get().warning(
                             TAG,
                             "Skipping scheduling " + workSpec.id
                                     + " because it's no longer in the DB");
+
+                    // Marking this transaction as successful, as we don't want this transaction
+                    // to affect transactions for unrelated WorkSpecs.
+                    workDatabase.setTransactionSuccessful();
                     continue;
                 } else if (currentDbWorkSpec.state != WorkInfo.State.ENQUEUED) {
                     Logger.get().warning(
                             TAG,
                             "Skipping scheduling " + workSpec.id
                                     + " because it is no longer enqueued");
+
+                    // Marking this transaction as successful, as we don't want this transaction
+                    // to affect transactions for unrelated WorkSpecs.
+                    workDatabase.setTransactionSuccessful();
                     continue;
                 }
 

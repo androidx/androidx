@@ -82,8 +82,8 @@ public class ForceStopRunnable implements Runnable {
         } else {
             WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
             WorkSpecDao workSpecDao = workDatabase.workSpecDao();
+            workDatabase.beginTransaction();
             try {
-                workDatabase.beginTransaction();
                 List<WorkSpec> workSpecs = workSpecDao.getEnqueuedWork();
                 if (workSpecs != null && !workSpecs.isEmpty()) {
                     Logger.get().debug(TAG, "Found unfinished work, scheduling it.");
