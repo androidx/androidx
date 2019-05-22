@@ -80,14 +80,6 @@ class NavGraphNavigatorTest {
     }
 
     @Test
-    fun popWithEmptyStack() {
-        val success = navGraphNavigator.popBackStack()
-        assertWithMessage("popBackStack should return false on an empty stack")
-            .that(success)
-            .isFalse()
-    }
-
-    @Test
     fun navigateThenPop() {
         val destination = createFirstDestination()
         val graph = createGraphWithDestination(destination)

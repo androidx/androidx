@@ -47,5 +47,15 @@
                 app:popUpTo="@id/deep_link_child_start_test" />
             <deepLink app:uri="android-app://androidx.navigation.test/test" />
         </test>
+        <navigation android:id="@+id/deep_link_child_second"
+            app:startDestination="@+id/deep_link_grandchild_start_test">
+
+            <test android:id="@+id/deep_link_grandchild_start_test">
+                <action
+                    android:id="@+id/deep_link_child_finish"
+                    app:popUpTo="@+id/deep_link_child_start_test" />
+                <deepLink app:uri="android-app://androidx.navigation.test/grand_child_test" />
+            </test>
+        </navigation>
     </navigation>
 </navigation>
