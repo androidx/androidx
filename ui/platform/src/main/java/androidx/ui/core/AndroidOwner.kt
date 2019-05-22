@@ -18,12 +18,14 @@ package androidx.ui.core
 import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
+import androidx.compose.ObserverMap
 import androidx.ui.core.input.TextInputServiceAndroid
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
@@ -40,8 +42,8 @@ class AndroidCraneView constructor(context: Context)
 
     val root = LayoutNode()
     private val relayoutNodes = mutableSetOf<LayoutNode>()
-    private val modelToNodes = mutableMapOf<Any, MutableSet<ComponentNode>>()
-    private val nodeToModels = mutableMapOf<ComponentNode, MutableSet<Any>>()
+    private val modelToNodes = ObserverMap<Any, ComponentNode>()
+    private val nodeToModels = ObserverMap<ComponentNode, Any>()
 
     var ref: Ref<AndroidCraneView>? = null
         set(value) {
@@ -60,30 +62,34 @@ class AndroidCraneView constructor(context: Context)
     private var currentNode: ComponentNode? = null
 
     private val frameReadObserver: FrameReadObserver = { readValue ->
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            throw IllegalStateException("Frame reads are expected only on the main thread")
+        }
         val node = currentNode
         if (node != null) {
-            val models = nodeToModels.getOrElse(node) {
-                val set = mutableSetOf<Any>()
-                nodeToModels[node] = set
-                set
-            }
-            models += readValue
-            val nodes = modelToNodes.getOrElse(readValue) {
-                val set = mutableSetOf<ComponentNode>()
-                modelToNodes[readValue] = set
-                set
-            }
-            nodes += node
+            nodeToModels.add(node, readValue)
+            modelToNodes.add(readValue, node)
         }
     }
 
     private val commitObserver: FrameCommitObserver = { committed ->
-        committed.forEach {
-            modelToNodes[it]?.forEach { node ->
-                when (node) {
-                    is DrawNode -> node.invalidate()
-                    is LayoutNode -> node.requestLayout()
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            onModelsCommitted(committed)
+        } else {
+            val list = ArrayList(committed)
+            post(object : Runnable {
+                override fun run() {
+                    onModelsCommitted(list)
                 }
+            })
+        }
+    }
+
+    private fun onModelsCommitted(models: Iterable<Any>) {
+        modelToNodes[models].forEach { node ->
+            when (node) {
+                is DrawNode -> node.invalidate()
+                is LayoutNode -> node.requestLayout()
             }
         }
     }
@@ -352,11 +358,8 @@ class AndroidCraneView constructor(context: Context)
     }
 
     private fun clearNodeModels(node: ComponentNode) {
-        val models = nodeToModels.remove(node)
-        if (models != null) {
-            models.forEach { model ->
-                modelToNodes[model]!! -= node
-            }
+        nodeToModels.remove(node).forEach { model ->
+            modelToNodes.remove(model, node)
         }
     }
 
