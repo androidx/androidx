@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.util.JsonWriter
@@ -53,13 +54,33 @@ internal object ResultWriter {
             val writer = JsonWriter(bufferedWriter())
             writer.setIndent("    ")
 
-            writer.beginArray()
+            writer.beginObject()
+
+            writer.name("context").beginObject()
+                .name("build").buildInfoObject()
+                .name("cpuLocked").value(Clocks.areLocked)
+                .name("sustainedPerformanceModeEnabled")
+                .value(AndroidBenchmarkRunner.sustainedPerformanceModeInUse)
+            writer.endObject()
+
+            writer.name("benchmarks").beginArray()
             reports.forEach { writer.reportObject(it) }
             writer.endArray()
+
+            writer.endObject()
 
             writer.flush()
             writer.close()
         }
+    }
+
+    private fun JsonWriter.buildInfoObject(): JsonWriter {
+        beginObject()
+            .name("device").value(Build.DEVICE)
+            .name("fingerprint").value(Build.FINGERPRINT)
+            .name("model").value(Build.MODEL)
+            .name("version").beginObject().name("sdk").value(Build.VERSION.SDK_INT).endObject()
+        return endObject()
     }
 
     private fun JsonWriter.reportObject(report: BenchmarkState.Report): JsonWriter {
