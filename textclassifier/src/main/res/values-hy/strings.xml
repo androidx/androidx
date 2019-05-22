@@ -18,7 +18,7 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="email" msgid="5568050657313893478">"Էլփոստ"</string>
     <string name="email_desc" msgid="6941280589171810022">"Նամակ ուղարկել ընտրված հասցեին"</string>
-    <string name="dial" msgid="7317293545368448453">"Զանգ"</string>
+    <string name="dial" msgid="7317293545368448453">"Զանգել"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Զանգել ընտրված հեռախոսահամարին"</string>
     <string name="browse" msgid="3733970143542020945">"Բացել"</string>
     <string name="browse_desc" msgid="3898254913938219011">"Բացել ընտրված URL-ը"</string>
