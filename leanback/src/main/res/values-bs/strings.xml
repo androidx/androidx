@@ -55,5 +55,5 @@ limitations under the License.
     <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"Nastavi"</string>
     <string name="lb_media_player_error" msgid="8748646000835486516">"Kôd greške MediaPlayera %1$d dodatno %2$d"</string>
     <string name="lb_onboarding_get_started" msgid="7674487829030291492">"ZAPOČNITE"</string>
-    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"Dalje"</string>
+    <string name="lb_onboarding_accessibility_next" msgid="4213611627196077555">"Naprijed"</string>
 </resources>
