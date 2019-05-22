@@ -16,7 +16,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"Написать по почте"</string>
+    <string name="email" msgid="5568050657313893478">"Написать письмо"</string>
     <string name="email_desc" msgid="6941280589171810022">"Отправить письмо выбранному адресату"</string>
     <string name="dial" msgid="7317293545368448453">"Позвонить"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Позвонить по выбранному номеру"</string>

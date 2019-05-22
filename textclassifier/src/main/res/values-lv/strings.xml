@@ -16,7 +16,7 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"E-pasta ziņojums"</string>
+    <string name="email" msgid="5568050657313893478">"E-pasts"</string>
     <string name="email_desc" msgid="6941280589171810022">"Nosūtīt e-pasta ziņojumu uz atlasīto adresi"</string>
     <string name="dial" msgid="7317293545368448453">"Zvans"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Zvanīt uz atlasīto tālruņa numuru"</string>
