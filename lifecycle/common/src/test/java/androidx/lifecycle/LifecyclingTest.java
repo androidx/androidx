@@ -87,6 +87,7 @@ public class LifecyclingTest {
     }
 
     // MUST BE HERE TILL Lifecycle 3.0.0 release for back-compatibility with other modules
+    @SuppressWarnings("deprecation")
     @Test
     public void testDeprecatedGenericLifecycleObserver() {
         GenericLifecycleObserver genericLifecycleObserver = new GenericLifecycleObserver() {
@@ -100,6 +101,7 @@ public class LifecyclingTest {
     }
 
     // MUST BE HERE TILL Lifecycle 3.0.0 release for back-compatibility with other modules
+    @SuppressWarnings("deprecation")
     @Test
     public void testDeprecatedLifecyclingCallback() {
         GenericLifecycleObserver genericLifecycleObserver = new GenericLifecycleObserver() {
