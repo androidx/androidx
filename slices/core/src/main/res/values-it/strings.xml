@@ -23,5 +23,5 @@
     <string name="abc_slice_permission_text_2" msgid="7323565634860251794">"- Può compiere azioni nell\'app <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="abc_slice_permission_checkbox" msgid="5696872682700058611">"Consenti all\'app <xliff:g id="APP">%1$s</xliff:g> di mostrare porzioni di qualsiasi app"</string>
     <string name="abc_slice_permission_allow" msgid="5024599872061409708">"Consenti"</string>
-    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Nega"</string>
+    <string name="abc_slice_permission_deny" msgid="3819478292430407705">"Rifiuta"</string>
 </resources>
