@@ -39,10 +39,10 @@ inline fun <reified W : Worker> TestWorkerBuilder(
     context: Context,
     executor: Executor,
     inputData: Data = Data.EMPTY,
-    tags: List<String> = listOf(),
+    tags: List<String> = emptyList(),
     runAttemptCount: Int = 1,
-    triggeredContentUris: List<Uri> = listOf(),
-    triggeredContentAuthorities: List<String> = listOf()
+    triggeredContentUris: List<Uri> = emptyList(),
+    triggeredContentAuthorities: List<String> = emptyList()
 ): TestWorkerBuilder<W> {
     val builder = TestWorkerBuilder.from(context, W::class.java, executor)
     builder.apply {
