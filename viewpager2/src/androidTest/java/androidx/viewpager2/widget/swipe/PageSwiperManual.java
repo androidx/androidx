@@ -70,7 +70,7 @@ public class PageSwiperManual implements PageSwiper {
     private void swipe(float xOffset, float yOffset, Interpolator interpolator) {
         new ManualSwipeInjector(
                 offsetCenter(-xOffset / 2, -yOffset / 2),
-                offsetCenter((xOffset + 1) / 2, (yOffset + 1) / 2),
+                offsetCenter(xOffset / 2, yOffset / 2),
                 150, 20
         ).perform(InstrumentationRegistry.getInstrumentation(), mViewPager, interpolator);
     }
