@@ -363,9 +363,8 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param image           The image to analyze
          * @param rotationDegrees The rotation which if applied to the image would make it match
-         *                        the current target rotation of {@link ImageAnalysis}, expressed as
-         *                        one of {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
-         *                        {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+         *                        the current target rotation of {@link ImageAnalysis}, expressed in
+         *                        degrees in the range {@code [0..360)}.
          *
          */
         void analyze(ImageProxy image, int rotationDegrees);
