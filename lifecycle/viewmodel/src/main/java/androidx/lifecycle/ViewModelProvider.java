@@ -144,13 +144,13 @@ public class ViewModelProvider {
      * @param <T>        The type parameter for the ViewModel.
      * @return A ViewModel that is an instance of the given type {@code T}.
      */
+    @SuppressWarnings("unchecked")
     @NonNull
     @MainThread
     public <T extends ViewModel> T get(@NonNull String key, @NonNull Class<T> modelClass) {
         ViewModel viewModel = mViewModelStore.get(key);
 
         if (modelClass.isInstance(viewModel)) {
-            //noinspection unchecked
             return (T) viewModel;
         } else {
             //noinspection StatementWithEmptyBody
@@ -164,7 +164,6 @@ public class ViewModelProvider {
             viewModel = (mFactory).create(modelClass);
         }
         mViewModelStore.put(key, viewModel);
-        //noinspection unchecked
         return (T) viewModel;
     }
 

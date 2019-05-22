@@ -93,7 +93,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         if (Build.VERSION.SDK_INT >= 19) {
             getLifecycle().addObserver(new GenericLifecycleObserver() {
                 @Override
-                public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
                         Window window = getWindow();
                         final View decor = window != null ? window.peekDecorView() : null;
@@ -106,7 +107,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
         getLifecycle().addObserver(new GenericLifecycleObserver() {
             @Override
-            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
