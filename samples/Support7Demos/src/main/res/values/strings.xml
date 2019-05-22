@@ -148,6 +148,9 @@
     <string name="sample_media_route_activity_local">Local Playback</string>
     <string name="sample_media_route_activity_presentation">Local Playback on Presentation Display</string>
 
+    <string name="nested_scrolling_rv_cl_appbar_activity">Nested Scrolling/RecyclerView CoordinatorLayout Appbar Activity</string>
+    <string name="nested_scrolling_nsv_cl_appbar_activity">Nested Scrolling/NestedScrollView CoordinatorLayout Appbar Activity</string>
+
     <string name="recycler_view">RecyclerView/RecyclerViewActivity</string>
     <string name="recycler_view_smooth_scroll_by">RecyclerView/RecyclerView SmoothScrollBy Activity</string>
     <string name="recycler_view_stableid">RecyclerView/Stable Ids</string>
