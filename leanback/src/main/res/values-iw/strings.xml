@@ -39,8 +39,8 @@ limitations under the License.
     <string name="lb_playback_controls_thumb_down" msgid="5075744418630733006">"ביטול בחירה בסימון \'לא אהבתי\'"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="2847309435442474470">"בחירה בסימון \'לא אהבתי\'"</string>
     <string name="lb_playback_controls_repeat_none" msgid="5812341701962930499">"אל תחזור על כלום"</string>
-    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"חזור על הכול"</string>
-    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"חזור על פריט אחד"</string>
+    <string name="lb_playback_controls_repeat_all" msgid="5164826436271322261">"חזרה על הכל"</string>
+    <string name="lb_playback_controls_repeat_one" msgid="7675097479246139440">"חזרה על פריט אחד"</string>
     <string name="lb_playback_controls_shuffle_enable" msgid="7809089255981448519">"הפעלת ערבוב"</string>
     <string name="lb_playback_controls_shuffle_disable" msgid="8182435535948303910">"השבתת ערבוב"</string>
     <string name="lb_playback_controls_high_quality_enable" msgid="1862669142355962638">"הפעלת איכות גבוהה"</string>
