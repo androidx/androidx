@@ -16,9 +16,10 @@
 
 package androidx.core.view.inputmethod;
 
+import static androidx.core.view.inputmethod.EditorInfoTestUtils.createEditorInfoForTest;
+
 import static org.junit.Assert.assertArrayEquals;
 
-import android.os.Bundle;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.inputmethod.EditorInfo;
 
@@ -34,11 +35,6 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class EditorInfoCompatTest extends BaseInstrumentationTestCase<TestActivity> {
-    private static final String CONTENT_MIME_TYPES_KEY =
-            "androidx.core.view.inputmethod.EditorInfoCompat.CONTENT_MIME_TYPES";
-    private static final String CONTENT_MIME_TYPES_INTEROP_KEY =
-            "android.support.v13.view.inputmethod.EditorInfoCompat.CONTENT_MIME_TYPES";
-
     public EditorInfoCompatTest() {
         super(TestActivity.class);
     }
@@ -63,28 +59,19 @@ public class EditorInfoCompatTest extends BaseInstrumentationTestCase<TestActivi
 
     @Test
     @SdkSuppress(maxSdkVersion = 24)
-    public void testRoundTripInteropOnlyNew() {
-        EditorInfo editorInfo = new EditorInfo();
+    public void testRoundTripSupportLibAndroidX100() {
         String[] mimeTypes = new String[]{"image/gif", "image/jpeg", "image/png"};
-
-        if (editorInfo.extras == null) {
-            editorInfo.extras = new Bundle();
-        }
-        editorInfo.extras.putStringArray(CONTENT_MIME_TYPES_KEY, mimeTypes);
-
-        assertArrayEquals(EditorInfoCompat.getContentMimeTypes(editorInfo), mimeTypes);
+        assertArrayEquals(EditorInfoCompat.getContentMimeTypes(
+                createEditorInfoForTest(mimeTypes, EditorInfoCompat.Protocol.AndroidX_1_0_0)),
+                mimeTypes);
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 24)
-    public void testRoundTripInteropOnlyOld() {
-        EditorInfo editorInfo = new EditorInfo();
+    public void testRoundTripSupportLibAndroidX110() {
         String[] mimeTypes = new String[]{"image/gif", "image/jpeg", "image/png"};
-
-        if (editorInfo.extras == null) {
-            editorInfo.extras = new Bundle();
-        }
-        editorInfo.extras.putStringArray(CONTENT_MIME_TYPES_INTEROP_KEY, mimeTypes);
-        assertArrayEquals(EditorInfoCompat.getContentMimeTypes(editorInfo), mimeTypes);
+        assertArrayEquals(EditorInfoCompat.getContentMimeTypes(
+                createEditorInfoForTest(mimeTypes, EditorInfoCompat.Protocol.AndroidX_1_1_0)),
+                mimeTypes);
     }
 }

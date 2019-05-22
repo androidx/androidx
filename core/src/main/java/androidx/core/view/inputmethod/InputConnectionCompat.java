@@ -37,43 +37,76 @@ import androidx.annotation.Nullable;
 public final class InputConnectionCompat {
 
     private static final String COMMIT_CONTENT_ACTION =
+            "androidx.core.view.inputmethod.InputConnectionCompat.COMMIT_CONTENT";
+    private static final String COMMIT_CONTENT_INTEROP_ACTION =
             "android.support.v13.view.inputmethod.InputConnectionCompat.COMMIT_CONTENT";
     private static final String COMMIT_CONTENT_CONTENT_URI_KEY =
+            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_URI";
+    private static final String COMMIT_CONTENT_CONTENT_URI_INTEROP_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_URI";
     private static final String COMMIT_CONTENT_DESCRIPTION_KEY =
+            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_DESCRIPTION";
+    private static final String COMMIT_CONTENT_DESCRIPTION_INTEROP_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_DESCRIPTION";
     private static final String COMMIT_CONTENT_LINK_URI_KEY =
+            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_LINK_URI";
+    private static final String COMMIT_CONTENT_LINK_URI_INTEROP_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_LINK_URI";
     private static final String COMMIT_CONTENT_OPTS_KEY =
+            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_OPTS";
+    private static final String COMMIT_CONTENT_OPTS_INTEROP_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_OPTS";
     private static final String COMMIT_CONTENT_FLAGS_KEY =
+            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_FLAGS";
+    private static final String COMMIT_CONTENT_FLAGS_INTEROP_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_FLAGS";
-    private static final String COMMIT_CONTENT_RESULT_RECEIVER =
+    private static final String COMMIT_CONTENT_RESULT_RECEIVER_KEY =
+            "androidx.core.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
+    private static final String COMMIT_CONTENT_RESULT_INTEROP_RECEIVER_KEY =
             "android.support.v13.view.inputmethod.InputConnectionCompat.CONTENT_RESULT_RECEIVER";
 
     static boolean handlePerformPrivateCommand(
             @Nullable String action,
             @NonNull Bundle data,
             @NonNull OnCommitContentListener onCommitContentListener) {
-        if (!TextUtils.equals(COMMIT_CONTENT_ACTION, action)) {
+        if (data == null) {
             return false;
         }
-        if (data == null) {
+
+        final boolean interop;
+        if (TextUtils.equals(COMMIT_CONTENT_ACTION, action)) {
+            interop = false;
+        } else if (TextUtils.equals(COMMIT_CONTENT_INTEROP_ACTION, action)) {
+            interop = true;
+        } else {
             return false;
         }
         ResultReceiver resultReceiver = null;
         boolean result = false;
         try {
-            resultReceiver = data.getParcelable(COMMIT_CONTENT_RESULT_RECEIVER);
-            final Uri contentUri = data.getParcelable(COMMIT_CONTENT_CONTENT_URI_KEY);
-            final ClipDescription description = data.getParcelable(
-                    COMMIT_CONTENT_DESCRIPTION_KEY);
-            final Uri linkUri = data.getParcelable(COMMIT_CONTENT_LINK_URI_KEY);
-            final int flags = data.getInt(COMMIT_CONTENT_FLAGS_KEY);
-            final Bundle opts = data.getParcelable(COMMIT_CONTENT_OPTS_KEY);
-            final InputContentInfoCompat inputContentInfo =
-                    new InputContentInfoCompat(contentUri, description, linkUri);
-            result = onCommitContentListener.onCommitContent(inputContentInfo, flags, opts);
+            resultReceiver = data.getParcelable(interop
+                    ? COMMIT_CONTENT_RESULT_INTEROP_RECEIVER_KEY
+                    : COMMIT_CONTENT_RESULT_RECEIVER_KEY);
+            final Uri contentUri = data.getParcelable(interop
+                    ? COMMIT_CONTENT_CONTENT_URI_INTEROP_KEY
+                    : COMMIT_CONTENT_CONTENT_URI_KEY);
+            final ClipDescription description = data.getParcelable(interop
+                    ? COMMIT_CONTENT_DESCRIPTION_INTEROP_KEY
+                    : COMMIT_CONTENT_DESCRIPTION_KEY);
+            final Uri linkUri = data.getParcelable(interop
+                    ? COMMIT_CONTENT_LINK_URI_INTEROP_KEY
+                    : COMMIT_CONTENT_LINK_URI_KEY);
+            final int flags = data.getInt(interop
+                    ? COMMIT_CONTENT_FLAGS_INTEROP_KEY
+                    : COMMIT_CONTENT_FLAGS_KEY);
+            final Bundle opts = data.getParcelable(interop
+                    ? COMMIT_CONTENT_OPTS_INTEROP_KEY
+                    : COMMIT_CONTENT_OPTS_KEY);
+            if (contentUri != null && description != null) {
+                final InputContentInfoCompat inputContentInfo =
+                        new InputContentInfoCompat(contentUri, description, linkUri);
+                result = onCommitContentListener.onCommitContent(inputContentInfo, flags, opts);
+            }
         } finally {
             if (resultReceiver != null) {
                 resultReceiver.send(result ? 1 : 0, null);
@@ -112,14 +145,47 @@ public final class InputConnectionCompat {
             return inputConnection.commitContent(
                     (InputContentInfo) inputContentInfo.unwrap(), flags, opts);
         } else {
+            final int protocol = EditorInfoCompat.getProtocol(editorInfo);
+            final boolean interop;
+            switch (protocol) {
+                case EditorInfoCompat.Protocol.AndroidX_1_0_0:
+                case EditorInfoCompat.Protocol.AndroidX_1_1_0:
+                    interop = false;
+                    break;
+                case EditorInfoCompat.Protocol.SupportLib:
+                    interop = true;
+                    break;
+                default:
+                    // Must not reach here.
+                    return false;
+            }
+
             final Bundle params = new Bundle();
-            params.putParcelable(COMMIT_CONTENT_CONTENT_URI_KEY, inputContentInfo.getContentUri());
-            params.putParcelable(COMMIT_CONTENT_DESCRIPTION_KEY, inputContentInfo.getDescription());
-            params.putParcelable(COMMIT_CONTENT_LINK_URI_KEY, inputContentInfo.getLinkUri());
-            params.putInt(COMMIT_CONTENT_FLAGS_KEY, flags);
-            params.putParcelable(COMMIT_CONTENT_OPTS_KEY, opts);
-            // TODO: Support COMMIT_CONTENT_RESULT_RECEIVER.
-            return inputConnection.performPrivateCommand(COMMIT_CONTENT_ACTION, params);
+            params.putParcelable(interop
+                            ? COMMIT_CONTENT_CONTENT_URI_INTEROP_KEY
+                            : COMMIT_CONTENT_CONTENT_URI_KEY,
+                    inputContentInfo.getContentUri());
+            params.putParcelable(interop
+                            ? COMMIT_CONTENT_DESCRIPTION_INTEROP_KEY
+                            : COMMIT_CONTENT_DESCRIPTION_KEY,
+                    inputContentInfo.getDescription());
+            params.putParcelable(interop
+                            ? COMMIT_CONTENT_LINK_URI_INTEROP_KEY
+                            : COMMIT_CONTENT_LINK_URI_KEY,
+                    inputContentInfo.getLinkUri());
+            params.putInt(interop
+                            ? COMMIT_CONTENT_FLAGS_INTEROP_KEY
+                            : COMMIT_CONTENT_FLAGS_KEY,
+                    flags);
+            params.putParcelable(interop
+                            ? COMMIT_CONTENT_OPTS_INTEROP_KEY
+                            : COMMIT_CONTENT_OPTS_KEY,
+                    opts);
+            // TODO: Support COMMIT_CONTENT_RESULT_RECEIVER_KEY.
+            return inputConnection.performPrivateCommand(interop
+                            ? COMMIT_CONTENT_INTEROP_ACTION
+                            : COMMIT_CONTENT_ACTION,
+                    params);
         }
     }
 
