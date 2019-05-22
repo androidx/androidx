@@ -16,12 +16,11 @@
 
 package androidx.media2.test.service;
 
+import androidx.concurrent.ListenableFuture;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.session.RemoteSessionPlayer;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

@@ -11,8 +11,8 @@ plugins {
 dependencies {
     api(project(":media"))
     api(project(":media2:media2-common"))
-    api(GUAVA_LISTENABLE_FUTURE)
-    implementation(project(":concurrent:concurrent-futures"))
+    api(project(":concurrent-listenablefuture"))
+    implementation(project(":concurrent-listenablefuture-callback"))
     implementation("androidx.collection:collection:1.0.0")
     compileOnly(CHECKER_FRAMEWORK)
 

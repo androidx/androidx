@@ -3,8 +3,8 @@ package androidx.media2.player {
 
   public final class MediaPlayer extends androidx.media2.common.SessionPlayer {
     ctor public MediaPlayer(android.content.Context);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> addPlaylistItem(int, androidx.media2.common.MediaItem);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> attachAuxEffect(int);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> addPlaylistItem(int, androidx.media2.common.MediaItem);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> attachAuxEffect(int);
     method public void close() throws java.lang.Exception;
     method public androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public int getAudioSessionId();
@@ -29,32 +29,32 @@ package androidx.media2.player {
     method public androidx.media2.player.MediaTimestamp? getTimestamp();
     method public java.util.List<androidx.media2.player.MediaPlayer.TrackInfo!> getTrackInfo();
     method public androidx.media2.player.VideoSize getVideoSize();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> pause();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> play();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> prepare();
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> pause();
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> play();
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> prepare();
     method public void registerPlayerCallback(java.util.concurrent.Executor, androidx.media2.player.MediaPlayer.PlayerCallback);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> removePlaylistItem(@IntRange(from=0) int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> replacePlaylistItem(int, androidx.media2.common.MediaItem);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> removePlaylistItem(@IntRange(from=0) int);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> replacePlaylistItem(int, androidx.media2.common.MediaItem);
     method public void reset();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long, int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> selectTrack(androidx.media2.player.MediaPlayer.TrackInfo);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioAttributes(androidx.media.AudioAttributesCompat);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioSessionId(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAuxEffectSendLevel(@FloatRange(from=0, to=1) float);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setMediaItem(androidx.media2.common.MediaItem);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackParams(androidx.media2.player.PlaybackParams);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackSpeed(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) float);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlayerVolume(@FloatRange(from=0, to=1) float);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaylist(java.util.List<androidx.media2.common.MediaItem!>, androidx.media2.common.MediaMetadata?);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setRepeatMode(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setShuffleMode(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setSurface(android.view.Surface?);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToNextPlaylistItem();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPlaylistItem(@IntRange(from=0) int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPreviousPlaylistItem();
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> seekTo(long, int);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> selectTrack(androidx.media2.player.MediaPlayer.TrackInfo);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioAttributes(androidx.media.AudioAttributesCompat);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAudioSessionId(int);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setAuxEffectSendLevel(@FloatRange(from=0, to=1) float);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setMediaItem(androidx.media2.common.MediaItem);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackParams(androidx.media2.player.PlaybackParams);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaybackSpeed(@FloatRange(from=0.0f, to=java.lang.Float.MAX_VALUE, fromInclusive=false) float);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlayerVolume(@FloatRange(from=0, to=1) float);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setPlaylist(java.util.List<androidx.media2.common.MediaItem!>, androidx.media2.common.MediaMetadata?);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setRepeatMode(int);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setShuffleMode(int);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> setSurface(android.view.Surface?);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToNextPlaylistItem();
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPlaylistItem(@IntRange(from=0) int);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> skipToPreviousPlaylistItem();
     method public void unregisterPlayerCallback(androidx.media2.player.MediaPlayer.PlayerCallback);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> updatePlaylistMetadata(androidx.media2.common.MediaMetadata?);
+    method public androidx.concurrent.ListenableFuture<androidx.media2.common.SessionPlayer.PlayerResult!> updatePlaylistMetadata(androidx.media2.common.MediaMetadata?);
     field public static final int MEDIA_INFO_AUDIO_NOT_PLAYING = 804; // 0x324
     field public static final int MEDIA_INFO_BAD_INTERLEAVING = 800; // 0x320
     field public static final int MEDIA_INFO_BUFFERING_UPDATE = 704; // 0x2c0

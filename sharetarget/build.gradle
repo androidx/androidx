@@ -26,8 +26,8 @@ plugins {
 dependencies {
     api(project(":core"))
     implementation("androidx.collection:collection:1.0.0")
-    api(GUAVA_LISTENABLE_FUTURE)
-    implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha02")
+    api(project(":concurrent-listenablefuture"))
+    implementation(project(":concurrent-listenablefuture-callback"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

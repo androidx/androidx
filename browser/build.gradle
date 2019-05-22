@@ -19,7 +19,8 @@ dependencies {
     api(project(":interpolator"))
     api("androidx.collection:collection:1.1.0-rc01")
 
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation(project(":concurrent-listenablefuture"))
+    implementation(project(":concurrent-listenablefuture-callback"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

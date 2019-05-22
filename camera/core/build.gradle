@@ -25,13 +25,14 @@ plugins {
 
 dependencies {
     api("androidx.lifecycle:lifecycle-common:2.0.0", libs.exclude_annotations_transitive)
+
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation("androidx.annotation:annotation:1.0.0")
+    implementation(project(":concurrent-listenablefuture"))
+    implementation(project(":concurrent-listenablefuture-callback"))
     implementation(project(":core"))
-    implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha03")
 
     implementation(AUTO_VALUE_ANNOTATIONS)
-    implementation(GUAVA_LISTENABLE_FUTURE)
 
     annotationProcessor(AUTO_VALUE)
 
