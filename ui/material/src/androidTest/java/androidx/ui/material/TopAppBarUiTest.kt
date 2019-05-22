@@ -30,9 +30,11 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.currentTextStyle
 import androidx.ui.painting.TextStyle
+import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertDoesNotExist
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.findAll
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import org.junit.Rule
@@ -88,7 +90,7 @@ class TopAppBarUiTest {
         composeTestRule.setMaterialContent {
             TopAppBar()
         }
-        findByText("Title").assertDoesNotExist()
+        assertDoesNotExist { testTag == "Title" }
     }
 
     @Test
@@ -226,7 +228,7 @@ class TopAppBarUiTest {
                 }
             }
         }
-        findByTag("Trailing icon").assertDoesNotExist()
+        assertDoesNotExist { testTag == "Trailing icon" }
 
         withDensity(composeTestRule.density) {
             val trailingIconWidth = trailingIconInfo?.size?.width?.round()
@@ -247,7 +249,7 @@ class TopAppBarUiTest {
             }
         }
         findByTag("Trailing icon").assertIsVisible()
-        findByTag("Overflow icon").assertDoesNotExist()
+        assertDoesNotExist { testTag == "Overflow icon" }
 
         withDensity(composeTestRule.density) {
             val trailingIconExpectedWidth = 24.dp + 24.dp // icon and spacer
@@ -268,9 +270,12 @@ class TopAppBarUiTest {
                 }
             }
         }
-        // TODO: need API to assert I can find 2 items
-        // findByTag("Trailing icon").assertIsVisible()
-        findByTag("Overflow icon").assertDoesNotExist()
+        findAll { testTag == "Trailing icon" }.apply {
+            forEach {
+                it.assertIsVisible()
+            }
+        }.assertCountEquals(2)
+        assertDoesNotExist { testTag == "Overflow icon" }
 
         withDensity(composeTestRule.density) {
             val trailingIconExpectedWidth = (24.dp * 2) + (24.dp * 2) // icons and spacers
@@ -291,8 +296,11 @@ class TopAppBarUiTest {
                 }
             }
         }
-        // TODO: need API to assert I can find 3 items
-        // findByTag("Trailing icon").assertIsVisible()
+        findAll { testTag == "Trailing icon" }.apply {
+            forEach {
+                it.assertIsVisible()
+            }
+        }.assertCountEquals(2)
         findByTag("Overflow icon").assertIsVisible()
 
         withDensity(composeTestRule.density) {

@@ -3,20 +3,24 @@ package androidx.ui.test {
 
   public final class ActionsKt {
     ctor public ActionsKt();
-    method public static androidx.ui.test.SemanticsTreeInteraction doClick(androidx.ui.test.SemanticsTreeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction doClick(androidx.ui.test.SemanticsNodeInteraction);
   }
 
   public final class AssertionsKt {
     ctor public AssertionsKt();
-    method public static androidx.ui.test.SemanticsTreeInteraction assertDoesNotExist(androidx.ui.test.SemanticsTreeInteraction);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertIsChecked(androidx.ui.test.SemanticsTreeInteraction);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertIsHidden(androidx.ui.test.SemanticsTreeInteraction);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsTreeInteraction);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertIsNotChecked(androidx.ui.test.SemanticsTreeInteraction);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertIsSelected(androidx.ui.test.SemanticsTreeInteraction, boolean expected);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertIsVisible(androidx.ui.test.SemanticsTreeInteraction);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeInteraction, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
-    method public static androidx.ui.test.SemanticsTreeInteraction assertValueEquals(androidx.ui.test.SemanticsTreeInteraction, String value);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> assertCountEquals(java.util.List<androidx.ui.test.SemanticsNodeInteraction>, int count);
+    method public static void assertDoesNotExist(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsChecked(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsHidden(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotChecked(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsNotSelected(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsSelected(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertIsVisible(androidx.ui.test.SemanticsNodeInteraction);
+    method public static void assertNoLongerExists(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertSemanticsIsEqualTo(androidx.ui.test.SemanticsNodeInteraction, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
+    method public static void assertStillExists(androidx.ui.test.SemanticsNodeInteraction);
+    method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
   }
 
   public interface ComposeTestRule extends org.junit.rules.TestRule {
@@ -43,11 +47,17 @@ package androidx.ui.test {
     method public void evaluate();
   }
 
+  public final class FiltersKt {
+    ctor public FiltersKt();
+    method public static boolean isCheckable(androidx.ui.core.semantics.SemanticsConfiguration);
+  }
+
   public final class FindersKt {
     ctor public FindersKt();
-    method public static androidx.ui.test.SemanticsTreeInteraction findByCondition(kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
-    method public static androidx.ui.test.SemanticsTreeInteraction findByTag(String testTag);
-    method public static androidx.ui.test.SemanticsTreeInteraction findByText(String text, boolean ignoreCase = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction find(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
+    method public static java.util.List<androidx.ui.test.SemanticsNodeInteraction> findAll(kotlin.jvm.functions.Function1<? super androidx.ui.core.semantics.SemanticsConfiguration,java.lang.Boolean> selector);
+    method public static androidx.ui.test.SemanticsNodeInteraction findByTag(String testTag);
+    method public static androidx.ui.test.SemanticsNodeInteraction findByText(String text, boolean ignoreCase = false);
   }
 
   public final class GoldenSemanticsKt {
@@ -59,11 +69,10 @@ package androidx.ui.test {
 
   public final class OutputKt {
     ctor public OutputKt();
-    method public static void dumpSemantics(androidx.ui.test.SemanticsTreeInteraction, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
+    method public static void dumpSemantics(androidx.ui.test.SemanticsNodeInteraction, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
   }
 
-  public abstract class SemanticsTreeInteraction {
-    ctor public SemanticsTreeInteraction();
+  public final class SemanticsNodeInteraction {
   }
 
   public final class SemanticsTreeInteractionKt {

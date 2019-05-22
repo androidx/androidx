@@ -15,7 +15,6 @@
  */
 package androidx.ui.material
 
-import androidx.compose.Model
 import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.baseui.selection.ToggleableState
@@ -40,10 +39,8 @@ import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
-import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.round
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

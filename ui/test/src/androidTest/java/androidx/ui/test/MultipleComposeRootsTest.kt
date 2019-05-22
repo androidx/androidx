@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androix.ui.test
+package androidx.ui.test
 
-import android.view.Surface
-import androidx.compose.composer
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.composer
 import androidx.compose.Model
 import androidx.compose.compose
 import androidx.test.espresso.Espresso
@@ -32,16 +31,10 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
-import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TriStateCheckbox
 import androidx.ui.material.surface.Surface
-import androidx.ui.test.DisableTransitions
 import androidx.ui.test.android.DefaultTestActivity
-import androidx.ui.test.assertIsChecked
-import androidx.ui.test.assertIsNotChecked
-import androidx.ui.test.doClick
-import androidx.ui.test.findByTag
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,7 +91,7 @@ class MultipleComposeRootsTest {
                 val state1 = CheckboxState(value = ToggleableState.Unchecked)
                 val state2 = CheckboxState(value = ToggleableState.Checked)
 
-                val linearLayout  = LinearLayout(activity)
+                val linearLayout = LinearLayout(activity)
                     .apply { orientation = LinearLayout.VERTICAL }
 
                 val textView1 = TextView(activity).apply { text = "Compose 1" }
@@ -174,24 +167,14 @@ class MultipleComposeRootsTest {
         Espresso.onView(withText("Compose 1 - Checked")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2 - Unchecked")).check(matches(isDisplayed()))
 
-        // Version 1:
-        findByTag("checkbox1")
+        findByTag("checkbox2")
             .doClick()
             .assertIsNotChecked()
 
-        findByTag("checkbox2")
+        findByTag("checkbox1")
             .assertIsChecked()
 
-        // Version 2: - TODO(pavlis): Why this does not work?
-//        findByTag("checkbox2")
-//            .doClick()
-//            .assertIsChecked()
-//
-//
-//        findByTag("checkbox1")
-//            .assertIsNotChecked()
-
-        Espresso.onView(withText("Compose 1 - Unchecked")).check(matches(isDisplayed()))
-        Espresso.onView(withText("Compose 2 - Checked")).check(matches(isDisplayed()))
+        Espresso.onView(withText("Compose 1 - Checked")).check(matches(isDisplayed()))
+        Espresso.onView(withText("Compose 2 - Unchecked")).check(matches(isDisplayed()))
     }
 }
