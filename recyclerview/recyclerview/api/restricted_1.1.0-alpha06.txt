@@ -2,39 +2,16 @@
 package androidx.recyclerview.widget {
 
   public final class AsyncDifferConfig<T> {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.concurrent.Executor? getMainThreadExecutor();
   }
 
   public static final class AsyncDifferConfig.Builder<T> {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T!> setMainThreadExecutor(java.util.concurrent.Executor!);
   }
 
-  public class LinearLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager implements androidx.recyclerview.widget.ItemTouchHelper.ViewDropHandler androidx.recyclerview.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void prepareForDrop(android.view.View, android.view.View, int, int);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class LinearLayoutManager.SavedState implements android.os.Parcelable {
-    ctor public LinearLayoutManager.SavedState();
-    ctor public LinearLayoutManager.SavedState(androidx.recyclerview.widget.LinearLayoutManager.SavedState!);
-    method public int describeContents();
-    method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.recyclerview.widget.LinearLayoutManager.SavedState!>! CREATOR;
-  }
 
   @IntDef({androidx.recyclerview.widget.RecyclerView.HORIZONTAL, androidx.recyclerview.widget.RecyclerView.VERTICAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RecyclerView.Orientation {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class RecyclerView.SavedState extends androidx.customview.view.AbsSavedState {
-    field public static final android.os.Parcelable.Creator<androidx.recyclerview.widget.RecyclerView.SavedState!>! CREATOR;
-  }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class StaggeredGridLayoutManager.SavedState implements android.os.Parcelable {
-    ctor public StaggeredGridLayoutManager.SavedState();
-    ctor public StaggeredGridLayoutManager.SavedState(androidx.recyclerview.widget.StaggeredGridLayoutManager.SavedState!);
-    method public int describeContents();
-    method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.recyclerview.widget.StaggeredGridLayoutManager.SavedState!>! CREATOR;
-  }
 
 }
 

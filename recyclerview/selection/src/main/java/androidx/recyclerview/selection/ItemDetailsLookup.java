@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.view.MotionEvent;
 
@@ -72,7 +72,7 @@ public abstract class ItemDetailsLookup<K> {
      * @return true if there is an item w/ a stable ID at the event coordinates.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected boolean overItemWithSelectionKey(@NonNull MotionEvent e) {
         return overItem(e) && hasSelectionKey(getItemDetails(e));
     }
