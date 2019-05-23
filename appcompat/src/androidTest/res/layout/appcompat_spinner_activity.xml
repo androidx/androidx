@@ -124,7 +124,9 @@
             android:entries="@array/numbers_array_small"
             android:popupBackground="@null"
             android:focusable="false"
-            android:spinnerMode="dropdown" />
+            android:spinnerMode="dropdown"
+            android:popupEnterTransition="@null"
+            android:popupExitTransition="@null" />
     </LinearLayout>
 
 </ScrollView>
