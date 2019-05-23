@@ -48,6 +48,7 @@ import androidx.ui.painting.Shadow
  *                      style cannot be found in the provided custom font family.
  * @param textIndent The amount of indentation applied to the affected paragraph. A paragraph is affected
  *                   if any of its character is covered by the TextSpan.
+ * @param textAlign Specify how a paragraph is aligned.
  * @param shadow The shadow effect applied on the text.
  */
 data class TextStyle constructor(
@@ -67,5 +68,6 @@ data class TextStyle constructor(
     val background: Color? = null,
     val fontSynthesis: FontSynthesis? = null,
     val textIndent: TextIndent? = null,
+    val textAlign: TextAlign? = null,
     val shadow: Shadow? = null
 )
