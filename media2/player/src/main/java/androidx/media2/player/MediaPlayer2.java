@@ -770,8 +770,6 @@ public abstract class MediaPlayer2 {
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
 
-        public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
-
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
         public static final int MEDIA_TRACK_TYPE_METADATA = 5;
 
@@ -1210,12 +1208,6 @@ public abstract class MediaPlayer2 {
     public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805;
 
     /**
-     * Failed to handle timed text track properly.
-     * @see EventCallback#onInfo
-     */
-    public static final int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
-
-    /**
      * Subtitle track was not supported by the media framework.
      * @see EventCallback#onInfo
      */
@@ -1251,7 +1243,6 @@ public abstract class MediaPlayer2 {
             MEDIA_INFO_EXTERNAL_METADATA_UPDATE,
             MEDIA_INFO_AUDIO_NOT_PLAYING,
             MEDIA_INFO_VIDEO_NOT_PLAYING,
-            MEDIA_INFO_TIMED_TEXT_ERROR,
             MEDIA_INFO_UNSUPPORTED_SUBTITLE,
             MEDIA_INFO_SUBTITLE_TIMED_OUT
     })

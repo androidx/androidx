@@ -26,7 +26,6 @@ import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
 
@@ -202,7 +201,6 @@ import java.net.SocketTimeoutException;
             case MEDIA_TRACK_TYPE_METADATA:
                 return C.TRACK_TYPE_METADATA;
             case MEDIA_TRACK_TYPE_UNKNOWN:
-            case MEDIA_TRACK_TYPE_TIMEDTEXT: // Unexpected
             default:
                 return C.TRACK_TYPE_UNKNOWN;
         }

@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
 import static androidx.media2.player.exoplayer.RenderersFactory.AUDIO_RENDERER_INDEX;
@@ -230,7 +229,6 @@ import java.util.List;
             case MEDIA_TRACK_TYPE_SUBTITLE:
                 return mAudioTrackInfos.size() + mVideoTrackInfos.size()
                         + mMetadataTrackInfos.size() + mSelectedTextTrackIndex;
-            case MEDIA_TRACK_TYPE_TIMEDTEXT:
             case MEDIA_TRACK_TYPE_UNKNOWN:
             default:
                 return TRACK_INDEX_UNSET;
