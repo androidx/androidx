@@ -39,6 +39,11 @@ package androidx.ui.layout {
     property public final androidx.ui.layout.Alignment TopRight;
   }
 
+  public final class AspectRatioKt {
+    ctor public AspectRatioKt();
+    method public static void AspectRatio(float aspectRatio, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class ConstrainedBoxKt {
     ctor public ConstrainedBoxKt();
     method public static void ConstrainedBox(androidx.ui.layout.DpConstraints constraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);

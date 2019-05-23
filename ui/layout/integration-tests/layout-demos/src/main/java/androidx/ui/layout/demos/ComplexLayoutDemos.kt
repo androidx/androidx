@@ -52,6 +52,9 @@ import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.unaryPlus
+import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.Container
+import androidx.ui.layout.EdgeInsets
 
 /**
  * Draws a rectangle of a specified dimension, or to its max incoming constraints if
@@ -362,15 +365,15 @@ fun FillWithRectangles() {
 
 @Composable
 fun ComplexLayoutDemos() {
-    +runDelayed(3000, 6000, 9000, 12000, 15000) {
-        rectColorModel.color = Color(0xFF0000FF.toInt())
-        rectColorModel.cnt++
-    }
     CraneWrapper {
         Center {
-            val rectangleWidth = 30.dp * rectColorModel.cnt
-            ConstrainedBox(constraints = DpConstraints.tightConstraintsForWidth(rectangleWidth)) {
-                FillWithRectangles()
+            ConstrainedBox(DpConstraints(maxWidth = 100.dp)) {
+                AspectRatio(2f) {
+                    DrawRectangle(color = Color.Blue)
+                    Container(padding = EdgeInsets(20.dp)) {
+                        SizedRectangle(color = Color.Black)
+                    }
+                }
             }
         }
     }
