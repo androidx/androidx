@@ -23,8 +23,6 @@ plugins {
     id("kotlin-android")
 }
 
-android.defaultConfig.testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
-
 dependencies {
     androidTestImplementation(project(":appcompat"))
     androidTestImplementation(project(":recyclerview"))
