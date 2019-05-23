@@ -87,6 +87,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * <li>{@link #getPlaybackState()}.{@link PlaybackStateCompat#getExtras() getExtras()}</li>
  * <li>{@link #getRatingType()}</li>
  * <li>{@link #getRepeatMode()}</li>
+ * <li>{@link #getSessionInfo()}</li>
  * <li>{@link #getShuffleMode()}</li>
  * <li>{@link #isCaptioningEnabled()}</li>
  * </ul></p>
@@ -659,6 +660,7 @@ public final class MediaControllerCompat {
      * <li>{@link #getPlaybackState()}</li>
      * <li>{@link #getRatingType()}</li>
      * <li>{@link #getRepeatMode()}</li>
+     * <li>{@link #getSessionInfo()}}</li>
      * <li>{@link #getShuffleMode()}</li>
      * <li>{@link #isCaptioningEnabled()}</li>
      * </ul>
@@ -686,11 +688,7 @@ public final class MediaControllerCompat {
      *         didn't set the information or if the session is not ready.
      * @see #isSessionReady
      * @see Callback#onSessionReady
-     * @hide
-     *
-     * TODO(b/130282718): Add this in the Javadoc of MediaControllerCompat and isSessionReady()
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public Bundle getSessionInfo() {
         return mImpl.getSessionInfo();
@@ -2279,12 +2277,19 @@ public final class MediaControllerCompat {
 
         @Override
         public Bundle getSessionInfo() {
-            // TODO(b/130282718): Use framework MediaController#getSessionInfo() from Q.
-            if (mSessionToken.getExtraBinder() != null) {
+            if (mSessionInfo != null) {
+                return new Bundle(mSessionInfo);
+            }
+
+            // Get the info from the connected session.
+            if (Build.VERSION.SDK_INT >= 29) {
+                mSessionInfo = mControllerFwk.getSessionInfo();
+            } else if (mSessionToken.getExtraBinder() != null) {
                 try {
                     mSessionInfo = mSessionToken.getExtraBinder().getSessionInfo();
                 } catch (RemoteException e) {
                     Log.e(TAG, "Dead object in getSessionInfo.", e);
+                    mSessionInfo = Bundle.EMPTY;
                 }
             }
             return mSessionInfo == null ? Bundle.EMPTY : new Bundle(mSessionInfo);
