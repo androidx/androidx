@@ -24,6 +24,12 @@ dependencies {
     implementation(project(":webkit"))
 }
 
+tasks.all { task ->
+    if ("assembleRelease" == task.name) {
+        rootProject.tasks.getByName("buildOnServer").dependsOn(task)
+    }
+}
+
 android {
     defaultConfig {
         minSdkVersion 19
@@ -33,10 +39,6 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled true
-        }
-
-        debug {
             minifyEnabled true
         }
     }
