@@ -211,6 +211,13 @@ public class CameraImplTest {
         return testUseCase;
     }
 
+
+    private void changeUseCaseSurface(UseCase useCase) {
+        Map<String, Size> suggestedResolutionMap = new HashMap<>();
+        suggestedResolutionMap.put(mCameraId, new Size(640, 480));
+        useCase.updateSuggestedResolution(suggestedResolutionMap);
+    }
+
     @Test
     public void addOnline_OneUseCase() {
         blockHandler();
@@ -421,6 +428,127 @@ public class CameraImplTest {
         mCamera.removeOnlineUseCase(Arrays.asList(useCase2));
     }
 
+    @Test
+    public void onlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount() {
+        blockHandler();
+
+        UseCase useCase1 = createUseCase();
+        mCamera.addOnlineUseCase(Arrays.asList(useCase1));
+        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        unblockHandler();
+        waitHandlerIdle();
+
+        changeUseCaseSurface(useCase1);
+        mCamera.onUseCaseUpdated(useCase1);
+        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        mCamera.close();
+        waitHandlerIdle();
+
+        assertThat(surface1).isNotEqualTo(surface2);
+
+        // Old surface was removed from Camera
+        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        // New surface is still in Camera
+        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+
+        mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
+    }
+
+    @Test
+    public void onlineUseCase_changeSurface_onUseCaseReset_correctAttachCount() {
+        blockHandler();
+
+        UseCase useCase1 = createUseCase();
+        mCamera.addOnlineUseCase(Arrays.asList(useCase1));
+        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        unblockHandler();
+        waitHandlerIdle();
+
+        changeUseCaseSurface(useCase1);
+        mCamera.onUseCaseReset(useCase1);
+        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        mCamera.close();
+        waitHandlerIdle();
+
+        assertThat(surface1).isNotEqualTo(surface2);
+
+        // Old surface was removed from Camera
+        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        // New surface is still in Camera
+        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+        mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
+    }
+
+    @Test
+    public void onlineUseCase_changeSurface_onUseCaseActive_correctAttachCount() {
+        blockHandler();
+
+        UseCase useCase1 = createUseCase();
+        mCamera.addOnlineUseCase(Arrays.asList(useCase1));
+        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        unblockHandler();
+        waitHandlerIdle();
+
+        changeUseCaseSurface(useCase1);
+        mCamera.onUseCaseActive(useCase1);
+        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        mCamera.close();
+        waitHandlerIdle();
+
+        assertThat(surface1).isNotEqualTo(surface2);
+
+        // Old surface was removed from Camera
+        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        // New surface is still in Camera
+        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+
+        mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
+    }
+
+
+    @Test
+    public void offlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount() {
+        blockHandler();
+
+        UseCase useCase1 = createUseCase();
+        UseCase useCase2 = createUseCase();
+        // useCase1 is offline.
+        mCamera.addOnlineUseCase(Arrays.asList(useCase2));
+
+        DeferrableSurface surface1 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        unblockHandler();
+        waitHandlerIdle();
+
+        changeUseCaseSurface(useCase1);
+        mCamera.onUseCaseUpdated(useCase1);
+        DeferrableSurface surface2 = useCase1.getSessionConfig(mCameraId).getSurfaces().get(0);
+
+        waitHandlerIdle();
+
+        assertThat(surface1).isNotEqualTo(surface2);
+
+        // No attachment because useCase1 is offline.
+        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        assertThat(surface2.getAttachedCount()).isEqualTo(0);
+
+        // make useCase1 online
+        mCamera.addOnlineUseCase(Arrays.asList(useCase1));
+        mCamera.close();
+        waitHandlerIdle();
+
+        // only surface2 is attached.
+        assertThat(surface1.getAttachedCount()).isEqualTo(0);
+        assertThat(surface2.getAttachedCount()).isEqualTo(1);
+
+        mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
+    }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
         return useCase.getSessionConfig(mCameraId).getSurfaces().get(0);
