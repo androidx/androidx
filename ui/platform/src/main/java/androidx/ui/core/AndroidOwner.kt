@@ -19,6 +19,8 @@ import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
 import android.os.Looper
+import android.os.Trace
+import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -143,7 +145,7 @@ class AndroidCraneView constructor(context: Context)
         if (layout == root) {
             requestLayout()
         } else {
-            postOnAnimation {
+            Choreographer.getInstance().postFrameCallback {
                 measureAndLayout()
             }
         }
@@ -163,43 +165,53 @@ class AndroidCraneView constructor(context: Context)
      * Iterates through all LayoutNodes that have requested layout and measures and lays them out
      */
     private fun measureAndLayout() {
-        val frame = currentFrame()
-        frame.observeReads(frameReadObserver) {
-            relayoutNodes.sortedBy { it.depth }.forEach { layoutNode ->
-                if (layoutNode.needsRemeasure) {
-                    val parent = layoutNode.parentLayoutNode
-                    if (parent != null) {
-                        // This should call measure and layout on the child
-                        parent.layout?.callLayout()
-                    } else {
-                        layoutNode.layout?.callMeasure(layoutNode.constraints)
-                        layoutNode.layout?.callLayout()
+        Trace.beginSection("Compose:measureAndLayout")
+        try {
+            val frame = currentFrame()
+            frame.observeReads(frameReadObserver) {
+                relayoutNodes.sortedBy { it.depth }.forEach { layoutNode ->
+                    if (layoutNode.needsRemeasure) {
+                        val parent = layoutNode.parentLayoutNode
+                        if (parent != null) {
+                            // This should call measure and layout on the child
+                            parent.layout?.callLayout()
+                        } else {
+                            layoutNode.layout?.callMeasure(layoutNode.constraints)
+                            layoutNode.layout?.callLayout()
+                        }
                     }
                 }
+                relayoutNodes.clear()
             }
-            relayoutNodes.clear()
+            invalidate()
+        } finally {
+            Trace.endSection()
         }
-        invalidate()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val targetWidth = convertMeasureSpec(widthMeasureSpec)
-        val targetHeight = convertMeasureSpec(heightMeasureSpec)
+        Trace.beginSection("Compose:onMeasure")
+        try {
+            val targetWidth = convertMeasureSpec(widthMeasureSpec)
+            val targetHeight = convertMeasureSpec(heightMeasureSpec)
 
-        val constraints = Constraints(
-            targetWidth.min, targetWidth.max,
-            targetHeight.min, targetHeight.max
-        )
+            val constraints = Constraints(
+                targetWidth.min, targetWidth.max,
+                targetHeight.min, targetHeight.max
+            )
 
-        if (this.constraints != constraints) {
-            this.constraints = constraints
+            if (this.constraints != constraints) {
+                this.constraints = constraints
+            }
+            // commit the current frame
+            val frame = currentFrame()
+            frame.observeReads(frameReadObserver) {
+                callMeasure(constraints)
+            }
+            setMeasuredDimension(root.width.value, root.height.value)
+        } finally {
+            Trace.endSection()
         }
-        // commit the current frame
-        val frame = currentFrame()
-        frame.observeReads(frameReadObserver) {
-            callMeasure(constraints)
-        }
-        setMeasuredDimension(root.width.value, root.height.value)
     }
 
     override fun onEndLayout(layoutNode: LayoutNode) {
@@ -220,16 +232,21 @@ class AndroidCraneView constructor(context: Context)
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        val frame = currentFrame()
-        root.startLayout()
-        frame.observeReads(frameReadObserver) {
-            root.visitChildren { child ->
-                child.layoutNode?.moveTo(0.ipx, 0.ipx)
-                child.layoutNode?.layout?.callLayout()
+        Trace.beginSection("Compose:onLayout")
+        try {
+            val frame = currentFrame()
+            root.startLayout()
+            frame.observeReads(frameReadObserver) {
+                root.visitChildren { child ->
+                    child.layoutNode?.moveTo(0.ipx, 0.ipx)
+                    child.layoutNode?.layout?.callLayout()
+                }
             }
+            root.layoutNode.moveTo(0.ipx, 0.ipx)
+            root.endLayout()
+        } finally {
+            Trace.endSection()
         }
-        root.layoutNode.moveTo(0.ipx, 0.ipx)
-        root.endLayout()
         measureAndLayout()
     }
 
@@ -272,15 +289,20 @@ class AndroidCraneView constructor(context: Context)
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
-        // Start looking for model changes:
-        val frame = currentFrame()
-        frame.observeReads(frameReadObserver) {
-            val uiCanvas = Canvas(canvas)
-            val densityReceiver = DensityReceiverImpl(density = Density(context))
-            val parentSize = PxSize(root.width, root.height)
-            callDraw(uiCanvas, root, parentSize, densityReceiver)
+        Trace.beginSection("Compose:draw")
+        try {
+            // Start looking for model changes:
+            val frame = currentFrame()
+            frame.observeReads(frameReadObserver) {
+                val uiCanvas = Canvas(canvas)
+                val densityReceiver = DensityReceiverImpl(density = Density(context))
+                val parentSize = PxSize(root.width, root.height)
+                callDraw(uiCanvas, root, parentSize, densityReceiver)
+            }
+            currentNode = null
+        } finally {
+            Trace.endSection()
         }
-        currentNode = null
     }
 
     override fun onAttachedToWindow() {
@@ -294,8 +316,13 @@ class AndroidCraneView constructor(context: Context)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        pointerInputEventProcessor.process(event.toPointerInputEvent())
-        // TODO(shepshapard): Only return if a child was hit.
+        Trace.beginSection("Compose:touch")
+        try {
+            pointerInputEventProcessor.process(event.toPointerInputEvent())
+            // TODO(shepshapard): Only return if a child was hit.
+        } finally {
+            Trace.endSection()
+        }
         return true
     }
 
