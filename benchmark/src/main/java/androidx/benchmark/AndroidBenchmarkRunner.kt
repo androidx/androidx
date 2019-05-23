@@ -25,6 +25,7 @@ import android.os.PowerManager
 import androidx.annotation.CallSuper
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnitRunner
+import kotlin.concurrent.thread
 
 /**
  * Instrumentation runner for benchmarks, used to increase stability of measurements and minimize
@@ -87,12 +88,10 @@ open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
             // to avoid any benchmarks running at higher clocks than any others.
             //
             // Note, thread names have 15 char max in Systrace
-            object : Thread("BenchSpinThread") {
-                override fun run() {
-                    android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_LOWEST)
-                    while (true) {}
-                }
-            }.start()
+            thread(name = "BenchSpinThread") {
+                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_LOWEST)
+                while (true) {}
+            }
         }
     }
 
