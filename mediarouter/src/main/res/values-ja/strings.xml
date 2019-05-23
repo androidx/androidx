@@ -17,13 +17,13 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="3117964881088969586">"システム"</string>
-    <string name="mr_user_route_category_name" msgid="8236416097133080726">"端末"</string>
+    <string name="mr_user_route_category_name" msgid="8236416097133080726">"デバイス"</string>
     <string name="mr_button_content_description" msgid="1685185767093348095">"キャスト アイコン"</string>
     <string name="mr_cast_button_disconnected" msgid="5501231066847739632">"キャスト アイコン。接続解除済み"</string>
     <string name="mr_cast_button_connecting" msgid="8959304318293841992">"キャスト アイコン。接続中"</string>
     <string name="mr_cast_button_connected" msgid="1350095112462806159">"キャスト アイコン。接続済み"</string>
     <string name="mr_chooser_title" msgid="7548226170787476564">"キャスト先"</string>
-    <string name="mr_chooser_searching" msgid="5504553798429329689">"端末を検出しています"</string>
+    <string name="mr_chooser_searching" msgid="5504553798429329689">"デバイスを検出しています"</string>
     <string name="mr_controller_disconnect" msgid="1370654436555555647">"接続を解除"</string>
     <string name="mr_controller_stop_casting" msgid="7617024847862349259">"キャストを停止"</string>
     <string name="mr_controller_close_description" msgid="5468775621814500662">"閉じる"</string>
@@ -37,7 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="4342878516155861006">"メディアが選択されていません"</string>
     <string name="mr_controller_no_info_available" msgid="7299368841849988218">"情報がありません"</string>
     <string name="mr_controller_casting_screen" msgid="5286734709674025661">"画面をキャストしています"</string>
-    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"端末の追加"</string>
+    <string name="mr_dialog_groupable_header" msgid="470815817763403488">"デバイスの追加"</string>
     <string name="mr_dialog_transferable_header" msgid="8242946697267839296">"グループで再生"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="6167045754274068030">"情報がありません"</string>
 </resources>
