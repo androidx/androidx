@@ -6,6 +6,6 @@
     <string name="expand_button_title" msgid="1234962710353108940">"پیشرفته"</string>
     <string name="summary_collapsed_preference_list" msgid="5190123168583152844">"<xliff:g id="CURRENT_ITEMS">%1$s</xliff:g>، <xliff:g id="ADDED_ITEMS">%2$s</xliff:g>"</string>
     <string name="copy" msgid="3209159573327985035">"کپی"</string>
-    <string name="preference_copied" msgid="7961817945132860002">"«<xliff:g id="SUMMARY">%1$s</xliff:g>» در کلیپ‌بورد کپی شد."</string>
+    <string name="preference_copied" msgid="7961817945132860002">"«<xliff:g id="SUMMARY">%1$s</xliff:g>» در بریده‌دان کپی شد."</string>
     <string name="not_set" msgid="478774118347071097">"تنظیم نشده است"</string>
 </resources>
