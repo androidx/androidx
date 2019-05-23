@@ -18,6 +18,8 @@ package androidx.camera.camera2.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assume.assumeTrue;
+
 import android.Manifest;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraDevice;
@@ -97,6 +99,7 @@ public class CameraImplTest {
 
     @Before
     public void setUp() {
+        assumeTrue(CameraUtil.deviceHasCamera());
         mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
 
         mCameraHandlerThread = new HandlerThread("cameraThread");
@@ -149,7 +152,7 @@ public class CameraImplTest {
             mCamera = null;
         }
 
-        if (mWaitCameraCloseAtTearDown) {
+        if (mWaitCameraCloseAtTearDown && mLatchForDeviceClose != null) {
             mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
         }
 
