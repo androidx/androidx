@@ -25,6 +25,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Assume;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -209,6 +212,42 @@ public final class WebkitUtils {
             // Thread was interrupted, not this one.
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Write a string to a file, and create the whole parent directories if they don't exist.
+     */
+    public static void writeToFile(File file, String content)
+                  throws IOException {
+        file.getParentFile().mkdirs();
+        FileOutputStream fos = new FileOutputStream(file);
+        try {
+            fos.write(content.getBytes("utf-8"));
+        } finally {
+            fos.close();
+        }
+    }
+
+    /**
+     * Delete the given File and (if it's a directory) everything within it.
+     * @param currentFile The file or directory to delete. Does not need to exist.
+     * @return Whether currentFile does not exist afterwards.
+     */
+    public static boolean recursivelyDeleteFile(File currentFile) {
+        if (!currentFile.exists()) {
+            return true;
+        }
+        if (currentFile.isDirectory()) {
+            File[] files = currentFile.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    recursivelyDeleteFile(file);
+                }
+            }
+        }
+
+        boolean ret = currentFile.delete();
+        return ret;
     }
 
     // Do not instantiate this class.

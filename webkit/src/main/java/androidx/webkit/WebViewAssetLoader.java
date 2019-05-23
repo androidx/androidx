@@ -18,24 +18,29 @@ package androidx.webkit;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.webkit.WebResourceResponse;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.webkit.internal.AssetHelper;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper class to load files including application's static assets and resources using http(s)://
- * URLs inside a {@link android.webkit.WebView} class.
- * Loading assets and resources using web-like URLs is desirable as it is compatible with the
- * Same-Origin policy.
+ * Helper class to load local files including application's static assets and resources using
+ * http(s):// URLs inside a {@link android.webkit.WebView} class.
+ * Loading local files using web-like URLs instead of {@code "file://"} is desirable as it is
+ * compatible with the Same-Origin policy.
  *
  * <p>
  * For more context about application's assets and resources and how to normally access them please
@@ -207,6 +212,113 @@ public final class WebViewAssetLoader {
         }
 
     }
+
+    /**
+     * Handler class to open files from application internal storage.
+     * For more information about android storage please refer to
+     * <a href="https://developer.android.com/guide/topics/data/data-storage">Android Developers
+     * Docs: Data and file storage overview</a>.
+     * <p>
+     * To avoid leaking user or app data to the web, make sure to choose {@code directory}
+     * carefully, and assume any file under this directory could be accessed by any web page subject
+     * to same-origin rules.
+     * @hide
+     */
+    // TODO(b/132880733) unhide the API when it's ready.
+    @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
+    public static final class InternalStoragePathHandler implements PathHandler {
+        /**
+         * Forbidden subdirectories of {@link Context#getDataDir} that cannot be exposed by this
+         * handler. They are forbidden as they often contain sensitive information.
+         */
+        public static final String[] FORBIDDEN_DATA_DIRS =
+                new String[] {"app_webview/", "databases/", "lib/", "shared_prefs/", "code_cache/"};
+
+        @NonNull private final File mDirectory;
+
+        /**
+         * Creates PathHandler for app's internal storage.
+         * The directory to be exposed must be inside either the application's internal data
+         * directory {@link context#getDataDir} or cache directory {@link context#getCacheDir}.
+         * External storage is not supported for security reasons, as other apps with
+         * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} may be able to modify the
+         * files.
+         * <p>
+         * Exposing the entire data or cache directory is not permitted, to avoid accidentally
+         * exposing sensitive application files to the web. Certain existing directories are also
+         * not permitted, such as {@link FORBIDDEN_DATA_DIRS}, as they are often sensitive.
+         * <p>
+         * The application should typically use a dedicated subdirectory for the files it intends to
+         * expose and keep them separate from other files.
+         *
+         * @param context {@link Context} that is used to access app's internal storage.
+         * @param directory the absolute path of the exposed app internal storage directory from
+         *                  which files can be loaded.
+         * @throws IllegalArgumentException if the directory is not allowed.
+         */
+        public InternalStoragePathHandler(@NonNull Context context, @NonNull File directory) {
+            if (!isAllowedInternalStorageDir(context, directory)) {
+                throw new IllegalArgumentException("The given directory \"" + directory
+                        + "\" doesn't exist under an allowed app internal storage directory");
+            }
+            mDirectory = directory;
+        }
+
+        private static boolean isAllowedInternalStorageDir(@NonNull Context context,
+                @NonNull File dir) {
+            try {
+                String dirPath = AssetHelper.getCanonicalPath(dir);
+                String cacheDirPath = AssetHelper.getCanonicalPath(context.getCacheDir());
+                String dataDirPath = AssetHelper.getCanonicalPath(AssetHelper.getDataDir(context));
+                // dir has to be a subdirectory of data or cache dir.
+                if (!dirPath.startsWith(cacheDirPath) && !dirPath.startsWith(dataDirPath)) {
+                    return false;
+                }
+                // dir cannot be the entire cache or data dir.
+                if (dirPath.equals(cacheDirPath) || dirPath.equals(dataDirPath)) {
+                    return false;
+                }
+                // dir cannot be a subdirectory of any forbidden data dir.
+                for (String forbiddenPath : FORBIDDEN_DATA_DIRS) {
+                    if (dirPath.startsWith(dataDirPath + forbiddenPath)) return false;
+                }
+                return true;
+            } catch (IOException e) {
+                return false;
+            }
+        }
+
+        /**
+         * Opens the requested file from the exposed data directory.
+         * <p>
+         * The matched prefix path used shouldn't be a prefix of a real web path. Thus, if the
+         * requested file cannot be found or is outside the mounted directory a
+         * {@link WebResourceResponse} object with a {@code null} {@link InputStream} will be
+         * returned instead of {@code null}. This saves the time of falling back to network and
+         * trying to resolve a path that doesn't exist. A {@link WebResourceResponse} with
+         * {@code null} {@link InputStream} will be received as an HTTP response with status code
+         * {@code 404} and no body.
+         *
+         * @param path the suffix path to be handled.
+         * @return {@link WebResourceResponse} for the requested file.
+         */
+        @Override
+        @WorkerThread
+        @NonNull
+        public WebResourceResponse handle(@NonNull String path) {
+            File file = new File(mDirectory, path);
+            InputStream is = null;
+            if (AssetHelper.isCanonicalChildOf(mDirectory, file)) {
+                is = AssetHelper.openFile(file);
+            } else {
+                Log.e(TAG, "The requested file: " + path + " is outside the mounted directory: "
+                         + mDirectory);
+            }
+            String mimeType = URLConnection.guessContentTypeFromName(path);
+            return new WebResourceResponse(mimeType, null, is);
+        }
+    }
+
 
     /**
      * Matches URIs on the form: {@code "http(s)://authority/path/**"}, HTTPS is always enabled.
