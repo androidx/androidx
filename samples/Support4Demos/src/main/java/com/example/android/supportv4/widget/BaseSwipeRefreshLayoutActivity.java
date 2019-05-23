@@ -16,14 +16,19 @@
 
 package com.example.android.supportv4.widget;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import androidx.annotation.LayoutRes;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 
@@ -32,7 +37,8 @@ import com.example.android.supportv4.R;
 /**
  * Example of using the SwipeRefreshLayout.
  */
-abstract class BaseSwipeRefreshLayoutActivity extends Activity implements OnRefreshListener {
+abstract class BaseSwipeRefreshLayoutActivity extends FragmentActivity
+        implements OnRefreshListener {
 
     public static final String[] TITLES = {
             "Henry IV (1)",
@@ -76,19 +82,65 @@ abstract class BaseSwipeRefreshLayoutActivity extends Activity implements OnRefr
     private SwipeRefreshLayout mSwipeRefreshWidget;
 
     private final Handler mHandler = new Handler();
+    private MyViewModel mViewModel;
 
-    private final Runnable mRefreshDone = new Runnable() {
-        @Override
-        public void run() {
-            mSwipeRefreshWidget.setRefreshing(false);
+    public static class MyViewModel extends ViewModel {
+        final LiveData<Event<Object>> refreshDone = new MutableLiveData<>();
+
+        final Runnable mRefreshDone = new Runnable() {
+            @Override
+            public void run() {
+                ((MutableLiveData) refreshDone).setValue(new Event<>(new Object()));
+            }
+        };
+    }
+    public static class Event<T> {
+        boolean mHasBeenHandled = false;
+        T mContent;
+
+        public void setContent(T content) {
+            this.mContent = content;
         }
 
-    };
+        Event(T content) {
+            this.mContent = content;
+        }
+
+        /**
+         * Returns the mContent and prevents its use again.
+         */
+        T getContentIfNotHandled() {
+            if (mHasBeenHandled) {
+                return null;
+            } else {
+                mHasBeenHandled = true;
+                return mContent;
+            }
+        }
+
+        /**
+         * Returns the mContent, even if it's already been handled.
+         */
+        T peekContent() {
+            return mContent;
+        }
+    }
 
     @Override
     public void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         setContentView(getLayoutId());
+
+        mViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
+        mViewModel.refreshDone.observe(this, event -> {
+            if (event.getContentIfNotHandled() != null) {
+                mSwipeRefreshWidget.setRefreshing(false);
+                Toast.makeText(BaseSwipeRefreshLayoutActivity.this,
+                        "Refreshing is completed. Long text is added here just to be better "
+                                + "visible on screen",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
 
         mSwipeRefreshWidget = findViewById(R.id.swipe_refresh_widget);
         mSwipeRefreshWidget.setColorSchemeResources(R.color.color1, R.color.color2, R.color.color3,
@@ -127,7 +179,7 @@ abstract class BaseSwipeRefreshLayoutActivity extends Activity implements OnRefr
     }
 
     private void refresh() {
-        mHandler.removeCallbacks(mRefreshDone);
-        mHandler.postDelayed(mRefreshDone, 1000);
+        mHandler.removeCallbacks(mViewModel.mRefreshDone);
+        mHandler.postDelayed(mViewModel.mRefreshDone, 5000);
     }
 }
