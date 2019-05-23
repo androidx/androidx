@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"المس زر استشعار بصمات الإصبع"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"المس زر استشعار بصمة الإصبع"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"لم يتم التعرف عليها."</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"منطقة رسالة المساعدة"</string>
     <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"جهاز بصمة الإصبع غير متاح."</string>
