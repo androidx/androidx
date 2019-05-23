@@ -36,7 +36,9 @@
         <argument android:name="myarg" android:defaultValue="@null" />
         <action
             android:id="@+id/learn_more_about_android"
-            app:destination="@+id/android"/>
+            app:destination="@+id/android"
+            app:popUpTo="@+id/learn_more"
+            app:popUpToInclusive="true"/>
     </dialog>
     <fragment android:id="@+id/android"
               android:label="@string/android"
