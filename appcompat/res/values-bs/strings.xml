@@ -33,7 +33,7 @@
     <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Dijeli sa"</string>
     <string name="abc_capital_on" msgid="7831734969929204599">"UKLJUČENO"</string>
     <string name="abc_capital_off" msgid="3403923230105792483">"ISKLJUČENO"</string>
-    <string name="search_menu_title" msgid="730395136688082741">"Traži"</string>
+    <string name="search_menu_title" msgid="730395136688082741">"Pretražite"</string>
     <string name="abc_prepend_shortcut_label" msgid="3570106412128999382">"Menu+"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="8046416353848716905">"Meta+"</string>
     <string name="abc_menu_ctrl_shortcut_label" msgid="944415252197684443">"Ctrl+"</string>
