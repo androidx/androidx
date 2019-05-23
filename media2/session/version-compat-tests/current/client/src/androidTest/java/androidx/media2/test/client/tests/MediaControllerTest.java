@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -37,6 +38,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
@@ -44,6 +47,7 @@ import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaController.ControllerCallback;
+import androidx.media2.session.MediaController.ControllerCallbackRunnable;
 import androidx.media2.session.MediaController.PlaybackInfo;
 import androidx.media2.session.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
@@ -62,6 +66,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -419,6 +424,97 @@ public class MediaControllerTest extends MediaSessionTestBase {
         controller.deselectTrack(testTrack);
         assertTrue(deselectTrackLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertNull(controller.getSelectedTrack(testTrackType));
+    }
+
+    /**
+     * It tests {@link MediaController#registerExtraCallback(Executor, ControllerCallback)} and
+     * {@link MediaController#unregisterExtraCallback(ControllerCallback)}.
+     */
+    @Test
+    public void testRegisterExtraCallback() throws InterruptedException {
+        prepareLooper();
+
+        MediaController controller = createController(mRemoteSession.getToken(),
+                false /* waitForConnect */, null, null);
+        ControllerCallback testCallback1 = new ControllerCallback() {};
+        ControllerCallback testCallback2 = new ControllerCallback() {};
+
+        List<Pair<ControllerCallback, Executor>> callbacks = controller.getExtraCallbacks();
+        assertNotNull(callbacks);
+        assertEquals(0, callbacks.size());
+
+        controller.registerExtraCallback(sHandlerExecutor, testCallback1);
+        callbacks = controller.getExtraCallbacks();
+        assertNotNull(callbacks);
+        assertEquals(1, callbacks.size());
+        assertNotNull(callbacks.get(0));
+        assertSame(testCallback1, callbacks.get(0).first);
+
+        controller.registerExtraCallback(sHandlerExecutor, testCallback1);
+        callbacks = controller.getExtraCallbacks();
+        assertNotNull(callbacks);
+        assertEquals(1, callbacks.size());
+
+        controller.unregisterExtraCallback(testCallback2);
+        callbacks = controller.getExtraCallbacks();
+        assertNotNull(callbacks);
+        assertEquals(1, callbacks.size());
+
+        controller.registerExtraCallback(sHandlerExecutor, testCallback2);
+        callbacks = controller.getExtraCallbacks();
+        assertNotNull(callbacks);
+        assertEquals(2, callbacks.size());
+        assertNotNull(callbacks.get(0));
+        assertSame(testCallback1, callbacks.get(0).first);
+        assertNotNull(callbacks.get(1));
+        assertSame(testCallback2, callbacks.get(1).first);
+
+        controller.unregisterExtraCallback(testCallback1);
+        callbacks = controller.getExtraCallbacks();
+        assertNotNull(callbacks);
+        assertEquals(1, callbacks.size());
+        assertNotNull(callbacks.get(0));
+        assertSame(testCallback2, callbacks.get(0).first);
+    }
+
+    @Test
+    public void testNotifyControllerCallback() throws InterruptedException {
+        prepareLooper();
+
+        final CountDownLatch primaryLatch = new CountDownLatch(1);
+        ControllerCallback primaryCallback = new ControllerCallback() {
+            @Override
+            public void onPlaybackCompleted(@NonNull MediaController controller) {
+                primaryLatch.countDown();
+            }
+        };
+        final CountDownLatch extraLatch1 = new CountDownLatch(1);
+        ControllerCallback extraCallback1 = new ControllerCallback() {
+            @Override
+            public void onPlaybackCompleted(@NonNull MediaController controller) {
+                extraLatch1.countDown();
+            }
+        };
+        final CountDownLatch extraLatch2 = new CountDownLatch(1);
+        ControllerCallback extraCallback2 = new ControllerCallback() {
+            @Override
+            public void onPlaybackCompleted(@NonNull MediaController controller) {
+                extraLatch2.countDown();
+            }
+        };
+        final MediaController controller = createController(mRemoteSession.getToken(),
+                false /* waitForConnect */, null, primaryCallback);
+        controller.registerExtraCallback(sHandlerExecutor, extraCallback1);
+        controller.registerExtraCallback(sHandlerExecutor, extraCallback2);
+        controller.notifyControllerCallback(new ControllerCallbackRunnable() {
+            @Override
+            public void run(@NonNull ControllerCallback callback) {
+                callback.onPlaybackCompleted(controller);
+            }
+        });
+        assertTrue(primaryLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(extraLatch1.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(extraLatch2.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {

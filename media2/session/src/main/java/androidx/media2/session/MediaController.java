@@ -42,6 +42,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
@@ -1267,6 +1268,18 @@ public class MediaController implements AutoCloseable {
         }
     }
 
+    /** @hide */
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @RestrictTo(LIBRARY_GROUP) // TODO: LIBRARY_GROUP -> LIBRARY (b/131782509)
+    @NonNull
+    public List<Pair<ControllerCallback, Executor>> getExtraCallbacks() {
+        List<Pair<ControllerCallback, Executor>> extraCallbacks;
+        synchronized (mLock) {
+            extraCallbacks = new ArrayList<>(mExtraCallbacks);
+        }
+        return extraCallbacks;
+    }
+
     /**
      * Gets the cached allowed commands from {@link ControllerCallback#onAllowedCommandsChanged}.
      * If it is not connected yet, it returns {@code null}.
@@ -1289,7 +1302,10 @@ public class MediaController implements AutoCloseable {
                 SessionResult.RESULT_ERROR_SESSION_DISCONNECTED);
     }
 
-    void notifyControllerCallback(final ControllerCallbackRunnable callbackRunnable) {
+    /** @hide */
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @RestrictTo(LIBRARY_GROUP) // TODO: LIBRARY_GROUP -> LIBRARY (b/131782509)
+    public void notifyControllerCallback(final ControllerCallbackRunnable callbackRunnable) {
         if (mCallback != null && mCallbackExecutor != null) {
             mCallbackExecutor.execute(new Runnable() {
                 @Override
@@ -1299,11 +1315,7 @@ public class MediaController implements AutoCloseable {
             });
         }
 
-        List<Pair<ControllerCallback, Executor>> extraCallbacks;
-        synchronized (mLock) {
-            extraCallbacks = new ArrayList<>(mExtraCallbacks);
-        }
-        for (Pair<ControllerCallback, Executor> pair : extraCallbacks) {
+        for (Pair<ControllerCallback, Executor> pair : getExtraCallbacks()) {
             final ControllerCallback callback = pair.first;
             final Executor executor = pair.second;
             if (callback == null) {
@@ -1325,7 +1337,10 @@ public class MediaController implements AutoCloseable {
         }
     }
 
-    interface ControllerCallbackRunnable {
+    /** @hide */
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @RestrictTo(LIBRARY_GROUP) // TODO: LIBRARY_GROUP -> LIBRARY (b/131782509)
+    public interface ControllerCallbackRunnable {
         void run(@NonNull ControllerCallback callback);
     }
 
