@@ -20,25 +20,32 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * Helper class for retrieving an {@link Executor} which will post to the main thread.
+ * Helper class for retrieving an {@link ScheduledExecutorService} which will post to the main
+ * thread.
+ *
+ * <p>Since {@link ScheduledExecutorService} implements {@link Executor}, this can also be used
+ * as a simple Executor.
  */
 final class MainThreadExecutor {
-    private static volatile Executor sExecutor;
+    private static volatile ScheduledExecutorService sInstance;
 
-    private MainThreadExecutor() {}
+    private MainThreadExecutor() {
+    }
 
-    static Executor getInstance() {
-        if (sExecutor != null) {
-            return sExecutor;
+    static ScheduledExecutorService getInstance() {
+        if (sInstance != null) {
+            return sInstance;
         }
         synchronized (MainThreadExecutor.class) {
-            if (sExecutor == null) {
-                sExecutor = new HandlerAdapterExecutor(new Handler(Looper.getMainLooper()));
+            if (sInstance == null) {
+                sInstance = new HandlerScheduledExecutorService(
+                        new Handler(Looper.getMainLooper()));
             }
         }
 
-        return sExecutor;
+        return sInstance;
     }
 }
