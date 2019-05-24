@@ -249,6 +249,76 @@ class NavControllerTest {
     }
 
     @Test
+    fun testNavigateToDifferentGraphViaDeepLink3x() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/test")
+
+        navController.navigate(deepLink)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_child_second_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.popBackStack()
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        // repeat nav and pop 2 more times.
+        navController.navigate(deepLink)
+        navController.popBackStack()
+        navController.navigate(deepLink)
+
+        val popped = navController.popBackStack()
+        assertWithMessage("NavController should return true when popping a non-root destination")
+            .that(popped)
+            .isTrue()
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @Test
+    fun testNavigateToDifferentGraphViaDeepLinkToGrandchild3x() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_multiple_navigation)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        val deepLink = Uri.parse("android-app://androidx.navigation.test/grand_child_test")
+
+        navController.navigate(deepLink)
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.deep_link_grandchild_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.popBackStack()
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        // repeat nav and pop 2 more times.
+        navController.navigate(deepLink)
+        navController.popBackStack()
+        navController.navigate(deepLink)
+
+        val popped = navController.popBackStack()
+        assertWithMessage("NavController should return true when popping a non-root destination")
+            .that(popped)
+            .isTrue()
+        assertThat(navController.currentDestination?.id ?: 0)
+            .isEqualTo(R.id.simple_child_start_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+    }
+
+    @Test
     fun testSaveRestoreStateXml() {
         val context = ApplicationProvider.getApplicationContext() as Context
         var navController = NavController(context)
