@@ -18,6 +18,7 @@ package androidx.viewpager2.widget
 
 import android.os.SystemClock.sleep
 import android.view.View
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import androidx.recyclerview.widget.RecyclerView
@@ -701,6 +702,9 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         val pageSwiper = PageSwiperManual(test.viewPager)
         var recorder = test.viewPager.addNewRecordingCallback()
 
+        val vc = ViewConfiguration.get(test.viewPager.context)
+        val touchSlop = vc.scaledTouchSlop
+
         // when
         tryNTimes(3, resetBlock = {
             test.viewPager.setCurrentItemSync(currentPage, false, 2, SECONDS)
@@ -712,7 +716,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             val idleLatch = test.viewPager.addWaitForIdleLatch()
 
             // Swipe towards next page
-            pageSwiper.swipeForward(halfPage + 1, AccelerateInterpolator())
+            pageSwiper.swipeForward(halfPage + 2 * touchSlop, AccelerateInterpolator())
             settleLatch.await(2, SECONDS)
             var scrollLatch: CountDownLatch? = null
             activityTestRule.runOnUiThread {

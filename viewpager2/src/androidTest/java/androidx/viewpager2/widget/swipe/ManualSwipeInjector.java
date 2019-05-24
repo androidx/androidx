@@ -185,7 +185,7 @@ public class ManualSwipeInjector {
     }
 
     private static void lerp(float[] from, float[] to, float f, float[] out) {
-        out[X] = (int) (from[X] + (to[X] - from[X]) * f);
-        out[Y] = (int) (from[Y] + (to[Y] - from[Y]) * f);
+        out[X] = from[X] + (to[X] - from[X]) * f;
+        out[Y] = from[Y] + (to[Y] - from[Y]) * f;
     }
 }
