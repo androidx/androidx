@@ -24,8 +24,6 @@ plugins {
     id("kotlin-kapt")
 }
 
-android.defaultConfig.testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
-
 dependencies {
     androidTestImplementation(project(":room:room-common"))
     androidTestImplementation(project(":room:room-runtime"))
