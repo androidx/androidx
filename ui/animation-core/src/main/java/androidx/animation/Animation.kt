@@ -23,7 +23,7 @@ import kotlin.math.min
 const val DEBUG = false
 
 /**
- * This animation class is intended to be stateless. Once they are configured, they know how to
+ * This animation interface is intended to be stateless. Once they are configured, they know how to
  * calculate animation values at any given time, when provided with start/end values and velocity.
  * It is stateless in that it doesn't manage its own lifecycle: it doesn't know when it started, or
  * should finish. It only reacts to the given playtime (i.e. time elapsed since the start of the
@@ -58,7 +58,6 @@ internal interface Animation<T> {
         interpolator: (T, T, Float) -> T
     ): Float
 }
-
 /**
  * Used by [Tween] and [Keyframes].
  * Base interface for the animations where velocity is calculated by difference between the
@@ -230,6 +229,7 @@ internal class Physics<T>(
     stiffness: Float = StiffnessVeryLow
 ) : Animation<T> {
 
+    // TODO: Make all of these consts public.
     companion object {
         /**
          * Stiffness constant for extremely stiff spring
@@ -409,4 +409,50 @@ internal class Repeatable<T>(
             repetitionStartVelocity(playTime, startVelocity),
             interpolator)
     }
+}
+
+/**
+ * Stateless wrapper around a (target based, or decay) animation, that caches the start value and
+ * velocity, and target value for target based animations. This wrapper is purely for the
+ * convenience for 1) not having to pass in the same static set of values for each query, 2) not
+ * needing to distinguish target-based or decay animations at the call site.
+ */
+internal interface AnimationWrapper<T> {
+    fun getValue(playTime: Long): T
+    fun getVelocity(playTime: Long): Float
+    fun isFinished(playTime: Long): Boolean
+}
+
+/**
+ * This is a custom animation wrapper for all target based animations, i.e. animations that have a
+ * target value defined. All the values that don't change throughout the animation, such as start
+ * value, end value, start velocity, and interpolator are cached in this wrapper. So once
+ * the wrapper is setup, the getValue/Velocity calls should only need to provide the changing input
+ * into the animation, i.e. play time.
+ */
+internal class TargetBasedAnimationWrapper<T>(
+    private val startValue: T,
+    private val startVelocity: Float = 0f,
+    private val endValue: T,
+    private val valueInterpolator: (T, T, Float) -> T,
+    private val anim: Animation<T>
+) : AnimationWrapper<T> {
+
+    override fun getValue(playTime: Long): T =
+        anim.getValue(playTime, startValue, endValue, startVelocity, valueInterpolator)
+    override fun getVelocity(playTime: Long): Float =
+        anim.getVelocity(playTime, startValue, endValue, startVelocity, valueInterpolator)
+    override fun isFinished(playTime: Long): Boolean {
+        return anim.isFinished(playTime, startValue, endValue, startVelocity)
+    }
+}
+
+internal fun <T> AnimationBuilder<T>.createWrapper(
+    startValue: T,
+    startVelocity: Float,
+    endValue: T,
+    valueInterpolator: (T, T, Float) -> T
+): AnimationWrapper<T> {
+    return TargetBasedAnimationWrapper(startValue, startVelocity, endValue, valueInterpolator,
+        this.build())
 }
