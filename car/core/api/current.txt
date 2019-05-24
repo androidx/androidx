@@ -350,8 +350,9 @@ package androidx.car.widget {
     method @CallSuper protected void resolveDirtyState();
     method public void setBody(CharSequence?);
     method public void setChecked(boolean);
-    method public void setClickable(boolean);
+    method @Deprecated public void setClickable(boolean);
     method public void setEnabled(boolean);
+    method public void setEntireItemClickable(boolean);
     method public void setOnCheckedChangeListener(android.widget.CompoundButton.OnCheckedChangeListener?);
     method public void setPrimaryActionEmptyIcon();
     method public void setPrimaryActionIcon(android.graphics.drawable.Drawable, int);

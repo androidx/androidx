@@ -158,7 +158,7 @@ public class SwitchListItemTest {
     @Test
     public void testClickableItem_setClickable() {
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setClickable(true);
+        item0.setEntireItemClickable(true);
 
         List<SwitchListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -169,7 +169,7 @@ public class SwitchListItemTest {
     @Test
     public void testClickableItem_ClickingTogglesSwitch() {
         SwitchListItem item0 = new SwitchListItem(mActivity);
-        item0.setClickable(true);
+        item0.setEntireItemClickable(true);
 
         List<SwitchListItem> items = Arrays.asList(item0);
         setupPagedListView(items);

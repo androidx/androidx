@@ -185,10 +185,29 @@ public abstract class CompoundButtonListItem<VH extends CompoundButtonListItem.V
     }
 
     /**
-     * Sets whether the item is clickable. If {@code true}, clicking item toggles the compound
-     * button.
+     * Sets whether a click anywhere on the list toggles the state of compound button. The
+     * default state of {@code false} requires an explicit click on the compound button to toggle
+     * its state.
+     *
+     * @param isClickable {@code true} for a click anywhere on the list to toggle the state of
+     *                    the compound button.
+     * @deprecated Use {@link #setEntireItemClickable(boolean)} instead.
      */
+    @Deprecated
     public void setClickable(boolean isClickable) {
+        mIsClickable = isClickable;
+        markDirty();
+    }
+
+    /**
+     * Sets whether a click anywhere on the list toggles the state of compound button. The
+     * default state of {@code false} requires an explicit click on the compound button to toggle
+     * its state.
+     *
+     * @param isClickable {@code true} for a click anywhere on the list to toggle the state of
+     *                    the compound button.
+     */
+    public void setEntireItemClickable(boolean isClickable) {
         mIsClickable = isClickable;
         markDirty();
     }

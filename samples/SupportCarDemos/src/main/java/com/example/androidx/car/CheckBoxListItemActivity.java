@@ -121,7 +121,7 @@ public class CheckBoxListItemActivity extends Activity {
 
             item = new CheckBoxListItem(mContext);
             item.setTitle("Clicking item toggles checkbox");
-            item.setClickable(true);
+            item.setEntireItemClickable(true);
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
