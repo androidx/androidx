@@ -140,12 +140,12 @@ package androidx.ui.engine.text {
   }
 
   public enum TextAlign {
-    enum_constant public static final androidx.ui.engine.text.TextAlign CENTER;
-    enum_constant public static final androidx.ui.engine.text.TextAlign END;
-    enum_constant public static final androidx.ui.engine.text.TextAlign JUSTIFY;
-    enum_constant public static final androidx.ui.engine.text.TextAlign LEFT;
-    enum_constant public static final androidx.ui.engine.text.TextAlign RIGHT;
-    enum_constant public static final androidx.ui.engine.text.TextAlign START;
+    enum_constant public static final androidx.ui.engine.text.TextAlign Center;
+    enum_constant public static final androidx.ui.engine.text.TextAlign End;
+    enum_constant public static final androidx.ui.engine.text.TextAlign Justify;
+    enum_constant public static final androidx.ui.engine.text.TextAlign Left;
+    enum_constant public static final androidx.ui.engine.text.TextAlign Right;
+    enum_constant public static final androidx.ui.engine.text.TextAlign Start;
   }
 
   public final class TextBox {

@@ -272,7 +272,7 @@ class ParagraphBuilderTest {
     }
 
     private fun createParagraphStyle(): ParagraphStyle {
-        val textAlign = TextAlign.END
+        val textAlign = TextAlign.End
         val textDirection = TextDirection.RTL
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic

@@ -35,14 +35,14 @@ class RenderParagraphTest {
         val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
 
         assertThat(paragraph.text).isEqualTo(text)
-        assertThat(paragraph.textAlign).isEqualTo(TextAlign.START)
+        assertThat(paragraph.textAlign).isEqualTo(TextAlign.Start)
         assertThat(paragraph.textDirection).isEqualTo(TextDirection.LTR)
         assertThat(paragraph.softWrap).isTrue()
         assertThat(paragraph.overflow).isEqualTo(TextOverflow.CLIP)
         assertThat(paragraph.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.maxLines).isNull()
         assertThat(paragraph.textPainter.text).isEqualTo(text)
-        assertThat(paragraph.textPainter.textAlign).isEqualTo(TextAlign.START)
+        assertThat(paragraph.textPainter.textAlign).isEqualTo(TextAlign.Start)
         assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.LTR)
         assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.textPainter.maxLines).isNull()
@@ -58,7 +58,7 @@ class RenderParagraphTest {
         val paragraph =
             RenderParagraph(
                 text = text,
-                textAlign = TextAlign.CENTER,
+                textAlign = TextAlign.Center,
                 textDirection = TextDirection.RTL,
                 softWrap = false,
                 overflow = TextOverflow.ELLIPSIS,
@@ -67,14 +67,14 @@ class RenderParagraphTest {
             )
 
         assertThat(paragraph.text).isEqualTo(text)
-        assertThat(paragraph.textAlign).isEqualTo(TextAlign.CENTER)
+        assertThat(paragraph.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraph.textDirection).isEqualTo(TextDirection.RTL)
         assertThat(paragraph.softWrap).isFalse()
         assertThat(paragraph.overflow).isEqualTo(TextOverflow.ELLIPSIS)
         assertThat(paragraph.textScaleFactor).isEqualTo(textScaleFactor)
         assertThat(paragraph.maxLines).isEqualTo(maxLines)
         assertThat(paragraph.textPainter.text).isEqualTo(text)
-        assertThat(paragraph.textPainter.textAlign).isEqualTo(TextAlign.CENTER)
+        assertThat(paragraph.textPainter.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.RTL)
         assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(textScaleFactor)
         assertThat(paragraph.textPainter.maxLines).isEqualTo(maxLines)
@@ -119,9 +119,9 @@ class RenderParagraphTest {
         val text = TextSpan()
         val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
 
-        paragraph.textAlign = TextAlign.JUSTIFY
+        paragraph.textAlign = TextAlign.Justify
 
-        assertThat(paragraph.textAlign).isEqualTo(TextAlign.JUSTIFY)
+        assertThat(paragraph.textAlign).isEqualTo(TextAlign.Justify)
     }
 
     @Test
