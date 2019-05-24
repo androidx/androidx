@@ -39,7 +39,7 @@ class FragmentAdapter(
     private val attachCount = AtomicInteger(0)
     private val destroyCount = AtomicInteger(0)
 
-    override fun getItem(position: Int): Fragment = PageFragment().apply {
+    override fun createFragment(position: Int): Fragment = PageFragment().apply {
         arguments = Bundle(1).apply { putString(ARG_KEY, items[position]) }
         onAttachListener = { attachCount.incrementAndGet() }
         onDestroyListener = { destroyCount.incrementAndGet() }
