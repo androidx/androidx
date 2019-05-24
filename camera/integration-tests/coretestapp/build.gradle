@@ -62,5 +62,6 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(project(":camera:camera-testing"))
 }
 
