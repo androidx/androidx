@@ -314,8 +314,8 @@ public class WorkerWrapper implements Runnable {
     void onWorkFinished() {
         boolean isWorkFinished = false;
         if (!tryCheckForInterruptionAndResolve()) {
+            mWorkDatabase.beginTransaction();
             try {
-                mWorkDatabase.beginTransaction();
                 WorkInfo.State state = mWorkSpecDao.getState(mWorkSpecId);
                 if (state == null) {
                     // state can be null here with a REPLACE on beginUniqueWork().
@@ -409,6 +409,7 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void resolve(final boolean needsReschedule) {
+        mWorkDatabase.beginTransaction();
         try {
             // IMPORTANT: We are using a transaction here as to ensure that we have some guarantees
             // about the state of the world before we disable RescheduleReceiver.
@@ -416,7 +417,6 @@ public class WorkerWrapper implements Runnable {
             // Check to see if there is more work to be done. If there is no more work, then
             // disable RescheduleReceiver. Using a transaction here, as there could be more than
             // one thread looking at the list of eligible WorkSpecs.
-            mWorkDatabase.beginTransaction();
             List<String> unfinishedWork = mWorkDatabase.workSpecDao().getAllUnfinishedWork();
             boolean noMoreWork = unfinishedWork == null || unfinishedWork.isEmpty();
             if (noMoreWork) {
