@@ -48,7 +48,7 @@ package androidx.ui.baseui.selection {
 
   public final class MutuallyExclusiveSetItemKt {
     ctor public MutuallyExclusiveSetItemKt();
-    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ToggleableKt {
@@ -200,18 +200,18 @@ package androidx.ui.material {
 
   public final class RadioButtonKt {
     ctor public RadioButtonKt();
-    method public static void RadioButton(boolean selected, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void RadioButton(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit>? onSelect, androidx.ui.graphics.Color color = +themeColor({ 
     secondary
 }));
     method public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> children);
-    method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onOptionSelected, androidx.ui.graphics.Color radioColor = +themeColor({ 
+    method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.ui.graphics.Color radioColor = +themeColor({ 
     secondary
 }), androidx.ui.painting.TextStyle? textStyle = null);
   }
 
   public final class RadioGroupScope {
-    method public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, String text, androidx.ui.graphics.Color radioColor = +themeColor({ 
+    method public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, String text, androidx.ui.graphics.Color radioColor = +themeColor({ 
     secondary
 }), androidx.ui.painting.TextStyle? textStyle = null);
   }

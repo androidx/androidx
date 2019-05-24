@@ -95,7 +95,7 @@ fun DefaultRadioGroup() {
     RadioGroup(
         options = radioOptions,
         selectedOption = selectedOption,
-        onOptionSelected = onOptionSelected,
+        onSelectedChange = onOptionSelected,
         radioColor = customColor2
     )
 }
@@ -112,10 +112,12 @@ fun CustomRadioGroup() {
                 val selected = text == selectedOption
                 RadioGroupItem(
                     selected = selected,
-                    onSelected = { onOptionSelected(text) }) {
+                    onSelect = { onOptionSelected(text) }) {
                     Padding(padding = 10.dp) {
                         Column {
-                            RadioButton(selected = selected)
+                            RadioButton(
+                                selected = selected,
+                                onSelect = { onOptionSelected(text) })
                             Text(text = text, style = textStyle)
                         }
                     }
@@ -190,9 +192,9 @@ fun RadioButtonDemo() {
         mainAxisAlignment = MainAxisAlignment.SpaceAround,
         mainAxisSize = MainAxisSize.Min
     ) {
-        RadioButton(selected = true)
-        RadioButton(selected = false)
-        RadioButton(selected = true, color = customColor)
-        RadioButton(selected = false, color = customColor)
+        RadioButton(selected = true, onSelect = null)
+        RadioButton(selected = false, onSelect = null)
+        RadioButton(selected = true, color = customColor, onSelect = null)
+        RadioButton(selected = false, color = customColor, onSelect = null)
     }
 }
