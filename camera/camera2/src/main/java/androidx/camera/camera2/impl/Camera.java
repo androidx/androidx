@@ -333,6 +333,7 @@ final class Camera implements BaseCamera {
         Log.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
 
         synchronized (mAttachedUseCaseLock) {
+            reattachUseCaseSurfaces(useCase);
             mUseCaseAttachState.setUseCaseActive(useCase);
         }
         updateCaptureSessionConfig();
@@ -374,6 +375,7 @@ final class Camera implements BaseCamera {
 
         Log.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
         synchronized (mAttachedUseCaseLock) {
+            reattachUseCaseSurfaces(useCase);
             mUseCaseAttachState.updateUseCase(useCase);
         }
 
@@ -394,11 +396,41 @@ final class Camera implements BaseCamera {
 
         Log.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
         synchronized (mAttachedUseCaseLock) {
+            reattachUseCaseSurfaces(useCase);
             mUseCaseAttachState.updateUseCase(useCase);
         }
 
         updateCaptureSessionConfig();
         openCaptureSession();
+    }
+
+    // Re-attaches use case's surfaces if surfaces are changed when use case is online.
+    @GuardedBy("mAttachedUseCaseLock")
+    private void reattachUseCaseSurfaces(UseCase useCase) {
+        // if use case is offline, then DeferrableSurface attaching will happens when the use
+        // case is addOnlineUsecase()'d.   So here we don't need to do the attaching.
+        if (!isUseCaseOnline(useCase)) {
+            return;
+        }
+        SessionConfig sessionConfig = mUseCaseAttachState.getUseCaseSessionConfig(useCase);
+        SessionConfig newSessionConfig = useCase.getSessionConfig(mCameraId);
+
+        List<DeferrableSurface> currentSurfaces = sessionConfig.getSurfaces();
+        List<DeferrableSurface> newSurfaces = newSessionConfig.getSurfaces();
+
+        // New added DeferrableSurfaces need to be attached.
+        for (DeferrableSurface newSurface : newSurfaces) {
+            if (!currentSurfaces.contains(newSurface)) {
+                newSurface.notifySurfaceAttached();
+            }
+        }
+
+        // Removed DeferrableSurfaces need to be detached.
+        for (DeferrableSurface currentSurface : currentSurfaces) {
+            if (!newSurfaces.contains(currentSurface)) {
+                currentSurface.notifySurfaceDetached();
+            }
+        }
     }
 
     void notifyAttachToUseCaseSurfaces(UseCase useCase) {

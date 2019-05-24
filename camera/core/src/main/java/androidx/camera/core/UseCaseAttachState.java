@@ -193,6 +193,17 @@ public final class UseCaseAttachState {
         return validatingBuilder;
     }
 
+
+    /** Returns current attached SessionConfig of given UseCase */
+    public SessionConfig getUseCaseSessionConfig(UseCase useCase) {
+        if (!mAttachedUseCasesToInfoMap.containsKey(useCase)) {
+            return SessionConfig.defaultEmptySessionConfig();
+        }
+
+        UseCaseAttachInfo attachInfo = mAttachedUseCasesToInfoMap.get(useCase);
+        return attachInfo.getSessionConfig();
+    }
+
     private UseCaseAttachInfo getOrCreateUseCaseAttachInfo(UseCase useCase) {
         UseCaseAttachInfo useCaseAttachInfo = mAttachedUseCasesToInfoMap.get(useCase);
         if (useCaseAttachInfo == null) {
