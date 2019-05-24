@@ -1293,6 +1293,170 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun textStyle_textAlign_whenAlignLeft_returnsZeroForGetLineLeft() {
+        val texts = listOf("aa", "\u05D0\u05D0")
+        val fontSize = 20.0f
+
+        texts.map { text ->
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyles = listOf(
+                    ParagraphBuilder.TextStyleIndex(
+                        textStyle = TextStyle(textAlign = TextAlign.Left),
+                        start = 0,
+                        end = text.length
+                    )
+                ),
+                fontSize = fontSize
+            )
+            val layoutWidth = (text.length + 2) * fontSize
+            paragraph.layout(ParagraphConstraints(width = layoutWidth))
+            val paragraphImpl = paragraph.paragraphImpl
+            assertThat(paragraphImpl.getLineLeft(0), equalTo(0.0f))
+        }
+    }
+
+    @Test
+    fun textStyle_textAlign_whenAlignRight_returnsLayoutWidthForGetLineRight() {
+        val texts = listOf("aa", "\u05D0\u05D0")
+        val fontSize = 20.0f
+
+        texts.map { text ->
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyles = listOf(
+                    ParagraphBuilder.TextStyleIndex(
+                        textStyle = TextStyle(textAlign = TextAlign.Right),
+                        start = 0,
+                        end = text.length
+                    )
+                ),
+                fontSize = fontSize
+            )
+            val layoutWidth = (text.length + 2) * fontSize
+            paragraph.layout(ParagraphConstraints(width = layoutWidth))
+            val paragraphImpl = paragraph.paragraphImpl
+            assertThat(paragraphImpl.getLineRight(0), equalTo(layoutWidth))
+        }
+    }
+
+    @Test
+    fun textStyle_textAlign_whenAlignCenter_textIsCentered() {
+        val texts = listOf("aa", "\u05D0\u05D0")
+        val fontSize = 20.0f
+
+        texts.map { text ->
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyles = listOf(
+                    ParagraphBuilder.TextStyleIndex(
+                        textStyle = TextStyle(textAlign = TextAlign.Center),
+                        start = 0,
+                        end = text.length
+                    )
+                ),
+                fontSize = fontSize
+            )
+            val layoutWidth = (text.length + 2) * fontSize
+            paragraph.layout(ParagraphConstraints(width = layoutWidth))
+            val textWidth = text.length * fontSize
+            val paragraphImpl = paragraph.paragraphImpl
+            assertThat(paragraphImpl.getLineLeft(0),
+                equalTo(layoutWidth / 2 - textWidth / 2))
+            assertThat(paragraphImpl.getLineRight(0),
+                equalTo(layoutWidth / 2 + textWidth / 2))
+        }
+    }
+
+    @Test
+    fun textStyle_textAlign_whenAlignStart_withLTR_returnsZeroForGetLineLeft() {
+        val text = "aa"
+        val fontSize = 20.0f
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle = TextStyle(textAlign = TextAlign.Start),
+                    start = 0,
+                    end = text.length
+                )
+            ),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineLeft(0), equalTo(0.0f))
+    }
+
+    @Test
+    fun textStyle_textAlign_whenAlignEnd_withLTR_returnsLayoutWidthForGetLineRight() {
+        val text = "aa"
+        val fontSize = 20.0f
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle = TextStyle(textAlign = TextAlign.End),
+                    start = 0,
+                    end = text.length
+                )
+            ),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineRight(0), equalTo(layoutWidth))
+    }
+
+    @Test
+    fun textStyle_textAlign_whenAlignStart_withRTL_returnsLayoutWidthForGetLineRight() {
+        val text = "\u05D0\u05D0"
+        val fontSize = 20.0f
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle = TextStyle(textAlign = TextAlign.Start),
+                    start = 0,
+                    end = text.length
+                )
+            ),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineRight(0), equalTo(layoutWidth))
+    }
+
+    @Test
+    fun textStyle_textAlign_whenAlignEnd_withRTL_returnsZeroForGetLineLeft() {
+        val text = "\u05D0\u05D0"
+        val fontSize = 20.0f
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle = TextStyle(textAlign = TextAlign.End),
+                    start = 0,
+                    end = text.length
+                )
+            ),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineLeft(0), equalTo(0.0f))
+    }
+
+    @Test
     fun textStyle_fontFamily_changesMeasurement() {
         val text = "ad"
         val fontSize = 20.0f
