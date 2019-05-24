@@ -118,7 +118,7 @@ class ParagraphTest {
 
     private fun createParagraphStyle(): ParagraphStyle {
         val textAlign = TextAlign.End
-        val textDirection = TextDirection.RTL
+        val textDirection = TextDirection.Rtl
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.Italic
         val maxLines = 2

@@ -53,7 +53,7 @@ data class TextBox(
      *  * [direction], which specifies the text direction.
      */
     fun start(): Float {
-        return if ((direction == TextDirection.LTR)) left else right
+        return if ((direction == TextDirection.Ltr)) left else right
     }
 
     /**
@@ -62,7 +62,7 @@ data class TextBox(
      *  * [direction], which specifies the text direction.
      */
     fun end(): Float {
-        return if ((direction == TextDirection.LTR)) right else left
+        return if ((direction == TextDirection.Ltr)) right else left
     }
 
     override fun toString(): String {

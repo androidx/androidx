@@ -819,7 +819,7 @@ class ParagraphIntegrationTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textDirection = TextDirection.LTR,
+            textDirection = TextDirection.Ltr,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -837,7 +837,7 @@ class ParagraphIntegrationTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textDirection = TextDirection.RTL,
+            textDirection = TextDirection.Rtl,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))

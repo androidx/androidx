@@ -295,11 +295,11 @@ class RenderParagraph(
                         var fadeEnd: Float
                         var fadeStart: Float
                         when (textDirection) {
-                            TextDirection.RTL -> {
+                            TextDirection.Rtl -> {
                                 fadeEnd = 0.0f
                                 fadeStart = fadeSizePainter.width
                             }
-                            TextDirection.LTR -> {
+                            TextDirection.Ltr -> {
                                 fadeEnd = size.width
                                 fadeStart = fadeEnd - fadeSizePainter.width
                             }

@@ -32,18 +32,18 @@ class RenderParagraphTest {
     fun `RenderParagraph constructor with minimum amount of parameters`() {
         val text = TextSpan()
 
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
 
         assertThat(paragraph.text).isEqualTo(text)
         assertThat(paragraph.textAlign).isEqualTo(TextAlign.Start)
-        assertThat(paragraph.textDirection).isEqualTo(TextDirection.LTR)
+        assertThat(paragraph.textDirection).isEqualTo(TextDirection.Ltr)
         assertThat(paragraph.softWrap).isTrue()
         assertThat(paragraph.overflow).isEqualTo(TextOverflow.Clip)
         assertThat(paragraph.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.maxLines).isNull()
         assertThat(paragraph.textPainter.text).isEqualTo(text)
         assertThat(paragraph.textPainter.textAlign).isEqualTo(TextAlign.Start)
-        assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.LTR)
+        assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.Ltr)
         assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.textPainter.maxLines).isNull()
         assertThat(paragraph.textPainter.ellipsis).isFalse()
@@ -59,7 +59,7 @@ class RenderParagraphTest {
             RenderParagraph(
                 text = text,
                 textAlign = TextAlign.Center,
-                textDirection = TextDirection.RTL,
+                textDirection = TextDirection.Rtl,
                 softWrap = false,
                 overflow = TextOverflow.Ellipsis,
                 textScaleFactor = textScaleFactor,
@@ -68,14 +68,14 @@ class RenderParagraphTest {
 
         assertThat(paragraph.text).isEqualTo(text)
         assertThat(paragraph.textAlign).isEqualTo(TextAlign.Center)
-        assertThat(paragraph.textDirection).isEqualTo(TextDirection.RTL)
+        assertThat(paragraph.textDirection).isEqualTo(TextDirection.Rtl)
         assertThat(paragraph.softWrap).isFalse()
         assertThat(paragraph.overflow).isEqualTo(TextOverflow.Ellipsis)
         assertThat(paragraph.textScaleFactor).isEqualTo(textScaleFactor)
         assertThat(paragraph.maxLines).isEqualTo(maxLines)
         assertThat(paragraph.textPainter.text).isEqualTo(text)
         assertThat(paragraph.textPainter.textAlign).isEqualTo(TextAlign.Center)
-        assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.RTL)
+        assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.Rtl)
         assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(textScaleFactor)
         assertThat(paragraph.textPainter.maxLines).isEqualTo(maxLines)
         assertThat(paragraph.textPainter.ellipsis).isEqualTo(true)
@@ -84,7 +84,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph text set nothing new causes RenderComparison IDENTICAL`() {
         val initText = TextSpan()
-        val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.Ltr)
         val newText = TextSpan()
 
         paragraph.text = newText
@@ -95,7 +95,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph text set different color causes RenderComparison PAINT`() {
         val initText = TextSpan()
-        val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.Ltr)
         val newText = TextSpan(TextStyle(color = Color(0x0111)))
 
         paragraph.text = newText
@@ -106,7 +106,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph text set different letterSpacing causes RenderComparison LAYOUT`() {
         val initText = TextSpan()
-        val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.Ltr)
         val newText = TextSpan(TextStyle(letterSpacing = 5.0f))
 
         paragraph.text = newText
@@ -117,7 +117,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph textAlign setter`() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
 
         paragraph.textAlign = TextAlign.Justify
 
@@ -127,17 +127,17 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph textDirection setter`() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
 
-        paragraph.textDirection = TextDirection.RTL
+        paragraph.textDirection = TextDirection.Rtl
 
-        assertThat(paragraph.textDirection).isEqualTo(TextDirection.RTL)
+        assertThat(paragraph.textDirection).isEqualTo(TextDirection.Rtl)
     }
 
     @Test
     fun `RenderParagraph softWrap setter`() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
 
         paragraph.softWrap = false
 
@@ -147,7 +147,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph overflow setter not to ellipsis`() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
 
         paragraph.overflow = TextOverflow.Fade
 
@@ -158,7 +158,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph overflow setter to ellipsis`() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
 
         paragraph.overflow = TextOverflow.Ellipsis
 
@@ -169,7 +169,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph textScaleFactor setter`() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
         val textScaleFactor = 5.0f
 
         paragraph.textScaleFactor = textScaleFactor
@@ -180,7 +180,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph maxLines setter`() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
         val maxLines = 5
 
         paragraph.maxLines = maxLines

@@ -61,7 +61,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
 
         assertThat(paragraph.computeMinIntrinsicWidth()).isEqualTo(0.0f)
     }
@@ -72,7 +72,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
 
         assertThat(paragraph.computeMaxIntrinsicWidth()).isEqualTo(fontSize * text.length)
     }
@@ -83,7 +83,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
         val maxWidth = 38.0f
         val charPerLine = floor(maxWidth / fontSize)
         val numberOfLines = ceil(text.length / charPerLine)
@@ -104,7 +104,7 @@ class RenderParagraphIntegrationTest {
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph =
-            RenderParagraph(text = textSpan, textDirection = TextDirection.LTR, softWrap = false)
+            RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr, softWrap = false)
         val maxWidth = 38.0f
 
         assertThat(paragraph.computeIntrinsicHeight(maxWidth)).isEqualTo(fontSize)
@@ -116,7 +116,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
 
         paragraph.layoutText()
 
@@ -130,7 +130,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
 
         paragraph.layoutText()
 
@@ -143,7 +143,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
 
         paragraph.layoutText()
 
@@ -156,7 +156,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
 
         paragraph.performLayout(Constraints())
 
@@ -175,7 +175,7 @@ class RenderParagraphIntegrationTest {
         val paragraph = RenderParagraph(
                 text = textSpan,
                 overflow = TextOverflow.Fade,
-                textDirection = TextDirection.LTR,
+                textDirection = TextDirection.Ltr,
                 softWrap = false,
                 maxLines = 1)
 
@@ -196,7 +196,7 @@ class RenderParagraphIntegrationTest {
         val paragraph = RenderParagraph(
                 text = textSpan,
                 overflow = TextOverflow.Fade,
-                textDirection = TextDirection.LTR,
+                textDirection = TextDirection.Ltr,
                 maxLines = 2)
 
         paragraph.performLayout(Constraints(maxWidth = 100.ipx))
@@ -211,7 +211,7 @@ class RenderParagraphIntegrationTest {
         val text = "HelloHello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
         paragraph.layoutText(maxWidth = 120f)
 
         val expectedPath = Path()
@@ -238,7 +238,7 @@ class RenderParagraphIntegrationTest {
     @Test
     fun testSelectionPaint_default_color() {
         val text = TextSpan()
-        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.Ltr)
         val defaultSelectionColor = Color(0x6633B5E5)
 
         assertThat(paragraph.selectionPaint.color).isEqualTo(defaultSelectionColor)
@@ -251,7 +251,7 @@ class RenderParagraphIntegrationTest {
 
         val paragraph = RenderParagraph(
             text = text,
-            textDirection = TextDirection.LTR,
+            textDirection = TextDirection.Ltr,
             selectionColor = selectionColor)
 
         assertThat(paragraph.selectionPaint.color).isEqualTo(selectionColor)
@@ -266,7 +266,7 @@ class RenderParagraphIntegrationTest {
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
         paragraph.layoutText()
 
         val expectedBitmap = Bitmap.createBitmap(
@@ -316,7 +316,7 @@ class RenderParagraphIntegrationTest {
         val fontSize = 20.0f
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
-        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.Ltr)
         paragraph.layoutText()
 
         val expectedBitmap = Bitmap.createBitmap(
@@ -376,7 +376,7 @@ class RenderParagraphIntegrationTest {
         val selectionColor = Color(0x66AABB33)
         val paragraph = RenderParagraph(
             text = textSpan,
-            textDirection = TextDirection.LTR,
+            textDirection = TextDirection.Ltr,
             selectionColor = selectionColor)
         paragraph.layoutText()
 

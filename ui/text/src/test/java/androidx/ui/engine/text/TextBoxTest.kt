@@ -33,7 +33,7 @@ class TextBoxTest {
             2.0f,
             3.0f,
             4.0f,
-            TextDirection.LTR
+            TextDirection.Ltr
         )
         assertThat(textBox.toRect(), `is`(equalTo(Rect.fromLTRB(1.0f, 2.0f, 3.0f, 4.0f))))
     }
@@ -45,7 +45,7 @@ class TextBoxTest {
             2.0f,
             3.0f,
             4.0f,
-            TextDirection.LTR
+            TextDirection.Ltr
         )
         assertThat(textBox.start(), `is`(equalTo(1.0f)))
     }
@@ -57,7 +57,7 @@ class TextBoxTest {
             2.0f,
             3.0f,
             4.0f,
-            TextDirection.RTL
+            TextDirection.Rtl
         )
         assertThat(textBox.start(), `is`(equalTo(3.0f)))
     }
@@ -69,7 +69,7 @@ class TextBoxTest {
             2.0f,
             3.0f,
             4.0f,
-            TextDirection.LTR
+            TextDirection.Ltr
         )
         assertThat(textBox.end(), `is`(equalTo(3.0f)))
     }
@@ -81,7 +81,7 @@ class TextBoxTest {
             2.0f,
             3.0f,
             4.0f,
-            TextDirection.RTL
+            TextDirection.Rtl
         )
         assertThat(textBox.end(), `is`(equalTo(1.0f)))
     }
@@ -93,10 +93,10 @@ class TextBoxTest {
             2.0f,
             3.0f,
             4.0f,
-            TextDirection.LTR
+            TextDirection.Ltr
         )
         assertThat(textBox.toRect(), `is`(equalTo(Rect.fromLTRB(1.0f, 2.0f, 3.0f, 4.0f))))
-        assertThat(textBox.direction, `is`(equalTo(TextDirection.LTR)))
+        assertThat(textBox.direction, `is`(equalTo(TextDirection.Ltr)))
     }
 
     @Test
@@ -106,11 +106,11 @@ class TextBoxTest {
             2.0f,
             3.0f,
             4.0f,
-            TextDirection.LTR
+            TextDirection.Ltr
         )
         assertThat(
             textBox.toString(),
-            `is`(equalTo("TextBox.fromLTRBD(1.0, 2.0, 3.0, 4.0, ${TextDirection.LTR})"))
+            `is`(equalTo("TextBox.fromLTRBD(1.0, 2.0, 3.0, 4.0, ${TextDirection.Ltr})"))
         )
     }
 }
