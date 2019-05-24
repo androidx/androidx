@@ -6,8 +6,8 @@ package androidx.media2.widget {
     ctor public MediaControlView(android.content.Context, android.util.AttributeSet?);
     ctor public MediaControlView(android.content.Context, android.util.AttributeSet?, int);
     method public void requestPlayButtonFocus();
+    method public void setMediaController(androidx.media2.session.MediaController);
     method public void setOnFullScreenListener(androidx.media2.widget.MediaControlView.OnFullScreenListener?);
-    method public void setSessionToken(androidx.media2.session.SessionToken);
   }
 
   public static interface MediaControlView.OnFullScreenListener {
