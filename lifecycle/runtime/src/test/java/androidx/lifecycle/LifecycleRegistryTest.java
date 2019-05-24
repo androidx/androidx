@@ -81,6 +81,7 @@ public class LifecycleRegistryTest {
         assertThat(mRegistry.getObserverCount(), is(0));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void addGenericAndObserve() {
         GenericLifecycleObserver generic = mock(GenericLifecycleObserver.class);
