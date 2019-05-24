@@ -41,14 +41,16 @@ public class CarUxRestrictionsHelper {
     // mCar is created in the constructor, but can be null if connection to the car is not
     // successful.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable final Car mCar;
+    @Nullable
+    final Car mCar;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable CarUxRestrictionsManager mCarUxRestrictionsManager;
+    @Nullable
+    CarUxRestrictionsManager mCarUxRestrictionsManager;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final OnUxRestrictionsChangedListener mListener;
 
-    public CarUxRestrictionsHelper(Context context,
+    public CarUxRestrictionsHelper(@NonNull Context context,
             @NonNull OnUxRestrictionsChangedListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("Listener cannot be null.");
@@ -63,7 +65,9 @@ public class CarUxRestrictionsHelper {
      * <p>This method can be called from {@code Activity}'s {@link Activity#onStart()}, or at the
      * time of construction.
      *
-     * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak.
+     * <p>This method must be accompanied with a matching {@link #stop()} to avoid leak. After
+     * {@link #start()} has been called, calling {@link #start()} subsequent times without
+     * calling {@link #stop()} will result in a no-op.
      */
     public void start() {
         try {
@@ -83,7 +87,8 @@ public class CarUxRestrictionsHelper {
      * time of being discarded.
      *
      * <p>After {@link #stop()} has been called, {@link #start()} can be called again to resume
-     * monitoring car ux restrictions change.
+     * monitoring car ux restrictions change. Calling {@link #stop()} without calling
+     * {@link #start()} will result in a no-op.
      */
     public void stop() {
         if (mCarUxRestrictionsManager != null) {
