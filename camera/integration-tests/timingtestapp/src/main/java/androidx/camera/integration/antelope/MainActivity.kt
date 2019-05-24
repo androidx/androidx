@@ -39,6 +39,7 @@ import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
 import androidx.camera.integration.antelope.cameracontrollers.cameraXAbort
 import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
 import androidx.core.app.ActivityCompat
+import androidx.test.espresso.idling.CountingIdlingResource
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_main.button_abort
 import kotlinx.android.synthetic.main.activity_main.button_multi
@@ -99,6 +100,9 @@ class MainActivity : AppCompatActivity() {
         /** Array of camera ids for this device */
         val cameraIds: ArrayList<String> = ArrayList<String>()
 
+        /** Idling Resource used for Espresso tests */
+        public val antelopeIdlingResource = CountingIdlingResource("AntelopeIdlingResource")
+
         /** Convenience wrapper for Log.d that can be toggled on/off */
         fun logd(message: String) {
             if (camViewModel.getShouldOutputLog().value ?: false)
@@ -138,14 +142,6 @@ class MainActivity : AppCompatActivity() {
 
         button_abort.setOnClickListener {
             abortTests()
-            testsRemaining = 0
-            multiCounter = 0
-            toggleControls(true)
-            toggleRotationLock(false)
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            setProgress(0)
-            showProgressBar(false)
-            updateLog("\nABORTED", true)
         }
 
         // Human readable report
@@ -400,6 +396,43 @@ class MainActivity : AppCompatActivity() {
         autoTestRunner(this)
     }
 
+    /**
+     * User has requested to abort the test run. Close cameras and reset the UI.
+     */
+    fun abortTests() {
+        val currentConfig: TestConfig = createTestConfig("ABORT")
+
+        val currentCamera = camViewModel.getCurrentCamera().value ?: 0
+        val currentParams = cameraParams.get(currentCamera.toString())
+
+        when (currentConfig.api) {
+            CameraAPI.CAMERA1 -> closeAllCameras(this, currentConfig)
+            CameraAPI.CAMERAX -> {
+                if (null != currentParams)
+                    cameraXAbort(this, currentParams, currentConfig)
+            }
+            CameraAPI.CAMERA2 -> {
+                if (null != currentParams)
+                    camera2Abort(this, currentParams, currentConfig)
+            }
+        }
+
+        testsRemaining = 0
+        multiCounter = 0
+
+        runOnUiThread {
+            toggleControls(true)
+            toggleRotationLock(false)
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            progress_test.progress = 0
+            showProgressBar(false)
+            updateLog("\nABORTED", true)
+        }
+
+        // Indicate to Espresso that a test run has ended
+        antelopeIdlingResource.decrement()
+    }
+
     /** After tests are completed, reset the UI to the initial state */
     fun resetUIAfterTest() {
         runOnUiThread {
@@ -438,28 +471,6 @@ class MainActivity : AppCompatActivity() {
             updateLog("Running: " + testName + "\n", append, false)
             scroll_log.fullScroll(View.FOCUS_DOWN)
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-    }
-
-    /**
-     * User has requested to abort the test. Close cameras and reset the UI.
-     */
-    fun abortTests() {
-        val currentConfig: TestConfig = createTestConfig("ABORT")
-
-        val currentCamera = camViewModel.getCurrentCamera().value ?: 0
-        val currentParams = cameraParams.get(currentCamera.toString())
-
-        when (currentConfig.api) {
-            CameraAPI.CAMERA1 -> closeAllCameras(this, currentConfig)
-            CameraAPI.CAMERAX -> {
-                if (null != currentParams)
-                    cameraXAbort(this, currentParams, currentConfig)
-            }
-            CameraAPI.CAMERA2 -> {
-                if (null != currentParams)
-                    camera2Abort(this, currentParams, currentConfig)
-            }
         }
     }
 }

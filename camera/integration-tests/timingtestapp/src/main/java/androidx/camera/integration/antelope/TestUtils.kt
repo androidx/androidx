@@ -59,6 +59,9 @@ fun postTestResults(activity: MainActivity, testConfig: TestConfig) {
         activity.resetUIAfterTest()
         activity.updateLog(log)
         writeCSV(activity, DeviceInfo(activity).deviceShort, csv)
+
+        // Indicate to Espresso that a test run has ended
+        MainActivity.antelopeIdlingResource.decrement()
     } else {
         autoTestRunner(activity)
     }
