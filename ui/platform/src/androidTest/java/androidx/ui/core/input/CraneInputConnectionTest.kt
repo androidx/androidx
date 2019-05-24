@@ -221,6 +221,7 @@ class CraneInputConnectionTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 24)
     fun onUpdateEditorStateCalled_called_by_closeConnection() {
         ic.setComposingText("H", 1)
         verify(onUpdateEditorState, times(1)).invoke(
