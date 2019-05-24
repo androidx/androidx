@@ -1147,6 +1147,7 @@ public final class ViewPager2 extends ViewGroup {
      * @param decor Decoration to add
      * @param index Position in the decoration chain to insert this decoration at. If this value
      *              is negative the decoration will be added at the end.
+     * @throws IndexOutOfBoundsException on indexes larger than {@link #getItemDecorationCount}
      */
     public void addItemDecoration(@NonNull ItemDecoration decor, int index) {
         mRecyclerView.addItemDecoration(decor, index);
@@ -1185,6 +1186,7 @@ public final class ViewPager2 extends ViewGroup {
      * Removes the {@link ItemDecoration} associated with the supplied index position.
      *
      * @param index The index position of the ItemDecoration to be removed.
+     * @throws IndexOutOfBoundsException on invalid index
      */
     public void removeItemDecorationAt(int index) {
         mRecyclerView.removeItemDecorationAt(index);
