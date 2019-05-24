@@ -38,10 +38,9 @@ public class AndroidViewModel extends ViewModel {
     /**
      * Return the application.
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     @NonNull
     public <T extends Application> T getApplication() {
-        //noinspection unchecked
         return (T) mApplication;
     }
 }
