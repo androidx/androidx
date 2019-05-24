@@ -62,7 +62,7 @@ public class ShortcutManagerCompat {
      * If fails to load an implementation via reflection, will use the default implementation which
      * is no-op to avoid unnecessary disk I/O.
      */
-    private static volatile ShortcutInfoCompatSaver sShortcutInfoCompatSaver = null;
+    private static volatile ShortcutInfoCompatSaver<?> sShortcutInfoCompatSaver = null;
 
     private ShortcutManagerCompat() {
         /* Hide constructor */
@@ -298,7 +298,7 @@ public class ShortcutManagerCompat {
 
             if (sShortcutInfoCompatSaver == null) {
                 // Implementation not available. Instantiate to the default no-op impl.
-                sShortcutInfoCompatSaver = new ShortcutInfoCompatSaver();
+                sShortcutInfoCompatSaver = new ShortcutInfoCompatSaver.NoopImpl();
             }
         }
         return sShortcutInfoCompatSaver;

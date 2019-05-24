@@ -16,14 +16,12 @@
 
 package androidx.core.content.pm;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
-import androidx.concurrent.futures.ResolvableFuture;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,30 +33,41 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
-public class ShortcutInfoCompatSaver {
+public abstract class ShortcutInfoCompatSaver<T> {
     @AnyThread
-    public ListenableFuture<Void> addShortcuts(List<ShortcutInfoCompat> shortcuts) {
-        final ResolvableFuture<Void> result = ResolvableFuture.create();
-        result.set(null);
-        return result;
-    }
+    public abstract T addShortcuts(List<ShortcutInfoCompat> shortcuts);
 
     @AnyThread
-    public ListenableFuture<Void> removeShortcuts(List<String> shortcutIds) {
-        final ResolvableFuture<Void> result = ResolvableFuture.create();
-        result.set(null);
-        return result;
-    }
+    public abstract T removeShortcuts(List<String> shortcutIds);
 
     @AnyThread
-    public ListenableFuture<Void> removeAllShortcuts() {
-        final ResolvableFuture<Void> result = ResolvableFuture.create();
-        result.set(null);
-        return result;
-    }
+    public abstract T removeAllShortcuts();
 
     @WorkerThread
     public List<ShortcutInfoCompat> getShortcuts() throws Exception {
         return new ArrayList<>();
+    }
+
+    /**
+     * Implementation that does nothing and returns null from asynchronous methods.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static class NoopImpl extends ShortcutInfoCompatSaver<Void> {
+        @Override
+        public Void addShortcuts(List<ShortcutInfoCompat> shortcuts) {
+            return null;
+        }
+
+        @Override
+        public Void removeShortcuts(List<String> shortcutIds) {
+            return null;
+        }
+
+        @Override
+        public Void removeAllShortcuts() {
+            return null;
+        }
     }
 }
