@@ -61,8 +61,7 @@ public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
      */
     @Override
     public MediaFormat getFormat() {
-        if (mTrackType == MEDIA_TRACK_TYPE_TIMEDTEXT
-                || mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
+        if (mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
             return mFormat;
         }
         return null;
@@ -84,9 +83,6 @@ public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
                 break;
             case MEDIA_TRACK_TYPE_AUDIO:
                 out.append("AUDIO");
-                break;
-            case MEDIA_TRACK_TYPE_TIMEDTEXT:
-                out.append("TIMEDTEXT");
                 break;
             case MEDIA_TRACK_TYPE_SUBTITLE:
                 out.append("SUBTITLE");

@@ -1818,7 +1818,6 @@ public class MediaController implements AutoCloseable {
          *
          * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
          * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
          * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
@@ -1838,7 +1837,6 @@ public class MediaController implements AutoCloseable {
          *
          * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
          * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
          * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
@@ -1859,7 +1857,6 @@ public class MediaController implements AutoCloseable {
          *
          * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
          * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
          * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *

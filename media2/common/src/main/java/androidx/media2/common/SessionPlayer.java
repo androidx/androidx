@@ -901,7 +901,6 @@ public abstract class SessionPlayer implements AutoCloseable {
         public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
-        public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
         public static final int MEDIA_TRACK_TYPE_METADATA = 5;
 
@@ -951,7 +950,7 @@ public abstract class SessionPlayer implements AutoCloseable {
 
         /**
          * Gets the track type.
-         * @return MediaTrackType which indicates if the track is video, audio, timed text.
+         * @return MediaTrackType which indicates if the track is video, audio or subtitle.
          */
         @MediaTrackType
         public int getTrackType() {
@@ -977,8 +976,7 @@ public abstract class SessionPlayer implements AutoCloseable {
          */
         @Nullable
         public MediaFormat getFormat() {
-            if (mTrackType == MEDIA_TRACK_TYPE_TIMEDTEXT
-                    || mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
+            if (mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
                 return mFormat;
             }
             return null;
@@ -1006,9 +1004,6 @@ public abstract class SessionPlayer implements AutoCloseable {
                     break;
                 case MEDIA_TRACK_TYPE_AUDIO:
                     out.append("AUDIO");
-                    break;
-                case MEDIA_TRACK_TYPE_TIMEDTEXT:
-                    out.append("TIMEDTEXT");
                     break;
                 case MEDIA_TRACK_TYPE_SUBTITLE:
                     out.append("SUBTITLE");
@@ -1290,7 +1285,6 @@ public abstract class SessionPlayer implements AutoCloseable {
          *
          * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
          * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
          * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
@@ -1311,7 +1305,6 @@ public abstract class SessionPlayer implements AutoCloseable {
          *
          * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
          * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
          * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
@@ -1332,7 +1325,6 @@ public abstract class SessionPlayer implements AutoCloseable {
          *
          * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
          * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
-         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
          * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *

@@ -325,13 +325,6 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805;
 
-    /** Failed to handle timed text track properly.
-     * @see PlayerCallback#onInfo
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final int MEDIA_INFO_TIMED_TEXT_ERROR = 900;
-
     /**
      * Subtitle track was not supported by the media framework.
      * @see PlayerCallback#onInfo
@@ -369,7 +362,6 @@ public final class MediaPlayer extends SessionPlayer {
             MEDIA_INFO_EXTERNAL_METADATA_UPDATE,
             MEDIA_INFO_AUDIO_NOT_PLAYING,
             MEDIA_INFO_VIDEO_NOT_PLAYING,
-            MEDIA_INFO_TIMED_TEXT_ERROR,
             MEDIA_INFO_UNSUPPORTED_SUBTITLE,
             MEDIA_INFO_SUBTITLE_TIMED_OUT
     })
@@ -2310,7 +2302,7 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Deselects a track.
      * <p>
-     * Currently, the track must be a timed text track and no audio or video tracks can be
+     * Currently, the track must be a subtitle track and no audio or video tracks can be
      * deselected.
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
@@ -3321,9 +3313,6 @@ public final class MediaPlayer extends SessionPlayer {
         public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
         public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public static final int MEDIA_TRACK_TYPE_TIMEDTEXT = 3;
         public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
         public static final int MEDIA_TRACK_TYPE_METADATA = 5;
 
@@ -3348,7 +3337,7 @@ public final class MediaPlayer extends SessionPlayer {
 
         /**
          * Gets the track type.
-         * @return TrackType which indicates if the track is video, audio, timed text.
+         * @return TrackType which indicates if the track is video, audio, subtitle or metadata.
          */
         public @MediaTrackType int getTrackType() {
             return mTrackType;
@@ -3373,8 +3362,7 @@ public final class MediaPlayer extends SessionPlayer {
          */
         @Nullable
         public MediaFormat getFormat() {
-            if (mTrackType == MEDIA_TRACK_TYPE_TIMEDTEXT
-                    || mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
+            if (mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
                 return mFormat;
             }
             return null;
@@ -3409,9 +3397,6 @@ public final class MediaPlayer extends SessionPlayer {
                     break;
                 case MEDIA_TRACK_TYPE_AUDIO:
                     out.append("AUDIO");
-                    break;
-                case MEDIA_TRACK_TYPE_TIMEDTEXT:
-                    out.append("TIMEDTEXT");
                     break;
                 case MEDIA_TRACK_TYPE_SUBTITLE:
                     out.append("SUBTITLE");
