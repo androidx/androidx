@@ -590,6 +590,7 @@ class FragmentAnimationTest {
         assertThat(fragment.animation).isNotNull()
         assertThat(fragment.animation!!.waitForEnd(1000)).isTrue()
         assertThat(fragment.animation?.hasStarted()!!).isTrue()
+        assertThat(fragment.nextAnim).isEqualTo(0)
     }
 
     @Throws(InterruptedException::class)
