@@ -77,7 +77,6 @@ public final class OutputConfigurationCompatTest {
         Surface surface = mock(Surface.class);
         OutputConfigurationCompat outputConfigCompat = new OutputConfigurationCompat(surface);
 
-        assumeSurfaceSharingAvailable(outputConfigCompat);
         outputConfigCompat.enableSurfaceSharing();
 
         // Since we already have 1 surface added, if we try to add the max we will be adding a
@@ -92,8 +91,8 @@ public final class OutputConfigurationCompatTest {
         Surface surface = mock(Surface.class);
         OutputConfigurationCompat outputConfigCompat = new OutputConfigurationCompat(surface);
 
-        // Adding a second surface should fail if OutputConfigurationCompat#enableSurfaceSharing
-        // () has not been called.
+        // Adding a second surface should fail if OutputConfigurationCompat#enableSurfaceSharing()
+        // has not been called.
         outputConfigCompat.addSurface(mock(Surface.class));
     }
 
@@ -199,7 +198,6 @@ public final class OutputConfigurationCompatTest {
     @Test
     @Config(minSdk = 26)
     public void canCreateDeferredOutputConfiguration_andRetrieveNullSurface() {
-        Surface surface = mock(Surface.class);
         OutputConfigurationCompat outputConfigCompat = new OutputConfigurationCompat(
                 new Size(1024, 768), SurfaceTexture.class);
 

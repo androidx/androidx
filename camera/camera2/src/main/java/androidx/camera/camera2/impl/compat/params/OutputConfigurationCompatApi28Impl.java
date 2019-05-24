@@ -22,6 +22,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.util.Preconditions;
 
 /**
  * Implementation of the OutputConfiguration compat methods for API 28 and above.
@@ -37,13 +38,18 @@ class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26I
         super(outputConfiguration);
     }
 
+    @RequiresApi(28)
+    static OutputConfigurationCompatApi28Impl wrap(
+            @NonNull OutputConfiguration outputConfiguration) {
+        return new OutputConfigurationCompatApi28Impl(outputConfiguration);
+    }
+
     /**
      * Remove a surface from this OutputConfiguration.
      */
     @Override
     public void removeSurface(@NonNull Surface surface) {
-        OutputConfiguration outputConfig = (OutputConfiguration) mObject;
-        outputConfig.removeSurface(surface);
+        ((OutputConfiguration) getOutputConfiguration()).removeSurface(surface);
     }
 
     /**
@@ -51,8 +57,7 @@ class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26I
      */
     @Override
     public int getMaxSharedSurfaceCount() {
-        OutputConfiguration outputConfig = (OutputConfiguration) mObject;
-        return outputConfig.getMaxSharedSurfaceCount();
+        return ((OutputConfiguration) getOutputConfiguration()).getMaxSharedSurfaceCount();
     }
 
     /**
@@ -60,8 +65,20 @@ class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26I
      */
     @Override
     public void setPhysicalCameraId(@Nullable String physicalCameraId) {
-        OutputConfiguration outputConfiguration = (OutputConfiguration) mObject;
-        outputConfiguration.setPhysicalCameraId(physicalCameraId);
+        ((OutputConfiguration) getOutputConfiguration()).setPhysicalCameraId(physicalCameraId);
+    }
+
+    /** Always returns null on API &gt;= 28. Framework handles physical camera ID checks. */
+    @Nullable
+    @Override
+    public String getPhysicalCameraId() {
+        return null;
+    }
+
+    @Override
+    public Object getOutputConfiguration() {
+        Preconditions.checkArgument(mObject instanceof OutputConfiguration);
+        return mObject;
     }
 }
 
