@@ -34,8 +34,7 @@ import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
@@ -48,9 +47,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Test toggle buttons in CoreTestApp. */
-@FlakyTest(bugId = 130580574)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public final class ToggleButtonUITest {
 
     private static final int LAUNCH_TIMEOUT_MS = 5000;
