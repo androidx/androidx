@@ -225,7 +225,7 @@ package androidx.ui.material {
 
   public final class SwitchKt {
     ctor public SwitchKt();
-    method public static void Switch(boolean checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.graphics.Color color = +themeColor({ 
     secondaryVariant
 }));
   }

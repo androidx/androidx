@@ -177,10 +177,10 @@ fun SwitchDemo() {
         val (checked2, onChecked2) = +state { false }
         val (checked3, onChecked3) = +state { true }
         val (checked4, onChecked4) = +state { true }
-        Switch(checked = checked, onClick = { onChecked(!checked) })
-        Switch(checked = checked2, onClick = { onChecked2(!checked2) }, color = customColor)
-        Switch(checked = checked3, onClick = { onChecked3(!checked3) }, color = customColor2)
-        Switch(checked = checked4, onClick = { onChecked4(!checked4) }, color = customColor3)
+        Switch(checked = checked, onCheckedChange = onChecked)
+        Switch(checked = checked2, onCheckedChange = onChecked2, color = customColor)
+        Switch(checked = checked3, onCheckedChange = onChecked3, color = customColor2)
+        Switch(checked = checked4, onCheckedChange = onChecked4, color = customColor3)
     }
 }
 
