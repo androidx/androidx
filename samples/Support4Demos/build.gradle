@@ -12,4 +12,5 @@ dependencies {
     implementation(project(":legacy-support-core-utils"))
     implementation(project(":fragment"))
     implementation(project(":media"))
+    implementation(project(":lifecycle:lifecycle-extensions"))
 }
