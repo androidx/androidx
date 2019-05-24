@@ -2769,11 +2769,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performPause() {
+        mChildFragmentManager.dispatchPause();
         if (mView != null) {
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
         }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
-        mChildFragmentManager.dispatchPause();
         mState = STARTED;
         mCalled = false;
         onPause();
@@ -2784,11 +2784,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performStop() {
+        mChildFragmentManager.dispatchStop();
         if (mView != null) {
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
         }
         mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        mChildFragmentManager.dispatchStop();
         mState = ACTIVITY_CREATED;
         mCalled = false;
         onStop();
@@ -2799,10 +2799,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performDestroyView() {
+        mChildFragmentManager.dispatchDestroyView();
         if (mView != null) {
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         }
-        mChildFragmentManager.dispatchDestroyView();
         mState = CREATED;
         mCalled = false;
         onDestroyView();
@@ -2819,8 +2819,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performDestroy() {
-        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         mChildFragmentManager.dispatchDestroy();
+        mLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
         mState = INITIALIZING;
         mCalled = false;
         mIsCreated = false;
