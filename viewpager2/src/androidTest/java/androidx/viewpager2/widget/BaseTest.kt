@@ -158,10 +158,6 @@ open class BaseTest {
 
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)
 
-        val isRtl
-            get() = ViewCompat.getLayoutDirection(viewPager) ==
-                    ViewCompat.LAYOUT_DIRECTION_RTL
-
         fun peekForward() {
             peek(adjustForRtl(-50f))
         }
@@ -220,14 +216,14 @@ open class BaseTest {
 
         private fun swiper(method: SwipeMethod = SwipeMethod.ESPRESSO): PageSwiper {
             return when (method) {
-                SwipeMethod.ESPRESSO -> PageSwiperEspresso(viewPager.orientation, isRtl)
-                SwipeMethod.MANUAL -> PageSwiperManual(viewPager, isRtl)
+                SwipeMethod.ESPRESSO -> PageSwiperEspresso(viewPager)
+                SwipeMethod.MANUAL -> PageSwiperManual(viewPager)
                 SwipeMethod.FAKE_DRAG -> PageSwiperFakeDrag(viewPager) { viewPager.pageSize }
             }
         }
 
         private fun adjustForRtl(offset: Float): Float {
-            return if (viewPager.orientation == ORIENTATION_HORIZONTAL && isRtl) -offset else offset
+            return if (viewPager.isHorizontal && viewPager.isRtl) -offset else offset
         }
 
         private fun peek(offset: Float) {
@@ -660,3 +656,8 @@ fun tryNTimes(n: Int, resetBlock: () -> Unit, tryBlock: () -> Unit) {
         }
     }
 }
+
+val View.isRtl: Boolean
+    get() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+
+val ViewPager2.isHorizontal: Boolean get() = orientation == ORIENTATION_HORIZONTAL
