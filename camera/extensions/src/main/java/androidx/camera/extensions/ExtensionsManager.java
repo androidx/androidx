@@ -46,7 +46,12 @@ public final class ExtensionsManager {
          * Beauty mode is used for taking still capture images that incorporate facial changes
          * like skin tone, geometry, or retouching.
          */
-        BEAUTY
+        BEAUTY,
+        /**
+         * Auto mode is used for taking still capture images that automatically adjust to the
+         * surrounding scenery.
+         */
+        AUTO
     }
 
     /**
@@ -103,6 +108,9 @@ public final class ExtensionsManager {
             case BEAUTY:
                 extender = BeautyImageCaptureExtender.create(builder);
                 break;
+            case AUTO:
+                extender = AutoImageCaptureExtender.create(builder);
+                break;
             case NORMAL:
                 return true;
             default:
@@ -130,6 +138,9 @@ public final class ExtensionsManager {
                 break;
             case BEAUTY:
                 extender = BeautyPreviewExtender.create(builder);
+                break;
+            case AUTO:
+                extender = AutoPreviewExtender.create(builder);
                 break;
             case NORMAL:
                 return true;

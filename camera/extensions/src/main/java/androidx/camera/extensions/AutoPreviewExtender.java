@@ -19,32 +19,32 @@ package androidx.camera.extensions;
 import android.util.Log;
 
 import androidx.camera.core.PreviewConfig;
-import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
+import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
 
 /**
- * Load the OEM extension Preview implementation for HDR effect type.
+ * Load the OEM extension Preview implementation for auto effect type.
  */
-public class HdrPreviewExtender extends PreviewExtender {
-    private static final String TAG = "HdrPreviewExtender";
+public class AutoPreviewExtender extends PreviewExtender {
+    private static final String TAG = "AutoPreviewExtender";
 
     /**
-     * Create a new instance of the HDR extender.
+     * Create a new instance of the auto extender.
      *
      * @param builder Builder that will be used to create the configurations for the
      * {@link androidx.camera.core.Preview}.
      */
-    public static HdrPreviewExtender create(PreviewConfig.Builder builder) {
+    public static AutoPreviewExtender create(PreviewConfig.Builder builder) {
         try {
-            return new VendorHdrPreviewExtender(builder);
+            return new VendorAutoPreviewExtender(builder);
         } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No HDR preview extender found. Falling back to default.");
-            return new DefaultHdrPreviewExtender();
+            Log.d(TAG, "No auto preview extender found. Falling back to default.");
+            return new DefaultAutoPreviewExtender();
         }
     }
 
-    /** Empty implementation of HDR extender which does nothing. */
-    static class DefaultHdrPreviewExtender extends HdrPreviewExtender {
-        DefaultHdrPreviewExtender() {
+    /** Empty implementation of auto extender which does nothing. */
+    static class DefaultAutoPreviewExtender extends AutoPreviewExtender {
+        DefaultAutoPreviewExtender() {
         }
 
         @Override
@@ -57,15 +57,15 @@ public class HdrPreviewExtender extends PreviewExtender {
         }
     }
 
-    /** HDR extender that calls into the vendor provided implementation. */
-    static class VendorHdrPreviewExtender extends HdrPreviewExtender {
-        private final HdrPreviewExtenderImpl mImpl;
+    /** Auto extender that calls into the vendor provided implementation. */
+    static class VendorAutoPreviewExtender extends AutoPreviewExtender {
+        private final AutoPreviewExtenderImpl mImpl;
 
-        VendorHdrPreviewExtender(PreviewConfig.Builder builder) {
-            mImpl = new HdrPreviewExtenderImpl();
+        VendorAutoPreviewExtender(PreviewConfig.Builder builder) {
+            mImpl = new AutoPreviewExtenderImpl();
             init(builder, mImpl);
         }
     }
 
-    private HdrPreviewExtender() {}
+    private AutoPreviewExtender() {}
 }

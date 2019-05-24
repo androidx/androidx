@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.camera.extensions.impl;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 
+import java.util.List;
+
 /**
- * Stub implementation for HDR preview use case.
+ * Stub implementation for auto image capture use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices.
  */
-public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
-    public HdrPreviewExtenderImpl() {
-    }
+public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
+    public AutoImageCaptureExtenderImpl() {}
 
     @Override
     public boolean isExtensionAvailable(String cameraId,
@@ -40,17 +40,17 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     }
 
     @Override
-    public CaptureStageImpl getCaptureStage() {
+    public CaptureProcessorImpl getCaptureProcessor() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
-    public ProcessorType getProcessorType() {
+    public List<CaptureStageImpl> getCaptureStages() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
-    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+    public int getMaxCaptureStage() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 

@@ -37,7 +37,7 @@ public class NightPreviewExtender extends PreviewExtender {
         try {
             return new VendorNightPreviewExtender(builder);
         } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No night view finder extender found. Falling back to default.");
+            Log.d(TAG, "No night preview extender found. Falling back to default.");
             return new DefaultNightPreviewExtender();
         }
     }
