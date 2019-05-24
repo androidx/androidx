@@ -78,8 +78,3 @@
   public <init>(...);
 }
 
-# Keep generic types for the TypeReference class
--keepattributes Signature
-
-# Keep the TypeReference class as it uses self-inspection
--keep class * extends androidx.camera.core.TypeReference
