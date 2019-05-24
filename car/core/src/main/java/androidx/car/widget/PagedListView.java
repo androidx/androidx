@@ -527,9 +527,12 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Set the visibility of the scroll bar.
+     * Sets whether the scroll bar is enabled.
      *
-     * @param enabled Whether the scrollbar is visible or not.
+     * If enabled, a scroll bar will appear when the number of items causes the PagedListView to
+     * be scrollable. Otherwise, the scroll bar is hidden regardless of item count.
+     *
+     * @param enabled {@code true} to enable the scroll bar.
      */
     public void setScrollBarEnabled(boolean enabled) {
         mScrollBarEnabled = enabled;
@@ -537,7 +540,7 @@ public class PagedListView extends FrameLayout {
     }
 
     /**
-     * Returns {@code true} if the scroll bar is visible.
+     * Returns {@code true} if the scroll bar is enabled.
      */
     public boolean isScrollBarEnabled() {
         return mScrollBarEnabled;
@@ -549,7 +552,7 @@ public class PagedListView extends FrameLayout {
      *
      * @param offset The top offset to add in pixels.
      *
-     * {@link R.attr#listContentTopOffset}
+     *               {@link R.attr#listContentTopOffset}
      */
     public void setListContentTopOffset(@Px int offset) {
         TopOffsetDecoration existing = null;
@@ -596,7 +599,7 @@ public class PagedListView extends FrameLayout {
      *
      * @param offset The bottom offset to add in pixels
      *
-     * {@link R.attr#listContentBottomOffset}
+     *               {@link R.attr#listContentBottomOffset}
      */
     public void setListContentBottomOffset(@Px int offset) {
         BottomOffsetDecoration existing = null;
@@ -767,7 +770,7 @@ public class PagedListView extends FrameLayout {
      * PagedListView needs to implement {@link ItemCap}.
      *
      * @param maxPages The maximum number of pages that fit on the screen. Should be positive or
-     * {@link #UNLIMITED_PAGES}.
+     *                 {@link #UNLIMITED_PAGES}.
      */
     public void setMaxPages(int maxPages) {
         mMaxPages = Math.max(UNLIMITED_PAGES, maxPages);
