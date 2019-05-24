@@ -36,19 +36,10 @@ import java.util.concurrent.TimeUnit;
  * Periodic work has a minimum interval of 15 minutes and it cannot have an initial delay.
  * <p>
  * Periodic work is intended for use cases where you want a fairly consistent delay between
- * consecutive runs, and you are willing to tolerate drift.  For example, periodic work that runs
- * every 24 hours, may exhibit the following drift because of OS battery optimizations:
- *
- * <pre>
- * Iteration |  Execution Time
- * ----------+------------------
- *     1     | Jan 01, 06:00 AM
- *     2     | Jan 02, 06:24 AM
- *     3     | Jan 03, 07:15 AM
- *     4     | Jan 04, 08:00 AM
- *     5     | Jan 05, 08:00 AM
- *     6     | Jan 06, 08:02 AM</pre>
- *
+ * consecutive runs, and you are willing to accept inexactness due to battery optimizations and doze
+ * mode.  Please note that if your periodic work has constraints, it will not execute until the
+ * constraints are met, even if the delay between periods has been met.
+ * <p>
  * If you need to schedule work that happens exactly at a certain time or only during a certain time
  * window, you should consider using {@link OneTimeWorkRequest}s.
  * <p>
