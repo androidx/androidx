@@ -39,6 +39,18 @@ class StatsTest {
     }
 
     @Test
+    fun one() {
+        val stats = Stats(listOf(10))
+        assertEquals(10.0, stats.mean, 0.0)
+        assertEquals(10, stats.median)
+        assertEquals(10, stats.max)
+        assertEquals(10, stats.min)
+        assertEquals(Double.NaN, stats.standardDeviation, 0.0)
+        assertEquals(10, stats.percentile90)
+        assertEquals(10, stats.percentile95)
+    }
+
+    @Test
     fun percentile() {
         val stats = Stats((1L..100L).toList())
         assertEquals(50.5, stats.mean, 0.0)

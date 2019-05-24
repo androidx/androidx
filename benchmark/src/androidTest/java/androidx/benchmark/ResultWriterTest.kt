@@ -34,7 +34,6 @@ class ResultWriterTest {
     private val reportA = BenchmarkState.Report(
         testName = "MethodA",
         className = "package.Class1",
-        nanos = 100,
         data = listOf(100, 101, 102),
         repeatIterations = 100000,
         warmupIterations = 8000
@@ -42,7 +41,6 @@ class ResultWriterTest {
     private val reportB = BenchmarkState.Report(
         testName = "MethodB",
         className = "package.Class2",
-        nanos = 100,
         data = listOf(100, 101, 102),
         repeatIterations = 100000,
         warmupIterations = 8000
@@ -70,26 +68,38 @@ class ResultWriterTest {
                 {
                     "name": "MethodA",
                     "className": "package.Class1",
-                    "nanos": 100,
+                    "metrics": {
+                        "timeNs": {
+                            "minimum": 100,
+                            "maximum": 102,
+                            "median": 101,
+                            "runs": [
+                                100,
+                                101,
+                                102
+                            ]
+                        }
+                    },
                     "warmupIterations": 8000,
-                    "repeatIterations": 100000,
-                    "runs": [
-                        100,
-                        101,
-                        102
-                    ]
+                    "repeatIterations": 100000
                 },
                 {
                     "name": "MethodB",
                     "className": "package.Class2",
-                    "nanos": 100,
+                    "metrics": {
+                        "timeNs": {
+                            "minimum": 100,
+                            "maximum": 102,
+                            "median": 101,
+                            "runs": [
+                                100,
+                                101,
+                                102
+                            ]
+                        }
+                    },
                     "warmupIterations": 8000,
-                    "repeatIterations": 100000,
-                    "runs": [
-                        100,
-                        101,
-                        102
-                    ]
+                    "repeatIterations": 100000
                 }
             ]
             """.trimIndent(),
