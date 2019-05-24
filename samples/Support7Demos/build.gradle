@@ -1,9 +1,13 @@
+import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("kotlin-android")
 }
 
 dependencies {
+    api 'com.google.android.material:material:1.0.0'
     implementation(project(":appcompat"))
     implementation(project(":cardview"))
     implementation(project(":gridlayout"))
@@ -11,6 +15,7 @@ dependencies {
     implementation(project(":palette"))
     implementation(project(":recyclerview"))
     implementation project(':recyclerview-selection')
+    api(KOTLIN_STDLIB)
 }
 
 android {
