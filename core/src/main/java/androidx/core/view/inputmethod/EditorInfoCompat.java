@@ -16,12 +16,17 @@
 
 package androidx.core.view.inputmethod;
 
+import static java.lang.annotation.RetentionPolicy.SOURCE;
+
 import android.os.Build;
 import android.os.Bundle;
 import android.view.inputmethod.EditorInfo;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import java.lang.annotation.Retention;
 
 /**
  * Helper for accessing features in {@link EditorInfo} in a backwards compatible fashion.
@@ -75,6 +80,22 @@ public final class EditorInfoCompat {
     private static final String CONTENT_MIME_TYPES_INTEROP_KEY =
             "android.support.v13.view.inputmethod.EditorInfoCompat.CONTENT_MIME_TYPES";
 
+    @Retention(SOURCE)
+    @IntDef({Protocol.Unknown, Protocol.PlatformApi, Protocol.SupportLib, Protocol.AndroidX_1_0_0,
+            Protocol.AndroidX_1_1_0})
+    @interface Protocol {
+        /** Platform API is not available. Backport protocol is also not detected. */
+        int Unknown = 0;
+        /** Uses platform API. */
+        int PlatformApi = 1;
+        /** Uses legacy backport protocol that was used by support lib. */
+        int SupportLib = 2;
+        /** Uses new backport protocol that was accidentally introduced in AndroidX 1.0.0. */
+        int AndroidX_1_0_0 = 3;
+        /** Uses new backport protocol that was introduced in AndroidX 1.1.0. */
+        int AndroidX_1_1_0 = 4;
+    }
+
     /**
      * Sets MIME types that can be accepted by the target editor if the IME calls
      * {@link InputConnectionCompat#commitContent(InputConnection, EditorInfo,
@@ -124,6 +145,35 @@ public final class EditorInfoCompat {
             }
             return result != null ? result : EMPTY_STRING_ARRAY;
         }
+    }
+
+    /**
+     * Returns protocol version to work around an accidental internal key migration happened between
+     * legacy support lib and AndroidX 1.0.0.
+     *
+     * @param editorInfo the editor from which we get the MIME types.
+     * @return protocol number based on {@code editorInfo}.
+     */
+    @Protocol
+    static int getProtocol(EditorInfo editorInfo) {
+        if (Build.VERSION.SDK_INT >= 25) {
+            return Protocol.PlatformApi;
+        }
+        if (editorInfo.extras == null) {
+            return Protocol.Unknown;
+        }
+        final boolean hasNewKey = editorInfo.extras.containsKey(CONTENT_MIME_TYPES_KEY);
+        final boolean hasOldKey = editorInfo.extras.containsKey(CONTENT_MIME_TYPES_INTEROP_KEY);
+        if (hasNewKey && hasOldKey) {
+            return Protocol.AndroidX_1_1_0;
+        }
+        if (hasNewKey) {
+            return Protocol.AndroidX_1_0_0;
+        }
+        if (hasOldKey) {
+            return Protocol.SupportLib;
+        }
+        return Protocol.Unknown;
     }
 
     /** @deprecated This type should not be instantiated as it contains only static methods. */
