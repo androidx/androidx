@@ -40,7 +40,7 @@ data class Font(
      * Style of the font. Use while matching a font to a font request that is given in a
      * [TextStyle].
      */
-    val style: FontStyle = FontStyle.normal,
+    val style: FontStyle = FontStyle.Normal,
 
     // TODO(Migration/siyamed): implement integration and add tests
     /**

@@ -149,7 +149,7 @@ internal class ParagraphAndroid constructor(
             textPaint.typeface = typefaceAdapter.create(
                 fontFamily = paragraphStyle.fontFamily,
                 fontWeight = paragraphStyle.fontWeight ?: FontWeight.normal,
-                fontStyle = paragraphStyle.fontStyle ?: FontStyle.normal,
+                fontStyle = paragraphStyle.fontStyle ?: FontStyle.Normal,
                 fontSynthesis = paragraphStyle.fontSynthesis ?: FontSynthesis.all
 
             )
@@ -411,7 +411,7 @@ internal class ParagraphAndroid constructor(
                 val typeface = typefaceAdapter.create(
                     fontFamily = style.fontFamily,
                     fontWeight = style.fontWeight ?: FontWeight.normal,
-                    fontStyle = style.fontStyle ?: FontStyle.normal,
+                    fontStyle = style.fontStyle ?: FontStyle.Normal,
                     fontSynthesis = style.fontSynthesis ?: FontSynthesis.all
                 )
                 spannableString.setSpan(

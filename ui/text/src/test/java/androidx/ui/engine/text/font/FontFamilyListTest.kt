@@ -35,7 +35,7 @@ class FontFamilyListTest {
         val font = Font(
             name = "fontName",
             weight = FontWeight.w900,
-            style = FontStyle.italic,
+            style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
         )
@@ -53,7 +53,7 @@ class FontFamilyListTest {
         val font = Font(
             name = "fontName",
             weight = FontWeight.w900,
-            style = FontStyle.italic,
+            style = FontStyle.Italic,
             ttcIndex = 1,
             fontVariationSettings = "'wdth' 150"
         )

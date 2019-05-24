@@ -19,8 +19,8 @@ package androidx.ui.engine.text
 enum class FontStyle {
 
     /** Use the upright glyphs */
-    normal,
+    Normal,
 
     /** Use glyphs designed for slanting */
-    italic
+    Italic
 }

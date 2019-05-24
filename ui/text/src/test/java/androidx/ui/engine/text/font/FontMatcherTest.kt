@@ -46,7 +46,7 @@ class FontMatcherTest {
         val font = FontMatcher().matchFont(
             FontFamily(FONT_100_ITALIC),
             FontWeight.w100,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_100_ITALIC)
@@ -57,7 +57,7 @@ class FontMatcherTest {
         val font = FontMatcher().matchFont(
             FontFamily(FONT_100_REGULAR),
             FontWeight.w100,
-            FontStyle.normal
+            FontStyle.Normal
         )
 
         assertThat(font).isEqualTo(FONT_100_REGULAR)
@@ -73,7 +73,7 @@ class FontMatcherTest {
                 FONT_200_ITALIC
             ),
             FontWeight.w200,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_200_ITALIC)
@@ -88,7 +88,7 @@ class FontMatcherTest {
                 FONT_300_REGULAR
             ),
             FontWeight.w200,
-            FontStyle.normal
+            FontStyle.Normal
         )
 
         assertThat(font).isEqualTo(FONT_200_REGULAR)
@@ -111,7 +111,7 @@ class FontMatcherTest {
                 FONT_400_ITALIC
             ),
             FontWeight.w300,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_100_ITALIC)
@@ -134,7 +134,7 @@ class FontMatcherTest {
                 FONT_400_ITALIC
             ),
             FontWeight.w200,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_400_ITALIC)
@@ -159,7 +159,7 @@ class FontMatcherTest {
                 FONT_800_ITALIC
             ),
             FontWeight.w600,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_800_ITALIC)
@@ -183,7 +183,7 @@ class FontMatcherTest {
                 FONT_700_REGULAR
             ),
             FontWeight.w600,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_400_ITALIC)
@@ -207,7 +207,7 @@ class FontMatcherTest {
                 FONT_600_ITALIC
             ),
             FontWeight.w400,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_500_ITALIC)
@@ -229,7 +229,7 @@ class FontMatcherTest {
                 FONT_600_ITALIC
             ),
             FontWeight.w400,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_300_ITALIC)
@@ -251,7 +251,7 @@ class FontMatcherTest {
                 FONT_600_ITALIC
             ),
             FontWeight.w500,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_300_ITALIC)
@@ -274,7 +274,7 @@ class FontMatcherTest {
                 FONT_600_ITALIC
             ),
             FontWeight.w400,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_600_ITALIC)
@@ -297,7 +297,7 @@ class FontMatcherTest {
                 FONT_600_ITALIC
             ),
             FontWeight.w500,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_600_ITALIC)
@@ -314,7 +314,7 @@ class FontMatcherTest {
                 FONT_600_ITALIC
             ),
             FontWeight.w100,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_600_ITALIC)
@@ -331,7 +331,7 @@ class FontMatcherTest {
                 FONT_600_REGULAR
             ),
             FontWeight.w600,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_100_ITALIC)
@@ -346,7 +346,7 @@ class FontMatcherTest {
                 FONT_400_REGULAR
             ),
             FontWeight.w300,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_300_REGULAR)
@@ -362,7 +362,7 @@ class FontMatcherTest {
                 FONT_700_REGULAR
             ),
             FontWeight.w600,
-            FontStyle.italic
+            FontStyle.Italic
         )
 
         assertThat(font).isEqualTo(FONT_600_REGULAR)

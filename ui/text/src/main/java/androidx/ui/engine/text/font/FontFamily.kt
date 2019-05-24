@@ -25,8 +25,8 @@ import android.content.Context
  * For example you can defined a [FontFamily] based on custom font files:
  * <code>
  * FontFamily(
- *      Font(name="my_font_400_regular.ttf", weight=400, style=FontStyle.normal),
- *      Font(name="my_font_400_italic.ttf", weight=400, style=FontStyle.italic)
+ *      Font(name="my_font_400_regular.ttf", weight=400, style=FontStyle.Normal),
+ *      Font(name="my_font_400_italic.ttf", weight=400, style=FontStyle.Italic)
  * )
  * </code>
  */
