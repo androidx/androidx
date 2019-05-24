@@ -256,11 +256,11 @@ open class BaseTest {
 
             val expectPageLeftAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
                     isUserInputEnabled && isHorizontalOrientation &&
-                    (if (isRtl) currentPage < numPages - 1 else currentPage > 0)
+                    (if (viewPager.isRtl) currentPage < numPages - 1 else currentPage > 0)
 
             val expectPageRightAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
                     isUserInputEnabled && isHorizontalOrientation &&
-                    (if (isRtl) currentPage > 0 else currentPage < numPages - 1)
+                    (if (viewPager.isRtl) currentPage > 0 else currentPage < numPages - 1)
 
             val expectPageUpAction = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP &&
                     isUserInputEnabled && isVerticalOrientation &&
