@@ -2665,9 +2665,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 || mIsPrimaryNavigationFragment != isPrimaryNavigationFragment) {
             mIsPrimaryNavigationFragment = isPrimaryNavigationFragment;
             onPrimaryNavigationFragmentChanged(isPrimaryNavigationFragment);
-            if (mChildFragmentManager != null) {
-                mChildFragmentManager.dispatchPrimaryNavigationFragmentChanged();
-            }
+            mChildFragmentManager.dispatchPrimaryNavigationFragmentChanged();
         }
     }
 
