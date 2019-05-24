@@ -116,9 +116,18 @@ public abstract class FragmentStateAdapter extends
     }
 
     /**
-     * Provide a Fragment associated with the specified position.
+     * Provide a new Fragment associated with the specified position.
+     * <p>
+     * The adapter will be responsible for the Fragment lifecycle:
+     * <ul>
+     *     <li>The Fragment will be used to display an item.</li>
+     *     <li>The Fragment will be destroyed when it gets too far from the viewport, and its state
+     *     will be saved. When the item is close to the viewport again, a new Fragment will be
+     *     requested, and a previously saved state will be used to initialize it.
+     * </ul>
+     * @see ViewPager2#setOffscreenPageLimit
      */
-    public abstract @NonNull Fragment getItem(int position);
+    public abstract @NonNull Fragment createFragment(int position);
 
     @NonNull
     @Override
@@ -211,7 +220,8 @@ public abstract class FragmentStateAdapter extends
     private void ensureFragment(int position) {
         long itemId = getItemId(position);
         if (!mFragments.containsKey(itemId)) {
-            Fragment newFragment = getItem(position);
+            // TODO(133419201): check if a Fragment provided here is a new Fragment
+            Fragment newFragment = createFragment(position);
             newFragment.setInitialSavedState(mSavedStates.get(itemId));
             mFragments.put(itemId, newFragment);
         }

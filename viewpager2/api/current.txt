@@ -6,7 +6,7 @@ package androidx.viewpager2.adapter {
     ctor public FragmentStateAdapter(androidx.fragment.app.Fragment);
     ctor public FragmentStateAdapter(androidx.fragment.app.FragmentManager, androidx.lifecycle.Lifecycle);
     method public boolean containsItem(long);
-    method public abstract androidx.fragment.app.Fragment getItem(int);
+    method public abstract androidx.fragment.app.Fragment createFragment(int);
     method public final void onBindViewHolder(androidx.viewpager2.adapter.FragmentViewHolder, int);
     method public final androidx.viewpager2.adapter.FragmentViewHolder onCreateViewHolder(android.view.ViewGroup, int);
     method public final boolean onFailedToRecycleView(androidx.viewpager2.adapter.FragmentViewHolder);
