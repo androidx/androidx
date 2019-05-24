@@ -83,5 +83,6 @@ class MediaInterface {
         List<TrackInfo> getTrackInfo();
         ListenableFuture<PlayerResult> selectTrack(TrackInfo trackInfo);
         ListenableFuture<PlayerResult> deselectTrack(TrackInfo trackInfo);
+        TrackInfo getSelectedTrack(int trackType);
     }
 }

@@ -1663,19 +1663,14 @@ public class MediaControllerTest extends MediaSessionTestBase {
     public void testGetTrackInfo() throws InterruptedException {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
-        final List<SessionPlayer.TrackInfo> testTracks = TestUtils.createTrackInfoList();
+        final List<TrackInfo> testTracks = TestUtils.createTrackInfoList();
 
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onTrackInfoChanged(MediaController controller,
-                    List<SessionPlayer.TrackInfo> trackInfos) {
+            public void onTrackInfoChanged(MediaController controller, List<TrackInfo> trackInfos) {
                 assertEquals(testTracks.size(), trackInfos.size());
                 for (int i = 0; i < testTracks.size(); i++) {
-                    SessionPlayer.TrackInfo track = testTracks.get(i);
-                    SessionPlayer.TrackInfo trackFromController = trackInfos.get(i);
-                    assertEquals(track, trackFromController);
-                    assertEquals(track.getLanguage(), trackFromController.getLanguage());
-                    assertEquals(track.getTrackType(), trackFromController.getTrackType());
+                    assertEquals(testTracks.get(i), trackInfos.get(i));
                 }
                 latch.countDown();
             }
@@ -1683,48 +1678,46 @@ public class MediaControllerTest extends MediaSessionTestBase {
         MediaController controller = createController(mSession.getToken(), true, null, callback);
         mPlayer.notifyTrackInfoChanged(testTracks);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        List<TrackInfo> tracks = controller.getTrackInfo();
+        assertEquals(testTracks.size(), tracks.size());
+        for (int i = 0; i < testTracks.size(); i++) {
+            assertEquals(testTracks.get(i), tracks.get(i));
+        }
     }
 
     @Test
-    public void testSelectTrack() throws InterruptedException {
+    public void testSelectDeselectTrackAndGetSelectedTrack() throws InterruptedException {
         prepareLooper();
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionPlayer.TrackInfo testTrack = TestUtils.createTrackInfo(1, "test",
-                SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        final CountDownLatch trackSelectedLatch = new CountDownLatch(1);
+        final CountDownLatch trackDeselectedLatch = new CountDownLatch(1);
+        final List<TrackInfo> testTracks = TestUtils.createTrackInfoList();
+        final TrackInfo testTrack = testTracks.get(2);
+        int testTrackType = testTrack.getTrackType();
+
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onTrackSelected(MediaController controller,
-                    SessionPlayer.TrackInfo trackInfo) {
+            public void onTrackSelected(MediaController controller, TrackInfo trackInfo) {
                 assertEquals(testTrack, trackInfo);
-                assertEquals(testTrack.getLanguage(), trackInfo.getLanguage());
-                assertEquals(testTrack.getTrackType(), trackInfo.getTrackType());
-                latch.countDown();
+                trackSelectedLatch.countDown();
+            }
+
+            @Override
+            public void onTrackDeselected(MediaController controller, TrackInfo trackInfo) {
+                assertEquals(testTrack, trackInfo);
+                trackDeselectedLatch.countDown();
             }
         };
         MediaController controller = createController(mSession.getToken(), true, null, callback);
+
+        assertNull(controller.getSelectedTrack(testTrackType));
+
         mPlayer.notifyTrackSelected(testTrack);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-    }
+        assertTrue(trackSelectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testTrack, controller.getSelectedTrack(testTrackType));
 
-    @Test
-    public void testDeselectTrack() throws InterruptedException {
-        prepareLooper();
-        final CountDownLatch latch = new CountDownLatch(1);
-        final SessionPlayer.TrackInfo testTrack = TestUtils.createTrackInfo(1, "test",
-                SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
-        final ControllerCallback callback = new ControllerCallback() {
-            @Override
-            public void onTrackDeselected(MediaController controller,
-                    SessionPlayer.TrackInfo trackInfo) {
-                assertEquals(testTrack, trackInfo);
-                assertEquals(testTrack.getLanguage(), trackInfo.getLanguage());
-                assertEquals(testTrack.getTrackType(), trackInfo.getTrackType());
-                latch.countDown();
-            }
-        };
-        MediaController controller = createController(mSession.getToken(), true, null, callback);
         mPlayer.notifyTrackDeselected(testTrack);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(trackDeselectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertNull(controller.getSelectedTrack(testTrackType));
     }
 
     @Test
