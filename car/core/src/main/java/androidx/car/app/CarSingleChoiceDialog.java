@@ -256,7 +256,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @param title The title of the item. This value must be non-empty.
          */
         public Item(@NonNull CharSequence title) {
-            this(title,  /* body= */ null);
+            this(title,  /* body= */ "");
         }
 
 
@@ -266,7 +266,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * @param title The title of the item. This value must be non-empty.
          * @param body  The secondary body text of the item.
          */
-        public Item(@NonNull CharSequence title, @Nullable CharSequence body) {
+        public Item(@NonNull CharSequence title, @NonNull CharSequence body) {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("Title cannot be empty.");
             }
