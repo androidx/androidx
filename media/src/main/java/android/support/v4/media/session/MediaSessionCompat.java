@@ -507,8 +507,8 @@ public class MediaSessionCompat {
      * {@link MediaButtonReceiver} for more details.
      * </p>
      * The {@code sessionInfo} can include additional unchanging information about this session.
-     * For example, it can include the version of the application, or the list of the custom
-     * commands that this session supports.
+     * For example, it can include the version of the application, or other app-specific
+     * unchanging information.
      *
      * @param context The context to use to create the session.
      * @param tag A short name for debugging purposes.

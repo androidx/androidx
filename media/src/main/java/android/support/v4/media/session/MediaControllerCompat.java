@@ -683,6 +683,9 @@ public final class MediaControllerCompat {
 
     /**
      * Gets the additional session information which was set when the session was created.
+     * The returned {@link Bundle} can include additional unchanging information about the session.
+     * For example, it can include the version of the session application, or other app-specific
+     * unchanging information.
      *
      * @return The additional session information, or {@link Bundle#EMPTY} if the session
      *         didn't set the information or if the session is not ready.
