@@ -16,6 +16,7 @@
 
 package androidx.viewpager2.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN;
 import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT;
 import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT;
@@ -43,10 +44,12 @@ import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
@@ -69,6 +72,7 @@ import java.lang.annotation.Retention;
  */
 public final class ViewPager2 extends ViewGroup {
     /** @hide */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef({ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL})
     public @interface Orientation {
@@ -78,9 +82,18 @@ public final class ViewPager2 extends ViewGroup {
     public static final int ORIENTATION_VERTICAL = RecyclerView.VERTICAL;
 
     /** @hide */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef({SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING})
     public @interface ScrollState {
+    }
+
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Retention(SOURCE)
+    @IntDef({OFFSCREEN_PAGE_LIMIT_DEFAULT})
+    @IntRange(from = 1)
+    public @interface OffscreenPageLimit {
     }
 
     /**
@@ -105,7 +118,7 @@ public final class ViewPager2 extends ViewGroup {
      * of explicitly prefetch and retain pages to either side of the current page.
      * @see #setOffscreenPageLimit(int)
      */
-    public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = 0;
+    public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1;
 
     private static final AccessibilityViewCommand ACTION_PAGE_FORWARD =
             new AccessibilityViewCommand() {
@@ -144,7 +157,7 @@ public final class ViewPager2 extends ViewGroup {
     private FakeDrag mFakeDragger;
     private PageTransformerAdapter mPageTransformerAdapter;
     private boolean mUserInputEnabled = true;
-    private int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
+    private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
     private RecyclerView.AdapterDataObserver mAdapterDataObserver;
 
     public ViewPager2(@NonNull Context context) {
@@ -819,7 +832,7 @@ public final class ViewPager2 extends ViewGroup {
      * @throws IllegalArgumentException If the given limit is invalid
      * @see #getOffscreenPageLimit()
      */
-    public void setOffscreenPageLimit(int limit) {
+    public void setOffscreenPageLimit(@OffscreenPageLimit int limit) {
         if (limit < 1 && limit != OFFSCREEN_PAGE_LIMIT_DEFAULT) {
             throw new IllegalArgumentException(
                     "Offscreen page limit must be OFFSCREEN_PAGE_LIMIT_DEFAULT or a number > 0");
@@ -836,6 +849,7 @@ public final class ViewPager2 extends ViewGroup {
      * @return How many pages will be kept offscreen on either side
      * @see #setOffscreenPageLimit(int)
      */
+    @OffscreenPageLimit
     public int getOffscreenPageLimit() {
         return mOffscreenPageLimit;
     }

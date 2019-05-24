@@ -73,7 +73,7 @@ package androidx.viewpager2.widget {
     method public void setPageTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer?);
     method public void setUserInputEnabled(boolean);
     method public void unregisterOnPageChangeCallback(androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback);
-    field public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = 0; // 0x0
+    field public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1; // 0xffffffff
     field public static final int ORIENTATION_HORIZONTAL = 0; // 0x0
     field public static final int ORIENTATION_VERTICAL = 1; // 0x1
     field public static final int SCROLL_STATE_DRAGGING = 1; // 0x1
