@@ -19,11 +19,11 @@ package androidx.ui.rendering.paragraph
 /** How overflowing text should be handled. */
 enum class TextOverflow {
     /** Clip the overflowing text to fix its container. */
-    CLIP,
+    Clip,
 
     /** Fade the overflowing text to transparent. */
-    FADE,
+    Fade,
 
     /** Use an ellipsis to indicate that the text has overflowed. */
-    ELLIPSIS,
+    Ellipsis,
 }

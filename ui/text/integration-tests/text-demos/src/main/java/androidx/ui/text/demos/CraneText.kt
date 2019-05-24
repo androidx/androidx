@@ -93,7 +93,7 @@ fun TextDemo() {
                 TextDemoSoftWrap()
                 TagLine(tag = "textScaleFactor: default and 2.0")
                 TextDemoTextScaleFactor()
-                TagLine(tag = "TextOverFlow: FADE")
+                TagLine(tag = "TextOverFlow: Fade")
                 TexDemoTextOverflowFade()
                 TagLine(tag = "shadow")
                 TextDemoShadowEffect()
@@ -550,7 +550,7 @@ fun TexDemoTextOverflowFade() {
     CraneWrapper {
         Text(
             maxLines = 1,
-            overflow = TextOverflow.FADE,
+            overflow = TextOverflow.Fade,
             softWrap = false
         ) {
             Span(text = text, style = textSytle)
@@ -560,7 +560,7 @@ fun TexDemoTextOverflowFade() {
     CraneWrapper {
         Text(
             maxLines = 3,
-            overflow = TextOverflow.FADE
+            overflow = TextOverflow.Fade
         ) {
             Span(text = text, style = textSytle)
         }

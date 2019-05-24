@@ -174,7 +174,7 @@ class RenderParagraphIntegrationTest {
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(
                 text = textSpan,
-                overflow = TextOverflow.FADE,
+                overflow = TextOverflow.Fade,
                 textDirection = TextDirection.LTR,
                 softWrap = false,
                 maxLines = 1)
@@ -195,7 +195,7 @@ class RenderParagraphIntegrationTest {
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(
                 text = textSpan,
-                overflow = TextOverflow.FADE,
+                overflow = TextOverflow.Fade,
                 textDirection = TextDirection.LTR,
                 maxLines = 2)
 
