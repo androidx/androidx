@@ -16,9 +16,12 @@
 
 package androidx.camera.integration.antelope.cameracontrollers
 
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
+import android.os.Build
+import android.view.Surface
 import androidx.annotation.NonNull
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.FocusMode
@@ -27,6 +30,7 @@ import androidx.camera.integration.antelope.PrefHelper
 import androidx.camera.integration.antelope.TestConfig
 import androidx.camera.integration.antelope.TestType
 import androidx.camera.integration.antelope.setAutoFlash
+import java.util.Arrays
 
 /**
  * Callbacks that track the state of a preview capture session.
@@ -145,8 +149,50 @@ class Camera2PreviewSessionStateCallback(
     override fun onClosed(session: CameraCaptureSession) {
         params.timer.previewCloseEnd = System.currentTimeMillis()
         params.isPreviewing = false
-        params.timer.cameraCloseStart = System.currentTimeMillis()
-        params.device?.close()
+
+        /** If legacy HAL, create a dummy preview session before closing the device */
+        if ((Build.VERSION.SDK_INT > Build.VERSION_CODES.M) && (params.isLegacy)) {
+            closeDeviceWithWorkaround(params)
+        } else {
+            params.timer.cameraCloseStart = System.currentTimeMillis()
+            params.device?.close()
+        }
         super.onClosed(session)
+    }
+
+    /**
+     * Before closing the device, create a dummy preview session to workaround a bug where an
+     * ImageReader can stay active after a device close. For example on Pixel 1 with Android 8.0.0
+     * during a SWITCH_CAMERA test.
+     */
+    fun closeDeviceWithWorkaround(params: CameraParams) {
+        val surfaceTexture = SurfaceTexture(0)
+        surfaceTexture.setDefaultBufferSize(640, 480)
+
+        val surface = Surface(surfaceTexture)
+        try {
+            params.device?.createCaptureSession(
+                Arrays.asList(surface),
+                object : CameraCaptureSession.StateCallback() {
+                    override fun onConfigured(session: CameraCaptureSession) {
+                        session.close()
+                    }
+                    override fun onConfigureFailed(session: CameraCaptureSession) {
+                        session.close()
+                    }
+                    /** Dummy preview session created and closed, now proceed to close camera */
+                    override fun onClosed(session: CameraCaptureSession) {
+                        surfaceTexture.release()
+                        params.timer.cameraCloseStart = System.currentTimeMillis()
+                        params.device?.close()
+                    }
+                }, null)
+        } catch (e: CameraAccessException) {
+            MainActivity.logd("createCameraPreviewSession CameraAccessException: " + e.message)
+            e.printStackTrace()
+        } catch (e: IllegalStateException) {
+            MainActivity.logd("createCameraPreviewSession IllegalStateException: " + e.message)
+            e.printStackTrace()
+        }
     }
 }

@@ -151,6 +151,9 @@ fun initializeCameras(activity: MainActivity) {
                 if (hasMono)
                     logd("WE HAVE Mono!")
 
+                isLegacy = cameraChars.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL) ==
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+
                 val activeSensorRect: Rect = cameraChars.get(SENSOR_INFO_ACTIVE_ARRAY_SIZE)
                 megapixels = (activeSensorRect.width() * activeSensorRect.height()) / 1000000
 
