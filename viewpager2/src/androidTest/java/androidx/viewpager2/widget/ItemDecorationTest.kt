@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.testutils.assertThrows
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import org.hamcrest.CoreMatchers.equalTo
@@ -37,6 +38,13 @@ private const val operationTimeoutSeconds = 5L
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ItemDecorationTest : BaseTest() {
+    private val decoration1 = object : ItemDecoration() {}
+    private val decoration2 = object : ItemDecoration() {}
+    private val decoration3 = object : ItemDecoration() {}
+    private val decoration4 = object : ItemDecoration() {}
+    private val decoration5 = object : ItemDecoration() {}
+    private val decoration6 = object : ItemDecoration() {}
+
     @Test
     fun test_dividers_render_views_horizontal() {
         test_dividers_render(ORIENTATION_HORIZONTAL, viewAdapterProvider)
@@ -89,36 +97,76 @@ class ItemDecorationTest : BaseTest() {
 
     @Test
     fun test_divider_add_remove_count() {
-        // given
         val viewPager = ViewPager2(ApplicationProvider.getApplicationContext())
-        val decoration1 = object : ItemDecoration() {}
-        val decoration2 = object : ItemDecoration() {}
+        assertThat(viewPager.itemDecorations, equalTo(listOf()))
 
-        // when
         viewPager.addItemDecoration(decoration1)
-        // then
-        assertThat(viewPager.itemDecorationCount, equalTo(1))
-        assertThat(viewPager.getItemDecorationAt(0), equalTo<ItemDecoration>(decoration1))
+        assertThat(viewPager.itemDecorations, equalTo(listOf<ItemDecoration>(decoration1)))
 
-        // when
         viewPager.addItemDecoration(decoration2, 0)
-        // then
-        assertThat(viewPager.itemDecorationCount, equalTo(2))
-        assertThat(viewPager.getItemDecorationAt(0), equalTo<ItemDecoration>(decoration2))
-        assertThat(viewPager.getItemDecorationAt(1), equalTo<ItemDecoration>(decoration1))
+        assertThat(viewPager.itemDecorations, equalTo(listOf(decoration2, decoration1)))
 
-        // when
         viewPager.removeItemDecorationAt(0)
-        // then
-        assertThat(viewPager.itemDecorationCount, equalTo(1))
-        assertThat(viewPager.getItemDecorationAt(0), equalTo<ItemDecoration>(decoration1))
+        assertThat(viewPager.itemDecorations, equalTo(listOf<ItemDecoration>(decoration1)))
 
-        // when
         viewPager.addItemDecoration(decoration2)
         viewPager.removeItemDecoration(decoration1)
-        // then
-        assertThat(viewPager.getItemDecorationAt(0), equalTo<ItemDecoration>(decoration2))
-        assertThat(viewPager.itemDecorationCount, equalTo(1))
+        assertThat(viewPager.itemDecorations, equalTo(listOf<ItemDecoration>(decoration2)))
+    }
+
+    @Test
+    fun test_divider_add_get_remove_edgeCaseIndexes() {
+        // given
+        val initialDecorations = listOf(decoration1, decoration2)
+        val viewPager = ViewPager2(ApplicationProvider.getApplicationContext())
+        initialDecorations.forEach { viewPager.addItemDecoration(it) }
+        assertThat(viewPager.itemDecorations, equalTo(initialDecorations))
+
+        // get / remove: illegal indexes
+        listOf(-100, -1, 2, 5, 100).forEach { ix ->
+            assertThrows<IndexOutOfBoundsException> { viewPager.getItemDecorationAt(ix) }
+            assertThrows<IndexOutOfBoundsException> { viewPager.removeItemDecorationAt(ix) }
+        }
+        assertThat(viewPager.itemDecorations, equalTo(initialDecorations))
+
+        // add: illegal indexes
+        listOf(3, 5, 100).forEach { ix ->
+            assertThrows<IndexOutOfBoundsException> { viewPager.addItemDecoration(decoration3, ix) }
+        }
+        assertThat(viewPager.itemDecorations, equalTo(initialDecorations))
+
+        // add: negative indexes (they are legal)
+
+        viewPager.addItemDecoration(decoration3, -1)
+        assertThat(viewPager.itemDecorations, equalTo(initialDecorations.plus(decoration3)))
+
+        viewPager.addItemDecoration(decoration4, -100)
+        assertThat(
+            viewPager.itemDecorations,
+            equalTo(initialDecorations.plus(listOf(decoration3, decoration4)))
+        )
+
+        viewPager.addItemDecoration(decoration5, -50)
+        assertThat(
+            viewPager.itemDecorations,
+            equalTo(initialDecorations.plus(listOf(decoration3, decoration4, decoration5)))
+        )
+
+        // add: lastIx + 1 (legal)
+        viewPager.addItemDecoration(decoration6, viewPager.itemDecorationCount)
+        assertThat(
+            viewPager.itemDecorations,
+            equalTo(
+                initialDecorations.plus(
+                    listOf(
+                        decoration3,
+                        decoration4,
+                        decoration5,
+                        decoration6
+                    )
+                )
+            )
+        )
     }
 
     private fun Context.swipeForwardSync() {
@@ -143,6 +191,9 @@ class ItemDecorationTest : BaseTest() {
         }
         latch.await(operationTimeoutSeconds, SECONDS)
     }
+
+    private val (ViewPager2).itemDecorations: List<ItemDecoration>
+        get() = (0 until itemDecorationCount).map { getItemDecorationAt(it) }
 
     private class ItemDecorationStub : ItemDecoration() {
         var drawCount = 0
