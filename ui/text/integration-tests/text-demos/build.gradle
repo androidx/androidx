@@ -17,6 +17,7 @@ dependencies {
     api project(":compose-runtime")
     implementation project(':ui-text')
     implementation project(':ui-framework')
+    implementation project(':ui-layout')
 }
 
 android {
