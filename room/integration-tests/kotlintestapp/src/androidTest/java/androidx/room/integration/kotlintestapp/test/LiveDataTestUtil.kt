@@ -27,10 +27,10 @@ object LiveDataTestUtil {
     @Throws(InterruptedException::class)
     fun <T> awaitValue(liveData: LiveData<T>): T {
         val latch = CountDownLatch(1)
-        val data = arrayOfNulls<Any>(1)
+        var data: T? = null
         val observer = object : Observer<T> {
             override fun onChanged(o: T?) {
-                data[0] = o
+                data = o
                 liveData.removeObserver(this)
                 latch.countDown()
             }
@@ -39,6 +39,6 @@ object LiveDataTestUtil {
             liveData.observeForever(observer)
         }
         latch.await(10, TimeUnit.SECONDS)
-        return data[0] as T
+        return data!!
     }
 }
