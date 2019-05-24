@@ -71,6 +71,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -160,6 +161,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     private VideoSize mVideoSize = new VideoSize(0, 0);
     @GuardedBy("mLock")
     private List<TrackInfo> mTrackInfos;
+    @GuardedBy("mLock")
+    private SparseArray<TrackInfo> mSelectedTracks = new SparseArray<>();
 
     // Assignment should be used with the lock hold, but should be used without a lock to prevent
     // potential deadlock.
@@ -809,6 +812,14 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 });
     }
 
+    @Nullable
+    @Override
+    public TrackInfo getSelectedTrack(int trackType) {
+        synchronized (mLock) {
+            return mSelectedTracks.get(trackType);
+        }
+    }
+
     @Override
     @NonNull
     public VideoSize getVideoSize() {
@@ -1133,9 +1144,16 @@ class MediaControllerImplBase implements MediaControllerImpl {
         });
     }
 
-    void notifyTrackInfoChanged(final int seq, final List<TrackInfo> trackInfos) {
+    void notifyTrackInfoChanged(final int seq, final List<TrackInfo> trackInfos,
+            TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
+            TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack) {
         synchronized (mLock) {
             mTrackInfos = trackInfos;
+            // Update selected tracks
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_VIDEO, selectedVideoTrack);
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_AUDIO, selectedAudioTrack);
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, selectedSubtitleTrack);
+            mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_METADATA, selectedMetadataTrack);
         }
 
         mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
@@ -1150,6 +1168,9 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void notifyTrackSelected(final int seq, final TrackInfo trackInfo) {
+        synchronized (mLock) {
+            mSelectedTracks.put(trackInfo.getTrackType(), trackInfo);
+        }
         mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
@@ -1162,6 +1183,9 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void notifyTrackDeselected(final int seq, final TrackInfo trackInfo) {
+        synchronized (mLock) {
+            mSelectedTracks.remove(trackInfo.getTrackType());
+        }
         mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
             public void run(@NonNull ControllerCallback callback) {
@@ -1204,7 +1228,11 @@ class MediaControllerImplBase implements MediaControllerImpl {
             final int nextMediaItemIndex,
             final Bundle tokenExtras,
             final VideoSize videoSize,
-            final List<TrackInfo> trackInfos) {
+            final List<TrackInfo> trackInfos,
+            final TrackInfo selectedVideoTrack,
+            final TrackInfo selectedAudioTrack,
+            final TrackInfo selectedSubtitleTrack,
+            final TrackInfo selectedMetadataTrack) {
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionBinder=" + sessionBinder
                     + ", allowedCommands=" + allowedCommands);
@@ -1245,6 +1273,10 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mNextMediaItemIndex = nextMediaItemIndex;
                 mVideoSize = videoSize;
                 mTrackInfos = trackInfos;
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_VIDEO, selectedVideoTrack);
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_AUDIO, selectedAudioTrack);
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, selectedSubtitleTrack);
+                mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_METADATA, selectedMetadataTrack);
                 try {
                     // Implementation for the local binder is no-op,
                     // so can be used without worrying about deadlock.

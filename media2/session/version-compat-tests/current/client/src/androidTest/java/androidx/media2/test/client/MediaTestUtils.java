@@ -122,8 +122,9 @@ public final class MediaTestUtils {
         MediaMetadata metadata = new MediaMetadata.Builder().putString(
                 MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId).build();
         MediaItem mediaItem = new MediaItem.Builder().setMetadata(metadata).build();
-        MediaFormat format = new MediaFormat();
+        MediaFormat format = null;
         if (trackType == SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            format = new MediaFormat();
             format.setString(MediaFormat.KEY_LANGUAGE, "eng");
             format.setString(MediaFormat.KEY_MIME, "text/cea-608");
         }

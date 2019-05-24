@@ -67,6 +67,7 @@ import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.BuffState;
 import androidx.media2.common.SessionPlayer.RepeatMode;
 import androidx.media2.common.SessionPlayer.ShuffleMode;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController.ControllerCallback;
 import androidx.media2.session.MediaController.ControllerCallbackRunnable;
@@ -807,15 +808,16 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
+    @Override
     @Nullable
-    public List<SessionPlayer.TrackInfo> getTrackInfo() {
+    public List<TrackInfo> getTrackInfo() {
         Log.w(TAG, "Session doesn't support getting TrackInfo");
         return null;
     }
 
     @Override
     @NonNull
-    public ListenableFuture<SessionResult> selectTrack(@NonNull SessionPlayer.TrackInfo trackInfo) {
+    public ListenableFuture<SessionResult> selectTrack(@NonNull TrackInfo trackInfo) {
         Log.w(TAG, "Session doesn't support selecting track");
         return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
@@ -823,9 +825,16 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @Override
     @NonNull
     public ListenableFuture<SessionResult> deselectTrack(
-            @NonNull SessionPlayer.TrackInfo trackInfo) {
+            @NonNull TrackInfo trackInfo) {
         Log.w(TAG, "Session doesn't support deselecting track");
         return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
+    }
+
+    @Override
+    @Nullable
+    public TrackInfo getSelectedTrack(int trackType) {
+        Log.w(TAG, "Session doesn't support getting selected track");
+        return null;
     }
 
     @Override

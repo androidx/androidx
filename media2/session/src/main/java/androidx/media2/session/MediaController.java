@@ -1169,6 +1169,30 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
+     * Gets the currently selected track for the given {@link TrackInfo.MediaTrackType}. The return
+     * value is an element in the list returned by {@link #getTrackInfo()} and supported track types
+     * may vary based on the player implementation.
+     *
+     * The returned value can be outdated after
+     * {@link ControllerCallback#onTrackInfoChanged(MediaController, List)},
+     * {@link ControllerCallback#onTrackSelected(MediaController, TrackInfo)},
+     * or {@link ControllerCallback#onTrackDeselected(MediaController, TrackInfo)} is called.
+     *
+     * If it is not connected yet, it returns null.
+     *
+     * @param trackType type of selected track
+     * @return selected track info
+     *
+     * @hide
+     */
+    // TODO: revise the method document once subtitle track support is re-enabled. (b/130312596)
+    @RestrictTo(LIBRARY_GROUP)
+    @Nullable
+    public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
+        return isConnected() ? getImpl().getSelectedTrack(trackType) : null;
+    }
+
+    /**
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset.
      *
@@ -1370,6 +1394,7 @@ public class MediaController implements AutoCloseable {
         @NonNull List<TrackInfo> getTrackInfo();
         ListenableFuture<SessionResult> selectTrack(TrackInfo trackInfo);
         ListenableFuture<SessionResult> deselectTrack(TrackInfo trackInfo);
+        @Nullable TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType);
         @Nullable SessionCommandGroup getAllowedCommands();
 
         // Internally used methods

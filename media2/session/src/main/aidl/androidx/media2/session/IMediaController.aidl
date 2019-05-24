@@ -59,7 +59,9 @@ oneway interface IMediaController {
     void onSessionResult(int seq, in ParcelImpl sessionResult) = 16;
     void onLibraryResult(int seq, in ParcelImpl libraryResult) = 17;
 
-    void onTrackInfoChanged(int seq, in List<ParcelImpl> trackInfos) = 21;
+    void onTrackInfoChanged(int seq, in List<ParcelImpl> trackInfos,
+            in ParcelImpl selectedVideoTrack, in ParcelImpl selectedAudioTrack,
+            in ParcelImpl selectedSubtitleTrack, in ParcelImpl selectedMetadataTrack) = 21;
     void onTrackSelected(int seq, in ParcelImpl trackInfo) = 22;
     void onTrackDeselected(int seq, in ParcelImpl trackInfo) = 23;
 
