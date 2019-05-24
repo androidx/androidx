@@ -244,13 +244,13 @@ fun TextDemoTextDecoration() {
         Text {
             Span(text = displayText, style = TextStyle(
                     fontSize = fontSize8,
-                    decoration = TextDecoration.lineThrough
+                    decoration = TextDecoration.LineThrough
                 )
             )
 
             Span(text = "$displayText\n", style = TextStyle(
                     fontSize = fontSize8,
-                    decoration = TextDecoration.underline
+                    decoration = TextDecoration.Underline
                 )
             )
 
@@ -258,8 +258,8 @@ fun TextDemoTextDecoration() {
                     fontSize = fontSize8,
                     decoration = TextDecoration.combine(
                         listOf(
-                            TextDecoration.underline,
-                            TextDecoration.lineThrough
+                            TextDecoration.Underline,
+                            TextDecoration.LineThrough
                         )
                     )
                 )

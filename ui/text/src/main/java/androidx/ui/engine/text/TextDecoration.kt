@@ -19,13 +19,13 @@ package androidx.ui.engine.text
 data class TextDecoration internal constructor(val mask: Int) {
 
     companion object {
-        val none: TextDecoration = TextDecoration(0x0)
+        val None: TextDecoration = TextDecoration(0x0)
 
         /** Draw a line underneath each line of text */
-        val underline: TextDecoration = TextDecoration(0x1)
+        val Underline: TextDecoration = TextDecoration(0x1)
 
         /** Draw a line through each line of text */
-        val lineThrough: TextDecoration = TextDecoration(0x2)
+        val LineThrough: TextDecoration = TextDecoration(0x2)
 
         /** Creates a decoration that paints the union of all the given decorations. */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
@@ -43,15 +43,15 @@ data class TextDecoration internal constructor(val mask: Int) {
 
     override fun toString(): String {
         if (mask == 0) {
-            return "TextDecoration.none"
+            return "TextDecoration.None"
         }
 
         var values: MutableList<String> = mutableListOf()
-        if (!((mask and TextDecoration.underline.mask) == 0)) {
-            values.add("underline")
+        if (!((mask and TextDecoration.Underline.mask) == 0)) {
+            values.add("Underline")
         }
-        if (!((mask and TextDecoration.lineThrough.mask) == 0)) {
-            values.add("lineThrough")
+        if (!((mask and TextDecoration.LineThrough.mask) == 0)) {
+            values.add("LineThrough")
         }
         if ((values.size == 1)) {
             return "TextDecoration.${values.get(0)}"
