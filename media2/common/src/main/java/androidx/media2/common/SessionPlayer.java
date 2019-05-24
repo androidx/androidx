@@ -1279,36 +1279,69 @@ public abstract class SessionPlayer implements AutoCloseable {
         }
 
         /**
-         * Called when the player's track info list is changed.
-         * @param player the player associated with this callback
-         * @param trackInfos the list of track info
+         * Called when the tracks are first retrieved after media is prepared or when new tracks are
+         * found during playback.
+         * <p>
+         * When it's called, you should invalidate previous track information and use the new
+         * tracks to call {@link #selectTrackInternal(SessionPlayer.TrackInfo)} or
+         * {@link #deselectTrackInternal(SessionPlayer.TrackInfo)}.
+         * <p>
+         * The types of tracks supported may vary based on player implementation.
          *
+         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
+         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+         *
+         * @param player the player associated with this callback
+         * @param trackInfos the list of track
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public void onTrackInfoChanged(SessionPlayer player, List<TrackInfo> trackInfos) {
+        public void onTrackInfoChanged(@NonNull SessionPlayer player,
+                @NonNull List<TrackInfo> trackInfos) {
         }
 
         /**
-         * Called when a track has been selected.
-         * @param player the player associated with this callback
-         * @param trackInfo the selected track info
+         * Called when a track is selected.
+         * <p>
+         * The types of tracks supported may vary based on player implementation, but generally
+         * one track will be selected for each track type.
          *
+         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
+         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+         *
+         * @param player the player associated with this callback
+         * @param trackInfo the selected track
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public void onTrackSelected(SessionPlayer player, TrackInfo trackInfo) {
+        public void onTrackSelected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
         }
 
         /**
-         * Called when a track has been selected.
-         * @param player the player associated with this callback
-         * @param trackInfo the deselected track info
+         * Called when a track is deselected.
+         * <p>
+         * The types of tracks supported may vary based on player implementation, but generally
+         * a track should already be selected in order to be deselected and audio and video tracks
+         * should not be deselected.
          *
+         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
+         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
+         *
+         * @param player the player associated with this callback
+         * @param trackInfo the deselected track
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public void onTrackDeselected(SessionPlayer player, TrackInfo trackInfo) {
+        public void onTrackDeselected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
         }
     }
 

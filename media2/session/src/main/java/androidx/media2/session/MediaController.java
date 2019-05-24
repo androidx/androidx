@@ -52,6 +52,7 @@ import androidx.media2.common.Rating;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.RepeatMode;
 import androidx.media2.common.SessionPlayer.ShuffleMode;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaSession.CommandButton;
@@ -1118,41 +1119,52 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Gets the list of track information.
+     * Gets the cached track info list from the
+     * {@link ControllerCallback#onTrackInfoChanged(MediaController, List)}.
+     * The types of tracks supported may vary based on player implementation.
+     * If it is not connected yet, it returns null.
      *
-     * @return List of track info. The total number of tracks is the size of the list.
+     * @return List of tracks. The total number of tracks is the size of the list.
      *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
-    public List<SessionPlayer.TrackInfo> getTrackInfo() {
+    public List<TrackInfo> getTrackInfo() {
         return isConnected() ? getImpl().getTrackInfo() : null;
     }
 
     /**
-     * Select track info.
+     * Selects the {@link TrackInfo} for the current media item.
+     * The types of tracks supported may vary based on player implementation.
      *
-     * @param trackInfo Track info to be selected.
+     * @param trackInfo track to be selected.
      *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public ListenableFuture<SessionResult> selectTrack(SessionPlayer.TrackInfo trackInfo) {
+    public ListenableFuture<SessionResult> selectTrack(@NonNull TrackInfo trackInfo) {
+        if (trackInfo == null) {
+            throw new NullPointerException("TrackInfo shouldn't be null");
+        }
         return isConnected() ? getImpl().selectTrack(trackInfo) : createDisconnectedFuture();
     }
 
     /**
-     * Deselect track info.
+     * Deselects the {@link TrackInfo} for the current media item.
+     * The types of tracks supported may vary based on player implementation.
      *
-     * @param trackInfo Track info to be deselected.
+     * @param trackInfo track to be deselected.
      *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public ListenableFuture<SessionResult> deselectTrack(SessionPlayer.TrackInfo trackInfo) {
+    public ListenableFuture<SessionResult> deselectTrack(@NonNull TrackInfo trackInfo) {
+        if (trackInfo == null) {
+            throw new NullPointerException("TrackInfo shouldn't be null");
+        }
         return isConnected() ? getImpl().deselectTrack(trackInfo) : createDisconnectedFuture();
     }
 
@@ -1355,9 +1367,9 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> setShuffleMode(@ShuffleMode int shuffleMode);
         @NonNull VideoSize getVideoSize();
         ListenableFuture<SessionResult> setSurface(@Nullable Surface surface);
-        @NonNull List<SessionPlayer.TrackInfo> getTrackInfo();
-        ListenableFuture<SessionResult> selectTrack(SessionPlayer.TrackInfo trackInfo);
-        ListenableFuture<SessionResult> deselectTrack(SessionPlayer.TrackInfo trackInfo);
+        @NonNull List<TrackInfo> getTrackInfo();
+        ListenableFuture<SessionResult> selectTrack(TrackInfo trackInfo);
+        ListenableFuture<SessionResult> deselectTrack(TrackInfo trackInfo);
         @Nullable SessionCommandGroup getAllowedCommands();
 
         // Internally used methods
@@ -1795,37 +1807,69 @@ public class MediaController implements AutoCloseable {
                 @NonNull VideoSize videoSize) {}
 
         /**
-         * Called when the track info list is changed.
+         * Called when the tracks are first retrieved after media is prepared or when new tracks are
+         * found during playback.
+         * <p>
+         * When it's called, you should invalidate previous track information and use the new
+         * tracks to call {@link #selectTrack(TrackInfo)} or
+         * {@link #deselectTrack(TrackInfo)}.
+         * <p>
+         * The types of tracks supported may vary based on player implementation.
+         *
+         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
+         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
          * @param controller the controller for this event
          * @param trackInfos the list of track infos
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public void onTrackInfoChanged(MediaController controller,
-                List<SessionPlayer.TrackInfo> trackInfos) {}
+        public void onTrackInfoChanged(@NonNull MediaController controller,
+                @NonNull List<TrackInfo> trackInfos) {}
 
         /**
-         * Called when a track info is selected.
+         * Called when a track is selected.
+         * <p>
+         * The types of tracks supported may vary based on player implementation, but generally
+         * one track will be selected for each track type.
+         *
+         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
+         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
          * @param controller the controller for this event
-         * @param trackInfo the selected track info
+         * @param trackInfo the selected track
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public void onTrackSelected(MediaController controller,
-                SessionPlayer.TrackInfo trackInfo) {}
+        public void onTrackSelected(@NonNull MediaController controller,
+                @NonNull TrackInfo trackInfo) {}
 
         /**
-         * Called when a track info is deselected.
+         * Called when a track is deselected.
+         * <p>
+         * The types of tracks supported may vary based on player implementation, but generally
+         * a track should already be selected in order to be deselected and audio and video tracks
+         * should not be deselected.
+         *
+         * @see TrackInfo#MEDIA_TRACK_TYPE_VIDEO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_AUDIO
+         * @see TrackInfo#MEDIA_TRACK_TYPE_TIMEDTEXT
+         * @see TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE
+         * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
          * @param controller the controller for this event
-         * @param trackInfo the deselected track info
+         * @param trackInfo the deselected track
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public void onTrackDeselected(MediaController controller,
-                SessionPlayer.TrackInfo trackInfo) {}
+        public void onTrackDeselected(@NonNull MediaController controller,
+                @NonNull TrackInfo trackInfo) {}
 
         /**
          * Called when the subtitle track has new subtitle data available.
@@ -1838,7 +1882,7 @@ public class MediaController implements AutoCloseable {
          */
         @RestrictTo(LIBRARY_GROUP)
         public void onSubtitleData(@NonNull MediaController controller, @NonNull MediaItem item,
-                @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {}
+                @NonNull TrackInfo track, @NonNull SubtitleData data) {}
     }
 
     /**
