@@ -16,6 +16,7 @@
 package androidx.ui.core.test
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Handler
 import android.view.PixelCopy
 import android.view.View
@@ -46,6 +47,7 @@ import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
 import androidx.compose.setContent
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -81,6 +83,7 @@ class AndroidLayoutDrawTest {
     }
 
     // Tests that simple drawing works with layered squares
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun simpleDrawTest() {
         val yellow = Color(0xFFFFFF00.toInt())
@@ -92,6 +95,7 @@ class AndroidLayoutDrawTest {
     }
 
     // Tests that simple drawing works with draw with nested children
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun nestedDrawTest() {
         val yellow = Color(0xFFFFFF00.toInt())
@@ -103,6 +107,7 @@ class AndroidLayoutDrawTest {
     }
 
     // Tests that recomposition works with models used within Draw components
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeDrawTest() {
         val white = Color(0xFFFFFFFF.toInt())
@@ -123,6 +128,7 @@ class AndroidLayoutDrawTest {
     }
 
     // Tests that recomposition works with models used within Layout components
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun recomposeSizeTest() {
         val white = Color(0xFFFFFFFF.toInt())
@@ -137,6 +143,7 @@ class AndroidLayoutDrawTest {
     }
 
     // The size and color are both changed in a simpler single-color square.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun simpleSquareColorAndSizeTest() {
         val green = Color(0xFF00FF00.toInt())
@@ -176,6 +183,7 @@ class AndroidLayoutDrawTest {
     }
 
     // Components that aren't placed shouldn't be drawn.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun noPlaceNoDraw() {
         val green = Color(0xFF00FF00.toInt())
@@ -216,6 +224,7 @@ class AndroidLayoutDrawTest {
     }
 
     // Make sure that draws intersperse properly with sub-layouts
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun drawOrderWithChildren() {
         val green = Color(0xFF00FF00.toInt())
@@ -384,6 +393,7 @@ class AndroidLayoutDrawTest {
 
     // When a child's measure() is done within the layout, it should not affect the parent's
     // size. The parent's layout shouldn't be called when the child's size changes
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun measureInLayoutDoesNotAffectParentSize() {
         val white = Color(0xFFFFFFFF.toInt())

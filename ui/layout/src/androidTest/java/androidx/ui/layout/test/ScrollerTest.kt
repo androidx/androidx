@@ -16,6 +16,7 @@
 package androidx.ui.layout.test
 
 import android.graphics.Bitmap
+import android.os.Build
 import android.view.PixelCopy
 import androidx.test.filters.SmallTest
 import androidx.ui.core.CraneWrapper
@@ -41,7 +42,7 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.compose.composer
 import androidx.compose.setContent
-import org.junit.Assert
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -73,6 +74,7 @@ class ScrollerTest : LayoutTest() {
         drawLatch = CountDownLatch(1)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verticalScroller_SmallContent() {
         composeScroller()
@@ -80,6 +82,7 @@ class ScrollerTest : LayoutTest() {
         validateScroller(0, 40)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verticalScroller_LargeContent_NoScroll() {
         composeScroller(height = 30.ipx)
@@ -87,6 +90,7 @@ class ScrollerTest : LayoutTest() {
         validateScroller(0, 30)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verticalScroller_LargeContent_ScrollToEnd() {
         val scrollerPosition = ScrollerPosition()
