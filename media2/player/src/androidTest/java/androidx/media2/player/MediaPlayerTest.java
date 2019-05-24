@@ -83,10 +83,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private Object mPlayerCbArg1;
     private Object mPlayerCbArg2;
 
-    private final Vector<Integer> mSubtitleTrackIndex = new Vector<>();
+    private final Vector<Integer> mVideoTrackIndices = new Vector<>();
+    private final Vector<Integer> mAudioTrackIndices = new Vector<>();
+    private final Vector<Integer> mSubtitleTrackIndices = new Vector<>();
     private int mSelectedSubtitleIndex;
     private final Monitor mOnSubtitleDataCalled = new Monitor();
     private final Monitor mOnInfoCalled = new Monitor();
+    private final Monitor mOnTrackInfoChangedCalled = new Monitor();
     private final Monitor mOnMediaTimeDiscontinuityCalled = new Monitor();
     private final Monitor mOnErrorCalled = new Monitor();
 
@@ -553,27 +556,40 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.reset();
     }
 
-    private void readSubtitleTracks() throws Exception {
-        mSubtitleTrackIndex.clear();
+    private void readTracks() {
+        mVideoTrackIndices.clear();
+        mAudioTrackIndices.clear();
+        mSubtitleTrackIndices.clear();
         List<MediaPlayer.TrackInfo> trackInfos = mPlayer.getTrackInfo();
         if (trackInfos == null || trackInfos.size() == 0) {
             return;
         }
 
-        Vector<Integer> subtitleTrackIndex = new Vector<>();
+        Vector<Integer> videoTrackIndices = new Vector<>();
+        Vector<Integer> audioTrackIndices = new Vector<>();
+        Vector<Integer> subtitleTrackIndices = new Vector<>();
         for (int i = 0; i < trackInfos.size(); ++i) {
-            assertTrue(trackInfos.get(i) != null);
-            if (trackInfos.get(i).getTrackType()
-                    == MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
-                subtitleTrackIndex.add(i);
+            assertNotNull(trackInfos.get(i));
+            switch (trackInfos.get(i).getTrackType()) {
+                case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO:
+                    mVideoTrackIndices.add(i);
+                    break;
+                case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO:
+                    mAudioTrackIndices.add(i);
+                    break;
+                case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE:
+                    mSubtitleTrackIndices.add(i);
+                    break;
             }
         }
 
-        mSubtitleTrackIndex.addAll(subtitleTrackIndex);
+        mVideoTrackIndices.addAll(videoTrackIndices);
+        mAudioTrackIndices.addAll(audioTrackIndices);
+        mSubtitleTrackIndices.addAll(subtitleTrackIndices);
     }
 
     private void selectSubtitleTrack(int index) throws Exception {
-        int trackIndex = mSubtitleTrackIndex.get(index);
+        int trackIndex = mSubtitleTrackIndices.get(index);
         List<TrackInfo> tracks = mPlayer.getTrackInfo();
         ListenableFuture<PlayerResult> future = mPlayer.selectTrack(tracks.get(trackIndex));
         assertEquals(RESULT_SUCCESS, future.get().getResultCode());
@@ -581,7 +597,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     }
 
     private int deselectSubtitleTrack(int index) throws Exception {
-        int trackIndex = mSubtitleTrackIndex.get(index);
+        int trackIndex = mSubtitleTrackIndices.get(index);
         List<TrackInfo> tracks = mPlayer.getTrackInfo();
         ListenableFuture<PlayerResult> future = mPlayer.deselectTrack(tracks.get(trackIndex));
         if (mSelectedSubtitleIndex == index) {
@@ -601,9 +617,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mInstrumentation.waitForIdleSync();
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            // TODO: Change this to onTrackInfoChanged callback
             @Override
             public void onInfo(MediaPlayer mp, MediaItem dsd, int what, int extra) {
-                if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
+                if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
                     mOnInfoCalled.signal();
                 }
             }
@@ -629,7 +646,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mOnInfoCalled.reset();
         mOnInfoCalled.waitForSignal(1500);
 
-        readSubtitleTracks();
+        readTracks();
 
         // Run twice to check if repeated selection-deselection on the same track works well.
         for (int i = 0; i < 2; i++) {
@@ -658,9 +675,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         }
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            // TODO: Change this to onTrackInfoChanged callback
             @Override
             public void onInfo(MediaPlayer mp, MediaItem dsd, int what, int extra) {
-                if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
+                if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
                     mOnInfoCalled.signal();
                 }
             }
@@ -686,7 +704,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mOnInfoCalled.reset();
         mOnInfoCalled.waitForSignal(1500);
 
-        readSubtitleTracks();
+        readTracks();
 
         // Waits until at least two captions are fired. Timeout is 2.5 sec.
         selectSubtitleTrack(0);
@@ -708,9 +726,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         }
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            // TODO: Change this to onTrackInfoChanged callback
             @Override
             public void onInfo(MediaPlayer mp, MediaItem dsd, int what, int extra) {
-                if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
+                if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
                     mOnInfoCalled.signal();
                 }
             }
@@ -729,8 +748,40 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mOnInfoCalled.reset();
         mOnInfoCalled.waitForSignal(1500);
 
-        readSubtitleTracks();
-        assertEquals(2, mSubtitleTrackIndex.size());
+        readTracks();
+        assertEquals(2, mSubtitleTrackIndices.size());
+
+        mPlayer.reset();
+    }
+
+    @Test
+    @LargeTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testGetTrackInfoForVideoWithoutSubtitleTracks() throws Throwable {
+        if (!loadResource(R.raw.testvideo)) {
+            fail();
+        }
+
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onTrackInfoChanged(SessionPlayer player,
+                    List<SessionPlayer.TrackInfo> trackInfos) {
+                mOnTrackInfoChangedCalled.signal();
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+        mPlayer.prepare();
+
+        mOnTrackInfoChangedCalled.waitForSignal(1500);
+
+        readTracks();
+
+        // R.raw.testvideo contains the following tracks:
+        //  MEDIA_TRACK_TYPE_VIDEO: 1
+        //  MEDIA_TRACK_TYPE_AUDIO: 1
+        assertEquals(1, mVideoTrackIndices.size());
+        assertEquals(1, mAudioTrackIndices.size());
+        assertEquals(0, mSubtitleTrackIndices.size());
 
         mPlayer.reset();
     }
