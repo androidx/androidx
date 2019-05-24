@@ -23,9 +23,9 @@ import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.testing.test.R.id.view_tag_id
 import androidx.fragment.testing.test.R.style.ThemedFragmentTheme
-import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.State
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -198,7 +198,7 @@ class FragmentScenarioTest {
                         fragment.requireView().setTag(view_tag_id, "fakeNavController")
                     }
                 }
-                fragment.lifecycle.addObserver(GenericLifecycleObserver { _, event ->
+                fragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_START) {
                         tagSetBeforeOnStart =
                             fragment.requireView().getTag(view_tag_id) == "fakeNavController"
