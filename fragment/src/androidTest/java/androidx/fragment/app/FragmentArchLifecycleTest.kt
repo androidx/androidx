@@ -19,6 +19,7 @@ package androidx.fragment.app
 import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.test.annotation.UiThreadTest
@@ -57,5 +58,75 @@ class FragmentArchLifecycleTest {
         assertThat(first.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
         assertThat(second.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
         assertThat(activity.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+    }
+
+    @Test
+    @UiThreadTest
+    fun testNestedFragmentLifecycle() {
+        val activity = activityRule.activity
+        val fm = activity.supportFragmentManager
+
+        val parent = NestedLifecycleFragmentParent()
+        fm.beginTransaction()
+            .add(parent, "parent")
+            .commitNow()
+
+        assertThat(parent.collectedEvents)
+            .containsExactly(
+                // TODO b/127528777 Properly nest ON_CREATE callbacks
+                "child" to Lifecycle.Event.ON_CREATE,
+                "parent" to Lifecycle.Event.ON_CREATE,
+
+                "parent" to Lifecycle.Event.ON_START,
+                "child" to Lifecycle.Event.ON_START,
+
+                "parent" to Lifecycle.Event.ON_RESUME,
+                "child" to Lifecycle.Event.ON_RESUME)
+            .inOrder()
+
+        // Now test the downward events
+        parent.collectedEvents.clear()
+
+        fm.beginTransaction()
+            .remove(parent)
+            .commitNow()
+
+        assertThat(parent.collectedEvents)
+            .containsExactly(
+                "child" to Lifecycle.Event.ON_PAUSE,
+                "parent" to Lifecycle.Event.ON_PAUSE,
+
+                "child" to Lifecycle.Event.ON_STOP,
+                "parent" to Lifecycle.Event.ON_STOP,
+
+                "child" to Lifecycle.Event.ON_DESTROY,
+                "parent" to Lifecycle.Event.ON_DESTROY)
+            .inOrder()
+    }
+}
+
+class NestedLifecycleFragmentParent : StrictFragment() {
+    val collectedEvents = mutableListOf<Pair<String, Lifecycle.Event>>()
+
+    init {
+        lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            collectedEvents.add("parent" to event)
+        })
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            childFragmentManager.beginTransaction()
+                .add(StrictFragment(), "child")
+                .commitNow()
+        }
+    }
+
+    override fun onAttachFragment(childFragment: Fragment) {
+        super.onAttachFragment(childFragment)
+        childFragment.lifecycle.addObserver(LifecycleEventObserver { _, event ->
+            collectedEvents.add("child" to event)
+        })
     }
 }
