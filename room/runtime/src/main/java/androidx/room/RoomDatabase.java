@@ -33,6 +33,7 @@ import androidx.annotation.WorkerThread;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.app.ActivityManagerCompat;
+import androidx.room.DatabaseConfiguration.CopyFrom;
 import androidx.room.migration.Migration;
 import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SimpleSQLiteQuery;
@@ -532,6 +533,9 @@ public abstract class RoomDatabase {
          */
         private Set<Integer> mMigrationStartAndEndVersions;
 
+        private @CopyFrom int mCopyFrom = DatabaseConfiguration.COPY_FROM_NONE;
+        private String mCopyFromPath;
+
         Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
             mContext = context;
             mDatabaseClass = klass;
@@ -539,6 +543,58 @@ public abstract class RoomDatabase {
             mJournalMode = JournalMode.AUTOMATIC;
             mRequireMigration = true;
             mMigrationContainer = new MigrationContainer();
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database located in
+         * the application 'assets/' folder.
+         * <p>
+         * Room does not open the pre-packaged database, instead it copies it into the internal
+         * app database folder and then opens it. The pre-packaged database file must be located in
+         * the "assets/" folder of your application. For example, the path for a file located in
+         * "assets/databases/products.db" would be "databases/products.db".
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * This method has no effect if this {@link Builder} is for an in memory database.
+         *
+         * @param databaseFilePath The file path within the 'assets/' directory of where the
+         *                         database file is located.
+         *
+         * @return this
+         */
+        @NonNull
+        public Builder<T> createFromAsset(@NonNull String databaseFilePath) {
+            mCopyFrom = DatabaseConfiguration.COPY_FROM_ASSET;
+            mCopyFromPath = databaseFilePath;
+            return this;
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database from the
+         * given file path.
+         * <p>
+         * Room does not open the pre-packaged database, instead it copies it into the internal
+         * app database folder and then opens it. The given path must be accessible and the right
+         * permissions must be granted for Room to copy the file.
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * This method has no effect if this {@link Builder} is for an in memory database.
+         *
+         * @param databaseFilePath The file path of where the database file is located.
+         *
+         * @return this
+         */
+        @NonNull
+        public Builder<T> createFromFile(@NonNull String databaseFilePath) {
+            mCopyFrom = DatabaseConfiguration.COPY_FROM_FILE;
+            mCopyFromPath = databaseFilePath;
+            return this;
         }
 
         /**
@@ -833,6 +889,9 @@ public abstract class RoomDatabase {
             if (mFactory == null) {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
+            if (mName != null && mCopyFrom != DatabaseConfiguration.COPY_FROM_NONE) {
+                mFactory = new SQLiteCopyOpenHelperFactory(mCopyFrom, mCopyFromPath, mFactory);
+            }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(
                             mContext,
@@ -847,7 +906,9 @@ public abstract class RoomDatabase {
                             mMultiInstanceInvalidation,
                             mRequireMigration,
                             mAllowDestructiveMigrationOnDowngrade,
-                            mMigrationsNotRequiredFrom);
+                            mMigrationsNotRequiredFrom,
+                            mCopyFrom,
+                            mCopyFromPath);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
