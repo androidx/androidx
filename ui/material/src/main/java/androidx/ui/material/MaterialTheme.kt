@@ -37,6 +37,7 @@ import androidx.compose.Effect
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.effectOf
+import androidx.compose.memo
 import androidx.compose.unaryPlus
 
 /**
@@ -223,17 +224,20 @@ data class MaterialTypography(
 @Composable
 fun MaterialRippleTheme(@Children children: @Composable() () -> Unit) {
     val materialColors = +ambient(Colors)
-    val defaultTheme = RippleTheme(
-        factory = DefaultRippleEffectFactory,
-        colorCallback = { background ->
-            if (background == null || background.alpha == 0f ||
-                background.luminance() >= 0.5) { // light bg
-                materialColors.primary.copy(alpha = 0.12f)
-            } else { // dark bg
-                Color(0xFFFFFFFF.toInt()).copy(alpha = 0.24f)
+    val defaultTheme = +memo {
+        RippleTheme(
+            factory = DefaultRippleEffectFactory,
+            colorCallback = { background ->
+                if (background == null || background.alpha == 0f ||
+                    background.luminance() >= 0.5
+                ) { // light bg
+                    materialColors.primary.copy(alpha = 0.12f)
+                } else { // dark bg
+                    Color(0xFFFFFFFF.toInt()).copy(alpha = 0.24f)
+                }
             }
-        }
-    )
+        )
+    }
     CurrentRippleTheme.Provider(value = defaultTheme, children = children)
 }
 
