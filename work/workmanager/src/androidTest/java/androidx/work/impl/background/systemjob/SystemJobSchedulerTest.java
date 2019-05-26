@@ -24,8 +24,10 @@ import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXT
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -40,6 +42,7 @@ import android.os.PersistableBundle;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
@@ -191,6 +194,23 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
         mSystemJobScheduler.schedule(workSpec);
         verify(mSystemJobScheduler, never()).scheduleInternal(eq(workSpec), anyInt());
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 23)
+    public void testSystemJobScheduler_avoidCrash() {
+        doCallRealMethod().when(mSystemJobScheduler)
+                .scheduleInternal(any(WorkSpec.class), anyInt());
+
+        doThrow(new RuntimeException("Crash")).when(mJobScheduler).getAllPendingJobs();
+
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        WorkSpec workSpec = getWorkSpec(work);
+        addToWorkSpecDao(workSpec);
+        mSystemJobScheduler.schedule(workSpec);
+        // JobScheduler#schedule() should be called once at the very least.
+        verify(mJobScheduler, times(1)).schedule(any(JobInfo.class));
     }
 
     private void addToWorkSpecDao(WorkSpec workSpec) {
