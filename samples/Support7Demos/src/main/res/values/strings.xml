@@ -232,6 +232,7 @@
     <string name="mode_night_activity_title_local">AppCompat/DayNight/Activity Usage (local)</string>
     <string name="mode_night_activity_title_default">AppCompat/DayNight/Activity Usage (default)</string>
     <string name="mode_night_activity_title_bootaware">AppCompat/DayNight/Activity Usage (boot aware)</string>
+    <string name="mode_night_activity_title_bounce">AppCompat/DayNight/Activity Usage (bounce to default)</string>
     <string name="mode_night_dialog_title">AppCompat/DayNight/Dialog Usage</string>
     <string name="mode_night_alertdialog_title">AppCompat/DayNight/AlertDialog Usage</string>
 
@@ -278,4 +279,5 @@
     <string name="popup_group_dividers">Display group dividers</string>
 
     <string name="webview">WebView</string>
+    <string name="launch_activity">Launch Activity</string>
 </resources>
