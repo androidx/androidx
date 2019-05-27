@@ -90,6 +90,22 @@ public final class FakeImageProxy implements ImageProxy {
         return mImage;
     }
 
+    public void setFormat(int format) {
+        mFormat = format;
+    }
+
+    public void setHeight(int height) {
+        mHeight = height;
+    }
+
+    public void setWidth(int width) {
+        mWidth = width;
+    }
+
+    public void setPlanes(PlaneProxy[] planeProxy) {
+        mPlaneProxy = planeProxy;
+    }
+
     public void setImageInfo(ImageInfo imageInfo) {
         mImageInfo = imageInfo;
     }
