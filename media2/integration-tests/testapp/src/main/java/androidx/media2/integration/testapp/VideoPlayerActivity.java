@@ -21,7 +21,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -37,6 +41,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.SessionToken;
@@ -130,6 +135,8 @@ public class VideoPlayerActivity extends FragmentActivity {
         } else {
             UriMediaItem mediaItem = new UriMediaItem.Builder(videoUri).build();
             mVideoView.setMediaItem(mediaItem);
+            MetadataExtractTask task = new MetadataExtractTask(mediaItem, this);
+            task.execute();
 
             mMediaControlView = new MediaControlView(this);
             mVideoView.setMediaControlView(mMediaControlView, 2000);
@@ -354,4 +361,59 @@ public class VideoPlayerActivity extends FragmentActivity {
         return "Unknown";
     }
 
+    private class MetadataExtractTask extends AsyncTask<Void, Void, MediaMetadata> {
+        private UriMediaItem mItem;
+        private Context mContext;
+
+        MetadataExtractTask(UriMediaItem mediaItem, Context context) {
+            mItem = mediaItem;
+            mContext = context;
+        }
+
+        @Override
+        protected MediaMetadata doInBackground(Void... params) {
+            return extractMetadata(mItem.getUri());
+        }
+
+        @Override
+        protected void onPostExecute(MediaMetadata metadata) {
+            if (metadata != null) {
+                mItem.setMetadata(metadata);
+            }
+        }
+
+        private MediaMetadata extractMetadata(Uri uri) {
+            MediaMetadataRetriever retriever = null;
+            try {
+                // TODO: Investigate using different API to cover for both content and remote Uris.
+                retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(mContext, uri);
+            } catch (IllegalArgumentException e) {
+                Log.v(TAG, "Cannot retrieve metadata for this media file.");
+                retriever = null;
+            }
+
+            if (retriever != null) {
+                MediaMetadata.Builder builder = new MediaMetadata.Builder();
+                String title = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+                if (title != null) {
+                    builder.putString(MediaMetadata.METADATA_KEY_TITLE, title);
+                }
+                String artist = retriever.extractMetadata(
+                        MediaMetadataRetriever.METADATA_KEY_ARTIST);
+                if (artist != null) {
+                    builder.putString(MediaMetadata.METADATA_KEY_ARTIST, artist);
+                }
+                byte[] album = retriever.getEmbeddedPicture();
+                if (album != null) {
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(album, 0, album.length);
+                    builder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
+                }
+
+                MediaMetadata metadata = builder.build();
+                return metadata;
+            }
+            return null;
+        }
+    }
 }
