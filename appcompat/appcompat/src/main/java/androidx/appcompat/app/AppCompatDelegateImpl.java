@@ -129,8 +129,7 @@ import java.util.List;
 class AppCompatDelegateImpl extends AppCompatDelegate
         implements MenuBuilder.Callback, LayoutInflater.Factory2 {
 
-    private static final SimpleArrayMap<Class<?>, Integer> sLocalNightModes =
-            new SimpleArrayMap<>();
+    private static final SimpleArrayMap<String, Integer> sLocalNightModes = new SimpleArrayMap<>();
 
     private static final boolean DEBUG = false;
     private static final boolean IS_PRE_LOLLIPOP = Build.VERSION.SDK_INT < 21;
@@ -139,13 +138,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     /**
      * AppCompat selectively uses an override configuration for DayNight functionality.
-     * Unfortunately the framework has a few issues around Resources instances on SDKs 21-25,
+     * Unfortunately the framework has a few issues around Resources instances,
      * resulting in the root Resources instance (i.e. Application) being modified when it
      * shouldn't be. We can work around it by always calling using an override configuration
      * where available, to force a local resources instance being used.
      */
-    private static final boolean sAlwaysOverrideConfiguration = Build.VERSION.SDK_INT >= 21
-            && Build.VERSION.SDK_INT <= 25;
+    private static final boolean sAlwaysOverrideConfiguration = true;
 
     private static boolean sInstalledExceptionHandler;
 
@@ -312,11 +310,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
         if (mLocalNightMode == MODE_NIGHT_UNSPECIFIED) {
             // Try and read the current night mode from our static store
-            final Integer value = sLocalNightModes.get(mHost.getClass());
+            final Integer value = sLocalNightModes.get(mHost.getClass().getName());
             if (value != null) {
                 mLocalNightMode = value;
                 // Finally remove the value
-                sLocalNightModes.remove(mHost.getClass());
+                sLocalNightModes.remove(mHost.getClass().getName());
             }
         }
 
@@ -366,6 +364,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             final int newNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
             if (sAlwaysOverrideConfiguration || currentNightMode != newNightMode) {
+                if (DEBUG) {
+                    Log.d(TAG, String.format("Applying night mode using "
+                            + "createConfigurationContext(). Config: %s", config.toString()));
+                }
                 // If the target night mode is different to the new night mode, return a
                 // configuration context with the new config.
                 return super.attachBaseContext2(baseContext.createConfigurationContext(config));
@@ -563,12 +565,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (ab != null) {
             ab.setShowHideAnimationEnabled(false);
         }
-
-        if (mHost instanceof Dialog) {
-            // If the host is a Dialog, we should clean up the Auto managers now. This is
-            // because Dialogs do not have an onDestroy()
-            cleanupAutoManagers();
-        }
     }
 
     @Override
@@ -616,10 +612,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (mLocalNightMode != MODE_NIGHT_UNSPECIFIED) {
-            // If we have a local night mode set, save it
-            sLocalNightModes.put(mHost.getClass(), mLocalNightMode);
-        }
     }
 
     @Override
@@ -633,6 +625,15 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         mStarted = false;
         mIsDestroyed = true;
+
+        if (mLocalNightMode != MODE_NIGHT_UNSPECIFIED
+                && mHost instanceof Activity
+                && ((Activity) mHost).isChangingConfigurations()) {
+            // If we have a local night mode set, save it
+            sLocalNightModes.put(mHost.getClass().getName(), mLocalNightMode);
+        } else {
+            sLocalNightModes.remove(mHost.getClass().getName());
+        }
 
         if (mActionBar != null) {
             mActionBar.onDestroy();

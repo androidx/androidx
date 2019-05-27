@@ -16,8 +16,6 @@
 
 package androidx.appcompat.testutils
 
-import org.junit.Assert.assertEquals
-
 import android.app.UiModeManager
 import android.content.Context
 import android.content.pm.ActivityInfo
@@ -30,6 +28,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.LifecycleOwnerUtils
+import org.junit.Assert.assertEquals
 
 object NightModeUtils {
     private const val LOG_TAG = "NightModeUtils"
@@ -95,9 +94,13 @@ object NightModeUtils {
         activityRule: ActivityTestRule<T>,
         @NightMode nightMode: Int,
         setMode: NightSetMode
-    ) {
-        val activity = activityRule.activity
+    ): T = setNightModeAndWaitForRecreate(activityRule.activity, nightMode, setMode)
 
+    fun <T : AppCompatActivity> setNightModeAndWaitForRecreate(
+        activity: T,
+        @NightMode nightMode: Int,
+        setMode: NightSetMode
+    ): T {
         Log.d(
             LOG_TAG, "setNightModeAndWaitForRecreate on Activity: " + activity +
                     " to mode: " + nightMode +
@@ -105,23 +108,20 @@ object NightModeUtils {
         )
 
         // Wait for the Activity to be resumed and visible
-        LifecycleOwnerUtils.waitUntilState(activity, activityRule, Lifecycle.State.RESUMED)
+        LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)
 
         // Now perform night mode change wait for the Activity to be recreated
-        LifecycleOwnerUtils.waitForRecreation(activity, activityRule) {
+        return LifecycleOwnerUtils.waitForRecreation(activity) {
             setNightMode(nightMode, activity, setMode)
         }
     }
 
-    fun <T : AppCompatActivity> rotateAndWaitForRecreate(
-        activityRule: ActivityTestRule<T>
-    ) {
+    fun <T : AppCompatActivity> rotateAndWaitForRecreate(activity: T): T {
         Log.e(LOG_TAG, "request rotate")
-        val activity = activityRule.activity
-        LifecycleOwnerUtils.waitUntilState(activity, activityRule, Lifecycle.State.RESUMED)
+        LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)
 
         // Now perform rotation and wait for the Activity to be recreated
-        LifecycleOwnerUtils.waitForRecreation(activity, activityRule) {
+        return LifecycleOwnerUtils.waitForRecreation(activity) {
             Log.e(LOG_TAG, "request rotate on ui thread")
             if (activity.resources.configuration.orientation ==
                 Configuration.ORIENTATION_LANDSCAPE) {
@@ -133,13 +133,10 @@ object NightModeUtils {
         }
     }
 
-    fun <T : AppCompatActivity> resetRotateAndWaitForRecreate(
-        activityRule: ActivityTestRule<T>
-    ) {
-        val activity = activityRule.activity
-        LifecycleOwnerUtils.waitUntilState(activity, activityRule, Lifecycle.State.RESUMED)
+    fun <T : AppCompatActivity> resetRotateAndWaitForRecreate(activity: T) {
+        LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)
 
-        LifecycleOwnerUtils.waitForRecreation(activity, activityRule) {
+        LifecycleOwnerUtils.waitForRecreation(activity) {
             activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         }
     }
@@ -153,11 +150,8 @@ object NightModeUtils {
         @NightMode nightMode: Int,
         activity: AppCompatActivity?,
         setMode: NightSetMode
-    ) {
-        if (setMode == NightSetMode.DEFAULT) {
-            AppCompatDelegate.setDefaultNightMode(nightMode)
-        } else {
-            activity!!.delegate.localNightMode = nightMode
-        }
+    ) = when (setMode) {
+        NightSetMode.DEFAULT -> AppCompatDelegate.setDefaultNightMode(nightMode)
+        NightSetMode.LOCAL -> activity!!.delegate.localNightMode = nightMode
     }
 }

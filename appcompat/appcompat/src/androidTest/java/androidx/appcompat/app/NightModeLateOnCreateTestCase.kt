@@ -17,15 +17,14 @@
 package androidx.appcompat.app
 
 import android.content.res.Configuration
+import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import androidx.testutils.LifecycleOwnerUtils
-import org.junit.Before
+import androidx.testutils.LifecycleOwnerUtils.waitUntilState
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,26 +32,13 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class NightModeLateOnCreateTestCase {
-
     @get:Rule
-    val activityRule = ActivityTestRule(NightModeLateOnCreateActivity::class.java, false, false)
-
-    @Before
-    @Throws(Throwable::class)
-    fun setup() {
-        // By default we'll set the night mode to NO, which allows us to make better
-        // assumptions in the test below.
-        activityRule.runOnUiThread {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        }
-    }
+    val activityRule = NightModeActivityTestRule(NightModeLateOnCreateActivity::class.java)
 
     @Test
     fun testActivityRecreateLoop() {
-        activityRule.launchActivity(null)
-
         // Activity should be able to reach fully resumed state in default NIGHT_NO.
-        LifecycleOwnerUtils.waitUntilState(activityRule, Lifecycle.State.RESUMED)
+        waitUntilState(activityRule.activity, Lifecycle.State.RESUMED)
         assertConfigurationNightModeEquals(
             Configuration.UI_MODE_NIGHT_NO,
             activityRule.activity.resources.configuration
@@ -66,7 +52,7 @@ class NightModeLateOnCreateTestCase {
         )
 
         // Activity should be able to reach fully resumed state again.
-        LifecycleOwnerUtils.waitUntilState(activityRule, Lifecycle.State.RESUMED)
+        waitUntilState(activityRule.activity, Lifecycle.State.RESUMED)
 
         // The request night mode value should have been set during attachBaseContext().
         assertConfigurationNightModeEquals(
