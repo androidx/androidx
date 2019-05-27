@@ -20,11 +20,13 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Activity;
+import android.app.Instrumentation;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +36,8 @@ import java.util.concurrent.TimeUnit;
  * Utility methods for testing LifecycleOwners
  */
 public class LifecycleOwnerUtils {
+    private static final long TIMEOUT_MS = 5000;
+
     private static final Runnable DO_NOTHING = new Runnable() {
         @Override
         public void run() {
@@ -88,6 +92,56 @@ public class LifecycleOwnerUtils {
 
         // wait for another loop to ensure all observers are called
         activityRule.runOnUiThread(DO_NOTHING);
+    }
+
+    /**
+     * Waits until the given the current {@link Activity} has been recreated, and
+     * the new instance is resumed.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Activity & LifecycleOwner> T waitForRecreation(
+            final ActivityTestRule<T> activityRule
+    ) throws Throwable {
+        return waitForRecreation(activityRule.getActivity(), activityRule);
+    }
+
+    /**
+     * Waits until the given {@link Activity} and {@link LifecycleOwner} has been recreated, and
+     * the new instance is resumed.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T extends Activity & LifecycleOwner> T waitForRecreation(
+            final T activity,
+            final ActivityTestRule<?> activityRule
+    ) throws Throwable {
+        Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
+                activity.getClass().getCanonicalName(), null, false);
+        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
+        instrumentation.addMonitor(monitor);
+
+        T result;
+
+        // this guarantee that we will reinstall monitor between notifications about onDestroy
+        // and onCreate
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (monitor) {
+            do {
+                // The documentation says "Block until an Activity is created
+                // that matches this monitor." This statement is true, but there are some other
+                // true statements like: "Block until an Activity is destroyed" or
+                // "Block until an Activity is resumed"...
+                // this call will release synchronization monitor's monitor
+                result = (T) monitor.waitForActivityWithTimeout(TIMEOUT_MS);
+                if (result == null) {
+                    throw new RuntimeException("Timeout. Activity was not recreated.");
+                }
+            } while (result == activity);
+        }
+
+        // Finally wait for the recreated Activity to be resumed
+        waitUntilState(result, activityRule, Lifecycle.State.RESUMED);
+
+        return result;
     }
 
     private LifecycleOwnerUtils() {
