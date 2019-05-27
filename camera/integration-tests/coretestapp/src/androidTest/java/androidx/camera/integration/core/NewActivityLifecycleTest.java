@@ -23,18 +23,19 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assume.assumeTrue;
 
 import android.content.Context;
 import android.content.Intent;
 
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
+import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 import androidx.test.uiautomator.By;
@@ -48,9 +49,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 // Test new activity lifecycle when using CameraX.
-@FlakyTest
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public final class NewActivityLifecycleTest {
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
     private static final int LAUNCH_TIMEOUT_MS = 5000;
@@ -75,6 +75,8 @@ public final class NewActivityLifecycleTest {
 
     @Before
     public void setup() {
+        assumeTrue(CameraUtil.deviceHasCamera());
+
         assertThat(mLauncherPackageName, notNullValue());
         returnHomeScreen();
     }
@@ -98,12 +100,6 @@ public final class NewActivityLifecycleTest {
         waitUntilTextureViewIsReady();
 
         waitForIdlingRegistryAndPressBackButton();
-    }
-
-    // The fake test will be removed after the startCoreTestTwiceAlwaysWithNewInstance enables.
-    @Test
-    public void startFakeCoreTest() {
-        returnHomeScreen();
     }
 
     private void waitUntilTextureViewIsReady() {
