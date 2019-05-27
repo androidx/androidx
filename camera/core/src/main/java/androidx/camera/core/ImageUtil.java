@@ -18,8 +18,8 @@ package androidx.camera.core;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.util.Log;
@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
@@ -47,7 +48,7 @@ final class ImageUtil {
     }
 
     /** {@link android.media.Image} to JPEG byte array. */
-    public static byte[] imageToJpegByteArray(ImageProxy image) throws EncodeFailedException {
+    public static byte[] imageToJpegByteArray(ImageProxy image) throws CodecFailedException {
         byte[] data = null;
         if (image.getFormat() == ImageFormat.JPEG) {
             data = jpegImageToJpegByteArray(image);
@@ -60,73 +61,39 @@ final class ImageUtil {
     }
 
     /** Crops byte array with given {@link android.graphics.Rect}. */
-    public static byte[] cropByteArray(byte[] data, Rect cropRect) throws EncodeFailedException {
+    public static byte[] cropByteArray(byte[] data, Rect cropRect) throws CodecFailedException {
         if (cropRect == null) {
             return data;
         }
 
-        Bitmap imageBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        if (imageBitmap == null) {
-            Log.w(TAG, "Source image for cropping can't be decoded.");
-            return data;
+        Bitmap bitmap = null;
+        try {
+            BitmapRegionDecoder decoder = BitmapRegionDecoder.newInstance(data, 0, data.length,
+                    false);
+            bitmap = decoder.decodeRegion(cropRect, new BitmapFactory.Options());
+            decoder.recycle();
+        } catch (IllegalArgumentException e) {
+            throw new CodecFailedException("Decode byte array failed with illegal argument." + e,
+                    CodecFailedException.FailureType.DECODE_FAILED);
+        } catch (IOException e) {
+            throw new CodecFailedException("Decode byte array failed.",
+                    CodecFailedException.FailureType.DECODE_FAILED);
         }
 
-        Bitmap cropBitmap = cropBitmap(imageBitmap, cropRect);
+        if (bitmap == null) {
+            throw new CodecFailedException("Decode byte array failed.",
+                    CodecFailedException.FailureType.DECODE_FAILED);
+        }
+
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        boolean success = cropBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+        boolean success = bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
         if (!success) {
-            throw new EncodeFailedException("cropImage failed to encode jpeg.");
+            throw new CodecFailedException("Encode bitmap failed.",
+                    CodecFailedException.FailureType.ENCODE_FAILED);
         }
-
-        imageBitmap.recycle();
-        cropBitmap.recycle();
+        bitmap.recycle();
 
         return out.toByteArray();
-    }
-
-    /** Crops bitmap with given {@link android.graphics.Rect}. */
-    public static Bitmap cropBitmap(Bitmap bitmap, Rect cropRect) {
-        if (cropRect.width() > bitmap.getWidth() || cropRect.height() > bitmap.getHeight()) {
-            Log.w(TAG, "Crop rect size exceeds the source image.");
-            return bitmap;
-        }
-
-        return Bitmap.createBitmap(
-                bitmap, cropRect.left, cropRect.top, cropRect.width(), cropRect.height());
-    }
-
-    /** Flips bitmap. */
-    public static Bitmap flipBitmap(Bitmap bitmap, boolean flipHorizontal, boolean flipVertical) {
-        if (!flipHorizontal && !flipVertical) {
-            return bitmap;
-        }
-
-        Matrix matrix = new Matrix();
-        if (flipHorizontal) {
-            if (flipVertical) {
-                matrix.preScale(-1.0f, -1.0f);
-            } else {
-                matrix.preScale(-1.0f, 1.0f);
-            }
-        } else if (flipVertical) {
-            matrix.preScale(1.0f, -1.0f);
-        }
-
-        return Bitmap.createBitmap(
-                bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-    }
-
-    /** Rotates bitmap with specified degree. */
-    public static Bitmap rotateBitmap(Bitmap bitmap, int degree) {
-        if (degree == 0) {
-            return bitmap;
-        }
-
-        Matrix matrix = new Matrix();
-        matrix.preRotate(degree);
-
-        return Bitmap.createBitmap(
-                bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
     }
 
     /** True if the given aspect ratio is meaningful. */
@@ -178,7 +145,7 @@ final class ImageUtil {
      *
      * @param rational Rational to be rotated.
      * @param rotation Rotation value being applied.
-     * */
+     */
     public static Rational rotate(
             Rational rational, @RotationValue int rotation) {
         if (rotation == 90 || rotation == 270) {
@@ -189,14 +156,15 @@ final class ImageUtil {
     }
 
     private static byte[] nv21ToJpeg(byte[] nv21, int width, int height, @Nullable Rect cropRect)
-            throws EncodeFailedException {
+            throws CodecFailedException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         YuvImage yuv = new YuvImage(nv21, ImageFormat.NV21, width, height, null);
         boolean success =
                 yuv.compressToJpeg(
                         cropRect == null ? new Rect(0, 0, width, height) : cropRect, 100, out);
         if (!success) {
-            throw new EncodeFailedException("YuvImage failed to encode jpeg.");
+            throw new CodecFailedException("YuvImage failed to encode jpeg.",
+                    CodecFailedException.FailureType.ENCODE_FAILED);
         }
         return out.toByteArray();
     }
@@ -280,7 +248,7 @@ final class ImageUtil {
         return !targetSize.equals(sourceSize);
     }
 
-    private static byte[] jpegImageToJpegByteArray(ImageProxy image) throws EncodeFailedException {
+    private static byte[] jpegImageToJpegByteArray(ImageProxy image) throws CodecFailedException {
         ImageProxy.PlaneProxy[] planes = image.getPlanes();
         ByteBuffer buffer = planes[0].getBuffer();
         byte[] data = new byte[buffer.capacity()];
@@ -292,7 +260,7 @@ final class ImageUtil {
     }
 
     private static byte[] yuvImageToJpegByteArray(ImageProxy image)
-            throws EncodeFailedException {
+            throws CodecFailedException {
         return ImageUtil.nv21ToJpeg(
                 ImageUtil.yuv_420_888toNv21(image),
                 image.getWidth(),
@@ -300,10 +268,28 @@ final class ImageUtil {
                 shouldCropImage(image) ? image.getCropRect() : null);
     }
 
-    /** Exception for error during encoding image. */
-    public static final class EncodeFailedException extends Exception {
-        EncodeFailedException(String message) {
+    /** Exception for error during transcoding image. */
+    public static final class CodecFailedException extends Exception {
+        enum FailureType {
+            ENCODE_FAILED,
+            DECODE_FAILED,
+            UNKNOWN
+        }
+
+        private FailureType mFailureType;
+
+        CodecFailedException(String message) {
             super(message);
+            mFailureType = FailureType.UNKNOWN;
+        }
+
+        CodecFailedException(String message, FailureType failureType) {
+            super(message);
+            mFailureType = failureType;
+        }
+
+        public FailureType getFailureType() {
+            return mFailureType;
         }
     }
 }
