@@ -34,12 +34,15 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
      * {@link androidx.camera.core.ImageCapture}.
      */
     public static BeautyImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
-        try {
-            return new VendorBeautyImageCaptureExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No beauty image capture extender found. Falling back to default.");
-            return new DefaultBeautyImageCaptureExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorBeautyImageCaptureExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No beauty image capture extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultBeautyImageCaptureExtender();
     }
 
     /** Empty implementation of beauty extender which does nothing. */

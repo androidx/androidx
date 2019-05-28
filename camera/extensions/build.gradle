@@ -30,13 +30,33 @@ dependencies {
     implementation(project(":camera:camera-camera2"))
     implementation("androidx.core:core:1.0.0")
     implementation(project(":concurrent-listenablefuture"))
+    implementation(AUTO_VALUE_ANNOTATIONS)
+    annotationProcessor(AUTO_VALUE)
 
     compileOnly(project(":camera:camera-extensions-stub"))
+
+
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(ROBOLECTRIC)
+
+    testCompileOnly(project(":camera:camera-extensions-stub"))
 }
 
 android {
     defaultConfig {
         minSdkVersion 21
+
+        // TODO: To use the separate version for extensions after new library item is created.
+        buildConfigField "String", "CAMERA_VERSION", "\"${LibraryVersions.CAMERA}\""
+    }
+}
+
+// Enable generating BuildConfig.java since support library default disable it.
+// Need to track on https://issuetracker.google.com/issues/72050365
+android.libraryVariants.all { variant ->
+    variant.generateBuildConfigProvider.configure {
+        it.enabled = true
     }
 }
 

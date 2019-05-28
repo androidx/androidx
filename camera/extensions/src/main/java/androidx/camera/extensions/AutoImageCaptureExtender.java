@@ -34,12 +34,15 @@ public class AutoImageCaptureExtender extends ImageCaptureExtender {
      * {@link androidx.camera.core.ImageCapture}.
      */
     public static AutoImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
-        try {
-            return new VendorAutoImageCaptureExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No auto image capture extender found. Falling back to default.");
-            return new DefaultAutoImageCaptureExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorAutoImageCaptureExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No auto image capture extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultAutoImageCaptureExtender();
     }
 
     /** Empty implementation of auto extender which does nothing. */

@@ -33,12 +33,15 @@ public class HdrImageCaptureExtender extends ImageCaptureExtender {
      * {@link androidx.camera.core.ImageCapture}.
      */
     public static HdrImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
-        try {
-            return new VendorHdrImageCaptureExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No HDR image capture extender found. Falling back to default.");
-            return new DefaultHdrImageCaptureExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorHdrImageCaptureExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No HDR image capture extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultHdrImageCaptureExtender();
     }
 
     /** Empty implementation of HDR extender which does nothing. */
