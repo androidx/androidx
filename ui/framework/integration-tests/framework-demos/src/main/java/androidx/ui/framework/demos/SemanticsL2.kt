@@ -23,7 +23,6 @@ import androidx.compose.composer
 /**
  * This is a level 2 API. This component makes it easier to find/discover available properties.
  */
-@Suppress("FunctionName")
 @Composable
 fun SemanticProperties(
     label: String = "",
@@ -57,7 +56,6 @@ fun SemanticProperties(
  * For now the [Properties] component accepts a set of actions, but once this is finally
  * implemented, we will merge the nodes automatically.
  */
-@Suppress("FunctionName")
 @Composable
 fun <T> SemanticAction(
     phrase: String = "",

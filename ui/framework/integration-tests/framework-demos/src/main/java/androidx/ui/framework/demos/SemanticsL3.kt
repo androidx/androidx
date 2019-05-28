@@ -25,7 +25,7 @@ import androidx.compose.composer
  * This component provides default values for all the parameters to the builder, the developer has
  * to just supply the callback lambda.
  */
-@Suppress("FunctionName", "Unused")
+@Suppress("Unused")
 @Composable
 fun ClickInteraction(
     click: SemanticActionBuilder<Unit>.() -> Unit,

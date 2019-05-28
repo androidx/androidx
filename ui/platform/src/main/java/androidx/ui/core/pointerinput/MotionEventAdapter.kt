@@ -49,7 +49,6 @@ internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
 /**
  * Creates a new Pointer.
  */
-@Suppress("FunctionName")
 private fun PointerInputEventData(
     motionEvent: MotionEvent,
     index: Int,
@@ -69,7 +68,6 @@ private fun PointerInputEventData(
 /**
  * Creates a new PointerData.
  */
-@Suppress("FunctionName")
 private fun PointerInputData(
     timestamp: Timestamp,
     motionEvent: MotionEvent,

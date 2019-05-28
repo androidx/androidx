@@ -146,7 +146,6 @@ open class AndroidUiTestRunner : UiTestRunner {
      * Use this in your tests to setup the UI content to be tested. This should be called exactly
      * once per test.
      */
-    @SuppressWarnings("SyntheticAccessor")
     fun setContent(composable: @Composable() () -> Unit) {
         val drawLatch = CountDownLatch(1)
         val listener = object : ViewTreeObserver.OnGlobalLayoutListener {

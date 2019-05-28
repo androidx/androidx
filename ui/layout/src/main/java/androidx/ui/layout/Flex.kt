@@ -94,7 +94,6 @@ class FlexChildren internal constructor() {
  *         }
  *     }
  */
-@Suppress("FunctionName")
 @Composable
 fun FlexRow(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -139,7 +138,6 @@ fun FlexRow(
  *         }
  *     }
  */
-@Suppress("FunctionName")
 @Composable
 fun FlexColumn(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -166,7 +164,6 @@ fun FlexColumn(
  *       SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
  *   }
  */
-@Suppress("FunctionName")
 @Composable
 fun Row(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -195,7 +192,6 @@ fun Row(
  *       SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
  *   }
  */
-@Suppress("FunctionName")
 @Composable
 fun Column(
     mainAxisAlignment: Int = MainAxisAlignment.Start,
@@ -473,7 +469,6 @@ private val Measurable.fit: Int get() = (parentData as FlexInfo).fit
  * Layout model that places its children in a horizontal or vertical sequence, according to the
  * specified orientation, while also looking at the flex weights of the children.
  */
-@Suppress("FunctionName")
 @Composable
 private fun Flex(
     orientation: Int /*FlexOrientation*/,
