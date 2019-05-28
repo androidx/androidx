@@ -40,20 +40,17 @@ open class MyPointerInputHandler : PointerInputHandler {
     }
 }
 
-@Suppress("TestFunctionName")
 internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int) =
     androidx.ui.core.LayoutNode().apply {
         moveTo(x.ipx, y.ipx)
         resize(x2.ipx - x.ipx, y2.ipx - y.ipx)
     }
 
-@Suppress("TestFunctionName")
 internal fun LayoutNode(position: IntPxPosition) =
     androidx.ui.core.LayoutNode().apply {
         moveTo(position.x, position.y)
     }
 
-@Suppress("TestFunctionName")
 internal fun PointerInputEventData(
     id: Int,
     timestamp: Timestamp,
@@ -64,7 +61,6 @@ internal fun PointerInputEventData(
     return PointerInputEventData(id, pointerInputData)
 }
 
-@Suppress("TestFunctionName")
 internal fun PointerInputEvent(
     id: Int,
     timestamp: Timestamp,

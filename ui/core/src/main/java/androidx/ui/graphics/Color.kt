@@ -567,7 +567,6 @@ class Color constructor(private val value: ULong) {
  * the default [alpha] is `1.0` (opaque).
  */
 @UseExperimental(ExperimentalUnsignedTypes::class)
-@Suppress("FunctionName")
 fun Color(
     red: Float,
     green: Float,
@@ -625,7 +624,6 @@ fun Color(
  * @throws IllegalArgumentException If the [components] array length is not 4
  */
 @UseExperimental(ExperimentalUnsignedTypes::class)
-@Suppress("FunctionName")
 fun Color(components: FloatArray, colorSpace: ColorSpace): Color {
     if (components.size != 4) {
         throw IllegalArgumentException("components must have 4 elements")
@@ -648,7 +646,6 @@ fun Color(components: FloatArray, colorSpace: ColorSpace): Color {
  * @return A non-null instance of {@link Color}
  */
 @UseExperimental(ExperimentalUnsignedTypes::class)
-@Suppress("FunctionName")
 fun Color(@ColorInt color: Int): Color {
     return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
 }
@@ -661,7 +658,6 @@ fun Color(@ColorInt color: Int): Color {
  * @return A non-null instance of {@link Color}
  */
 @UseExperimental(ExperimentalUnsignedTypes::class)
-@Suppress("FunctionName")
 fun Color(
     @IntRange(from = 0, to = 0xFF) red: Int,
     @IntRange(from = 0, to = 0xFF) green: Int,

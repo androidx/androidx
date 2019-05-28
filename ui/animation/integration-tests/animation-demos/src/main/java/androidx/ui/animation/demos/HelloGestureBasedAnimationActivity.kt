@@ -43,7 +43,6 @@ class HelloGestureBasedAnimationActivity : Activity() {
     }
 }
 
-@Suppress("FunctionName")
 @Composable
 fun HelloGesture() {
     CraneWrapper {
@@ -67,7 +66,6 @@ private val definition = transitionDefinition {
     }
 }
 
-@Suppress("FunctionName")
 @Composable
 fun TransitionExample() {
     val toState = +state { ComponentState.Released }
@@ -89,7 +87,6 @@ fun TransitionExample() {
 val paint: Paint = Paint()
 const val halfSize = 200f
 
-@Suppress("FunctionName")
 @Composable
 fun DrawScaledRect(scale: Float, color: Color) {
     Draw { canvas, parentSize ->

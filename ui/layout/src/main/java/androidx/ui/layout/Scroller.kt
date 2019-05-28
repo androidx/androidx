@@ -49,7 +49,7 @@ private fun VerticalDragGestureDetector(
     offsetChange: (Px) -> Unit,
     @Children children: @Composable() () -> Unit
 ) {
-    val offset= +state { 0.px }
+    val offset = +state { 0.px }
     DragGestureDetector(
         dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
@@ -94,7 +94,6 @@ class ScrollerPosition {
  * the VerticalScroller's bounds.
  */
 // TODO(mount): Add fling support
-@Suppress("FunctionName")
 @Composable
 fun VerticalScroller(
     scrollerPosition: ScrollerPosition = +memo { ScrollerPosition() },

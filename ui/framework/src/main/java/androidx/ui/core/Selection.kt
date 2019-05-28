@@ -128,7 +128,6 @@ val SelectionRegistrarAmbient = Ambient.of<SelectionRegistrar> { SelectionManage
  * The selection widget wraps composables and let them to be selectable. It paints the selection
  * area with start and end handles.
  */
-@Suppress("FunctionName")
 @Composable
 fun SelectionContainer(
     /** Current Selection status.*/
@@ -216,7 +215,6 @@ fun SelectionContainer(
     }
 }
 
-@Suppress("FunctionName")
 @Composable
 internal fun SelectionHandle() {
     val paint = +memo { Paint() }

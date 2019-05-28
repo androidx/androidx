@@ -52,7 +52,6 @@ import androidx.compose.composer
  * information passed for the [Container] (constraints, width and height) will not be satisfied
  * if the incoming [Constraints] do not allow it.
  */
-@Suppress("FunctionName")
 @Composable
 fun Container(
     padding: EdgeInsets = EdgeInsets(0.dp),

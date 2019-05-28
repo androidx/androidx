@@ -689,7 +689,6 @@ class AndroidLayoutDrawTest {
     }
 }
 
-@Suppress("TestFunctionName")
 @Composable
 fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
     Layout(
@@ -721,7 +720,6 @@ fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
     )
 }
 
-@Suppress("TestFunctionName")
 @Composable
 fun Align(@Children children: @Composable() () -> Unit) {
     Layout(
@@ -753,7 +751,6 @@ fun Align(@Children children: @Composable() () -> Unit) {
     )
 }
 
-@Suppress("TestFunctionName")
 @Composable
 fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
     Layout(

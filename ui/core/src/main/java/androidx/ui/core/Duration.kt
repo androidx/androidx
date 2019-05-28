@@ -43,7 +43,6 @@ private const val MicrosecondsPerSecond = MicrosecondsPerMillisecond * Milliseco
 /**
  * Constructs a [Duration] given a series of time intervals in different units.
  */
-@Suppress("FunctionName")
 fun Duration(
     days: Long = 0,
     hours: Long = 0,
