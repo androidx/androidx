@@ -1290,13 +1290,11 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         if (mOrientation == HORIZONTAL) {
             info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
                     sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1,
-                    -1, -1,
-                    sglp.mFullSpan, false));
+                    -1, -1, false, false));
         } else { // VERTICAL
             info.setCollectionItemInfo(AccessibilityNodeInfoCompat.CollectionItemInfoCompat.obtain(
                     -1, -1,
-                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1,
-                    sglp.mFullSpan, false));
+                    sglp.getSpanIndex(), sglp.mFullSpan ? mSpanCount : 1, false, false));
         }
     }
 
