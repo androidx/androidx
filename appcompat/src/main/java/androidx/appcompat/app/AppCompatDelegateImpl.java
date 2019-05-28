@@ -505,6 +505,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (ab != null) {
             ab.setShowHideAnimationEnabled(false);
         }
+
+        if (mHost instanceof Dialog) {
+            // If the host is a Dialog, we should clean up the Auto managers now. This is
+            // because Dialogs do not have an onDestroy()
+            cleanupAutoManagers();
+        }
     }
 
     @Override
@@ -573,6 +579,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             mActionBar.onDestroy();
         }
 
+        // Make sure we clean up any receivers setup for AUTO mode
+        cleanupAutoManagers();
+    }
+
+    private void cleanupAutoManagers() {
         // Make sure we clean up any receivers setup for AUTO mode
         if (mAutoTimeNightModeManager != null) {
             mAutoTimeNightModeManager.cleanup();
@@ -2939,6 +2950,10 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 }
                 mReceiver = null;
             }
+        }
+
+        boolean isListening() {
+            return mReceiver != null;
         }
     }
 
