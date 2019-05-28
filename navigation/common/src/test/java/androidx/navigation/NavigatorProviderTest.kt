@@ -17,7 +17,6 @@
 package androidx.navigation
 
 import android.os.Bundle
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -25,7 +24,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@SmallTest
 class NavigatorProviderTest {
     @Test
     fun addWithMissingAnnotationName() {

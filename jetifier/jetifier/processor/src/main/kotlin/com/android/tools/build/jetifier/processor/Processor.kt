@@ -120,7 +120,8 @@ class Processor private constructor(
                     typesMap = config.typesMap.reverseMapOrDie(),
                     proGuardMap = config.proGuardMap.reverseMap(),
                     versionsMap = config.versionsMap,
-                    packageMap = config.packageMap.reverse()
+                    packageMap = config.packageMap.reverse(),
+                    stringsMap = config.stringsMap.reverseMapOrDie()
                 )
             }
 

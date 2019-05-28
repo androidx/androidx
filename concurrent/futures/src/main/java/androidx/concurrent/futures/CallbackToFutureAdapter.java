@@ -77,9 +77,9 @@ public final class CallbackToFutureAdapter {
     private CallbackToFutureAdapter() {
     }
 
-    /*
-     * Returns a Future that will be completed by the {@link Completer} provided in from
-     * {@link Callback#getCompleter}.
+    /**
+     * Returns a Future that will be completed by the {@link Completer} provided in
+     * {@link Resolver#attachCompleter(Completer)}.
      *
      * <p>The provided callback is invoked immediately inline. Any exceptions thrown by it will
      * fail the returned {@code Future}.
@@ -109,7 +109,18 @@ public final class CallbackToFutureAdapter {
         return safeFuture;
     }
 
-    /** Called by {@link #getFuture}. */
+    /**
+     * This interface should be implemented by the object passed into
+     * {@link #getFuture(Resolver)}.
+     * <p> Implementations are responsible to resolve passed {@link Completer} object to
+     * success or failure inline or in the response to some other callback.
+     * <p> This interface creates a logical scope for the code that resolves a future
+     * returned from {@link #getFuture(Resolver)} and separates it from outer scope that works
+     * with that future as adding listeners etc. This separation allows us to detect situations
+     * when the returned future isn't done, but the completer object was garbage collected,
+     * and fail the future appropriately instead of keeping the future and
+     * its listeners chain forever.
+     */
     public interface Resolver<T> {
         /**
          * Create your callback object and start whatever operations are required to trigger it

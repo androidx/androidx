@@ -42,12 +42,19 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val tv = view.findViewById<TextView>(R.id.text)
-        tv.text = arguments?.getString("myarg")
+        val myarg = arguments?.getString("myarg")
+        tv.text = myarg
 
         val b = view.findViewById<Button>(R.id.next_button)
         b.setOnClickListener {
             findNavController().navigate(R.id.next, null, null,
                     FragmentNavigatorExtras(b to "next"))
+        }
+        view.findViewById<Button>(R.id.learn_more).setOnClickListener {
+            val args = Bundle().apply {
+                putString("myarg", myarg)
+            }
+            findNavController().navigate(R.id.learn_more, args, null)
         }
     }
 }

@@ -42,8 +42,15 @@ class JetifierConfig(object):
     with open(filePath) as f:
       lines = f.readlines()
       nonCommentLines = [line for line in lines if not line.strip().startswith("#")]
-      parsed = json.loads("".join(nonCommentLines))
-      return JetifierConfig(parsed)
+      uncommentedPath = "/tmp/config.json"
+      with open(uncommentedPath, 'w') as uncommentedFile:
+        uncommentedFile.writelines(nonCommentLines)
+      try:
+        parsed = json.loads("".join(nonCommentLines))
+        return JetifierConfig(parsed)
+      except ValueError as e:
+        print("Failed to parse " + uncommentedPath)
+        raise e
 
   def __init__(self, parsedJson):
     self.json = parsedJson

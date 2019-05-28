@@ -62,12 +62,12 @@ public class ReceivedKeyedAppStateTest {
         ReceivedKeyedAppState state = ReceivedKeyedAppState.fromBundle(bundle, PACKAGE_NAME,
                 TIMESTAMP);
 
-        assertThat(state.key()).isEqualTo(KEY);
-        assertThat(state.message()).isEqualTo(MESSAGE);
-        assertThat(state.severity()).isEqualTo(SEVERITY);
-        assertThat(state.data()).isEqualTo(DATA);
-        assertThat(state.packageName()).isEqualTo(PACKAGE_NAME);
-        assertThat(state.timestamp()).isEqualTo(TIMESTAMP);
+        assertThat(state.getKey()).isEqualTo(KEY);
+        assertThat(state.getMessage()).isEqualTo(MESSAGE);
+        assertThat(state.getSeverity()).isEqualTo(SEVERITY);
+        assertThat(state.getData()).isEqualTo(DATA);
+        assertThat(state.getPackageName()).isEqualTo(PACKAGE_NAME);
+        assertThat(state.getTimestamp()).isEqualTo(TIMESTAMP);
     }
 
     @Test

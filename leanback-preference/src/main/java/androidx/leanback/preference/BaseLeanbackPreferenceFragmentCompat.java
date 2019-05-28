@@ -44,33 +44,26 @@ public abstract class BaseLeanbackPreferenceFragmentCompat extends PreferenceFra
     @Nullable
     @Override
     public Context getContext() {
-        if (mThemedContext == null) {
-            return super.getContext();
+        if (mThemedContext == null && getActivity() != null) {
+            final TypedValue tv = new TypedValue();
+            getActivity().getTheme().resolveAttribute(R.attr.preferenceTheme, tv, true);
+            int theme = tv.resourceId;
+            if (theme == 0) {
+                // Fallback to default theme.
+                theme = R.style.PreferenceThemeOverlayLeanback;
+            }
+            // aosp/821989 has forced PreferenceFragment to use the theme of activity and only
+            // override theme attribute value when it's not defined in activity theme.
+            // However, a side panel preference fragment can use different values than main content.
+            // So a ContextThemeWrapper is required, overrides getContext() before
+            // super.onCreate() call to use the ContextThemeWrapper in creating PreferenceManager
+            // and onCreateView().
+            // super.onCreate() will apply() the theme to activity in non-force way, which shouldn't
+            // affect activity as the theme attributes of PreferenceThemeOverlayLeanback is already
+            // in the activity's theme (in framework)
+            mThemedContext = new ContextThemeWrapper(super.getContext(), theme);
         }
         return mThemedContext;
-    }
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        final TypedValue tv = new TypedValue();
-        getActivity().getTheme().resolveAttribute(androidx.preference.R.attr.preferenceTheme, tv,
-                true);
-        int theme = tv.resourceId;
-        if (theme == 0) {
-            // Fallback to default theme.
-            theme = R.style.PreferenceThemeOverlayLeanback;
-        }
-        // aosp/821989 has forced PreferenceFragment to use the theme of activity and only
-        // override theme attribute value when it's not defined in activity theme.
-        // However, a side panel preference fragment can use different values than main content.
-        // So a ContextThemeWrapper is required, overrides getContext() before
-        // super.onCreate() call to use the ContextThemeWrapper in creating PreferenceManager
-        // and onCreateView().
-        mThemedContext = new ContextThemeWrapper(super.getContext(), theme);
-        // super.onCreate() will apply() the theme to activity in non-force way, which shouldn't
-        // affect activity as the theme attributes of PreferenceThemeOverlayLeanback is already
-        // in the activity's theme (in framework)
-        super.onCreate(savedInstanceState);
     }
 
     @Override

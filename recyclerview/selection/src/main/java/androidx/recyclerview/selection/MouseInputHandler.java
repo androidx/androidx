@@ -126,7 +126,7 @@ final class MouseInputHandler<K> extends MotionInputHandler<K> {
         checkState(mSelectionTracker.hasSelection());
         checkArgument(item != null);
 
-        if (isRangeExtension(e)) {
+        if (shouldExtendRange(e)) {
             extendSelectionRange(item);
         } else {
             if (shouldClearSelection(e, item)) {

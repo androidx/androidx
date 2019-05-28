@@ -23,17 +23,30 @@ import androidx.lifecycle.lint.stubs.VIEW_STUB
 import com.android.tools.lint.checks.infrastructure.TestFiles.kt
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.io.File
+import java.util.Properties
 
 @RunWith(JUnit4::class)
 class LifecycleWhenChecksTest {
 
+    private var sdkDir: File? = null
+
+    @Before
+    fun setup() {
+        val stream = LifecycleWhenChecksTest::class.java.classLoader.getResourceAsStream("sdk.prop")
+        val properties = Properties()
+        properties.load(stream)
+        sdkDir = File(properties["sdk.dir"] as String)
+    }
+
     private fun check(body: String): TestLintResult {
         return TestLintTask.lint()
             .files(VIEW_STUB, LIFECYCLE_STUB, COROUTINES_STUB, kt(template(body)))
-            .allowMissingSdk(true)
+            .sdkHome(sdkDir!!)
             .issues(ISSUE)
             .run()
     }

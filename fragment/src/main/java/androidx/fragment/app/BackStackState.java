@@ -22,12 +22,15 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.lifecycle.Lifecycle;
+
 import java.util.ArrayList;
 
 @SuppressLint("BanParcelableUsage")
 final class BackStackState implements Parcelable {
     final int[] mOps;
     final ArrayList<String> mFragmentWhos;
+    final int[] mMaxLifecycleStates;
     final int mTransition;
     final int mTransitionStyle;
     final String mName;
@@ -49,15 +52,17 @@ final class BackStackState implements Parcelable {
         }
 
         mFragmentWhos = new ArrayList<>(numOps);
+        mMaxLifecycleStates = new int[numOps];
         int pos = 0;
         for (int opNum = 0; opNum < numOps; opNum++) {
             final BackStackRecord.Op op = bse.mOps.get(opNum);
-            mOps[pos++] = op.cmd;
-            mFragmentWhos.add(op.fragment != null ? op.fragment.mWho : null);
-            mOps[pos++] = op.enterAnim;
-            mOps[pos++] = op.exitAnim;
-            mOps[pos++] = op.popEnterAnim;
-            mOps[pos++] = op.popExitAnim;
+            mOps[pos++] = op.mCmd;
+            mFragmentWhos.add(op.mFragment != null ? op.mFragment.mWho : null);
+            mOps[pos++] = op.mEnterAnim;
+            mOps[pos++] = op.mExitAnim;
+            mOps[pos++] = op.mPopEnterAnim;
+            mOps[pos++] = op.mPopExitAnim;
+            mMaxLifecycleStates[opNum] = op.mMaxState.ordinal();
         }
         mTransition = bse.mTransition;
         mTransitionStyle = bse.mTransitionStyle;
@@ -75,6 +80,7 @@ final class BackStackState implements Parcelable {
     public BackStackState(Parcel in) {
         mOps = in.createIntArray();
         mFragmentWhos = in.createStringArrayList();
+        mMaxLifecycleStates = in.createIntArray();
         mTransition = in.readInt();
         mTransitionStyle = in.readInt();
         mName = in.readString();
@@ -94,24 +100,25 @@ final class BackStackState implements Parcelable {
         int num = 0;
         while (pos < mOps.length) {
             BackStackRecord.Op op = new BackStackRecord.Op();
-            op.cmd = mOps[pos++];
+            op.mCmd = mOps[pos++];
             if (FragmentManagerImpl.DEBUG) Log.v(FragmentManagerImpl.TAG,
                     "Instantiate " + bse + " op #" + num + " base fragment #" + mOps[pos]);
             String fWho = mFragmentWhos.get(num);
             if (fWho != null) {
                 Fragment f = fm.mActive.get(fWho);
-                op.fragment = f;
+                op.mFragment = f;
             } else {
-                op.fragment = null;
+                op.mFragment = null;
             }
-            op.enterAnim = mOps[pos++];
-            op.exitAnim = mOps[pos++];
-            op.popEnterAnim = mOps[pos++];
-            op.popExitAnim = mOps[pos++];
-            bse.mEnterAnim = op.enterAnim;
-            bse.mExitAnim = op.exitAnim;
-            bse.mPopEnterAnim = op.popEnterAnim;
-            bse.mPopExitAnim = op.popExitAnim;
+            op.mMaxState = Lifecycle.State.values()[mMaxLifecycleStates[num]];
+            op.mEnterAnim = mOps[pos++];
+            op.mExitAnim = mOps[pos++];
+            op.mPopEnterAnim = mOps[pos++];
+            op.mPopExitAnim = mOps[pos++];
+            bse.mEnterAnim = op.mEnterAnim;
+            bse.mExitAnim = op.mExitAnim;
+            bse.mPopEnterAnim = op.mPopEnterAnim;
+            bse.mPopExitAnim = op.mPopExitAnim;
             bse.addOp(op);
             num++;
         }
@@ -140,6 +147,7 @@ final class BackStackState implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeIntArray(mOps);
         dest.writeStringList(mFragmentWhos);
+        dest.writeIntArray(mMaxLifecycleStates);
         dest.writeInt(mTransition);
         dest.writeInt(mTransitionStyle);
         dest.writeString(mName);

@@ -20,8 +20,6 @@ import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.Resources.Theme;
@@ -35,7 +33,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.SystemClock;
 import android.util.DisplayMetrics;
-import android.util.LayoutDirection;
 import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
@@ -43,6 +40,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.core.view.ViewCompat;
 
 /**
  * A helper class that contains several {@link Drawable}s and selects which one to use.
@@ -100,11 +98,9 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
                 | mDrawableContainerState.getChangingConfigurations();
     }
 
-    // Remove BanTargetApiAnnotation suppression once b/120623677 is addressed.
-    @SuppressLint({"WrongConstant", "BanTargetApiAnnotation"})
-    @TargetApi(Build.VERSION_CODES.M)
     private boolean needsMirroring() {
-        return isAutoMirrored() && getLayoutDirection() == LayoutDirection.RTL;
+        return isAutoMirrored()
+                && (DrawableCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL);
     }
 
     @Override

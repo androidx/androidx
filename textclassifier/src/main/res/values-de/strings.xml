@@ -16,13 +16,13 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"E-Mail senden"</string>
+    <string name="email" msgid="5568050657313893478">"E-Mail"</string>
     <string name="email_desc" msgid="6941280589171810022">"E-Mail an ausgewählte Adresse senden"</string>
     <string name="dial" msgid="7317293545368448453">"Anruf"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Ausgewählte Telefonnummer anrufen"</string>
     <string name="browse" msgid="3733970143542020945">"Öffnen"</string>
     <string name="browse_desc" msgid="3898254913938219011">"Ausgewählte URL öffnen"</string>
-    <string name="sms" msgid="5495416906312064886">"SMS senden"</string>
+    <string name="sms" msgid="5495416906312064886">"SMS"</string>
     <string name="sms_desc" msgid="8293660783374489324">"SMS an ausgewählte Telefonnummer senden"</string>
     <string name="add_contact" msgid="9005634177208282449">"Hinzufügen"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"Zu Kontakten hinzufügen"</string>

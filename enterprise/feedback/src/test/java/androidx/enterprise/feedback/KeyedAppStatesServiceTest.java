@@ -132,10 +132,10 @@ public class KeyedAppStatesServiceTest {
         for (ReceivedKeyedAppState receivedState : receivedStates) {
             states.add(
                     KeyedAppState.builder()
-                            .setKey(receivedState.key())
-                            .setSeverity(receivedState.severity())
-                            .setMessage(receivedState.message())
-                            .setData(receivedState.data())
+                            .setKey(receivedState.getKey())
+                            .setSeverity(receivedState.getSeverity())
+                            .setMessage(receivedState.getMessage())
+                            .setData(receivedState.getData())
                             .build());
         }
         return states;
@@ -149,7 +149,7 @@ public class KeyedAppStatesServiceTest {
         mMessenger.send(createTestStateMessage());
 
         ReceivedKeyedAppState receivedState = mKeyedAppStatesService.mStates.iterator().next();
-        long timestamp = receivedState.timestamp();
+        long timestamp = receivedState.getTimestamp();
         assertThat(timestamp).isEqualTo(CURRENT_TIME_MILLIS);
     }
 
@@ -162,7 +162,7 @@ public class KeyedAppStatesServiceTest {
         mMessenger.send(createTestStateMessage());
 
         ReceivedKeyedAppState receivedState = mKeyedAppStatesService.mStates.iterator().next();
-        assertThat(receivedState.packageName()).isEqualTo(packageName);
+        assertThat(receivedState.getPackageName()).isEqualTo(packageName);
     }
 
     @Test

@@ -19,6 +19,7 @@
             app:startDestination="@+id/start_test">
 
     <test android:id="@+id/start_test">
+        <argument android:name="test_start_default" android:defaultValue="default"/>
         <action android:id="@+id/second" app:destination="@+id/second_test">
             <argument android:name="test_action_overriden_value"
                       android:defaultValue="override" />

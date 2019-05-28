@@ -49,7 +49,7 @@ limitations under the License.
     <string name="lb_playback_controls_closed_captioning_disable" msgid="5508271941331836786">"ছাব-টাইটেল অক্ষম কৰক"</string>
     <string name="lb_playback_controls_picture_in_picture" msgid="8800305194045609275">"চিত্ৰৰ ভিতৰত চিত্ৰ ম\'ড আৰম্ভ কৰক"</string>
     <string name="lb_playback_time_separator" msgid="6549544638083578695">"/"</string>
-    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"মিডিয়াৰ নিয়ন্ত্ৰণসমূহ দেখুওৱা হ’ল"</string>
+    <string name="lb_playback_controls_shown" msgid="7794717158616536936">"মিডিয়াৰ নিয়ন্ত্ৰণসমূহ দেখুওৱা হ\'ল"</string>
     <string name="lb_playback_controls_hidden" msgid="619396299825306757">"মিডিয়াৰ নিয়ন্ত্ৰণসমূহ লুকুৱাই ৰখা হৈছে, দেখুওৱাবলৈ ডি-পেডত টিপক"</string>
     <string name="lb_guidedaction_finish_title" msgid="7747913934287176843">"সমাপ্ত"</string>
     <string name="lb_guidedaction_continue_title" msgid="1122271825827282965">"অব্যাহত ৰাখক"</string>

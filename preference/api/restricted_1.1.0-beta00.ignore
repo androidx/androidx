@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+RemovedClass: androidx.preference.internal.AbstractMultiSelectListPreference:
+    Removed class androidx.preference.internal.AbstractMultiSelectListPreference
+
+
+RemovedField: androidx.preference.AndroidResources#ANDROID_R_EDITTEXT_PREFERENCE_STYLE:
+    Removed field androidx.preference.AndroidResources.ANDROID_R_EDITTEXT_PREFERENCE_STYLE
+RemovedField: androidx.preference.AndroidResources#ANDROID_R_LIST_CONTAINER:
+    Removed field androidx.preference.AndroidResources.ANDROID_R_LIST_CONTAINER
+RemovedField: androidx.preference.AndroidResources#ANDROID_R_PREFERENCE_FRAGMENT_STYLE:
+    Removed field androidx.preference.AndroidResources.ANDROID_R_PREFERENCE_FRAGMENT_STYLE
+RemovedField: androidx.preference.AndroidResources#ANDROID_R_SWITCH_WIDGET:
+    Removed field androidx.preference.AndroidResources.ANDROID_R_SWITCH_WIDGET
+
+
+RemovedMethod: androidx.preference.Preference#clearWasDetached():
+    Removed method androidx.preference.Preference.clearWasDetached()
+RemovedMethod: androidx.preference.Preference#wasDetached():
+    Removed method androidx.preference.Preference.wasDetached()
+
+

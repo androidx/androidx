@@ -41,7 +41,7 @@ project.tasks.whenTaskAdded { task ->
 
 android {
     defaultConfig {
-        minSdkVersion SupportConfig.COMPILE_SDK_VERSION
+        minSdkVersion SupportConfig.TARGET_SDK_VERSION
         javaCompileOptions.annotationProcessorOptions.includeCompileClasspath = false
     }
 

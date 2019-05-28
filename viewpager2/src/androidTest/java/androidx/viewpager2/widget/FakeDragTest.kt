@@ -70,13 +70,14 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
 
     override fun setUp() {
         super.setUp()
+        assumeApiBeforeQ()
         if (config.rtl) {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
         }
         adapterProvider = viewAdapterProvider(stringSequence(pageCount))
         test = setUpTest(config.orientation).also {
-            fakeDragger = PageSwiperFakeDrag(it.viewPager)
+            fakeDragger = PageSwiperFakeDrag(it.viewPager) { it.viewPager.pageSize }
             it.viewPager.isUserInputEnabled = config.enableUserInput
             it.setAdapterSync(adapterProvider)
             it.assertBasicState(0)
@@ -85,17 +86,17 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
 
     @Test
     fun test_flingToNextPage() {
-        basicFakeDragTest(.2f, 100, 1)
+        basicFakeDragTest(.2f, 100, 1, suppressFling = false)
     }
 
     @Test
     fun test_peekNextPage() {
-        basicFakeDragTest(.1f, 200, 0, DecelerateInterpolator())
+        basicFakeDragTest(.1f, 200, 0, DecelerateInterpolator(), true)
     }
 
     @Test
     fun test_flingCompletelyToNextPage() {
-        basicFakeDragTest(1f, 100, 1)
+        basicFakeDragTest(1f, 100, 1, suppressFling = false)
     }
 
     @Test
@@ -108,11 +109,11 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         //   |/
         // 0 +--------------
         //   0             1
-        basicFakeDragTest(.2f, 500, 0, PathInterpolatorCompat.create(Path().also {
+        basicFakeDragTest(.2f, 300, 0, PathInterpolatorCompat.create(Path().also {
             it.moveTo(0f, 0f)
             it.cubicTo(.4f, 6f, .5f, 1f, .8f, 1f)
             it.lineTo(1f, 1f)
-        }))
+        }), true)
     }
 
     @Test
@@ -125,10 +126,10 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         //   |/
         // 0 +-------
         //   0      1
-        basicFakeDragTest(.7f, 400, 0, PathInterpolatorCompat.create(Path().also {
+        basicFakeDragTest(.7f, 200, 0, PathInterpolatorCompat.create(Path().also {
             it.moveTo(0f, 0f)
             it.cubicTo(.4f, 1.3f, .7f, 1.5f, 1f, 1f)
-        }))
+        }), false)
     }
 
     @Test
@@ -242,7 +243,8 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         relativeDragDistance: Float,
         duration: Long,
         expectedFinalPage: Int,
-        interpolator: Interpolator = LinearInterpolator()
+        interpolator: Interpolator = LinearInterpolator(),
+        suppressFling: Boolean = false
     ) {
         val startPage = test.viewPager.currentItem
         // Run the test two times to verify that state doesn't linger
@@ -252,7 +254,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             val recorder = test.viewPager.addNewRecordingCallback()
 
             val latch = test.viewPager.addWaitForIdleLatch()
-            fakeDragger.fakeDrag(relativeDragDistance, duration, interpolator)
+            fakeDragger.fakeDrag(relativeDragDistance, duration, interpolator, suppressFling)
             latch.await(2000 + duration, MILLISECONDS)
 
             // test assertions
@@ -300,7 +302,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
 
         // start fake drag
         val idleLatch = test.viewPager.addWaitForIdleLatch()
-        fakeDragger.fakeDrag(dragDistance(), 200)
+        fakeDragger.fakeDrag(dragDistance(), 100)
         assertThat(idleLatch.await(2, SECONDS), equalTo(true))
 
         // test assertions

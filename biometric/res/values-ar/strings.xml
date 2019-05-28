@@ -17,14 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"المس جهاز استشعار بصمات الإصبع"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"المس زر استشعار بصمات الإصبع"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"لم يتم التعرف عليها."</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"منطقة رسالة المساعدة"</string>
     <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"جهاز بصمة الإصبع غير متاح."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"ليست هناك بصمات إصبع مسجَّلة."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"لا يحتوي هذا الجهاز على جهاز استشعار بصمات الأصابع."</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"تم إلغاء تشغيل بصمة الإصبع بواسطة المستخدم."</string>
-    <!-- no translation found for fingerprint_error_lockout (1651062876313169162) -->
-    <skip />
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"تم إجراء محاولات كثيرة جدًا. يُرجى المحاولة مرة أخرى لاحقًا."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"خطأ غير معروف"</string>
 </resources>

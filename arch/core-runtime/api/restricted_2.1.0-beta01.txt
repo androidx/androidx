@@ -1,0 +1,30 @@
+// Signature format: 3.0
+package androidx.arch.core.executor {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ArchTaskExecutor extends androidx.arch.core.executor.TaskExecutor {
+    method public void executeOnDiskIO(Runnable!);
+    method public static java.util.concurrent.Executor getIOThreadExecutor();
+    method public static androidx.arch.core.executor.ArchTaskExecutor getInstance();
+    method public static java.util.concurrent.Executor getMainThreadExecutor();
+    method public boolean isMainThread();
+    method public void postToMainThread(Runnable!);
+    method public void setDelegate(androidx.arch.core.executor.TaskExecutor?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DefaultTaskExecutor extends androidx.arch.core.executor.TaskExecutor {
+    ctor public DefaultTaskExecutor();
+    method public void executeOnDiskIO(Runnable!);
+    method public boolean isMainThread();
+    method public void postToMainThread(Runnable!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class TaskExecutor {
+    ctor public TaskExecutor();
+    method public abstract void executeOnDiskIO(Runnable);
+    method public void executeOnMainThread(Runnable);
+    method public abstract boolean isMainThread();
+    method public abstract void postToMainThread(Runnable);
+  }
+
+}
+

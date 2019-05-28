@@ -46,14 +46,14 @@
     <!-- Group list fade out animation duration. -->
     <integer name="mr_controller_volume_group_list_fade_out_duration_ms">200</integer>
 
-    <!-- MediaRouteDevicePickerDialog/MediaRouteCastDialog's common dimensions. -->
+    <!-- MediaRouteDynamicChooserDialog/MediaRouteDynamicControllerDialog's common dimensions. -->
     <eat-comment />
     <!-- Height of group volume item in dynamic group -->
     <dimen name="mr_dynamic_volume_group_list_item_height">80dp</dimen>
     <!-- Height of row. -->
     <dimen name="mr_dynamic_dialog_row_height">48dp</dimen>
 
-    <!-- MediaRouteCastDialog's seekbar -->
+    <!-- MediaRouteDynamicControllerDialog's seekbar -->
     <eat-comment />
     <!-- Height of seekbar for route volume. -->
     <dimen name="mr_cast_route_volume_seekbar_height">2dp</dimen>
@@ -66,7 +66,7 @@
     <!-- Volume slider layout expand/collapse animation duration. -->
     <integer name="mr_cast_volume_slider_layout_animation_duration_ms">400</integer>
 
-    <!-- Text sizes of MediaRouteDevicePickerDialog/MediaRouteCastDialog -->
+    <!-- Text sizes of MediaRouteDynamicChooserDialog/MediaRouteDynamicControllerDialog -->
     <dimen name="mr_cast_meta_subtitle_text_size">13sp</dimen>
     <dimen name="mr_dynamic_dialog_header_text_size">11sp</dimen>
     <dimen name="mr_dynamic_dialog_route_text_size">12sp</dimen>

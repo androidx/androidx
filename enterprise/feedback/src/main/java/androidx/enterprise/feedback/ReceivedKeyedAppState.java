@@ -31,8 +31,8 @@ import com.google.auto.value.AutoValue;
 
 /**
  * A keyed app state received from an app. This contains all of the information added by the app to
- * the {@link KeyedAppState} as well as the {@link #packageName()} and {@link #timestamp()} added
- * when the state was received.
+ * the {@link KeyedAppState} as well as the packageName and timestamp added when the state
+ * was received.
  */
 @AutoValue
 public abstract class ReceivedKeyedAppState {
@@ -69,7 +69,7 @@ public abstract class ReceivedKeyedAppState {
      * the app sending the feedback.
      */
     @NonNull
-    public abstract String packageName();
+    public abstract String getPackageName();
 
     /**
      * The unix timestamp, in milliseconds, when the states were received.
@@ -77,22 +77,22 @@ public abstract class ReceivedKeyedAppState {
      * <p>This is automatically set to the correct value by the receiver; it is NOT self-reported by
      * the app sending the feedback.
      */
-    public abstract long timestamp();
+    public abstract long getTimestamp();
 
-    /** See {@link KeyedAppState#key()} */
+    /** See {@link KeyedAppState#getKey()} */
     @NonNull
-    public abstract String key();
+    public abstract String getKey();
 
-    /** See {@link KeyedAppState#severity()} */
-    public abstract int severity();
+    /** See {@link KeyedAppState#getSeverity()} */
+    public abstract int getSeverity();
 
-    /** See {@link KeyedAppState#message()} */
+    /** See {@link KeyedAppState#getMessage()} */
     @Nullable
-    public abstract String message();
+    public abstract String getMessage();
 
-    /** See {@link KeyedAppState#data()} */
+    /** See {@link KeyedAppState#getData()} */
     @Nullable
-    public abstract String data();
+    public abstract String getData();
 
     /** The builder for {@link ReceivedKeyedAppState}. */
     @AutoValue.Builder
@@ -101,27 +101,27 @@ public abstract class ReceivedKeyedAppState {
         // Create a no-args constructor so it doesn't appear in current.txt
         ReceivedKeyedAppStateBuilder() {}
 
-        /** Set {@link ReceivedKeyedAppState#packageName()}. */
+        /** Set {@link ReceivedKeyedAppState#getPackageName()}. */
         @NonNull
         public abstract ReceivedKeyedAppStateBuilder setPackageName(@NonNull String packageName);
 
-        /** Set {@link ReceivedKeyedAppState#timestamp()}. */
+        /** Set {@link ReceivedKeyedAppState#getTimestamp()}. */
         @NonNull
         public abstract ReceivedKeyedAppStateBuilder setTimestamp(long timestamp);
 
-        /** Set {@link ReceivedKeyedAppState#key()}. */
+        /** Set {@link ReceivedKeyedAppState#getKey()}. */
         @NonNull
         public abstract ReceivedKeyedAppStateBuilder setKey(@NonNull String key);
 
-        /** Set {@link ReceivedKeyedAppState#severity()}. */
+        /** Set {@link ReceivedKeyedAppState#getSeverity()}. */
         @NonNull
         public abstract ReceivedKeyedAppStateBuilder setSeverity(@Severity int severity);
 
-        /** Set {@link ReceivedKeyedAppState#message()}. */
+        /** Set {@link ReceivedKeyedAppState#getMessage()}. */
         @NonNull
         public abstract ReceivedKeyedAppStateBuilder setMessage(@Nullable String message);
 
-        /** Set {@link ReceivedKeyedAppState#data()}. */
+        /** Set {@link ReceivedKeyedAppState#getData()}. */
         @NonNull
         public abstract ReceivedKeyedAppStateBuilder setData(@Nullable String data);
 

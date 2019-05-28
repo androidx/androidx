@@ -101,7 +101,7 @@ class BuildLiveDataTest {
     @Test
     fun oneShot() {
         val liveData = liveData {
-            yield(3)
+            emit(3)
         }
         triggerAllActions()
         assertThat(liveData.value).isNull()
@@ -111,10 +111,10 @@ class BuildLiveDataTest {
     @Test
     fun removeObserverInBetween() {
         val ld = liveData(timeoutInMs = 10) {
-            yield(1)
-            yield(2)
+            emit(1)
+            emit(2)
             delay(1000)
-            yield(3)
+            emit(3)
         }
         ld.addObserver().apply {
             assertItems(1, 2)
@@ -134,10 +134,10 @@ class BuildLiveDataTest {
     @Test
     fun removeObserverInBetween_largeTimeout() {
         val ld = liveData(timeoutInMs = 10000) {
-            yield(1)
-            yield(2)
+            emit(1)
+            emit(2)
             delay(1000)
-            yield(3)
+            emit(3)
         }
         ld.addObserver().apply {
             assertItems(1, 2)
@@ -159,9 +159,9 @@ class BuildLiveDataTest {
     fun ignoreCancelledYields() {
         val cancelMutex = Mutex(true)
         val ld = liveData(timeoutInMs = 0, context = testContext) {
-            yield(1)
+            emit(1)
             cancelMutex.withLock {
-                yield(2)
+                emit(2)
             }
         }
         ld.addObserver().apply {
@@ -172,7 +172,7 @@ class BuildLiveDataTest {
         }
         // let cancellation take place
         triggerAllActions()
-        // yield should immediately trigger cancellation to happen
+        // emit should immediately trigger cancellation to happen
         assertThat(ld.value).isEqualTo(1)
         assertThat(ld.hasActiveObservers()).isFalse()
         // now because it was cancelled, re-observing should dispatch 1,1,2
@@ -200,7 +200,7 @@ class BuildLiveDataTest {
     fun readInitialValue_ignoreYielded() {
         val initial = AtomicReference<Int?>()
         val ld = liveData<Int>(testContext) {
-            yield(5)
+            emit(5)
             initial.set(initialValue)
         }
         ld.addObserver()
@@ -213,7 +213,7 @@ class BuildLiveDataTest {
         val initial = AtomicReference<Int?>()
         val ld = liveData<Int>(testContext, 10) {
             if (initialValue == null) {
-                yield(5)
+                emit(5)
                 delay(500000) // wait for cancellation
             }
 
@@ -237,11 +237,11 @@ class BuildLiveDataTest {
     fun yieldSource_simple() {
         val odds = liveData {
             (1..9 step 2).forEach {
-                yield(it)
+                emit(it)
             }
         }
         val ld = liveData {
-            yieldSource(odds)
+            emitSource(odds)
         }
         ld.addObserver().apply {
             assertItems(1, 3, 5, 7, 9)
@@ -253,21 +253,21 @@ class BuildLiveDataTest {
         val doneOddsYield = Mutex(true)
         val odds = liveData {
             (1..9 step 2).forEach {
-                yield(it)
+                emit(it)
             }
             doneOddsYield.unlock()
             delay(1)
-            yield(-1)
+            emit(-1)
         }
         val evens = liveData {
             (2..10 step 2).forEach {
-                yield(it)
+                emit(it)
             }
         }
         val ld = liveData(testContext) {
-            yieldSource(odds)
+            emitSource(odds)
             doneOddsYield.lock()
-            yieldSource(evens)
+            emitSource(evens)
         }
         ld.addObserver().apply {
             triggerAllActions()
@@ -280,21 +280,72 @@ class BuildLiveDataTest {
         val doneOddsYield = Mutex(true)
         val odds = liveData(timeoutInMs = 0) {
             (1..9 step 2).forEach {
-                yield(it)
+                emit(it)
             }
             doneOddsYield.unlock()
             delay(1)
-            yield(-1)
+            emit(-1)
         }
         val ld = liveData(testContext) {
-            yieldSource(odds)
+            emitSource(odds)
             doneOddsYield.lock()
-            yield(10)
+            emit(10)
         }
         ld.addObserver().apply {
             triggerAllActions()
             advanceTimeBy(100)
             assertItems(1, 3, 5, 7, 9, 10)
+        }
+    }
+
+    @Test
+    fun yieldSource_dispose() {
+        val doneOddsYield = Mutex(true)
+        val odds = liveData {
+            (1..9 step 2).forEach {
+                emit(it)
+            }
+            doneOddsYield.lock()
+            emit(2)
+        }
+        val ld = liveData {
+            val disposable = emitSource(odds)
+            triggerAllActions()
+            assertThat(odds.hasActiveObservers()).isEqualTo(true)
+            disposable.dispose()
+            triggerAllActions()
+            assertThat(odds.hasActiveObservers()).isEqualTo(false)
+            doneOddsYield.unlock()
+        }
+        ld.addObserver().apply {
+            assertItems(1, 3, 5, 7, 9)
+        }
+    }
+
+    @Test
+    fun yieldSource_disposeTwice() {
+        val odds = liveData {
+            (1..9 step 2).forEach {
+                emit(it)
+            }
+        }
+        val ld = liveData {
+            val disposable = emitSource(odds)
+            triggerAllActions()
+            disposable.dispose()
+            triggerAllActions()
+            assertThat(odds.hasActiveObservers()).isEqualTo(false)
+            // add observer via side channel.
+            (this as LiveDataScopeImpl<Int>).target.addSource(odds) {}
+            triggerAllActions()
+            // redispose previous one should not impact
+            disposable.dispose()
+            triggerAllActions()
+            // still has the observer we added from the side channel
+            assertThat(odds.hasActiveObservers()).isEqualTo(true)
+        }
+        ld.addObserver().apply {
+            assertItems(1, 3, 5, 7, 9)
         }
     }
 
@@ -312,7 +363,7 @@ class BuildLiveDataTest {
             if (exception.isActive) {
                 throw IllegalArgumentException("i like to fail")
             } else {
-                yield(3)
+                emit(3)
             }
         }
         ld.addObserver().apply {
@@ -366,7 +417,7 @@ class BuildLiveDataTest {
                 if (exception.isActive) {
                     throw IllegalArgumentException("i like to fail")
                 } else {
-                    yield(3)
+                    emit(3)
                 }
             }
         }
@@ -438,8 +489,8 @@ class BuildLiveDataTest {
     @Test
     fun multipleValuesAndObservers() {
         val ld = liveData {
-            yield(3)
-            yield(4)
+            emit(3)
+            emit(4)
         }
         ld.addObserver().assertItems(3, 4)
         // re-observe, get latest value only

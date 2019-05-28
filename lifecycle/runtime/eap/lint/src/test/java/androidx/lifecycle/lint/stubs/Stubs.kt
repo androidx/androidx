@@ -35,8 +35,6 @@ internal val LIFECYCLE_STUB = TestFiles.kt(
             val lifecycle: Lifecycle
         }
 
-        interface CoroutineScope {}
-
         suspend fun <T> Lifecycle.whenCreated(block: suspend CoroutineScope.() -> T): T {
             throw Error()
         }
@@ -69,8 +67,10 @@ internal val COROUTINES_STUB = TestFiles.kt(
 
         import kotlinx.coroutines.CoroutineScope
 
+        interface CoroutineScope {}
+
         object GlobalScope {
-            fun launch(block: suspend (b: Lifecycle) -> Unit) {}
+            fun launch(block: suspend () -> Unit) {}
         }
 
     """

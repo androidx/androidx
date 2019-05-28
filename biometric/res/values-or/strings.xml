@@ -17,12 +17,13 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେନସର୍‌କୁ ଛୁଅଁନ୍ତୁ"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"ଟିପଚିହ୍ନ ସେନସର୍‌କୁ ଛୁଅଁନ୍ତୁ"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"ଚିହ୍ନଟ ହେଲାନାହିଁ"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"ସହାୟତା ମେସେଜ୍ କ୍ଷେତ୍ର"</string>
     <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"ଆଙ୍ଗୁଠି ଚିହ୍ନ ହାର୍ଡୱେର୍‍ ଉପଲବ୍ଧ ନାହିଁ।"</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"କୌଣସି ଆଙ୍ଗୁଠି ଚିହ୍ନ ପଞ୍ଜୀକୃତ ହୋଇନାହିଁ।"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"ଏହି ଡିଭାଇସ୍‌ରେ ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେନସର୍‌ ନାହିଁ"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ୟୁଜର୍‌ଙ୍କ ଦ୍ଵାରା ଆଙ୍ଗୁଠି ଚିହ୍ନ ନେବା କାମକୁ କ୍ୟାନ୍ସଲ୍ କରିଦିଆଯାଇଛି।"</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ବହୁତ ଅଧିକ ପ୍ରଚେଷ୍ଟା। ଦୟାକରି ପରେ ପୁଣି ଚେଷ୍ଟା କରନ୍ତୁ।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"ଅଜଣା ତ୍ରୁଟି"</string>
 </resources>

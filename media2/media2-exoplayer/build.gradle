@@ -20,7 +20,8 @@ import androidx.build.LibraryVersions
 import static androidx.build.dependencies.DependenciesKt.CHECKER_FRAMEWORK
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 android {

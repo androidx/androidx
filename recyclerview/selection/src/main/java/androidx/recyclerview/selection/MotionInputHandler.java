@@ -88,7 +88,7 @@ abstract class MotionInputHandler<K> extends SimpleOnGestureListener {
         mFocusDelegate.focusItem(details);
     }
 
-    final boolean isRangeExtension(@NonNull MotionEvent e) {
+    final boolean shouldExtendRange(@NonNull MotionEvent e) {
         return MotionEvents.isShiftKeyPressed(e)
                 && mSelectionTracker.isRangeActive()
                 // Without full corpus access we can't reliably implement range

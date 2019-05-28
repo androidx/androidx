@@ -20,8 +20,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Debug
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
-
 import java.io.File
 import java.text.NumberFormat
 import java.util.ArrayList
@@ -57,7 +57,7 @@ class BenchmarkState internal constructor() {
      * Decreasing iteration count used when [state] == [RUNNING], used to determine when main
      * measurement loop finishes.
      */
-    @JvmField /* Used by [BenchmarkState.keepRunningInline()] */
+    @JvmField // Used by [BenchmarkState.keepRunningInline()]
     @PublishedApi
     internal var iterationsRemaining = -1
 
@@ -82,6 +82,9 @@ class BenchmarkState internal constructor() {
     // Individual duration in nano seconds.
     private val results = ArrayList<Long>()
 
+    internal var performThrottleChecks = true
+    private var throttleRemainingRetries = THROTTLE_MAX_RETRIES
+
     /**
      * Get the end of run benchmark statistics.
      *
@@ -93,16 +96,20 @@ class BenchmarkState internal constructor() {
     internal val stats: Stats
         get() {
             if (state == NOT_STARTED) {
-                throw IllegalStateException("The benchmark wasn't started! Every test in a class " +
-                        "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
-                        "benchmarkRule.measureRepeated {}, or in Java, call " +
-                        "benchmarkRule.getState().keepRunning() to run your benchmark.")
+                throw IllegalStateException(
+                    "The benchmark wasn't started! Every test in a class " +
+                            "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
+                            "benchmarkRule.measureRepeated {}, or in Java, call " +
+                            "benchmarkRule.getState().keepRunning() to run your benchmark."
+                )
             }
             if (state != FINISHED) {
-                throw IllegalStateException("The benchmark hasn't finished! In Java, use " +
-                        "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
-                        "false before ending your test. In Kotlin, just use " +
-                        "benchmarkRule.measureRepeated {} to avoid the problem.")
+                throw IllegalStateException(
+                    "The benchmark hasn't finished! In Java, use " +
+                            "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
+                            "false before ending your test. In Kotlin, just use " +
+                            "benchmarkRule.measureRepeated {} to avoid the problem."
+                )
             }
             return internalStats!!
         }
@@ -203,15 +210,31 @@ class BenchmarkState internal constructor() {
 
     private fun startNextTestRun(): Boolean {
         val currentTime = System.nanoTime()
+
         results.add((currentTime - startTimeNs - pausedDurationNs) / maxIterations)
         repeatCount++
+
         if (repeatCount >= REPEAT_COUNT) {
-            if (ENABLE_PROFILING) {
-                Debug.stopMethodTracing()
+            if (performThrottleChecks &&
+                throttleRemainingRetries > 0 &&
+                ThrottleDetector.isDeviceThermalThrottled()
+            ) {
+                // Not finished! System appears to be in thermal throttle!
+                // Sleep, and retry whole benchmark!
+                Log.d(TAG, "THERMAL THROTTLE DETECTED, SLEEPING FOR $THROTTLE_BACKOFF_S SECONDS")
+                Thread.sleep(TimeUnit.SECONDS.toMillis(THROTTLE_BACKOFF_S))
+                throttleRemainingRetries -= 1
+                results.clear()
+                repeatCount = 0
+            } else {
+                // finished!
+                if (ENABLE_PROFILING) {
+                    Debug.stopMethodTracing()
+                }
+                internalStats = Stats(results)
+                state = FINISHED
+                return false
             }
-            internalStats = Stats(results)
-            state = FINISHED
-            return false
         }
         pausedDurationNs = 0
         iterationsRemaining = maxIterations
@@ -232,7 +255,7 @@ class BenchmarkState internal constructor() {
      */
     @Suppress("NOTHING_TO_INLINE")
     inline fun keepRunningInline(): Boolean {
-        if (iterationsRemaining > 0) {
+        if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
         }
@@ -250,7 +273,7 @@ class BenchmarkState internal constructor() {
      * ```
      */
     fun keepRunning(): Boolean {
-        if (iterationsRemaining > 0) {
+        if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
         }
@@ -261,6 +284,12 @@ class BenchmarkState internal constructor() {
     internal fun keepRunningInternal(): Boolean {
         when (state) {
             NOT_STARTED -> {
+                if (performThrottleChecks &&
+                    !Clocks.areLocked &&
+                    !AndroidBenchmarkRunner.sustainedPerformanceModeInUse
+                ) {
+                    ThrottleDetector.computeThrottleBaseline()
+                }
                 beginWarmup()
                 return true
             }
@@ -330,10 +359,7 @@ class BenchmarkState internal constructor() {
             "mean=${mean()}ns, " +
             "min=${min()}ns, " +
             "stddev=${standardDeviation()}ns, " +
-            "count=${count()}, " +
-            results.mapIndexed { index, value ->
-                "No $index result is $value"
-            }.joinToString(", ")
+            "count=${count()}"
 
     private fun ideSummaryLineWrapped(key: String): String {
         val warningLines = WarningState.acquireWarningStringForLogging()?.split("\n") ?: listOf()
@@ -361,7 +387,6 @@ class BenchmarkState internal constructor() {
      */
     internal fun getFullStatusReport(key: String): Bundle {
         Log.i(TAG, key + summaryLine())
-        Log.i(CSV_TAG, results.joinToString(prefix = "$key, ", separator = ", "))
         val status = Bundle()
 
         val prefix = WarningState.WARNING_PREFIX
@@ -380,7 +405,6 @@ class BenchmarkState internal constructor() {
     /** @hide */
     companion object {
         private const val TAG = "Benchmark"
-        private const val CSV_TAG = "BenchmarkCsv"
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
         private const val STUDIO_OUTPUT_KEY_ID = "benchmark"
 
@@ -391,17 +415,14 @@ class BenchmarkState internal constructor() {
         private const val RUNNING = 2 // The benchmark is running.
         private const val FINISHED = 3 // The benchmark has stopped.
 
-        // values determined empirically
-        private val TARGET_TEST_DURATION_NS = TimeUnit.MILLISECONDS.toNanos(500)
+        // Values determined empirically.
+        @VisibleForTesting
+        internal const val REPEAT_COUNT = 50
+        private val TARGET_TEST_DURATION_NS = TimeUnit.MICROSECONDS.toNanos(500)
         private const val MAX_TEST_ITERATIONS = 1000000
-        private const val MIN_TEST_ITERATIONS = 10
-        private const val REPEAT_COUNT = 5
+        private const val MIN_TEST_ITERATIONS = 1
 
-        init {
-            Log.i(CSV_TAG, (0 until REPEAT_COUNT).joinToString(
-                prefix = "Benchmark, ",
-                separator = ", "
-            ) { "Result $it" })
-        }
+        private const val THROTTLE_MAX_RETRIES = 3
+        private const val THROTTLE_BACKOFF_S = 90L
     }
 }

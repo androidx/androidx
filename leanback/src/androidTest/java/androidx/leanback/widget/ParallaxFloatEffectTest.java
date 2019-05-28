@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import android.util.Property;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public class ParallaxFloatEffectTest {
 
     Parallax<Parallax.FloatProperty> mSource;

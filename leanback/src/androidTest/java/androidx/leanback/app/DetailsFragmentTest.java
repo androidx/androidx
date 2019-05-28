@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.PropertyValuesHolder;
-import android.app.Fragment;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -38,6 +37,7 @@ import android.os.SystemClock;
 import android.view.KeyEvent;
 import android.view.View;
 
+import android.app.Fragment;
 import androidx.leanback.R;
 import androidx.leanback.graphics.FitWidthBitmapDrawable;
 import androidx.leanback.media.MediaPlayerGlue;
@@ -1034,7 +1034,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
 
         // before any details row is presented, pressing BACK will quit the activity
         sendKeys(KeyEvent.KEYCODE_BACK);
-        PollingCheck.waitFor(4000, new PollingCheck.ActivityDestroy(activity));
+        PollingCheck.waitFor(4000, new PollingCheck.ActivityStop(activity));
     }
 
     public static class DetailsFragmentSwitchToVideoAndPrepareEntranceTransition
@@ -1209,7 +1209,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         });
         SystemClock.sleep(100);
         activity.finish();
-        PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
+        PollingCheck.waitFor(new PollingCheck.ActivityStop(activity));
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

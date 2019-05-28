@@ -374,6 +374,8 @@ public abstract class RoomDatabase {
     /**
      * Executes the specified {@link Runnable} in a database transaction. The transaction will be
      * marked as successful unless an exception is thrown in the {@link Runnable}.
+     * <p>
+     * Room will only perform at most one transaction at a time.
      *
      * @param body The piece of code to execute.
      */
@@ -391,6 +393,8 @@ public abstract class RoomDatabase {
     /**
      * Executes the specified {@link Callable} in a database transaction. The transaction will be
      * marked as successful unless an exception is thrown in the {@link Callable}.
+     * <p>
+     * Room will only perform at most one transaction at a time.
      *
      * @param body The piece of code to execute.
      * @param <V>  The type of the return value.
@@ -659,7 +663,8 @@ public abstract class RoomDatabase {
          * <p>
          * If the given {@code Executor} is shared then it should be unbounded to avoid the
          * possibility of a deadlock. Room will not use more than one thread at a time from this
-         * executor.
+         * executor since only one transaction at a time can be executed, other transactions will
+         * be queued on a first come, first serve order.
          * <p>
          * The input {@code Executor} cannot run tasks on the UI thread.
          *

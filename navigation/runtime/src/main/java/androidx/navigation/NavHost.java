@@ -19,7 +19,10 @@ package androidx.navigation;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.ViewModelStore;
 
 /**
  * A host is a single context or container for navigation via a {@link NavController}.
@@ -29,6 +32,17 @@ import androidx.annotation.NonNull;
  * <li>Handle {@link NavController#saveState() saving} and
  * {@link NavController#restoreState(Bundle) restoring} their controller's state</li>
  * <li>Call {@link Navigation#setViewNavController(View, NavController)} on their root view</li>
+ * <li>Route system Back button events to the NavController either by manually calling
+ * {@link NavController#popBackStack()} or by calling
+ * {@link NavController#setHostOnBackPressedDispatcherOwner(OnBackPressedDispatcherOwner)}
+ * when constructing the NavController.</li>
+ * </ul>
+ * Optionally, a navigation host should consider calling:
+ * <ul>
+ * <li>Call {@link NavController#setHostLifecycleOwner(LifecycleOwner)} to associate the
+ * NavController with a specific Lifecycle.</li>
+ * <li>Call {@link NavController#setHostViewModelStore(ViewModelStore)} to enable usage of
+ * {@link NavController#getViewModelStore(int)} and navigation graph scoped ViewModels.</li>
  * </ul>
  */
 public interface NavHost {

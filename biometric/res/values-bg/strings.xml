@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Няма регистрирани отпечатъци."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Това устройство няма сензор за отпечатъци"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Операцията за удостоверяване чрез отпечатък бе анулирана от потребителя."</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Твърде много опити. Моля, опитайте отново по-късно."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Неизвестна грешка"</string>
 </resources>

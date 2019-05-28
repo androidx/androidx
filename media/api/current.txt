@@ -297,8 +297,8 @@ package android.support.v4.media.session {
   }
 
   public class MediaSessionCompat {
-    ctor public MediaSessionCompat(android.content.Context!, String!);
-    ctor public MediaSessionCompat(android.content.Context!, String!, android.content.ComponentName!, android.app.PendingIntent!);
+    ctor public MediaSessionCompat(android.content.Context, String);
+    ctor public MediaSessionCompat(android.content.Context, String, android.content.ComponentName?, android.app.PendingIntent?);
     method public void addOnActiveChangeListener(android.support.v4.media.session.MediaSessionCompat.OnActiveChangeListener!);
     method public static android.support.v4.media.session.MediaSessionCompat! fromMediaSession(android.content.Context!, Object!);
     method public android.support.v4.media.session.MediaControllerCompat! getController();

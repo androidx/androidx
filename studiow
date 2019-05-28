@@ -11,7 +11,13 @@ function getStudioUrl() {
   ideaMajorVersion="$(grep "idea_major_version=" ${propertiesFile} | sed 's/[^=]*=//')"
   buildNumber="$(grep "studio_build_number=" ${propertiesFile} | sed 's/[^=]*=//')"
   osName="$1"
-  studioUrl="https://dl.google.com/dl/android/studio/ide-zips/${version}/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.zip"
+  extension=""
+  if [ "${osName}" == "linux" ]; then
+    extension="tar.gz"
+  else
+    extension="zip"
+  fi
+  studioUrl="https://dl.google.com/dl/android/studio/ide-zips/${version}/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.${extension}"
   echo "${studioUrl}"
 }
 
@@ -33,15 +39,35 @@ osName="$(getOsName)"
 studioUrl="$(getStudioUrl $osName)"
 studioDestName="$(basename ${studioUrl})"
 studioZipPath="${tempDir}/${studioDestName}"
-studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//')"
+studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//; s/\.tar.gz$//')"
 
 function downloadFile() {
   fromUrl="$1"
   destPath="$2"
   tempPath="${destPath}.tmp"
-  echo "Downloading ${fromUrl} to ${destPath}"
-  curl "${fromUrl}" > "${tempPath}"
-  mv "${tempPath}" "${destPath}"
+  if [ -f "${destPath}" ]; then
+    read -r -n 1 -p "File already exists. Do you want to delete and re-download? [Y/n]? " reply
+
+    if [ ! -z "${reply}" ]; then
+      # Fix missing newline
+      echo
+    fi
+
+    case "${reply}" in
+      [yY]|"")
+        rm "${destPath}"
+        ;;
+      *)
+    esac
+  fi
+
+  if [ -f "${destPath}" ]; then
+    echo "Using existing file from ${destPath}"
+  else
+    echo "Downloading ${fromUrl} to ${destPath}"
+    curl "${fromUrl}" > "${tempPath}"
+    mv "${tempPath}" "${destPath}"
+  fi
 }
 
 function findStudioMacAppPath() {
@@ -87,7 +113,7 @@ function checkLicenseAgreement() {
 
 function updateStudio() {
   # skip if already up-to-date
-  if stat "${studioZipPath}" >/dev/null 2>/dev/null; then
+  if stat "${studioUnzippedPath}" >/dev/null 2>/dev/null; then
     # already up-to-date
     return
   fi
@@ -100,7 +126,12 @@ function updateStudio() {
   ls "${tempDir}" | grep -v "^${studioDestName}\$" | sed "s|^|${tempDir}/|" | xargs rm -rf
 
   echo "Unzipping"
-  unzip "${studioZipPath}" -d "${studioUnzippedPath}"
+  if [ ${studioZipPath: -7} == ".tar.gz" ]; then
+    mkdir "${studioUnzippedPath}"
+    tar -xvf "${studioZipPath}" -C "${studioUnzippedPath}"
+  else
+    unzip "${studioZipPath}" -d "${studioUnzippedPath}"
+  fi
 }
 
 function runStudioLinux() {

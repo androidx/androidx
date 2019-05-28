@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"មិន​មាន​ការ​ថតបញ្ចូល​ស្នាម​ម្រាមដៃទេ។"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"ឧបករណ៍នេះ​មិនមាន​ឧបករណ៍ចាប់​ស្នាមម្រាមដៃទេ"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ប្រតិបត្តិការ​ស្នាម​ម្រាម​ដៃ​ត្រូវ​បាន​បោះ​បង់​ដោយ​អ្នក​ប្រើប្រាស់។"</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"ផ្ទៀងផ្ទាត់​មិនត្រឹមត្រូវ​ច្រើនដងពេក​។ សូម​ព្យាយាម​ម្ដង​ទៀត​នៅ​ពេល​ក្រោយ​។"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"មាន​បញ្ហា​ដែល​មិន​ស្គាល់"</string>
 </resources>

@@ -77,6 +77,9 @@ import java.lang.annotation.Target;
  * impact because they are always run inside a transaction. Similarly, if it is annotated with
  * {@link Query} but runs an update or delete statement, it is automatically wrapped in a
  * transaction.
+ * <p>
+ * Room will only perform at most one transaction at a time, additional transactions are queued
+ * and executed on a first come, first serve order.
  */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)

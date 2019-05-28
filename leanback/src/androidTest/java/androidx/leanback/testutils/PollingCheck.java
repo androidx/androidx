@@ -138,17 +138,17 @@ public abstract class PollingCheck {
 
     }
 
-    public static class ActivityDestroy extends PollingCheckCondition {
+    public static class ActivityStop extends PollingCheckCondition {
 
         Activity mActivity;
 
-        public ActivityDestroy(Activity activity) {
+        public ActivityStop(Activity activity) {
             mActivity = activity;
         }
 
         @Override
         public boolean canProceed() {
-            return mActivity.isDestroyed();
+            return !mActivity.hasWindowFocus();
         }
 
     }

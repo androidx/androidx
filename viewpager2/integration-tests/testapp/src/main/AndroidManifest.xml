@@ -16,7 +16,7 @@
 
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.androidx.viewpager2">
+    package="androidx.viewpager2.integration.testapp">
 
     <application
         android:icon="@drawable/app_sample_code"

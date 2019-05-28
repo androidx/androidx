@@ -105,6 +105,10 @@ public class DatabaseConfiguration {
     /**
      * Creates a database configuration with the given values.
      *
+     * @deprecated Use {@link #DatabaseConfiguration(Context, String,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set)}
+     *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
      * @param sqliteOpenHelperFactory The open helper factory to use.
@@ -115,6 +119,41 @@ public class DatabaseConfiguration {
      * @param queryExecutor The Executor used to execute asynchronous queries.
      * @param requireMigration True if Room should require a valid migration if version changes,
      *                        instead of recreating the tables.
+     * @param migrationNotRequiredFrom The collection of schema versions from which migrations
+     *                                 aren't required.
+     *
+     * @hide
+     */
+    @Deprecated
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
+            @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
+            @NonNull RoomDatabase.MigrationContainer migrationContainer,
+            @Nullable List<androidx.room.RoomDatabase.Callback> callbacks,
+            boolean allowMainThreadQueries,
+            RoomDatabase.JournalMode journalMode,
+            @NonNull Executor queryExecutor,
+            boolean requireMigration,
+            @Nullable Set<Integer> migrationNotRequiredFrom) {
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
+                allowMainThreadQueries, journalMode, queryExecutor, queryExecutor, false,
+                requireMigration, false, migrationNotRequiredFrom);
+    }
+
+    /**
+     * Creates a database configuration with the given values.
+     *
+     * @param context The application context.
+     * @param name Name of the database, can be null if it is in memory.
+     * @param sqliteOpenHelperFactory The open helper factory to use.
+     * @param migrationContainer The migration container for migrations.
+     * @param callbacks The list of callbacks for database events.
+     * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
+     * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
+     * @param queryExecutor The Executor used to execute asynchronous queries.
+     * @param transactionExecutor The Executor used to execute asynchronous transactions.
+     * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
+     * @param requireMigration True if Room should require a valid migration if version changes,
      * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
      *                                             migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations

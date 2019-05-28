@@ -18,7 +18,6 @@ package androidx.navigation
 
 import android.content.Context
 import androidx.annotation.IdRes
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -28,7 +27,6 @@ import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
 
 @RunWith(JUnit4::class)
-@SmallTest
 class NavDestinationTest {
 
     companion object {

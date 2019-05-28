@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+ChangedSuperclass: androidx.lifecycle.GenericLifecycleObserver:
+    Class androidx.lifecycle.GenericLifecycleObserver superclass changed from androidx.lifecycle.LifecycleObserver to androidx.lifecycle.LifecycleEventObserver
+
+
+RemovedClass: androidx.lifecycle.CompositeGeneratedAdaptersObserver:
+    Removed class androidx.lifecycle.CompositeGeneratedAdaptersObserver
+RemovedClass: androidx.lifecycle.SingleGeneratedAdapterObserver:
+    Removed class androidx.lifecycle.SingleGeneratedAdapterObserver
+
+

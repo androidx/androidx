@@ -21,6 +21,7 @@ local.properties
 **/out
 buildSrc/build
 buildSrc/lint-checks/build
+buildSrc/jetpad-integration/build
 lifecycle/common/build
 jacoco.exec
 /studio

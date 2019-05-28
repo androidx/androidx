@@ -17,6 +17,7 @@
 package com.android.tools.build.jetifier.processor.transform.bytecode
 
 import com.android.tools.build.jetifier.core.config.Config
+import com.android.tools.build.jetifier.core.config.ConfigParser
 import com.android.tools.build.jetifier.core.rule.RewriteRule
 import com.android.tools.build.jetifier.core.rule.RewriteRulesMap
 import com.android.tools.build.jetifier.core.type.JavaType
@@ -104,6 +105,28 @@ class ClassRewriteTest {
                 .readBytes()
                 .toString(Charset.defaultCharset())
         Truth.assertThat(decompiledResult).isEqualTo(expectedFileContent)
+    }
+
+    @Test
+    fun testClassRewrite_bundleStringsPreserved() {
+        val config = ConfigParser.loadDefaultConfig()!!
+
+        val inputClassPath = "/classRewriteTest/ShareCompat.class"
+        val inputFile = File(javaClass.getResource(inputClassPath).file)
+        val archiveFile = ArchiveFile(Paths.get("/", "ShareCompat.class"), inputFile.readBytes())
+
+        val context = TransformationContext(config = config)
+        val transformer = ByteCodeTransformer(context)
+
+        transformer.runTransform(archiveFile)
+
+        val decompiledResult = decompileClassFileToString(archiveFile.data)
+
+        // Both constants need to be present
+        Truth.assertThat(decompiledResult).contains(
+            "EXTRA_CALLING_PACKAGE = \"androidx.core.app.EXTRA_CALLING_PACKAGE\"")
+        Truth.assertThat(decompiledResult).contains(
+            "EXTRA_CALLING_PACKAGE_INTEROP = \"android.support.v4.app.EXTRA_CALLING_PACKAGE\"")
     }
 
     private fun decompileClassFileToString(data: ByteArray): String {

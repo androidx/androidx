@@ -89,6 +89,11 @@ open class StrictFragment(@LayoutRes contentLayoutId: Int = 0) : Fragment(conten
         checkState("onAttach", State.DETACHED)
         currentState = State.ATTACHED
         onStateChanged(State.DETACHED)
+        if (retainInstance && calledOnCreate) {
+            // We were created previously
+            currentState = State.CREATED
+            onStateChanged(State.ATTACHED)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

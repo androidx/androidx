@@ -5,9 +5,3 @@ ChangedAbstract: androidx.paging.PagedList#isDetached():
     Method androidx.paging.PagedList.isDetached has changed 'abstract' qualifier
 
 
-RemovedMethod: androidx.paging.PositionalDataSource#computeInitialLoadPosition(androidx.paging.PositionalDataSource.LoadInitialParams, int):
-    Removed method androidx.paging.PositionalDataSource.computeInitialLoadPosition(androidx.paging.PositionalDataSource.LoadInitialParams,int)
-RemovedMethod: androidx.paging.PositionalDataSource#computeInitialLoadSize(androidx.paging.PositionalDataSource.LoadInitialParams, int, int):
-    Removed method androidx.paging.PositionalDataSource.computeInitialLoadSize(androidx.paging.PositionalDataSource.LoadInitialParams,int,int)
-
-

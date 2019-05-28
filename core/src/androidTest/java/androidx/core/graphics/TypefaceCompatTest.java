@@ -34,6 +34,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry;
@@ -464,7 +465,8 @@ public class TypefaceCompatTest {
         final Typeface family = ResourcesCompat.getFont(mContext, R.font.styletestfont);
         assertNotNull(family);
 
-        final AppCompatTextView appCompatTextView = new AppCompatTextView(mContext);
+        final AppCompatTextView appCompatTextView = new AppCompatTextView(
+                new ContextThemeWrapper(mContext, R.style.Theme_AppCompat_Light));
         assertNotNull(appCompatTextView);
 
         appCompatTextView.setTypeface(family, Typeface.NORMAL);

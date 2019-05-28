@@ -22,8 +22,7 @@
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:gravity="center_vertical"
     android:paddingEnd="?android:attr/scrollbarSize"
-    android:background="?android:attr/selectableItemBackground"
-    android:focusable="true" >
+    android:background="?android:attr/selectableItemBackground">
 
     <Spinner
         android:id="@+id/spinner"

@@ -20,21 +20,16 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import static androidx.slice.render.SliceRenderer.SCREENSHOT_DIR;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.Manifest;
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Build;
 
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.Rule;
@@ -46,7 +41,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @LargeTest
@@ -54,29 +48,27 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = 19)
 public class RenderTest {
 
-    private final Context mContext = ApplicationProvider.getApplicationContext();
-
     @Rule
     public GrantPermissionRule mRuntimePermissionRule =
             GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
+    @Rule
+    public ActivityTestRule<SliceRenderActivity> mActivityRule =
+            new ActivityTestRule<>(SliceRenderActivity.class);
+
     @Test
     public void testRender() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(1);
-        BroadcastReceiver receiver = new BroadcastReceiver() {
+        final SliceRenderActivity activity = mActivityRule.getActivity();
+        final SliceRenderer[] renderer = new SliceRenderer[1];
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
-            public void onReceive(Context context, Intent intent) {
-                latch.countDown();
+            public void run() {
+                renderer[0] = new SliceRenderer(activity);
             }
-        };
-        mContext.registerReceiver(receiver,
-                new IntentFilter(SliceRenderActivity.ACTION_RENDER_DONE));
-        mContext.startActivity(new Intent(mContext, SliceRenderActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        });
 
-        latch.await(30000, TimeUnit.MILLISECONDS);
-        assertEquals(0, latch.getCount());
-        String path = new File(mContext.getFilesDir(), SCREENSHOT_DIR).getAbsolutePath();
+        assertTrue(renderer[0].doRender(30000, TimeUnit.MILLISECONDS));
+        String path = renderer[0].getScreenshotDirectory().getAbsolutePath();
         if (SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             InstrumentationRegistry.getInstrumentation().getUiAutomation().executeShellCommand(
                     "mv " + path + " " + "/sdcard/");

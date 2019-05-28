@@ -238,7 +238,15 @@ public final class NavUtils {
             @NonNull ComponentName componentName)
             throws NameNotFoundException {
         PackageManager pm = context.getPackageManager();
-        ActivityInfo info = pm.getActivityInfo(componentName, PackageManager.GET_META_DATA);
+        int flags = PackageManager.GET_META_DATA;
+        // Check for disabled components to handle cases where the
+        // ComponentName points to a disabled activity-alias.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            flags |= PackageManager.MATCH_DISABLED_COMPONENTS;
+        } else {
+            flags |= PackageManager.GET_DISABLED_COMPONENTS;
+        }
+        ActivityInfo info = pm.getActivityInfo(componentName, flags);
         if (Build.VERSION.SDK_INT >= 16) {
             String result = info.parentActivityName;
             if (result != null) {

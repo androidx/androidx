@@ -21,7 +21,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.Build;
-import android.os.Bundle;
 import android.util.SparseIntArray;
 
 import androidx.annotation.IntDef;
@@ -235,16 +234,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
 
     static final int INVALID_STREAM_TYPE = -1;  // AudioSystem.STREAM_DEFAULT
 
-    /** Keys to convert to (or create from) Bundle. */
-    static final String AUDIO_ATTRIBUTES_FRAMEWORKS =
-            "androidx.media.audio_attrs.FRAMEWORKS";
-    static final String AUDIO_ATTRIBUTES_USAGE = "androidx.media.audio_attrs.USAGE";
-    static final String AUDIO_ATTRIBUTES_CONTENT_TYPE =
-            "androidx.media.audio_attrs.CONTENT_TYPE";
-    static final String AUDIO_ATTRIBUTES_FLAGS = "androidx.media.audio_attrs.FLAGS";
-    static final String AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE =
-            "androidx.media.audio_attrs.LEGACY_STREAM_TYPE";
-
     /**
      * @hide
      */
@@ -345,28 +334,6 @@ public class AudioAttributesCompat implements VersionedParcelable {
      */
     public int getFlags() {
         return mImpl.getFlags();
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public @NonNull Bundle toBundle() {
-        return mImpl.toBundle();
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static AudioAttributesCompat fromBundle(Bundle bundle) {
-        AudioAttributesImpl impl;
-        if (Build.VERSION.SDK_INT >= 21) {
-            impl = AudioAttributesImplApi21.fromBundle(bundle);
-        } else {
-            impl = AudioAttributesImplBase.fromBundle(bundle);
-        }
-        return impl == null ? null : new AudioAttributesCompat(impl);
     }
 
     /**

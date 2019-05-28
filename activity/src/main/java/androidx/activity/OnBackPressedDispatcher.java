@@ -16,9 +16,9 @@
 
 package androidx.activity;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.util.Cancellable;
 import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -34,14 +34,17 @@ import java.util.Iterator;
  *     {@literal @}Override
  *     public void onAttach({@literal @}NonNull Context context) {
  *         super.onAttach(context);
- *         requireActivity().getOnBackPressedDispatcher().addCallback(this,
- *                 new OnBackPressedCallback() {
- *                     {@literal @}Override
- *                     public boolean handleOnBackPressed() {
- *                         showAreYouSureDialog();
- *                         return true;
- *                     }
- *                 });
+ *         OnBackPressedCallback callback = new OnBackPressedCallback(
+ *             true // default to enabled
+ *         ) {
+ *             {@literal @}Override
+ *             public void handleOnBackPressed() {
+ *                 showAreYouSureDialog();
+ *             }
+ *         };
+ *         requireActivity().getOnBackPressedDispatcher().addCallback(
+ *             this, // LifecycleOwner
+ *             callback);
  *     }
  * }
  * </pre>
@@ -61,23 +64,36 @@ public final class OnBackPressedDispatcher {
      * <p>
      * This method is <strong>not</strong> {@link Lifecycle} aware - if you'd like to ensure that
      * you only get callbacks when at least {@link Lifecycle.State#STARTED started}, use
-     * {@link #addCallback(LifecycleOwner, OnBackPressedCallback)}.
+     * {@link #addCallback(LifecycleOwner, OnBackPressedCallback)}. It is expected that you
+     * call {@link OnBackPressedCallback#remove()} to manually remove your callback.
      *
      * @param onBackPressedCallback The callback to add
-     * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
-     * the callback and remove it from the set of OnBackPressedCallbacks. The callback won't be
-     * called for any future {@link #onBackPressed()} calls, but may still receive a
-     * callback if {@link Cancellable#cancel()} is called during the dispatch of an ongoing
-     * {@link #onBackPressed()} call.
      *
      * @see #onBackPressed()
      */
+    @MainThread
+    public void addCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
+        addCancellableCallback(onBackPressedCallback);
+    }
+
+    /**
+     * Internal implementation of {@link #addCallback(OnBackPressedCallback)} that gives
+     * access to the {@link Cancellable} that specifically removes this callback from
+     * the dispatcher without relying on {@link OnBackPressedCallback#remove()} which
+     * is what external developers should be using.
+     *
+     * @param onBackPressedCallback The callback to add
+     * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
+     * the callback and remove it from the set of OnBackPressedCallbacks.
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @MainThread
     @NonNull
-    public Cancellable addCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
-        synchronized (mOnBackPressedCallbacks) {
-            mOnBackPressedCallbacks.add(onBackPressedCallback);
-        }
-        return new OnBackPressedCancellable(onBackPressedCallback);
+    Cancellable addCancellableCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
+        mOnBackPressedCallbacks.add(onBackPressedCallback);
+        OnBackPressedCancellable cancellable = new OnBackPressedCancellable(onBackPressedCallback);
+        onBackPressedCallback.addCancellable(cancellable);
+        return cancellable;
     }
 
     /**
@@ -85,81 +101,88 @@ public final class OnBackPressedDispatcher {
      * {@link LifecycleOwner} is at least {@link Lifecycle.State#STARTED started}.
      * <p>
      * This will automatically call {@link #addCallback(OnBackPressedCallback)} and
-     * {@link Cancellable#cancel()} as the lifecycle state changes.
+     * remove the callback as the lifecycle state changes.
      * As a corollary, if your lifecycle is already at least
      * {@link Lifecycle.State#STARTED started}, calling this method will result in an immediate
      * call to {@link #addCallback(OnBackPressedCallback)}.
      * <p>
      * When the {@link LifecycleOwner} is {@link Lifecycle.State#DESTROYED destroyed}, it will
      * automatically be removed from the list of callbacks. The only time you would need to
-     * manually call {@link Cancellable#cancel()} on the returned {@link Cancellable} is if
+     * manually call {@link OnBackPressedCallback#remove()} is if
      * you'd like to remove the callback prior to destruction of the associated lifecycle.
      *
-     * <p>If the Lifecycle is already
-     * {@link Lifecycle.State#DESTROYED destroyed} when this method is called, this will
-     * return{@link Cancellable#CANCELLED} and the callback will not be added.
+     * <p>
+     * If the Lifecycle is already {@link Lifecycle.State#DESTROYED destroyed}
+     * when this method is called, the callback will not be added.
      *
      * @param owner The LifecycleOwner which controls when the callback should be invoked
      * @param onBackPressedCallback The callback to add
-     * @return a {@link Cancellable} which can be used to {@link Cancellable#cancel() cancel}
-     * the callback and remove the associated {@link androidx.lifecycle.LifecycleObserver}
-     * and the OnBackPressedCallback. The callback won't be called for any future
-     * {@link #onBackPressed()} calls, but may still receive a callback if
-     * {@link Cancellable#cancel()} is called during the dispatch of an ongoing
-     * {@link #onBackPressed()} call.
      *
      * @see #onBackPressed()
      */
-    @NonNull
-    public Cancellable addCallback(@NonNull LifecycleOwner owner,
+    @MainThread
+    public void addCallback(@NonNull LifecycleOwner owner,
             @NonNull OnBackPressedCallback onBackPressedCallback) {
         Lifecycle lifecycle = owner.getLifecycle();
         if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
-            return Cancellable.CANCELLED;
+            return;
         }
-        return new LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback);
+
+        onBackPressedCallback.addCancellable(
+                new LifecycleOnBackPressedCancellable(lifecycle, onBackPressedCallback));
+    }
+
+    /**
+     * Checks if there is at least one {@link OnBackPressedCallback#isEnabled enabled}
+     * callback registered with this dispatcher.
+     *
+     * @return True if there is at least one enabled callback.
+     */
+    @MainThread
+    public boolean hasEnabledCallbacks() {
+        Iterator<OnBackPressedCallback> iterator =
+                mOnBackPressedCallbacks.descendingIterator();
+        while (iterator.hasNext()) {
+            if (iterator.next().isEnabled()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
      * Trigger a call to the currently added {@link OnBackPressedCallback callbacks} in reverse
-     * order in which they were added. Only if the most recently added callback returns
-     * <code>false</code> from its {@link OnBackPressedCallback#handleOnBackPressed()}
+     * order in which they were added. Only if the most recently added callback is not
+     * {@link OnBackPressedCallback#isEnabled() enabled}
      * will any previously added callback be called.
-     *
-     * @return True if an added {@link OnBackPressedCallback} handled the back button.
+     * <p>
+     * It is strongly recommended to call {@link #hasEnabledCallbacks()} prior to calling
+     * this method to determine if there are any enabled callbacks that will be triggered
+     * by this method as calling this method.
      */
-    public boolean onBackPressed() {
-        synchronized (mOnBackPressedCallbacks) {
-            Iterator<OnBackPressedCallback> iterator =
-                    mOnBackPressedCallbacks.descendingIterator();
-            while (iterator.hasNext()) {
-                if (iterator.next().handleOnBackPressed()) {
-                    return true;
-                }
+    @MainThread
+    public void onBackPressed() {
+        Iterator<OnBackPressedCallback> iterator =
+                mOnBackPressedCallbacks.descendingIterator();
+        while (iterator.hasNext()) {
+            OnBackPressedCallback callback = iterator.next();
+            if (callback.isEnabled()) {
+                callback.handleOnBackPressed();
+                return;
             }
-            return false;
         }
     }
 
     private class OnBackPressedCancellable implements Cancellable {
         private final OnBackPressedCallback mOnBackPressedCallback;
-        private boolean mCancelled;
-
         OnBackPressedCancellable(OnBackPressedCallback onBackPressedCallback) {
             mOnBackPressedCallback = onBackPressedCallback;
         }
 
         @Override
         public void cancel() {
-            synchronized (mOnBackPressedCallbacks) {
-                mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
-                mCancelled = true;
-            }
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return mCancelled;
+            mOnBackPressedCallbacks.remove(mOnBackPressedCallback);
+            mOnBackPressedCallback.removeCancellable(this);
         }
     }
 
@@ -170,7 +193,6 @@ public final class OnBackPressedDispatcher {
 
         @Nullable
         private Cancellable mCurrentCancellable;
-        private boolean mCancelled = false;
 
         LifecycleOnBackPressedCancellable(@NonNull Lifecycle lifecycle,
                 @NonNull OnBackPressedCallback onBackPressedCallback) {
@@ -183,7 +205,7 @@ public final class OnBackPressedDispatcher {
         public void onStateChanged(@NonNull LifecycleOwner source,
                 @NonNull Lifecycle.Event event) {
             if (event == Lifecycle.Event.ON_START) {
-                mCurrentCancellable = addCallback(mOnBackPressedCallback);
+                mCurrentCancellable = addCancellableCallback(mOnBackPressedCallback);
             } else if (event == Lifecycle.Event.ON_STOP) {
                 // Should always be non-null
                 if (mCurrentCancellable != null) {
@@ -197,16 +219,11 @@ public final class OnBackPressedDispatcher {
         @Override
         public void cancel() {
             mLifecycle.removeObserver(this);
+            mOnBackPressedCallback.removeCancellable(this);
             if (mCurrentCancellable != null) {
                 mCurrentCancellable.cancel();
                 mCurrentCancellable = null;
             }
-            mCancelled = true;
-        }
-
-        @Override
-        public boolean isCancelled() {
-            return mCancelled;
         }
     }
 }

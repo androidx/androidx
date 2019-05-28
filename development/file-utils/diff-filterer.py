@@ -16,17 +16,19 @@
 #
 
 
-import datetime, filecmp, os, shutil, subprocess, sys
+import datetime, filecmp, math, os, shutil, subprocess, sys
 from collections import OrderedDict
 
 def usage():
-  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--try-fail] [--work-path <workpath>] <passingPath> <failingPath> <shellCommand>
+  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--assume-input-states-are-correct] [--try-fail] [--work-path <workpath>] <passingPath> <failingPath> <shellCommand>
 
 diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <failingPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
 
 OPTIONS
   --assume-no-side-effects
     Assume that the given shell command does not make any (relevant) changes to the given directory, and therefore don't wipe and repopulate the directory before each invocation of the command
+  --assume-input-states-are-correct
+    Assume that <shellCommand> passes in <passingPath> and fails in <failingPath> rather than re-verifying this
   --try-fail
     Invert the success/fail status of <shellCommand> and swap <passingPath> and <failingPath>
     That is, instead of trying to transform <passingPath> into <failingPath>, try to transform <failingPath> into <passingPath>
@@ -261,16 +263,18 @@ def filesStateFromTree(rootPath):
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
 class DiffRunner(object):
-  def __init__(self, failingPath, passingPath, shellCommand, tempPath, workPath, assumeNoSideEffects, tryFail):
+  def __init__(self, failingPath, passingPath, shellCommand, tempPath, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, tryFail):
     # some simple params
-    self.workPath = os.path.abspath(workPath)
-    if self.workPath is None:
+    if workPath is None:
       self.workPath = fileIo.join(tempPath, "work")
+    else:
+      self.workPath = os.path.abspath(workPath)
     self.bestState_path = fileIo.join(tempPath, "bestResults")
     self.shellCommand = shellCommand
     self.originalPassingPath = os.path.abspath(passingPath)
     self.originalFailingPath = os.path.abspath(failingPath)
     self.assumeNoSideEffects = assumeNoSideEffects
+    self.assumeInputStatesAreCorrect = assumeInputStatesAreCorrect
     self.tryFail = tryFail
 
     # lists of all the files under the two dirs
@@ -297,22 +301,29 @@ class DiffRunner(object):
     return (commandSucceeded != self.tryFail)
 
   def run(self):
-    print("Testing that given failing state actually fails")
-    fileIo.removePath(self.workPath)
-    fileIo.ensureDirExists(self.workPath)
-    if self.test(self.originalFailingState):
-      print("\nGiven failing state at " + self.originalFailingPath + " does not actually fail!")
-      return False
+    start = datetime.datetime.now()
+    numIterationsCompleted = 0
+    if not self.assumeInputStatesAreCorrect:
+      print("Testing that the given failing state actually fails")
+      fileIo.removePath(self.workPath)
+      fileIo.ensureDirExists(self.workPath)
+      if self.test(self.originalFailingState):
+        print("\nGiven failing state at " + self.originalFailingPath + " does not actually fail!")
+        return False
 
-    print("Testing that given passing state actually passes")
-    if self.assumeNoSideEffects:
-      self.resetTo_state.apply(self.workPath)
+      print("Testing that the given passing state actually passes")
+      if self.assumeNoSideEffects:
+        self.resetTo_state.apply(self.workPath)
+      else:
+        fileIo.removePath(self.workPath)
+        fileIo.ensureDirExists(self.workPath)
+      if not self.test(self.originalPassingState):
+        print("\nGiven passing state at " + self.originalPassingPath + " does not actually pass!")
+        return False
     else:
       fileIo.removePath(self.workPath)
       fileIo.ensureDirExists(self.workPath)
-    if not self.test(self.originalPassingState):
-      print("\nGiven passing state at " + self.originalPassingPath + " does not actually pass!")
-      return False
+      self.originalPassingState.apply(self.workPath)
 
     print("Saving best state found so far")
     fileIo.removePath(self.bestState_path)
@@ -321,7 +332,7 @@ class DiffRunner(object):
     print("Starting")
     print("(You can inspect " + self.bestState_path + " while this process runs, to observe the best state discovered so far)")
     print("")
-
+    numFailuresDuringCurrentWindowSize = 0
     # decrease the window size until it reaches 0
     while self.windowSize > 0:
       # scan the state until reaching the end
@@ -330,6 +341,8 @@ class DiffRunner(object):
       succeededDuringThisScan = False
       # if we encounter only successes for this window size, then check all windows except the last (because if all other windows pass, then the last must fail)
       # if we encounter any failure for this window size, then check all windows
+      numFailuresDuringPreviousWindowSize = numFailuresDuringCurrentWindowSize
+      numFailuresDuringCurrentWindowSize = 0
       while (windowMax > self.windowSize) or (windowMax > 0 and failedDuringThisScan):
         # determine which changes to test
         windowMin = max(0, windowMax - self.windowSize)
@@ -341,6 +354,22 @@ class DiffRunner(object):
           print("Resetting " + str(self.workPath))
           fileIo.removePath(self.workPath)
           self.full_resetTo_state.apply(self.workPath)
+
+        # estimate time remaining
+        currentTime = datetime.datetime.now()
+        elapsedDuration = currentTime - start
+        estimatedNumInvalidFiles = numFailuresDuringPreviousWindowSize
+        if estimatedNumInvalidFiles < 1:
+          estimatedNumInvalidFiles = 1
+        estimatedNumValidFilesPerInvalidFile = self.resetTo_state.size() / estimatedNumInvalidFiles
+        estimatedNumWindowShrinkages = math.log(estimatedNumValidFilesPerInvalidFile, 3)
+        estimatedNumTestsPerWindow = estimatedNumWindowShrinkages * 3 + 1
+        estimatedNumIterationsRemaining = estimatedNumTestsPerWindow * estimatedNumInvalidFiles
+        numIterationsCompleted += 1
+        estimatedRemainingDuration = datetime.timedelta(seconds=(elapsedDuration.total_seconds() * estimatedNumIterationsRemaining / numIterationsCompleted))
+        print("Estimated remaining duration = " + str(estimatedRemainingDuration) + " and remaining num iterations = "  + str(estimatedNumIterationsRemaining))
+        print("")
+
         # test the state
         if self.test(testState):
           print("Accepted updated state having " + str(currentWindowSize) + " changes")
@@ -353,7 +382,9 @@ class DiffRunner(object):
           succeededDuringThisScan = True
         else:
           print("Rejected updated state having " + str(currentWindowSize) + " changes")
+
           failedDuringThisScan = True
+          numFailuresDuringCurrentWindowSize += 1
         # shift the window
         windowMax -= self.windowSize
       # we checked every file once; now shrink the window
@@ -377,6 +408,8 @@ class DiffRunner(object):
       message = "Error: expected best state at " + self.bestState_path + " did not pass the second time. Could the test be non-deterministic?"
       if self.assumeNoSideEffects:
         message += " (it may help to remove the --assume-no-side-effects flag)"
+      if self.assumeInputStatesAreCorrect:
+        message += " (it may help to remove the --assume-input-states-are-correct flag)"
       print(message)
       wasSuccessful = False
 
@@ -388,12 +421,17 @@ class DiffRunner(object):
 
 def main(args):
   assumeNoSideEffects = False
+  assumeInputStatesAreCorrect = False
   tryFail = False
   workPath = None
   while len(args) > 0:
     arg = args[0]
     if arg == "--assume-no-side-effects":
       assumeNoSideEffects = True
+      args = args[1:]
+      continue
+    if arg == "--assume-input-states-are-correct":
+      assumeInputStatesAreCorrect = True
       args = args[1:]
       continue
     if arg == "--try-fail":
@@ -421,7 +459,7 @@ def main(args):
     temp = passingPath
     passingPath = failingPath
     failingPath = temp
-  success = DiffRunner(failingPath, passingPath, shellCommand, tempPath, workPath, assumeNoSideEffects, tryFail).run()
+  success = DiffRunner(failingPath, passingPath, shellCommand, tempPath, workPath, assumeNoSideEffects, assumeInputStatesAreCorrect, tryFail).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
   if success:

@@ -1,0 +1,55 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.core.internal.view.SupportMenuItem#requiresActionButton():
+    Added method androidx.core.internal.view.SupportMenuItem.requiresActionButton()
+AddedAbstractMethod: androidx.core.internal.view.SupportMenuItem#requiresOverflow():
+    Added method androidx.core.internal.view.SupportMenuItem.requiresOverflow()
+
+
+InvalidNullConversion: androidx.core.graphics.TypefaceCompatApi28Impl#createFromFontFamilyFilesResourceEntry(android.content.Context, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry, android.content.res.Resources, int):
+    Attempted to remove @Nullable annotation from method androidx.core.graphics.TypefaceCompatApi28Impl.createFromFontFamilyFilesResourceEntry(android.content.Context,androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry,android.content.res.Resources,int)
+
+
+RemovedClass: androidx.core.graphics.PathParser:
+    Removed class androidx.core.graphics.PathParser
+RemovedClass: androidx.core.graphics.drawable.IconCompatParcelizer:
+    Removed class androidx.core.graphics.drawable.IconCompatParcelizer
+
+
+RemovedInterface: androidx.core.widget.NestedScrollView:
+    Class androidx.core.widget.NestedScrollView no longer implements androidx.core.view.NestedScrollingChild2
+
+
+RemovedMethod: androidx.core.app.ComponentActivity#getLifecycle():
+    Removed method androidx.core.app.ComponentActivity.getLifecycle()
+RemovedMethod: androidx.core.util.Preconditions#checkArgumentFinite(float, String):
+    Removed method androidx.core.util.Preconditions.checkArgumentFinite(float,String)
+RemovedMethod: androidx.core.util.Preconditions#checkArgumentInRange(float, float, float, String):
+    Removed method androidx.core.util.Preconditions.checkArgumentInRange(float,float,float,String)
+RemovedMethod: androidx.core.util.Preconditions#checkArgumentInRange(long, long, long, String):
+    Removed method androidx.core.util.Preconditions.checkArgumentInRange(long,long,long,String)
+RemovedMethod: androidx.core.util.Preconditions#checkArgumentNonnegative(long):
+    Removed method androidx.core.util.Preconditions.checkArgumentNonnegative(long)
+RemovedMethod: androidx.core.util.Preconditions#checkArgumentNonnegative(long, String):
+    Removed method androidx.core.util.Preconditions.checkArgumentNonnegative(long,String)
+RemovedMethod: androidx.core.util.Preconditions#checkArgumentPositive(int, String):
+    Removed method androidx.core.util.Preconditions.checkArgumentPositive(int,String)
+RemovedMethod: androidx.core.util.Preconditions#checkArrayElementsInRange(float[], float, float, String):
+    Removed method androidx.core.util.Preconditions.checkArrayElementsInRange(float[],float,float,String)
+RemovedMethod: androidx.core.util.Preconditions#checkArrayElementsNotNull(T[], String):
+    Removed method androidx.core.util.Preconditions.checkArrayElementsNotNull(T[],String)
+RemovedMethod: androidx.core.util.Preconditions#checkCollectionElementsNotNull(C, String):
+    Removed method androidx.core.util.Preconditions.checkCollectionElementsNotNull(C,String)
+RemovedMethod: androidx.core.util.Preconditions#checkCollectionNotEmpty(java.util.Collection<T>, String):
+    Removed method androidx.core.util.Preconditions.checkCollectionNotEmpty(java.util.Collection<T>,String)
+RemovedMethod: androidx.core.util.Preconditions#checkFlagsArgument(int, int):
+    Removed method androidx.core.util.Preconditions.checkFlagsArgument(int,int)
+RemovedMethod: androidx.core.util.Preconditions#checkStringNotEmpty(T):
+    Removed method androidx.core.util.Preconditions.checkStringNotEmpty(T)
+RemovedMethod: androidx.core.util.Preconditions#checkStringNotEmpty(T, Object):
+    Removed method androidx.core.util.Preconditions.checkStringNotEmpty(T,Object)
+
+
+RemovedPackage: android.support.v4.graphics.drawable:
+    Removed package android.support.v4.graphics.drawable
+
+

@@ -56,14 +56,14 @@ import java.util.List;
  * <p>CarToolbar provides a subset of features of {@link Toolbar} through a driving safe UI. From
  * start to end, a CarToolbar provides the following elements:
  * <ul>
- *      <li><em>A navigation button.</em> Similar to that in Toolbar, navigation button should
- *          always provide access to other navigational destinations. If navigation button is to
- *          be used as Up Button, its {@code OnClickListener} needs to explicitly invoke
- *          {@link AppCompatActivity#onSupportNavigateUp()}
- *      <li><em>A title icon.</em> A @{@code Drawable} shown before the title.
- *      <li><em>A title.</em> A single line primary text that ellipsizes at the end.
- *      <li><em>A subtitle.</em> A single line secondary text that ellipsizes at the end.
- *      <li><em>An overflow button.</em> A button that opens the overflow menu.
+ * <li><em>A navigation button.</em> Similar to that in Toolbar, navigation button should
+ * always provide access to other navigational destinations. If navigation button is to
+ * be used as Up Button, its {@code OnClickListener} needs to explicitly invoke
+ * {@link AppCompatActivity#onSupportNavigateUp()}
+ * <li><em>A title icon.</em> A @{@code Drawable} shown before the title.
+ * <li><em>A title.</em> A single line primary text that ellipsizes at the end.
+ * <li><em>A subtitle.</em> A single line secondary text that ellipsizes at the end.
+ * <li><em>An overflow button.</em> A button that opens the overflow menu.
  * </ul>
  *
  * <p>{@link CarMenuItem} in overflow menu will be shown as a {@link CarListDialog}. Overflow menu
@@ -307,8 +307,8 @@ public class CarToolbar extends ViewGroup {
     /**
      * Measures ALWAYS menu items and adds them to the layout.
      *
-     * @param widthUsed Total width used by other child views so far.
-     * @param widthMeasureSpec Parent width measure spec.
+     * @param widthUsed         Total width used by other child views so far.
+     * @param widthMeasureSpec  Parent width measure spec.
      * @param heightMeasureSpec Parent height measure spec.
      * @return Total width occupied by ALWAYS items.
      */
@@ -331,9 +331,9 @@ public class CarToolbar extends ViewGroup {
      * Measures IF_ROOM menu items and adds them to the layout. Items past
      * {@link #ACTION_ITEM_COUNT_LIMIT} or half the toolbar width will not be measured/added.
      *
-     * @param widthUsed Total width used by other child views so far.
-     * @param alwaysItemsWidth Total width used by ALWAYS item views.
-     * @param widthMeasureSpec Parent width measure spec.
+     * @param widthUsed         Total width used by other child views so far.
+     * @param alwaysItemsWidth  Total width used by ALWAYS item views.
+     * @param widthMeasureSpec  Parent width measure spec.
      * @param heightMeasureSpec Parent height measure spec.
      * @return Total width occupied by IF_ROOM items.
      */
@@ -598,11 +598,12 @@ public class CarToolbar extends ViewGroup {
      *
      * @param title Title to set.
      */
-    public void setTitle(CharSequence title) {
+    public void setTitle(@Nullable CharSequence title) {
         mTitleText = title;
         mTitleTextView.setText(title);
         mTitleTextView.setVisibility(TextUtils.isEmpty(title) ? GONE : VISIBLE);
     }
+
     /**
      * Returns the subtitle of this toolbar.
      *
@@ -618,6 +619,7 @@ public class CarToolbar extends ViewGroup {
      *
      * <p>Subtitles should express extended information about the current content.
      * Subtitle will appear underneath the title if the title exists.
+     *
      * @param resId Resource ID of a string to set as the subtitle.
      */
     public void setSubtitle(@StringRes int resId) {
@@ -788,12 +790,12 @@ public class CarToolbar extends ViewGroup {
         }
 
         CharSequence[] titles = mOverflowMenuItems.stream()
-            .map(CarMenuItem::getTitle)
-            .toArray(CharSequence[]::new);
+                .map(CarMenuItem::getTitle)
+                .toArray(CharSequence[]::new);
 
         mOverflowDialog = new CarListDialog.Builder(getContext())
-            .setItems(titles, mOverflowDialogClickListener)
-            .create();
+                .setItems(titles, mOverflowDialogClickListener)
+                .create();
     }
 
     /**
@@ -829,20 +831,17 @@ public class CarToolbar extends ViewGroup {
     }
 
     /**
-     * Shows the overflow menu.
+     * Sets whether the overflow menu is shown.
+     *
+     * @param show {code true} to show the overflow menu or {@code false} to hide it.
      */
-    public void showOverflowMenu() {
-        populateOverflowMenu();
-        if (mOverflowDialog != null) {
-            mOverflowDialog.show();
-        }
-    }
-
-    /**
-     * Hides the overflow menu.
-     */
-    public void hideOverflowMenu() {
-        if (mOverflowDialog != null) {
+    public void setOverflowMenuShown(boolean show) {
+        if (show) {
+            populateOverflowMenu();
+            if (mOverflowDialog != null) {
+                mOverflowDialog.show();
+            }
+        } else if (mOverflowDialog != null) {
             mOverflowDialog.dismiss();
         }
     }
@@ -870,8 +869,8 @@ public class CarToolbar extends ViewGroup {
     /**
      * Lays out a view on the left side so that it's vertically centered in its parent.
      *
-     * @param view The view to layout.
-     * @param left Position from the left.
+     * @param view         The view to layout.
+     * @param left         Position from the left.
      * @param parentHeight Height of the parent view.
      */
     private void layoutViewFromLeftVerticallyCentered(View view, int left, int parentHeight) {
@@ -884,8 +883,8 @@ public class CarToolbar extends ViewGroup {
     /**
      * Lays out a view on the right side so that it's vertically centered in its parent.
      *
-     * @param view The view to layout.
-     * @param right Position from the right.
+     * @param view         The view to layout.
+     * @param right        Position from the right.
      * @param parentHeight Height of the parent view.
      */
     private void layoutViewFromRightVerticallyCentered(View view, int right, int parentHeight) {
@@ -919,13 +918,14 @@ public class CarToolbar extends ViewGroup {
     /**
      * Measure child view.
      *
-     * @param child Child view to measure.
-     * @param parentWidthSpec Parent width MeasureSpec.
-     * @param widthUsed Width used so far by other child views; used as part of padding for current
-     * child view in MeasureSpec calculation.
+     * @param child            Child view to measure.
+     * @param parentWidthSpec  Parent width MeasureSpec.
+     * @param widthUsed        Width used so far by other child views; used as part of padding
+     *                         for current
+     *                         child view in MeasureSpec calculation.
      * @param parentHeightSpec Parent height MeasureSpec.
-     * @param heightUsed Height used so far by other child views; used as part of padding for
-     * current child view in MeasureSpec calculation.
+     * @param heightUsed       Height used so far by other child views; used as part of padding for
+     *                         current child view in MeasureSpec calculation.
      */
     private void measureChild(View child, int parentWidthSpec, int widthUsed,
             int parentHeightSpec, int heightUsed) {

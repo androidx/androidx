@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Dialog;
@@ -114,7 +115,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
 
             if (mDialog != null) {
                 if (mUseDynamicGroup) {
-                    ((MediaRouteCastDialog) mDialog).setRouteSelector(selector);
+                    ((MediaRouteDynamicControllerDialog) mDialog).setRouteSelector(selector);
                 }
             }
         }
@@ -124,9 +125,9 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
      * Called when the cast dialog is being created.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public MediaRouteCastDialog onCreateCastDialog(Context context) {
-        return new MediaRouteCastDialog(context);
+    @RestrictTo(LIBRARY_GROUP)
+    public MediaRouteDynamicControllerDialog onCreateDynamicControllerDialog(Context context) {
+        return new MediaRouteDynamicControllerDialog(context);
     }
 
     /**
@@ -143,8 +144,8 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (mUseDynamicGroup) {
-            mDialog = onCreateCastDialog(getContext());
-            ((MediaRouteCastDialog) mDialog).setRouteSelector(mSelector);
+            mDialog = onCreateDynamicControllerDialog(getContext());
+            ((MediaRouteDynamicControllerDialog) mDialog).setRouteSelector(mSelector);
         } else {
             mDialog = onCreateControllerDialog(getContext(), savedInstanceState);
         }
@@ -164,7 +165,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
         super.onConfigurationChanged(newConfig);
         if (mDialog != null) {
             if (mUseDynamicGroup) {
-                ((MediaRouteCastDialog) mDialog).updateLayout();
+                ((MediaRouteDynamicControllerDialog) mDialog).updateLayout();
             } else {
                 ((MediaRouteControllerDialog) mDialog).updateLayout();
             }

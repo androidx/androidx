@@ -146,6 +146,33 @@ public class ListRowPresenterTest {
     }
 
     @Test
+    public void noOnFocusChangeListenerWhenZoomDisabled() {
+        final ArrayObjectAdapter arrayAdapter = new ArrayObjectAdapter(
+                new DummyPresenter(100, 213));
+        arrayAdapter.add("abc");
+        mListRowPresenter = new ListRowPresenter(FocusHighlight.ZOOM_FACTOR_NONE);
+        mRow = new ListRow(arrayAdapter);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                final ViewGroup parent = new FrameLayout(mContext);
+                Presenter.ViewHolder containerVh = mListRowPresenter.onCreateViewHolder(parent);
+                parent.addView(containerVh.view, 1000, 1000);
+                mListVh = (ListRowPresenter.ViewHolder) mListRowPresenter.getRowViewHolder(
+                        containerVh);
+                mListRowPresenter.onBindViewHolder(mListVh, mRow);
+                mListVh.view.measure(
+                        View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.makeMeasureSpec(1000, View.MeasureSpec.UNSPECIFIED));
+                mListVh.view.layout(0, 0, 1000, 1000);
+            }
+        });
+        // no onFocusChangeListener should be set for ZOOM_FACTOR_NONE
+        assertEquals(null, mListVh.getGridView().getChildAt(0)
+                .findViewById(R.id.lb_action_button).getOnFocusChangeListener());
+    }
+
+    @Test
     public void measureWithScrapViewHeight() {
         final ArrayObjectAdapter arrayAdapter = new ArrayObjectAdapter(
                 new DummyPresenter(100, 213));

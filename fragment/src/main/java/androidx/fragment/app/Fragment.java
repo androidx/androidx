@@ -29,6 +29,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -74,6 +75,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Static library support version of the framework's {@link android.app.Fragment}.
@@ -196,7 +198,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     boolean mMenuVisible = true;
 
     // Used to verify that subclasses call through to super class.
-    boolean mCalled;
+    private boolean mCalled;
 
     // The parent container of the fragment after dynamically added to UI.
     ViewGroup mContainer;
@@ -240,6 +242,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // fragments can have mRetaining set to true without going through creation, so we must
     // track it separately.
     boolean mIsCreated;
+
+    // Max Lifecycle state this Fragment can achieve.
+    Lifecycle.State mMaxState = Lifecycle.State.RESUMED;
 
     LifecycleRegistry mLifecycleRegistry;
 
@@ -1121,7 +1126,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param isVisibleToUser true if this fragment's UI is currently visible to the user (default),
      *                        false if it is not.
+     *
+     * @deprecated Use {@link FragmentTransaction#setMaxLifecycle(Fragment, Lifecycle.State)}
+     * instead.
      */
+    @Deprecated
     public void setUserVisibleHint(boolean isVisibleToUser) {
         if (!mUserVisibleHint && isVisibleToUser && mState < STARTED
                 && mFragmentManager != null && isAdded() && mIsCreated) {
@@ -1139,7 +1148,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * @return The current value of the user-visible hint on this fragment.
      * @see #setUserVisibleHint(boolean)
+     *
+     * @deprecated Use {@link FragmentTransaction#setMaxLifecycle(Fragment, Lifecycle.State)}
+     * instead.
      */
+    @Deprecated
     public boolean getUserVisibleHint() {
         return mUserVisibleHint;
     }
@@ -2356,6 +2369,52 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Postpone the entering Fragment transition for a given amount of time and then call
+     * {@link #startPostponedEnterTransition()}.
+     * <p>
+     * This method gives the Fragment the ability to delay Fragment animations for a given amount
+     * of time. Until then, the added, shown, and attached Fragments will be INVISIBLE and removed,
+     * hidden, and detached Fragments won't be have their Views removed. The transaction runs when
+     * all postponed added Fragments in the transaction have called
+     * {@link #startPostponedEnterTransition()}.
+     * <p>
+     * This method should be called before being added to the FragmentTransaction or
+     * in {@link #onCreate(Bundle)}, {@link #onAttach(Context)}, or
+     * {@link #onCreateView(LayoutInflater, ViewGroup, Bundle)}}.
+     * <p>
+     * When a FragmentTransaction is started that may affect a postponed FragmentTransaction,
+     * based on which containers are in their operations, the postponed FragmentTransaction
+     * will have its start triggered. The early triggering may result in faulty or nonexistent
+     * animations in the postponed transaction. FragmentTransactions that operate only on
+     * independent containers will not interfere with each other's postponement.
+     * <p>
+     * Calling postponeEnterTransition on Fragments with a null View will not postpone the
+     * transition. Likewise, postponement only works if
+     * {@link FragmentTransaction#setReorderingAllowed(boolean) FragmentTransaction reordering} is
+     * enabled.
+     *
+     * @param duration The length of the delay in {@code timeUnit} units
+     * @param timeUnit The units of time for {@code duration}
+     * @see Activity#postponeEnterTransition()
+     * @see FragmentTransaction#setReorderingAllowed(boolean)
+     */
+    public final void postponeEnterTransition(long duration, @NonNull TimeUnit timeUnit) {
+        ensureAnimationInfo().mEnterTransitionPostponed = true;
+        Handler handler;
+        if (mFragmentManager != null) {
+            handler = mFragmentManager.mHost.getHandler();
+        } else {
+            handler = new Handler(Looper.getMainLooper());
+        }
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                startPostponedEnterTransition();
+            }
+        }, timeUnit.toMillis(duration));
+    }
+
+    /**
      * Begin postponed transitions after {@link #postponeEnterTransition()} was called.
      * If postponeEnterTransition() was called, you must call startPostponedEnterTransition()
      * or {@link FragmentManager#executePendingTransactions()} to complete the FragmentTransaction.
@@ -2516,6 +2575,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 return (mView != null);
             }
         }, this);
+    }
+
+    void performAttach() {
+        mCalled = false;
+        onAttach(mHost.getContext());
+        if (!mCalled) {
+            throw new SuperNotCalledException("Fragment " + this
+                    + " did not call through to super.onAttach()");
+        }
     }
 
     void performCreate(Bundle savedInstanceState) {

@@ -16,34 +16,51 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.androidx.webkit">
+    package="com.example.androidx.webkit"
+    tools:ignore="GoogleAppIndexingWarning">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <application android:label="@string/main_activity_title"
-                 android:hardwareAccelerated="true"
-                 android:theme="@style/AppTheme"
-                 android:supportsRtl="true"
-                 android:usesCleartextTraffic="true">
-
+    <application
+        android:allowBackup="false"
+        android:hardwareAccelerated="true"
+        android:label="@string/main_activity_title"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true"
+        tools:ignore="UnusedAttribute">
         <!-- Top-level Activity -->
         <activity android:name=".MainActivity">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SafeBrowsingActivity"
-          android:exported="true" />
-        <activity android:name=".ProxyOverrideActivity"
-          android:exported="true" />
-        <activity android:name=".AssetLoaderListActivity"
-          android:exported="true" />
-        <activity android:name=".AssetLoaderSimpleActivity"
-          android:exported="true" />
-        <activity android:name=".AssetLoaderAjaxActivity"
-          android:exported="true" />
+        <activity
+            android:name=".SafeBrowsingActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SmallInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MediumInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".LoudInterstitialActivity"
+            android:exported="true" />
+        <activity
+            android:name=".ProxyOverrideActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AssetLoaderListActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AssetLoaderSimpleActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AssetLoaderAjaxActivity"
+            android:exported="true" />
     </application>
 </manifest>

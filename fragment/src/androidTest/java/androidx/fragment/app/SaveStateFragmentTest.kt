@@ -17,18 +17,9 @@
 package androidx.fragment.app
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.FragmentTestUtil.HostCallbacks
-import androidx.fragment.app.FragmentTestUtil.createController
-import androidx.fragment.app.FragmentTestUtil.destroy
-import androidx.fragment.app.FragmentTestUtil.restartFragmentController
-import androidx.fragment.app.FragmentTestUtil.resume
-import androidx.fragment.app.FragmentTestUtil.shutdownFragmentController
-import androidx.fragment.app.FragmentTestUtil.startupFragmentController
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -49,6 +40,7 @@ class SaveStateFragmentTest {
 
     @Test
     @UiThreadTest
+    @SuppressWarnings("deprecation")
     fun setInitialSavedState() {
         val fm = activityRule.activity.supportFragmentManager
 
@@ -81,6 +73,7 @@ class SaveStateFragmentTest {
 
     @Test
     @UiThreadTest
+    @SuppressWarnings("deprecation")
     fun setInitialSavedStateWithSetUserVisibleHint() {
         val fm = activityRule.activity.supportFragmentManager
 
@@ -118,7 +111,7 @@ class SaveStateFragmentTest {
         // and then restore them to a second new FragmentManager.
         val viewModelStore = ViewModelStore()
         val fc1 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm1 = fc1.supportFragmentManager
@@ -130,15 +123,13 @@ class SaveStateFragmentTest {
 
         // This retained fragment will be added, then removed. After being removed, it
         // should no longer be retained by the FragmentManager
-        val removedFragment = StateSaveFragment("Removed", "UnsavedRemoved")
-        removedFragment.retainInstance = true
+        val removedFragment = StateSaveFragment("Removed", "UnsavedRemoved", true)
         fm1.beginTransaction().add(removedFragment, "tag:removed").commitNow()
         fm1.beginTransaction().remove(removedFragment).commitNow()
 
         // This retained fragment will be added, then detached. After being detached, it
         // should continue to be retained by the FragmentManager
-        val detachedFragment = StateSaveFragment("Detached", "UnsavedDetached")
-        removedFragment.retainInstance = true
+        val detachedFragment = StateSaveFragment("Detached", "UnsavedDetached", true)
         fm1.beginTransaction().add(detachedFragment, "tag:detached").commitNow()
         fm1.beginTransaction().detach(detachedFragment).commitNow()
 
@@ -151,12 +142,11 @@ class SaveStateFragmentTest {
         fm1.beginTransaction().add(grandparentFragment, "tag:grandparent").commitNow()
 
         // Parent fragment will retain instance
-        val parentFragment = StateSaveFragment("Parent", "UnsavedParent")
+        val parentFragment = StateSaveFragment("Parent", "UnsavedParent", true)
         assertWithMessage("parent fragment saved state not initialized")
             .that(parentFragment.savedState).isNotNull()
         assertWithMessage("parent fragment unsaved state not initialized")
             .that(parentFragment.unsavedState).isNotNull()
-        parentFragment.retainInstance = true
         grandparentFragment.childFragmentManager.beginTransaction()
             .add(parentFragment, "tag:parent").commitNow()
         assertWithMessage("parent fragment is not a child of grandparent")
@@ -191,7 +181,7 @@ class SaveStateFragmentTest {
 
         // Create the new controller and restore state
         val fc2 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm2 = fc2.supportFragmentManager
@@ -253,7 +243,7 @@ class SaveStateFragmentTest {
         // Test that the fragments are in the configuration we expect
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
 
         assertWithMessage("grandparent not destroyed")
             .that(restoredGrandparent.calledOnDestroy).isTrue()
@@ -275,7 +265,7 @@ class SaveStateFragmentTest {
 
         val viewModelStore = ViewModelStore()
         val fc1 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm1 = fc1.supportFragmentManager
@@ -284,8 +274,7 @@ class SaveStateFragmentTest {
         fc1.dispatchCreate()
 
         // Add the retained Fragment
-        val retainedFragment = StateSaveFragment("Retained", "UnsavedRetained")
-        retainedFragment.retainInstance = true
+        val retainedFragment = StateSaveFragment("Retained", "UnsavedRetained", true)
         fm1.beginTransaction().add(retainedFragment, "tag:retained").commitNow()
 
         // Move the activity to resumed
@@ -308,13 +297,17 @@ class SaveStateFragmentTest {
         fc1.execPendingActions()
         fc1.dispatchStart()
 
+        // Add another Fragment while we're started
+        val retainedOnStartFragment = StateSaveFragment("onStart", "onStart", true)
+        fm1.beginTransaction().add(retainedOnStartFragment, "tag:onStart").commitNow()
+
         // Finish the transparent activity, causing a config change
         fc1.dispatchStop()
         fc1.dispatchDestroy()
 
         // Create the new controller and restore state
         val fc2 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm2 = fc2.supportFragmentManager
@@ -327,6 +320,13 @@ class SaveStateFragmentTest {
         assertWithMessage("retained fragment not restored").that(restoredFragment).isNotNull()
         assertWithMessage("The retained Fragment shouldn't be recreated")
             .that(restoredFragment).isEqualTo(retainedFragment)
+        val restoredOnStartFragment = fm2.findFragmentByTag("tag:onStart") as StateSaveFragment?
+        assertWithMessage("Retained Fragment added after saved state shouldn't be restored")
+            .that(restoredOnStartFragment)
+            .isNull()
+        assertWithMessage("Retained Fragment added after saved state should be destroyed")
+            .that(retainedOnStartFragment.calledOnDestroy)
+            .isTrue()
 
         fc2.dispatchActivityCreated()
         fc2.noteStateNotSaved()
@@ -336,7 +336,7 @@ class SaveStateFragmentTest {
         fc2.execPendingActions()
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
     }
 
     @Test
@@ -344,8 +344,7 @@ class SaveStateFragmentTest {
     fun testSavedInstanceStateAfterRestore() {
 
         val viewModelStore = ViewModelStore()
-        val fc1 =
-            startupFragmentController(activityRule.activity, null, viewModelStore)
+        val fc1 = activityRule.startupFragmentController(viewModelStore)
         val fm1 = fc1.supportFragmentManager
 
         // Add the initial state
@@ -369,11 +368,7 @@ class SaveStateFragmentTest {
         fc1.dispatchDestroy()
 
         // Create the new controller and restore state
-        val fc2 = startupFragmentController(
-            activityRule.activity,
-            savedState,
-            viewModelStore
-        )
+        val fc2 = activityRule.startupFragmentController(viewModelStore, savedState)
         val fm2 = fc2.supportFragmentManager
 
         val restoredParentFragment = fm2.findFragmentByTag("parent") as StrictFragment
@@ -389,7 +384,7 @@ class SaveStateFragmentTest {
             .that(restoredChildFragment.lastSavedInstanceState).isNotNull()
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
     }
 
     @Test
@@ -397,7 +392,7 @@ class SaveStateFragmentTest {
     fun restoreNestedFragmentsOnBackStack() {
         val viewModelStore = ViewModelStore()
         val fc1 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm1 = fc1.supportFragmentManager
@@ -436,7 +431,7 @@ class SaveStateFragmentTest {
 
         // Create the new controller and restore state
         val fc2 = FragmentController.createController(
-            HostCallbacks(activityRule.activity, viewModelStore)
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
         )
 
         val fm2 = fc2.supportFragmentManager
@@ -460,7 +455,7 @@ class SaveStateFragmentTest {
         fc2.execPendingActions()
 
         // Bring the state back down to destroyed before we finish the test
-        shutdownFragmentController(fc2, viewModelStore)
+        fc2.shutdown(viewModelStore)
     }
 
     /**
@@ -470,34 +465,68 @@ class SaveStateFragmentTest {
     @Test
     @UiThreadTest
     fun saveRemovedFragment() {
-        var fc = createController(activityRule)
-        resume(activityRule, fc, null)
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
-        var fragment1 = SaveStateFragment.create(1)
+        var fragment1 = StateSaveFragment("1")
         fm.beginTransaction()
             .add(android.R.id.content, fragment1, "1")
             .addToBackStack(null)
             .commit()
-        var fragment2 = SaveStateFragment.create(2)
+        var fragment2 = StateSaveFragment("2")
         fm.beginTransaction()
             .replace(android.R.id.content, fragment2, "2")
             .addToBackStack(null)
             .commit()
         fm.executePendingTransactions()
 
-        val savedState = destroy(activityRule, fc)
+        // fragment on backstack should be in CREATED state and removed
+        assertThat(fragment1.currentState).isEqualTo(StrictFragment.State.CREATED)
+        assertThat(fragment1.isRemoving).isTrue()
 
-        fc = createController(activityRule)
-        resume(activityRule, fc, savedState)
+        fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
-        fragment2 = fm.findFragmentByTag("2") as SaveStateFragment
+
+        fragment2 = fm.findFragmentByTag("2") as StateSaveFragment
         assertThat(fragment2).isNotNull()
-        assertThat(fragment2.value).isEqualTo(2)
+        assertThat(fragment2.savedState).isEqualTo("2")
+
+        fragment1 = fm.findFragmentByTag("1") as StateSaveFragment
+        // make sure fragment is same as when it was saved
+        assertThat(fragment1.currentState).isEqualTo(StrictFragment.State.CREATED)
+        assertThat(fragment1.isRemoving).isTrue()
+
         fm.popBackStackImmediate()
-        fragment1 = fm.findFragmentByTag("1") as SaveStateFragment
         assertThat(fragment1).isNotNull()
-        assertThat(fragment1.value).isEqualTo(1)
+        assertThat(fragment1.savedState).isEqualTo("1")
+        assertThat(fragment1.isRemoving).isFalse()
+    }
+
+    /**
+     * Test to ensure that the maxLifecycleState is of a fragment is saved and restored properly.
+     */
+    @Test
+    @UiThreadTest
+    fun saveFragmentMaxLifecycle() {
+        val viewModelStore = ViewModelStore()
+        var fc = activityRule.startupFragmentController(viewModelStore)
+        var fm = fc.supportFragmentManager
+
+        var fragment1 = StateSaveFragment("1")
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment1, "1")
+            .addToBackStack(null)
+            .setMaxLifecycle(fragment1, Lifecycle.State.CREATED)
+            .commit()
+        fm.executePendingTransactions()
+
+        fc = fc.restart(activityRule, viewModelStore)
+        fm = fc.supportFragmentManager
+        fragment1 = fm.findFragmentByTag("1") as StateSaveFragment
+        assertThat(fragment1).isNotNull()
+        assertThat(fragment1.savedState).isEqualTo("1")
+        assertThat(fragment1.mMaxState).isEqualTo(Lifecycle.State.CREATED)
     }
 
     /**
@@ -508,13 +537,12 @@ class SaveStateFragmentTest {
     @UiThreadTest
     fun noPrematureStateChange() {
         val viewModelStore = ViewModelStore()
-        var fc =
-            startupFragmentController(activityRule.activity, null, viewModelStore)
+        var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
         fm.beginTransaction().add(StrictFragment(), "1").commitNow()
 
-        fc = restartFragmentController(activityRule.activity, fc, viewModelStore)
+        fc = fc.restart(activityRule, viewModelStore)
 
         fm = fc.supportFragmentManager
 
@@ -532,8 +560,7 @@ class SaveStateFragmentTest {
     @UiThreadTest
     fun testIsStateSaved() {
         val viewModelStore = ViewModelStore()
-        val fc =
-            startupFragmentController(activityRule.activity, null, viewModelStore)
+        val fc = activityRule.startupFragmentController(viewModelStore)
         val fm = fc.supportFragmentManager
 
         val f = StrictFragment()
@@ -564,15 +591,12 @@ class SaveStateFragmentTest {
     @UiThreadTest
     fun saveAnimationState() {
         val viewModelStore = ViewModelStore()
-        var fc = startupFragmentController(
-            activityRule.activity, null,
-            viewModelStore
-        )
+        var fc = activityRule.startupFragmentController(viewModelStore)
         var fm = fc.supportFragmentManager
 
         fm.beginTransaction()
             .setCustomAnimations(0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
-            .add(android.R.id.content, SimpleFragment.create(R.layout.fragment_a))
+            .add(android.R.id.content, StrictViewFragment(R.layout.fragment_a))
             .addToBackStack(null)
             .commit()
         fm.executePendingTransactions()
@@ -580,14 +604,14 @@ class SaveStateFragmentTest {
         assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
 
         // Causes save and restore of fragments and back stack
-        fc = restartFragmentController(activityRule.activity, fc, viewModelStore)
+        fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
 
         assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
 
         fm.beginTransaction()
             .setCustomAnimations(R.anim.fade_in, R.anim.fade_out, 0, 0)
-            .replace(android.R.id.content, SimpleFragment.create(R.layout.fragment_b))
+            .replace(android.R.id.content, StrictViewFragment(R.layout.fragment_b))
             .addToBackStack(null)
             .commit()
         fm.executePendingTransactions()
@@ -595,7 +619,7 @@ class SaveStateFragmentTest {
         assertAnimationsMatch(fm, R.anim.fade_in, R.anim.fade_out, 0, 0)
 
         // Causes save and restore of fragments and back stack
-        fc = restartFragmentController(activityRule.activity, fc, viewModelStore)
+        fc = fc.restart(activityRule, viewModelStore)
         fm = fc.supportFragmentManager
 
         assertAnimationsMatch(fm, R.anim.fade_in, R.anim.fade_out, 0, 0)
@@ -604,7 +628,7 @@ class SaveStateFragmentTest {
 
         assertAnimationsMatch(fm, 0, R.anim.fade_out, R.anim.fade_in, R.anim.fade_out)
 
-        shutdownFragmentController(fc, viewModelStore)
+        fc.shutdown(viewModelStore)
     }
 
     private fun executePendingTransactions(fm: FragmentManager) {
@@ -627,82 +651,19 @@ class SaveStateFragmentTest {
         assertThat(record.mPopExitAnim).isEqualTo(popExit)
     }
 
-    class SimpleFragment : Fragment() {
-        private var layoutId: Int = 0
-
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            if (savedInstanceState != null) {
-                layoutId = savedInstanceState.getInt(LAYOUT_ID, layoutId)
-            }
-        }
-
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            outState.putInt(LAYOUT_ID, layoutId)
-        }
-
-        override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-        ): View = inflater.inflate(layoutId, container, false)
-
-        companion object {
-            private const val LAYOUT_ID = "layoutId"
-
-            fun create(layoutId: Int): SimpleFragment {
-                val fragment = SimpleFragment()
-                fragment.layoutId = layoutId
-                return fragment
-            }
-        }
-    }
-
-    class SaveStateFragment : Fragment() {
-        var value: Int = 0
-            private set
-
-        override fun onSaveInstanceState(outState: Bundle) {
-            super.onSaveInstanceState(outState)
-            outState.putInt(VALUE_KEY, value)
-        }
-
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            if (savedInstanceState != null) {
-                value = savedInstanceState.getInt(VALUE_KEY, value)
-            }
-        }
-
-        companion object {
-            private const val VALUE_KEY = "SaveStateFragment.mValue"
-
-            fun create(value: Int): SaveStateFragment {
-                val saveStateFragment = SaveStateFragment()
-                saveStateFragment.value = value
-                return saveStateFragment
-            }
-        }
-    }
-
-    class StateSaveFragment : StrictFragment {
-
-        var savedState: String? = null
-            private set
-        var unsavedState: String? = null
-
-        constructor()
-
-        constructor(savedState: String, unsavedState: String) {
-            this.savedState = savedState
-            this.unsavedState = unsavedState
-        }
+    class StateSaveFragment(
+        var savedState: String? = null,
+        val unsavedState: String? = null,
+        val retain: Boolean = false
+    ) : StrictFragment() {
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             if (savedInstanceState != null) {
                 savedState = savedInstanceState.getString(STATE_KEY)
+            }
+            if (retain) {
+                retainInstance = true
             }
         }
 

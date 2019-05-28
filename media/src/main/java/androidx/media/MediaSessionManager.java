@@ -50,7 +50,8 @@ public final class MediaSessionManager {
      *
      * @return The MediaSessionManager instance for this context.
      */
-    public static @NonNull MediaSessionManager getSessionManager(@NonNull Context context) {
+    @NonNull
+    public static MediaSessionManager getSessionManager(@NonNull Context context) {
         if (context == null) {
             throw new IllegalArgumentException("context cannot be null");
         }

@@ -197,6 +197,17 @@ public class GridActivity extends Activity {
 
         mGridView.setAdapter(adapter);
         setContentView(view);
+
+        // disable enter animation.
+        overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+
+        // disable exit animation.
+        overridePendingTransition(0, 0);
     }
 
     void rebindToNewAdapter() {

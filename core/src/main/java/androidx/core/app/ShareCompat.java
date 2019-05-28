@@ -72,11 +72,37 @@ public final class ShareCompat {
             "androidx.core.app.EXTRA_CALLING_PACKAGE";
 
     /**
+     * Intent extra that stores the name of the calling package for an ACTION_SEND intent.
+     * When an activity is started using startActivityForResult this is redundant info.
+     * (It is also provided by {@link Activity#getCallingPackage()}.)
+     *
+     * Note that this is only for interoperability between pre-1.0 AndroidX and AndroidX 1.1+
+     * worlds. You are strongly encouraged to use {@link #getCallingPackage(Activity)}
+     * or {@link IntentReader#getCallingPackage()}.
+     */
+    public static final String EXTRA_CALLING_PACKAGE_INTEROP =
+            "android.support.v4.app.EXTRA_CALLING_PACKAGE";
+
+    /**
      * Intent extra that stores the {@link ComponentName} of the calling activity for
      * an ACTION_SEND intent.
+     *
+     * Instead of using this constant directly, consider using {@link #getCallingPackage(Activity)}
+     * or {@link IntentReader#getCallingPackage()}.
      */
     public static final String EXTRA_CALLING_ACTIVITY =
             "androidx.core.app.EXTRA_CALLING_ACTIVITY";
+
+    /**
+     * Intent extra that stores the {@link ComponentName} of the calling activity for
+     * an ACTION_SEND intent.
+     *
+     * Note that this is only for interoperability between pre-1.0 AndroidX and AndroidX 1.1+
+     * worlds. You are strongly encouraged to use {@link #getCallingPackage(Activity)}
+     * or {@link IntentReader#getCallingPackage()}.
+     */
+    public static final String EXTRA_CALLING_ACTIVITY_INTEROP =
+            "android.support.v4.app.EXTRA_CALLING_ACTIVITY";
 
     private static final String HISTORY_FILENAME_PREFIX = ".sharecompat_";
 
@@ -98,6 +124,9 @@ public final class ShareCompat {
         String result = calledActivity.getCallingPackage();
         if (result == null) {
             result = calledActivity.getIntent().getStringExtra(EXTRA_CALLING_PACKAGE);
+            if (result == null) {
+                result = calledActivity.getIntent().getStringExtra(EXTRA_CALLING_PACKAGE_INTEROP);
+            }
         }
         return result;
     }
@@ -118,6 +147,10 @@ public final class ShareCompat {
         ComponentName result = calledActivity.getCallingActivity();
         if (result == null) {
             result = calledActivity.getIntent().getParcelableExtra(EXTRA_CALLING_ACTIVITY);
+            if (result == null) {
+                result = calledActivity.getIntent().getParcelableExtra(
+                        EXTRA_CALLING_ACTIVITY_INTEROP);
+            }
         }
         return result;
     }
@@ -215,7 +248,9 @@ public final class ShareCompat {
             mActivity = launchingActivity;
             mIntent = new Intent().setAction(Intent.ACTION_SEND);
             mIntent.putExtra(EXTRA_CALLING_PACKAGE, launchingActivity.getPackageName());
+            mIntent.putExtra(EXTRA_CALLING_PACKAGE_INTEROP, launchingActivity.getPackageName());
             mIntent.putExtra(EXTRA_CALLING_ACTIVITY, launchingActivity.getComponentName());
+            mIntent.putExtra(EXTRA_CALLING_ACTIVITY_INTEROP, launchingActivity.getComponentName());
             mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }
 
@@ -833,6 +868,7 @@ public final class ShareCompat {
          * @return Name of the package that started this activity or null if unknown
          * @see Activity#getCallingPackage()
          * @see ShareCompat#EXTRA_CALLING_PACKAGE
+         * @see ShareCompat#EXTRA_CALLING_PACKAGE_INTEROP
          */
         public String getCallingPackage() {
             return mCallingPackage;
@@ -850,6 +886,7 @@ public final class ShareCompat {
          * @return ComponentName of the calling Activity or null if unknown
          * @see Activity#getCallingActivity()
          * @see ShareCompat#EXTRA_CALLING_ACTIVITY
+         * @see ShareCompat#EXTRA_CALLING_ACTIVITY_INTEROP
          */
         public ComponentName getCallingActivity() {
             return mCallingActivity;

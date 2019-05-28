@@ -18,7 +18,7 @@ limitations under the License.
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="email" msgid="5568050657313893478">"E-posta"</string>
     <string name="email_desc" msgid="6941280589171810022">"Seçilen adrese e-posta gönder"</string>
-    <string name="dial" msgid="7317293545368448453">"Telefon et"</string>
+    <string name="dial" msgid="7317293545368448453">"Ara"</string>
     <string name="dial_desc" msgid="5129451396208040332">"Seçilen telefon numarasını ara"</string>
     <string name="browse" msgid="3733970143542020945">"Aç"</string>
     <string name="browse_desc" msgid="3898254913938219011">"Seçilen URL\'yi aç"</string>

@@ -33,7 +33,7 @@ import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -84,7 +84,7 @@ final class GridModel<K> {
 
     // Array passed to registered OnSelectionChangedListeners. One array is created and reused
     // throughout the lifetime of the object.
-    private final Set<K> mSelection = new HashSet<>();
+    private final Set<K> mSelection = new LinkedHashSet<>();
 
     // The current pointer (in absolute positioning from the top of the view).
     private Point mPointer;
