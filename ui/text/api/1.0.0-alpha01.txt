@@ -468,7 +468,7 @@ package androidx.ui.painting {
   }
 
   public final class TextSpanComposer extends androidx.compose.Composer<androidx.ui.painting.TextSpan> {
-    ctor public TextSpanComposer(androidx.ui.painting.TextSpan root, androidx.compose.Recomposer? recomposer);
+    ctor public TextSpanComposer(androidx.ui.painting.TextSpan root, androidx.compose.Recomposer recomposer);
     method public androidx.ui.painting.TextSpan getRoot();
   }
 
