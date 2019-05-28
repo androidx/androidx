@@ -89,8 +89,7 @@ public class ProxyOverrideActivity extends AppCompatActivity {
             // If feature is not supported, just show a warning in the webview
             mRequestCountTextView.setVisibility(View.GONE);
             mNavigationBar.setVisibility(View.GONE);
-            mWebView.loadData("<html><body>Proxy override not available</body></html>",
-                    "text/html", null);
+            WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
 
