@@ -25,13 +25,13 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
-import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.unaryPlus
 import androidx.compose.composer
+import androidx.ui.material.ripple.Ripple
 
 @Composable
 fun RippleDemo() {
@@ -43,9 +43,9 @@ fun RippleDemo() {
                     borderRadius = BorderRadius.circular(100f)
                 )
                 Card(shape = shape) {
-                    BoundedRipple {
+                    Ripple(bounded = true) {
                         Container(expanded = true) {
-                            BoundedRipple {
+                            Ripple(bounded = true) {
                                 Container(width = 100.dp, height = 50.dp) {
                                     Text(text = "inner", style = +themeTextStyle { body1 })
                                 }

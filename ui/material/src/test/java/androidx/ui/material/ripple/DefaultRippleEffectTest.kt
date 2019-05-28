@@ -16,16 +16,11 @@
 package androidx.ui.material.ripple
 
 import androidx.ui.core.Density
-import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.PxBounds
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.px
-import androidx.ui.core.toBounds
 import androidx.ui.core.withDensity
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -33,29 +28,6 @@ import kotlin.math.sqrt
 
 @RunWith(JUnit4::class)
 class DefaultRippleEffectTest {
-
-    @Test
-    fun testSurfaceSizeWithoutBoundsCallback() {
-        val size = PxSize(100.px, 50.px)
-        val coordinates = mock<LayoutCoordinates> {
-            on { this.size } doReturn size
-        }
-
-        // Top-level functions are not resolved properly in IR modules
-        val result = getSurfaceSize(coordinates, null)
-        assertThat(result).isEqualTo(size)
-    }
-
-    @Test
-    fun testSurfaceSizeWithBoundsCallback() {
-        val size = PxSize(10.px, 40.px)
-        val coordinates = mock<LayoutCoordinates>()
-        val boundsCallback: (LayoutCoordinates) -> PxBounds = { size.toBounds() }
-
-        // Top-level functions are not resolved properly in IR modules
-        val result = getSurfaceSize(coordinates, boundsCallback)
-        assertThat(result).isEqualTo(size)
-    }
 
     @Test
     fun testStartRadius() {

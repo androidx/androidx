@@ -17,41 +17,43 @@
 package androidx.ui.material.ripple
 
 import androidx.ui.core.Density
+import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Px
-import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
-import androidx.ui.material.borders.BorderRadius
-import androidx.ui.material.borders.BoxShape
 import androidx.ui.graphics.Color
 
 /**
- * An encapsulation of an [RippleEffect] constructor used by [BoundedRipple]
- * [Ripple] and [RippleTheme].
+ * An encapsulation of an [RippleEffect] constructor used by [Ripple] and [RippleTheme].
  *
  * Will be used as a theme parameter in [RippleTheme.factory]
  */
-abstract class RippleEffectFactory {
+interface RippleEffectFactory {
 
     /**
      * The factory method.
      *
      * Subclasses should override this method to return a new instance of an [RippleEffect].
+     *
+     * @param rippleSurface The [RippleSurfaceOwner] associated with this [RippleEffect].
+     * @param coordinates The layout coordinates of the target layout.
+     * @param touchPosition The position the animation will start from.
+     * @param color The color for this [RippleEffect].
+     * @param density The [Density] object to convert the dimensions.
+     * @param radius Effects grow up to this size. By default the size is
+     *  determined from the size of the layout itself.
+     * @param bounded If true, then the ripple will be sized to fit the bounds of the target
+     *  layout, then clipped to it when drawn. If false, then the ripple is clipped only
+     *  to the edges of the surface.
+     * @param onRemoved Called when the ripple is no longer visible on the surface.
      */
-    abstract fun create(
+    fun create(
         rippleSurface: RippleSurfaceOwner,
         coordinates: LayoutCoordinates,
         touchPosition: PxPosition,
         color: Color,
         density: Density,
-        // TODO("Andrey: Could we integrate shape and clippingBorderRadius into one concept API wise?
-        // It is strange now that BoxShape can be a circle and there's a separate border
-        // radius attribute")
-        shape: BoxShape = BoxShape.Rectangle,
-        finalRadius: Px? = null,
-        containedInkWell: Boolean = false,
-        boundsCallback: ((LayoutCoordinates) -> PxBounds)? = null,
-        clippingBorderRadius: BorderRadius? = null,
+        radius: Dp? = null,
+        bounded: Boolean = false,
         onRemoved: (() -> Unit)? = null
     ): RippleEffect
 }

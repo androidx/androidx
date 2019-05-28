@@ -75,7 +75,7 @@ fun Checkbox(
     color: Color? = null
 ) {
     Wrap {
-        Ripple {
+        Ripple(bounded = false) {
             Toggleable(value = value, onToggle = onClick) {
                 Padding(padding = CheckboxDefaultPadding) {
                     Container(width = CheckboxSize, height = CheckboxSize) {

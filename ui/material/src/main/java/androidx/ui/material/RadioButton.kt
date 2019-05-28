@@ -49,7 +49,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.material.ripple.BoundedRipple
+import androidx.ui.material.ripple.Ripple
 
 /**
  * Components for creating mutually exclusive set of [RadioButton]s.
@@ -141,7 +141,7 @@ class RadioGroupScope internal constructor() {
         @Children children: @Composable() () -> Unit
     ) {
         Container {
-            BoundedRipple {
+            Ripple(bounded = true) {
                 MutuallyExclusiveSetItem(
                     selected = selected,
                     onSelected = { if (!selected) onSelected() }) {
