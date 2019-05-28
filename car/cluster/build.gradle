@@ -16,6 +16,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -56,7 +57,7 @@ android {
 
 androidx {
     name = "Android Car Instrument Cluster Support"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CAR_CLUSTER
     mavenGroup = LibraryGroups.CAR
     inceptionYear = "2018"

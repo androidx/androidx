@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -18,7 +19,7 @@ android {
 
 androidx {
     name = "Android Support Recommendation"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECOMMENDATION
     mavenGroup = LibraryGroups.RECOMMENDATION
     inceptionYear = "2015"

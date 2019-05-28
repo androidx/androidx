@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -24,7 +25,7 @@ android {
 
 androidx {
     name = "Biometric"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.BIOMETRIC
     mavenGroup = LibraryGroups.BIOMETRIC
     inceptionYear = "2018"

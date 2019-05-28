@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -18,7 +19,7 @@ android {
 
 androidx {
     name = "Android Support CardView v7"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CARDVIEW
     mavenGroup = LibraryGroups.CARDVIEW
     inceptionYear = "2011"

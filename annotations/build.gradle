@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -56,7 +57,7 @@ artifacts {
 
 androidx {
     name = "Android Support Library Annotations"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ANNOTATION
     mavenGroup = LibraryGroups.ANNOTATION
     inceptionYear = "2013"

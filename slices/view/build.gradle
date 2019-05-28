@@ -17,6 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryVersions
 import androidx.build.LibraryGroups
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -42,7 +43,7 @@ dependencies {
 
 androidx {
     name = "Slice views"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.SLICE
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"

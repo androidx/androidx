@@ -20,6 +20,7 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 import androidx.build.SupportConfig
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -91,7 +92,7 @@ gradlePlugin {
 
 androidx {
     name = "Android Navigation TypeSafe Arguments Gradle Plugin"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION
