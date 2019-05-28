@@ -35,13 +35,13 @@ data class Index(val name: String, val unique: Boolean, override val fields: Fie
     override fun getIdKey() = "$unique-$name-${columnNames.joinToString(",")}"
 
     fun createQuery(tableName: String): String {
-        val uniqueSQL = if (unique) {
-            "UNIQUE"
+        val indexSQL = if (unique) {
+            "UNIQUE INDEX"
         } else {
-            ""
+            "INDEX"
         }
         return """
-            CREATE $uniqueSQL INDEX `$name`
+            CREATE $indexSQL IF NOT EXISTS `$name`
             ON `$tableName` (${columnNames.joinToString(", ") { "`$it`" }})
             """.trimIndent().replace("\n", " ")
     }
