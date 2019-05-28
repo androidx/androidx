@@ -38,7 +38,7 @@ import kotlin.experimental.ExperimentalTypeInference
  *
  * After a cancellation, if the [LiveData] becomes active again, the [block] will be re-executed
  * from the beginning. If you would like to continue the operations based on where it was stopped
- * last, you can use the [LiveDataScope.initialValue] function to get the last
+ * last, you can use the [LiveDataScope.latestValue] function to get the last
  * [LiveDataScope.emit]ed value.
 
  * If the [block] completes successfully *or* is cancelled due to reasons other than [LiveData]

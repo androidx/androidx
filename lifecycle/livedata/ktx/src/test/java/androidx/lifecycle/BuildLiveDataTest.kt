@@ -212,41 +212,41 @@ class BuildLiveDataTest {
     }
 
     @Test
-    fun readInitialValue() {
-        val initial = AtomicReference<Int?>()
+    fun readLatestValue() {
+        val latest = AtomicReference<Int?>()
         val ld = liveData<Int>(testContext) {
-            initial.set(initialValue)
+            latest.set(latestValue)
         }
         runOnMain {
             ld.value = 3
         }
         ld.addObserver()
         triggerAllActions()
-        assertThat(initial.get()).isEqualTo(3)
+        assertThat(latest.get()).isEqualTo(3)
     }
 
     @Test
-    fun readInitialValue_ignoreYielded() {
-        val initial = AtomicReference<Int?>()
+    fun readLatestValue_readWithinBlock() {
+        val latest = AtomicReference<Int?>()
         val ld = liveData<Int>(testContext) {
             emit(5)
-            initial.set(initialValue)
+            latest.set(latestValue)
         }
         ld.addObserver()
         triggerAllActions()
-        assertThat(initial.get()).isNull()
+        assertThat(latest.get()).isEqualTo(5)
     }
 
     @Test
-    fun readInitialValue_keepYieldedFromBefore() {
-        val initial = AtomicReference<Int?>()
+    fun readLatestValue_keepYieldedFromBefore() {
+        val latest = AtomicReference<Int?>()
         val ld = liveData<Int>(testContext, 10) {
-            if (initialValue == null) {
+            if (latestValue == null) {
                 emit(5)
                 delay(500000) // wait for cancellation
             }
 
-            initial.set(initialValue)
+            latest.set(latestValue)
         }
         ld.addObserver().apply {
             triggerAllActions()
@@ -256,10 +256,10 @@ class BuildLiveDataTest {
         triggerAllActions()
         // wait for it to be cancelled
         advanceTimeBy(10)
-        assertThat(initial.get()).isNull()
+        assertThat(latest.get()).isNull()
         ld.addObserver()
         triggerAllActions()
-        assertThat(initial.get()).isEqualTo(5)
+        assertThat(latest.get()).isEqualTo(5)
     }
 
     @Test
