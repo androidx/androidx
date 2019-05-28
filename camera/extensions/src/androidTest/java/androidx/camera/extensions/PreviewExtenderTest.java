@@ -83,7 +83,7 @@ public class PreviewExtenderTest {
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
 
         PreviewExtender.PreviewExtenderAdapter previewExtenderAdapter =
-                new PreviewExtender.PreviewExtenderAdapter(mockPreviewExtenderImpl);
+                new PreviewExtender.PreviewExtenderAdapter(mockPreviewExtenderImpl, null);
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setUseCaseEventListener(
                 previewExtenderAdapter).setLensFacing(CameraX.LensFacing.BACK);
         new Camera2Config.Extender(configBuilder).setCameraEventCallback(
@@ -136,7 +136,7 @@ public class PreviewExtenderTest {
         when(mockPreviewExtenderImpl.getCaptureStage()).thenReturn(mockCaptureStageImpl);
 
         PreviewExtender.PreviewExtenderAdapter previewExtenderAdapter =
-                new PreviewExtender.PreviewExtenderAdapter(mockPreviewExtenderImpl);
+                new PreviewExtender.PreviewExtenderAdapter(mockPreviewExtenderImpl, null);
         PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setUseCaseEventListener(
                 previewExtenderAdapter).setLensFacing(CameraX.LensFacing.BACK);
         new Camera2Config.Extender(configBuilder).setCameraEventCallback(

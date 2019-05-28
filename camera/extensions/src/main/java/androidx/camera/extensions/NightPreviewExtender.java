@@ -19,6 +19,7 @@ package androidx.camera.extensions;
 import android.util.Log;
 
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 
 /**
@@ -66,7 +67,7 @@ public class NightPreviewExtender extends PreviewExtender {
 
         VendorNightPreviewExtender(PreviewConfig.Builder builder) {
             mImpl = new NightPreviewExtenderImpl();
-            init(builder, mImpl);
+            init(builder, mImpl, EffectMode.NIGHT);
         }
     }
 

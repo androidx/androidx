@@ -19,6 +19,7 @@ package androidx.camera.extensions;
 import android.util.Log;
 
 import androidx.camera.core.ImageCaptureConfig;
+import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 
 /**
@@ -66,7 +67,7 @@ public class AutoImageCaptureExtender extends ImageCaptureExtender {
 
         VendorAutoImageCaptureExtender(ImageCaptureConfig.Builder builder) {
             mImpl = new AutoImageCaptureExtenderImpl();
-            init(builder, mImpl);
+            init(builder, mImpl, EffectMode.AUTO);
         }
     }
 
