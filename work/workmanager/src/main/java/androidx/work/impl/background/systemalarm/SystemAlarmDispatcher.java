@@ -91,7 +91,12 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         mMainHandler = new Handler(Looper.getMainLooper());
     }
 
+    /**
+     * This method needs to be idempotent. This could be called more than once, and therefore,
+     * this method should only perform cleanup when necessary.
+     */
     void onDestroy() {
+        Logger.get().debug(TAG, "Destroying SystemAlarmDispatcher");
         mProcessor.removeExecutionListener(this);
         mWorkTimer.onDestroy();
         mCompletedListener = null;
