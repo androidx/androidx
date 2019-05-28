@@ -30,7 +30,6 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -49,8 +48,8 @@ import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
+import androidx.media2.common.VideoSize;
 import androidx.media2.player.MediaPlayer;
-import androidx.media2.player.VideoSize;
 import androidx.media2.player.subtitle.Cea708CaptionRenderer;
 import androidx.media2.player.subtitle.ClosedCaptionRenderer;
 import androidx.media2.player.subtitle.SubtitleController;
@@ -59,13 +58,11 @@ import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.SessionCommand;
 import androidx.media2.session.SessionCommandGroup;
-import androidx.media2.session.SessionResult;
 import androidx.media2.session.SessionToken;
 import androidx.palette.graphics.Palette;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,8 +152,6 @@ public class VideoView extends SelectiveLayout {
     private static final int STATE_PAUSED = 4;
     private static final int STATE_PLAYBACK_COMPLETED = 5;
 
-    private static final int INVALID_TRACK_INDEX = -1;
-
     private AudioAttributesCompat mAudioAttributes;
 
     VideoView.OnViewTypeChangedListener mViewTypeChangedListener;
@@ -183,13 +178,12 @@ public class VideoView extends SelectiveLayout {
     int mTargetState = STATE_IDLE;
     int mCurrentState = STATE_IDLE;
 
-    private int mVideoTrackCount;
-    List<TrackInfo> mAudioTrackInfos;
+    int mVideoTrackCount;
+    int mAudioTrackCount;
     Map<TrackInfo, SubtitleTrack> mSubtitleTracks;
-    private SubtitleController mSubtitleController;
+    SubtitleController mSubtitleController;
 
-    // selected audio/subtitle track info as MediaPlayer returns
-    TrackInfo mSelectedAudioTrackInfo;
+    // selected subtitle track info as MediaPlayer returns
     TrackInfo mSelectedSubtitleTrackInfo;
 
     SubtitleAnchorView mSubtitleAnchorView;
@@ -627,34 +621,24 @@ public class VideoView extends SelectiveLayout {
             SubtitleController.Listener listener = new SubtitleController.Listener() {
                 @Override
                 public void onSubtitleTrackSelected(SubtitleTrack track) {
+                    // Track deselected
                     if (track == null) {
-                        mMediaPlayer.deselectTrackInternal(mSelectedSubtitleTrackInfo);
                         mSelectedSubtitleTrackInfo = null;
                         mSubtitleAnchorView.setVisibility(View.GONE);
-
-                        mMediaSession.broadcastCustomCommand(new SessionCommand(
-                                MediaControlView.EVENT_UPDATE_SUBTITLE_DESELECTED, null), null);
                         return;
                     }
+
+                    // Track selected
                     TrackInfo info = null;
-                    int indexInSubtitleTrackList = 0;
                     for (Entry<TrackInfo, SubtitleTrack> pair : mSubtitleTracks.entrySet()) {
                         if (pair.getValue() == track) {
                             info = pair.getKey();
                             break;
                         }
-                        indexInSubtitleTrackList++;
                     }
                     if (info != null) {
-                        mMediaPlayer.selectTrackInternal(info);
                         mSelectedSubtitleTrackInfo = info;
                         mSubtitleAnchorView.setVisibility(View.VISIBLE);
-
-                        Bundle data = new Bundle();
-                        data.putInt(MediaControlView.KEY_SELECTED_SUBTITLE_INDEX,
-                                indexInSubtitleTrackList);
-                        mMediaSession.broadcastCustomCommand(new SessionCommand(
-                                MediaControlView.EVENT_UPDATE_SUBTITLE_SELECTED, null), data);
                     }
                 }
             };
@@ -685,81 +669,14 @@ public class VideoView extends SelectiveLayout {
             mCurrentState = STATE_IDLE;
             mTargetState = STATE_IDLE;
             mSelectedSubtitleTrackInfo = null;
-            mSelectedAudioTrackInfo = null;
         }
-    }
-
-    void selectSubtitleTrack(TrackInfo trackInfo) {
-        if (!isMediaPrepared()) {
-            return;
-        }
-        SubtitleTrack track = mSubtitleTracks.get(trackInfo);
-        if (track != null) {
-            mSubtitleController.selectTrack(track);
-        }
-    }
-
-    void deselectSubtitleTrack() {
-        if (!isMediaPrepared() || mSelectedSubtitleTrackInfo == null) {
-            return;
-        }
-        mSubtitleController.selectTrack(null);
-    }
-
-    // TODO: move this method inside callback to make sure it runs inside the callback thread.
-    void extractAndBroadcastTrackInfoData() {
-        if (!isMediaPrepared()) {
-            throw new IllegalStateException(
-                    "extractTrackInfo() is unexpectedly called. Media item is not prepared");
-        }
-        List<TrackInfo> trackInfos = mMediaPlayer.getTrackInfoInternal();
-        mVideoTrackCount = 0;
-        mAudioTrackInfos = new ArrayList<>();
-        mSubtitleTracks = new LinkedHashMap<>();
-        ArrayList<String> subtitleTracksLanguageList = new ArrayList<>();
-        TrackInfo selectedSubtitleTrackInfo = mSelectedSubtitleTrackInfo;
-        mSubtitleController.reset();
-        for (int i = 0; i < trackInfos.size(); ++i) {
-            final TrackInfo trackInfo = trackInfos.get(i);
-            int trackType = trackInfo.getTrackType();
-            if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
-                mVideoTrackCount++;
-            } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
-                mAudioTrackInfos.add(trackInfo);
-            } else if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
-                SubtitleTrack track = mSubtitleController.addTrack(trackInfo.getFormat());
-                if (track != null) {
-                    mSubtitleTracks.put(trackInfo, track);
-                    String language = trackInfo.getLanguage().getISO3Language();
-                    subtitleTracksLanguageList.add(language);
-                }
-            }
-        }
-        // Select first tracks as default
-        if (mAudioTrackInfos.size() > 0) {
-            mSelectedAudioTrackInfo = mAudioTrackInfos.get(0);
-        }
-        // Re-select originally selected subtitle track since SubtitleController has been reset.
-        if (selectedSubtitleTrackInfo != null) {
-            selectSubtitleTrack(selectedSubtitleTrackInfo);
-        }
-
-        Bundle data = new Bundle();
-        data.putBoolean(MediaControlView.KEY_HAS_VIDEO, hasActualVideo());
-        data.putInt(MediaControlView.KEY_AUDIO_TRACK_COUNT, mAudioTrackInfos.size());
-        data.putStringArrayList(MediaControlView.KEY_SUBTITLE_TRACK_LANGUAGE_LIST,
-                subtitleTracksLanguageList);
-
-        mMediaSession.broadcastCustomCommand(
-                new SessionCommand(MediaControlView.EVENT_UPDATE_TRACK_STATUS,
-                        null), data);
     }
 
     boolean hasActualVideo() {
         if (mVideoTrackCount > 0) {
             return true;
         }
-        VideoSize videoSize = mMediaPlayer.getVideoSize();
+        VideoSize videoSize = mMediaPlayer.getVideoSizeInternal();
         if (videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
             Log.w(TAG, "video track count is zero, but it renders video. size: "
                     + videoSize.getWidth() + "/" + videoSize.getHeight());
@@ -769,7 +686,7 @@ public class VideoView extends SelectiveLayout {
     }
 
     boolean isCurrentItemMusic() {
-        return !hasActualVideo() && mAudioTrackInfos != null && mAudioTrackInfos.size() > 0;
+        return !hasActualVideo() && mAudioTrackCount > 0;
     }
 
     void updateMusicView() {
@@ -779,32 +696,54 @@ public class VideoView extends SelectiveLayout {
         mMusicView.setArtistText(mMusicArtistText);
     }
 
+    private void updateTracks(SessionPlayer player, List<TrackInfo> trackInfos) {
+        mSubtitleTracks = new LinkedHashMap<>();
+        for (int i = 0; i < trackInfos.size(); i++) {
+            TrackInfo trackInfo = trackInfos.get(i);
+            int trackType = trackInfos.get(i).getTrackType();
+            if (trackType == TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
+                mVideoTrackCount++;
+            } else if (trackType == TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+                mAudioTrackCount++;
+            } else if (trackType == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+                SubtitleTrack track = mSubtitleController.addTrack(trackInfo.getFormat());
+                if (track != null) {
+                    mSubtitleTracks.put(trackInfo, track);
+                }
+            }
+        }
+        mSelectedSubtitleTrackInfo = player.getSelectedTrackInternal(
+                TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+    }
+
     @SuppressLint("SyntheticAccessor")
     MediaPlayer.PlayerCallback mMediaPlayerCallback =
             new MediaPlayer.PlayerCallback() {
                 @Override
-                public void onVideoSizeChanged(
-                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd, @NonNull VideoSize size) {
+                public void onVideoSizeChangedInternal(@NonNull SessionPlayer player,
+                        @NonNull MediaItem item, @NonNull VideoSize size) {
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + size.getWidth() + "/"
                                 + size.getHeight());
                     }
-                    if (mp != mMediaPlayer) {
+                    if (player != mMediaPlayer) {
                         if (DEBUG) {
                             Log.w(TAG, "onVideoSizeChanged() is ignored. mp is already gone.");
                         }
                         return;
                     }
-                    if (dsd != mMediaItem) {
+                    if (item != mMediaItem) {
                         if (DEBUG) {
                             Log.w(TAG, "onVideoSizeChanged() is ignored. Media item is changed.");
                         }
                         return;
                     }
-                    // This edge case rarely happens.
                     if (mVideoTrackCount == 0 && size.getHeight() > 0 && size.getWidth() > 0) {
                         if (isMediaPrepared()) {
-                            extractAndBroadcastTrackInfoData();
+                            List<TrackInfo> trackInfos = player.getTrackInfoInternal();
+                            if (trackInfos != null) {
+                                updateTracks(player, trackInfos);
+                            }
                         }
                     }
                     mTextureView.forceLayout();
@@ -829,11 +768,6 @@ public class VideoView extends SelectiveLayout {
                             Log.w(TAG, "onInfo() is ignored. Media item is changed.");
                         }
                         return;
-                    }
-                    if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
-                        if (isMediaPrepared()) {
-                            extractAndBroadcastTrackInfoData();
-                        }
                     }
                 }
 
@@ -927,6 +861,39 @@ public class VideoView extends SelectiveLayout {
                     mTargetState = STATE_PLAYBACK_COMPLETED;
                 }
 
+                @Override
+                public void onTrackInfoChanged(@NonNull SessionPlayer player,
+                        @NonNull List<TrackInfo> trackInfos) {
+                    updateTracks(player, trackInfos);
+
+                    // TODO: Remove extracting metadata (b/133283493)
+                    // Run extractMetadata() in another thread to prevent StrictMode violation.
+                    // extractMetadata() contains file IO indirectly,
+                    // via MediaMetadataRetriever.
+                    boolean isMusic = isCurrentItemMusic();
+                    MetadataExtractTask task = new MetadataExtractTask(mMediaItem, isMusic,
+                            getContext());
+                    task.execute();
+                }
+
+                @Override
+                public void onTrackSelected(@NonNull SessionPlayer player,
+                        @NonNull TrackInfo trackInfo) {
+                    SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
+                    if (subtitleTrack != null) {
+                        mSubtitleController.selectTrack(subtitleTrack);
+                    }
+                }
+
+                @Override
+                public void onTrackDeselected(@NonNull SessionPlayer player,
+                        @NonNull TrackInfo trackInfo) {
+                    SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
+                    if (subtitleTrack != null) {
+                        mSubtitleController.selectTrack(null);
+                    }
+                }
+
                 private void onPrepared(SessionPlayer player) {
                     if (DEBUG) {
                         Log.d(TAG, "OnPreparedListener(): "
@@ -934,18 +901,6 @@ public class VideoView extends SelectiveLayout {
                                 + ", mTargetState=" + mTargetState);
                     }
                     mCurrentState = STATE_PREPARED;
-
-                    if (mMediaSession != null) {
-                        extractAndBroadcastTrackInfoData();
-
-                        // Run extractMetadata() in another thread to prevent StrictMode violation.
-                        // extractMetadata() contains file IO indirectly,
-                        // via MediaMetadataRetriever.
-                        boolean isMusic = isCurrentItemMusic();
-                        MetadataExtractTask task = new MetadataExtractTask(mMediaItem, isMusic,
-                                getContext());
-                        task.execute();
-                    }
 
                     if (player instanceof MediaPlayer) {
                         if (needToStart()) {
@@ -985,11 +940,9 @@ public class VideoView extends SelectiveLayout {
                     .addCommand(new SessionCommand(
                             SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA))
                     .addCommand(new SessionCommand(
-                            MediaControlView.COMMAND_SELECT_AUDIO_TRACK, null))
+                            SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK))
                     .addCommand(new SessionCommand(
-                            MediaControlView.COMMAND_SHOW_SUBTITLE, null))
-                    .addCommand(new SessionCommand(
-                            MediaControlView.COMMAND_HIDE_SUBTITLE, null));
+                            SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK));
             return commandsBuilder.build();
         }
 
@@ -1001,52 +954,6 @@ public class VideoView extends SelectiveLayout {
                     Log.w(TAG, "onPostConnect() is ignored. session is already gone.");
                 }
             }
-            if (isMediaPrepared()) {
-                extractAndBroadcastTrackInfoData();
-            }
-        }
-
-        @Override
-        @NonNull
-        public SessionResult onCustomCommand(@NonNull MediaSession session,
-                @NonNull MediaSession.ControllerInfo controller,
-                @NonNull SessionCommand command, @Nullable Bundle args) {
-            if (session != mMediaSession) {
-                if (DEBUG) {
-                    Log.w(TAG, "onCustomCommand() is ignored. session is already gone.");
-                }
-            }
-            switch (command.getCustomAction()) {
-                case MediaControlView.COMMAND_SHOW_SUBTITLE:
-                    int indexInSubtitleTrackList = args != null ? args.getInt(
-                            MediaControlView.KEY_SELECTED_SUBTITLE_INDEX,
-                            INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
-                    if (indexInSubtitleTrackList != INVALID_TRACK_INDEX) {
-                        final List<TrackInfo> subtitleTracks =
-                                new ArrayList<>(mSubtitleTracks.keySet());
-                        TrackInfo subtitleTrack = subtitleTracks.get(indexInSubtitleTrackList);
-                        if (!subtitleTrack.equals(mSelectedSubtitleTrackInfo)) {
-                            selectSubtitleTrack(subtitleTrack);
-                        }
-                    }
-                    break;
-                case MediaControlView.COMMAND_HIDE_SUBTITLE:
-                    deselectSubtitleTrack();
-                    break;
-                case MediaControlView.COMMAND_SELECT_AUDIO_TRACK:
-                    int audioIndex = (args != null)
-                            ? args.getInt(MediaControlView.KEY_SELECTED_AUDIO_INDEX,
-                            INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
-                    if (audioIndex != INVALID_TRACK_INDEX) {
-                        TrackInfo audioTrackInfo = mAudioTrackInfos.get(audioIndex);
-                        if (!audioTrackInfo.equals(mSelectedAudioTrackInfo)) {
-                            mSelectedAudioTrackInfo = audioTrackInfo;
-                            mMediaPlayer.selectTrackInternal(mSelectedAudioTrackInfo);
-                        }
-                    }
-                    break;
-            }
-            return new SessionResult(RESULT_SUCCESS, null);
         }
 
         @Override
@@ -1175,8 +1082,10 @@ public class VideoView extends SelectiveLayout {
                 builder.putString(MediaMetadata.METADATA_KEY_ARTIST, mMusicArtistText);
             }
             builder.putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
-            builder.putLong(
-                    MediaMetadata.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
+            if (mMediaPlayer != null) {
+                builder.putLong(
+                        MediaMetadata.METADATA_KEY_DURATION, mMediaPlayer.getDuration());
+            }
             builder.putString(
                     MediaMetadata.METADATA_KEY_MEDIA_ID, mediaItem.getMediaId());
             builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);

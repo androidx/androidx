@@ -3045,11 +3045,17 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     SessionPlayer.TrackInfo createTrackInfoInternal(TrackInfo info) {
+        if (info == null) {
+            return null;
+        }
         return new SessionPlayer.TrackInfo(info.getId(), info.getMediaItem(), info.getTrackType(),
                 info.getFormat());
     }
 
     private TrackInfo createTrackInfo(SessionPlayer.TrackInfo info) {
+        if (info == null) {
+            return null;
+        }
         return new TrackInfo(info.getId(), info.getMediaItem(), info.getTrackType(),
                 info.getFormat());
     }
