@@ -31,12 +31,16 @@ android {
     }
 }
 
+configurations {
+    repackage
+}
+
 dependencies {
     api(project(":room:room-common"))
-    implementation fileTree(
-            dir: "${new File(project(":room:room-common-java8").buildDir, "libs")}",
-            include : "room-common-java8-${LibraryVersions.ROOM}.jar"
-    )
+    // ----------- Start of workaround to include room-common-java8 inside of aar as jar ----------
+    repackage(project(":room:room-common-java8")) { transitive = false } // no dependencies
+    implementation files(configurations.repackage) // files causes it to be bundled inside of aar
+    // ----------- End of workaround to include room-common-java8 inside of aar as jar ------------
     api(ANDROIDX_SQLITE_FRAMEWORK)
     api(ANDROIDX_SQLITE)
     implementation(ARCH_CORE_RUNTIME)
