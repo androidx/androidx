@@ -34,10 +34,9 @@ import java.util.WeakHashMap
  * when the [TextSpan] container is composed for the first time.
  */
 private class Root : Component() {
-    @Suppress("DEPRECATION")
-    fun update() = recomposeSync()
-
+    fun update() = composer.compose()
     lateinit var scope: TextSpanScope
+    lateinit var composer: CompositionContext
     lateinit var composable: @Composable() TextSpanScope.() -> Unit
     @Suppress("PLUGIN_ERROR")
     override fun compose() {
@@ -86,18 +85,16 @@ fun compose(
         lateinit var composer: TextSpanComposer
         root = Root()
         setRoot(container, root)
-
-        val cc = CompositionContext.prepare(root, parent) {
+        root.composer = CompositionContext.prepare(root, parent) {
             TextSpanComposer(container, this).also { composer = it }
         }
-        val scope = TextSpanScope(TextSpanComposition(composer))
-
-        root.scope = scope
+        root.scope = TextSpanScope(TextSpanComposition(composer))
         root.composable = composable
 
-        cc.compose()
+        root.update()
     } else {
         root.composable = composable
+
         root.update()
     }
 }

@@ -39,6 +39,7 @@ import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
+import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
 
@@ -127,9 +128,9 @@ fun CustomRadioGroup() {
 @Composable
 fun CheckboxDemo() {
     Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-        val state = CheckboxState(Checked)
-        val state2 = CheckboxState(Checked)
-        val state3 = CheckboxState(Checked)
+        val state = +memo { CheckboxState(Checked) }
+        val state2 = +memo { CheckboxState(Checked) }
+        val state3 = +memo { CheckboxState(Checked) }
         fun calcParentState() = parentCheckboxState(state.value, state2.value, state3.value)
         val onParentClick = {
             val s = if (calcParentState() == Checked) {
