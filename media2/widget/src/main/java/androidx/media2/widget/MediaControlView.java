@@ -69,7 +69,7 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * A View that contains the controls for {@link MediaController}.
+ * A View that contains the controls for {@link MediaController} or {@link SessionPlayer}.
  * It provides a wide range of buttons that serve the following functions: play/pause,
  * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
  * select audio track, and adjust playback speed.
@@ -246,9 +246,12 @@ public class MediaControlView extends ViewGroup {
     }
 
     /**
-     * Sets MediaController to control playback with this view.
+     * Sets {@link MediaController} to control playback with this view.
+     * Setting a MediaController will unset any MediaController or SessionPlayer
+     * that was previously set.
      *
      * @param controller the controller
+     * @see #setPlayer
      */
     public void setMediaController(@NonNull MediaController controller) {
         if (controller == null) {
@@ -258,6 +261,28 @@ public class MediaControlView extends ViewGroup {
             mPlayer.detachCallback();
         }
         mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
+                new PlayerCallback());
+        if (isAttachedToWindow()) {
+            mPlayer.attachCallback();
+        }
+    }
+
+    /**
+     * Sets {@link SessionPlayer} to control playback with this view.
+     * Setting a SessionPlayer will unset any MediaController or SessionPlayer
+     * that was previously set.
+     *
+     * @param player the player
+     * @see #setMediaController
+     */
+    public void setPlayer(@NonNull SessionPlayer player) {
+        if (player == null) {
+            throw new NullPointerException("player must not be null");
+        }
+        if (mPlayer != null) {
+            mPlayer.detachCallback();
+        }
+        mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
                 new PlayerCallback());
         if (isAttachedToWindow()) {
             mPlayer.attachCallback();
@@ -1537,8 +1562,8 @@ public class MediaControlView extends ViewGroup {
     boolean shouldNotHideBars() {
         return (isCurrentItemMusic() && mSizeType == SIZE_TYPE_FULL)
                 || mAccessibilityManager.isTouchExplorationEnabled()
-                || mPlayer.getPlaybackState() == SessionPlayer.PLAYER_STATE_ERROR
-                || mPlayer.getPlaybackState() == SessionPlayer.PLAYER_STATE_IDLE;
+                || mPlayer.getPlayerState() == SessionPlayer.PLAYER_STATE_ERROR
+                || mPlayer.getPlayerState() == SessionPlayer.PLAYER_STATE_IDLE;
     }
 
     void seekTo(long newPosition, boolean shouldSeekNow) {
