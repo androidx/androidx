@@ -54,7 +54,8 @@ public class NightModeUiModeConfigChangesTestCase {
 
     public NightModeUiModeConfigChangesTestCase(NightSetMode setMode) {
         mSetMode = setMode;
-        mActivityTestRule = new ActivityTestRule<>(NightModeUiModeConfigChangesActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(
+                NightModeUiModeConfigChangesActivity.class, false, false);
     }
 
     @Before
@@ -62,6 +63,8 @@ public class NightModeUiModeConfigChangesTestCase {
         // By default we'll set the night mode to NO, which allows us to make better
         // assumptions in the tests below
         AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO);
+        // Now launch the test activity
+        mActivityTestRule.launchActivity(null);
     }
 
     @Test
