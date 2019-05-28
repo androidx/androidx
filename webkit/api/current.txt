@@ -33,7 +33,7 @@ package androidx.webkit {
 
   public abstract class ServiceWorkerClientCompat {
     ctor public ServiceWorkerClientCompat();
-    method public abstract android.webkit.WebResourceResponse! shouldInterceptRequest(android.webkit.WebResourceRequest);
+    method public abstract android.webkit.WebResourceResponse? shouldInterceptRequest(android.webkit.WebResourceRequest);
   }
 
   public abstract class ServiceWorkerControllerCompat {
@@ -114,12 +114,12 @@ package androidx.webkit {
   }
 
   public class WebSettingsCompat {
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getDisabledActionModeMenuItems(android.webkit.WebSettings!);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getOffscreenPreRaster(android.webkit.WebSettings!);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings!);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDisabledActionModeMenuItems(android.webkit.WebSettings!, int);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setOffscreenPreRaster(android.webkit.WebSettings!, boolean);
-    method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings!, boolean);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static int getDisabledActionModeMenuItems(android.webkit.WebSettings);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getOffscreenPreRaster(android.webkit.WebSettings);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static boolean getSafeBrowsingEnabled(android.webkit.WebSettings);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setDisabledActionModeMenuItems(android.webkit.WebSettings, int);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.OFF_SCREEN_PRERASTER, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setOffscreenPreRaster(android.webkit.WebSettings, boolean);
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings, boolean);
   }
 
   public class WebViewAssetLoader {
