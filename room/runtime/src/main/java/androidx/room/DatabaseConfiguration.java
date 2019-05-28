@@ -198,6 +198,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #isMigrationRequired(int, int)} which takes
      * {@link #allowDestructiveMigrationOnDowngrade} into account.
      */
+    @Deprecated
     public boolean isMigrationRequiredFrom(int version) {
         return isMigrationRequired(version, version + 1);
     }
