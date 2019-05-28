@@ -1,0 +1,5 @@
+local.properties
+**/build
+maven-repo/
+*.DS_Store
+

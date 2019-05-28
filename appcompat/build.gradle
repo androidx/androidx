@@ -4,7 +4,9 @@ import androidx.build.LibraryVersions
 import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -17,10 +19,11 @@ dependencies {
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
 
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker

@@ -40,6 +40,8 @@
         <activity android:name="androidx.fragment.app.test.NonConfigOnStopActivity"/>
         <activity android:name="androidx.fragment.app.test.HangingFragmentActivity"/>
         <activity android:name="androidx.fragment.app.test.ViewModelActivity" />
+        <activity android:name="androidx.fragment.app.ContentViewActivity"/>
+        <activity android:name="androidx.fragment.app.OnBackPressedFragmentActivity"/>
         <activity android:name="androidx.fragment.app.OnResumeTestActivity" />
         <activity android:name="androidx.fragment.app.FragmentSavedStateActivity" />
         <activity android:name="androidx.fragment.app.FragmentFinishEarlyTestActivity" />

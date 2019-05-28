@@ -19,6 +19,7 @@
           package="androidx.navigation.fragment">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application>
+        <activity android:name="androidx.navigation.fragment.test.NavigationActivity"/>
         <activity android:name="androidx.navigation.fragment.XmlNavigationActivity" />
         <activity android:name="androidx.navigation.fragment.DynamicNavigationActivity" />
         <activity android:name="androidx.navigation.fragment.EmbeddedXmlActivity" />

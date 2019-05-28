@@ -89,8 +89,6 @@ class KotlinMetadataElement(
             return if (metadata != null) {
                 KotlinMetadataElement(context, element, metadata)
             } else {
-                context.logger.d(
-                    element, "Failed to read get kotlin metadata for %s", element)
                 null
             }
         }

@@ -94,6 +94,14 @@ class CoreRemapperImpl(
                 "to add support for androidx.")
         }
 
+        // Strings map has a priority over types map
+        val mappedString = context.config.stringsMap.mapType(type)
+        if (mappedString != null) {
+            changesDone = changesDone || mappedString != type
+            Log.i(TAG, "Map string: '%s' -> '%s'", type, mappedString)
+            return if (hasDotSeparators) mappedString.toDotNotation() else mappedString.fullName
+        }
+
         val mappedType = context.config.typesMap.mapType(type)
         if (mappedType != null) {
             changesDone = changesDone || mappedType != type

@@ -184,15 +184,19 @@ public class MediaRouteButton extends View {
                 setRemoteIndicatorDrawable(remoteIndicatorState.newDrawable());
             }
         }
-        if (mRemoteIndicator == null && remoteIndicatorStaticResId != 0) {
-            Drawable.ConstantState remoteIndicatorStaticState =
-                    sRemoteIndicatorCache.get(remoteIndicatorStaticResId);
-            if (remoteIndicatorStaticState != null) {
-                setRemoteIndicatorDrawableInternal(remoteIndicatorStaticState.newDrawable());
+        if (mRemoteIndicator == null) {
+            if (remoteIndicatorStaticResId != 0) {
+                Drawable.ConstantState remoteIndicatorStaticState =
+                        sRemoteIndicatorCache.get(remoteIndicatorStaticResId);
+                if (remoteIndicatorStaticState != null) {
+                    setRemoteIndicatorDrawableInternal(remoteIndicatorStaticState.newDrawable());
+                } else {
+                    mRemoteIndicatorLoader = new RemoteIndicatorLoader(remoteIndicatorStaticResId,
+                            getContext());
+                    mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                }
             } else {
-                mRemoteIndicatorLoader = new RemoteIndicatorLoader(remoteIndicatorStaticResId,
-                        getContext());
-                mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
+                loadRemoteIndicatorIfNeeded();
             }
         }
 

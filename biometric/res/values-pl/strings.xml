@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Nie zarejestrowano odcisków palców."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"To urządzenie nie jest wyposażone w czytnik linii papilarnych"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Odczyt odcisku palca został anulowany przez użytkownika."</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"Zbyt wiele prób. Spróbuj ponownie później."</string>
     <string name="default_error_msg" msgid="7497355367608150274">"Nieznany błąd"</string>
 </resources>

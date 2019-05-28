@@ -72,6 +72,8 @@ public final class EditorInfoCompat {
 
     private static final String CONTENT_MIME_TYPES_KEY =
             "androidx.core.view.inputmethod.EditorInfoCompat.CONTENT_MIME_TYPES";
+    private static final String CONTENT_MIME_TYPES_INTEROP_KEY =
+            "android.support.v13.view.inputmethod.EditorInfoCompat.CONTENT_MIME_TYPES";
 
     /**
      * Sets MIME types that can be accepted by the target editor if the IME calls
@@ -93,6 +95,7 @@ public final class EditorInfoCompat {
                 editorInfo.extras = new Bundle();
             }
             editorInfo.extras.putStringArray(CONTENT_MIME_TYPES_KEY, contentMimeTypes);
+            editorInfo.extras.putStringArray(CONTENT_MIME_TYPES_INTEROP_KEY, contentMimeTypes);
         }
     }
 
@@ -116,6 +119,9 @@ public final class EditorInfoCompat {
                 return EMPTY_STRING_ARRAY;
             }
             String[] result = editorInfo.extras.getStringArray(CONTENT_MIME_TYPES_KEY);
+            if (result == null) {
+                result = editorInfo.extras.getStringArray(CONTENT_MIME_TYPES_INTEROP_KEY);
+            }
             return result != null ? result : EMPTY_STRING_ARRAY;
         }
     }

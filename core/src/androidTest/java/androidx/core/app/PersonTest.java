@@ -22,12 +22,15 @@ import static org.junit.Assert.assertNull;
 
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.PersistableBundle;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -221,5 +224,28 @@ public class PersonTest {
     public void isImportant() {
         Person person = new Person.Builder().setImportant(TEST_IS_IMPORTANT).build();
         assertEquals(TEST_IS_IMPORTANT, person.isImportant());
+    }
+
+    @Test
+    public void parcelizeAndDeparcelize() {
+        Person person = new Person.Builder()
+                .setImportant(TEST_IS_IMPORTANT)
+                .setBot(TEST_IS_BOT)
+                .setKey(TEST_KEY)
+                .setUri(TEST_URI)
+                .setIcon(TEST_ICON)
+                .setName(TEST_NAME)
+                .build();
+
+        Parcel parcel = Parcel.obtain();
+        Parcelable parcelable = ParcelUtils.toParcelable(person);
+        parcel.setDataPosition(0);
+        Person recovered = ParcelUtils.fromParcelable(parcelable);
+
+        assertEquals(TEST_NAME, recovered.getName());
+        assertEquals(TEST_URI, recovered.getUri());
+        assertEquals(TEST_KEY, recovered.getKey());
+        assertEquals(TEST_IS_BOT, recovered.isBot());
+        assertEquals(TEST_ICON.getType(), recovered.getIcon().getType());
     }
 }

@@ -19,7 +19,7 @@ limitations under the License.
     <string name="email" msgid="5568050657313893478">"ኢሜይል"</string>
     <string name="email_desc" msgid="6941280589171810022">"ለተመረጡ አድራሻዎች ኢሜይል ላክ"</string>
     <string name="dial" msgid="7317293545368448453">"ደውል"</string>
-    <string name="dial_desc" msgid="5129451396208040332">"ወደ ተመረጠው ስልክ ቁጥር ደውል"</string>
+    <string name="dial_desc" msgid="5129451396208040332">"ወደተመረጠው ስልክ ቁጥር ደውል"</string>
     <string name="browse" msgid="3733970143542020945">"ክፈት"</string>
     <string name="browse_desc" msgid="3898254913938219011">"የተመረጠውን ዩአርኤል ክፈት"</string>
     <string name="sms" msgid="5495416906312064886">"መልዕክት"</string>

@@ -18,6 +18,8 @@ package androidx.versionedparcelable;
 
 import static androidx.versionedparcelable.ParcelUtils.toParcelable;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -65,6 +67,16 @@ public class ParcelUtilsTest {
         Bundle after = p.readParcelable(Bundle.class.getClassLoader());
         after.setClassLoader(null);
         after.getString("pre_existing_arg");
+    }
+
+    @Test
+    public void getAndPutVersionedParcelable_null() {
+        Bundle bundle = new Bundle();
+        ParcelUtils.putVersionedParcelable(bundle, "key", null);
+
+        VersionedParcelable result = ParcelUtils.getVersionedParcelable(bundle, "key");
+
+        assertThat(result).isNull();
     }
 
     @VersionedParcelize

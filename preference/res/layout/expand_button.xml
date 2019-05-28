@@ -28,7 +28,6 @@
     android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
     android:background="?android:attr/selectableItemBackground"
     android:clipToPadding="false"
-    android:focusable="true"
     android:baselineAligned="false">
 
     <include layout="@layout/image_frame"/>

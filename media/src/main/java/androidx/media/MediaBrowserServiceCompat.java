@@ -953,7 +953,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 float value = extras.getFloat(MediaBrowserCompat.EXTRA_DOWNLOAD_PROGRESS);
                 if (value < -EPSILON || value > 1.0f + EPSILON) {
                     throw new IllegalArgumentException("The value of the EXTRA_DOWNLOAD_PROGRESS "
-                            + "field must be a float number within [0.0, 1.0].");
+                            + "field must be a float number within [0.0, 1.0]");
                 }
             }
         }
@@ -1520,10 +1520,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
      */
     public void setSessionToken(MediaSessionCompat.Token token) {
         if (token == null) {
-            throw new IllegalArgumentException("Session token may not be null.");
+            throw new IllegalArgumentException("Session token may not be null");
         }
         if (mSession != null) {
-            throw new IllegalStateException("The session token has already been set.");
+            throw new IllegalStateException("The session token has already been set");
         }
         mSession = token;
         mImpl.setSessionToken(token);
@@ -1950,7 +1950,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
         public BrowserRoot(@NonNull String rootId, @Nullable Bundle extras) {
             if (rootId == null) {
                 throw new IllegalArgumentException("The root id in BrowserRoot cannot be null. " +
-                        "Use null for BrowserRoot instead.");
+                        "Use null for BrowserRoot instead");
             }
             mRootId = rootId;
             mExtras = extras;

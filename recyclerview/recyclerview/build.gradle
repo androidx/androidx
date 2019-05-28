@@ -3,7 +3,8 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
     id("kotlin-android")
 }
 
@@ -13,10 +14,10 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.customview:customview:1.0.0")
 
-    androidTestImplementation(TEST_EXT_JUNIT)
-    androidTestImplementation(TEST_CORE)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
@@ -26,9 +27,6 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation(TEST_EXT_JUNIT)
-    testImplementation(TEST_CORE)
-    testImplementation(TEST_RUNNER)
 }
 
 android {

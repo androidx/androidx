@@ -28,7 +28,6 @@ import androidx.annotation.ContentView;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.util.Cancellable;
 import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
@@ -40,8 +39,6 @@ import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
 
-import java.util.WeakHashMap;
-
 /**
  * Base class for activities that enables composition of higher level components.
  * <p>
@@ -52,7 +49,8 @@ import java.util.WeakHashMap;
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
         LifecycleOwner,
         ViewModelStoreOwner,
-        SavedStateRegistryOwner {
+        SavedStateRegistryOwner,
+        OnBackPressedDispatcherOwner {
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -67,11 +65,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     private ViewModelStore mViewModelStore;
 
     private final OnBackPressedDispatcher mOnBackPressedDispatcher = new OnBackPressedDispatcher();
-    /**
-     * Used for the deprecated {@link #removeOnBackPressedCallback(OnBackPressedCallback)}.
-     */
-    private final WeakHashMap<OnBackPressedCallback, Cancellable>
-            mOnBackPressedCallbackCancellables = new WeakHashMap<>();
 
     @LayoutRes
     private int mContentLayoutId;
@@ -280,7 +273,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     public void onBackPressed() {
-        if (mOnBackPressedDispatcher.onBackPressed()) {
+        if (mOnBackPressedDispatcher.hasEnabledCallbacks()) {
+            mOnBackPressedDispatcher.onBackPressed();
             return;
         }
         // If the OnBackPressedDispatcher doesn't handle the back button,
@@ -294,6 +288,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * @return The {@link OnBackPressedDispatcher} associated with this ComponentActivity.
      */
     @NonNull
+    @Override
     public final OnBackPressedDispatcher getOnBackPressedDispatcher() {
         return mOnBackPressedDispatcher;
     }
@@ -322,9 +317,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Deprecated
     public void addOnBackPressedCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
-        mOnBackPressedCallbackCancellables.put(onBackPressedCallback,
-                getOnBackPressedDispatcher()
-                        .addCallback(this, onBackPressedCallback));
+        getOnBackPressedDispatcher().addCallback(this, onBackPressedCallback);
     }
 
     /**
@@ -352,9 +345,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @Deprecated
     public void addOnBackPressedCallback(@NonNull LifecycleOwner owner,
             @NonNull OnBackPressedCallback onBackPressedCallback) {
-        mOnBackPressedCallbackCancellables.put(onBackPressedCallback,
-                getOnBackPressedDispatcher()
-                        .addCallback(owner, onBackPressedCallback));
+        getOnBackPressedDispatcher().addCallback(owner, onBackPressedCallback);
     }
 
     /**
@@ -369,17 +360,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      *
      * @param onBackPressedCallback The callback to remove
      * @see #addOnBackPressedCallback(LifecycleOwner, OnBackPressedCallback)
-     * @deprecated Use {@link Cancellable#cancel()} on the
-     * {@link Cancellable} returned by {@link #getOnBackPressedDispatcher() and
-     * {@link OnBackPressedDispatcher#addCallback }}.
+     * @deprecated Use {@link OnBackPressedCallback#remove()}
      */
-    @SuppressWarnings("DeprecatedIsStillUsed") /* See mOnBackPressedCallbackCancellables */
     @Deprecated
     public void removeOnBackPressedCallback(@NonNull OnBackPressedCallback onBackPressedCallback) {
-        Cancellable cancellable = mOnBackPressedCallbackCancellables.remove(onBackPressedCallback);
-        if (cancellable != null) {
-            cancellable.cancel();
-        }
+        onBackPressedCallback.remove();
     }
 
     @NonNull

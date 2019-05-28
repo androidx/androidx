@@ -175,6 +175,7 @@ public class VectorDrawableTest {
     /* Golden images for vectors with gradients. Note some images have platform level variants:
             * v26: Skia gradient rendering changed in O.
             * v28: Skia anti-aliasing changed in P.
+            * v29: Skia gradient rendering changes in Q.
     */
     private static final int[] GRADIENT_GOLDEN_IMAGES = new int[]{
             R.drawable.vector_icon_gradient_1_golden,

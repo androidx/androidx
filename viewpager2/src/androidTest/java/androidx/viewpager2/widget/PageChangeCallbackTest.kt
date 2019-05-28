@@ -70,6 +70,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
     override fun setUp() {
         super.setUp()
+        assumeApiBeforeQ()
         if (config.rtl) {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
@@ -798,6 +799,94 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
+    @Test
+    fun test_swipe_noAdapter() {
+        val test = setUpTest(config.orientation)
+        assertThat(test.viewPager.adapter, nullValue())
+        assertThat(test.viewPager.currentItem, equalTo(0))
+
+        listOf(test::swipeForward, test::swipeBackward).forEach { swipe ->
+            val recorder = test.viewPager.addNewRecordingCallback()
+
+            val idleLatch = test.viewPager.addWaitForIdleLatch()
+            swipe(SwipeMethod.ESPRESSO)
+            idleLatch.await(2, SECONDS)
+
+            assertThat(recorder.allEvents, equalTo(listOf(
+                OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) as Event,
+                OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event
+            )))
+            test.viewPager.unregisterOnPageChangeCallback(recorder)
+        }
+    }
+
+    /**
+     * Expected trace (marker events left out):
+     *
+     * >> viewPager.setAdapter(adapter)
+     * onPageSelected(0)
+     * onPageScrolled(0, 0.000000, 0)
+     * >> config change
+     * onPageSelected(0)
+     * onPageScrolled(0, 0.000000, 0)
+     * >> viewPager.setCurrentItem(2, false)
+     * onPageSelected(2)
+     * onPageScrolled(2, 0.000000, 0)
+     * >> config change
+     * onPageSelected(2)
+     * onPageScrolled(2, 0.000000, 0)
+     */
+    @Test
+    fun test_initialEvents() {
+        // given
+        val test = setUpTest(config.orientation)
+        val recorder = test.viewPager.addNewRecordingCallback()
+        val adapterProvider = viewAdapterProvider(stringSequence(3))
+        val marker = 1
+
+        fun expectedEvents(page: Int): List<Event> {
+            return listOf(
+                OnPageSelectedEvent(page) as Event,
+                OnPageScrolledEvent(page, 0f, 0) as Event
+            )
+        }
+
+        // when
+        test.setAdapterSync(adapterProvider)
+        // then
+        assertThat(recorder.allEvents, equalTo(expectedEvents(0)))
+
+        // when
+        recorder.reset()
+        test.recreateActivity(adapterProvider) { newViewPager ->
+            recorder.markEvent(marker)
+            // viewPager is recreated, so need to reattach callback
+            newViewPager.registerOnPageChangeCallback(recorder)
+        }
+        // then
+        assertThat(recorder.allEvents, equalTo(
+            listOf(MarkerEvent(marker))
+                .plus(expectedEvents(0)))
+        )
+
+        // given
+        val targetPage = 2
+        // when
+        recorder.reset()
+        test.viewPager.setCurrentItemSync(targetPage, false, 2, SECONDS)
+        test.recreateActivity(adapterProvider) { newViewPager ->
+            recorder.markEvent(marker)
+            // viewPager is recreated, so need to reattach callback
+            newViewPager.registerOnPageChangeCallback(recorder)
+        }
+        // then
+        assertThat(recorder.allEvents, equalTo(
+            expectedEvents(targetPage)
+                .plus(MarkerEvent(marker))
+                .plus(expectedEvents(targetPage)))
+        )
+    }
+
     private fun test_setCurrentItem_outOfBounds(smoothScroll: Boolean) {
         val test = setUpTest(config.orientation)
         val n = 3
@@ -894,6 +983,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
+        val allEvents get() = events
         val scrollEvents get() = events.mapNotNull { it as? OnPageScrolledEvent }
         val scrollEventsBeforeSettling
             get() = events.subList(0, settlingIx).mapNotNull { it as? OnPageScrolledEvent }
@@ -920,6 +1010,10 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
         fun stateEvents(state: Int): List<OnPageScrollStateChangedEvent> {
             return stateEvents.filter { it.state == state }
+        }
+
+        fun reset() {
+            events.clear()
         }
 
         override fun onPageScrolled(

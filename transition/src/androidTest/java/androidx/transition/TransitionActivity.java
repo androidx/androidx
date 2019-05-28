@@ -35,6 +35,17 @@ public class TransitionActivity extends FragmentActivity {
                 | WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(R.layout.activity_transition);
         mRoot = findViewById(R.id.root);
+
+        // disable enter animation.
+        overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+
+        // disable exit animation.
+        overridePendingTransition(0, 0);
     }
 
     ViewGroup getRoot() {

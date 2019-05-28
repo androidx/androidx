@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"কোনও আঙ্গুলের ছাপ নথিভুক্ত নেই।"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"এই ডিভাইসে আঙ্গুলের ছাপ নেওয়ার সেন্সর নেই"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"ব্যবহারকারী আঙ্গুলের ছাপ নেওয়ার অপারেশনটি বাতিল করেছেন।"</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"অনেকবার চেষ্টা করেছেন। পরে আবার চেষ্টা করুন।"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"অজানা সমস্যা"</string>
 </resources>

@@ -247,8 +247,8 @@ final class MediaRouterThemeHelper {
     }
 
     /**
-     * This method is used by MediaRouteCastDialog to set color of the volume slider according to
-     * current theme.
+     * This method is used by MediaRouteDynamicControllerDialog to set color of the volume slider
+     * according to current theme.
      */
     static void setVolumeSliderColor(Context context, MediaRouteVolumeSlider volumeSlider) {
         int progressAndThumbColor, backgroundColor;

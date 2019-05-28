@@ -17,15 +17,11 @@
 package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FRAMEWORKS;
-import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 
 import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
-import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
@@ -104,16 +100,6 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     }
 
     @Override
-    public @NonNull Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(AUDIO_ATTRIBUTES_FRAMEWORKS, mAudioAttributes);
-        if (mLegacyStreamType != INVALID_STREAM_TYPE) {
-            bundle.putInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE, mLegacyStreamType);
-        }
-        return bundle;
-    }
-
-    @Override
     public int hashCode() {
         return mAudioAttributes.hashCode();
     }
@@ -130,22 +116,6 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     @Override
     public String toString() {
         return "AudioAttributesCompat: audioattributes=" + mAudioAttributes;
-    }
-
-    /**
-     * Create AudioAttributesImpl from Bundle
-     */
-    public static AudioAttributesImpl fromBundle(Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-        AudioAttributes frameworkAttrs = bundle.getParcelable(AUDIO_ATTRIBUTES_FRAMEWORKS);
-        if (frameworkAttrs == null) {
-            return null;
-        }
-        int legacyStream = bundle.getInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE,
-                INVALID_STREAM_TYPE);
-        return new AudioAttributesImplApi21(frameworkAttrs, legacyStream);
     }
 
     static class Builder implements AudioAttributesImpl.Builder {

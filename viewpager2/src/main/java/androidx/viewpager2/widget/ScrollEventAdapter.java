@@ -52,6 +52,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         ZERO_MARGIN_LAYOUT_PARAMS.setMargins(0, 0, 0, 0);
     }
 
+    /** @hide */
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
             STATE_IN_PROGRESS_IMMEDIATE_SCROLL, STATE_IN_PROGRESS_FAKE_DRAG})
@@ -126,9 +127,13 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             boolean dispatchIdle = false;
             updateScrollEventValues();
             if (!mScrollHappened) {
-                // Pages didn't move during drag, so must be at the start or end of the list
-                // ViewPager's contract requires at least one scroll event though
-                dispatchScrolled(getPosition(), 0f, 0);
+                // Pages didn't move during drag, so either we're at the start or end of the list,
+                // or there are no pages at all.
+                // In the first case, ViewPager's contract requires at least one scroll event.
+                // In the second case, don't send that scroll event
+                if (mScrollValues.mPosition != RecyclerView.NO_POSITION) {
+                    dispatchScrolled(mScrollValues.mPosition, 0f, 0);
+                }
                 dispatchIdle = true;
             } else if (mScrollValues.mOffsetPx == 0) {
                 // Normally we dispatch the selected page and go to idle in onScrolled when
@@ -172,6 +177,10 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             if (mDragStartPosition != mTarget) {
                 dispatchSelected(mTarget);
             }
+        } else if (mAdapterState == STATE_IDLE) {
+            // onScrolled while IDLE means RV has just been populated after an adapter has been set.
+            // Contract requires us to fire onPageSelected as well.
+            dispatchSelected(mScrollValues.mPosition);
         }
 
         dispatchScrolled(mScrollValues.mPosition, mScrollValues.mOffset, mScrollValues.mOffsetPx);
@@ -231,6 +240,17 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
 
         values.mOffsetPx = -start;
         if (values.mOffsetPx < 0) {
+            // We're in an error state. Figure out if this might have been caused
+            // by animateLayoutChanges and throw a descriptive exception if so
+            if (new AnimateLayoutChangeDetector(mLayoutManager).mayHaveInterferingAnimations()) {
+                throw new IllegalStateException("Page(s) contain a ViewGroup with a "
+                        + "LayoutTransition (or animateLayoutChanges=\"true\"), which interferes "
+                        + "with the scrolling animation. Make sure to call getLayoutTransition()"
+                        + ".setAnimateParentHierarchy(false) on all ViewGroups with a "
+                        + "LayoutTransition before an animation is started.");
+            }
+
+            // Throw a generic exception otherwise
             throw new IllegalStateException(String.format(Locale.US, "Page can only be offset by a "
                     + "positive amount, not by %d", values.mOffsetPx));
         }
@@ -265,16 +285,6 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         dispatchStateChanged(SCROLL_STATE_SETTLING);
         if (hasNewTarget) {
             dispatchSelected(target);
-        }
-    }
-
-    /**
-     * Let the adapter know that mCurrentItem was restored in onRestoreInstanceState.
-     */
-    void notifyRestoreCurrentItem(int currentItem) {
-        // Don't send page selected event for page 0 for consistency with ViewPager
-        if (currentItem != 0) {
-            dispatchSelected(currentItem);
         }
     }
 

@@ -20,7 +20,8 @@ import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 android {

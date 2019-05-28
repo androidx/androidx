@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="nav_app_bar_open_drawer_description" msgid="7456070600745802113">"Otvaranje ladice za navigaciju"</string>
+    <string name="nav_app_bar_open_drawer_description" msgid="7456070600745802113">"Otvaranje panela za navigaciju"</string>
     <string name="nav_app_bar_navigate_up_description" msgid="6301633601645100427">"Idi gore"</string>
 </resources>

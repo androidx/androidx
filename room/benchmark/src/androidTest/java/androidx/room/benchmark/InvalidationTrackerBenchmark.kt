@@ -119,27 +119,27 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
 
         private const val DB_NAME = "invalidation-benchmark-test"
     }
-}
 
-@Database(entities = [User::class], version = 1, exportSchema = false)
-abstract class TestDatabase : RoomDatabase() {
-    abstract fun getUserDao(): UserDao
-}
+    @Database(entities = [User::class], version = 1, exportSchema = false)
+    abstract class TestDatabase : RoomDatabase() {
+        abstract fun getUserDao(): UserDao
+    }
 
-@Entity
-data class User(@PrimaryKey val id: Int, val name: String)
+    @Entity
+    data class User(@PrimaryKey val id: Int, val name: String)
 
-@Dao
-interface UserDao {
-    @Insert
-    fun insert(user: User)
+    @Dao
+    interface UserDao {
+        @Insert
+        fun insert(user: User)
 
-    @Query("DELETE FROM User")
-    fun deleteAll(): Int
-}
+        @Query("DELETE FROM User")
+        fun deleteAll(): Int
+    }
 
-enum class Mode {
-    MEASURE_INSERT,
-    MEASURE_DELETE,
-    MEASURE_INSERT_AND_DELETE
+    enum class Mode {
+        MEASURE_INSERT,
+        MEASURE_DELETE,
+        MEASURE_INSERT_AND_DELETE
+    }
 }

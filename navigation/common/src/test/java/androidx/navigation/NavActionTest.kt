@@ -17,14 +17,12 @@
 package androidx.navigation
 
 import androidx.annotation.IdRes
-import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-@SmallTest
 class NavActionTest {
 
     companion object {

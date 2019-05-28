@@ -1031,7 +1031,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
 
         // before any details row is presented, pressing BACK will quit the activity
         sendKeys(KeyEvent.KEYCODE_BACK);
-        PollingCheck.waitFor(4000, new PollingCheck.ActivityDestroy(activity));
+        PollingCheck.waitFor(4000, new PollingCheck.ActivityStop(activity));
     }
 
     public static class DetailsSupportFragmentSwitchToVideoAndPrepareEntranceTransition
@@ -1206,7 +1206,7 @@ public class DetailsSupportFragmentTest extends SingleSupportFragmentTestBase {
         });
         SystemClock.sleep(100);
         activity.finish();
-        PollingCheck.waitFor(new PollingCheck.ActivityDestroy(activity));
+        PollingCheck.waitFor(new PollingCheck.ActivityStop(activity));
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {

@@ -1,33 +1,33 @@
 // Signature format: 3.0
 package androidx.mediarouter.app {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MediaRouteCastDialog extends androidx.appcompat.app.AppCompatDialog {
-    ctor public MediaRouteCastDialog(android.content.Context!);
-    ctor public MediaRouteCastDialog(android.content.Context!, int);
-    method public android.support.v4.media.session.MediaSessionCompat.Token! getMediaSession();
-    method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
-    method public boolean onFilterRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>);
-    method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
-  }
-
   public class MediaRouteChooserDialogFragment extends androidx.fragment.app.DialogFragment {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.app.MediaRouteDevicePickerDialog! onCreateDevicePickerDialog(android.content.Context!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.mediarouter.app.MediaRouteDynamicChooserDialog! onCreateDynamicChooserDialog(android.content.Context!);
   }
 
   public class MediaRouteControllerDialogFragment extends androidx.fragment.app.DialogFragment {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteSelector! getRouteSelector();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.app.MediaRouteCastDialog! onCreateCastDialog(android.content.Context!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.mediarouter.app.MediaRouteDynamicControllerDialog! onCreateDynamicControllerDialog(android.content.Context!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MediaRouteDevicePickerDialog extends androidx.appcompat.app.AppCompatDialog {
-    ctor public MediaRouteDevicePickerDialog(android.content.Context!);
-    ctor public MediaRouteDevicePickerDialog(android.content.Context!, int);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MediaRouteDynamicChooserDialog extends androidx.appcompat.app.AppCompatDialog {
+    ctor public MediaRouteDynamicChooserDialog(android.content.Context!);
+    ctor public MediaRouteDynamicChooserDialog(android.content.Context!, int);
     method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
     method public boolean onFilterRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
     method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>);
     method public void refreshRoutes();
+    method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MediaRouteDynamicControllerDialog extends androidx.appcompat.app.AppCompatDialog {
+    ctor public MediaRouteDynamicControllerDialog(android.content.Context!);
+    ctor public MediaRouteDynamicControllerDialog(android.content.Context!, int);
+    method public android.support.v4.media.session.MediaSessionCompat.Token! getMediaSession();
+    method public androidx.mediarouter.media.MediaRouteSelector getRouteSelector();
+    method public boolean onFilterRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
+    method public void onFilterRoutes(java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo>);
     method public void setRouteSelector(androidx.mediarouter.media.MediaRouteSelector);
   }
 
@@ -57,25 +57,29 @@ package androidx.mediarouter.media {
   }
 
   public final class MediaRouter {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addMemberToSelectedRoute(androidx.mediarouter.media.MediaRouter.RouteInfo!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void removeMemberFromSelectedRoute(androidx.mediarouter.media.MediaRouter.RouteInfo!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void addMemberToDynamicGroup(androidx.mediarouter.media.MediaRouter.RouteInfo!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void removeMemberFromDynamicGroup(androidx.mediarouter.media.MediaRouter.RouteInfo!);
   }
 
   public static class MediaRouter.RouteInfo {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? getDynamicGroupController();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.mediarouter.media.MediaRouter.RouteInfo.DynamicGroupState? getDynamicGroupState();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo> getMemberRoutes();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPresentationDisplayId();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.mediarouter.media.MediaRouteProvider! getProviderInstance();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getSelectionState();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isDefaultOrBluetooth();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isDynamicRoute();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isGroup();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isGroupable();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isTransferable();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isUnselectable();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int DEVICE_TYPE_BLUETOOTH = 3; // 0x3
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int DEVICE_TYPE_UNKNOWN = 0; // 0x0
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int PRESENTATION_DISPLAY_ID_NONE = -1; // 0xffffffff
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MediaRouter.RouteInfo.DynamicGroupState {
+    ctor public MediaRouter.RouteInfo.DynamicGroupState();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getSelectionState();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isGroupable();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isTransferable();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isUnselectable();
   }
 
 }

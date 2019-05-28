@@ -34,8 +34,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -286,7 +286,7 @@ public abstract class FragmentStateAdapter extends
             if (mFragmentManager.isDestroyed()) {
                 return; // nothing we can do
             }
-            mLifecycle.addObserver(new LifecycleEventObserver() {
+            mLifecycle.addObserver(new GenericLifecycleObserver() {
                 @Override
                 public void onStateChanged(@NonNull LifecycleOwner source,
                         @NonNull Lifecycle.Event event) {
@@ -436,7 +436,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public @NonNull Parcelable saveState() {
+    public final @NonNull Parcelable saveState() {
         /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
         Bundle savedState = new Bundle(mFragments.size() + mSavedStates.size());
 
@@ -463,7 +463,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public void restoreState(@NonNull Parcelable savedState) {
+    public final void restoreState(@NonNull Parcelable savedState) {
         if (!mSavedStates.isEmpty() || !mFragments.isEmpty()) {
             throw new IllegalStateException(
                     "Expected the adapter to be 'fresh' while restoring state.");
@@ -509,7 +509,7 @@ public abstract class FragmentStateAdapter extends
             }
         };
 
-        mLifecycle.addObserver(new LifecycleEventObserver() {
+        mLifecycle.addObserver(new GenericLifecycleObserver() {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner source,
                     @NonNull Lifecycle.Event event) {

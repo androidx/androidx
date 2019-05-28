@@ -1054,15 +1054,15 @@ public final class PlaybackStateCompat implements Parcelable {
             public Builder(String action, CharSequence name, int icon) {
                 if (TextUtils.isEmpty(action)) {
                     throw new IllegalArgumentException(
-                            "You must specify an action to build a CustomAction.");
+                            "You must specify an action to build a CustomAction");
                 }
                 if (TextUtils.isEmpty(name)) {
                     throw new IllegalArgumentException(
-                            "You must specify a name to build a CustomAction.");
+                            "You must specify a name to build a CustomAction");
                 }
                 if (icon == 0) {
                     throw new IllegalArgumentException(
-                            "You must specify an icon resource id to build a CustomAction.");
+                            "You must specify an icon resource id to build a CustomAction");
                 }
                 mAction = action;
                 mName = name;
@@ -1302,7 +1302,7 @@ public final class PlaybackStateCompat implements Parcelable {
         public Builder addCustomAction(PlaybackStateCompat.CustomAction customAction) {
             if (customAction == null) {
                 throw new IllegalArgumentException(
-                        "You may not add a null CustomAction to PlaybackStateCompat.");
+                        "You may not add a null CustomAction to PlaybackStateCompat");
             }
             mCustomActions.add(customAction);
             return this;

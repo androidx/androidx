@@ -1683,7 +1683,7 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * Common Path information for clip path and normal path.
      */
     private abstract static class VPath extends VObject {
-        private static final int FILL_TYPE_WINDING = 0;
+        protected static final int FILL_TYPE_WINDING = 0;
         protected PathParser.PathDataNode[] mNodes = null;
         String mPathName;
         // Default fill rule is winding, or as known as "non-zero".
@@ -1781,11 +1781,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             }
             final TypedArray a = TypedArrayUtils.obtainAttributes(r, theme, attrs,
                     AndroidResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH);
-            updateStateFromTypedArray(a);
+            updateStateFromTypedArray(a, parser);
             a.recycle();
         }
 
-        private void updateStateFromTypedArray(TypedArray a) {
+        private void updateStateFromTypedArray(TypedArray a, XmlPullParser parser) {
             // Account for any configuration changes.
             // mChangingConfigurations |= Utils.getChangingConfigurations(a);;
 
@@ -1800,8 +1800,9 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             if (pathData != null) {
                 mNodes = PathParser.createNodesFromPathData(pathData);
             }
-            mFillRule = a.getInt(AndroidResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_FILLTYPE,
-                    mFillRule);
+            mFillRule = TypedArrayUtils.getNamedInt(a, parser, "fillType",
+                    AndroidResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_FILLTYPE,
+                    FILL_TYPE_WINDING);
         }
 
         @Override

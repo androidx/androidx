@@ -32,6 +32,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsHelper;
 import androidx.car.util.ListItemBackgroundResolver;
@@ -47,9 +48,9 @@ import java.util.function.Function;
  * Adapter for {@link PagedListView} to display {@link ListItem}.
  *
  * <ul>
- *     <li> Implements {@link PagedListView.ItemCap} - defaults to unlimited item count.
- *     <li> Implements {@link PagedListView.DividerVisibilityManager} - to control dividers after
- *     individual {@link ListItem}.
+ * <li> Implements {@link PagedListView.ItemCap} - defaults to unlimited item count.
+ * <li> Implements {@link PagedListView.DividerVisibilityManager} - to control dividers after
+ * individual {@link ListItem}.
  * </ul>
  *
  * <p>To enable support for {@link CarUxRestrictions}, call {@link #start()} in your
@@ -61,40 +62,38 @@ public class ListItemAdapter extends
         PagedListView.DividerVisibilityManager {
 
     /**
-     * Constant class for background style of items.
+     * @hide
      */
-    public static final class BackgroundStyle {
-        private BackgroundStyle() {}
-
-        /**
-         * Sets the background color of each item. Background can be configured by
-         * {@link R.styleable#ListItem_listItemBackgroundColor}.
-         */
-        public static final int SOLID = 0;
-        /**
-         * Sets the background color of each item to none (transparent).
-         */
-        public static final int NONE = 1;
-        /**
-         * Sets each item in {@link CardView} with a rounded corner background and shadow.
-         */
-        public static final int CARD = 2;
-        /**
-         * Sets background of each item so the combined list looks like one elongated card, namely
-         * top and bottom item will have rounded corner at only top/bottom side respectively. If
-         * only one item exists, it will have both top and bottom rounded corner.
-         */
-        public static final int PANEL = 3;
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            BACKGROUND_STYLE_SOLID,
+            BACKGROUND_STYLE_NONE,
+            BACKGROUND_STYLE_CARD,
+            BACKGROUND_STYLE_PANEL
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ListBackgroundStyle {
     }
 
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({
-        BackgroundStyle.SOLID,
-        BackgroundStyle.NONE,
-        BackgroundStyle.CARD,
-        BackgroundStyle.PANEL
-    })
-    private @interface ListBackgroundStyle {}
+    /**
+     * Sets the background color of each item. Background can be configured by
+     * {@link R.styleable#ListItem_listItemBackgroundColor}.
+     */
+    public static final int BACKGROUND_STYLE_SOLID = 0;
+    /**
+     * Sets the background color of each item to none (transparent).
+     */
+    public static final int BACKGROUND_STYLE_NONE = 1;
+    /**
+     * Sets each item in {@link CardView} with a rounded corner background and shadow.
+     */
+    public static final int BACKGROUND_STYLE_CARD = 2;
+    /**
+     * Sets background of each item so the combined list looks like one elongated card, namely
+     * top and bottom item will have rounded corner at only top/bottom side respectively. If
+     * only one item exists, it will have both top and bottom rounded corner.
+     */
+    public static final int BACKGROUND_STYLE_PANEL = 3;
 
     static final int LIST_ITEM_TYPE_TEXT = 1;
     static final int LIST_ITEM_TYPE_SEEKBAR = 2;
@@ -108,9 +107,11 @@ public class ListItemAdapter extends
     private final SparseArray<Function<View, ListItem.ViewHolder>> mViewHolderCreator =
             new SparseArray<>();
 
-    @ListBackgroundStyle private int mBackgroundStyle;
+    @ListBackgroundStyle
+    private int mBackgroundStyle;
 
-    @ColorInt private int mListItemBackgroundColor;
+    @ColorInt
+    private int mListItemBackgroundColor;
 
     private final CarUxRestrictionsHelper mUxRestrictionsHelper;
     private CarUxRestrictions mCurrentUxRestrictions;
@@ -121,10 +122,10 @@ public class ListItemAdapter extends
     private int mMaxItems = PagedListView.ItemCap.UNLIMITED;
 
     /**
-     * Defaults {@link BackgroundStyle} to {@link BackgroundStyle#NONE}.
+     * Defaults background style to {@code BACKGROUND_STYLE_NONE}.
      */
     public ListItemAdapter(@NonNull Context context, @NonNull ListItemProvider itemProvider) {
-        this(context, itemProvider, BackgroundStyle.NONE);
+        this(context, itemProvider, BACKGROUND_STYLE_NONE);
     }
 
     public ListItemAdapter(@NonNull Context context, @NonNull ListItemProvider itemProvider,
@@ -195,15 +196,14 @@ public class ListItemAdapter extends
      *     CustomListItem::createViewHolder);
      * }</pre>
      *
-     * <p>The function will receive a view as {@link RecyclerView.ViewHolder#itemView}. This view
-     * uses a background defined by {@link BackgroundStyle}.
+     * <p>The function will receive a view as {@link ListItem.ViewHolder#itemView}.
      *
      * <p>Subclasses of {@link ListItem} in package {@code androidx.car.widget} are already
      * registered.
      *
-     * @param viewType A unique id for the custom view. Use negative values for custom view type.
+     * @param viewType    A unique id for the custom view. Use negative values for custom view type.
      * @param layoutResId The layout structure that will bs used for the custom view type.
-     * @param function function to create ViewHolder for {@code viewType}.
+     * @param function    function to create ViewHolder for {@code viewType}.
      */
     public void registerListItemViewType(
             @IntRange(from = Integer.MIN_VALUE, to = -1) int viewType,
@@ -260,11 +260,11 @@ public class ListItemAdapter extends
     }
 
     /**
-     * Creates a view with background set by {@link BackgroundStyle}.
+     * Creates a view with background set by {@link ListBackgroundStyle}.
      */
     private ViewGroup createListItemContainer() {
         ViewGroup container;
-        if (mBackgroundStyle == BackgroundStyle.CARD) {
+        if (mBackgroundStyle == BACKGROUND_STYLE_CARD) {
             CardView card = new CardView(mContext);
             RecyclerView.LayoutParams cardLayoutParams = new RecyclerView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -280,7 +280,7 @@ public class ListItemAdapter extends
             frameLayout.setLayoutParams(new RecyclerView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             // Skip setting background color for NONE.
-            if (mBackgroundStyle != BackgroundStyle.NONE) {
+            if (mBackgroundStyle != BACKGROUND_STYLE_NONE) {
                 frameLayout.setBackgroundColor(mListItemBackgroundColor);
             }
 
@@ -296,7 +296,7 @@ public class ListItemAdapter extends
 
     @Override
     public void onBindViewHolder(ListItem.ViewHolder holder, int position) {
-        if (mBackgroundStyle == BackgroundStyle.PANEL) {
+        if (mBackgroundStyle == BACKGROUND_STYLE_PANEL) {
             ListItemBackgroundResolver.setBackground(
                     holder.itemView, position, mItemProvider.size());
         }

@@ -47,6 +47,7 @@ package androidx.navigation {
     method public final CharSequence? getLabel();
     method public final String getNavigatorName();
     method public final androidx.navigation.NavGraph? getParent();
+    method public boolean hasDeepLink(android.net.Uri);
     method @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet);
     method protected static <C> Class<? extends C> parseClassFromName(android.content.Context, String, Class<? extends C>);
     method public final void putAction(@IdRes int, @IdRes int);

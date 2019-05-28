@@ -15,17 +15,13 @@
  */
 package androidx.fragment.app
 
-import android.app.Instrumentation
-import android.view.KeyEvent
 import android.view.View
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,13 +34,6 @@ import org.junit.runner.RunWith
 class FragmentReplaceTest {
     @get:Rule
     val activityRule = ActivityTestRule(FragmentTestActivity::class.java)
-
-    private lateinit var instrumentation: Instrumentation
-
-    @Before
-    fun setUp() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
-    }
 
     @Test
     fun testReplaceFragment() {
@@ -81,22 +70,5 @@ class FragmentReplaceTest {
 
     private fun executePendingTransactions(fm: FragmentManager) {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
-    }
-
-    @Test
-    fun testBackPressWithFrameworkFragment() {
-        val activity = activityRule.activity
-        val fm = activity.supportFragmentManager
-
-        fm.beginTransaction()
-            .add(R.id.content, Fragment())
-            .addToBackStack(null)
-            .commit()
-        activityRule.runOnUiThread { fm.executePendingTransactions() }
-        assertThat(fm.backStackEntryCount).isEqualTo(1)
-
-        instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-
-        assertThat(fm.backStackEntryCount).isEqualTo(0)
     }
 }

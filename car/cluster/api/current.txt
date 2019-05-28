@@ -5,6 +5,7 @@ package androidx.car.cluster.navigation {
     method public String getAddress();
     method public androidx.car.cluster.navigation.Distance? getDistance();
     method public java.time.ZonedDateTime? getEta();
+    method public CharSequence getFormattedEta();
     method public androidx.car.cluster.navigation.LatLng? getLocation();
     method public String getTitle();
     method public androidx.car.cluster.navigation.Destination.Traffic getTraffic();
@@ -16,6 +17,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Destination.Builder setAddress(String);
     method public androidx.car.cluster.navigation.Destination.Builder setDistance(androidx.car.cluster.navigation.Distance?);
     method public androidx.car.cluster.navigation.Destination.Builder setEta(java.time.ZonedDateTime?);
+    method public androidx.car.cluster.navigation.Destination.Builder setFormattedEta(CharSequence);
     method public androidx.car.cluster.navigation.Destination.Builder setLocation(androidx.car.cluster.navigation.LatLng?);
     method public androidx.car.cluster.navigation.Destination.Builder setTitle(String);
     method public androidx.car.cluster.navigation.Destination.Builder setTraffic(androidx.car.cluster.navigation.Destination.Traffic, androidx.car.cluster.navigation.Destination.Traffic...);

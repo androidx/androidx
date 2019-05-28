@@ -30,5 +30,16 @@ public class PagedListViewTestActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paged_list_view);
+
+        // disable enter animation.
+        overridePendingTransition(0, 0);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+
+        // disable exit animation.
+        overridePendingTransition(0, 0);
     }
 }

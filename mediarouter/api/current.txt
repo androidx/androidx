@@ -246,10 +246,10 @@ package androidx.mediarouter.media {
     ctor public MediaRouteProvider.DynamicGroupRouteController();
     method public String? getGroupableSelectionTitle();
     method public String? getTransferableSectionTitle();
+    method public final void notifyDynamicRoutesChanged(java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>!);
     method public abstract void onAddMemberRoute(String);
     method public abstract void onRemoveMemberRoute(String!);
     method public abstract void onUpdateMemberRoutes(java.util.List<java.lang.String>?);
-    method public abstract void setOnDynamicRoutesChangedListener(java.util.concurrent.Executor, androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener);
   }
 
   public static final class MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor {
@@ -272,10 +272,6 @@ package androidx.mediarouter.media {
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setIsTransferable(boolean);
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setIsUnselectable(boolean);
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.Builder! setSelectionState(int);
-  }
-
-  public static interface MediaRouteProvider.DynamicGroupRouteController.OnDynamicRoutesChangedListener {
-    method public void onRoutesChanged(androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController!, java.util.Collection<androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor>!);
   }
 
   public static final class MediaRouteProvider.ProviderMetadata {

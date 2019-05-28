@@ -16,14 +16,14 @@ limitations under the License.
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="email" msgid="5568050657313893478">"Pošalji e-poruku"</string>
-    <string name="email_desc" msgid="6941280589171810022">"Pošalji e-poruku na odabranu adresu"</string>
-    <string name="dial" msgid="7317293545368448453">"Pozovi"</string>
-    <string name="dial_desc" msgid="5129451396208040332">"Pozovi odabrani broj telefona"</string>
+    <string name="email" msgid="5568050657313893478">"E-pošta"</string>
+    <string name="email_desc" msgid="6941280589171810022">"Pošaljite e-poruku na odabrane adrese"</string>
+    <string name="dial" msgid="7317293545368448453">"Poziv"</string>
+    <string name="dial_desc" msgid="5129451396208040332">"Pozovite odabrani broj telefona"</string>
     <string name="browse" msgid="3733970143542020945">"Otvori"</string>
-    <string name="browse_desc" msgid="3898254913938219011">"Otvori odabrani URL"</string>
-    <string name="sms" msgid="5495416906312064886">"Pošalji SMS"</string>
-    <string name="sms_desc" msgid="8293660783374489324">"Pošalji SMS odabranom broju telefona"</string>
+    <string name="browse_desc" msgid="3898254913938219011">"Otvorite odabrani URL"</string>
+    <string name="sms" msgid="5495416906312064886">"Poruka"</string>
+    <string name="sms_desc" msgid="8293660783374489324">"Pošaljite poruku odabranom broju telefona"</string>
     <string name="add_contact" msgid="9005634177208282449">"Dodaj"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"Dodaj u kontakte"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"Više opcija"</string>

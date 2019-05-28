@@ -610,7 +610,7 @@ package androidx.core.app {
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
-  public class Person {
+  public class Person implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.core.app.Person fromBundle(android.os.Bundle);
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
     method public String? getKey();
@@ -692,7 +692,9 @@ package androidx.core.app {
     method public static android.content.ComponentName! getCallingActivity(android.app.Activity!);
     method public static String! getCallingPackage(android.app.Activity!);
     field public static final String EXTRA_CALLING_ACTIVITY = "androidx.core.app.EXTRA_CALLING_ACTIVITY";
+    field public static final String EXTRA_CALLING_ACTIVITY_INTEROP = "android.support.v4.app.EXTRA_CALLING_ACTIVITY";
     field public static final String EXTRA_CALLING_PACKAGE = "androidx.core.app.EXTRA_CALLING_PACKAGE";
+    field public static final String EXTRA_CALLING_PACKAGE_INTEROP = "android.support.v4.app.EXTRA_CALLING_PACKAGE";
   }
 
   public static class ShareCompat.IntentBuilder {
@@ -2361,6 +2363,7 @@ package androidx.core.view.accessibility {
     method public boolean isScrollable();
     method public boolean isSelected();
     method public boolean isShowingHintText();
+    method public boolean isTextEntryKey();
     method public boolean isVisibleToUser();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!, int);
@@ -2380,18 +2383,18 @@ package androidx.core.view.accessibility {
     method public void setCheckable(boolean);
     method public void setChecked(boolean);
     method public void setClassName(CharSequence!);
-    method @Deprecated public void setClickable(boolean);
+    method public void setClickable(boolean);
     method public void setCollectionInfo(Object!);
     method public void setCollectionItemInfo(Object!);
     method public void setContentDescription(CharSequence!);
     method public void setContentInvalid(boolean);
-    method @Deprecated public void setContextClickable(boolean);
+    method public void setContextClickable(boolean);
     method public void setDismissable(boolean);
     method public void setDrawingOrder(int);
     method public void setEditable(boolean);
     method public void setEnabled(boolean);
     method public void setError(CharSequence!);
-    method @Deprecated public void setFocusable(boolean);
+    method public void setFocusable(boolean);
     method public void setFocused(boolean);
     method public void setHeading(boolean);
     method public void setHintText(CharSequence?);
@@ -2402,7 +2405,7 @@ package androidx.core.view.accessibility {
     method public void setLabeledBy(android.view.View!);
     method public void setLabeledBy(android.view.View!, int);
     method public void setLiveRegion(int);
-    method @Deprecated public void setLongClickable(boolean);
+    method public void setLongClickable(boolean);
     method public void setMaxTextLength(int);
     method public void setMovementGranularities(int);
     method public void setMultiLine(boolean);
@@ -2414,12 +2417,13 @@ package androidx.core.view.accessibility {
     method public void setRangeInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.RangeInfoCompat!);
     method public void setRoleDescription(CharSequence?);
     method public void setScreenReaderFocusable(boolean);
-    method @Deprecated public void setScrollable(boolean);
+    method public void setScrollable(boolean);
     method public void setSelected(boolean);
     method public void setShowingHintText(boolean);
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
     method public void setText(CharSequence!);
+    method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);
     method public void setTooltipText(CharSequence?);
     method public void setTraversalAfter(android.view.View!);

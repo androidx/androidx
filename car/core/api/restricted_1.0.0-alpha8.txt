@@ -72,6 +72,11 @@ package androidx.car.uxrestrictions {
 
 }
 
+package androidx.car.widget {
+
+
+}
+
 package androidx.car.widget.itemdecorators {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BottomOffsetDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {

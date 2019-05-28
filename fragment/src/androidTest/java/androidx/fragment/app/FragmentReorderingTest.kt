@@ -44,7 +44,7 @@ class FragmentReorderingTest {
 
     @Before
     fun setup() {
-        FragmentTestUtil.setContentView(activityRule, R.layout.simple_container)
+        activityRule.setContentView(R.layout.simple_container)
         container = activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
         fm = activityRule.activity.supportFragmentManager
         instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -70,14 +70,14 @@ class FragmentReorderingTest {
             fm.executePendingTransactions()
         }
         assertThat(fragment1.onCreateViewCount).isEqualTo(0)
-        FragmentTestUtil.assertChildren(container, fragment2)
+        assertChildren(container, fragment2)
 
         instrumentation.runOnMainSync {
             fm.popBackStack()
             fm.popBackStack()
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container)
+        assertChildren(container)
     }
 
     // Test that it is possible to merge a transaction that starts with pop and adds
@@ -92,8 +92,8 @@ class FragmentReorderingTest {
             .setReorderingAllowed(true)
             .commit()
 
-        FragmentTestUtil.executePendingTransactions(activityRule)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.executePendingTransactions()
+        assertChildren(container, fragment1)
 
         // Now pop and add
         instrumentation.runOnMainSync {
@@ -105,11 +105,11 @@ class FragmentReorderingTest {
                 .commit()
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)
 
-        FragmentTestUtil.popBackStackImmediate(activityRule)
-        FragmentTestUtil.assertChildren(container)
+        activityRule.popBackStackImmediate()
+        assertChildren(container)
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)
     }
 
@@ -132,12 +132,12 @@ class FragmentReorderingTest {
                 .commit()
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container, fragment2)
+        assertChildren(container, fragment2)
         assertThat(fragment1.onAttachCount).isEqualTo(0)
         assertThat(fragment2.onCreateViewCount).isEqualTo(1)
 
-        FragmentTestUtil.popBackStackImmediate(activityRule)
-        FragmentTestUtil.assertChildren(container)
+        activityRule.popBackStackImmediate()
+        assertChildren(container)
         assertThat(fragment2.onDetachCount).isEqualTo(1)
     }
 
@@ -165,19 +165,15 @@ class FragmentReorderingTest {
                 .commit()
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container)
+        assertChildren(container)
         assertThat(fragment1.onCreateViewCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onDetachCount).isEqualTo(0)
         assertThat(fragment1.onAttachCount).isEqualTo(1)
 
-        FragmentTestUtil.popBackStackImmediate(
-            activityRule,
-            id,
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
-        FragmentTestUtil.assertChildren(container)
+        activityRule.popBackStackImmediate(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
+        assertChildren(container)
         assertThat(fragment1.onCreateViewCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
         assertThat(fragment1.onShowCount).isEqualTo(1)
@@ -194,7 +190,7 @@ class FragmentReorderingTest {
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)
 
         instrumentation.runOnMainSync {
@@ -211,13 +207,13 @@ class FragmentReorderingTest {
             fm.executePendingTransactions()
         }
 
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
         // should be optimized out
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)
 
         fm.popBackStack(id, 0)
-        FragmentTestUtil.executePendingTransactions(activityRule)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.executePendingTransactions()
+        assertChildren(container, fragment1)
         // optimize out going back, too
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)
     }
@@ -231,9 +227,9 @@ class FragmentReorderingTest {
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(fragment1.onAttachCount).isEqualTo(1)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
 
         instrumentation.runOnMainSync {
             fm.beginTransaction()
@@ -254,7 +250,7 @@ class FragmentReorderingTest {
             fm.executePendingTransactions()
         }
 
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
         // can optimize out the detach/attach
         assertThat(fragment1.onDestroyViewCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
@@ -264,8 +260,8 @@ class FragmentReorderingTest {
         assertThat(fragment1.onDetachCount).isEqualTo(0)
 
         fm.popBackStack(id, 0)
-        FragmentTestUtil.executePendingTransactions(activityRule)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.executePendingTransactions()
+        assertChildren(container, fragment1)
 
         // optimized out again, but not the show
         assertThat(fragment1.onDestroyViewCount).isEqualTo(0)
@@ -286,14 +282,14 @@ class FragmentReorderingTest {
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
 
         // the add detach is not fully optimized out
         assertThat(fragment1.onAttachCount).isEqualTo(1)
         assertThat(fragment1.onDetachCount).isEqualTo(0)
         assertThat(fragment1.isDetached).isTrue()
         assertThat(fragment1.onCreateViewCount).isEqualTo(0)
-        FragmentTestUtil.assertChildren(container)
+        assertChildren(container)
 
         instrumentation.runOnMainSync {
             fm.beginTransaction()
@@ -314,7 +310,7 @@ class FragmentReorderingTest {
             fm.executePendingTransactions()
         }
 
-        FragmentTestUtil.assertChildren(container)
+        assertChildren(container)
         // can optimize out the attach/detach, and the hide call
         assertThat(fragment1.onAttachCount).isEqualTo(1)
         assertThat(fragment1.onDetachCount).isEqualTo(0)
@@ -323,8 +319,8 @@ class FragmentReorderingTest {
         assertThat(fragment1.onShowCount).isEqualTo(0)
 
         fm.popBackStack(id, 0)
-        FragmentTestUtil.executePendingTransactions(activityRule)
-        FragmentTestUtil.assertChildren(container)
+        activityRule.executePendingTransactions()
+        assertChildren(container)
 
         // we can optimize out the attach/detach on the way back
         assertThat(fragment1.onAttachCount).isEqualTo(1)
@@ -344,10 +340,10 @@ class FragmentReorderingTest {
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
 
         instrumentation.runOnMainSync {
             fm.beginTransaction()
@@ -373,13 +369,13 @@ class FragmentReorderingTest {
             fm.executePendingTransactions()
         }
 
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
         // optimize out hide/show
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
 
-        FragmentTestUtil.popBackStackImmediate(activityRule, id, 0)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.popBackStackImmediate(id)
+        assertChildren(container, fragment1)
 
         // still optimized out
         assertThat(fragment1.onShowCount).isEqualTo(0)
@@ -400,12 +396,12 @@ class FragmentReorderingTest {
         }
 
         // The show/hide can be optimized out and nothing should change.
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
 
-        FragmentTestUtil.popBackStackImmediate(activityRule, id, 0)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.popBackStackImmediate(id)
+        assertChildren(container, fragment1)
 
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
@@ -438,8 +434,8 @@ class FragmentReorderingTest {
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
 
-        FragmentTestUtil.popBackStackImmediate(activityRule, id, 0)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.popBackStackImmediate(id)
+        assertChildren(container, fragment1)
 
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(1)
@@ -454,10 +450,10 @@ class FragmentReorderingTest {
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
+        activityRule.executePendingTransactions()
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(0)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
 
         instrumentation.runOnMainSync {
             fm.beginTransaction()
@@ -483,15 +479,12 @@ class FragmentReorderingTest {
             fm.executePendingTransactions()
         }
 
-        FragmentTestUtil.assertChildren(container, fragment1)
+        assertChildren(container, fragment1)
         // can optimize out the show/hide
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(0)
 
-        FragmentTestUtil.popBackStackImmediate(
-            activityRule, id,
-            FragmentManager.POP_BACK_STACK_INCLUSIVE
-        )
+        activityRule.popBackStackImmediate(id, FragmentManager.POP_BACK_STACK_INCLUSIVE)
         assertThat(fragment1.onShowCount).isEqualTo(0)
         assertThat(fragment1.onHideCount).isEqualTo(0)
     }
@@ -507,8 +500,8 @@ class FragmentReorderingTest {
             .addToBackStack(null)
             .setReorderingAllowed(true)
             .commit()
-        FragmentTestUtil.executePendingTransactions(activityRule)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.executePendingTransactions()
+        assertChildren(container, fragment1)
 
         val fragment2 = CountCallsFragment()
 
@@ -526,10 +519,10 @@ class FragmentReorderingTest {
 
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container, fragment2, fragment1)
+        assertChildren(container, fragment2, fragment1)
 
-        FragmentTestUtil.popBackStackImmediate(activityRule, id, 0)
-        FragmentTestUtil.assertChildren(container, fragment1)
+        activityRule.popBackStackImmediate(id)
+        assertChildren(container, fragment1)
     }
 
     // Popping an added transaction results in no operation
@@ -545,7 +538,7 @@ class FragmentReorderingTest {
             fm.popBackStack()
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container)
+        assertChildren(container)
 
         // Was never instantiated because it was popped before anything could happen
         assertThat(fragment1.onCreateViewCount).isEqualTo(0)
@@ -570,7 +563,7 @@ class FragmentReorderingTest {
             fm.popBackStack()
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container, fragment2)
+        assertChildren(container, fragment2)
 
         // It should be optimized with the replace, so no View creation
         assertThat(fragment1.onCreateViewCount).isEqualTo(0)
@@ -595,7 +588,7 @@ class FragmentReorderingTest {
                 .commit()
             fm.executePendingTransactions()
         }
-        FragmentTestUtil.assertChildren(container, fragment2)
+        assertChildren(container, fragment2)
 
         // No reordering, so fragment1 should have created its View
         assertThat(fragment1.onCreateViewCount).isEqualTo(1)

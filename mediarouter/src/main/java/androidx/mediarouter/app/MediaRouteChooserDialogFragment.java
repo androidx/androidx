@@ -16,7 +16,7 @@
 
 package androidx.mediarouter.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -110,7 +110,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
 
             if (mDialog != null) {
                 if (mUseDynamicGroup) {
-                    ((MediaRouteDevicePickerDialog) mDialog).setRouteSelector(selector);
+                    ((MediaRouteDynamicChooserDialog) mDialog).setRouteSelector(selector);
                 } else {
                     ((MediaRouteChooserDialog) mDialog).setRouteSelector(selector);
                 }
@@ -122,9 +122,9 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
      * Called when the device picker dialog is being created.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public MediaRouteDevicePickerDialog onCreateDevicePickerDialog(Context context) {
-        return new MediaRouteDevicePickerDialog(context);
+    @RestrictTo(LIBRARY_GROUP)
+    public MediaRouteDynamicChooserDialog onCreateDynamicChooserDialog(Context context) {
+        return new MediaRouteDynamicChooserDialog(context);
     }
 
     /**
@@ -141,8 +141,8 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (mUseDynamicGroup) {
-            mDialog = onCreateDevicePickerDialog(getContext());
-            ((MediaRouteDevicePickerDialog) mDialog).setRouteSelector(getRouteSelector());
+            mDialog = onCreateDynamicChooserDialog(getContext());
+            ((MediaRouteDynamicChooserDialog) mDialog).setRouteSelector(getRouteSelector());
         } else {
             mDialog = onCreateChooserDialog(getContext(), savedInstanceState);
             ((MediaRouteChooserDialog) mDialog).setRouteSelector(getRouteSelector());
@@ -157,7 +157,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
             return;
         }
         if (mUseDynamicGroup) {
-            ((MediaRouteDevicePickerDialog) mDialog).updateLayout();
+            ((MediaRouteDynamicChooserDialog) mDialog).updateLayout();
         } else {
             ((MediaRouteChooserDialog) mDialog).updateLayout();
         }

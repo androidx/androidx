@@ -16,33 +16,22 @@
 
 package androidx.fragment.app
 
-import android.app.Instrumentation
 import androidx.fragment.app.test.TestViewModel
 import androidx.fragment.app.test.ViewModelActivity
 import androidx.fragment.app.test.ViewModelActivity.ViewModelFragment
-import androidx.lifecycle.Lifecycle.Event.ON_DESTROY
-import androidx.lifecycle.Lifecycle.Event.ON_RESUME
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ViewModelTest {
-
-    @get:Rule
-    var activityRule = ActivityTestRule(ViewModelActivity::class.java)
 
     @Test(expected = IllegalStateException::class)
     @UiThreadTest
@@ -53,14 +42,13 @@ class ViewModelTest {
 
     @Test
     fun testSameActivityViewModels() {
-        var viewModelActivity = activityRule.activity
-        val activityModel = viewModelActivity.activityModel
-        val defaultActivityModel = viewModelActivity.defaultActivityModel
-        activityRule.runOnUiThread {
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val activityModel = withActivity { activityModel }
+            val defaultActivityModel = withActivity { defaultActivityModel }
             assertThat(defaultActivityModel).isNotSameAs(activityModel)
 
-            val fragment1 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_1)
-            val fragment2 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_2)
+            var fragment1 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
+            var fragment2 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_2) }
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
@@ -69,14 +57,15 @@ class ViewModelTest {
 
             assertThat(fragment1.defaultActivityModel).isSameAs(defaultActivityModel)
             assertThat(fragment2.defaultActivityModel).isSameAs(defaultActivityModel)
-        }
-        viewModelActivity = recreateActivity()
-        activityRule.runOnUiThread {
-            assertThat(viewModelActivity.activityModel).isSameAs(activityModel)
-            assertThat(viewModelActivity.defaultActivityModel).isSameAs(defaultActivityModel)
 
-            val fragment1 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_1)
-            val fragment2 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_2)
+            recreate()
+
+            assertThat(withActivity { activityModel }).isSameAs(activityModel)
+            assertThat(withActivity { defaultActivityModel }).isSameAs(defaultActivityModel)
+
+            fragment1 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
+            fragment2 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_2) }
+
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
@@ -90,23 +79,20 @@ class ViewModelTest {
 
     @Test
     fun testSameFragmentViewModels() {
-        var viewModelActivity = activityRule.activity
-        lateinit var fragment1Model: TestViewModel
-        lateinit var fragment2Model: TestViewModel
-        activityRule.runOnUiThread {
-            val fragment1 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_1)
-            val fragment2 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_2)
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            var fragment1 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
+            var fragment2 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_2) }
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
             assertThat(fragment1.fragmentModel).isNotSameAs(fragment2.fragmentModel)
-            fragment1Model = fragment1.fragmentModel
-            fragment2Model = fragment2.fragmentModel
-        }
-        viewModelActivity = recreateActivity()
-        activityRule.runOnUiThread {
-            val fragment1 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_1)
-            val fragment2 = getFragment(viewModelActivity, ViewModelActivity.FRAGMENT_TAG_2)
+            val fragment1Model = fragment1.fragmentModel
+            val fragment2Model = fragment2.fragmentModel
+
+            recreate()
+
+            fragment1 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_1) }
+            fragment2 = withActivity { getFragment(ViewModelActivity.FRAGMENT_TAG_2) }
             assertThat(fragment1).isNotNull()
             assertThat(fragment2).isNotNull()
 
@@ -117,87 +103,49 @@ class ViewModelTest {
 
     @Test
     fun testFragmentOnClearedWhenFinished() {
-        val activity = activityRule.activity
-        val fragment = getFragment(activity, ViewModelActivity.FRAGMENT_TAG_1)
-        val latch = CountDownLatch(1)
-        val observer = object : LifecycleObserver {
-            @OnLifecycleEvent(ON_DESTROY)
-            fun onDestroy() {
-                activity.window.decorView.post {
-                    try {
-                        assertThat(fragment.fragmentModel.cleared).isTrue()
-                    } finally {
-                        latch.countDown()
-                    }
-                }
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val fragmentModel = withActivity {
+                getFragment(ViewModelActivity.FRAGMENT_TAG_1).fragmentModel
             }
-        }
+            val backStackFragmentModel = withActivity {
+                getFragment(ViewModelActivity.FRAGMENT_TAG_BACK_STACK).fragmentModel
+            }
+            assertThat(fragmentModel.cleared).isFalse()
+            assertThat(backStackFragmentModel.cleared).isFalse()
 
-        activityRule.runOnUiThread { activity.lifecycle.addObserver(observer) }
-        activity.finish()
-        assertThat(latch.await(TIMEOUT.toLong(), TimeUnit.SECONDS)).isTrue()
+            recreate()
+            // recreate shouldn't clear the ViewModels
+            assertThat(fragmentModel.cleared).isFalse()
+            assertThat(backStackFragmentModel.cleared).isFalse()
+
+            moveToState(Lifecycle.State.DESTROYED)
+            // But destroying the Activity should
+            assertThat(fragmentModel.cleared).isTrue()
+            assertThat(backStackFragmentModel.cleared).isTrue()
+        }
     }
 
     @Test
     fun testFragmentOnCleared() {
-        val activity = activityRule.activity
-        val latch = CountDownLatch(1)
-        val observer = object : LifecycleObserver {
-            @OnLifecycleEvent(ON_RESUME)
-            fun onResume() {
-                try {
-                    val manager = activity.supportFragmentManager
-                    val fragment = Fragment()
-                    manager.beginTransaction().add(fragment, "temp").commitNow()
-                    val viewModelProvider = ViewModelProvider(
-                        fragment,
-                        ViewModelProvider.NewInstanceFactory()
-                    )
-                    val vm = viewModelProvider.get(TestViewModel::class.java)
-                    assertThat(vm.cleared).isFalse()
-                    manager.beginTransaction().remove(fragment).commitNow()
-                    assertThat(vm.cleared).isTrue()
-                } finally {
-                    latch.countDown()
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val fragment = withActivity {
+                Fragment().also {
+                    supportFragmentManager.beginTransaction().add(it, "temp").commitNow()
                 }
             }
+            val viewModelProvider = ViewModelProvider(
+                fragment,
+                ViewModelProvider.NewInstanceFactory()
+            )
+            val vm = viewModelProvider.get(TestViewModel::class.java)
+            assertThat(vm.cleared).isFalse()
+            onActivity { activity ->
+                activity.supportFragmentManager.beginTransaction().remove(fragment).commitNow()
+            }
+            assertThat(vm.cleared).isTrue()
         }
-
-        activityRule.runOnUiThread { activity.lifecycle.addObserver(observer) }
-        assertThat(latch.await(TIMEOUT.toLong(), TimeUnit.SECONDS)).isTrue()
-    }
-
-    private fun getFragment(activity: FragmentActivity, tag: String) =
-        activity.supportFragmentManager.findFragmentByTag(tag) as ViewModelFragment
-
-    private fun recreateActivity(): ViewModelActivity {
-        val monitor = Instrumentation.ActivityMonitor(
-            ViewModelActivity::class.java.canonicalName, null, false
-        )
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.addMonitor(monitor)
-        val previous = activityRule.activity
-        activityRule.runOnUiThread { previous.recreate() }
-        var result: ViewModelActivity
-
-        // this guarantee that we will reinstall monitor between notifications about onDestroy
-        // and onCreate
-
-        synchronized(monitor) {
-            do {
-                // the documentation says "Block until an Activity is created
-                // that matches this monitor." This statement is true, but there are some other
-                // true statements like: "Block until an Activity is destroyed" or
-                // "Block until an Activity is resumed"...
-
-                // this call will release synchronization monitor's monitor
-                result = monitor.waitForActivityWithTimeout(4000) as ViewModelActivity
-            } while (result === previous)
-        }
-        return result
-    }
-
-    companion object {
-        private const val TIMEOUT = 2 // secs
     }
 }
+
+private fun FragmentActivity.getFragment(tag: String) =
+    supportFragmentManager.findFragmentByTag(tag) as ViewModelFragment

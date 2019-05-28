@@ -50,19 +50,27 @@ limitations under the License.
 
     <!-- Car Component Dimensions -->
     <!-- Type Sizings -->
-    <dimen name="car_display1_size">64sp</dimen>
-    <dimen name="car_display2_size">56sp</dimen>
-    <dimen name="car_display3_size">44sp</dimen>
-    <dimen name="car_display4_size">36sp</dimen>
+    <dimen name="car_display1_size">56sp</dimen>
+    <dimen name="car_display2_size">44sp</dimen>
+    <dimen name="car_display3_size">36sp</dimen>
     <dimen name="car_body1_size">32sp</dimen>
     <dimen name="car_body2_size">28sp</dimen>
-    <dimen name="car_body3_size">26sp</dimen>
-    <dimen name="car_body4_size">24sp</dimen>
-    <dimen name="car_subtext1_size">20sp</dimen>
-    <dimen name="car_subtext2_size">18sp</dimen>
-    <dimen name="car_subtext3_size">16sp</dimen>
-    <dimen name="car_subtext4_size">14sp</dimen>
-    <dimen name="car_subtext5_size">12sp</dimen>
+    <dimen name="car_body3_size">24sp</dimen>
+
+    <!-- Deprecated. Mapping to Subtext1 until removal -->
+    <dimen name="car_body4_size">@dimen/car_subtext1_size</dimen>
+
+    <dimen name="car_subtext1_size">22sp</dimen>
+    <dimen name="car_subtext2_size">20sp</dimen>
+    <dimen name="car_subtext3_size">18sp</dimen>
+
+    <!-- Deprecated. Mapping to Subtext3 until removal -->
+    <dimen name="car_subtext4_size">@dimen/car_subtext3_size</dimen>
+
+    <!-- Line spacing -->
+    <dimen name="car_display_text_line_spacing_extra_size">8sp</dimen>
+    <dimen name="car_body_text_line_spacing_extra_size">8sp</dimen>
+    <dimen name="car_subtext_line_spacing_extra_size">6sp</dimen>
 
     <!-- Icons and Buttons -->
     <!-- Icons -->

@@ -84,7 +84,7 @@ package androidx.core.app {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.core.app.NotificationCompat.Builder! mBuilder;
   }
 
-  public class Person {
+  public class Person implements androidx.versionedparcelable.VersionedParcelable {
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromAndroidPerson(android.app.Person);
     method @RequiresApi(22) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromPersistableBundle(android.os.PersistableBundle);
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Person toAndroidPerson();

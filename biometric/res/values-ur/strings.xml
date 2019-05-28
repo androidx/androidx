@@ -24,5 +24,6 @@
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"کوئی فنگر پرنٹ مندرج نہیں ہے۔"</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"اس آلہ میں فنگر پرنٹ سینسر نہیں ہے"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"صارف نے فنگر پرنٹ کی کارروائی منسوخ کر دی۔"</string>
+    <string name="fingerprint_error_lockout" msgid="1651062876313169162">"کافی زیادہ کوششیں۔ براہ کرم بعد میں دوبارہ کوشش کریں۔"</string>
     <string name="default_error_msg" msgid="7497355367608150274">"نامعلوم خرابی"</string>
 </resources>

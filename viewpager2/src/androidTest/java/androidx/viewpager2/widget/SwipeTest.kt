@@ -35,6 +35,11 @@ private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests g
 @RunWith(Parameterized::class)
 @LargeTest
 class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
+    override fun setUp() {
+        super.setUp()
+        assumeApiBeforeQ()
+    }
+
     @Test
     fun test() {
         testConfig.apply {

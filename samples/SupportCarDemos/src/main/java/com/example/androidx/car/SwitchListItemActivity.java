@@ -61,7 +61,7 @@ public class SwitchListItemActivity extends Activity {
         item.setSwitchOnCheckedChangeListener((buttonView, isChecked) -> {
             int size = adapter.getItemCount();
             // -2 to get second to last item (the one above).
-            ((SwitchListItem) provider.mItems.get(size - 2)).setSwitchState(isChecked);
+            ((SwitchListItem) provider.mItems.get(size - 2)).setChecked(isChecked);
             adapter.notifyDataSetChanged();
         });
         provider.mItems.add(item);

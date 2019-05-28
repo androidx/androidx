@@ -2190,7 +2190,7 @@ package androidx.leanback.widget {
     method public void onUnbind(androidx.leanback.widget.ItemBridgeAdapter.ViewHolder!);
   }
 
-  public class ItemBridgeAdapter.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.leanback.widget.FacetProvider {
+  public static class ItemBridgeAdapter.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.leanback.widget.FacetProvider {
     method public final Object! getExtraObject();
     method public Object! getFacet(Class<?>!);
     method public final Object! getItem();

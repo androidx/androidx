@@ -148,6 +148,14 @@
                 android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
+                android:name="androidx.appcompat.app.NightModePreventOverrideConfigActivity"
+                android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeLateOnCreateActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"/>
+
+        <activity
                 android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivity"
                 android:theme="@style/Theme.AppCompat.DayNight"
                 android:configChanges="uiMode"/>

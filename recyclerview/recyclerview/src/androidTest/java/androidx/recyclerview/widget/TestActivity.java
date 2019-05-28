@@ -42,6 +42,9 @@ public class TestActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         setContentView(mContainer);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+        // disable enter animation.
+        overridePendingTransition(0, 0);
     }
 
     public TestedFrameLayout getContainer() {
@@ -74,5 +77,8 @@ public class TestActivity extends Activity {
             }
         }
         super.finish();
+
+        // disable exit animation.
+        overridePendingTransition(0, 0);
     }
 }

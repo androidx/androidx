@@ -536,11 +536,34 @@ public final class PagedListViewTest {
     }
 
     @Test
-    public void testSetGutterSizeStart() throws Throwable {
+    public void testSetGutterSizeStart_GutterSmallerThanScrollBar() throws Throwable {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
-        int gutterSize = 120;
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+        int gutterSize = scrollBarContainerWidth - 10;
+
+        mActivityRule.runOnUiThread(() -> {
+            mPagedListView.setGutter(PagedListView.Gutter.START);
+            mPagedListView.setGutterSize(gutterSize);
+        });
+
+        waitForIdleSync();
+
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(),
+                is(equalTo(scrollBarContainerWidth)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(0)));
+    }
+
+    @Test
+    public void testSetGutterSizeStart_GutterLargerThanScrollBar() throws Throwable {
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+        int gutterSize = scrollBarContainerWidth + 10;
 
         mActivityRule.runOnUiThread(() -> {
             mPagedListView.setGutter(PagedListView.Gutter.START);
@@ -575,11 +598,34 @@ public final class PagedListViewTest {
     }
 
     @Test
-    public void testSetGutterSizeBoth() throws Throwable {
+    public void testSetGutterSizeBoth_GutterSmallerThanScrollBar() throws Throwable {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
-        int gutterSize = 120;
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+        int gutterSize = scrollBarContainerWidth - 10;
+
+        mActivityRule.runOnUiThread(() -> {
+            mPagedListView.setGutter(PagedListView.Gutter.BOTH);
+            mPagedListView.setGutterSize(gutterSize);
+        });
+
+        waitForIdleSync();
+
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(),
+                is(equalTo(scrollBarContainerWidth)));
+        assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(gutterSize)));
+    }
+
+    @Test
+    public void testSetGutterSizeBoth_GutterLargerThanScrollBar() throws Throwable {
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+        int gutterSize = scrollBarContainerWidth + 10;
 
         mActivityRule.runOnUiThread(() -> {
             mPagedListView.setGutter(PagedListView.Gutter.BOTH);
@@ -764,7 +810,7 @@ public final class PagedListViewTest {
         int limit = 10;
         for (int pageCount = 0; pageCount < limit
                 && orientationHelper.getDecoratedEnd(longItem)
-                        > mPagedListView.getRecyclerView().getBottom();
+                > mPagedListView.getRecyclerView().getBottom();
                 pageCount++) {
             onView(withId(R.id.page_down)).perform(click());
         }

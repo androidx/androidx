@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ChangedStatic: androidx.leanback.widget.ItemBridgeAdapter.ViewHolder:
+    Class androidx.leanback.widget.ItemBridgeAdapter.ViewHolder changed 'static' qualifier
+
+

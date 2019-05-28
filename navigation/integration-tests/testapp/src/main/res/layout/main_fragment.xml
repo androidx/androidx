@@ -29,4 +29,13 @@
         android:text="Navigate next"
         android:transitionName="next"
         tools:ignore="UnusedAttribute"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+    <Button
+        android:id="@+id/learn_more"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/learn_more"/>
 </LinearLayout>

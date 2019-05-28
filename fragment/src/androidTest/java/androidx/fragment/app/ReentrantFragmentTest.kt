@@ -59,11 +59,7 @@ class ReentrantFragmentTest(
     fun preventReentrantCalls() {
         activityRule.runOnUiThread(Runnable {
             val viewModelStore = ViewModelStore()
-            val fc1 = FragmentTestUtil.startupFragmentController(
-                activityRule.activity,
-                null,
-                viewModelStore
-            )
+            val fc1 = activityRule.startupFragmentController(viewModelStore)
 
             val fm1 = fc1.supportFragmentManager
 
@@ -103,10 +99,9 @@ class ReentrantFragmentTest(
             // is being restored as the fragment controller state is being brought up.
 
             try {
-                FragmentTestUtil.startupFragmentController(
-                    activityRule.activity,
-                    savedState,
-                    viewModelStore
+                activityRule.startupFragmentController(
+                    viewModelStore,
+                    savedState
                 )
                 fail("Expected IllegalStateException when moving from " +
                         "$fromState to $toState")

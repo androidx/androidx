@@ -25,13 +25,9 @@ import androidx.annotation.StyleRes
 /**
  * Return the handle to a system-level service by class.
  *
- * The return type of this function intentionally uses a
- * [platform type](https://kotlinlang.org/docs/reference/java-interop.html#null-safety-and-platform-types)
- * to allow callers to decide whether they require a service be present or can tolerate its absence.
- *
- * @see Context.getSystemService(Class)
+ * @see ContextCompat.getSystemService
  */
-inline fun <reified T> Context.getSystemService(): T? =
+inline fun <reified T : Any> Context.getSystemService(): T? =
         ContextCompat.getSystemService(this, T::class.java)
 
 /**

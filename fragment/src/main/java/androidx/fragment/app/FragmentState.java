@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.Lifecycle;
 
 @SuppressLint("BanParcelableUsage")
 final class FragmentState implements Parcelable {
@@ -33,9 +34,11 @@ final class FragmentState implements Parcelable {
     final int mContainerId;
     final String mTag;
     final boolean mRetainInstance;
+    final boolean mRemoving;
     final boolean mDetached;
     final Bundle mArguments;
     final boolean mHidden;
+    final int mMaxLifecycleState;
 
     Bundle mSavedFragmentState;
 
@@ -49,9 +52,11 @@ final class FragmentState implements Parcelable {
         mContainerId = frag.mContainerId;
         mTag = frag.mTag;
         mRetainInstance = frag.mRetainInstance;
+        mRemoving = frag.mRemoving;
         mDetached = frag.mDetached;
         mArguments = frag.mArguments;
         mHidden = frag.mHidden;
+        mMaxLifecycleState = frag.mMaxState.ordinal();
     }
 
     FragmentState(Parcel in) {
@@ -62,10 +67,12 @@ final class FragmentState implements Parcelable {
         mContainerId = in.readInt();
         mTag = in.readString();
         mRetainInstance = in.readInt() != 0;
+        mRemoving = in.readInt() != 0;
         mDetached = in.readInt() != 0;
         mArguments = in.readBundle();
         mHidden = in.readInt() != 0;
         mSavedFragmentState = in.readBundle();
+        mMaxLifecycleState = in.readInt();
     }
 
     public Fragment instantiate(@NonNull ClassLoader classLoader,
@@ -94,14 +101,51 @@ final class FragmentState implements Parcelable {
             mInstance.mContainerId = mContainerId;
             mInstance.mTag = mTag;
             mInstance.mRetainInstance = mRetainInstance;
+            mInstance.mRemoving = mRemoving;
             mInstance.mDetached = mDetached;
             mInstance.mHidden = mHidden;
+            mInstance.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
 
             if (FragmentManagerImpl.DEBUG) {
                 Log.v(FragmentManagerImpl.TAG, "Instantiated fragment " + mInstance);
             }
         }
         return mInstance;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(128);
+        sb.append("FragmentState{");
+        sb.append(mClassName);
+        sb.append(" (");
+        sb.append(mWho);
+        sb.append(")}:");
+        if (mFromLayout) {
+            sb.append(" fromLayout");
+        }
+        if (mContainerId != 0) {
+            sb.append(" id=0x");
+            sb.append(Integer.toHexString(mContainerId));
+        }
+        if (mTag != null && !mTag.isEmpty()) {
+            sb.append(" tag=");
+            sb.append(mTag);
+        }
+        if (mRetainInstance) {
+            sb.append(" retainInstance");
+        }
+        if (mRemoving) {
+            sb.append(" removing");
+        }
+        if (mDetached) {
+            sb.append(" detached");
+        }
+        if (mHidden) {
+            sb.append(" hidden");
+        }
+        return sb.toString();
     }
 
     @Override
@@ -118,10 +162,12 @@ final class FragmentState implements Parcelable {
         dest.writeInt(mContainerId);
         dest.writeString(mTag);
         dest.writeInt(mRetainInstance ? 1 : 0);
+        dest.writeInt(mRemoving ? 1 : 0);
         dest.writeInt(mDetached ? 1 : 0);
         dest.writeBundle(mArguments);
         dest.writeInt(mHidden ? 1 : 0);
         dest.writeBundle(mSavedFragmentState);
+        dest.writeInt(mMaxLifecycleState);
     }
 
     public static final Parcelable.Creator<FragmentState> CREATOR =

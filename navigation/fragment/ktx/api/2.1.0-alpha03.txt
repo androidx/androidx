@@ -10,6 +10,17 @@ package androidx.navigation {
 
 package androidx.navigation.fragment {
 
+  public final class DialogFragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.DialogFragmentNavigator.Destination> {
+    ctor public DialogFragmentNavigatorDestinationBuilder(androidx.navigation.fragment.DialogFragmentNavigator navigator, @IdRes int id, kotlin.reflect.KClass<? extends androidx.fragment.app.DialogFragment> fragmentClass);
+    method public androidx.navigation.fragment.DialogFragmentNavigator.Destination build();
+  }
+
+  public final class DialogFragmentNavigatorDestinationBuilderKt {
+    ctor public DialogFragmentNavigatorDestinationBuilderKt();
+    method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id);
+    method public static inline <reified F extends androidx.fragment.app.DialogFragment> void dialog(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.DialogFragmentNavigatorDestinationBuilder,kotlin.Unit>! builder);
+  }
+
   public final class FragmentKt {
     ctor public FragmentKt();
     method public static androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment);

@@ -41,6 +41,7 @@ public class DestinationTest {
     private static final ZonedDateTime TEST_ETA = ZonedDateTime.of(2019, 1, 9, 10, 9, 20, 0,
             ZoneId.of("UTC"));
     private static final LatLng TEST_LOCATION = new LatLng(20.1, 30.2);
+    private static final String TEST_FORMATTED_ETA = "1h 30min";
 
     /**
      * Tests that creating a {@link Destination} using a default constructor produces an instance
@@ -55,6 +56,7 @@ public class DestinationTest {
         assertNull(destination.getEta());
         assertNull(destination.getLocation());
         assertEquals(Destination.Traffic.UNKNOWN, destination.getTraffic());
+        assertEquals("", destination.getFormattedEta());
     }
 
     /**
@@ -100,6 +102,14 @@ public class DestinationTest {
     }
 
     /**
+     * Builder doesn't accept null formatted eta
+     */
+    @Test(expected = NullPointerException.class)
+    public void builder_formattedEtaCantBeNull() {
+        new Destination.Builder().setFormattedEta(null).build();
+    }
+
+    /**
      * Tests that creating a {@link Destination} using the build without setting any data
      * produces an instance that complies with the {@link androidx.annotation.NonNull} annotations.
      */
@@ -112,6 +122,7 @@ public class DestinationTest {
         assertNull(destination.getEta());
         assertNull(destination.getLocation());
         assertEquals(Destination.Traffic.UNKNOWN, destination.getTraffic());
+        assertEquals("", destination.getFormattedEta());
     }
 
     /**
@@ -125,6 +136,7 @@ public class DestinationTest {
                 .setDistance(TEST_DISTANCE)
                 .setEta(TEST_ETA)
                 .setLocation(TEST_LOCATION)
+                .setFormattedEta(TEST_FORMATTED_ETA)
                 .build();
     }
 }

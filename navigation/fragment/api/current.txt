@@ -1,6 +1,20 @@
 // Signature format: 3.0
 package androidx.navigation.fragment {
 
+  @androidx.navigation.Navigator.Name("dialog") public final class DialogFragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.DialogFragmentNavigator.Destination> {
+    ctor public DialogFragmentNavigator(android.content.Context, androidx.fragment.app.FragmentManager);
+    method public androidx.navigation.fragment.DialogFragmentNavigator.Destination createDestination();
+    method public androidx.navigation.NavDestination? navigate(androidx.navigation.fragment.DialogFragmentNavigator.Destination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public boolean popBackStack();
+  }
+
+  @androidx.navigation.NavDestination.ClassType(DialogFragment.class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination {
+    ctor public DialogFragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
+    ctor public DialogFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.DialogFragmentNavigator.Destination>);
+    method public final String getClassName();
+    method public final androidx.navigation.fragment.DialogFragmentNavigator.Destination setClassName(String);
+  }
+
   @androidx.navigation.Navigator.Name("fragment") public class FragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.FragmentNavigator.Destination> {
     ctor public FragmentNavigator(android.content.Context, androidx.fragment.app.FragmentManager, int);
     method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
@@ -31,9 +45,10 @@ package androidx.navigation.fragment {
     ctor public NavHostFragment();
     method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int);
     method public static androidx.navigation.fragment.NavHostFragment create(@NavigationRes int, android.os.Bundle?);
-    method protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
+    method @Deprecated protected androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> createFragmentNavigator();
     method public static androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment);
     method public final androidx.navigation.NavController getNavController();
+    method @CallSuper protected void onCreateNavController(androidx.navigation.NavController);
   }
 
 }
