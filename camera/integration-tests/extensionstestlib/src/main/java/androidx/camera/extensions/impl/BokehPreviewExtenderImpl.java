@@ -21,7 +21,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 
 /**
- * Implementation for bokeh view finder use case.
+ * Implementation for bokeh preview use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.

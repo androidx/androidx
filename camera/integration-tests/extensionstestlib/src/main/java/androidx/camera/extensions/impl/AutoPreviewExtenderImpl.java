@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.camera.extensions.impl;
 
 import android.content.Context;
@@ -21,15 +20,17 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 
 /**
- * Implementation for HDR preview use case.
+ * Implementation for auto preview use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.
  */
-public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
+public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
+    private static final int SESSION_STAGE_ID = 101;
 
-    public HdrPreviewExtenderImpl() { }
+    public AutoPreviewExtenderImpl() {
+    }
 
     @Override
     public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
@@ -48,7 +49,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         // placeholder set of CaptureRequest.Key values
         SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
         captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_AQUA);
+                CaptureRequest.CONTROL_EFFECT_MODE_SOLARIZE);
 
         return captureStage;
     }
@@ -76,16 +77,34 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
 
     @Override
     public CaptureStageImpl onPresetSession() {
-        return null;
+        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
+        // placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_SOLARIZE);
+
+        return captureStage;
     }
 
     @Override
     public CaptureStageImpl onEnableSession() {
-        return null;
+        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
+        // placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_SOLARIZE);
+
+        return captureStage;
     }
 
     @Override
     public CaptureStageImpl onDisableSession() {
-        return null;
+        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
+        // placeholder set of CaptureRequest.Key values
+        SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
+        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
+                CaptureRequest.CONTROL_EFFECT_MODE_SOLARIZE);
+
+        return captureStage;
     }
 }

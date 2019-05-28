@@ -39,6 +39,8 @@ import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
+import androidx.camera.extensions.AutoImageCaptureExtender;
+import androidx.camera.extensions.AutoPreviewExtender;
 import androidx.camera.extensions.BeautyImageCaptureExtender;
 import androidx.camera.extensions.BeautyPreviewExtender;
 import androidx.camera.extensions.BokehImageCaptureExtender;
@@ -80,7 +82,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private ImageCaptureType mCurrentImageCaptureType = ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR;
 
     /**
-     * Creates a view finder use case.
+     * Creates a preview use case.
      *
      * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
      * TextureView} to display a camera preview.
@@ -100,32 +102,39 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         .setLensFacing(LensFacing.BACK)
                         .setTargetName("Preview");
 
-        Log.d(TAG, "Enabling the extended view finder");
+        Log.d(TAG, "Enabling the extended preview");
         if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BOKEH) {
-            Log.d(TAG, "Enabling the extended view finder in bokeh mode.");
+            Log.d(TAG, "Enabling the extended preview in bokeh mode.");
 
             BokehPreviewExtender extender = BokehPreviewExtender.create(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_HDR) {
-            Log.d(TAG, "Enabling the extended view finder in HDR mode.");
+            Log.d(TAG, "Enabling the extended preview in HDR mode.");
 
             HdrPreviewExtender extender = HdrPreviewExtender.create(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_NIGHT) {
-            Log.d(TAG, "Enabling the extended view finder in night mode.");
+            Log.d(TAG, "Enabling the extended preview in night mode.");
 
             NightPreviewExtender extender = NightPreviewExtender.create(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
         } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_BEAUTY) {
-            Log.d(TAG, "Enabling the extended view finder in beauty mode.");
+            Log.d(TAG, "Enabling the extended preview in beauty mode.");
 
             BeautyPreviewExtender extender = BeautyPreviewExtender.create(builder);
+            if (extender.isExtensionAvailable()) {
+                extender.enableExtension();
+            }
+        } else if (mCurrentImageCaptureType == ImageCaptureType.IMAGE_CAPTURE_TYPE_AUTO) {
+            Log.d(TAG, "Enabling the extended preview in auto mode.");
+
+            AutoPreviewExtender extender = AutoPreviewExtender.create(builder);
             if (extender.isExtensionAvailable()) {
                 extender.enableExtension();
             }
@@ -154,6 +163,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         IMAGE_CAPTURE_TYPE_BOKEH,
         IMAGE_CAPTURE_TYPE_NIGHT,
         IMAGE_CAPTURE_TYPE_BEAUTY,
+        IMAGE_CAPTURE_TYPE_AUTO,
         IMAGE_CAPTURE_TYPE_DEFAULT,
         IMAGE_CAPTURE_TYPE_NONE,
     }
@@ -186,6 +196,10 @@ public class CameraExtensionsActivity extends AppCompatActivity
                                 enablePreview();
                                 break;
                             case IMAGE_CAPTURE_TYPE_BEAUTY:
+                                enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_AUTO);
+                                enablePreview();
+                                break;
+                            case IMAGE_CAPTURE_TYPE_AUTO:
                                 enableImageCapture(ImageCaptureType.IMAGE_CAPTURE_TYPE_DEFAULT);
                                 enablePreview();
                                 break;
@@ -241,6 +255,13 @@ public class CameraExtensionsActivity extends AppCompatActivity
                         builder);
                 if (beautyImageCapture.isExtensionAvailable()) {
                     beautyImageCapture.enableExtension();
+                }
+                break;
+            case IMAGE_CAPTURE_TYPE_AUTO:
+                AutoImageCaptureExtender autoImageCapture = AutoImageCaptureExtender.create(
+                        builder);
+                if (autoImageCapture.isExtensionAvailable()) {
+                    autoImageCapture.enableExtension();
                 }
                 break;
             case IMAGE_CAPTURE_TYPE_DEFAULT:

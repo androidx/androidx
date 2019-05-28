@@ -18,74 +18,65 @@ package androidx.camera.extensions.impl;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
 
 /**
- * Implementation for HDR preview use case.
+ * Stub implementation for auto preview use case.
  *
- * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
- * don't need to implement this, unless this is used for related testing usage.
+ * <p>This class should be implemented by OEM and deployed to the target devices.
  */
-public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
-    private static final int DEFAULT_STAGE_ID = 0;
-
-    public HdrPreviewExtenderImpl() { }
-
-    @Override
-    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
+    public AutoPreviewExtenderImpl() {
     }
 
     @Override
     public boolean isExtensionAvailable(String cameraId,
             CameraCharacteristics cameraCharacteristics) {
-        // Implement the logic to check whether the extension function is supported or not.
-        return true;
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public CaptureStageImpl getCaptureStage() {
-        // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
-        // placeholder set of CaptureRequest.Key values
-        SettableCaptureStage captureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
-        captureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_AQUA);
-
-        return captureStage;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public ProcessorType getProcessorType() {
-        return ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
-        return RequestUpdateProcessorImpls.noUpdateProcessor();
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
             Context context) {
-
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public void onDeInit() {
-
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public CaptureStageImpl onPresetSession() {
-        return null;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public CaptureStageImpl onEnableSession() {
-        return null;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
     public CaptureStageImpl onDisableSession() {
-        return null;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 }

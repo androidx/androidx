@@ -20,7 +20,7 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 
 /**
- * Stub implementation for beauty view finder use case.
+ * Stub implementation for beauty preview use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices.
  */

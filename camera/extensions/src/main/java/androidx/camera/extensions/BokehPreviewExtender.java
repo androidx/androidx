@@ -37,7 +37,7 @@ public class BokehPreviewExtender extends PreviewExtender {
         try {
             return new VendorBokehPreviewExtender(builder);
         } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No bokeh view finder extender found. Falling back to default.");
+            Log.d(TAG, "No bokeh preview extender found. Falling back to default.");
             return new DefaultBokehPreviewExtender();
         }
     }

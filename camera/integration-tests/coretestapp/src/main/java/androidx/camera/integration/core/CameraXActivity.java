@@ -219,7 +219,7 @@ public class CameraXActivity extends AppCompatActivity
                         .getLensFacing(/*valueIfMissing=*/ null);
         if (previewLensFacing != mCurrentCameraLensFacing) {
             throw new IllegalStateException(
-                    "Invalid view finder lens facing: "
+                    "Invalid preview lens facing: "
                             + previewLensFacing
                             + " Should be: "
                             + mCurrentCameraLensFacing);
