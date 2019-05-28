@@ -34,13 +34,13 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.SystemClock;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.test.R;
-import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -49,6 +49,8 @@ import androidx.test.filters.LargeTest;
 import androidx.testutils.Direction;
 import androidx.testutils.SimpleGestureGeneratorKt;
 
+import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -56,12 +58,12 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Large integration tests that verify correct {@link NestedScrollView} scrolling behavior,
- * including interaction with nested scrolling.
-*/
+ * Large integration tests that verify correct NestedScrollView flinging behavior related to
+ * nested scrolling.
+ */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class NestedScrollViewScrollingTest extends
+public class NestedScrollViewNestedScrollingFlingTest extends
         BaseInstrumentationTestCase<TestContentViewActivity> {
 
     private static final int CHILD_HEIGHT = 800;
@@ -76,8 +78,43 @@ public class NestedScrollViewScrollingTest extends
     private View mChild;
     private NestedScrollingSpyView mParent;
 
-    public NestedScrollViewScrollingTest() {
+    public NestedScrollViewNestedScrollingFlingTest() {
         super(TestContentViewActivity.class);
+    }
+
+    @Before
+    public void setup() throws Throwable {
+        Context context = mActivityTestRule.getActivity();
+
+        mChild = new View(context);
+        mChild.setMinimumWidth(WIDTH);
+        mChild.setMinimumHeight(CHILD_HEIGHT);
+        mChild.setLayoutParams(new ViewGroup.LayoutParams(WIDTH, CHILD_HEIGHT));
+        mChild.setBackgroundDrawable(
+                new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                        new int[]{0xFFFF0000, 0xFF00FF00}));
+
+        mNestedScrollView = new NestedScrollView(context);
+        mNestedScrollView.setLayoutParams(new ViewGroup.LayoutParams(WIDTH, NSV_HEIGHT));
+        mNestedScrollView.setBackgroundColor(0xFF0000FF);
+        mNestedScrollView.addView(mChild);
+
+        mParent = spy(new NestedScrollingSpyView(context));
+        mParent.setLayoutParams(new ViewGroup.LayoutParams(WIDTH, PARENT_HEIGHT));
+        mParent.setBackgroundColor(0xFF0000FF);
+        mParent.addView(mNestedScrollView);
+
+        // Attach to activity and wait for layouts.
+        final TestContentView testContentView =
+                mActivityTestRule.getActivity().findViewById(R.id.testContentView);
+        testContentView.expectLayouts(1);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                testContentView.addView(mParent);
+            }
+        });
+        testContentView.awaitLayouts(2);
     }
 
     @Test
@@ -92,9 +129,6 @@ public class NestedScrollViewScrollingTest extends
 
     private void onNestedFling_consumeParamDeterminesScroll(final boolean consumeParamValue,
             final boolean scrolls) throws Throwable {
-        setup();
-        attachToActivity();
-
         final Context context = ApplicationProvider.getApplicationContext();
         final int targetVelocity = (int)
                 Math.ceil(SimpleGestureGeneratorKt.generateFlingData(context).getVelocity() * 1000);
@@ -131,9 +165,6 @@ public class NestedScrollViewScrollingTest extends
 
     private void uiFlings_parentPreFlingReturnDeterminesNestedScrollViewsFling(
             final boolean returnValue, final boolean scrolls) throws Throwable {
-        setup();
-        attachToActivity();
-
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -171,11 +202,18 @@ public class NestedScrollViewScrollingTest extends
     }
 
     @Test
-    public void uiFling_fullyParticipatesInNestedScrolling() throws Throwable {
-        setup();
-        attachToActivity();
+    public void uiFling_flingDoesNotReachEnd_fullyParticipatesInNestedScrolling() throws Throwable {
+        uiFling_fullyParticipatesInNestedScrolling(false);
+    }
 
-        final CountDownLatch countDownLatch = new CountDownLatch(2);
+    @Test
+    public void uiFling_flingReachesEnd_fullyParticipatesInNestedScrolling() throws Throwable {
+        uiFling_fullyParticipatesInNestedScrolling(true);
+    }
+
+    private void uiFling_fullyParticipatesInNestedScrolling(final boolean hardFling)
+            throws Throwable {
+        final CountDownLatch countDownLatch = new CountDownLatch(hardFling ? 2 : 1);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -192,23 +230,37 @@ public class NestedScrollViewScrollingTest extends
                             }
                         };
 
-                mNestedScrollView.setOnScrollChangeListener(
-                        new NestedScrollView.OnScrollChangeListener() {
-                            @Override
-                            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
-                                    int oldScrollX, int oldScrollY) {
-                                if (scrollY == TOTAL_SCROLL_DISTANCE) {
-                                    countDownLatch.countDown();
+                if (hardFling) {
+                    mNestedScrollView.setOnScrollChangeListener(
+                            new NestedScrollView.OnScrollChangeListener() {
+                                @Override
+                                public void onScrollChange(NestedScrollView v, int scrollX,
+                                        int scrollY,
+                                        int oldScrollX, int oldScrollY) {
+                                    if (scrollY == TOTAL_SCROLL_DISTANCE) {
+                                        countDownLatch.countDown();
+                                    }
                                 }
-                            }
-                        });
+                            });
+                }
+
+                ViewConfiguration configuration =
+                        ViewConfiguration.get(mActivityTestRule.getActivity());
+
+                float velocity;
+                if (hardFling) {
+                    velocity = configuration.getScaledMaximumFlingVelocity() * .9f;
+                } else {
+                    velocity = configuration.getScaledMinimumFlingVelocity() * 1.1f;
+                }
 
                 SimpleGestureGeneratorKt.simulateFling(
                         mNestedScrollView,
                         SystemClock.uptimeMillis(),
                         ORIGIN_X_Y,
                         ORIGIN_X_Y,
-                        Direction.UP);
+                        Direction.UP,
+                        velocity);
             }
         });
         assertThat(countDownLatch.await(2, TimeUnit.SECONDS), is(true));
@@ -220,11 +272,11 @@ public class NestedScrollViewScrollingTest extends
                 ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH);
         verify(mParent, atLeastOnce()).onNestedPreScroll(eq(mNestedScrollView), anyInt(), anyInt(),
                 any(int[].class), eq(ViewCompat.TYPE_TOUCH));
-        verify(mParent, atLeastOnce()).onNestedScroll(eq(mNestedScrollView),  anyInt(), anyInt(),
+        verify(mParent, atLeastOnce()).onNestedScroll(eq(mNestedScrollView), anyInt(), anyInt(),
                 anyInt(), anyInt(), eq(ViewCompat.TYPE_TOUCH), any(int[].class));
-        verify(mParent, atLeastOnce()).onNestedPreFling(eq(mNestedScrollView),  anyFloat(),
+        verify(mParent, atLeastOnce()).onNestedPreFling(eq(mNestedScrollView), anyFloat(),
                 anyFloat());
-        verify(mParent, atLeastOnce()).onNestedFling(eq(mNestedScrollView),  anyFloat(), anyFloat(),
+        verify(mParent, atLeastOnce()).onNestedFling(eq(mNestedScrollView), anyFloat(), anyFloat(),
                 eq(true));
         verify(mParent, atLeastOnce()).onStopNestedScroll(mNestedScrollView, ViewCompat.TYPE_TOUCH);
 
@@ -235,7 +287,7 @@ public class NestedScrollViewScrollingTest extends
                 ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
         verify(mParent, atLeastOnce()).onNestedPreScroll(eq(mNestedScrollView), anyInt(), anyInt(),
                 any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
-        verify(mParent, atLeastOnce()).onNestedScroll(eq(mNestedScrollView),  anyInt(), anyInt(),
+        verify(mParent, atLeastOnce()).onNestedScroll(eq(mNestedScrollView), anyInt(), anyInt(),
                 anyInt(),
                 anyInt(), eq(ViewCompat.TYPE_NON_TOUCH), any(int[].class));
         verify(mParent, atLeastOnce()).onStopNestedScroll(mNestedScrollView,
@@ -244,8 +296,6 @@ public class NestedScrollViewScrollingTest extends
 
     @Test
     public void fling_fullyParticipatesInNestedScrolling() throws Throwable {
-        setup();
-        attachToActivity();
         final Context context = ApplicationProvider.getApplicationContext();
         final int targetVelocity = (int)
                 Math.ceil(SimpleGestureGeneratorKt.generateFlingData(context).getVelocity() * 1000);
@@ -290,7 +340,7 @@ public class NestedScrollViewScrollingTest extends
                 ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH);
         verify(mParent, atLeastOnce()).onNestedPreScroll(eq(mNestedScrollView), anyInt(), anyInt(),
                 any(int[].class), eq(ViewCompat.TYPE_NON_TOUCH));
-        verify(mParent, atLeastOnce()).onNestedScroll(eq(mNestedScrollView),  anyInt(), anyInt(),
+        verify(mParent, atLeastOnce()).onNestedScroll(eq(mNestedScrollView), anyInt(), anyInt(),
                 anyInt(),
                 anyInt(), eq(ViewCompat.TYPE_NON_TOUCH), any(int[].class));
         verify(mParent, atLeastOnce()).onStopNestedScroll(mNestedScrollView,
@@ -303,90 +353,15 @@ public class NestedScrollViewScrollingTest extends
                 anyInt(), eq(ViewCompat.TYPE_TOUCH));
         verify(mParent, never()).onNestedPreScroll(any(View.class), anyInt(), anyInt(),
                 any(int[].class), eq(ViewCompat.TYPE_TOUCH));
-        verify(mParent, never()).onNestedScroll(any(View.class),  anyInt(), anyInt(), anyInt(),
+        verify(mParent, never()).onNestedScroll(any(View.class), anyInt(), anyInt(), anyInt(),
                 anyInt(), eq(ViewCompat.TYPE_TOUCH), any(int[].class));
-        verify(mParent, never()).onNestedPreFling(any(View.class),  anyFloat(), anyFloat());
-        verify(mParent, never()).onNestedFling(any(View.class),  anyFloat(), anyFloat(),
+        verify(mParent, never()).onNestedPreFling(any(View.class), anyFloat(), anyFloat());
+        verify(mParent, never()).onNestedFling(any(View.class), anyFloat(), anyFloat(),
                 anyBoolean());
         verify(mParent, never()).onStopNestedScroll(any(View.class), eq(ViewCompat.TYPE_TOUCH));
     }
 
-    @Test
-    public void smoothScrollBy_scrollsEntireDistanceIncludingMargins() throws Throwable {
-        setup();
-        setChildMargins(20, 30);
-        attachToActivity();
-
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
-        final int expectedTarget = TOTAL_SCROLL_DISTANCE + 20 + 30;
-        final int scrollDistance = TOTAL_SCROLL_DISTANCE + 20 + 30;
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNestedScrollView.setOnScrollChangeListener(
-                        new NestedScrollView.OnScrollChangeListener() {
-                            @Override
-                            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
-                                    int oldScrollX, int oldScrollY) {
-                                if (scrollY == expectedTarget) {
-                                    countDownLatch.countDown();
-                                }
-                            }
-                        });
-                mNestedScrollView.smoothScrollBy(0, scrollDistance);
-            }
-        });
-        assertThat(countDownLatch.await(2, TimeUnit.SECONDS), is(true));
-
-        assertThat(mNestedScrollView.getScrollY(), is(expectedTarget));
-    }
-
-    private void setup() {
-        Context context = mActivityTestRule.getActivity();
-
-        mChild = new View(context);
-        mChild.setMinimumWidth(WIDTH);
-        mChild.setMinimumHeight(CHILD_HEIGHT);
-        mChild.setLayoutParams(new ViewGroup.LayoutParams(WIDTH, CHILD_HEIGHT));
-        mChild.setBackgroundDrawable(
-                new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
-                        new int[]{0xFFFF0000, 0xFF00FF00}));
-
-        mNestedScrollView = new NestedScrollView(context);
-        mNestedScrollView.setLayoutParams(new ViewGroup.LayoutParams(WIDTH, NSV_HEIGHT));
-        mNestedScrollView.setBackgroundColor(0xFF0000FF);
-        mNestedScrollView.addView(mChild);
-
-        mParent = spy(new NestedScrollingSpyView(context));
-        mParent.setLayoutParams(new ViewGroup.LayoutParams(WIDTH, PARENT_HEIGHT));
-        mParent.setBackgroundColor(0xFF0000FF);
-        mParent.addView(mNestedScrollView);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private void setChildMargins(int top, int bottom) {
-        ViewGroup.LayoutParams currentLayoutParams = mChild.getLayoutParams();
-        NestedScrollView.LayoutParams childLayoutParams = new NestedScrollView.LayoutParams(
-                currentLayoutParams.width, currentLayoutParams.height);
-        childLayoutParams.topMargin = top;
-        childLayoutParams.bottomMargin = bottom;
-        mChild.setLayoutParams(childLayoutParams);
-    }
-
-    private void attachToActivity() throws Throwable {
-        final TestContentView testContentView =
-                mActivityTestRule.getActivity().findViewById(R.id.testContentView);
-        testContentView.expectLayouts(1);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                testContentView.addView(mParent);
-            }
-        });
-        testContentView.awaitLayouts(2);
-    }
-
-    public static class NestedScrollingSpyView extends FrameLayout implements NestedScrollingChild3,
+    public static class NestedScrollingSpyView extends FrameLayout implements
             NestedScrollingParent3 {
 
         public OnStopNestedScrollListener mOnStopNestedScrollListener;
@@ -427,41 +402,8 @@ public class NestedScrollViewScrollingTest extends
         }
 
         @Override
-        public boolean startNestedScroll(int axes, int type) {
-            return false;
-        }
-
-        @Override
-        public void stopNestedScroll(int type) {
-
-        }
-
-        @Override
-        public boolean hasNestedScrollingParent(int type) {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed, @Nullable int[] offsetInWindow, int type) {
-            return false;
-        }
-
-        @Override
-        public boolean dispatchNestedPreScroll(int dx, int dy, @Nullable int[] consumed,
-                @Nullable int[] offsetInWindow, int type) {
-            return false;
-        }
-
-        @Override
         public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
                 int dxUnconsumed, int dyUnconsumed, int type, @Nullable int[] consumed) {
-        }
-
-        @Override
-        public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed, @Nullable int[] offsetInWindow, int type,
-                @NonNull int[] consumed) {
         }
 
         @Override
@@ -512,40 +454,40 @@ public class NestedScrollViewScrollingTest extends
         }
 
         @Override
-        public boolean onStartNestedScroll(@NonNull  View child, @NonNull View target, int axes) {
+        public boolean onStartNestedScroll(@NotNull View child, @NotNull View target, int axes) {
             return false;
         }
 
         @Override
-        public void onNestedScrollAccepted(@NonNull  View child, @NonNull View target, int axes) {
+        public void onNestedScrollAccepted(@NotNull View child, @NotNull View target, int axes) {
 
         }
 
         @Override
-        public void onStopNestedScroll(@NonNull  View target) {
+        public void onStopNestedScroll(@NotNull View target) {
 
         }
 
         @Override
-        public void onNestedScroll(@NonNull  View target, int dxConsumed, int dyConsumed,
+        public void onNestedScroll(@NotNull View target, int dxConsumed, int dyConsumed,
                 int dxUnconsumed, int dyUnconsumed) {
 
         }
 
         @Override
-        public void onNestedPreScroll(
-                @NonNull  View target, int dx, int dy, @NonNull int[] consumed) {
+        public void onNestedPreScroll(@NotNull View target, int dx, int dy,
+                @NotNull int[] consumed) {
 
         }
 
         @Override
-        public boolean onNestedFling(@NonNull  View target, float velocityX, float velocityY,
+        public boolean onNestedFling(@NotNull View target, float velocityX, float velocityY,
                 boolean consumed) {
             return false;
         }
 
         @Override
-        public boolean onNestedPreFling(@NonNull  View target, float velocityX, float velocityY) {
+        public boolean onNestedPreFling(@NotNull View target, float velocityX, float velocityY) {
             return false;
         }
 

@@ -10,6 +10,7 @@ dependencies {
     api 'com.google.android.material:material:1.0.0'
     implementation(project(":appcompat"))
     implementation(project(":cardview"))
+    implementation(project(":core:core"))
     implementation(project(":gridlayout"))
     implementation(project(":mediarouter"))
     implementation(project(":palette:palette"))
