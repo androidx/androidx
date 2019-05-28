@@ -21,13 +21,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.media2.exoplayer.external.DefaultRenderersFactory;
 import androidx.media2.exoplayer.external.Renderer;
-import androidx.media2.exoplayer.external.audio.AudioProcessor;
 import androidx.media2.exoplayer.external.audio.AudioRendererEventListener;
 import androidx.media2.exoplayer.external.audio.AudioSink;
 import androidx.media2.exoplayer.external.audio.MediaCodecAudioRenderer;
@@ -40,8 +37,6 @@ import androidx.media2.exoplayer.external.text.TextOutput;
 import androidx.media2.exoplayer.external.video.MediaCodecVideoRenderer;
 import androidx.media2.exoplayer.external.video.VideoRendererEventListener;
 
-import java.util.ArrayList;
-
 /**
  * Factory for renderers for {@link ExoPlayerWrapper}.
  *
@@ -49,13 +44,18 @@ import java.util.ArrayList;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
-/* package */ final class RenderersFactory extends DefaultRenderersFactory {
+/* package */ final class RenderersFactory
+        implements androidx.media2.exoplayer.external.RenderersFactory {
 
     public static final int VIDEO_RENDERER_INDEX = 0;
     public static final int AUDIO_RENDERER_INDEX = 1;
     public static final int TEXT_RENDERER_INDEX = 2;
     public static final int METADATA_RENDERER_INDEX = 3;
 
+    private static final long DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS = 5000;
+    private static final int MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY = 50;
+
+    private final Context mContext;
     private final AudioSink mAudioSink;
     private final TextRenderer mTextRenderer;
 
@@ -63,63 +63,44 @@ import java.util.ArrayList;
             Context context,
             AudioSink audioSink,
             TextRenderer textRenderer) {
-        super(context);
+        mContext = context;
         mAudioSink = audioSink;
         mTextRenderer = textRenderer;
     }
 
     @Override
-    protected void buildVideoRenderers(
-            Context context,
-            @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-            long allowedVideoJoiningTimeMs, Handler eventHandler,
-            VideoRendererEventListener eventListener, int extensionRendererMode,
-            ArrayList<Renderer> out) {
-        out.add(
+    public Renderer[] createRenderers(
+            Handler eventHandler,
+            VideoRendererEventListener videoRendererEventListener,
+            AudioRendererEventListener audioRendererEventListener,
+            TextOutput textRendererOutput,
+            MetadataOutput metadataRendererOutput,
+            @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager) {
+        return new Renderer[] {
                 new MediaCodecVideoRenderer(
-                        context,
+                        mContext,
                         MediaCodecSelector.DEFAULT,
-                        allowedVideoJoiningTimeMs,
+                        DEFAULT_ALLOWED_VIDEO_JOINING_TIME_MS,
                         drmSessionManager,
                         /* playClearSamplesWithoutKeys= */ false,
                         eventHandler,
-                        eventListener,
-                        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY));
+                        videoRendererEventListener,
+                        MAX_DROPPED_VIDEO_FRAME_COUNT_TO_NOTIFY),
+                new MediaCodecAudioRenderer(
+                        mContext,
+                        MediaCodecSelector.DEFAULT,
+                        drmSessionManager,
+                        /* playClearSamplesWithoutKeys= */ false,
+                        eventHandler,
+                        audioRendererEventListener,
+                        mAudioSink),
+                mTextRenderer,
+                new MetadataRenderer(
+                        metadataRendererOutput,
+                        eventHandler.getLooper(),
+                        new Id3MetadataDecoderFactory())
+        };
     }
 
-    @Override
-    protected void buildAudioRenderers(
-            Context context,
-            @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-            AudioProcessor[] audioProcessors, Handler eventHandler,
-            AudioRendererEventListener eventListener, int extensionRendererMode,
-            ArrayList<Renderer> out) {
-        out.add(new MediaCodecAudioRenderer(
-                context,
-                MediaCodecSelector.DEFAULT,
-                drmSessionManager,
-                /* playClearSamplesWithoutKeys= */ false,
-                eventHandler,
-                eventListener,
-                mAudioSink));
-    }
-
-    @Override
-    protected void buildTextRenderers(Context context,
-            TextOutput output,
-            Looper outputLooper,
-            int extensionRendererMode,
-            ArrayList<Renderer> out) {
-        out.add(mTextRenderer);
-    }
-
-    @Override
-    protected void buildMetadataRenderers(Context context,
-            MetadataOutput output,
-            Looper outputLooper,
-            @ExtensionRendererMode int extensionRendererMode,
-            ArrayList<Renderer> out) {
-        out.add(new MetadataRenderer(output, outputLooper, new Id3MetadataDecoderFactory()));
-    }
 
 }
