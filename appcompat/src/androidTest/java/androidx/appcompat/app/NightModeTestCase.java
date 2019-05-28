@@ -30,6 +30,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.testutils.LifecycleOwnerUtils.waitUntilState;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import android.app.Instrumentation;
 import android.content.res.Configuration;
@@ -268,6 +269,27 @@ public class NightModeTestCase {
         assertConfigurationNightModeEquals(
                 Configuration.UI_MODE_NIGHT_YES,
                 mActivityTestRule.getActivity().getResources().getConfiguration());
+    }
+
+    @Test
+    public void testDialogCleansUpAutoMode() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AppCompatDialog dialog = new AppCompatDialog(mActivityTestRule.getActivity());
+                AppCompatDelegateImpl delegate = (AppCompatDelegateImpl) dialog.getDelegate();
+
+                // Set the local night mode of the Dialog to be an AUTO mode
+                delegate.setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);
+
+                // Now show and dismiss the dialog
+                dialog.show();
+                dialog.dismiss();
+
+                // Assert that the auto manager is destroyed (not listening)
+                assertFalse(delegate.getAutoTimeNightModeManager().isListening());
+            }
+        });
     }
 
     @After
