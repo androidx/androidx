@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.media.MediaFormat;
+import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -937,9 +938,7 @@ public abstract class SessionPlayer implements AutoCloseable {
         @ParcelField(3)
         int mTrackType;
         @ParcelField(4)
-        String mLanguage;
-        @ParcelField(5)
-        String mMimeType;
+        Bundle mParcelledFormat;
 
         @NonParcelField
         MediaFormat mFormat;
@@ -1070,12 +1069,11 @@ public abstract class SessionPlayer implements AutoCloseable {
             } else if (mFormat != null && other.mFormat == null) {
                 return false;
             } else {
-                if (!TextUtils.equals(mFormat.getString(MediaFormat.KEY_LANGUAGE),
-                        other.mFormat.getString(MediaFormat.KEY_LANGUAGE))) {
-                    return false;
-                }
-                if (!TextUtils.equals(mFormat.getString(MediaFormat.KEY_MIME),
-                        other.mFormat.getString(MediaFormat.KEY_MIME))) {
+                if (!stringEquals(MediaFormat.KEY_LANGUAGE, mFormat, other.mFormat)
+                        || !stringEquals(MediaFormat.KEY_MIME, mFormat, other.mFormat)
+                        || !intEquals(MediaFormat.KEY_IS_FORCED_SUBTITLE, mFormat, other.mFormat)
+                        || !intEquals(MediaFormat.KEY_IS_AUTOSELECT, mFormat, other.mFormat)
+                        || !intEquals(MediaFormat.KEY_IS_DEFAULT, mFormat, other.mFormat)) {
                     return false;
                 }
             }
@@ -1096,8 +1094,14 @@ public abstract class SessionPlayer implements AutoCloseable {
 
         @Override
         public void onPreParceling(boolean isStream) {
-            mLanguage = mFormat != null ? mFormat.getString(MediaFormat.KEY_LANGUAGE) : null;
-            mMimeType = mFormat != null ? mFormat.getString(MediaFormat.KEY_MIME) : null;
+            if (mFormat != null) {
+                mParcelledFormat = new Bundle();
+                parcelStringValue(MediaFormat.KEY_LANGUAGE);
+                parcelStringValue(MediaFormat.KEY_MIME);
+                parcelIntValue(MediaFormat.KEY_IS_FORCED_SUBTITLE);
+                parcelIntValue(MediaFormat.KEY_IS_AUTOSELECT);
+                parcelIntValue(MediaFormat.KEY_IS_DEFAULT);
+            }
 
             // Up-cast MediaItem's subclass object to MediaItem class.
             if (mMediaItem != null && mUpCastMediaItem == null) {
@@ -1107,20 +1111,48 @@ public abstract class SessionPlayer implements AutoCloseable {
 
         @Override
         public void onPostParceling() {
-            if (mMimeType != null) {
-                if (mFormat == null) {
-                    mFormat = new MediaFormat();
-                }
-                mFormat.setString(MediaFormat.KEY_MIME, mMimeType);
-            }
-            if (mLanguage != null) {
-                if (mFormat == null) {
-                    mFormat = new MediaFormat();
-                }
-                mFormat.setString(MediaFormat.KEY_LANGUAGE, mLanguage);
+            if (mParcelledFormat != null) {
+                mFormat = new MediaFormat();
+                unparcelStringValue(MediaFormat.KEY_LANGUAGE);
+                unparcelStringValue(MediaFormat.KEY_MIME);
+                unparcelIntValue(MediaFormat.KEY_IS_FORCED_SUBTITLE);
+                unparcelIntValue(MediaFormat.KEY_IS_AUTOSELECT);
+                unparcelIntValue(MediaFormat.KEY_IS_DEFAULT);
             }
             if (mMediaItem == null) {
                 mMediaItem = mUpCastMediaItem;
+            }
+        }
+
+        private boolean stringEquals(String key, MediaFormat format1, MediaFormat format2) {
+            return TextUtils.equals(format1.getString(key), format2.getString(key));
+        }
+
+        private boolean intEquals(String key, MediaFormat format1, MediaFormat format2) {
+            return format1.getInteger(key) == format2.getInteger(key);
+        }
+
+        private void parcelIntValue(String key) {
+            if (mFormat.containsKey(key)) {
+                mParcelledFormat.putInt(key, mFormat.getInteger(key));
+            }
+        }
+
+        private void parcelStringValue(String key) {
+            if (mFormat.containsKey(key)) {
+                mParcelledFormat.putString(key, mFormat.getString(key));
+            }
+        }
+
+        private void unparcelIntValue(String key) {
+            if (mParcelledFormat.containsKey(key)) {
+                mFormat.setInteger(key, mParcelledFormat.getInt(key));
+            }
+        }
+
+        private void unparcelStringValue(String key) {
+            if (mParcelledFormat.containsKey(key)) {
+                mFormat.setString(key, mParcelledFormat.getString(key));
             }
         }
     }

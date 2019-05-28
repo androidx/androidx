@@ -127,6 +127,9 @@ public final class MediaTestUtils {
             format = new MediaFormat();
             format.setString(MediaFormat.KEY_LANGUAGE, "eng");
             format.setString(MediaFormat.KEY_MIME, "text/cea-608");
+            format.setInteger(MediaFormat.KEY_IS_FORCED_SUBTITLE, 1);
+            format.setInteger(MediaFormat.KEY_IS_AUTOSELECT, 0);
+            format.setInteger(MediaFormat.KEY_IS_DEFAULT, 1);
         }
         return new SessionPlayer.TrackInfo(index, mediaItem, trackType, format);
     }
