@@ -564,7 +564,7 @@ public class VideoView extends SelectiveLayout {
             if (oldPlayer == player) {
                 return;
             }
-            oldPlayer.unregisterPlayerCallback(mMediaPlayerCallback);
+            oldPlayer.unregisterPlayerCallback(mPlayerCallback);
             mMediaSession.updatePlayer(player);
         } else {
             final Context context = getContext();
@@ -576,7 +576,7 @@ public class VideoView extends SelectiveLayout {
                     .setSessionToken(mMediaSession.getToken())
                     .build();
         }
-        player.registerPlayerCallback(mCallbackExecutor, mMediaPlayerCallback);
+        player.registerPlayerCallback(mCallbackExecutor, mPlayerCallback);
     }
 
     boolean isMediaPrepared() {
@@ -696,7 +696,7 @@ public class VideoView extends SelectiveLayout {
         mMusicView.setArtistText(mMusicArtistText);
     }
 
-    private void updateTracks(SessionPlayer player, List<TrackInfo> trackInfos) {
+    void updateTracks(SessionPlayer player, List<TrackInfo> trackInfos) {
         mSubtitleTracks = new LinkedHashMap<>();
         for (int i = 0; i < trackInfos.size(); i++) {
             TrackInfo trackInfo = trackInfos.get(i);
@@ -716,199 +716,150 @@ public class VideoView extends SelectiveLayout {
                 TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
     }
 
-    @SuppressLint("SyntheticAccessor")
-    MediaPlayer.PlayerCallback mMediaPlayerCallback =
-            new MediaPlayer.PlayerCallback() {
-                @Override
-                public void onVideoSizeChangedInternal(@NonNull SessionPlayer player,
-                        @NonNull MediaItem item, @NonNull VideoSize size) {
-                    if (DEBUG) {
-                        Log.d(TAG, "onVideoSizeChanged(): size: " + size.getWidth() + "/"
-                                + size.getHeight());
-                    }
-                    if (player != mMediaPlayer) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onVideoSizeChanged() is ignored. mp is already gone.");
-                        }
-                        return;
-                    }
-                    if (item != mMediaItem) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onVideoSizeChanged() is ignored. Media item is changed.");
-                        }
-                        return;
-                    }
-                    if (mVideoTrackCount == 0 && size.getHeight() > 0 && size.getWidth() > 0) {
-                        if (isMediaPrepared()) {
-                            List<TrackInfo> trackInfos = player.getTrackInfoInternal();
-                            if (trackInfos != null) {
-                                updateTracks(player, trackInfos);
-                            }
-                        }
-                    }
-                    mTextureView.forceLayout();
-                    mSurfaceView.forceLayout();
-                    requestLayout();
+    private SessionPlayer.PlayerCallback mPlayerCallback = new SessionPlayer.PlayerCallback() {
+        @Override
+        public void onVideoSizeChangedInternal(@NonNull SessionPlayer player,
+                @NonNull MediaItem item, @NonNull VideoSize size) {
+            if (DEBUG) {
+                Log.d(TAG, "onVideoSizeChanged(): size: " + size);
+            }
+            if (player != mMediaPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onVideoSizeChanged() is ignored. player is already gone.");
                 }
-
-                @Override
-                public void onInfo(
-                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd, int what, int extra) {
-                    if (DEBUG) {
-                        Log.d(TAG, "onInfo()");
-                    }
-                    if (mp != mMediaPlayer) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onInfo() is ignored. mp is already gone.");
-                        }
-                        return;
-                    }
-                    if (dsd != mMediaItem) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onInfo() is ignored. Media item is changed.");
-                        }
-                        return;
+                return;
+            }
+            if (item != mMediaItem) {
+                if (DEBUG) {
+                    Log.w(TAG, "onVideoSizeChanged() is ignored. Media item is changed.");
+                }
+                return;
+            }
+            if (mVideoTrackCount == 0 && size.getHeight() > 0 && size.getWidth() > 0) {
+                if (isMediaPrepared()) {
+                    List<TrackInfo> trackInfos = player.getTrackInfoInternal();
+                    if (trackInfos != null) {
+                        updateTracks(player, trackInfos);
                     }
                 }
+            }
+            mTextureView.forceLayout();
+            mSurfaceView.forceLayout();
+            requestLayout();
+        }
 
-                @Override
-                public void onError(
-                        @NonNull MediaPlayer mp, @NonNull MediaItem dsd, int frameworkErr,
-                        int implErr) {
-                    if (DEBUG) {
-                        Log.d(TAG, "Error: " + frameworkErr + "," + implErr);
-                    }
-                    if (mp != mMediaPlayer) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onError() is ignored. mp is already gone.");
-                        }
-                        return;
-                    }
-                    if (dsd != mMediaItem) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onError() is ignored. Media item is changed.");
-                        }
-                        return;
-                    }
-                    if (mCurrentState != STATE_ERROR) {
-                        mCurrentState = STATE_ERROR;
-                        mTargetState = STATE_ERROR;
-                    }
+        @Override
+        public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
+                @NonNull TrackInfo track, @NonNull SubtitleData data) {
+            if (DEBUG) {
+                Log.d(TAG, "onSubtitleData():"
+                        + " TrackInfo: " + track
+                        + ", getCurrentPosition: " + player.getCurrentPosition()
+                        + ", getStartTimeUs(): " + data.getStartTimeUs()
+                        + ", diff: "
+                        + (data.getStartTimeUs() / 1000 - player.getCurrentPosition())
+                        + "ms, getDurationUs(): " + data.getDurationUs());
+            }
+            if (player != mMediaPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onSubtitleData() is ignored. player is already gone.");
                 }
-
-                @Override
-                public void onSubtitleData(
-                        @NonNull SessionPlayer player, @NonNull MediaItem item,
-                        @NonNull TrackInfo track, @NonNull SubtitleData data) {
-                    if (DEBUG) {
-                        Log.d(TAG, "onSubtitleData():"
-                                + " TrackInfo: " + track
-                                + ", getCurrentPosition: " + player.getCurrentPosition()
-                                + ", getStartTimeUs(): " + data.getStartTimeUs()
-                                + ", diff: "
-                                + (data.getStartTimeUs() / 1000 - player.getCurrentPosition())
-                                + "ms, getDurationUs(): " + data.getDurationUs());
-                    }
-                    if (player != mMediaPlayer) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onSubtitleData() is ignored. player is already gone.");
-                        }
-                        return;
-                    }
-                    if (item != mMediaItem) {
-                        if (DEBUG) {
-                            Log.w(TAG, "onSubtitleData() is ignored. Media item is changed.");
-                        }
-                        return;
-                    }
-                    if (!track.equals(mSelectedSubtitleTrackInfo)) {
-                        return;
-                    }
-                    SubtitleTrack subtitleTrack = mSubtitleTracks.get(track);
-                    if (subtitleTrack != null) {
-                        subtitleTrack.onData(data);
-                    }
+                return;
+            }
+            if (item != mMediaItem) {
+                if (DEBUG) {
+                    Log.w(TAG, "onSubtitleData() is ignored. Media item is changed.");
                 }
+                return;
+            }
+            if (!track.equals(mSelectedSubtitleTrackInfo)) {
+                return;
+            }
+            SubtitleTrack subtitleTrack = mSubtitleTracks.get(track);
+            if (subtitleTrack != null) {
+                subtitleTrack.onData(data);
+            }
+        }
 
-                @Override
-                public void onPlayerStateChanged(@NonNull SessionPlayer player,
-                        @SessionPlayer.PlayerState int state) {
-                    switch (state) {
-                        case SessionPlayer.PLAYER_STATE_IDLE:
-                            mCurrentState = STATE_IDLE;
-                            break;
-                        case SessionPlayer.PLAYER_STATE_PLAYING:
-                            mCurrentState = STATE_PLAYING;
-                            break;
-                        case SessionPlayer.PLAYER_STATE_PAUSED:
-                            if (mCurrentState == STATE_PREPARING) {
-                                onPrepared(player);
-                            }
-                            mCurrentState = STATE_PAUSED;
-                            break;
-                        case SessionPlayer.PLAYER_STATE_ERROR:
-                            mCurrentState = STATE_ERROR;
-                            break;
+        @Override
+        public void onPlayerStateChanged(@NonNull SessionPlayer player,
+                @SessionPlayer.PlayerState int state) {
+            switch (state) {
+                case SessionPlayer.PLAYER_STATE_IDLE:
+                    mCurrentState = STATE_IDLE;
+                    break;
+                case SessionPlayer.PLAYER_STATE_PLAYING:
+                    mCurrentState = STATE_PLAYING;
+                    break;
+                case SessionPlayer.PLAYER_STATE_PAUSED:
+                    if (mCurrentState == STATE_PREPARING) {
+                        onPrepared(player);
                     }
+                    mCurrentState = STATE_PAUSED;
+                    break;
+                case SessionPlayer.PLAYER_STATE_ERROR:
+                    mCurrentState = STATE_ERROR;
+                    mTargetState = STATE_ERROR;
+                    // TODO: Show error state (b/123498635)
+                    break;
+            }
+        }
+
+        @Override
+        public void onPlaybackCompleted(@NonNull SessionPlayer player) {
+            if (player != mMediaPlayer) {
+                Log.d(TAG, "onPlaybackCompleted() is ignored. player is already gone.");
+            }
+            mCurrentState = STATE_PLAYBACK_COMPLETED;
+            mTargetState = STATE_PLAYBACK_COMPLETED;
+        }
+
+        @Override
+        public void onTrackInfoChanged(@NonNull SessionPlayer player,
+                @NonNull List<TrackInfo> trackInfos) {
+            updateTracks(player, trackInfos);
+
+            // TODO: Remove extracting metadata (b/133283493)
+            // Run extractMetadata() in another thread to prevent StrictMode violation.
+            // extractMetadata() contains file IO indirectly,
+            // via MediaMetadataRetriever.
+            boolean isMusic = isCurrentItemMusic();
+            MetadataExtractTask task = new MetadataExtractTask(mMediaItem, isMusic,
+                    getContext());
+            task.execute();
+        }
+
+        @Override
+        public void onTrackSelected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
+            SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
+            if (subtitleTrack != null) {
+                mSubtitleController.selectTrack(subtitleTrack);
+            }
+        }
+
+        @Override
+        public void onTrackDeselected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
+            SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
+            if (subtitleTrack != null) {
+                mSubtitleController.selectTrack(null);
+            }
+        }
+
+        private void onPrepared(SessionPlayer player) {
+            if (DEBUG) {
+                Log.d(TAG, "onPrepared(): "
+                        + ", mCurrentState=" + mCurrentState
+                        + ", mTargetState=" + mTargetState);
+            }
+            mCurrentState = STATE_PREPARED;
+
+            if (player instanceof MediaPlayer) {
+                if (needToStart()) {
+                    mMediaSession.getPlayer().play();
                 }
-
-                @Override
-                public void onPlaybackCompleted(@NonNull SessionPlayer player) {
-                    if (player != mMediaPlayer) {
-                        Log.d(TAG, "onPlaybackCompleted() is ignored. player is already gone.");
-                    }
-                    mCurrentState = STATE_PLAYBACK_COMPLETED;
-                    mTargetState = STATE_PLAYBACK_COMPLETED;
-                }
-
-                @Override
-                public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                        @NonNull List<TrackInfo> trackInfos) {
-                    updateTracks(player, trackInfos);
-
-                    // TODO: Remove extracting metadata (b/133283493)
-                    // Run extractMetadata() in another thread to prevent StrictMode violation.
-                    // extractMetadata() contains file IO indirectly,
-                    // via MediaMetadataRetriever.
-                    boolean isMusic = isCurrentItemMusic();
-                    MetadataExtractTask task = new MetadataExtractTask(mMediaItem, isMusic,
-                            getContext());
-                    task.execute();
-                }
-
-                @Override
-                public void onTrackSelected(@NonNull SessionPlayer player,
-                        @NonNull TrackInfo trackInfo) {
-                    SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
-                    if (subtitleTrack != null) {
-                        mSubtitleController.selectTrack(subtitleTrack);
-                    }
-                }
-
-                @Override
-                public void onTrackDeselected(@NonNull SessionPlayer player,
-                        @NonNull TrackInfo trackInfo) {
-                    SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
-                    if (subtitleTrack != null) {
-                        mSubtitleController.selectTrack(null);
-                    }
-                }
-
-                private void onPrepared(SessionPlayer player) {
-                    if (DEBUG) {
-                        Log.d(TAG, "OnPreparedListener(): "
-                                + ", mCurrentState=" + mCurrentState
-                                + ", mTargetState=" + mTargetState);
-                    }
-                    mCurrentState = STATE_PREPARED;
-
-                    if (player instanceof MediaPlayer) {
-                        if (needToStart()) {
-                            mMediaSession.getPlayer().play();
-                        }
-                    }
-                }
-            };
+            }
+        }
+    };
 
     class MediaSessionCallback extends MediaSession.SessionCallback {
         @Override
