@@ -179,6 +179,7 @@ includeProject(":versionedparcelable-annotation", "versionedparcelable/annotatio
 includeProject(":versionedparcelable", "versionedparcelable")
 includeProject(":savedstate", "savedstate")
 includeProject(":security:security-crypto", "security/crypto")
+includeProject(":security:security-identity-credential", "security/identity-credential")
 includeProject(":sharetarget", "sharetarget")
 includeProject(":sharetarget:integration-tests:testapp", "sharetarget/integration-tests/testapp")
 includeProject(":slice-core", "slices/core")
