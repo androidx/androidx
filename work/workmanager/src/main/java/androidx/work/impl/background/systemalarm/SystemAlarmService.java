@@ -37,26 +37,41 @@ public class SystemAlarmService extends LifecycleService
     private static final String TAG = Logger.tagWithPrefix("SystemAlarmService");
 
     private SystemAlarmDispatcher mDispatcher;
+    private boolean mIsShutdown;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mDispatcher = new SystemAlarmDispatcher(this);
-        mDispatcher.setCompletedListener(this);
+        initializeDispatcher();
+        mIsShutdown = false;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        mIsShutdown = true;
         mDispatcher.onDestroy();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
+        if (mIsShutdown) {
+            Logger.get().info(TAG,
+                    "Re-initializing SystemAlarmDispatcher after a request to shut-down.");
+
+            // Destroy the old dispatcher to complete it's lifecycle.
+            mDispatcher.onDestroy();
+            // Create a new dispatcher to setup a new lifecycle.
+            initializeDispatcher();
+            // Set mIsShutdown to false, to correctly accept new commands.
+            mIsShutdown = false;
+        }
+
         if (intent != null) {
             mDispatcher.add(intent, startId);
         }
+
         // If the service were to crash, we want all unacknowledged Intents to get redelivered.
         return Service.START_REDELIVER_INTENT;
     }
@@ -64,11 +79,18 @@ public class SystemAlarmService extends LifecycleService
     @MainThread
     @Override
     public void onAllCommandsCompleted() {
+        mIsShutdown = true;
         Logger.get().debug(TAG, "All commands completed in dispatcher");
         // Check to see if we hold any more wake locks.
         WakeLocks.checkWakeLocks();
         // No need to pass in startId; stopSelf() translates to stopSelf(-1) which is a hard stop
         // of all startCommands. This is the behavior we want.
         stopSelf();
+    }
+
+    @MainThread
+    private void initializeDispatcher() {
+        mDispatcher = new SystemAlarmDispatcher(this);
+        mDispatcher.setCompletedListener(this);
     }
 }
