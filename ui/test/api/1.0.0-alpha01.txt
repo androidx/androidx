@@ -68,11 +68,11 @@ package androidx.ui.test.android {
     method public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> getActivityTestRule();
     method public final androidx.ui.core.Density getDensity();
     method public void performClick(float x, float y);
-    method public final void runOnUiAndWaitForRecompose(kotlin.jvm.functions.Function0<kotlin.Unit> runnable);
+    method public final void runOnUiAndWaitForIdle(kotlin.jvm.functions.Function0<kotlin.Unit> runnable);
     method public void sendEvent(android.view.MotionEvent event);
     method public final void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     method public final void setup();
-    method public final void teardown();
+    method public final void waitForIdleScreen();
     property public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> activityTestRule;
     property public final androidx.ui.core.Density density;
   }

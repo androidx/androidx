@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.Recomposer
 import androidx.compose.Children
 import androidx.compose.Component
 import androidx.compose.Composable
@@ -35,6 +36,7 @@ import java.util.WeakHashMap
 private class Root : Component() {
     @Suppress("DEPRECATION")
     fun update() = recomposeSync()
+
     lateinit var scope: TextSpanScope
     lateinit var composable: @Composable() TextSpanScope.() -> Unit
     @Suppress("PLUGIN_ERROR")
@@ -85,7 +87,7 @@ fun compose(
         root = Root()
         setRoot(container, root)
 
-        val cc = CompositionContext.create(container, root, parent) {
+        val cc = CompositionContext.prepare(root, parent) {
             TextSpanComposer(container, this).also { composer = it }
         }
         val scope = TextSpanScope(TextSpanComposition(composer))
@@ -93,7 +95,7 @@ fun compose(
         root.scope = scope
         root.composable = composable
 
-        cc.recompose()
+        cc.compose()
     } else {
         root.composable = composable
         root.update()
