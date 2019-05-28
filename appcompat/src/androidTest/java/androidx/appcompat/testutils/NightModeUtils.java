@@ -19,6 +19,7 @@ package androidx.appcompat.testutils;
 import static org.junit.Assert.assertEquals;
 
 import android.app.Instrumentation;
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.util.Log;
@@ -107,7 +108,13 @@ public class NightModeUtils {
             }
         });
 
-        LifecycleOwnerUtils.waitUntilState(activity, activityRule, Lifecycle.State.DESTROYED);
+        // Now wait for the Activity to be recreated
+        LifecycleOwnerUtils.waitForRecreation(activity, activityRule);
+    }
+
+    public static boolean isSystemNightThemeEnabled(final Context context) {
+        UiModeManager manager = (UiModeManager) context.getSystemService(Context.UI_MODE_SERVICE);
+        return manager.getNightMode() == UiModeManager.MODE_NIGHT_YES;
     }
 
     private static void setNightMode(

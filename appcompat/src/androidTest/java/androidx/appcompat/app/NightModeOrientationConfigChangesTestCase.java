@@ -59,7 +59,8 @@ public class NightModeOrientationConfigChangesTestCase {
 
     public NightModeOrientationConfigChangesTestCase(NightSetMode setMode) {
         mSetMode = setMode;
-        mActivityTestRule = new ActivityTestRule<>(NightModeOrientationConfigChangesActivity.class);
+        mActivityTestRule = new ActivityTestRule<>(
+                NightModeOrientationConfigChangesActivity.class, false, false);
     }
 
     @Before
@@ -67,6 +68,8 @@ public class NightModeOrientationConfigChangesTestCase {
         // By default we'll set the night mode to NO, which allows us to make better
         // assumptions in the test below
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+        // Now launch the test activity
+        mActivityTestRule.launchActivity(null);
     }
 
     @Test
