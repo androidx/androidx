@@ -23,7 +23,6 @@ import android.annotation.SuppressLint;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media2.exoplayer.external.C;
-import androidx.media2.exoplayer.external.ExoPlayer;
 import androidx.media2.exoplayer.external.Timeline;
 import androidx.media2.exoplayer.external.source.CompositeMediaSource;
 import androidx.media2.exoplayer.external.source.MediaPeriod;
@@ -60,15 +59,14 @@ import androidx.media2.exoplayer.external.upstream.TransferListener;
     }
 
     @Override
-    public void prepareSourceInternal(ExoPlayer player, boolean isTopLevelSource,
-            @Nullable TransferListener mediaTransferListener) {
-        super.prepareSourceInternal(player, isTopLevelSource, mediaTransferListener);
+    public void prepareSourceInternal(TransferListener mediaTransferListener) {
+        super.prepareSourceInternal(mediaTransferListener);
         prepareChildSource(/* id= */ null, mMediaSource);
     }
 
     @Override
-    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator) {
-        return mMediaSource.createPeriod(id, allocator);
+    public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
+        return mMediaSource.createPeriod(id, allocator, startPositionUs);
     }
 
     @Override
