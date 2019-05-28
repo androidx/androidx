@@ -93,10 +93,16 @@ class WorkTimer {
         }
     }
 
+    /**
+     * This method needs to be idempotent. This could be called more than once, and therefore,
+     * this method should only perform cleanup when necessary.
+     */
     void onDestroy() {
-        // Calling shutdown() waits for pending scheduled WorkTimerRunnable's which is not
-        // something we care about. Hence call shutdownNow().
-        mExecutorService.shutdownNow();
+        if (!mExecutorService.isShutdown()) {
+            // Calling shutdown() waits for pending scheduled WorkTimerRunnable's which is not
+            // something we care about. Hence call shutdownNow().
+            mExecutorService.shutdownNow();
+        }
     }
 
     @VisibleForTesting

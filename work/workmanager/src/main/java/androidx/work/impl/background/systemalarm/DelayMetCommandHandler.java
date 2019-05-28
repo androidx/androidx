@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.systemalarm;
 
+import static androidx.work.impl.background.systemalarm.CommandHandler.WORK_PROCESSING_TIME_IN_MS;
+
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
@@ -48,13 +50,43 @@ public class DelayMetCommandHandler implements
 
     private static final String TAG = Logger.tagWithPrefix("DelayMetCommandHandler");
 
+    /**
+     * The initial state of the delay met command handler.
+     * The handler always starts off at this state.
+     */
+    private static final int STATE_INITIAL = 0;
+    /**
+     * The command handler moves to STATE_START_REQUESTED when all constraints are met.
+     * This should only happen once per instance of the command handler.
+     */
+    private static final int STATE_START_REQUESTED = 1;
+    /**
+     * The command handler moves to STATE_STOP_REQUESTED when some constraints are unmet.
+     * This should only happen once per instance of the command handler.
+     */
+    private static final int STATE_STOP_REQUESTED = 2;
+
+    /**
+     * State Transitions.
+     *
+     *
+     *                   |----> STATE_STOP_REQUESTED
+     *                   |
+     *                   |
+     * STATE_INITIAL---->|
+     *                   |
+     *                   |
+     *                   |----> STATE_START_REQUESTED ---->STATE_STOP_REQUESTED
+     *
+     */
+
     private final Context mContext;
     private final int mStartId;
     private final String mWorkSpecId;
     private final SystemAlarmDispatcher mDispatcher;
     private final WorkConstraintsTracker mWorkConstraintsTracker;
     private final Object mLock;
-    private boolean mHasPendingStopWorkCommand;
+    private int mCurrentState;
 
     @Nullable private PowerManager.WakeLock mWakeLock;
     private boolean mHasConstraints;
@@ -71,7 +103,7 @@ public class DelayMetCommandHandler implements
         mWorkSpecId = workSpecId;
         mWorkConstraintsTracker = new WorkConstraintsTracker(mContext, this);
         mHasConstraints = false;
-        mHasPendingStopWorkCommand = false;
+        mCurrentState = STATE_INITIAL;
         mLock = new Object();
     }
 
@@ -84,32 +116,35 @@ public class DelayMetCommandHandler implements
             return;
         }
 
-        Logger.get().debug(TAG, String.format("onAllConstraintsMet for %s", mWorkSpecId));
-        // Constraints met, schedule execution
+        synchronized (mLock) {
+            if (mCurrentState == STATE_INITIAL) {
+                mCurrentState = STATE_START_REQUESTED;
 
-        // Not using WorkManagerImpl#startWork() here because we need to know if the processor
-        // actually enqueued the work here.
-        // TODO(rahulrav@) Once WorkManagerImpl provides a callback for acknowledging if
-        // work was enqueued, call WorkManagerImpl#startWork().
-        boolean isEnqueued = mDispatcher.getProcessor().startWork(mWorkSpecId);
+                Logger.get().debug(TAG, String.format("onAllConstraintsMet for %s", mWorkSpecId));
+                // Constraints met, schedule execution
+                // Not using WorkManagerImpl#startWork() here because we need to know if the
+                // processor actually enqueued the work here.
+                boolean isEnqueued = mDispatcher.getProcessor().startWork(mWorkSpecId);
 
-        if (isEnqueued) {
-            // setup timers to enforce quotas on workers that have
-            // been enqueued
-            mDispatcher.getWorkTimer()
-                    .startTimer(mWorkSpecId, CommandHandler.WORK_PROCESSING_TIME_IN_MS, this);
-        } else {
-            // if we did not actually enqueue the work, it was enqueued before
-            // cleanUp and pretend this never happened.
-            cleanUp();
+                if (isEnqueued) {
+                    // setup timers to enforce quotas on workers that have
+                    // been enqueued
+                    mDispatcher.getWorkTimer()
+                            .startTimer(mWorkSpecId, WORK_PROCESSING_TIME_IN_MS, this);
+                } else {
+                    // if we did not actually enqueue the work, it was enqueued before
+                    // cleanUp and pretend this never happened.
+                    cleanUp();
+                }
+            } else {
+                Logger.get().debug(TAG, String.format("Already started work for %s", mWorkSpecId));
+            }
         }
     }
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-
         Logger.get().debug(TAG, String.format("onExecuted %s, %s", workSpecId, needsReschedule));
-
         cleanUp();
 
         if (needsReschedule) {
@@ -186,10 +221,11 @@ public class DelayMetCommandHandler implements
         // Needs to be synchronized, as the stopWork() request can potentially come from the
         // WorkTimer thread as well as the command executor service in SystemAlarmDispatcher.
         synchronized (mLock) {
-            if (!mHasPendingStopWorkCommand) {
+            if (mCurrentState < STATE_STOP_REQUESTED) {
+                mCurrentState = STATE_STOP_REQUESTED;
                 Logger.get().debug(
                         TAG,
-                        String.format("Stopping work for workspec %s", mWorkSpecId));
+                        String.format("Stopping work for WorkSpec %s", mWorkSpecId));
                 Intent stopWork = CommandHandler.createStopWorkIntent(mContext, mWorkSpecId);
                 mDispatcher.postOnMainThread(
                         new SystemAlarmDispatcher.AddRunnable(mDispatcher, stopWork, mStartId));
@@ -210,7 +246,6 @@ public class DelayMetCommandHandler implements
                             "Processor does not have WorkSpec %s. No need to reschedule ",
                             mWorkSpecId));
                 }
-                mHasPendingStopWorkCommand = true;
             } else {
                 Logger.get().debug(TAG, String.format("Already stopped work for %s", mWorkSpecId));
             }
