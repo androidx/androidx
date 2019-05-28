@@ -26,6 +26,7 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
 import androidx.annotation.AnimRes
+import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -214,6 +215,38 @@ class FragmentAnimationTest {
         val expectedAnimations = if (replacement1 === fragment1) 2 else 1
         assertFragmentAnimation(replacement1!!, expectedAnimations, true, POP_ENTER)
         assertFragmentAnimation(replacement2!!, expectedAnimations, true, POP_ENTER)
+    }
+
+    // Ensure child view is not removed before parent view animates out.
+    @Test
+    fun removeParentWithAnimation() {
+        waitForAnimationReady()
+        val fm = activityRule.activity.supportFragmentManager
+
+        val parent = AnimatorFragment(R.layout.simple_container)
+        fm.beginTransaction()
+            .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+            .add(R.id.fragmentContainer, parent, "parent")
+            .commit()
+        activityRule.executePendingTransactions()
+
+        val child = AnimatorFragment()
+        parent.childFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, child, "child")
+            .commit()
+        activityRule.executePendingTransactions(parent.childFragmentManager)
+
+        val childContainer = child.mContainer
+        val childView = child.mView
+
+        fm.beginTransaction()
+            .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+            .replace(R.id.fragmentContainer, AnimatorFragment(), "other")
+            .commit()
+        activityRule.executePendingTransactions()
+
+        assertFragmentAnimation(parent, 2, false, EXIT)
+        assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
     }
 
     // Ensure that adding and popping a Fragment uses the enter and popExit animators,
@@ -577,7 +610,6 @@ class FragmentAnimationTest {
         assertFragmentAnimation(fragment, 2, true, POP_ENTER)
     }
 
-    @Throws(InterruptedException::class)
     private fun assertFragmentAnimation(
         fragment: AnimatorFragment,
         numAnimators: Int,
@@ -593,7 +625,6 @@ class FragmentAnimationTest {
         assertThat(fragment.nextAnim).isEqualTo(0)
     }
 
-    @Throws(InterruptedException::class)
     private fun assertPostponed(fragment: AnimatorFragment, expectedAnimators: Int) {
         assertThat(fragment.onCreateViewCalled).isTrue()
         assertThat(fragment.requireView().visibility).isEqualTo(View.VISIBLE)
@@ -623,7 +654,8 @@ class FragmentAnimationTest {
         }
     }
 
-    class AnimatorFragment : StrictViewFragment() {
+    class AnimatorFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment)
+        : StrictViewFragment(contentLayoutId) {
         var numAnimators: Int = 0
         var animation: Animation? = null
         var enter: Boolean = false

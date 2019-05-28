@@ -957,17 +957,20 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             f.mContainer.endViewTransition(f.mView);
                             f.mView.clearAnimation();
                             AnimationOrAnimator anim = null;
-                            if (mCurState > Fragment.INITIALIZING && !mDestroyed
-                                    && f.mView.getVisibility() == View.VISIBLE
-                                    && f.mPostponedAlpha >= 0) {
-                                anim = loadAnimation(f, transit, false,
-                                        transitionStyle);
+                            // If parent is being removed, no need to handle child animations.
+                            if (f.getParentFragment() == null || !f.getParentFragment().mRemoving) {
+                                if (mCurState > Fragment.INITIALIZING && !mDestroyed
+                                        && f.mView.getVisibility() == View.VISIBLE
+                                        && f.mPostponedAlpha >= 0) {
+                                    anim = loadAnimation(f, transit, false,
+                                            transitionStyle);
+                                }
+                                f.mPostponedAlpha = 0;
+                                if (anim != null) {
+                                    animateRemoveFragment(f, anim, newState);
+                                }
+                                f.mContainer.removeView(f.mView);
                             }
-                            f.mPostponedAlpha = 0;
-                            if (anim != null) {
-                                animateRemoveFragment(f, anim, newState);
-                            }
-                            f.mContainer.removeView(f.mView);
                         }
                         f.mContainer = null;
                         f.mView = null;
