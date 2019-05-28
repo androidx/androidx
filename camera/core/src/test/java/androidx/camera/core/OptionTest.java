@@ -29,6 +29,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,10 +63,15 @@ public class OptionTest {
     }
 
     @Test
-    public void canCreateOption_fromTypeReference() {
-        Option<List<Integer>> option =
-                Option.create(OPTION_1_ID, new TypeReference<List<Integer>>() {
-                });
+    public void canCreateOption_fromGenericClass_andAssignFromNarrowClass() {
+        List<Integer> intList = new ArrayList<>();
+        Option<List<Integer>> option = Option.create(OPTION_1_ID, List.class);
+        assertThat(intList.getClass()).isAssignableTo(option.getValueClass());
+    }
+
+    @Test
+    public void canCreateOption_fromGenericClass() {
+        Option<List<Integer>> option = Option.create(OPTION_1_ID, List.class);
         assertThat(option).isNotNull();
     }
 

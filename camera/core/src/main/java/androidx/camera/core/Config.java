@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 import com.google.auto.value.AutoValue;
-import com.google.auto.value.extension.memoized.Memoized;
 
 import java.util.Set;
 
@@ -167,9 +166,8 @@ public interface Config {
          * @return An {@link Option} object which can be used to store/retrieve values from a {@link
          * Config}.
          */
-        public static <T> Option<T> create(String id, Class<T> valueClass) {
-            TypeReference<T> valueType = TypeReference.createSpecializedTypeReference(valueClass);
-            return create(id, valueType, /*token=*/ null);
+        public static <T> Option<T> create(String id, Class<?> valueClass) {
+            return Option.create(id, valueClass, /*token=*/ null);
         }
 
         /**
@@ -187,22 +185,9 @@ public interface Config {
          * @return An {@link Option} object which can be used to store/retrieve values from a {@link
          * Config}.
          */
-        public static <T> Option<T> create(String id, Class<T> valueClass, @Nullable Object token) {
-            TypeReference<T> valueType = TypeReference.createSpecializedTypeReference(valueClass);
-            return create(id, valueType, token);
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public static <T> Option<T> create(String name, TypeReference<T> valueType) {
-            return create(name, valueType, /*token=*/ null);
-        }
-
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public static <T> Option<T> create(
-                String name, TypeReference<T> valueType, @Nullable Object token) {
-            return new AutoValue_Config_Option<>(name, valueType, token);
+        @SuppressWarnings("unchecked")
+        public static <T> Option<T> create(String id, Class<?> valueClass, @Nullable Object token) {
+            return new AutoValue_Config_Option<>(id, (Class<T>) valueClass, token);
         }
 
         /**
@@ -216,7 +201,12 @@ public interface Config {
          */
         public abstract String getId();
 
-        abstract TypeReference<T> getTypeReference();
+        /**
+         * Returns the class object associated with the value for this option.
+         *
+         * @return The class object for the value's type.
+         */
+        public abstract Class<T> getValueClass();
 
         /**
          * Returns the optional type-erased context object for this option.
@@ -227,16 +217,5 @@ public interface Config {
          */
         @Nullable
         public abstract Object getToken();
-
-        /**
-         * Returns the class object associated with the value for this option.
-         *
-         * @return The class object for the value's type.
-         */
-        @Memoized
-        @SuppressWarnings("unchecked")
-        public Class<T> getValueClass() {
-            return (Class<T>) getTypeReference().getRawType();
-        }
     }
 }

@@ -47,8 +47,7 @@ public interface TargetConfig<T> {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Class<?>> OPTION_TARGET_CLASS =
-            Option.create("camerax.core.target.class", new TypeReference<Class<?>>() {
-            });
+            Option.create("camerax.core.target.class", Class.class);
 
     // *********************************************************************************************
 
