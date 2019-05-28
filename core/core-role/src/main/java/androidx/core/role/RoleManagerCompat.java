@@ -21,8 +21,10 @@ package androidx.core.role;
  * <p>
  * The list of available roles might change with a system app update, so apps should not make
  * assumption about the availability of roles. Instead, they should always check if the role is
- * available using {@code android.app.role.RoleManager#isRoleAvailable(String)} before trying to do
+ * available using {@link android.app.role.RoleManager#isRoleAvailable(String)} before trying to do
  * anything with it.
+ *
+ * @see android.app.role.RoleManager
  */
 public final class RoleManagerCompat {
 
@@ -164,8 +166,10 @@ public final class RoleManagerCompat {
      * The name of the call redirection role.
      * <p>
      * To qualify for this role, an application needs to implement
-     * {@code android.telecom.CallRedirectionService}. The application will be able to re-write the
+     * {@link android.telecom.CallRedirectionService}. The application will be able to re-write the
      * phone number for an outgoing call to place the call through a call redirection service.
+     *
+     * @see android.telecom.CallRedirectionService
      */
     public static final String ROLE_CALL_REDIRECTION = "android.app.role.CALL_REDIRECTION";
 
