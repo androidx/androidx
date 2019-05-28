@@ -18,20 +18,21 @@ package androidx.ui.material.ripple
 
 import androidx.annotation.CheckResult
 import androidx.ui.animation.transitionsEnabled
+import androidx.ui.core.Draw
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.OnPositioned
 import androidx.ui.core.toRect
 import androidx.ui.graphics.Color
 import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
-import androidx.compose.Model
-import androidx.compose.composer
+import androidx.compose.Recompose
 import androidx.compose.ambient
+import androidx.compose.composer
 import androidx.compose.effectOf
+import androidx.compose.invalidate
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.core.Draw
-import androidx.ui.core.OnPositioned
 
 /**
  * An interface for creating [RippleEffect]s on a [RippleSurface].
@@ -95,16 +96,19 @@ fun RippleSurface(
     owner.backgroundColor = color
 
     OnPositioned(onPositioned = { owner._layoutCoordinates = it })
-    Draw { canvas, size ->
-        // TODO(Andrey) Find a better way to disable ripples when transitions are disabled.
-        val transitionsEnabled = transitionsEnabled
-        if (owner.effects.isNotEmpty() && transitionsEnabled) {
-            canvas.save()
-            canvas.clipRect(size.toRect())
-            owner.effects.forEach { it.draw(canvas) }
-            canvas.restore()
+    Recompose { recompose ->
+        owner.recompose = recompose
+
+        Draw { canvas, size ->
+            // TODO(Andrey) Find a better way to disable ripples when transitions are disabled.
+            val transitionsEnabled = transitionsEnabled
+            if (owner.effects.isNotEmpty() && transitionsEnabled) {
+                canvas.save()
+                canvas.clipRect(size.toRect())
+                owner.effects.forEach { it.draw(canvas) }
+                canvas.restore()
+            }
         }
-        owner.recomposeModel.registerForRecomposition()
     }
     CurrentRippleSurface.Provider(value = owner, children = children)
 }
@@ -115,14 +119,12 @@ private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {
     override val layoutCoordinates
         get() = _layoutCoordinates
             ?: throw IllegalStateException("The surface wasn't yet positioned!")
-    internal var recomposeModel = RecomposeModel()
+    internal var recompose: () -> Unit = {}
 
     internal var _layoutCoordinates: LayoutCoordinates? = null
     internal var effects = mutableListOf<RippleEffect>()
 
-    override fun markNeedsRedraw() {
-        recomposeModel.recompose()
-    }
+    override fun markNeedsRedraw() = recompose()
 
     override fun addEffect(feature: RippleEffect) {
         assert(!feature.debugDisposed)
@@ -135,21 +137,5 @@ private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {
     override fun removeEffect(feature: RippleEffect) {
         effects.remove(feature)
         markNeedsRedraw()
-    }
-}
-
-// TODO(Andrey: Temporary workaround for the ripple invalidation)
-@Model
-private class RecomposeModel {
-
-    private var ticker = 0
-
-    fun recompose() {
-        ticker++
-    }
-
-    fun registerForRecomposition() {
-        @Suppress("UNUSED_VARIABLE")
-        val ticker = ticker
     }
 }
