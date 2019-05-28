@@ -18,14 +18,6 @@ package androidx.media2.widget;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 
-import static androidx.media2.widget.MediaControlView.COMMAND_HIDE_SUBTITLE;
-import static androidx.media2.widget.MediaControlView.COMMAND_SHOW_SUBTITLE;
-import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_SUBTITLE_DESELECTED;
-import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_SUBTITLE_SELECTED;
-import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_TRACK_STATUS;
-import static androidx.media2.widget.MediaControlView.KEY_SELECTED_SUBTITLE_INDEX;
-import static androidx.media2.widget.MediaControlView.KEY_SUBTITLE_TRACK_LANGUAGE_LIST;
-
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -54,6 +46,7 @@ import androidx.core.content.ContextCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.SessionCommand;
@@ -74,6 +67,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -288,81 +282,66 @@ public class VideoViewTest {
         mController.play();
 
         // Verify the subtitle track count
-        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onTrackInfoChanged(
                 any(MediaController.class),
-                argThat(new CommandMatcher(EVENT_UPDATE_TRACK_STATUS)),
-                argThat(new CommandArgumentListMatcher(KEY_SUBTITLE_TRACK_LANGUAGE_LIST, 2)));
+                argThat(new SubtitleTrackListMatcher(2)));
+
+        List<TrackInfo> tracks = mController.getTrackInfo();
+        List<TrackInfo> subtitleTracks = new ArrayList<>();
+        for (int i = 0; i < tracks.size(); i++) {
+            if (tracks.get(i).getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+                subtitleTracks.add(tracks.get(i));
+            }
+        }
 
         // Select the first subtitle track
-        Bundle extra = new Bundle();
-        extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 0);
-        mController.sendCustomCommand(
-                new SessionCommand(COMMAND_SHOW_SUBTITLE, null), extra);
-        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+        mController.selectTrack(subtitleTracks.get(0));
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onTrackSelected(
                 any(MediaController.class),
-                argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
-                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 0)));
+                argThat(new SubtitleTrackMatcher(subtitleTracks.get(0))));
 
         // Select the second subtitle track
-        extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 1);
-        mController.sendCustomCommand(
-                new SessionCommand(COMMAND_SHOW_SUBTITLE, null), extra);
-        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+        mController.selectTrack(subtitleTracks.get(1));
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onTrackSelected(
                 any(MediaController.class),
-                argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
-                argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 1)));
+                argThat(new SubtitleTrackMatcher(subtitleTracks.get(1))));
 
         // Deselect subtitle track
-        mController.sendCustomCommand(
-                new SessionCommand(COMMAND_HIDE_SUBTITLE, null), null);
-        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
+        mController.deselectTrack(subtitleTracks.get(1));
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onTrackDeselected(
                 any(MediaController.class),
-                argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_DESELECTED)),
-                nullable(Bundle.class));
+                argThat(new SubtitleTrackMatcher(subtitleTracks.get(1))));
     }
 
-    class CommandMatcher implements ArgumentMatcher<SessionCommand> {
-        final String mExpectedCommand;
-
-        CommandMatcher(String command) {
-            mExpectedCommand = command;
-        }
-
-        @Override
-        public boolean matches(SessionCommand command) {
-            return mExpectedCommand.equals(command.getCustomAction());
-        }
-    }
-
-    class CommandArgumentMatcher implements ArgumentMatcher<Bundle> {
-        final String mKey;
-        final int mExpectedValue;
-
-        CommandArgumentMatcher(String key, int expectedValue) {
-            mKey = key;
-            mExpectedValue = expectedValue;
-        }
-
-        @Override
-        public boolean matches(Bundle argument) {
-            return argument.getInt(mKey, -1) == mExpectedValue;
-        }
-    }
-
-    class CommandArgumentListMatcher implements ArgumentMatcher<Bundle> {
-        final String mKey;
+    class SubtitleTrackListMatcher implements ArgumentMatcher<List<TrackInfo>> {
         final int mExpectedSize;
 
-        CommandArgumentListMatcher(String key, int expectedSize) {
-            mKey = key;
+        SubtitleTrackListMatcher(int expectedSize) {
             mExpectedSize = expectedSize;
         }
 
         @Override
-        public boolean matches(Bundle argument) {
-            List<String> list = argument.getStringArrayList(mKey);
-            return (list == null && mExpectedSize == 0)
-                    || (list != null && list.size() == mExpectedSize);
+        public boolean matches(List<TrackInfo> tracks) {
+            int subtitleCount = 0;
+            for (int i = 0; i < tracks.size(); i++) {
+                if (tracks.get(i).getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+                    subtitleCount++;
+                }
+            }
+            return subtitleCount == mExpectedSize;
+        }
+    }
+
+    class SubtitleTrackMatcher implements ArgumentMatcher<TrackInfo> {
+        final TrackInfo mExpectedTrack;
+
+        SubtitleTrackMatcher(TrackInfo expectedTrack) {
+            mExpectedTrack = expectedTrack;
+        }
+
+        @Override
+        public boolean matches(TrackInfo track) {
+            return track.equals(mExpectedTrack);
         }
     }
 
