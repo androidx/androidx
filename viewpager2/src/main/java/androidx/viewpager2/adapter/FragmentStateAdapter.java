@@ -480,6 +480,10 @@ public abstract class FragmentStateAdapter extends
         }
 
         Bundle bundle = (Bundle) savedState;
+        if (bundle.getClassLoader() == null) {
+            /** TODO(b/133752041): pass the class loader from {@link ViewPager2.SavedState } */
+            bundle.setClassLoader(getClass().getClassLoader());
+        }
 
         for (String key : bundle.keySet()) {
             if (isValidKey(key, KEY_PREFIX_FRAGMENT)) {
