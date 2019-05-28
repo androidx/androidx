@@ -20,7 +20,7 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 
 /**
- * Implementation for night view finder use case.
+ * Implementation for night preview use case.
  *
  * <p>This class should be implemented by OEM and deployed to the target devices. 3P developers
  * don't need to implement this, unless this is used for related testing usage.

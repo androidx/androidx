@@ -37,7 +37,7 @@ public class BeautyPreviewExtender extends PreviewExtender {
         try {
             return new VendorBeautyPreviewExtender(builder);
         } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No beauty view finder extender found. Falling back to default.");
+            Log.d(TAG, "No beauty preview extender found. Falling back to default.");
             return new DefaultBeautyPreviewExtender();
         }
     }

@@ -43,7 +43,7 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Class for using an OEM provided extension on view finder.
+ * Class for using an OEM provided extension on preview.
  */
 public abstract class PreviewExtender {
     private PreviewConfig.Builder mBuilder;
