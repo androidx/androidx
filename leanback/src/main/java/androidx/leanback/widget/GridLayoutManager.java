@@ -28,6 +28,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.FocusFinder;
@@ -243,6 +244,11 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
 
         @Override
+        protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+            return super.calculateSpeedPerPixel(displayMetrics) * mSmoothScrollSpeedFactor;
+        }
+
+        @Override
         protected int calculateTimeForScrolling(int dx) {
             int ms = super.calculateTimeForScrolling(dx);
             if (mWindowAlignment.mainAxis().getSize() > 0) {
@@ -397,6 +403,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     // maximum pending movement in one direction.
     static final int DEFAULT_MAX_PENDING_MOVES = 10;
+    float mSmoothScrollSpeedFactor = 1f;
     int mMaxPendingMoves = DEFAULT_MAX_PENDING_MOVES;
     // minimal milliseconds to scroll window size in major direction,  we put a cap to prevent the
     // effect smooth scrolling too over to bind an item view then drag the item view back.

@@ -1496,6 +1496,9 @@ package androidx.leanback.widget {
     method public final int getSaveChildrenLimitNumber();
     method public final int getSaveChildrenPolicy();
     method public int getSelectedPosition();
+    method public androidx.leanback.widget.BaseGridView.SmoothScrollByBehavior? getSmoothScrollByBehavior();
+    method public final int getSmoothScrollMaxPendingMoves();
+    method public final float getSmoothScrollSpeedFactor();
     method @Deprecated public int getVerticalMargin();
     method public int getVerticalSpacing();
     method public void getViewSelectedOffsets(android.view.View!, int[]!);
@@ -1544,6 +1547,9 @@ package androidx.leanback.widget {
     method public void setSelectedPosition(int, androidx.leanback.widget.ViewHolderTask!);
     method public void setSelectedPositionSmooth(int);
     method public void setSelectedPositionSmooth(int, androidx.leanback.widget.ViewHolderTask!);
+    method public final void setSmoothScrollByBehavior(androidx.leanback.widget.BaseGridView.SmoothScrollByBehavior?);
+    method public final void setSmoothScrollMaxPendingMoves(int);
+    method public final void setSmoothScrollSpeedFactor(float);
     method @Deprecated public void setVerticalMargin(int);
     method public void setVerticalSpacing(int);
     method public void setWindowAlignment(int);
@@ -1577,6 +1583,11 @@ package androidx.leanback.widget {
 
   public static interface BaseGridView.OnUnhandledKeyListener {
     method public boolean onUnhandledKey(android.view.KeyEvent!);
+  }
+
+  public static interface BaseGridView.SmoothScrollByBehavior {
+    method public int configSmoothScrollByDuration(int, int);
+    method public android.view.animation.Interpolator? configSmoothScrollByInterpolator(int, int);
   }
 
   public interface BaseOnItemViewClickedListener<T> {
