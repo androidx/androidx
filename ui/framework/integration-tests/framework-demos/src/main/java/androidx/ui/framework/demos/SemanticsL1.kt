@@ -138,7 +138,7 @@ enum class NavigationAction : ActionType { Back, Forward, Up, Down, Left, Right 
  * This component just wraps the GestureDetetor and allows us to use it with actions, instead of
  * lambda functions. A [SemanticAction] allows us to specify more information in addition to the
  * lambda to be executed.*/
-@Suppress("FunctionName", "Unused")
+@Suppress("Unused")
 @Composable
 fun PressGestureDetectorWithActions(
     onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { },
@@ -160,7 +160,7 @@ fun PressGestureDetectorWithActions(
  * This implementation is a component just wraps its child components in a frame that has buttons
  * which represent some frameworks that will trigger the semantic actions.
  */
-@Suppress("FunctionName", "Unused")
+@Suppress("Unused")
 @Composable
 fun Semantics(
     @Suppress("UNUSED_PARAMETER") properties: Set<SemanticProperty<out Any>> = setOf(),
@@ -190,7 +190,6 @@ fun Semantics(
 /**
  * This component adds buttons to invoke actions based on the accessibility action type.
  */
-@Suppress("FunctionName")
 @Composable
 private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()) {
     val primary = actions.firstOrNull { it.types.contains(AccessibilityAction.Primary) }
@@ -210,7 +209,6 @@ private fun InvokeActionsByType(actions: Set<SemanticAction<out Any?>> = setOf()
 /**
  * This component adds buttons to invoke actions based on the accessibility action phrase.
  */
-@Suppress("FunctionName")
 @Composable
 private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf()) {
     Text(
@@ -228,7 +226,6 @@ private fun InvokeActionsByPhrase(actions: Set<SemanticAction<out Any?>> = setOf
 /**
  * This component adds buttons to invoke actions using the assistant.
  */
-@Suppress("FunctionName")
 @Composable
 private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>> = setOf()) {
     val positive = actions.firstOrNull { it.types.contains(PolarityAction.Positive) }
@@ -249,7 +246,6 @@ private fun InvokeActionsByAssistantAction(actions: Set<SemanticAction<out Any?>
  * It is a more realistic example where the framework using the action will first find out the type
  * of action before invoking it.
  */
-@Suppress("FunctionName")
 @Composable
 private fun InvokeActionsByParameters(actions: Set<SemanticAction<out Any?>> = setOf()) {
     @Suppress("UNCHECKED_CAST")
@@ -278,7 +274,6 @@ private enum class CollapseMode { Visible, Collapsed }
  * This composable wraps its children with a container and adds a show/hide button, to hide the
  * children or make them visible.
  */
-@Suppress("FunctionName")
 @Composable
 private fun Collapsable(@Children children: @Composable() () -> Unit) {
 

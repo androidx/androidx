@@ -94,7 +94,6 @@ class StackChildren {
  *         }
  *     }
  */
-@Suppress("FunctionName")
 @Composable
 fun Stack(
     defaultAlignment: Alignment = Alignment.Center,
