@@ -19,9 +19,8 @@ package androidx.camera.core.impl.utils.futures;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.concurrent.ListenableFuture;
 import androidx.core.util.Preconditions;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;

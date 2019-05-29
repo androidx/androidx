@@ -28,9 +28,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.concurrent.ListenableFuture;
+import androidx.concurrent.callback.CallbackToFutureAdapter;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;

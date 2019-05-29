@@ -37,6 +37,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.concurrent.ListenableFuture;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media2.common.MediaItem;
@@ -56,8 +57,6 @@ import androidx.media2.session.MediaSession.ControllerCb;
 import androidx.media2.session.MediaSession.ControllerInfo;
 import androidx.media2.session.SessionCommand.CommandCode;
 import androidx.versionedparcelable.ParcelImpl;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;

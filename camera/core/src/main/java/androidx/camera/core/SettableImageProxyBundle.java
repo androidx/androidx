@@ -20,9 +20,8 @@ import android.util.SparseArray;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.concurrent.ListenableFuture;
+import androidx.concurrent.callback.CallbackToFutureAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;

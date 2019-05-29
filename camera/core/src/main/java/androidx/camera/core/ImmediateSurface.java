@@ -21,8 +21,7 @@ import android.view.Surface;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.utils.futures.Futures;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.concurrent.ListenableFuture;
 
 /**
  * A {@link DeferrableSurface} which always returns immediately.

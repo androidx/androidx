@@ -32,6 +32,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.concurrent.ListenableFuture;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaBrowserServiceCompat.Result;
@@ -41,8 +42,6 @@ import androidx.media2.session.MediaBrowser.BrowserCallback;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
 import androidx.media2.session.MockMediaBrowserServiceCompat.Proxy;
 import androidx.test.filters.LargeTest;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;

@@ -25,9 +25,10 @@ plugins {
 
 dependencies {
     api(project(":camera:camera-core"))
+
     implementation(project(":core"))
     implementation("androidx.annotation:annotation:1.0.0")
-    implementation(GUAVA_LISTENABLE_FUTURE)
+    implementation(project(":concurrent-listenablefuture"))
 
     annotationProcessor(AUTO_VALUE)
 
