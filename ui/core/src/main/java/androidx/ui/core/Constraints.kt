@@ -150,6 +150,13 @@ fun Constraints.constrain(size: IntPxSize) = IntPxSize(
 )
 
 /**
+ * Takes a size and returns whether it satisfies the current constraints.
+ */
+fun Constraints.satisfiedBy(size: IntPxSize) =
+        minWidth <= size.width && size.width <= maxWidth &&
+                minHeight <= size.height && size.height <= maxHeight
+
+/**
  * Returns a copy of the current instance, with no min constraints.
  */
 fun Constraints.looseMin() = this.copy(minWidth = 0.ipx, minHeight = 0.ipx)
