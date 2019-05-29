@@ -34,6 +34,7 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.setContent
+import androidx.ui.core.IntPx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -184,5 +185,14 @@ open class LayoutTest {
         if (actual.y.value != actual.y.value.toInt().toFloat()) {
             fail("Expected integer y coordinate")
         }
+    }
+
+    internal fun assertEquals(expected: IntPx, actual: IntPx) {
+        assertEquals(
+            "Expected ${expected} but obtained ${actual}",
+            expected.value.toFloat(),
+            actual.value.toFloat(),
+            1f
+        )
     }
 }
