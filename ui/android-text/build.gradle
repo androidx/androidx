@@ -16,7 +16,7 @@
 
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -53,7 +53,7 @@ dependencies {
 
 androidx {
     name = "AndroidX Text"
-    publish = false
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2018"

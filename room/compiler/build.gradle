@@ -24,6 +24,7 @@ import androidx.build.LibraryVersions
 import androidx.build.SupportConfig
 import androidx.build.AndroidXExtension
 import androidx.build.SdkHelperKt
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -86,7 +87,7 @@ tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
 
 androidx {
     name = "Android Room Compiler"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
     mavenVersion = LibraryVersions.ROOM
     mavenGroup = LibraryGroups.ROOM

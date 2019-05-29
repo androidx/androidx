@@ -18,6 +18,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +32,7 @@ dependencies {
 
 androidx {
     name = "Android Support SQLite - Framework Implementation"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.PERSISTENCE
     mavenGroup = LibraryGroups.PERSISTENCE
     inceptionYear = "2017"

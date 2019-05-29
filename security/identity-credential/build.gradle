@@ -17,6 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -36,7 +37,7 @@ android {
 
 androidx {
     name = "AndroidX Security"
-    publish = false
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.SECURITY_IDENTITY_CREDENTIAL
     mavenGroup = LibraryGroups.SECURITY
     inceptionYear = "2019"

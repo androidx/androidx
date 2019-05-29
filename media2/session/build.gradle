@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 import static androidx.build.dependencies.DependenciesKt.*
 
@@ -33,7 +34,7 @@ android {
 
 androidx {
     name = "AndroidX media2 session library"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.MEDIA2_SESSION
     mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"

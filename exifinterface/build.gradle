@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -18,7 +19,7 @@ dependencies {
 
 androidx {
     name = "Android Support ExifInterface"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.EXIFINTERFACE
     mavenGroup = LibraryGroups.EXIFINTERFACE
     inceptionYear = "2016"

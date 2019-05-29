@@ -24,6 +24,7 @@ import androidx.build.LibraryVersions
 import androidx.build.SupportConfig
 import androidx.build.AndroidXExtension
 import androidx.build.SdkHelperKt
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -63,7 +64,7 @@ tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDe
 
 androidx {
     name = 'Android Navigation TypeSafe Arguments Generator'
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     toolingProject = true
     mavenVersion = LibraryVersions.NAVIGATION
     mavenGroup = LibraryGroups.NAVIGATION

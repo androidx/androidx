@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -25,7 +26,7 @@ android {
 
 androidx {
     name = "Android Percent Support Library"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.PERCENTLAYOUT
     mavenGroup = LibraryGroups.PERCENTLAYOUT
     inceptionYear = "2015"

@@ -17,6 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -52,7 +53,7 @@ android {
 
 androidx {
     name = "AndroidX Widget ViewPager2"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VIEWPAGER2
     mavenGroup = LibraryGroups.VIEWPAGER2
     inceptionYear = "2017"

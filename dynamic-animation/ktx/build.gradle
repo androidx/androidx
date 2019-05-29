@@ -18,6 +18,7 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
 import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -51,7 +52,7 @@ dependencies {
 
 androidx {
     name = "Dynamic animation Kotlin Extensions"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.DYNAMICANIMATION_KTX
     mavenGroup = LibraryGroups.DYNAMICANIMATION
     inceptionYear = "2018"
