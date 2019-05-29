@@ -51,10 +51,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.customview.view.AbsSavedState;
@@ -63,7 +65,6 @@ import androidx.customview.widget.ViewDragHelper;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -249,7 +250,7 @@ public class DrawerLayout extends ViewGroup {
     private Rect mChildHitRect;
     private Matrix mChildInvertedMatrix;
 
-    private static boolean sSupplyGestureExclusion = Build.VERSION.SDK_INT >= 29;
+    private static boolean sEdgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29;
 
     /**
      * Listener for monitoring events about drawers.
@@ -850,25 +851,6 @@ public class DrawerLayout extends ViewGroup {
                 }
             }
         }
-
-        if (sSupplyGestureExclusion) {
-            final List<Rect> rects = new ArrayList<>();
-            final int childCount = getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                final View child = getChildAt(i);
-                if (isContentView(child) || isDrawerOpen(child)) {
-                    continue;
-                }
-
-                if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
-                    rects.add(new Rect(0, 0, mLeftDragger.getEdgeSize(), getHeight()));
-                } else {
-                    final int width = getWidth();
-                    rects.add(new Rect(width - mRightDragger.getEdgeSize(), 0, width, getHeight()));
-                }
-            }
-            ViewCompat.setSystemGestureExclusionRects(this, rects);
-        }
     }
 
     void dispatchOnDrawerClosed(View drawerView) {
@@ -1233,9 +1215,7 @@ public class DrawerLayout extends ViewGroup {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         mInLayout = true;
         final int width = r - l;
-        final int layoutHeight = b - t;
         final int childCount = getChildCount();
-        List<Rect> gestureExclusionRects = null;
         for (int i = 0; i < childCount; i++) {
             final View child = getChildAt(i);
 
@@ -1258,23 +1238,9 @@ public class DrawerLayout extends ViewGroup {
                 if (checkDrawerViewAbsoluteGravity(child, Gravity.LEFT)) {
                     childLeft = -childWidth + (int) (childWidth * lp.onScreen);
                     newOffset = (float) (childWidth + childLeft) / childWidth;
-                    if (sSupplyGestureExclusion && !isDrawerOpen(child)) {
-                        if (gestureExclusionRects == null) {
-                            gestureExclusionRects = new ArrayList<>();
-                        }
-                        gestureExclusionRects.add(
-                                new Rect(0, 0, mLeftDragger.getEdgeSize(), layoutHeight));
-                    }
                 } else { // Right; onMeasure checked for us.
                     childLeft = width - (int) (childWidth * lp.onScreen);
                     newOffset = (float) (width - childLeft) / childWidth;
-                    if (sSupplyGestureExclusion && !isDrawerOpen(child)) {
-                        if (gestureExclusionRects == null) {
-                            gestureExclusionRects = new ArrayList<>();
-                        }
-                        gestureExclusionRects.add(new Rect(
-                                width - mRightDragger.getEdgeSize(), 0, width, layoutHeight));
-                    }
                 }
 
                 final boolean changeOffset = newOffset != lp.onScreen;
@@ -1325,12 +1291,23 @@ public class DrawerLayout extends ViewGroup {
                 }
             }
         }
-        // Always set exclusion rects; set an empty list if we had no drawer views.
-        if (gestureExclusionRects != null) {
-            ViewCompat.setSystemGestureExclusionRects(this, gestureExclusionRects);
-        } else {
-            ViewCompat.setSystemGestureExclusionRects(this, Collections.<Rect>emptyList());
+
+        if (sEdgeSizeUsingSystemGestureInsets) {
+            // Update the ViewDragHelper edge sizes to match the gesture insets
+            WindowInsets rootInsets = getRootWindowInsets();
+            if (rootInsets != null) {
+                WindowInsetsCompat rootInsetsCompat = WindowInsetsCompat.wrap(rootInsets);
+                Insets gestureInsets = rootInsetsCompat.getSystemGestureInsets();
+
+                // We use Math.max() here since the gesture insets will be 0 if the device
+                // does not have gesture navigation enabled
+                mLeftDragger.setEdgeSize(
+                        Math.max(mLeftDragger.getDefaultEdgeSize(), gestureInsets.left));
+                mRightDragger.setEdgeSize(
+                        Math.max(mRightDragger.getDefaultEdgeSize(), gestureInsets.right));
+            }
         }
+
         mInLayout = false;
         mFirstLayout = false;
     }

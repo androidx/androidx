@@ -18,14 +18,21 @@ package androidx.core.view;
 
 import static android.os.Build.VERSION.SDK_INT;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import android.graphics.Rect;
 import android.os.Build;
 import android.view.WindowInsets;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.Insets;
 import androidx.core.util.ObjectsCompat;
+
+import java.util.Objects;
 
 /**
  * Describes a set of insets for window content.
@@ -37,7 +44,12 @@ import androidx.core.util.ObjectsCompat;
 public class WindowInsetsCompat {
     private final Object mInsets;
 
-    private WindowInsetsCompat(Object insets) {
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @VisibleForTesting
+    WindowInsetsCompat(@Nullable Object insets) {
         mInsets = insets;
     }
 
@@ -507,11 +519,30 @@ public class WindowInsetsCompat {
         return mInsets == null ? 0 : mInsets.hashCode();
     }
 
-    static WindowInsetsCompat wrap(Object insets) {
-        return insets == null ? null : new WindowInsetsCompat(insets);
+    /**
+     * Wrap an instance of {@link WindowInsets} into a {@link WindowInsetsCompat}.
+     *
+     * @param insets source insets to wrap
+     * @return the wrapped instance
+     *
+     * @hide
+     */
+    @NonNull
+    @RequiresApi(20)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public static WindowInsetsCompat wrap(@NonNull WindowInsets insets) {
+        return new WindowInsetsCompat(Objects.requireNonNull(insets));
     }
 
-    static Object unwrap(WindowInsetsCompat insets) {
-        return insets == null ? null : insets.mInsets;
+    /**
+     * Unwrap the given WindowInsetsCompat and return the source {@link WindowInsets} instance.
+     *
+     * @hide
+     */
+    @Nullable
+    @RequiresApi(20)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public static WindowInsets unwrap(@NonNull WindowInsetsCompat insets) {
+        return (WindowInsets) insets.mInsets;
     }
 }
