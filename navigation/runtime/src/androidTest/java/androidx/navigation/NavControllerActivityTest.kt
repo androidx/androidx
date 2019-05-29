@@ -85,6 +85,32 @@ class NavControllerActivityTest {
         assertThat(activity.isFinishCalled)
             .isTrue()
     }
+
+    @Test
+    fun testActivityDeepLinkHandledOnce() {
+        val activity = activityRule.activity
+
+        val intent = Intent().apply {
+            data = Uri.parse("android-app://androidx.navigation.test/test")
+        }
+
+        activity.intent = intent
+
+        navController.setGraph(R.navigation.nav_simple)
+
+        assertThat(navController.currentDestination?.id).isEqualTo(R.id.second_test)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        assertThat(activity.isFinishCalled).isFalse()
+        assertThat(navController.navigateUp()).isTrue()
+        assertThat(activity.isFinishCalled).isTrue()
+
+        navController.setGraph(R.navigation.nav_simple)
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(1)
+    }
 }
 
 class NavControllerActivity : Activity() {
