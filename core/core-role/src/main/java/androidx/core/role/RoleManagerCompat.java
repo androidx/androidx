@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.role;
+package androidx.core.role;
 
 /**
  * This class contains the name and documentation for roles that might be available in the system.
