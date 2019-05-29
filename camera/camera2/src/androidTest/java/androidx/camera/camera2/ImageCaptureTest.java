@@ -20,10 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -75,7 +75,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 
 import java.io.File;
 import java.io.IOException;
@@ -504,18 +504,20 @@ public final class ImageCaptureTest {
         // Wait for the signal that the image has been captured.
         mSemaphore.acquire();
 
-        ArgumentCaptor<CaptureRequest> requestCaptor =
-                ArgumentCaptor.forClass(CaptureRequest.class);
         // Note: preview callbacks also fire on interop listener.
-        verify(captureCallback, atLeastOnce()).onCaptureCompleted(
+        ArgumentMatcher<CaptureRequest> matcher = new ArgumentMatcher<CaptureRequest>() {
+            @Override
+            public boolean matches(CaptureRequest captureRequest) {
+                return captureRequest.get(CaptureRequest.CONTROL_CAPTURE_INTENT)
+                        == CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE;
+            }
+        };
+        // Because interop listener will get both image capture and preview callbacks, ensure
+        // that there is one CAPTURE_INTENT_STILL_CAPTURE from all onCaptureCompleted() callbacks.
+        verify(captureCallback, times(1)).onCaptureCompleted(
                 any(CameraCaptureSession.class),
-                requestCaptor.capture(),
+                argThat(matcher),
                 any(TotalCaptureResult.class));
-        CaptureRequest captureRequest = requestCaptor.getValue(); // Obtains the last value.
-        // TODO This method removed temporary due to the side effect of aosp/943904. It's needed
-        //  keep tracking.
-        assertThat(captureRequest.get(CaptureRequest.CONTROL_CAPTURE_INTENT))
-                .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_STILL_CAPTURE);
     }
 
     @Test
