@@ -1,0 +1,52 @@
+// Signature format: 3.0
+package androidx.work.testing {
+
+  public class SynchronousExecutor implements java.util.concurrent.Executor {
+    ctor public SynchronousExecutor();
+    method public void execute(Runnable);
+  }
+
+  public interface TestDriver {
+    method public void setAllConstraintsMet(java.util.UUID);
+    method public void setInitialDelayMet(java.util.UUID);
+    method public void setPeriodDelayMet(java.util.UUID);
+  }
+
+  public class TestListenableWorkerBuilder<W extends androidx.work.ListenableWorker> {
+    method public W build();
+    method public static androidx.work.testing.TestListenableWorkerBuilder from(android.content.Context, androidx.work.WorkRequest);
+    method public static <W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W!> from(android.content.Context, Class<W!>);
+    method public androidx.work.testing.TestListenableWorkerBuilder setId(java.util.UUID);
+    method public androidx.work.testing.TestListenableWorkerBuilder setInputData(androidx.work.Data);
+    method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder setNetwork(android.net.Network);
+    method public androidx.work.testing.TestListenableWorkerBuilder setRunAttemptCount(int);
+    method public androidx.work.testing.TestListenableWorkerBuilder setTags(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
+    method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentUris(java.util.List<android.net.Uri!>);
+    method public androidx.work.testing.TestListenableWorkerBuilder setWorkerFactory(androidx.work.WorkerFactory);
+  }
+
+  public final class TestListenableWorkerBuilderKt {
+    ctor public TestListenableWorkerBuilderKt();
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
+  }
+
+  public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {
+    method public static androidx.work.testing.TestWorkerBuilder<? extends androidx.work.Worker> from(android.content.Context, androidx.work.WorkRequest, java.util.concurrent.Executor);
+    method public static <W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W!> from(android.content.Context, Class<W!>, java.util.concurrent.Executor);
+  }
+
+  public final class TestWorkerBuilderKt {
+    ctor public TestWorkerBuilderKt();
+    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
+  }
+
+  public final class WorkManagerTestInitHelper {
+    method @Deprecated public static androidx.work.testing.TestDriver? getTestDriver();
+    method public static androidx.work.testing.TestDriver? getTestDriver(android.content.Context);
+    method public static void initializeTestWorkManager(android.content.Context);
+    method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
+  }
+
+}
+
