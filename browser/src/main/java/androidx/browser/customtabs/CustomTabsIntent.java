@@ -24,6 +24,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.SparseArray;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -70,6 +71,15 @@ public final class CustomTabsIntent {
      * Null if there is no need to match any service side sessions with the intent.
      */
     public static final String EXTRA_SESSION = "android.support.customtabs.extra.SESSION";
+
+    /**
+     * Extra used to match the session ID. This is PendingIntent which is created with
+     * {@link CustomTabsClient#createSessionId}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String EXTRA_SESSION_ID = "android.support.customtabs.extra.SESSION_ID";
 
     /**
      * @hide
@@ -346,7 +356,19 @@ public final class CustomTabsIntent {
          * {@link CustomTabsSession}.
          */
         public Builder() {
-            this(null);
+            initialize(null, null);
+        }
+
+        /**
+         * Creates a {@link CustomTabsIntent.Builder} object associated with a given
+         * {@link CustomTabsSession.PendingSession}.
+         *
+         * {@see Builder(CustomTabsSession)}
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        public Builder(@Nullable CustomTabsSession.PendingSession session) {
+            initialize(null, session.getId());
         }
 
         /**
@@ -359,10 +381,21 @@ public final class CustomTabsIntent {
          * @param session The session to associate this Builder with.
          */
         public Builder(@Nullable CustomTabsSession session) {
-            if (session != null) mIntent.setPackage(session.getComponentName().getPackageName());
+            if (session != null) {
+                mIntent.setPackage(session.getComponentName().getPackageName());
+                initialize(session.getBinder(), session.getId());
+            } else {
+                initialize(null, null);
+            }
+        }
+
+        private void initialize(@Nullable IBinder session, @Nullable PendingIntent sessionId) {
             Bundle bundle = new Bundle();
-            BundleCompat.putBinder(
-                    bundle, EXTRA_SESSION, session == null ? null : session.getBinder());
+            BundleCompat.putBinder(bundle, EXTRA_SESSION, session);
+            if (sessionId != null) {
+                bundle.putParcelable(EXTRA_SESSION_ID, sessionId);
+            }
+
             mIntent.putExtras(bundle);
         }
 

@@ -82,8 +82,8 @@ public final class BrowserActionsIntentTest {
         customItems.add(customItemWithoutIcon);
 
         BrowserActionsIntent browserActionsIntent = new BrowserActionsIntent.Builder(mContext, mUri)
-                .setCustomItems(customItems)
-                .build();
+                                                            .setCustomItems(customItems)
+                                                            .build();
         Intent intent = browserActionsIntent.getIntent();
         assertTrue(intent.hasExtra(BrowserActionsIntent.EXTRA_MENU_ITEMS));
         ArrayList<Bundle> bundles =

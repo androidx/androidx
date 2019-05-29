@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package android.support.customtabs;
-
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.customtabs.ICustomTabsCallback;
+package android.support.customtabs.trusted;
 
 /**
- * Interface to a PostMessageService.
+ * Interface to a TrustedWebActivityService.
  * @hide
  */
-interface IPostMessageService {
-    void onMessageChannelReady(in ICustomTabsCallback callback, in Bundle extras) = 1;
-    void onPostMessage(in ICustomTabsCallback callback, String message, in Bundle extras) = 2;
+interface ITrustedWebActivityService {
+    Bundle areNotificationsEnabled(in Bundle args) = 5;
+    Bundle notifyNotificationWithChannel(in Bundle args) = 1;
+    void cancelNotification(in Bundle args) = 2;
+    Bundle getActiveNotifications() = 4;
+    int getSmallIconId() = 3;
+    Bundle getSmallIconBitmap() = 6;
 }

@@ -23,6 +23,48 @@ package androidx.browser.browseractions {
 
 package androidx.browser.customtabs {
 
+  public class CustomTabsCallback {
+  }
+
+  public class CustomTabsClient {
+  }
+
+  public final class CustomTabsIntent {
+  }
+
+  public static final class CustomTabsIntent.Builder {
+  }
+
+
+  public abstract class CustomTabsService extends android.app.Service {
+  }
+
+
+  public final class CustomTabsSession {
+  }
+
+
+  public class CustomTabsSessionToken {
+  }
+
+
+  public abstract class PostMessageServiceConnection implements androidx.browser.customtabs.PostMessageBackend android.content.ServiceConnection {
+  }
+
+  public class TrustedWebUtils {
+  }
+
+
+
+}
+
+package androidx.browser.trusted {
+
+
+
+
+
+
 
 }
 
