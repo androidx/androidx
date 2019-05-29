@@ -16,41 +16,16 @@ jar {
     // below by the annotationsZip task.
     exclude('androidx/annotation/ProductionVisibility.class')
     exclude('androidx/annotation/DimensionUnit.class')
-    preserveFileTimestamps = false
-    reproducibleFileOrder = true
-}
-
-// configuration for the javadoc to include all source sets.
-javadoc {
-    source    sourceSets.main.allJava
-}
-
-// Disable strict javadoc lint checks with javadoc v8 builds on Mac. http://b/26744780
-if (JavaVersion.current().isJava8Compatible()) {
-    tasks.withType(Javadoc) {
-        if (options.doclet == null) {
-            options.addBooleanOption('Xdoclint:none', true)
-        }
-        // We set the group to null so it doesn't show if a user runs `./gradlew tasks`
-        // because this task is specific to this project
-        group = null
-    }
-}
-
-task javadocJar(type: Jar, dependsOn:javadoc) {
-    classifier         'javadoc'
-    from               javadoc.destinationDir
 }
 
 task annotationsZip(type: Zip) {
-    classifier         'annotations'
-    from               'external-annotations'
+    archiveClassifier.set("annotations")
+    from("external-annotations")
 }
 
-// add javadoc/source/annotations jar tasks as artifacts
+// add annotations jar task as artifacts
 artifacts {
     archives jar
-    archives javadocJar
     archives annotationsZip
 }
 
