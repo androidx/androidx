@@ -105,7 +105,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * Inserts the given entity into the database and returns the row id.
      *
      * @param entity The entity to insert
-     * @return The SQLite row id
+     * @return The SQLite row id or -1 if no row is inserted
      */
     public final long insertAndReturnId(T entity) {
         final SupportSQLiteStatement stmt = acquire();
@@ -121,7 +121,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The SQLite row ids
+     * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
     public final long[] insertAndReturnIdsArray(Collection<T> entities) {
         final SupportSQLiteStatement stmt = acquire();
@@ -143,7 +143,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The SQLite row ids
+     * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
     public final long[] insertAndReturnIdsArray(T[] entities) {
         final SupportSQLiteStatement stmt = acquire();
@@ -165,7 +165,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The SQLite row ids
+     * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
     public final Long[] insertAndReturnIdsArrayBox(Collection<T> entities) {
         final SupportSQLiteStatement stmt = acquire();
@@ -187,7 +187,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The SQLite row ids
+     * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
     public final Long[] insertAndReturnIdsArrayBox(T[] entities) {
         final SupportSQLiteStatement stmt = acquire();
@@ -209,7 +209,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The SQLite row ids
+     * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
     public final List<Long> insertAndReturnIdsList(T[] entities) {
         final SupportSQLiteStatement stmt = acquire();
@@ -231,7 +231,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      * Inserts the given entities into the database and returns the row ids.
      *
      * @param entities Entities to insert
-     * @return The SQLite row ids
+     * @return The SQLite row ids, for entities that are not inserted the row id returned will be -1
      */
     public final List<Long> insertAndReturnIdsList(Collection<T> entities) {
         final SupportSQLiteStatement stmt = acquire();

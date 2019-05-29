@@ -30,6 +30,9 @@ import java.lang.annotation.RetentionPolicy;
 public @interface OnConflictStrategy {
     /**
      * OnConflict strategy constant to replace the old data and continue the transaction.
+     * <p>
+     * An {@link Insert} DAO method that returns the inserted rows ids will never return -1 since
+     * this strategy will always insert a row even if there is a conflict.
      */
     int REPLACE = 1;
     /**
@@ -54,6 +57,9 @@ public @interface OnConflictStrategy {
     int FAIL = 4;
     /**
      * OnConflict strategy constant to ignore the conflict.
+     * <p>
+     * An {@link Insert} DAO method that returns the inserted rows ids will return -1 for rows
+     * that are not inserted since this strategy will ignore the row if there is a conflict.
      */
     int IGNORE = 5;
 
