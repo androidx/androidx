@@ -47,9 +47,8 @@ import androidx.camera.core.impl.utils.futures.AsyncFunction;
 import androidx.camera.core.impl.utils.futures.FluentFuture;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.concurrent.ListenableFuture;
+import androidx.concurrent.callback.CallbackToFutureAdapter;
 
 import java.io.File;
 import java.util.ArrayDeque;

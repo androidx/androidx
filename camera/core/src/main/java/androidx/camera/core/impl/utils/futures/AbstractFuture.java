@@ -25,8 +25,7 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.internal.InternalFutureFailureAccess;
 import androidx.camera.core.impl.utils.futures.internal.InternalFutures;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.concurrent.ListenableFuture;
 
 import java.util.Locale;
 import java.util.concurrent.CancellationException;

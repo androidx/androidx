@@ -36,14 +36,13 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.concurrent.futures.ResolvableFuture;
+import androidx.concurrent.ListenableFuture;
+import androidx.concurrent.callback.ResolvableFuture;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.session.MediaBrowser.BrowserCallback;
 import androidx.media2.session.MediaBrowser.BrowserCallbackRunnable;
 import androidx.media2.session.MediaLibraryService.LibraryParams;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.HashMap;

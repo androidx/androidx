@@ -25,11 +25,12 @@ plugins {
 
 dependencies {
     api(project(":camera:camera-core"))
+
     implementation(project(":camera:camera-camera2"))
     implementation("androidx.core:core:1.0.0")
-    compileOnly(project(":camera:camera-extensions-stub"))
-    implementation(GUAVA_LISTENABLE_FUTURE)
+    implementation(project(":concurrent-listenablefuture"))
 
+    compileOnly(project(":camera:camera-extensions-stub"))
 }
 
 android {

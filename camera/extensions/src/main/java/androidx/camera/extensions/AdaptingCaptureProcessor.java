@@ -31,8 +31,7 @@ import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.ImageProxyBundle;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.concurrent.ListenableFuture;
 
 import java.util.HashMap;
 import java.util.List;
