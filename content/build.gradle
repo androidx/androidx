@@ -17,6 +17,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -38,7 +39,7 @@ dependencies {
 
 androidx {
     name = "Android Support Content"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CONTENTPAGER
     mavenGroup = LibraryGroups.CONTENTPAGER
     inceptionYear = "2017"

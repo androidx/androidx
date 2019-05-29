@@ -3,6 +3,7 @@ import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.AndroidXExtension
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -46,7 +47,7 @@ task jarTestLibrarySource(type: Jar, dependsOn: compileTestLibrarySource) {
 androidx {
     name = "Android Lifecycles Compiler"
     toolingProject = true
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"

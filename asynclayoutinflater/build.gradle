@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -13,7 +14,7 @@ dependencies {
 
 androidx {
     name = "Android Support Library Async Layout Inflater"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ASYNCLAYOUTINFLATER
     mavenGroup = LibraryGroups.ASYNCLAYOUTINFLATER
     inceptionYear = "2018"

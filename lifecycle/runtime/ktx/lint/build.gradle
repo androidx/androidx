@@ -20,6 +20,7 @@ import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.SdkHelperKt
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -61,7 +62,7 @@ dependencies {
 androidx {
     name = "Android Lifecycles Lint Checks"
     toolingProject = true
-    publish = false
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.LIFECYCLE
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2019"

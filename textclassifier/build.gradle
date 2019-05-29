@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -32,7 +33,7 @@ android {
 
 androidx {
     name = "Android TextClassifier Support Library"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TEXTCLASSIFIER
     mavenGroup = LibraryGroups.TEXTCLASSIFIER
     inceptionYear = "2018"

@@ -1,6 +1,7 @@
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +32,7 @@ android {
 
 androidx {
     name = "Android Support VectorDrawable"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VECTORDRAWABLE
     mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"

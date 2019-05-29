@@ -1,5 +1,6 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -29,7 +30,7 @@ android {
 
 androidx {
     name = "AndroidX Leanback Preference"
-    publish = true
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.LEANBACK_PREFERENCE
     mavenGroup = LibraryGroups.LEANBACK
     inceptionYear = "2015"
