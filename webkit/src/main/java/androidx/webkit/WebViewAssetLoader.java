@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import androidx.webkit.internal.AssetHelper;
 
 import java.io.InputStream;
@@ -52,8 +53,7 @@ import java.net.URLConnection;
  * <p>
  * Using http(s):// URLs to access local resources may conflict with a real website. This means
  * that local resources should only be hosted on domains your organization owns (at paths reserved
- * for this purpose) or the default domain Google has reserved for this:
- * {@code appassets.androidplatform.net}.
+ * for this purpose) or the default domain reserved for this: {@code appassets.androidplatform.net}.
  *
  * <p>
  * A typical usage would be like:
@@ -78,12 +78,11 @@ import java.net.URLConnection;
  *
  * </pre>
  */
-public class WebViewAssetLoader {
+public final class WebViewAssetLoader {
     private static final String TAG = "WebViewAssetLoader";
 
     /**
-     * An unused domain reserved by Google for Android applications to intercept requests
-     * for app assets.
+     * An unused domain reserved for Android applications to intercept requests for app assets.
      * <p>
      * It'll be used by default unless the user specified a different domain.
      */
@@ -417,6 +416,7 @@ public class WebViewAssetLoader {
      *         {@code null} otherwise.
      */
     @RequiresApi(21)
+    @WorkerThread
     @Nullable
     public WebResourceResponse shouldInterceptRequest(@NonNull WebResourceRequest request) {
         return shouldInterceptRequestImpl(request.getUrl());
@@ -441,6 +441,7 @@ public class WebViewAssetLoader {
      * @return {@link WebResourceResponse} if the request URL matches a registered URL,
      *         {@code null} otherwise.
      */
+    @WorkerThread
     @Nullable
     public WebResourceResponse shouldInterceptRequest(@NonNull String url) {
         PathHandler handler = null;
@@ -451,6 +452,7 @@ public class WebViewAssetLoader {
         return shouldInterceptRequestImpl(uri);
     }
 
+    @WorkerThread
     @Nullable
     private WebResourceResponse shouldInterceptRequestImpl(@NonNull Uri url) {
         PathHandler handler;

@@ -122,13 +122,13 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SAFE_BROWSING_ENABLE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static void setSafeBrowsingEnabled(android.webkit.WebSettings!, boolean);
   }
 
-  public class WebViewAssetLoader {
+  public final class WebViewAssetLoader {
     method public android.net.Uri? getAssetsHttpPrefix();
     method public android.net.Uri getAssetsHttpsPrefix();
     method public android.net.Uri? getResourcesHttpPrefix();
     method public android.net.Uri getResourcesHttpsPrefix();
-    method @RequiresApi(21) public android.webkit.WebResourceResponse? shouldInterceptRequest(android.webkit.WebResourceRequest);
-    method public android.webkit.WebResourceResponse? shouldInterceptRequest(String);
+    method @RequiresApi(21) @WorkerThread public android.webkit.WebResourceResponse? shouldInterceptRequest(android.webkit.WebResourceRequest);
+    method @WorkerThread public android.webkit.WebResourceResponse? shouldInterceptRequest(String);
     field public static final String KNOWN_UNUSED_AUTHORITY = "appassets.androidplatform.net";
   }
 
