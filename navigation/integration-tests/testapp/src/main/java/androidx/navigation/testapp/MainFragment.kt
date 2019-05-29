@@ -22,6 +22,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
@@ -46,6 +47,7 @@ class MainFragment : Fragment() {
         tv.text = myarg
 
         val b = view.findViewById<Button>(R.id.next_button)
+        ViewCompat.setTransitionName(b, "next")
         b.setOnClickListener {
             findNavController().navigate(R.id.next, null, null,
                     FragmentNavigatorExtras(b to "next"))
