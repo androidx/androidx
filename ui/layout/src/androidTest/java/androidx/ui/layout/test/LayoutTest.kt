@@ -34,7 +34,10 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.setContent
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import java.util.concurrent.CountDownLatch
@@ -129,5 +132,57 @@ open class LayoutTest {
             position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
             positionedLatch.countDown()
         })
+    }
+
+    internal fun assertEquals(expected: PxSize?, actual: PxSize?) {
+        assertNotNull("Null expected size", expected)
+        expected as PxSize
+        assertNotNull("Null actual size", actual)
+        actual as PxSize
+
+        assertEquals(
+            "Expected width ${expected.width.value} but obtained ${actual.width.value}",
+            expected.width.value,
+            actual.width.value,
+            1f
+        )
+        assertEquals(
+            "Expected height ${expected.height.value} but obtained ${actual.height.value}",
+            expected.height.value,
+            actual.height.value,
+            1f
+        )
+        if (actual.width.value != actual.width.value.toInt().toFloat()) {
+            fail("Expected integer width")
+        }
+        if (actual.height.value != actual.height.value.toInt().toFloat()) {
+            fail("Expected integer height")
+        }
+    }
+
+    internal fun assertEquals(expected: PxPosition?, actual: PxPosition?) {
+        assertNotNull("Null expected position", expected)
+        expected as PxPosition
+        assertNotNull("Null actual position", actual)
+        actual as PxPosition
+
+        assertEquals(
+            "Expected x ${expected.x.value} but obtained ${actual.x.value}",
+            expected.x.value,
+            actual.x.value,
+            1f
+        )
+        assertEquals(
+            "Expected y ${expected.y.value} but obtained ${actual.y.value}",
+            expected.y.value,
+            actual.y.value,
+            1f
+        )
+        if (actual.x.value != actual.x.value.toInt().toFloat()) {
+           fail("Expected integer x coordinate")
+        }
+        if (actual.y.value != actual.y.value.toInt().toFloat()) {
+            fail("Expected integer y coordinate")
+        }
     }
 }

@@ -112,6 +112,18 @@ class ConstraintsTest {
     }
 
     @Test
+    fun satisfiedBy() {
+        val constraints = Constraints(2.ipx, 5.ipx, 7.ipx, 9.ipx)
+        assertTrue(constraints.satisfiedBy(IntPxSize(4.ipx, 8.ipx)))
+        assertTrue(constraints.satisfiedBy(IntPxSize(2.ipx, 7.ipx)))
+        assertTrue(constraints.satisfiedBy(IntPxSize(5.ipx, 9.ipx)))
+        assertFalse(constraints.satisfiedBy(IntPxSize(1.ipx, 8.ipx)))
+        assertFalse(constraints.satisfiedBy(IntPxSize(7.ipx, 8.ipx)))
+        assertFalse(constraints.satisfiedBy(IntPxSize(4.ipx, 5.ipx)))
+        assertFalse(constraints.satisfiedBy(IntPxSize(4.ipx, 11.ipx)))
+    }
+
+    @Test
     fun loose() {
         val constraints = Constraints(2.ipx, 2.ipx, 5.ipx, 5.ipx)
         constraints.looseMin().assertEquals(0.ipx, 0.ipx, 5.ipx, 5.ipx)
