@@ -28,8 +28,8 @@ plugins {
 }
 
 ext.generatedResources = "$buildDir/generated/resources"
-ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"
-ext.debugKeystore = "${project.projectDir.getParentFile()}/../development/keystore/debug.keystore"
+ext.prebuiltsRoot = SupportConfig.getPrebuiltsRootPath(project)
+ext.debugKeystore = SupportConfig.getKeystore(project)
 
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
