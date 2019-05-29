@@ -44,6 +44,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * This class encodes images into HEIF-compatible samples using HEVC encoder.
@@ -121,6 +122,7 @@ public final class HeifEncoder implements AutoCloseable,
     private EglRectBlt mRectBlt;
     private int mTextureId;
     private final float[] mTmpMatrix = new float[16];
+    private final AtomicBoolean mStopping = new AtomicBoolean(false);
 
     public static final int INPUT_MODE_BUFFER = HeifWriter.INPUT_MODE_BUFFER;
     public static final int INPUT_MODE_SURFACE = HeifWriter.INPUT_MODE_SURFACE;
@@ -372,7 +374,17 @@ public final class HeifEncoder implements AutoCloseable,
                 int left = col * mGridWidth;
                 int top = row * mGridHeight;
                 mSrcRect.set(left, top, left + mGridWidth, top + mGridHeight);
-                mRectBlt.copyRect(mTextureId, Texture2dProgram.V_FLIP_MATRIX, mSrcRect);
+                try {
+                    mRectBlt.copyRect(mTextureId, Texture2dProgram.V_FLIP_MATRIX, mSrcRect);
+                } catch (RuntimeException e) {
+                    // EGL copy could throw if the encoder input surface is no longer valid
+                    // after encoder is released. This is not an error because we're already
+                    // stopping (either after EOS is received or requested by client).
+                    if (mStopping.get()) {
+                        return;
+                    }
+                    throw e;
+                }
                 mEncoderEglSurface.setPresentationTime(
                         1000 * computePresentationTime(mInputIndex++));
                 mEncoderEglSurface.swapBuffers();
@@ -679,7 +691,11 @@ public final class HeifEncoder implements AutoCloseable,
     void stopInternal() {
         if (DEBUG) Log.d(TAG, "stopInternal");
 
-        // after start, mEncoder is only accessed on handler, so no need to sync
+        // set stopping, so that the tile copy would bail out
+        // if it hits failure after this point.
+        mStopping.set(true);
+
+        // after start, mEncoder is only accessed on handler, so no need to sync.
         if (mEncoder != null) {
             mEncoder.stop();
             mEncoder.release();
@@ -692,6 +708,13 @@ public final class HeifEncoder implements AutoCloseable,
             mEmptyBuffers.notifyAll();
         }
 
+        // Clean up surface and Egl related refs. This lock must come after encoder
+        // release. When we're closing, we insert stopInternal() at the front of queue
+        // so that the shutdown can be processed promptly, this means there might be
+        // some output available requests queued after this. As the tile copies trying
+        // to finish the current frame, there is a chance is might get stuck because
+        // those outputs were not returned. Shutting down the encoder will make break
+        // the tile copier out of that.
         synchronized(this) {
             if (mRectBlt != null) {
                 mRectBlt.release(false);
