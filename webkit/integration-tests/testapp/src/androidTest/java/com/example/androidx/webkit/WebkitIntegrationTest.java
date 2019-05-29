@@ -16,65 +16,30 @@
 
 package com.example.androidx.webkit;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
-
-import android.content.Context;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class WebkitIntegrationTest {
     @Rule
-    public ActivityTestRule<MainActivity> mActivityRule =
-            new ActivityTestRule<>(MainActivity.class);
-
-    private Context mTargetContext;
+    public IntegrationAppTestRule mRule = new IntegrationAppTestRule();
 
     @Before
     public void setUp() {
-        mActivityRule.getActivity();
-        mTargetContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-    }
-
-    @Test
-    public void testProxyOverrideNotAvailable() {
-        assumeFalse(androidx.webkit.WebViewFeature.isFeatureSupported(
-                androidx.webkit.WebViewFeature.PROXY_OVERRIDE));
-
-        onView(withText(R.string.proxy_override_activity_title)).perform(click());
-        onView(withText(R.string.webkit_api_not_available)).check(matches(isDisplayed()));
+        mRule.getActivity();
+        mRule.clickMenuListItem(R.string.proxy_override_activity_title);
+        mRule.assumeFeature(androidx.webkit.WebViewFeature.PROXY_OVERRIDE);
     }
 
     @Test
     public void testProxyOverride() {
-        assumeTrue(androidx.webkit.WebViewFeature.isFeatureSupported(
-                androidx.webkit.WebViewFeature.PROXY_OVERRIDE));
-
-        onView(withText(R.string.proxy_override_activity_title)).perform(click());
-        onView(withId(R.id.proxy_override_textview)).check(
-                matches(
-                        withText(mTargetContext.getString(
-                            R.string.proxy_override_requests_served, 1)
-                        )
-                )
-        );
+        mRule.assertViewHasText(R.id.proxy_override_textview,
+                                R.string.proxy_override_requests_served, 1);
     }
 }
