@@ -536,7 +536,7 @@ public class HeifWriterTest {
                 }
             }
 
-            heifWriter.stop(3000);
+            heifWriter.stop(10000);
             // The test sets the primary index to the last image.
             // However, if we're testing early abort, the last image will not be
             // present and the muxer is supposed to set it to 0 by default.
