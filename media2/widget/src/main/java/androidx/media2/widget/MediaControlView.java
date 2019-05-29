@@ -266,6 +266,10 @@ public class MediaControlView extends ViewGroup {
      * Sets {@link MediaController} to control playback with this view.
      * Setting a MediaController will unset any MediaController or SessionPlayer
      * that was previously set.
+     * <p>
+     * Note that MediaControlView allows controlling playback through its UI components, but calling
+     * the corresponding methods (e.g. {@link MediaController#play()},
+     * {@link MediaController#pause()}) will work as well.
      *
      * @param controller the controller
      * @see #setPlayer
@@ -288,6 +292,10 @@ public class MediaControlView extends ViewGroup {
      * Sets {@link SessionPlayer} to control playback with this view.
      * Setting a SessionPlayer will unset any MediaController or SessionPlayer
      * that was previously set.
+     * <p>
+     * Note that MediaControlView allows controlling playback through its UI components, but calling
+     * the corresponding methods (e.g. {@link SessionPlayer#play()}, {@link SessionPlayer#pause()})
+     * will work as well.
      *
      * @param player the player
      * @see #setMediaController
@@ -2065,7 +2073,7 @@ public class MediaControlView extends ViewGroup {
             if (player != mPlayer) return;
 
             if (DEBUG) {
-                Log.d(TAG, "onTrackInfoChanged(): trackInfos: " + trackInfos);
+                Log.d(TAG, "onTrackInfoChanged(): " + trackInfos);
             }
 
             updateTracks(player, trackInfos);
@@ -2076,6 +2084,9 @@ public class MediaControlView extends ViewGroup {
         void onTrackSelected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
             if (player != mPlayer) return;
 
+            if (DEBUG) {
+                Log.d(TAG, "onTrackSelected(): " + trackInfo);
+            }
             if (trackInfo.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 for (int i = 0; i < mSubtitleTracks.size(); i++) {
                     if (mSubtitleTracks.get(i).equals(trackInfo)) {
@@ -2108,6 +2119,9 @@ public class MediaControlView extends ViewGroup {
         void onTrackDeselected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
             if (player != mPlayer) return;
 
+            if (DEBUG) {
+                Log.d(TAG, "onTrackDeselected(): " + trackInfo);
+            }
             if (trackInfo.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 for (int i = 0; i < mSubtitleTracks.size(); i++) {
                     if (mSubtitleTracks.get(i).equals(trackInfo)) {
@@ -2129,6 +2143,11 @@ public class MediaControlView extends ViewGroup {
         @Override
         void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull MediaItem item,
                 @NonNull VideoSize videoSize) {
+            if (player != mPlayer) return;
+
+            if (DEBUG) {
+                Log.d(TAG, "onVideoSizeChanged(): " + videoSize);
+            }
             if (mVideoTrackCount == 0 && videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
                 List<TrackInfo> tracks = player.getTrackInfo();
                 if (tracks != null) {

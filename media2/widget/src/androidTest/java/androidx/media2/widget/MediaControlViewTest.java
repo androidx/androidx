@@ -105,7 +105,13 @@ public class MediaControlViewTest {
         mPlayer = new MediaPlayer(mContext);
         mActivity = mActivityRule.getActivity();
         mMediaControlView = mActivity.findViewById(R.id.mediacontrolview);
-        mMediaControlView.setPlayer(mPlayer);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mMediaControlView.setPlayer(mPlayer);
+            }
+        });
+
         Uri fileSchemeUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
                 + R.raw.test_file_scheme_video);
         mFileSchemeMediaItem = createTestMediaItem(fileSchemeUri);

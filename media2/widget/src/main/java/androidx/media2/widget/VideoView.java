@@ -16,43 +16,31 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.session.SessionResult.RESULT_ERROR_INVALID_STATE;
-import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.media.AudioManager;
-import android.os.ParcelFileDescriptor;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.media.AudioAttributesCompat;
-import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.common.VideoSize;
-import androidx.media2.player.MediaPlayer;
 import androidx.media2.player.subtitle.Cea708CaptionRenderer;
 import androidx.media2.player.subtitle.ClosedCaptionRenderer;
 import androidx.media2.player.subtitle.SubtitleController;
 import androidx.media2.player.subtitle.SubtitleTrack;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.MediaSession;
-import androidx.media2.session.SessionCommand;
-import androidx.media2.session.SessionCommandGroup;
-import androidx.media2.session.SessionToken;
 import androidx.palette.graphics.Palette;
 
 import java.lang.annotation.Retention;
@@ -64,14 +52,17 @@ import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 
 /**
- * Displays a video file.  VideoView class is a ViewGroup class which is wrapping
- * {@link MediaPlayer} so that developers can easily implement a video rendering application.
- *
+ * A high level view for media playbacks that can be integrated with either a {@link SessionPlayer}
+ * or a {@link MediaController}. Developers can easily implement a video rendering application
+ * using this class.
  * <p>
- * <em> Data sources that VideoView supports : </em>
- * VideoView can play video files and audio-only files as well. It can load from various sources
- * such as resources or content providers. The supported media file formats are the same as
- * {@link android.media.MediaPlayer}.
+ * For simple use cases not requiring communication with {@link MediaSession}, apps need to create
+ * a {@link SessionPlayer} (e.g. {@link androidx.media2.player.MediaPlayer}) and set it to this view
+ * by calling {@link #setPlayer}.
+ * For more advanced use cases that require {@link MediaSession} (e.g. handling media key events,
+ * integrating with other MediaSession apps as Assistant), apps need to create
+ * a {@link MediaController} attached to the {@link MediaSession} and set it to this view
+ * by calling {@link #setMediaController}.
  *
  * <p>
  * <em> View type can be selected : </em>
@@ -82,28 +73,26 @@ import java.util.concurrent.Executor;
  * translucency.
  *
  * <p>
- * <em> Differences between {@link android.widget.VideoView} class : </em>
+ * <em> Differences between {@link android.widget.VideoView android.widget.VideoView} class : </em>
  * {@link VideoView} covers and inherits the most of
- * {@link android.widget.VideoView}'s functionality. The main differences are
+ * {@link android.widget.VideoView android.widget.VideoView}'s functionality. The main differences
+ * are
  * <ul>
+ * <li> {@link VideoView} does not create a {@link android.media.MediaPlayer} instance while
+ * {@link android.widget.VideoView android.widget.VideoView} does. Instead, either a
+ * {@link SessionPlayer} or a {@link MediaController} instance should be created externally and set
+ * to {@link VideoView} using {@link #setPlayer(SessionPlayer)} or
+ * {@link #setMediaController(MediaController)}, respectively.
  * <li> {@link VideoView} inherits ViewGroup and renders videos using SurfaceView and TextureView
- * selectively while {@link android.widget.VideoView} inherits SurfaceView class.
+ * selectively while {@link android.widget.VideoView android.widget.VideoView} inherits SurfaceView
+ * class.
  * <li> {@link VideoView} is integrated with {@link MediaControlView} and
  * a default MediaControlView instance is attached to this VideoView by default.
- * <li> If a developer wants to attach a custom MediaControlView,
+ * <li> If a developer wants to attach a custom {@link MediaControlView},
  * assign the custom media control widget using {@link #setMediaControlView}.
- * <li> {@link VideoView} is integrated with {@link MediaSession} and so
- * it responses with media key events.
+ * <li> If {@link VideoView} communicates with {@link MediaSession} by calling
+ * {@link #setMediaController(MediaController)}, it will responds to media key events.
  * </ul>
- *
- * <p>
- * <em> Audio focus and audio attributes : </em>
- * VideoView requests audio focus with {@link AudioManager#AUDIOFOCUS_GAIN} internally,
- * when playing a media content.
- * The default {@link AudioAttributesCompat} used during playback have a usage of
- * {@link AudioAttributesCompat#USAGE_MEDIA} and a content type of
- * {@link AudioAttributesCompat#CONTENT_TYPE_MOVIE},
- * use {@link #setAudioAttributes(AudioAttributesCompat)} to modify them.
  *
  * <p>
  * <em> Displaying metadata : </em>
@@ -150,16 +139,6 @@ public class VideoView extends SelectiveLayout {
     private static final String TAG = "VideoView";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private static final int STATE_ERROR = -1;
-    private static final int STATE_IDLE = 0;
-    private static final int STATE_PREPARING = 1;
-    private static final int STATE_PREPARED = 2;
-    private static final int STATE_PLAYING = 3;
-    private static final int STATE_PAUSED = 4;
-    private static final int STATE_PLAYBACK_COMPLETED = 5;
-
-    private AudioAttributesCompat mAudioAttributes;
-
     VideoView.OnViewTypeChangedListener mViewTypeChangedListener;
 
     VideoViewInterface mCurrentView;
@@ -167,17 +146,13 @@ public class VideoView extends SelectiveLayout {
     VideoTextureView mTextureView;
     VideoSurfaceView mSurfaceView;
 
-    MediaPlayer mMediaPlayer;
-    MediaItem mMediaItem;
+    PlayerWrapper mPlayer;
     MediaControlView mMediaControlView;
-    MediaSession mMediaSession;
-    MediaController mMediaController;
     Executor mCallbackExecutor;
 
     MusicView mMusicView;
 
-    int mTargetState = STATE_IDLE;
-    int mCurrentState = STATE_IDLE;
+    SelectiveLayout.LayoutParams mSelectiveLayoutParams;
 
     int mVideoTrackCount;
     int mAudioTrackCount;
@@ -194,24 +169,19 @@ public class VideoView extends SelectiveLayout {
         @Override
         public void onSurfaceCreated(View view, int width, int height) {
             if (DEBUG) {
-                Log.d(TAG, "onSurfaceCreated(). mCurrentState=" + mCurrentState
-                        + ", mTargetState=" + mTargetState
+                Log.d(TAG, "onSurfaceCreated()"
                         + ", width/height: " + width + "/" + height
                         + ", " + view.toString());
             }
             if (view == mTargetView) {
                 ((VideoViewInterface) view).takeOver();
             }
-            if (needToStart()) {
-                mMediaSession.getPlayer().play();
-            }
         }
 
         @Override
         public void onSurfaceDestroyed(View view) {
             if (DEBUG) {
-                Log.d(TAG, "onSurfaceDestroyed(). mCurrentState=" + mCurrentState
-                        + ", mTargetState=" + mTargetState + ", " + view.toString());
+                Log.d(TAG, "onSurfaceDestroyed(). " + view.toString());
             }
         }
 
@@ -241,10 +211,6 @@ public class VideoView extends SelectiveLayout {
                     mViewTypeChangedListener.onViewTypeChanged(VideoView.this, view.getViewType());
                 }
             }
-
-            if (needToStart()) {
-                mMediaSession.getPlayer().play();
-            }
         }
     };
 
@@ -264,10 +230,6 @@ public class VideoView extends SelectiveLayout {
     private void initialize(Context context, @Nullable AttributeSet attrs) {
         mSelectedSubtitleTrackInfo = null;
 
-        mAudioAttributes = new AudioAttributesCompat.Builder()
-                .setUsage(AudioAttributesCompat.USAGE_MEDIA)
-                .setContentType(AudioAttributesCompat.CONTENT_TYPE_MOVIE).build();
-
         mCallbackExecutor = ContextCompat.getMainExecutor(context);
 
         setFocusable(true);
@@ -282,22 +244,52 @@ public class VideoView extends SelectiveLayout {
         addView(mTextureView);
         addView(mSurfaceView);
 
-        SelectiveLayout.LayoutParams params = new SelectiveLayout.LayoutParams();
-        params.forceMatchParent = true;
+        mSelectiveLayoutParams = new SelectiveLayout.LayoutParams();
+        mSelectiveLayoutParams.forceMatchParent = true;
 
         mSubtitleAnchorView = new SubtitleAnchorView(context);
         mSubtitleAnchorView.setBackgroundColor(0);
-        addView(mSubtitleAnchorView, params);
+        addView(mSubtitleAnchorView, mSelectiveLayoutParams);
+
+        SubtitleController.Listener listener = new SubtitleController.Listener() {
+            @Override
+            public void onSubtitleTrackSelected(SubtitleTrack track) {
+                // Track deselected
+                if (track == null) {
+                    mSelectedSubtitleTrackInfo = null;
+                    mSubtitleAnchorView.setVisibility(View.GONE);
+                    return;
+                }
+
+                // Track selected
+                TrackInfo info = null;
+                for (Entry<TrackInfo, SubtitleTrack> pair : mSubtitleTracks.entrySet()) {
+                    if (pair.getValue() == track) {
+                        info = pair.getKey();
+                        break;
+                    }
+                }
+                if (info != null) {
+                    mSelectedSubtitleTrackInfo = info;
+                    mSubtitleAnchorView.setVisibility(View.VISIBLE);
+                }
+            }
+        };
+        mSubtitleController = new SubtitleController(context, null, listener);
+        mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
+        mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
+        mSubtitleController.setAnchor(mSubtitleAnchorView);
 
         mMusicView = new MusicView(context);
         mMusicView.setVisibility(View.GONE);
-        addView(mMusicView, params);
+        addView(mMusicView, mSelectiveLayoutParams);
 
         boolean enableControlView = (attrs == null) || attrs.getAttributeBooleanValue(
                 "http://schemas.android.com/apk/res-auto",
                 "enableControlView", true);
         if (enableControlView) {
             mMediaControlView = new MediaControlView(context);
+            addView(mMediaControlView, mSelectiveLayoutParams);
         }
 
         // Choose surface view by default
@@ -324,74 +316,112 @@ public class VideoView extends SelectiveLayout {
     }
 
     /**
-     * Sets MediaControlView instance. It will replace the previously assigned MediaControlView
-     * instance if any.
+     * Sets {@link MediaController} to display media content.
+     * Setting a {@link MediaController} will unset any {@link MediaController} or
+     * {@link SessionPlayer} that was previously set.
+     * <p>
+     * If VideoView has a {@link MediaControlView} instance, this controller will also be set to it.
      *
-     * @param mediaControlView a media control view instance.
-     * @param intervalMs a time interval in milliseconds until VideoView hides MediaControlView.
+     * @param controller the controller
+     * @see #setPlayer
      */
-    public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
-        mMediaControlView = mediaControlView;
-        mMediaControlView.setDelayedAnimationInterval(intervalMs);
-
+    // TODO: Update Javadoc to mention that setting a surface to player will be automatically
+    //  handled by VideoView after MediaController#setSurface is unhidden. (b/134749006)
+    public void setMediaController(@NonNull MediaController controller) {
+        if (controller == null) {
+            throw new NullPointerException("controller must not be null");
+        }
+        if (mPlayer != null) {
+            mPlayer.detachCallback();
+        }
+        mPlayer = new PlayerWrapper(controller, ContextCompat.getMainExecutor(getContext()),
+                new PlayerCallback());
         if (isAttachedToWindow()) {
-            attachMediaControlView();
+            mPlayer.attachCallback();
+        }
+
+        mSurfaceView.setPlayerWrapper(mPlayer);
+        mTextureView.setPlayerWrapper(mPlayer);
+        if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
+            Log.w(TAG, "failed to assign surface");
+        }
+
+        if (mMediaControlView != null) {
+            mMediaControlView.setMediaController(controller);
+        }
+    }
+
+
+    /**
+     * Sets {@link SessionPlayer} to display media content.
+     * Setting a SessionPlayer will unset any MediaController or SessionPlayer that was previously
+     * set.
+     * <p>
+     * If VideoView has a {@link MediaControlView} instance, this player will also be set to it.
+     *
+     * @param player the player
+     * @see #setMediaController
+     */
+    // TODO: Update Javadoc to mention that setting a surface to player will be automatically
+    //  handled by VideoView after MediaController#setSurface is unhidden. (b/134749006)
+    public void setPlayer(@NonNull SessionPlayer player) {
+        if (player == null) {
+            throw new NullPointerException("player must not be null");
+        }
+        if (mPlayer != null) {
+            mPlayer.detachCallback();
+        }
+        mPlayer = new PlayerWrapper(player, ContextCompat.getMainExecutor(getContext()),
+                new PlayerCallback());
+        if (isAttachedToWindow()) {
+            mPlayer.attachCallback();
+        }
+
+        mSurfaceView.setPlayerWrapper(mPlayer);
+        mTextureView.setPlayerWrapper(mPlayer);
+        if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
+            Log.w(TAG, "failed to assign surface");
+        }
+
+        if (mMediaControlView != null) {
+            mMediaControlView.setPlayer(player);
         }
     }
 
     /**
-     * Returns MediaControlView instance which is currently attached to VideoView by default or by
-     * {@link #setMediaControlView} method.
+     * Sets {@link MediaControlView} instance. It will replace the previously assigned
+     * {@link MediaControlView} instance if any.
+     * <p>
+     * If a {@link MediaController} or a {@link SessionPlayer} instance has been set to
+     * {@link VideoView}, the same instance will be set to {@link MediaControlView}.
+     *
+     * @param mediaControlView a {@link MediaControlView} instance.
+     * @param intervalMs a time interval in milliseconds until {@link VideoView} hides
+     *                   {@link MediaControlView}.
+     */
+    public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
+        removeView(mMediaControlView);
+        addView(mediaControlView, mSelectiveLayoutParams);
+
+        mMediaControlView = mediaControlView;
+        mMediaControlView.setDelayedAnimationInterval(intervalMs);
+
+        if (mPlayer != null) {
+            if (mPlayer.mController != null) {
+                mMediaControlView.setMediaController(mPlayer.mController);
+            } else if (mPlayer.mPlayer != null) {
+                mMediaControlView.setPlayer(mPlayer.mPlayer);
+            }
+        }
+    }
+
+    /**
+     * Returns {@link MediaControlView} instance which is currently attached to VideoView by default
+     * or by {@link #setMediaControlView} method.
      */
     @Nullable
     public MediaControlView getMediaControlView() {
         return mMediaControlView;
-    }
-
-    /**
-     * Returns {@link SessionToken} so that developers create their own
-     * {@link MediaController} instance. This method should be called when
-     * VideoView is attached to window, or it throws IllegalStateException.
-     *
-     * @throws IllegalStateException if internal MediaSession is not created yet.
-     */
-    @NonNull
-    public SessionToken getSessionToken() {
-        if (mMediaSession == null) {
-            throw new IllegalStateException("MediaSession instance is not available.");
-        }
-        return mMediaSession.getToken();
-    }
-
-    /**
-     * Sets the {@link AudioAttributesCompat} to be used during the playback of the video.
-     *
-     * @param attributes non-null <code>AudioAttributesCompat</code>.
-     */
-    public void setAudioAttributes(@NonNull AudioAttributesCompat attributes) {
-        if (attributes == null) {
-            throw new IllegalArgumentException("Illegal null AudioAttributes");
-        }
-        mAudioAttributes = attributes;
-    }
-
-    /**
-     * Sets {@link MediaItem} object to render using VideoView.
-     * <p>
-     * When the media item is a {@link FileMediaItem}, the {@link ParcelFileDescriptor}
-     * in the {@link FileMediaItem} will be closed by the VideoView.
-     *
-     * @param mediaItem the MediaItem to play
-     */
-    public void setMediaItem(@NonNull MediaItem mediaItem) {
-        if (mMediaItem instanceof FileMediaItem) {
-            ((FileMediaItem) mMediaItem).decreaseRefCount();
-        }
-        mMediaItem = mediaItem;
-        if (mMediaItem instanceof FileMediaItem) {
-            ((FileMediaItem) mMediaItem).increaseRefCount();
-        }
-        openVideo();
     }
 
     /**
@@ -458,59 +488,20 @@ public class VideoView extends SelectiveLayout {
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
-        // Note: MediaPlayer and MediaSession instances are created in onAttachedToWindow()
-        // and closed in onDetachedFromWindow().
-        if (mMediaPlayer == null) {
-            mMediaPlayer = new MediaPlayer(getContext());
-
-            mSurfaceView.setMediaPlayer(mMediaPlayer);
-            mTextureView.setMediaPlayer(mMediaPlayer);
-            mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer);
-
-            if (mMediaSession != null) {
-                mMediaSession.updatePlayer(mMediaPlayer);
-            }
-        } else {
-            if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
+        if (mPlayer != null) {
+            mPlayer.attachCallback();
+            if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
                 Log.w(TAG, "failed to assign surface");
             }
         }
-
-        ensureSessionWithPlayer(mMediaPlayer);
-
-        attachMediaControlView();
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        mMediaController.close();
-        mMediaController = null;
-        mMediaSession.close();
-        mMediaSession = null;
-        try {
-            mMediaPlayer.close();
-        } catch (Exception e) {
-            Log.e(TAG, "Encountered an exception while performing MediaPlayer.close()", e);
-        }
-        mMediaPlayer = null;
-        if (mMediaItem != null && mMediaItem instanceof FileMediaItem) {
-            ((FileMediaItem) mMediaItem).decreaseRefCount();
-        }
-        mMediaItem = null;
-    }
-
-    @Override
-    public void onVisibilityAggregated(boolean isVisible) {
-        super.onVisibilityAggregated(isVisible);
-
-        if (isMediaPrepared()) {
-            if (!isVisible && mCurrentState == STATE_PLAYING) {
-                mMediaSession.getPlayer().pause();
-            } else if (isVisible && mTargetState == STATE_PLAYING) {
-                mMediaSession.getPlayer().play();
-            }
+        if (mPlayer != null) {
+            mPlayer.detachCallback();
         }
     }
 
@@ -520,164 +511,20 @@ public class VideoView extends SelectiveLayout {
         return "androidx.media2.widget.VideoView";
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent ev) {
-        if (DEBUG) {
-            Log.d(TAG, "onTouchEvent(). mCurrentState=" + mCurrentState
-                    + ", mTargetState=" + mTargetState);
-        }
-        return super.onTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onTrackballEvent(MotionEvent ev) {
-        if (DEBUG) {
-            Log.d(TAG, "onTrackBallEvent(). mCurrentState=" + mCurrentState
-                    + ", mTargetState=" + mTargetState);
-        }
-        return super.onTrackballEvent(ev);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        return super.dispatchTouchEvent(ev);
-    }
-
     ///////////////////////////////////////////////////
     // Protected or private methods
     ///////////////////////////////////////////////////
-    private void attachMediaControlView() {
-        if (mMediaControlView == null) return;
-
-        if (mMediaController == null) {
-            throw new IllegalStateException("It can't be called when mMediaController is null");
-        }
-        mMediaControlView.setMediaController(mMediaController);
-
-        SelectiveLayout.LayoutParams params = new SelectiveLayout.LayoutParams();
-        params.forceMatchParent = true;
-        addView(mMediaControlView, params);
-    }
-
-    void ensureSessionWithPlayer(SessionPlayer player) {
-        if (mMediaSession != null) {
-            SessionPlayer oldPlayer = mMediaSession.getPlayer();
-            if (oldPlayer == player) {
-                return;
-            }
-            oldPlayer.unregisterPlayerCallback(mPlayerCallback);
-            mMediaSession.updatePlayer(player);
-        } else {
-            final Context context = getContext();
-            mMediaSession = new MediaSession.Builder(context, player)
-                    .setId("VideoView_" + toString())
-                    .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
-                    .build();
-            mMediaController = new MediaController.Builder(context)
-                    .setSessionToken(mMediaSession.getToken())
-                    .build();
-        }
-        player.registerPlayerCallback(mCallbackExecutor, mPlayerCallback);
-    }
-
     boolean isMediaPrepared() {
-        return mMediaSession != null
-                && mMediaSession.getPlayer().getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR
-                && mMediaSession.getPlayer().getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE;
-    }
-
-    boolean needToStart() {
-        return mMediaSession != null
-                && mMediaPlayer != null && isWaitingPlayback();
-    }
-
-    private boolean isWaitingPlayback() {
-        return mCurrentState != STATE_PLAYING && mTargetState == STATE_PLAYING;
-    }
-
-    // Creates a MediaPlayer instance and prepare media item.
-    void openVideo() {
-        if (DEBUG) {
-            Log.d(TAG, "openVideo()");
-        }
-        if (mMediaItem != null) {
-            resetPlayer();
-        }
-
-        try {
-            if (mMediaPlayer == null) {
-                mMediaPlayer = new MediaPlayer(getContext());
-            }
-            mSurfaceView.setMediaPlayer(mMediaPlayer);
-            mTextureView.setMediaPlayer(mMediaPlayer);
-            if (!mCurrentView.assignSurfaceToMediaPlayer(mMediaPlayer)) {
-                Log.w(TAG, "failed to assign surface");
-            }
-            mMediaPlayer.setAudioAttributes(mAudioAttributes);
-
-            ensureSessionWithPlayer(mMediaPlayer);
-            mMediaPlayer.setMediaItem(mMediaItem);
-
-            final Context context = getContext();
-            SubtitleController.Listener listener = new SubtitleController.Listener() {
-                @Override
-                public void onSubtitleTrackSelected(SubtitleTrack track) {
-                    // Track deselected
-                    if (track == null) {
-                        mSelectedSubtitleTrackInfo = null;
-                        mSubtitleAnchorView.setVisibility(View.GONE);
-                        return;
-                    }
-
-                    // Track selected
-                    TrackInfo info = null;
-                    for (Entry<TrackInfo, SubtitleTrack> pair : mSubtitleTracks.entrySet()) {
-                        if (pair.getValue() == track) {
-                            info = pair.getKey();
-                            break;
-                        }
-                    }
-                    if (info != null) {
-                        mSelectedSubtitleTrackInfo = info;
-                        mSubtitleAnchorView.setVisibility(View.VISIBLE);
-                    }
-                }
-            };
-            mSubtitleController = new SubtitleController(context, null, listener);
-            mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
-            mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
-            mSubtitleController.setAnchor(mSubtitleAnchorView);
-
-            // we don't set the target state here either, but preserve the
-            // target state that was there before.
-            mCurrentState = STATE_PREPARING;
-            mMediaSession.getPlayer().prepare();
-        } catch (IllegalArgumentException ex) {
-            Log.w(TAG, "Unable to open content: " + mMediaItem, ex);
-            mCurrentState = STATE_ERROR;
-            mTargetState = STATE_ERROR;
-        }
-    }
-
-    /*
-     * Reset the media player in any state
-     */
-    void resetPlayer() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.reset();
-            mTextureView.setMediaPlayer(null);
-            mSurfaceView.setMediaPlayer(null);
-            mCurrentState = STATE_IDLE;
-            mTargetState = STATE_IDLE;
-            mSelectedSubtitleTrackInfo = null;
-        }
+        return mPlayer != null
+                && mPlayer.getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR
+                && mPlayer.getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE;
     }
 
     boolean hasActualVideo() {
         if (mVideoTrackCount > 0) {
             return true;
         }
-        VideoSize videoSize = mMediaPlayer.getVideoSizeInternal();
+        VideoSize videoSize = mPlayer.getVideoSize();
         if (videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
             Log.w(TAG, "video track count is zero, but it renders video. size: "
                     + videoSize.getWidth() + "/" + videoSize.getHeight());
@@ -690,8 +537,10 @@ public class VideoView extends SelectiveLayout {
         return !hasActualVideo() && mAudioTrackCount > 0;
     }
 
-    void updateTracks(SessionPlayer player, List<TrackInfo> trackInfos) {
+    void updateTracks(PlayerWrapper player, List<TrackInfo> trackInfos) {
         mSubtitleTracks = new LinkedHashMap<>();
+        mVideoTrackCount = 0;
+        mAudioTrackCount = 0;
         for (int i = 0; i < trackInfos.size(); i++) {
             TrackInfo trackInfo = trackInfos.get(i);
             int trackType = trackInfos.get(i).getTrackType();
@@ -706,8 +555,7 @@ public class VideoView extends SelectiveLayout {
                 }
             }
         }
-        mSelectedSubtitleTrackInfo = player.getSelectedTrackInternal(
-                TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        mSelectedSubtitleTrackInfo = player.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
     }
 
     void updateMusicView(MediaItem item) {
@@ -765,28 +613,22 @@ public class VideoView extends SelectiveLayout {
         return value == null ? defaultValue : value;
     }
 
-    private SessionPlayer.PlayerCallback mPlayerCallback = new SessionPlayer.PlayerCallback() {
+    class PlayerCallback extends PlayerWrapper.PlayerCallback {
         @Override
-        public void onVideoSizeChangedInternal(@NonNull SessionPlayer player,
-                @NonNull MediaItem item, @NonNull VideoSize size) {
+        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull MediaItem item,
+                @NonNull VideoSize videoSize) {
             if (DEBUG) {
-                Log.d(TAG, "onVideoSizeChanged(): size: " + size);
+                Log.d(TAG, "onVideoSizeChanged(): size: " + videoSize);
             }
-            if (player != mMediaPlayer) {
+            if (player != mPlayer) {
                 if (DEBUG) {
                     Log.w(TAG, "onVideoSizeChanged() is ignored. player is already gone.");
                 }
                 return;
             }
-            if (item != mMediaItem) {
-                if (DEBUG) {
-                    Log.w(TAG, "onVideoSizeChanged() is ignored. Media item is changed.");
-                }
-                return;
-            }
-            if (mVideoTrackCount == 0 && size.getHeight() > 0 && size.getWidth() > 0) {
+            if (mVideoTrackCount == 0 && videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
                 if (isMediaPrepared()) {
-                    List<TrackInfo> trackInfos = player.getTrackInfoInternal();
+                    List<TrackInfo> trackInfos = player.getTrackInfo();
                     if (trackInfos != null) {
                         updateTracks(player, trackInfos);
                     }
@@ -798,7 +640,7 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
+        void onSubtitleData(@NonNull PlayerWrapper player, @NonNull MediaItem item,
                 @NonNull TrackInfo track, @NonNull SubtitleData data) {
             if (DEBUG) {
                 Log.d(TAG, "onSubtitleData():"
@@ -809,15 +651,9 @@ public class VideoView extends SelectiveLayout {
                         + (data.getStartTimeUs() / 1000 - player.getCurrentPosition())
                         + "ms, getDurationUs(): " + data.getDurationUs());
             }
-            if (player != mMediaPlayer) {
+            if (player != mPlayer) {
                 if (DEBUG) {
                     Log.w(TAG, "onSubtitleData() is ignored. player is already gone.");
-                }
-                return;
-            }
-            if (item != mMediaItem) {
-                if (DEBUG) {
-                    Log.w(TAG, "onSubtitleData() is ignored. Media item is changed.");
                 }
                 return;
             }
@@ -831,53 +667,62 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        public void onPlayerStateChanged(@NonNull SessionPlayer player,
-                @SessionPlayer.PlayerState int state) {
-            switch (state) {
-                case SessionPlayer.PLAYER_STATE_IDLE:
-                    mCurrentState = STATE_IDLE;
-                    break;
-                case SessionPlayer.PLAYER_STATE_PLAYING:
-                    mCurrentState = STATE_PLAYING;
-                    break;
-                case SessionPlayer.PLAYER_STATE_PAUSED:
-                    if (mCurrentState == STATE_PREPARING) {
-                        onPrepared(player);
-                    }
-                    mCurrentState = STATE_PAUSED;
-                    break;
-                case SessionPlayer.PLAYER_STATE_ERROR:
-                    mCurrentState = STATE_ERROR;
-                    mTargetState = STATE_ERROR;
-                    // TODO: Show error state (b/123498635)
-                    break;
+        void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
+            if (DEBUG) {
+                Log.d(TAG, "onPlayerStateChanged(): selected track: " + state);
+            }
+            if (player != mPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onPlayerStateChanged() is ignored. player is already gone.");
+                }
+                return;
+            }
+            if (state == SessionPlayer.PLAYER_STATE_ERROR) {
+                // TODO: Show error state (b/123498635)
             }
         }
 
         @Override
-        public void onPlaybackCompleted(@NonNull SessionPlayer player) {
-            if (player != mMediaPlayer) {
-                Log.d(TAG, "onPlaybackCompleted() is ignored. player is already gone.");
+        void onCurrentMediaItemChanged(@NonNull PlayerWrapper player, @Nullable MediaItem item) {
+            if (DEBUG) {
+                Log.d(TAG, "onCurrentMediaItemChanged(): MediaItem: " + item);
             }
-            mCurrentState = STATE_PLAYBACK_COMPLETED;
-            mTargetState = STATE_PLAYBACK_COMPLETED;
-        }
-
-        @Override
-        public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
-                @NonNull MediaItem item) {
+            if (player != mPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onCurrentMediaItemChanged() is ignored. player is already gone.");
+                }
+                return;
+            }
             updateMusicView(item);
         }
 
         @Override
-        public void onTrackInfoChanged(@NonNull SessionPlayer player,
+        void onTrackInfoChanged(@NonNull PlayerWrapper player,
                 @NonNull List<TrackInfo> trackInfos) {
+            if (DEBUG) {
+                Log.d(TAG, "onTrackInfoChanged(): tracks: " + trackInfos);
+            }
+            if (player != mPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onTrackInfoChanged() is ignored. player is already gone.");
+                }
+                return;
+            }
             updateTracks(player, trackInfos);
             updateMusicView(player.getCurrentMediaItem());
         }
 
         @Override
-        public void onTrackSelected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
+        void onTrackSelected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
+            if (DEBUG) {
+                Log.d(TAG, "onTrackSelected(): selected track: " + trackInfo);
+            }
+            if (player != mPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onTrackSelected() is ignored. player is already gone.");
+                }
+                return;
+            }
             SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
             if (subtitleTrack != null) {
                 mSubtitleController.selectTrack(subtitleTrack);
@@ -885,97 +730,20 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        public void onTrackDeselected(@NonNull SessionPlayer player, @NonNull TrackInfo trackInfo) {
+        void onTrackDeselected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
+            if (DEBUG) {
+                Log.d(TAG, "onTrackDeselected(): deselected track: " + trackInfo);
+            }
+            if (player != mPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onTrackDeselected() is ignored. player is already gone.");
+                }
+                return;
+            }
             SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
             if (subtitleTrack != null) {
                 mSubtitleController.selectTrack(null);
             }
-        }
-
-        private void onPrepared(SessionPlayer player) {
-            if (DEBUG) {
-                Log.d(TAG, "onPrepared(): "
-                        + ", mCurrentState=" + mCurrentState
-                        + ", mTargetState=" + mTargetState);
-            }
-            mCurrentState = STATE_PREPARED;
-
-            if (player instanceof MediaPlayer) {
-                if (needToStart()) {
-                    mMediaSession.getPlayer().play();
-                }
-            }
-        }
-    };
-
-    class MediaSessionCallback extends MediaSession.SessionCallback {
-        @Override
-        public SessionCommandGroup onConnect(
-                @NonNull MediaSession session,
-                @NonNull MediaSession.ControllerInfo controller) {
-            if (session != mMediaSession) {
-                if (DEBUG) {
-                    Log.w(TAG, "onConnect() is ignored. session is already gone.");
-                }
-            }
-            SessionCommandGroup.Builder commandsBuilder = new SessionCommandGroup.Builder()
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE))
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PLAY))
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_PREPARE))
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED))
-                    .addCommand(new SessionCommand(
-                            SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD))
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_SESSION_REWIND))
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO))
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME))
-                    .addCommand(new SessionCommand(
-                            SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME))
-                    .addCommand(new SessionCommand(
-                            SessionCommand.COMMAND_CODE_SESSION_PLAY_FROM_URI))
-                    .addCommand(new SessionCommand(
-                            SessionCommand.COMMAND_CODE_SESSION_PREPARE_FROM_URI))
-                    .addCommand(new SessionCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST))
-                    .addCommand(new SessionCommand(
-                            SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA))
-                    .addCommand(new SessionCommand(
-                            SessionCommand.COMMAND_CODE_PLAYER_SELECT_TRACK))
-                    .addCommand(new SessionCommand(
-                            SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK));
-            return commandsBuilder.build();
-        }
-
-        @Override
-        public void onPostConnect(@NonNull MediaSession session,
-                @NonNull MediaSession.ControllerInfo controller) {
-            if (session != mMediaSession) {
-                if (DEBUG) {
-                    Log.w(TAG, "onPostConnect() is ignored. session is already gone.");
-                }
-            }
-        }
-
-        @Override
-        public int onCommandRequest(@NonNull MediaSession session,
-                @NonNull MediaSession.ControllerInfo controller,
-                @NonNull SessionCommand command) {
-            if (session != mMediaSession) {
-                if (DEBUG) {
-                    Log.w(TAG, "onCommandRequest() is ignored. session is already gone.");
-                }
-            }
-            switch (command.getCommandCode()) {
-                case SessionCommand.COMMAND_CODE_PLAYER_PLAY:
-                    mTargetState = STATE_PLAYING;
-                    if (!mCurrentView.hasAvailableSurface() && !isCurrentItemMusic()) {
-                        Log.d(TAG, "surface is not available");
-                        return RESULT_ERROR_INVALID_STATE;
-                    }
-                    break;
-                case SessionCommand.COMMAND_CODE_PLAYER_PAUSE:
-                    mTargetState = STATE_PAUSED;
-                    break;
-            }
-            return RESULT_SUCCESS;
         }
     }
 
