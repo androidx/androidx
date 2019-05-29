@@ -16,6 +16,8 @@
 
 package androidx.transition;
 
+import static androidx.transition.AtLeastOnceWithin.atLeastOnceWithin;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalMatchers.and;
 import static org.mockito.AdditionalMatchers.eq;
@@ -26,7 +28,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.graphics.Color;
@@ -99,7 +100,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
                     redSquare.setVisibility(View.INVISIBLE);
                 }
             });
-            verify(listener, timeout(3000)).onTransitionStart(any(Transition.class));
+            verify(listener, atLeastOnceWithin(3000)).onTransitionStart(any(Transition.class));
             assertEquals(View.VISIBLE, redSquare.getVisibility());
 
             float redStartX = redSquare.getTranslationX();
@@ -108,23 +109,23 @@ public class SlideEdgeTest extends BaseTransitionTest {
             switch (slideEdge) {
                 case Gravity.LEFT:
                 case Gravity.START:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationX(and(lt(0.f), lt(redStartX)));
                     verify(redSquare, never()).setTranslationY(not(eq(0f, 0.01f)));
                     break;
                 case Gravity.RIGHT:
                 case Gravity.END:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationX(and(gt(0.f), gt(redStartX)));
                     verify(redSquare, never()).setTranslationY(not(eq(0f, 0.01f)));
                     break;
                 case Gravity.TOP:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationY(and(lt(0.f), lt(redStartY)));
                     verify(redSquare, never()).setTranslationX(not(eq(0f, 0.01f)));
                     break;
                 case Gravity.BOTTOM:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationY(and(gt(0.f), gt(redStartY)));
                     verify(redSquare, never()).setTranslationX(not(eq(0f, 0.01f)));
                     break;
@@ -132,7 +133,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
                     throw new IllegalArgumentException("Incorrect slideEdge");
             }
 
-            verify(listener, timeout(1000)).onTransitionEnd(any(Transition.class));
+            verify(listener, atLeastOnceWithin(1000)).onTransitionEnd(any(Transition.class));
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
             verifyNoTranslation(redSquare);
@@ -171,7 +172,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
                 }
             });
 
-            verify(listener, timeout(3000)).onTransitionStart(any(Transition.class));
+            verify(listener, atLeastOnceWithin(3000)).onTransitionStart(any(Transition.class));
             assertEquals(View.VISIBLE, redSquare.getVisibility());
 
             final float redStartX = redSquare.getTranslationX();
@@ -180,30 +181,30 @@ public class SlideEdgeTest extends BaseTransitionTest {
             switch (slideEdge) {
                 case Gravity.LEFT:
                 case Gravity.START:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationX(and(gt(redStartX), lt(0.f)));
                     verify(redSquare, never()).setTranslationY(not(eq(0f, 0.01f)));
                     break;
                 case Gravity.RIGHT:
                 case Gravity.END:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationX(and(gt(0.f), lt(redStartX)));
                     verify(redSquare, never()).setTranslationY(not(eq(0f, 0.01f)));
                     break;
                 case Gravity.TOP:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationY(and(gt(redStartY), lt(0.f)));
                     verify(redSquare, never()).setTranslationX(not(eq(0f, 0.01f)));
                     break;
                 case Gravity.BOTTOM:
-                    verify(redSquare, timeout(1000).atLeastOnce())
+                    verify(redSquare, atLeastOnceWithin(1000))
                             .setTranslationY(and(gt(0.f), lt(redStartY)));
                     verify(redSquare, never()).setTranslationX(not(eq(0f, 0.01f)));
                     break;
                 default:
                     throw new IllegalArgumentException("Incorrect slideEdge");
             }
-            verify(listener, timeout(1000)).onTransitionEnd(any(Transition.class));
+            verify(listener, atLeastOnceWithin(1000)).onTransitionEnd(any(Transition.class));
             InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
             verifyNoTranslation(redSquare);

@@ -16,12 +16,13 @@
 
 package androidx.transition;
 
+import static androidx.transition.AtLeastOnceWithin.atLeastOnceWithin;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalMatchers.and;
 import static org.mockito.AdditionalMatchers.gt;
 import static org.mockito.AdditionalMatchers.leq;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.widget.TextView;
@@ -62,8 +63,8 @@ public class ChangeScrollTest extends BaseTransitionTest {
         });
         waitForStart();
 
-        verify(view, timeout(1000).atLeastOnce()).setScrollX(and(gt(0), leq(150)));
-        verify(view, timeout(1000).atLeastOnce()).setScrollY(and(gt(0), leq(300)));
+        verify(view, atLeastOnceWithin(1000)).setScrollX(and(gt(0), leq(150)));
+        verify(view, atLeastOnceWithin(1000)).setScrollY(and(gt(0), leq(300)));
 
         waitForEnd();
         rule.runOnUiThread(new Runnable() {
