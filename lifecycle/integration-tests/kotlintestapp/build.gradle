@@ -27,7 +27,7 @@ plugins {
 
 dependencies {
     implementation(project(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(project(":activity"))
+    implementation(project(":activity:activity"))
 
     testImplementation(JUNIT)
     testImplementation(TRUTH)
