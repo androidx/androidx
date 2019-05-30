@@ -16,11 +16,16 @@
 
 package androidx.ui.material
 
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 import androidx.ui.baseui.SimpleImage
 import androidx.ui.core.Dp
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.MainAxisSize
@@ -31,13 +36,8 @@ import androidx.ui.material.borders.BorderRadius
 import androidx.ui.material.borders.CircleBorder
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
-import androidx.ui.graphics.Color
 import androidx.ui.painting.Image
 import androidx.ui.painting.TextStyle
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.unaryPlus
 
 /**
  * A floating action button (FAB) is a [Button] to represents the primary action of a screen.
@@ -56,8 +56,7 @@ import androidx.compose.unaryPlus
  * @param minSize Minimum size of the button. Defaults to [FabSize]
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
- * @param color The background color. [MaterialColors.primary] is used when null
- *  is provided.
+ * @param color The background color. [MaterialColors.primary] is used by default.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -66,7 +65,7 @@ fun FloatingActionButton(
     onClick: (() -> Unit)? = null,
     minSize: Dp = FabSize,
     shape: ShapeBorder = CircleBorder(),
-    color: Color? = null,
+    color: Color = +themeColor { primary },
     elevation: Dp = 0.dp, // TODO(Andrey) add the default elevation when it ready b/123215187
     @Children children: @Composable() () -> Unit
 ) {
@@ -90,8 +89,7 @@ fun FloatingActionButton(
  * @param icon Image to draw in the center.
  * @param onClick will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param color The background color. [MaterialColors.primary] is used when null
- *  is provided.
+ * @param color The background color. [MaterialColors.primary] is used by default.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -99,7 +97,7 @@ fun FloatingActionButton(
 fun FloatingActionButton(
     icon: Image,
     onClick: (() -> Unit)? = null,
-    color: Color? = null,
+    color: Color = +themeColor { primary },
     elevation: Dp = 0.dp
 ) {
     FloatingActionButton(onClick = onClick, color = color, elevation = elevation) {
@@ -120,8 +118,7 @@ fun FloatingActionButton(
  * @param textStyle Optional [TextStyle] to apply for a [text]
  * @param onClick will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param color The background color. [MaterialColors.primary] is used when null
- *  is provided.
+ * @param color The background color. [MaterialColors.primary] is used by default.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -131,7 +128,7 @@ fun FloatingActionButton(
     icon: Image? = null,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    color: Color? = null,
+    color: Color = +themeColor { primary },
     elevation: Dp = 0.dp
 ) {
     // TODO(Andrey): BorderRadius should work with dp b/129278276

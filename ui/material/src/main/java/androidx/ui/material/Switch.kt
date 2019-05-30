@@ -21,26 +21,26 @@ import androidx.animation.FastOutSlowInEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.TransitionSpec
 import androidx.animation.transitionDefinition
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Draw
+import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.layout.Container
-import androidx.ui.painting.Canvas
 import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
-import androidx.ui.painting.StrokeCap
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.memo
-import androidx.compose.unaryPlus
-import androidx.ui.core.PxSize
+import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.painting.Canvas
+import androidx.ui.painting.Paint
+import androidx.ui.painting.StrokeCap
 
 /**
  * A Switch is a two state toggleable component that provides on/off like options
@@ -49,13 +49,13 @@ import androidx.ui.material.ripple.Ripple
  * @param onClick callback to be invoked when Switch is clicked.
  * if [null], Switch will show static [checked] state and remain disabled
  * @param color optional active color for Switch,
- * by default [androidx.ui.material.MaterialColors.secondaryVariant] will be used
+ * by default [MaterialColors.secondaryVariant] will be used
  */
 @Composable
 fun Switch(
     checked: Boolean,
     onClick: (() -> Unit)? = null,
-    color: Color? = null
+    color: Color = +themeColor { secondaryVariant }
 ) {
     val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     Wrap {
@@ -63,7 +63,7 @@ fun Switch(
             Toggleable(value = value, onToggle = onClick) {
                 Padding(padding = DefaultSwitchPadding) {
                     Container(width = SwitchWidth, height = SwitchHeight) {
-                        DrawSwitch(checked = checked, color = color)
+                        DrawSwitch(checked = checked, checkedThumbColor = color)
                     }
                 }
             }
@@ -72,8 +72,7 @@ fun Switch(
 }
 
 @Composable
-private fun DrawSwitch(checked: Boolean, color: Color? = null) {
-    val checkedThumbColor = +color.orFromTheme { secondaryVariant }
+private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color) {
     val uncheckedThumbColor = +themeColor { surface }
     val transDef = +memo(checkedThumbColor, uncheckedThumbColor) {
         generateTransitionDefinition(checkedThumbColor, uncheckedThumbColor)
