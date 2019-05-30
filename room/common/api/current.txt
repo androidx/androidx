@@ -71,7 +71,7 @@ package androidx.room {
     field public static final int SET_NULL = 3; // 0x3
   }
 
-  @IntDef({androidx.room.ForeignKey.NO_ACTION, androidx.room.ForeignKey.RESTRICT, androidx.room.ForeignKey.SET_NULL, androidx.room.ForeignKey.SET_DEFAULT, androidx.room.ForeignKey.CASCADE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ForeignKey.Action {
+  @IntDef({androidx.room.ForeignKey.NO_ACTION, androidx.room.ForeignKey.RESTRICT, androidx.room.ForeignKey.SET_NULL, androidx.room.ForeignKey.SET_DEFAULT, androidx.room.ForeignKey.CASCADE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface ForeignKey.Action {
   }
 
   @RequiresApi(16) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Fts3 {
@@ -120,7 +120,7 @@ package androidx.room {
     method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) public @interface OnConflictStrategy {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) public @interface OnConflictStrategy {
     field public static final int ABORT = 3; // 0x3
     field @Deprecated public static final int FAIL = 4; // 0x4
     field public static final int IGNORE = 5; // 0x5

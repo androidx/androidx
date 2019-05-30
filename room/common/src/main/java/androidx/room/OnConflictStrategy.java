@@ -16,16 +16,15 @@
 
 package androidx.room;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import androidx.annotation.IntDef;
 
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Set of conflict handling strategies for various {@link Dao} methods.
  */
-@Retention(SOURCE)
+@Retention(RetentionPolicy.CLASS)
 @IntDef({OnConflictStrategy.REPLACE, OnConflictStrategy.ROLLBACK, OnConflictStrategy.ABORT,
         OnConflictStrategy.FAIL, OnConflictStrategy.IGNORE})
 public @interface OnConflictStrategy {

@@ -22,13 +22,15 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("java")
+    id("kotlin")
 }
 
 dependencies {
     compile(ANDROIDX_ANNOTATION)
+    testCompile(KOTLIN_STDLIB)
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
+    testCompile(GUAVA)
 }
 
 androidx {
