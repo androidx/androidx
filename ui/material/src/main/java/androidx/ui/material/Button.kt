@@ -16,24 +16,24 @@
 
 package androidx.ui.material
 
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 import androidx.ui.baseui.Clickable
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.borders.BorderStyle
 import androidx.ui.material.borders.ShapeBorder
-import androidx.ui.material.surface.Surface
-import androidx.ui.graphics.Color
-import androidx.ui.painting.TextStyle
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.unaryPlus
 import androidx.ui.material.ripple.Ripple
+import androidx.ui.material.surface.Surface
+import androidx.ui.painting.TextStyle
 
 /**
  * [Button] with flexible user interface. You can provide any content you want as a
@@ -69,15 +69,13 @@ import androidx.ui.material.ripple.Ripple
 @Composable
 fun Button(
     onClick: (() -> Unit)? = null,
-    shape: ShapeBorder? = null,
-    color: Color? = null,
+    shape: ShapeBorder = +themeShape { button },
+    color: Color = +themeColor { primary },
     elevation: Dp = 0.dp,
     @Children children: @Composable() () -> Unit
 ) {
-    val surfaceColor = +color.orFromTheme { primary }
-    val surfaceShape = +shape.orFromTheme { button }
     val textStyle = +themeTextStyle { button }
-    Surface(shape = surfaceShape, color = surfaceColor, elevation = elevation) {
+    Surface(shape = shape, color = color, elevation = elevation) {
         CurrentTextStyleProvider(value = textStyle) {
             val clickableChildren = @Composable {
                 Clickable(onClick = onClick) {
@@ -130,15 +128,13 @@ fun Button(
     text: String,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    shape: ShapeBorder? = null,
-    color: Color? = null,
+    shape: ShapeBorder = +themeShape { button },
+    color: Color = +themeColor { primary },
     elevation: Dp = 0.dp
 ) {
-    val surfaceColor = +color.orFromTheme { primary }
-    val surfaceShape = +shape.orFromTheme { button }
-    val hasBackground = surfaceColor.alpha > 0 || surfaceShape.borderStyle != BorderStyle.None
+    val hasBackground = color.alpha > 0 || shape.borderStyle != BorderStyle.None
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
-    Button(onClick = onClick, elevation = elevation, color = surfaceColor, shape = surfaceShape) {
+    Button(onClick = onClick, elevation = elevation, color = color, shape = shape) {
         val constraints = DpConstraints
             .tightConstraintsForHeight(ButtonHeight)
             .copy(minWidth = ButtonMinWidth)
@@ -173,7 +169,7 @@ fun TransparentButton(
     text: String,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    shape: ShapeBorder? = null,
+    shape: ShapeBorder = +themeShape { button },
     elevation: Dp = 0.dp
 ) {
     val finalTextStyle = TextStyle(color = +themeColor { primary }).merge(textStyle)

@@ -20,6 +20,10 @@ import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
 import androidx.animation.TransitionSpec
 import androidx.animation.transitionDefinition
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
@@ -30,18 +34,14 @@ import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.geometry.withRadius
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
-import androidx.ui.graphics.Color
+import androidx.ui.layout.Wrap
+import androidx.ui.material.ripple.Ripple
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.StrokeCap
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.memo
-import androidx.compose.unaryPlus
-import androidx.ui.layout.Wrap
-import androidx.ui.material.ripple.Ripple
 
 // TODO(malkov): think about how to abstract it better
 /**
@@ -72,14 +72,14 @@ fun parentCheckboxState(vararg childrenStates: ToggleableState): ToggleableState
 fun Checkbox(
     value: ToggleableState,
     onClick: (() -> Unit)? = null,
-    color: Color? = null
+    color: Color = +themeColor { secondary }
 ) {
     Wrap {
         Ripple(bounded = false) {
             Toggleable(value = value, onToggle = onClick) {
                 Padding(padding = CheckboxDefaultPadding) {
                     Container(width = CheckboxSize, height = CheckboxSize) {
-                        DrawCheckbox(value = value, color = color)
+                        DrawCheckbox(value = value, activeColor = color)
                     }
                 }
             }
@@ -88,8 +88,7 @@ fun Checkbox(
 }
 
 @Composable
-private fun DrawCheckbox(value: ToggleableState, color: Color?) {
-    val activeColor = +color.orFromTheme { secondary }
+private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
     val unselectedColor = (+themeColor { onSurface }).copy(alpha = UncheckedBoxOppacity)
     val definition = +memo(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)

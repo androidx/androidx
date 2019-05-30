@@ -16,14 +16,14 @@
 
 package androidx.ui.material
 
-import androidx.ui.baseui.ColoredRect
-import androidx.ui.core.Dp
-import androidx.ui.core.dp
-import androidx.ui.layout.Padding
-import androidx.ui.graphics.Color
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
+import androidx.ui.baseui.ColoredRect
+import androidx.ui.core.Dp
+import androidx.ui.core.dp
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Padding
 
 /**
  * A divider is a thin line that groups content in lists and layouts
@@ -34,12 +34,11 @@ import androidx.compose.unaryPlus
  */
 @Composable
 fun Divider(
-    color: Color? = null,
+    color: Color = +themeColor { onSurface },
     height: Dp = 1.dp,
     indent: Dp = 0.dp
 ) {
-    val dividerColor = +color.orFromTheme { onSurface }
     Padding(left = indent) {
-        ColoredRect(height = height, color = dividerColor)
+        ColoredRect(height = height, color = color)
     }
 }
