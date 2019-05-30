@@ -60,7 +60,7 @@ public final class AutoPreviewExtenderImpl implements PreviewExtenderImpl {
     }
 
     @Override
-    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+    public ProcessorImpl getProcessor() {
         return RequestUpdateProcessorImpls.noUpdateProcessor();
     }
 

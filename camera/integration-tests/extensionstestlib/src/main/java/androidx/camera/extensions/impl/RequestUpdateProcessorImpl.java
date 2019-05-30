@@ -19,9 +19,9 @@ package androidx.camera.extensions.impl;
 import android.hardware.camera2.TotalCaptureResult;
 
 /**
- * The interface for processing a {@link TotalCaptureResult} only.
+ * Processes a {@link TotalCaptureResult} to update a CaptureStage.
  */
-public interface RequestUpdateProcessorImpl {
+public interface RequestUpdateProcessorImpl extends ProcessorImpl {
     /**
      * Process the {@link TotalCaptureResult} to update the {@link CaptureStageImpl}
      *

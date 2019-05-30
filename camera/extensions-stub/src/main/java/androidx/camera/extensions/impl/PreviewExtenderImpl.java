@@ -17,6 +17,7 @@
 package androidx.camera.extensions.impl;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.TotalCaptureResult;
 
 /**
  * Provides abstract methods that the OEM needs to implement to enable extensions in the preview.
@@ -24,8 +25,11 @@ import android.hardware.camera2.CameraCharacteristics;
 public interface PreviewExtenderImpl extends ExtenderStateListener {
     /** The different types of the preview processing. */
     enum ProcessorType {
-        /** Processing which only updates the {@link CaptureStageImpl}. */
+        /** Processor which only updates the {@link CaptureStageImpl}. */
         PROCESSOR_TYPE_REQUEST_UPDATE_ONLY,
+        /** Processor which updates the received {@link android.media.Image}. */
+        PROCESSOR_TYPE_IMAGE_PROCESSOR,
+        /** No processor, only a {@link CaptureStageImpl} is defined. */
         PROCESSOR_TYPE_NONE
     }
 
@@ -50,17 +54,23 @@ public interface PreviewExtenderImpl extends ExtenderStateListener {
      * The set of parameters required to produce the effect on the preview stream.
      *
      * <p> This will be the initial set of parameters used for the preview
-     * {@link android.hardware.camera2.CaptureRequest}. Once the {@link RequestUpdateProcessorImpl}
-     * from {@link #getRequestUpdatePreviewProcessor()} has been called, this should be updated to
-     * reflect the new {@link CaptureStageImpl}. If the processing step returns a {@code null},
-     * meaning the required parameters has not changed, then calling this will return the previous
-     * non-null value.
+     * {@link android.hardware.camera2.CaptureRequest}. If the {@link ProcessorType} is defined as
+     * {@link ProcessorType#PROCESSOR_TYPE_REQUEST_UPDATE_ONLY} then this will be updated when
+     * the {@link RequestUpdateProcessorImpl#process(TotalCaptureResult)} from {@link
+     * #getProcessor()} has been called, this should be updated to reflect the new {@link
+     * CaptureStageImpl}. If the processing step returns a {@code null}, meaning the required
+     * parameters has not changed, then calling this will return the previous non-null value.
      */
     CaptureStageImpl getCaptureStage();
 
     /** The type of preview processing to use. */
     ProcessorType getProcessorType();
 
-    /** Returns a processor which only updates the {@link CaptureStageImpl}. */
-    RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor();
+    /**
+     * Returns a processor which only updates the {@link CaptureStageImpl}.
+     *
+     * <p>The type of processor is dependent on the return of {@link #getProcessorType()}. If it
+     *
+     */
+    ProcessorImpl getProcessor();
 }
