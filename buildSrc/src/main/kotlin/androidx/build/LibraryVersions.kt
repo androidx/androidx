@@ -23,7 +23,7 @@ object LibraryVersions {
     val ACTIVITY = Version("1.0.0-beta00")
     val ANIMATION = Version("1.0.0-alpha01")
     val ANIMATION_TESTING = Version("1.1.0-alpha01")
-    val ANNOTATION = Version("1.1.0-rc01")
+    val ANNOTATION = Version("1.1.0")
     val APPCOMPAT = Version("1.1.0-beta00")
     val ARCH_CORE = Version("2.1.0-beta01")
     val ARCH_CORE_TESTING = ARCH_CORE
@@ -37,7 +37,7 @@ object LibraryVersions {
     val CAR_CLUSTER = Version("1.0.0-alpha6")
     val CAR_MODERATOR = Version("1.0.0-alpha1")
     val CARDVIEW = Version("1.1.0-alpha01")
-    val COLLECTION = Version("1.1.0-rc01")
+    val COLLECTION = Version("1.1.0")
     val CONTENTPAGER = Version("1.1.0-alpha01")
     val COORDINATORLAYOUT = Version("1.1.0-alpha02")
     val CORE = Version("1.1.0-beta00")
