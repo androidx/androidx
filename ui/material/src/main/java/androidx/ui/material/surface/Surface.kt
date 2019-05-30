@@ -16,30 +16,30 @@
 
 package androidx.ui.material.surface
 
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Layout
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
+import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.clip.ClipPath
 import androidx.ui.material.clip.ShapeBorderClipper
 import androidx.ui.material.clip.cache.CachingClipper
-import androidx.ui.material.orFromTheme
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleSurface
 import androidx.ui.material.ripple.RippleSurfaceOwner
 import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.material.textColorForBackground
-import androidx.ui.graphics.Color
+import androidx.ui.material.themeColor
 import androidx.ui.painting.TextStyle
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.unaryPlus
 
 /**
  * The [Surface] is responsible for:
@@ -78,19 +78,18 @@ import androidx.compose.unaryPlus
 @Composable
 fun Surface(
     shape: ShapeBorder = RoundedRectangleBorder(),
-    color: Color? = null,
+    color: Color = +themeColor { surface },
     elevation: Dp = 0.dp,
     @Children children: @Composable() () -> Unit
 ) {
-    val finalColor = +color.orFromTheme { surface }
     SurfaceLayout {
         CachingClipper(
             clipper = ShapeBorderClipper(shape)) { clipper ->
             DrawShadow(elevation = elevation, clipper = clipper)
             ClipPath(clipper = clipper) {
-                DrawColor(color = finalColor)
-                RippleSurface(color = finalColor) {
-                    val textColor = +textColorForBackground(finalColor)
+                DrawColor(color = color)
+                RippleSurface(color = color) {
+                    val textColor = +textColorForBackground(color)
                     if (textColor != null) {
                         CurrentTextStyleProvider(value = TextStyle(color = textColor)) {
                             children()
