@@ -18,9 +18,9 @@ package androidx.viewpager2.widget
 
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.SwipeTest.TestConfig
-import androidx.viewpager2.widget.ViewPager2.Orientation
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.Orientation
 import androidx.viewpager2.widget.swipe.PageView
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,11 +35,6 @@ private const val RANDOM_TESTS_PER_CONFIG = 0 // increase to have random tests g
 @RunWith(Parameterized::class)
 @LargeTest
 class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
-    override fun setUp() {
-        super.setUp()
-        assumeApiBeforeQ()
-    }
-
     @Test
     fun test() {
         testConfig.apply {

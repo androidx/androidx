@@ -68,11 +68,6 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
 
     private lateinit var test: Context
 
-    override fun setUp() {
-        super.setUp()
-        assumeApiBeforeQ()
-    }
-
     @Test
     fun test() {
         // given
