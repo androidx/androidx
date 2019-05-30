@@ -39,15 +39,16 @@ android {
 
 dependencies {
     implementation(project(":slice-core"))
+    implementation "androidx.annotation:annotation:1.1.0-rc01"
+    implementation(project(":core:core"))
     api(project(":slice-builders"))
     api(KOTLIN_STDLIB)
+
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    implementation "androidx.annotation:annotation:1.1.0-rc01"
-    implementation project(path: ':core')
 }
 
 androidx {

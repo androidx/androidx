@@ -4,7 +4,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core"))
+    implementation(project(":core:core"))
     implementation(project(":cursoradapter"))
     implementation(project(":localbroadcastmanager"))
     implementation(project(":slidingpanelayout"))
