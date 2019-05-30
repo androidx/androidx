@@ -94,6 +94,13 @@ public class SystemJobService extends JobService implements ExecutionListener {
         }
 
         PersistableBundle extras = params.getExtras();
+        // This can be null, possibly on a device-specific/API-specific (23) situation.  b/134028277
+        //noinspection ConstantConditions
+        if (extras == null) {
+            Logger.get().error(TAG, "No extras in JobParameters.");
+            return false;
+        }
+
         String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Logger.get().error(TAG, "WorkSpec id not found!");
@@ -151,7 +158,15 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return true;
         }
 
-        String workSpecId = params.getExtras().getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
+        PersistableBundle extras = params.getExtras();
+        // This can be null, possibly on a device-specific/API-specific (23) situation.  b/134028277
+        //noinspection ConstantConditions
+        if (extras == null) {
+            Logger.get().error(TAG, "No extras in JobParameters.");
+            return false;
+        }
+
+        String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Logger.get().error(TAG, "WorkSpec id not found!");
             return false;
