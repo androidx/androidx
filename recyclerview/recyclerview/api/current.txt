@@ -252,7 +252,7 @@ package androidx.recyclerview.widget {
     method public boolean getStackFromEnd();
     method protected boolean isLayoutRTL();
     method public boolean isSmoothScrollbarEnabled();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void prepareForDrop(android.view.View, android.view.View, int, int);
+    method public void prepareForDrop(android.view.View, android.view.View, int, int);
     method public void scrollToPositionWithOffset(int, int);
     method public void setInitialPrefetchItemCount(int);
     method public void setOrientation(int);
