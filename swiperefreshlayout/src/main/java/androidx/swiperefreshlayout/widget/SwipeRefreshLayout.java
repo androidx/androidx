@@ -1219,6 +1219,9 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
                 if (mIsBeingDragged) {
                     final float overscrollTop = (y - mInitialMotionY) * DRAG_RATE;
                     if (overscrollTop > 0) {
+                        // While the spinner is being dragged down, our parent shouldn't try
+                        // to intercept touch events. It will stop the drag gesture abruptly.
+                        getParent().requestDisallowInterceptTouchEvent(true);
                         moveSpinner(overscrollTop);
                     } else {
                         return false;

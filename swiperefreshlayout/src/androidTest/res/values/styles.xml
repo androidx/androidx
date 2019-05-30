@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 <resources>
-    <style name="TestActivityTheme" parent="android:Theme.Holo">
+    <style name="TestActivityTheme" parent="Theme.AppCompat.Light">
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 </resources>
