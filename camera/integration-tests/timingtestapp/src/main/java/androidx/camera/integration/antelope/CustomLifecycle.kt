@@ -32,8 +32,8 @@ class CustomLifecycle : LifecycleOwner {
     internal val mainHandler: Handler = Handler(Looper.getMainLooper())
 
     init {
-        lifecycleRegistry.markState(Lifecycle.State.INITIALIZED)
-        lifecycleRegistry.markState(Lifecycle.State.CREATED)
+        lifecycleRegistry.currentState = Lifecycle.State.INITIALIZED
+        lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
 
     override fun getLifecycle(): Lifecycle {
@@ -51,8 +51,8 @@ class CustomLifecycle : LifecycleOwner {
                 lifecycleRegistry.currentState)
         } else {
             try {
-                lifecycleRegistry.markState(Lifecycle.State.STARTED)
-                lifecycleRegistry.markState(Lifecycle.State.RESUMED)
+                lifecycleRegistry.currentState = Lifecycle.State.STARTED
+                lifecycleRegistry.currentState = Lifecycle.State.RESUMED
             } catch (e: IllegalArgumentException) {
                 logd("CustomLifecycle start error: unable to start " + e.message)
             }
@@ -70,8 +70,8 @@ class CustomLifecycle : LifecycleOwner {
                 lifecycleRegistry.currentState)
         } else {
             try {
-                lifecycleRegistry.markState(Lifecycle.State.STARTED)
-                lifecycleRegistry.markState(Lifecycle.State.CREATED)
+                lifecycleRegistry.currentState = Lifecycle.State.STARTED
+                lifecycleRegistry.currentState = Lifecycle.State.CREATED
             } catch (e: IllegalArgumentException) {
                 logd("CustomLifecycle pause error: unable to pause " + e.message)
             }
@@ -89,7 +89,7 @@ class CustomLifecycle : LifecycleOwner {
                 lifecycleRegistry.currentState)
         } else {
             try {
-                lifecycleRegistry.markState(Lifecycle.State.DESTROYED)
+                lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
             } catch (e: IllegalArgumentException) {
                 logd("CustomLifecycle finish error: unable to finish " + e.message)
             }

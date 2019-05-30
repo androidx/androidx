@@ -17,7 +17,6 @@
 package androidx.camera.integration.antelope
 
 import android.annotation.TargetApi
-import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
@@ -144,7 +143,7 @@ fun rotateBitmap(original: Bitmap, degrees: Float): Bitmap {
 /**
  * Scale a given Bitmap by scaleFactor
  */
-fun scaleBitmap(activity: Activity, bitmap: Bitmap, scaleFactor: Float): Bitmap {
+fun scaleBitmap(bitmap: Bitmap, scaleFactor: Float): Bitmap {
     val scaledWidth = Math.round(bitmap.width * scaleFactor)
     val scaledHeight = Math.round(bitmap.height * scaleFactor)
 
@@ -154,7 +153,7 @@ fun scaleBitmap(activity: Activity, bitmap: Bitmap, scaleFactor: Float): Bitmap 
 /**
  * Flip a Bitmap horizontal
  */
-fun horizontalFlip(activity: Activity, bitmap: Bitmap): Bitmap {
+fun horizontalFlip(bitmap: Bitmap): Bitmap {
     val matrix = Matrix()
     matrix.preScale(-1.0f, 1.0f)
     return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
@@ -172,9 +171,6 @@ fun generateTimestamp(): String {
  * Actually write a byteArray file to disk. Assume the file is a jpg and use that extension
  */
 fun writeFile(activity: MainActivity, bytes: ByteArray) {
-    val rawFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-        "Antelope" + generateTimestamp() + ".dng")
-
     val jpgFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
         File.separatorChar + PHOTOS_DIR + File.separatorChar +
             "Antelope" + generateTimestamp() + ".jpg")

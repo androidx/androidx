@@ -22,7 +22,6 @@ import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.view.Surface
-import androidx.annotation.NonNull
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.MainActivity.Companion.logd
@@ -40,7 +39,7 @@ class CameraXCaptureSessionCallback(
 ) : CameraCaptureSession.CaptureCallback() {
 
     /** Capture has been aborted. */
-    override fun onCaptureSequenceAborted(session: CameraCaptureSession?, sequenceId: Int) {
+    override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
         MainActivity.logd("CameraX captureCallback: Sequence aborted. Current test: " +
             testConfig.currentRunningTest.toString())
         super.onCaptureSequenceAborted(session, sequenceId)
@@ -48,20 +47,20 @@ class CameraXCaptureSessionCallback(
 
     /** Capture has failed, try to restart */
     override fun onCaptureFailed(
-        session: CameraCaptureSession?,
-        request: CaptureRequest?,
-        failure: CaptureFailure?
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        failure: CaptureFailure
     ) {
         MainActivity.logd("CameraX captureStillPicture captureCallback: Capture Failed. Failure: " +
-            failure?.reason + " Current test: " + testConfig.currentRunningTest.toString())
+            failure.reason + " Current test: " + testConfig.currentRunningTest.toString())
         closeCameraX(activity, params, testConfig)
         cameraXOpenCamera(activity, params, testConfig)
     }
 
     /** Unused but retained here as it can be useful for debugging  */
     override fun onCaptureStarted(
-        session: CameraCaptureSession?,
-        request: CaptureRequest?,
+        session: CameraCaptureSession,
+        request: CaptureRequest,
         timestamp: Long,
         frameNumber: Long
     ) {
@@ -71,9 +70,9 @@ class CameraXCaptureSessionCallback(
 
     /** Unused but retained here as it can be useful for debugging  */
     override fun onCaptureProgressed(
-        session: CameraCaptureSession?,
-        request: CaptureRequest?,
-        partialResult: CaptureResult?
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        partialResult: CaptureResult
     ) {
         // MainActivity.logd("CameraX captureStillPicture captureCallback: Capture progressed.")
         super.onCaptureProgressed(session, request, partialResult)
@@ -81,9 +80,9 @@ class CameraXCaptureSessionCallback(
 
     /** Unused but retained here as it can be useful for debugging  */
     override fun onCaptureBufferLost(
-        session: CameraCaptureSession?,
-        request: CaptureRequest?,
-        target: Surface?,
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        target: Surface,
         frameNumber: Long
     ) {
         // MainActivity.logd("CameraX captureStillPicture captureCallback: Buffer lost.")
@@ -94,9 +93,9 @@ class CameraXCaptureSessionCallback(
      * Still capture has completed. Record timing and proceed to next test or finish.
      */
     override fun onCaptureCompleted(
-        @NonNull session: CameraCaptureSession,
-        @NonNull request: CaptureRequest,
-        @NonNull result: TotalCaptureResult
+        session: CameraCaptureSession,
+        request: CaptureRequest,
+        result: TotalCaptureResult
     ) {
 
         if (params.cameraXLifecycle.isFinished()) {

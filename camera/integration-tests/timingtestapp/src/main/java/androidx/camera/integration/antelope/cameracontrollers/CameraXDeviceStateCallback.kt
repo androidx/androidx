@@ -17,7 +17,6 @@
 package androidx.camera.integration.antelope.cameracontrollers
 
 import android.hardware.camera2.CameraDevice
-import androidx.annotation.NonNull
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.TestConfig
@@ -36,7 +35,7 @@ class CameraXDeviceStateCallback(
     /**
      * Camera device has opened successfully, record timing and initiate the preview stream.
      */
-    override fun onOpened(@NonNull cameraDevice: CameraDevice) {
+    override fun onOpened(cameraDevice: CameraDevice) {
         MainActivity.logd("In CameraXStateCallback onOpened: " + cameraDevice.id +
             " current test: " + testConfig.currentRunningTest.toString())
 
@@ -62,7 +61,7 @@ class CameraXDeviceStateCallback(
      *
      * If this is a switch test, swizzle camera ids and move to the next step of the test.
      */
-    override fun onClosed(camera: CameraDevice?) {
+    override fun onClosed(camera: CameraDevice) {
         MainActivity.logd("In CameraXStateCallback onClosed.")
 
         if (testConfig.testFinished) {
@@ -93,7 +92,7 @@ class CameraXDeviceStateCallback(
     /**
      * Camera has been disconnected. Whatever was happening, it won't work now.
      */
-    override fun onDisconnected(@NonNull cameraDevice: CameraDevice) {
+    override fun onDisconnected(cameraDevice: CameraDevice) {
         MainActivity.logd("In CameraXStateCallback onDisconnected: " + params.id)
         testConfig.testFinished = false // Whatever we are doing will fail now, try to exit
         closeCameraX(activity, params, testConfig)
@@ -102,7 +101,7 @@ class CameraXDeviceStateCallback(
     /**
      * Camera device has thrown an error. Try to recover or fail gracefully.
      */
-    override fun onError(@NonNull cameraDevice: CameraDevice, error: Int) {
+    override fun onError(cameraDevice: CameraDevice, error: Int) {
         MainActivity.logd("In CameraXStateCallback onError: " +
             cameraDevice.id + " and error: " + error)
 
