@@ -24,8 +24,6 @@ import androidx.ui.baseui.Clickable
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.Px
-import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
@@ -34,18 +32,15 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
-import androidx.ui.material.borders.BorderRadius
-import androidx.ui.material.borders.BoxShape
-import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleEffectFactory
 import androidx.ui.material.ripple.RippleSurfaceOwner
 import androidx.ui.material.ripple.RippleTheme
 import androidx.ui.material.surface.Card
-import androidx.ui.material.surface.DrawColor
 import androidx.ui.painting.Canvas
 import androidx.ui.graphics.Color
+import androidx.ui.material.ripple.Ripple
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
@@ -142,11 +137,9 @@ class RippleEffectTest : AndroidUiTestRunner() {
     }
 
     private fun RippleButton(size: Dp? = null) {
-        BoundedRipple {
+        Ripple(bounded = false) {
             Clickable(onClick = {}) {
-                Container(width = size, height = size) {
-                    DrawColor(Color(android.graphics.Color.CYAN))
-                }
+                Container(width = size, height = size) {}
             }
         }
     }
@@ -161,18 +154,15 @@ class RippleEffectTest : AndroidUiTestRunner() {
     }
 
     private fun testRippleEffect(onDraw: (Matrix4) -> Unit): RippleEffectFactory =
-        object : RippleEffectFactory() {
+        object : RippleEffectFactory {
             override fun create(
                 rippleSurface: RippleSurfaceOwner,
                 coordinates: LayoutCoordinates,
                 touchPosition: PxPosition,
                 color: Color,
                 density: Density,
-                shape: BoxShape,
-                finalRadius: Px?,
-                containedInkWell: Boolean,
-                boundsCallback: ((LayoutCoordinates) -> PxBounds)?,
-                clippingBorderRadius: BorderRadius?,
+                radius: Dp?,
+                bounded: Boolean,
                 onRemoved: (() -> Unit)?
             ): RippleEffect {
                 return object : RippleEffect(rippleSurface, coordinates, color, onRemoved) {

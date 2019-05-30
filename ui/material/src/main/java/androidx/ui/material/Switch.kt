@@ -59,7 +59,7 @@ fun Switch(
 ) {
     val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     Wrap {
-        Ripple {
+        Ripple(bounded = false) {
             Toggleable(value = value, onToggle = onClick) {
                 Padding(padding = DefaultSwitchPadding) {
                     Container(width = SwitchWidth, height = SwitchHeight) {

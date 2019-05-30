@@ -26,7 +26,6 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.borders.BorderStyle
 import androidx.ui.material.borders.ShapeBorder
-import androidx.ui.material.ripple.BoundedRipple
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Color
 import androidx.ui.painting.TextStyle
@@ -34,6 +33,7 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
+import androidx.ui.material.ripple.Ripple
 
 /**
  * [Button] with flexible user interface. You can provide any content you want as a
@@ -85,7 +85,7 @@ fun Button(
                 }
             }
             if (onClick != null) {
-                BoundedRipple {
+                Ripple(bounded = true) {
                     clickableChildren()
                 }
             } else {
