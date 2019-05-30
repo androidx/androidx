@@ -1,0 +1,43 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ syntax = "proto3";
+
+package test.screenshot.proto;
+option java_package = "androidx.test.screenshot.proto";
+option java_outer_classname = "ScreenshotResultProto";
+
+message ScreenshotResult {
+  enum Status {
+    UNSPECIFIED = 0;
+    PASSED = 1;
+    FAILED = 2;
+    MISSING_GOLDEN = 3;
+  }
+
+  message ComparisonStatistics {
+    uint32 number_pixels_identical = 1;
+    uint32 number_pixels_different = 2;
+  }
+
+  Status result = 1;
+
+  string image_location_test = 2;
+  string image_location_golden = 3; //actual location if image exists, expected location if missing
+  string image_location_diff = 4;
+
+  ComparisonStatistics comparison_statistics = 5;
+}
+
