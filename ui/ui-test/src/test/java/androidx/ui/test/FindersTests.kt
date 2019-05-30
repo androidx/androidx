@@ -18,10 +18,14 @@ package androidx.ui.test
 
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.getOrNull
+import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.semantics.testTag
 import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
 import com.google.common.truth.Truth
 import org.junit.Test
 
+// TODO(b/138167927): findByTag_* tests do not call findByTag
 class FindersTests {
     @Test
     fun findByTag_zeroOutOfOne_findsNone() {
@@ -34,7 +38,7 @@ class FindersTests {
                 ))
         }
 
-        val foundNodes = findAll { testTag == "myTestTag" }
+        val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
         Truth.assertThat(foundNodes).isEmpty()
     }
 
@@ -52,7 +56,7 @@ class FindersTests {
                 .withSemantics(node1, node2)
         }
 
-        val foundNodes = findAll { testTag == "myTestTag" }
+        val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
         Truth.assertThat(foundNodes.map { it.semanticsTreeNode }).containsExactly(node1)
     }
 
@@ -74,7 +78,7 @@ class FindersTests {
                 .withSemantics(node1, node2)
         }
 
-        val foundNodes = findAll { testTag == "myTestTag" }
+        val foundNodes = findAll { getOrNull(SemanticsProperties.TestTag) == "myTestTag" }
         Truth.assertThat(foundNodes.map { it.semanticsTreeNode }).containsExactly(node1, node2)
     }
 

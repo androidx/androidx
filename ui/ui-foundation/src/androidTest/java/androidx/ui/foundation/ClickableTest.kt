@@ -54,8 +54,7 @@ class ClickableTest {
         findByTag("myClickable")
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
-                    isEnabled = true,
-                    isButton = true
+                    isEnabled = true
                 )
             )
     }
@@ -75,8 +74,7 @@ class ClickableTest {
         findByTag("myClickable")
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
-                    isEnabled = false,
-                    isButton = true
+                    isEnabled = false
                 )
             )
     }

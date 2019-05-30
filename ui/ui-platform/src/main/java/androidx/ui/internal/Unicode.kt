@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
-
-// TODO(ryanmentley): This should be in platform, except we need it from Semantics,
-// and that puts a loop in the dependency graph.  It should probably not be exposed as public API.
+package androidx.ui.internal
+// TODO(ryanmentley): This should probably not be exposed as public API.
 /**
  * Constants for useful Unicode characters.
  *

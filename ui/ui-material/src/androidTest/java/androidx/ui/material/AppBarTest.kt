@@ -27,7 +27,6 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
-import androidx.ui.core.Semantics
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.ipx
@@ -35,11 +34,13 @@ import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.testTag
 import androidx.ui.text.TextStyle
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.findAll
+import androidx.ui.test.findAllByTag
 import androidx.ui.test.findByText
 import org.junit.Rule
 import org.junit.Test
@@ -183,13 +184,15 @@ class AppBarTest {
                 TopAppBar(
                     contextualActions = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(testTag = tag) { action() }
+                        Semantics(properties = { testTag = tag }) {
+                            action()
+                        }
                     }
                 )
             }
         }
 
-        findAll { testTag == tag }.assertCountEquals(numberOfActions)
+        findAllByTag(tag).assertCountEquals(numberOfActions)
     }
 
     @Test
@@ -202,13 +205,15 @@ class AppBarTest {
                 TopAppBar(
                     contextualActions = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(testTag = tag) { action() }
+                        Semantics(properties = { testTag = tag }) {
+                            action()
+                        }
                     }
                 )
             }
         }
 
-        findAll { testTag == tag }.assertCountEquals(maxNumberOfActions)
+        findAllByTag(tag).assertCountEquals(maxNumberOfActions)
     }
 
     @Test
@@ -423,13 +428,15 @@ class AppBarTest {
                 BottomAppBar(
                     contextualActions = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(testTag = tag) { action() }
+                        Semantics(properties = { testTag = tag }) {
+                            action()
+                        }
                     }
                 )
             }
         }
 
-        findAll { testTag == tag }.assertCountEquals(numberOfActions)
+        findAllByTag(tag).assertCountEquals(numberOfActions)
     }
 
     @Test
@@ -442,13 +449,15 @@ class AppBarTest {
                 BottomAppBar(
                     contextualActions = createImageList(numberOfActions),
                     action = { action ->
-                        Semantics(testTag = tag) { action() }
+                        Semantics(properties = { testTag = tag }) {
+                            action()
+                        }
                     }
                 )
             }
         }
 
-        findAll { testTag == tag }.assertCountEquals(maxNumberOfActions)
+        findAllByTag(tag).assertCountEquals(maxNumberOfActions)
     }
 
     private fun createImageList(count: Int) =

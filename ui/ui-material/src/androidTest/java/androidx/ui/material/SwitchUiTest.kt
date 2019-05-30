@@ -22,9 +22,13 @@ import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
+import androidx.ui.foundation.Strings
+import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
+import androidx.ui.semantics.accessibilityValue
 import androidx.ui.test.assertIsChecked
-import androidx.ui.test.assertIsNotChecked
+import androidx.ui.test.assertIsUnchecked
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.copyWith
 import androidx.ui.test.createComposeRule
@@ -45,10 +49,13 @@ class SwitchUiTest {
 
     private val defaultUncheckedSwitchSemantics = createFullSemantics(
         isEnabled = true,
-        isChecked = false
+        toggleableState = ToggleableState.Unchecked,
+        value = Strings.Unchecked // TODO(a11y): Do we still call this checked/unchecked?
     )
+
     private val defaultCheckedSwitchSemantics = defaultUncheckedSwitchSemantics.copyWith {
-        isChecked = true
+        toggleableState = ToggleableState.Checked
+        accessibilityValue = Strings.Checked
     }
     private val defaultSwitchTag = "switch"
 
@@ -78,7 +85,7 @@ class SwitchUiTest {
             }
         }
         findByTag(defaultSwitchTag)
-            .assertIsNotChecked()
+            .assertIsUnchecked()
             .doClick()
             .assertIsChecked()
     }
@@ -93,11 +100,11 @@ class SwitchUiTest {
             }
         }
         findByTag(defaultSwitchTag)
-            .assertIsNotChecked()
+            .assertIsUnchecked()
             .doClick()
             .assertIsChecked()
             .doClick()
-            .assertIsNotChecked()
+            .assertIsUnchecked()
     }
 
     @Test
@@ -109,9 +116,9 @@ class SwitchUiTest {
             }
         }
         findByTag(defaultSwitchTag)
-            .assertIsNotChecked()
+            .assertIsUnchecked()
             .doClick()
-            .assertIsNotChecked()
+            .assertIsUnchecked()
     }
 
     @Test

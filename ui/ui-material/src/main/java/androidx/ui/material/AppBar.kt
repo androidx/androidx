@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.core.Semantics
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.sp
@@ -46,6 +45,7 @@ import androidx.ui.material.BottomAppBar.FabPosition.Center
 import androidx.ui.material.BottomAppBar.FabPosition.End
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.painting.Image
+import androidx.ui.semantics.Semantics
 import androidx.ui.text.TextStyle
 
 /**

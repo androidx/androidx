@@ -206,70 +206,17 @@ package androidx.ui.core {
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
-    ctor public SemanticsComponentNode(boolean container, boolean explicitChildNodes, Boolean? enabled, Boolean? checked, Boolean? selected, Boolean? button, Boolean? header, Boolean? textField, Boolean? focused, Boolean? inMutuallyExclusiveGroup, Boolean? obscured, Boolean? scopesRoute, Boolean? namesRoute, Boolean? hidden, String? label, String? value, String? hint, androidx.ui.text.style.TextDirection? textDirection, String? testTag, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions);
+    ctor public SemanticsComponentNode(androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration, boolean container, boolean explicitChildNodes);
     ctor public SemanticsComponentNode();
-    method public java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> getActions();
-    method public Boolean? getButton();
-    method public Boolean? getChecked();
     method public boolean getContainer();
-    method public Boolean? getEnabled();
     method public boolean getExplicitChildNodes();
-    method public Boolean? getFocused();
-    method public Boolean? getHeader();
-    method public Boolean? getHidden();
-    method public String? getHint();
-    method public Boolean? getInMutuallyExclusiveGroup();
-    method public String? getLabel();
-    method public Boolean? getNamesRoute();
-    method public Boolean? getObscured();
-    method public Boolean? getScopesRoute();
-    method public Boolean? getSelected();
     method public androidx.ui.core.semantics.SemanticsConfiguration getSemanticsConfiguration();
-    method public String? getTestTag();
-    method public androidx.ui.text.style.TextDirection? getTextDirection();
-    method public Boolean? getTextField();
-    method public String? getValue();
-    method public void setActions(java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> p);
-    method public void setButton(Boolean? p);
-    method public void setChecked(Boolean? p);
     method public void setContainer(boolean p);
-    method public void setEnabled(Boolean? p);
     method public void setExplicitChildNodes(boolean p);
-    method public void setFocused(Boolean? p);
-    method public void setHeader(Boolean? p);
-    method public void setHidden(Boolean? p);
-    method public void setHint(String? p);
-    method public void setInMutuallyExclusiveGroup(Boolean? p);
-    method public void setLabel(String? p);
-    method public void setNamesRoute(Boolean? p);
-    method public void setObscured(Boolean? p);
-    method public void setScopesRoute(Boolean? p);
-    method public void setSelected(Boolean? p);
-    method public void setTestTag(String? p);
-    method public void setTextDirection(androidx.ui.text.style.TextDirection? p);
-    method public void setTextField(Boolean? p);
-    method public void setValue(String? p);
-    property public final java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> actions;
-    property public final Boolean? button;
-    property public final Boolean? checked;
+    method public void setSemanticsConfiguration(androidx.ui.core.semantics.SemanticsConfiguration p);
     property public final boolean container;
-    property public final Boolean? enabled;
     property public final boolean explicitChildNodes;
-    property public final Boolean? focused;
-    property public final Boolean? header;
-    property public final Boolean? hidden;
-    property public final String? hint;
-    property public final Boolean? inMutuallyExclusiveGroup;
-    property public final String? label;
-    property public final Boolean? namesRoute;
-    property public final Boolean? obscured;
-    property public final Boolean? scopesRoute;
-    property public final Boolean? selected;
     property public final androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration;
-    property public final String? testTag;
-    property public final androidx.ui.text.style.TextDirection? textDirection;
-    property public final Boolean? textField;
-    property public final String? value;
   }
 
   public interface SemanticsTreeNode {
@@ -302,22 +249,6 @@ package androidx.ui.core {
   public interface SemanticsTreeProvider {
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public void sendEvent(android.view.MotionEvent event);
-  }
-
-  public final class Unicode {
-    field public static final String ALM = "\u061c";
-    field public static final String FSI = "\u2068";
-    field public static final androidx.ui.core.Unicode! INSTANCE;
-    field public static final String LRE = "\u202a";
-    field public static final String LRI = "\u2066";
-    field public static final String LRM = "\u200e";
-    field public static final String LRO = "\u202d";
-    field public static final String PDF = "\u202c";
-    field public static final String PDI = "\u2069";
-    field public static final String RLE = "\u202b";
-    field public static final String RLI = "\u2067";
-    field public static final String RLM = "\u200f";
-    field public static final String RLO = "\u202e";
   }
 
 }
@@ -357,138 +288,31 @@ package androidx.ui.core.pointerinput {
 
 package androidx.ui.core.semantics {
 
-  public final class SemanticsConfiguration {
+  public final class SemanticsConfiguration implements java.lang.Iterable<java.util.Map.Entry<? extends androidx.ui.semantics.SemanticsPropertyKey<?>,?>> kotlin.jvm.internal.markers.KMappedMarker androidx.ui.semantics.SemanticsPropertyReceiver {
     ctor public SemanticsConfiguration();
+    method public operator <T> boolean contains(androidx.ui.semantics.SemanticsPropertyKey<T> key);
     method public androidx.ui.core.semantics.SemanticsConfiguration copy();
-    method public java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> getActions();
+    method public operator <T> T! get(androidx.ui.semantics.SemanticsPropertyKey<T> key);
     method public boolean getExplicitChildNodes();
     method public boolean getHasBeenAnnotated();
-    method public boolean getHasImplicitScrolling();
-    method public String? getHint();
-    method public androidx.ui.core.semantics.SemanticsHintOverrides? getHintOverrides();
-    method public String? getLabel();
-    method public boolean getLiveRegion();
-    method public boolean getNamesRoute();
-    method public boolean getScopesRoute();
-    method public Float? getScrollExtentMax();
-    method public Float? getScrollExtentMin();
-    method public Float? getScrollPosition();
-    method public String? getTestTag();
-    method public androidx.ui.text.style.TextDirection? getTextDirection();
-    method public androidx.ui.text.TextSelection? getTextSelection();
-    method public String? getValue();
-    method public boolean isBlockingSemanticsOfPreviouslyPaintedNodes();
-    method public boolean isButton();
-    method public Boolean? isChecked();
-    method public boolean isCompatibleWith(androidx.ui.core.semantics.SemanticsConfiguration? other);
-    method public Boolean? isEnabled();
-    method public boolean isFocused();
-    method public boolean isHeader();
-    method public boolean isHidden();
-    method public boolean isImage();
-    method public boolean isInMutuallyExclusiveGroup();
+    method public <T> T! getOrElse(androidx.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public <T> T? getOrElseNullable(androidx.ui.semantics.SemanticsPropertyKey<T> key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
     method public boolean isMergingSemanticsOfDescendants();
-    method public boolean isObscured();
-    method public boolean isSelected();
     method public boolean isSemanticBoundary();
-    method public boolean isTextField();
-    method public Boolean? isToggled();
-    method public void setActions(java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> value);
-    method public void setBlockingSemanticsOfPreviouslyPaintedNodes(boolean p);
-    method public void setButton(boolean p);
-    method public void setChecked(Boolean? value);
-    method public void setEnabled(Boolean? value);
+    method public java.util.Iterator<java.util.Map.Entry<androidx.ui.semantics.SemanticsPropertyKey<?>,java.lang.Object>> iterator();
+    method public <T> void set(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? value);
     method public void setExplicitChildNodes(boolean p);
-    method public void setFocused(boolean p);
-    method public void setHasBeenAnnotated(boolean p);
-    method public void setHasImplicitScrolling(boolean p);
-    method public void setHeader(boolean p);
-    method public void setHidden(boolean p);
-    method public void setHint(String? p);
-    method public void setHintOverrides(androidx.ui.core.semantics.SemanticsHintOverrides? p);
-    method public void setImage(boolean p);
-    method public void setInMutuallyExclusiveGroup(boolean p);
-    method public void setLabel(String? p);
-    method public void setLiveRegion(boolean p);
     method public void setMergingSemanticsOfDescendants(boolean value);
-    method public void setNamesRoute(boolean p);
-    method public void setObscured(boolean p);
-    method public void setScopesRoute(boolean p);
-    method public void setScrollExtentMax(Float? p);
-    method public void setScrollExtentMin(Float? p);
-    method public void setScrollPosition(Float? p);
-    method public void setSelected(boolean p);
     method public void setSemanticBoundary(boolean value);
-    method public void setTestTag(String? p);
-    method public void setTextDirection(androidx.ui.text.style.TextDirection? p);
-    method public void setTextField(boolean p);
-    method public void setTextSelection(androidx.ui.text.TextSelection? p);
-    method public void setToggled(Boolean? value);
-    method public void setValue(String? p);
-    property public final java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> actions;
     property public final boolean explicitChildNodes;
     property public final boolean hasBeenAnnotated;
-    property public final boolean hasImplicitScrolling;
-    property public final String? hint;
-    property public final androidx.ui.core.semantics.SemanticsHintOverrides? hintOverrides;
-    property public final boolean isBlockingSemanticsOfPreviouslyPaintedNodes;
-    property public final boolean isButton;
-    property public final Boolean? isChecked;
-    property public final Boolean? isEnabled;
-    property public final boolean isFocused;
-    property public final boolean isHeader;
-    property public final boolean isHidden;
-    property public final boolean isImage;
-    property public final boolean isInMutuallyExclusiveGroup;
     property public final boolean isMergingSemanticsOfDescendants;
-    property public final boolean isObscured;
-    property public final boolean isSelected;
     property public final boolean isSemanticBoundary;
-    property public final boolean isTextField;
-    property public final Boolean? isToggled;
-    property public final String? label;
-    property public final boolean liveRegion;
-    property public final boolean namesRoute;
-    property public final boolean scopesRoute;
-    property public final Float? scrollExtentMax;
-    property public final Float? scrollExtentMin;
-    property public final Float? scrollPosition;
-    property public final String? testTag;
-    property public final androidx.ui.text.style.TextDirection? textDirection;
-    property public final androidx.ui.text.TextSelection? textSelection;
-    property public final String? value;
   }
 
   public final class SemanticsConfigurationKt {
     ctor public SemanticsConfigurationKt();
-  }
-
-  public enum SemanticsFlag {
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasCheckedState;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasEnabledState;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasImplicitScrolling;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag HasToggledState;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsButton;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsChecked;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsEnabled;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsFocused;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsHeader;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsHidden;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsImage;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsInMutuallyExclusiveGroup;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsLiveRegion;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsObscured;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsSelected;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsTextField;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag IsToggled;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag NamesRoute;
-    enum_constant public static final androidx.ui.core.semantics.SemanticsFlag ScopesRoute;
-    field public static final androidx.ui.core.semantics.SemanticsFlag.Companion! Companion;
-  }
-
-  public static final class SemanticsFlag.Companion {
-    method public java.util.Map<java.lang.Integer,androidx.ui.core.semantics.SemanticsFlag> getValues();
-    property public final java.util.Map<java.lang.Integer,androidx.ui.core.semantics.SemanticsFlag> values;
+    method public static <T> T? getOrNull(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.semantics.SemanticsPropertyKey<T> key);
   }
 
   public final class SemanticsHintOverrides {
@@ -517,7 +341,6 @@ package androidx.ui.core.semantics {
     method public androidx.ui.engine.geometry.Rect? getParentPaintClipRect();
     method public androidx.ui.engine.geometry.Rect? getParentSemanticsClipRect();
     method public androidx.ui.engine.geometry.Rect getRect();
-    method public boolean isDifferentFromCurrentSemanticAnnotation(androidx.ui.core.semantics.SemanticsConfiguration config);
     method public boolean isInvisible();
     method public boolean isMergedIntoParent();
     method public boolean isPartOfNodeMerging();
@@ -557,7 +380,26 @@ package androidx.ui.core.semantics {
 
   public final class SemanticsOwner {
     ctor public SemanticsOwner();
-    method public void performAction(int id, androidx.ui.core.semantics.SemanticsActionType<?> action, Object? args = null);
+  }
+
+}
+
+package androidx.ui.internal {
+
+  public final class Unicode {
+    field public static final String ALM = "\u061c";
+    field public static final String FSI = "\u2068";
+    field public static final androidx.ui.internal.Unicode! INSTANCE;
+    field public static final String LRE = "\u202a";
+    field public static final String LRI = "\u2066";
+    field public static final String LRM = "\u200e";
+    field public static final String LRO = "\u202d";
+    field public static final String PDF = "\u202c";
+    field public static final String PDI = "\u2069";
+    field public static final String RLE = "\u202b";
+    field public static final String RLI = "\u2067";
+    field public static final String RLM = "\u200f";
+    field public static final String RLO = "\u202e";
   }
 
 }

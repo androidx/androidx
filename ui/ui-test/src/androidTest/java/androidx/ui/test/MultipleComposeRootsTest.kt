@@ -19,8 +19,8 @@ package androidx.ui.test
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.composer
 import androidx.compose.Model
+import androidx.compose.composer
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -157,14 +157,14 @@ class MultipleComposeRootsTest {
             .assertIsChecked()
 
         findByTag("checkbox2")
-            .assertIsNotChecked()
+            .assertIsUnchecked()
 
         Espresso.onView(withText("Compose 1 - Checked")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2 - Unchecked")).check(matches(isDisplayed()))
 
         findByTag("checkbox2")
             .doClick()
-            .assertIsNotChecked()
+            .assertIsUnchecked()
 
         findByTag("checkbox1")
             .assertIsChecked()
