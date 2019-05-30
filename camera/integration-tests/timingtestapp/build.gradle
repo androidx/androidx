@@ -29,8 +29,8 @@ android {
         applicationId "androidx.camera.integration.antelope"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 34
-        versionName "1.34"
+        versionCode 35
+        versionName "1.35"
     }
     sourceSets {
         main.manifest.srcFile 'src/main/AndroidManifest.xml'
@@ -67,7 +67,7 @@ dependencies {
     // Android support library
     implementation(SUPPORT_APPCOMPAT)
     implementation(ANDROIDX_COLLECTION)
-    implementation(project(":preference")) // This one is still in alpha
+    implementation(project(":preference")) // Still in alpha
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(KOTLIN_STDLIB)
@@ -79,6 +79,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
     implementation(ESPRESSO_IDLING_RESOURCE)
+    implementation(TRUTH)
 
     // Statistics library
     implementation(GUAVA_ANDROID)
