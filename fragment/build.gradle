@@ -24,7 +24,7 @@ dependencies {
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.annotation:annotation:1.1.0-rc01")
     api("androidx.loader:loader:1.0.0")
-    api(project(":activity"))
+    api(project(":activity:activity"))
     api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
 
     androidTestImplementation(KOTLIN_STDLIB)
