@@ -58,6 +58,14 @@ package androidx.ui.baseui.selection {
 
 package androidx.ui.material {
 
+  public final class AppBarKt {
+    ctor public AppBarKt();
+    method public static void AppBar(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void TopAppBar(String? title = null, androidx.ui.graphics.Color color = +themeColor({ 
+    primary
+}), java.util.List<androidx.ui.core.Dp> icons = emptyList());
+  }
+
   public final class ButtonKt {
     ctor public ButtonKt();
     method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.material.borders.ShapeBorder? shape = null, androidx.ui.graphics.Color? color = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
