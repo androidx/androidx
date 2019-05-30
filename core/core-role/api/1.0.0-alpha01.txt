@@ -1,5 +1,5 @@
 // Signature format: 3.0
-package androidx.role {
+package androidx.core.role {
 
   public final class RoleManagerCompat {
     field public static final String ROLE_ASSISTANT = "android.app.role.ASSISTANT";
