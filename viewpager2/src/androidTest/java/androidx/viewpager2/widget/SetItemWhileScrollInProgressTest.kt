@@ -133,11 +133,6 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         fun spec(): List<TestConfig> = createTestSet()
     }
 
-    override fun setUp() {
-        super.setUp()
-        assumeApiBeforeQ()
-    }
-
     @Test
     fun test() {
         config.apply {
