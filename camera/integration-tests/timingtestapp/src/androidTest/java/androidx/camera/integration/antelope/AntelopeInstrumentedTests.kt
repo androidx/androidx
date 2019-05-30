@@ -42,8 +42,10 @@ import org.junit.FixMethodOrder
 import org.junit.runners.MethodSorters
 import java.util.concurrent.TimeUnit
 import androidx.camera.integration.antelope.MainActivity.Companion.antelopeIdlingResource
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import org.junit.After
+import org.junit.runner.RunWith
 import com.google.common.truth.Truth.assertThat
 
 const val PREVIEW_BUFFER = "1500"
@@ -52,7 +54,12 @@ const val PREVIEW_BUFFER = "1500"
  * Suite of tests that cover the major use cases for Antelope.
  *
  * Assumes device/emulator has a front and a back camera.
+ *
+ * Note: tests are suppressed for pre/post-submit testing as these tests exercise the camera
+ * device thoroughly - failures that leave the device in a bad state can cause future tests to fail.
  */
+@androidx.test.filters.Suppress
+@RunWith(AndroidJUnit4::class)
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class AntelopeInstrumentedTests {
     @get: Rule
