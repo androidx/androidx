@@ -34,7 +34,7 @@ def includeProject(name, filePath) {
 /////////////////////////////
 
 includeProject(":activity", "activity")
-includeProject(":activity-ktx", "activity/ktx")
+includeProject(":activity:activity-ktx", "activity/activity-ktx")
 includeProject(":activity:integration-tests:testapp", "activity/integration-tests/testapp")
 includeProject(":ads-identifier", "ads/ads-identifier")
 includeProject(":annotation", "annotations")
