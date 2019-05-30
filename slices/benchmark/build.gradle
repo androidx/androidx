@@ -24,7 +24,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(project(":core"))
+    androidTestImplementation(project(":core:core"))
     androidTestImplementation(project(":slice-view"))
     androidTestImplementation(project(":slice-core"))
     androidTestImplementation(project(":slice-builders"))

@@ -75,7 +75,7 @@ includeProject(":concurrent-listenablefuture-callback", "concurrent/listenablefu
 includeProject(":concurrent-listenablefuture", "concurrent/listenablefuture")
 includeProject(":contentpager", "content")
 includeProject(":coordinatorlayout", "coordinatorlayout")
-includeProject(":core", "core")
+includeProject(":core:core", "core/core")
 includeProject(":core:core-ktx", "core/core-ktx")
 includeProject(":core-role", "core/core-role")
 includeProject(":cursoradapter", "cursoradapter")

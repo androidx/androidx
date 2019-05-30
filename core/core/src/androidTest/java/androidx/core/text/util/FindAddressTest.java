@@ -72,7 +72,7 @@ public class FindAddressTest {
                 "Chelsea Markset Space, 75 Ninth Avenue 2nd and 4th Floors New York, NY 10011"));
         assertIsAddress("6425 Penn Ave. Suite 700 Pittsburgh, PA 15206");
         assertIsAddress("1818 Library Street Suite 400 Reston, VA 20190");
-        assertIsAddress("345 Spear Street Floors 2-4 San Francisco, CA 94105");
+        assertIsAddress("345 Fear Street Floors 2-4 San Francisco, CA 94105");
         assertIsAddress("604 Arizona Avenue Santa Monica, CA 90401");
         assertIsAddress("651 N. 34th St. Seattle, WA 98103");
         Assert.assertTrue(
