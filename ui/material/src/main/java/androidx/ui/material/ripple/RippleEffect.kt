@@ -31,19 +31,15 @@ import androidx.ui.vectormath64.Vector3
  *
  * To add an [RippleEffect] to a piece of [Surface], obtain the [RippleSurfaceOwner] via
  * [ambientRippleSurface] and call [RippleSurfaceOwner.addEffect].
+ * @param rippleSurface The [RippleSurfaceOwner] associated with this [RippleEffect].
+ * @param coordinates The layout coordinates of the parent for this ripple.
+ * @param color the color for this [RippleEffect].
+ * @param onRemoved Called when the ripple is no longer visible on the surface.
  */
 abstract class RippleEffect(
-    /**
-     * The [RippleSurfaceOwner] associated with this [RippleEffect].
-     *
-     * Typically used by subclasses to call
-     * [RippleSurfaceOwner.markNeedsRedraw] when they need to redraw.
-     */
     val rippleSurface: RippleSurfaceOwner,
-    /** The layout coordinates of the parent for this ripple. */
     val coordinates: LayoutCoordinates,
     color: Color,
-    /** Called when the ripple is no longer visible on the surface. */
     val onRemoved: (() -> Unit)? = null
 ) {
 

@@ -402,13 +402,8 @@ package androidx.ui.material.clip.cache {
 
 package androidx.ui.material.ripple {
 
-  public final class BoundedRippleKt {
-    ctor public BoundedRippleKt();
-    method public static void BoundedRipple(androidx.ui.core.Px? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class DefaultRippleEffectFactory extends androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape, androidx.ui.core.Px? finalRadius, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback, androidx.ui.material.borders.BorderRadius? clippingBorderRadius, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+  public final class DefaultRippleEffectFactory implements androidx.ui.material.ripple.RippleEffectFactory {
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.core.Dp? radius, boolean bounded, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -429,14 +424,13 @@ package androidx.ui.material.ripple {
     property public final androidx.ui.graphics.Color color;
   }
 
-  public abstract class RippleEffectFactory {
-    ctor public RippleEffectFactory();
-    method public abstract androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.material.borders.BoxShape shape = BoxShape.Rectangle, androidx.ui.core.Px? finalRadius = null, boolean containedInkWell = false, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+  public interface RippleEffectFactory {
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.core.Dp? radius = null, boolean bounded = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
   }
 
   public final class RippleKt {
     ctor public RippleKt();
-    method public static void Ripple(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onHighlightChanged = null, boolean bounded = false, androidx.ui.material.borders.BoxShape shape = BoxShape.Circle, androidx.ui.core.Px? finalRadius = null, androidx.ui.material.borders.BorderRadius? clippingBorderRadius = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.PxBounds>? boundsCallback = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Ripple(boolean bounded, androidx.ui.core.Dp? radius = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class RippleSurfaceKt {
@@ -446,11 +440,11 @@ package androidx.ui.material.ripple {
   }
 
   public interface RippleSurfaceOwner {
-    method public void addEffect(androidx.ui.material.ripple.RippleEffect feature);
+    method public void addEffect(androidx.ui.material.ripple.RippleEffect effect);
     method public androidx.ui.graphics.Color? getBackgroundColor();
     method public androidx.ui.core.LayoutCoordinates getLayoutCoordinates();
     method public void markNeedsRedraw();
-    method public void removeEffect(androidx.ui.material.ripple.RippleEffect feature);
+    method public void removeEffect(androidx.ui.material.ripple.RippleEffect effect);
     property public abstract androidx.ui.graphics.Color? backgroundColor;
     property public abstract androidx.ui.core.LayoutCoordinates layoutCoordinates;
   }

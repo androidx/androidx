@@ -22,7 +22,7 @@ import androidx.compose.Ambient
 
 /**
  * Defines the appearance and the behavior for [RippleEffect]s.
- * Used for customisation of [Ripple] and [BoundedRipple].
+ * Used for customisation of [Ripple].
  *
  * To change some parameter and apply it to descendants modify
  * the [CurrentRippleTheme] ambient.
