@@ -16,6 +16,7 @@
 
 package androidx.viewpager.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -3005,6 +3006,8 @@ public class ViewPager extends ViewGroup {
     }
 
     @Override
+    // Suppress WrongConstant lint error for AccessibilityEvent.TYPE_VIEW_SCROLLED
+    @SuppressLint("WrongConstant")
     public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {
         // Dispatch scroll events from this ViewPager.
         if (event.getEventType() == AccessibilityEventCompat.TYPE_VIEW_SCROLLED) {
