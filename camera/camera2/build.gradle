@@ -27,7 +27,7 @@ plugins {
 dependencies {
     api(project(":camera:camera-core"))
 
-    implementation(project(":core"))
+    implementation("androidx.core:core:1.1.0-rc01")
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(project(":concurrent-listenablefuture"))
     implementation(project(":concurrent-listenablefuture-callback"))

@@ -29,7 +29,7 @@ plugins {
 dependencies {
     implementation(project(":media2:media2-widget"))
     implementation("androidx.appcompat:appcompat:1.0.2")
-    implementation(project(":core"))
+    implementation("androidx.core:core:1.1.0-rc01")
 }
 
 android {
