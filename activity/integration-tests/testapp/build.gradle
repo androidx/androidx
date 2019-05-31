@@ -29,7 +29,7 @@ android {
 }
 
 dependencies {
-    implementation(project(":activity"))
+    implementation(project(":activity:activity"))
     androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
