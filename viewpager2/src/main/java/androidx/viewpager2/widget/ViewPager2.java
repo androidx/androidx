@@ -901,8 +901,7 @@ public final class ViewPager2 extends ViewGroup {
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
         super.onInitializeAccessibilityNodeInfo(info);
-        addCollectionInfo(info);
-        addScrollActions(info);
+        mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
     private void addCollectionInfo(AccessibilityNodeInfo info) {
@@ -1260,6 +1259,11 @@ public final class ViewPager2 extends ViewGroup {
 
         void onSetLayoutDirection() {
             updatePageAccessibilityActions();
+        }
+
+        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+            addCollectionInfo(info);
+            addScrollActions(info);
         }
     }
 }
