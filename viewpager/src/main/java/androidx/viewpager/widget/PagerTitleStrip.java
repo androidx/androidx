@@ -90,6 +90,7 @@ public class PagerTitleStrip extends ViewGroup {
     private static class SingleLineAllCapsTransform extends SingleLineTransformationMethod {
         private Locale mLocale;
 
+        @SuppressWarnings("deprecation")
         SingleLineAllCapsTransform(Context context) {
             mLocale = context.getResources().getConfiguration().locale;
         }
