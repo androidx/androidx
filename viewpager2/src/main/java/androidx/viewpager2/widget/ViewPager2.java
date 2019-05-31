@@ -261,7 +261,10 @@ public final class ViewPager2 extends ViewGroup {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return "androidx.viewpager.widget.ViewPager";
+        if (mAccessibilityProvider.handlesGetAccessibilityClassName()) {
+            return mAccessibilityProvider.onGetAccessibilityClassName();
+        }
+        return super.getAccessibilityClassName();
     }
 
     /**
@@ -1219,6 +1222,17 @@ public final class ViewPager2 extends ViewGroup {
                 ViewCompat.setImportantForAccessibility(ViewPager2.this,
                         ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
             }
+        }
+
+        boolean handlesGetAccessibilityClassName() {
+            return true;
+        }
+
+        String onGetAccessibilityClassName() {
+            if (!handlesGetAccessibilityClassName()) {
+                throw new IllegalStateException();
+            }
+            return "androidx.viewpager.widget.ViewPager";
         }
     }
 }
