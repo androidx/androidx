@@ -30,7 +30,7 @@ fun closePreviewAndCamera(activity: MainActivity, params: CameraParams?, testCon
 
     when (testConfig.api) {
         CameraAPI.CAMERA1 -> camera1CloseCamera(activity, params, testConfig)
-        CameraAPI.CAMERA2 -> camera2CloseCamera(activity, params, testConfig)
+        CameraAPI.CAMERA2 -> camera2CloseCamera(params, testConfig)
         CameraAPI.CAMERAX -> closeCameraX(activity, params, testConfig)
     }
 }

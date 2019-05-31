@@ -17,7 +17,6 @@
 package androidx.camera.integration.antelope.cameracontrollers
 
 import android.hardware.camera2.CameraCaptureSession
-import androidx.annotation.NonNull
 import androidx.camera.integration.antelope.CameraParams
 import androidx.camera.integration.antelope.MainActivity
 import androidx.camera.integration.antelope.PrefHelper
@@ -38,7 +37,7 @@ class CameraXPreviewSessionStateCallback(
      * results and close the camera, if a switch or image capture test, proceed to the next step.
      *
      */
-    override fun onActive(session: CameraCaptureSession?) {
+    override fun onActive(session: CameraCaptureSession) {
         if (params.cameraXLifecycle.isFinished()) {
             cameraXAbort(activity, params, testConfig)
             return
@@ -85,21 +84,20 @@ class CameraXPreviewSessionStateCallback(
                 cameraXTakePicture(activity, params, testConfig)
             }
         }
-        if (null != session)
-            super.onActive(session)
+        super.onActive(session)
     }
 
     /**
      * Preview session has been configured. Camera X handles the next step.
      */
-    override fun onConfigured(@NonNull cameraCaptureSession: CameraCaptureSession) {
+    override fun onConfigured(cameraCaptureSession: CameraCaptureSession) {
         MainActivity.logd("In onConfigured: CaptureSession configured!")
     }
 
     /**
      * Configuration of the preview stream failed, try again.
      */
-    override fun onConfigureFailed(@NonNull cameraCaptureSession: CameraCaptureSession) {
+    override fun onConfigureFailed(cameraCaptureSession: CameraCaptureSession) {
         MainActivity.logd("CameraX preview initialization failed. Closing camera.")
         closeCameraX(activity, params, testConfig)
     }
