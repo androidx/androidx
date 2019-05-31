@@ -188,6 +188,41 @@ class FragmentAnimatorTest {
         assertExitPopEnter(fragment)
     }
 
+    // Ensure a hide animation is canceled if fragment is shown before it happens
+    @Test
+    fun hideAndShowNoAnimator() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        // One fragment with a view
+        val fragment1 = AnimatorFragment()
+        val fragment2 = AnimatorFragment()
+
+        fm.beginTransaction()
+            .add(R.id.fragmentContainer, fragment1, "1")
+            .add(R.id.fragmentContainer, fragment2, "2")
+            .hide(fragment2)
+            .commit()
+        activityRule.executePendingTransactions(fm)
+
+        fm.beginTransaction()
+            .setCustomAnimations(ENTER, EXIT)
+            .show(fragment2)
+            .hide(fragment1)
+            .commit()
+        activityRule.executePendingTransactions(fm)
+
+        fm.beginTransaction()
+            .setCustomAnimations(ENTER, EXIT)
+            .show(fragment1)
+            .hide(fragment2)
+            .commit()
+        activityRule.waitForExecution()
+
+        assertThat(fragment1.isVisible).isTrue()
+        assertFragmentAnimation(fragment2, 2, false, EXIT)
+        assertThat(fragment2.isVisible).isFalse()
+    }
+
     // Ensure that attaching and popping a Fragment uses the enter and popExit animators
     @Test
     fun attachAnimators() {
