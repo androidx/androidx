@@ -224,8 +224,14 @@ public final class ViewPager2 extends ViewGroup {
         final OnPageChangeCallback currentItemUpdater = new OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
+                mCurrentItem = position;
+            }
+        };
+
+        final OnPageChangeCallback accessibilityUpdater = new OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
                 if (mCurrentItem != position) {
-                    mCurrentItem = position;
                     updatePageAccessibilityActions();
                 }
             }
@@ -234,6 +240,7 @@ public final class ViewPager2 extends ViewGroup {
         // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
         pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
+        pageChangeEventDispatcher.addOnPageChangeCallback(accessibilityUpdater);
         pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
         // Add mPageTransformerAdapter after mExternalPageChangeCallbacks, because page transform
