@@ -60,6 +60,8 @@
     <string name="MediaControlView_audio_track_number_text">
         Track <xliff:g id="audio_number" example="1">%1$d</xliff:g>
     </string>
+    <!-- Text for displaying unknown media title. -->
+    <string name="mcv2_non_music_title_unknown_text">Video title unknown</string>
     <!-- Text for displaying unknown song title. -->
     <string name="mcv2_music_title_unknown_text">Song title unknown</string>
     <!-- Text for displaying unknown artist name. -->

@@ -53,6 +53,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.UriMediaItem;
@@ -90,7 +91,23 @@ import java.util.Locale;
  * In addition, the following customizations are supported:
  * 1) Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
  * 2) Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}
+ * <p>
+ * <em> Displaying metadata : </em>
+ * MediaControlView supports displaying metadata by calling
+ * {@link MediaItem#setMetadata(MediaMetadata)}.
  *
+ * Metadata display is different for two different media types: music, and non-music.
+ * For music, the following metadata are supported:
+ * {@link MediaMetadata#METADATA_KEY_TITLE}, {@link MediaMetadata#METADATA_KEY_ARTIST},
+ * and {@link MediaMetadata#METADATA_KEY_ALBUM_ART}.
+ * If values for these keys are not set, the following default values will be shown, respectively:
+ * {@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}
+ * {@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}
+ * {@link androidx.media2.widget.R.drawable#ic_default_album_image}
+ *
+ * For non-music, only {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
+ * If the value is not set, the following default value will be shown:
+ * {@link androidx.media2.widget.R.string#mcv2_non_music_title_unknown_text}
  */
 public class MediaControlView extends ViewGroup {
     private static final String TAG = "MediaControlView";
@@ -1306,9 +1323,10 @@ public class MediaControlView extends ViewGroup {
 
         if (!isCurrentItemMusic()) {
             CharSequence title = mPlayer.getTitle();
-            if (title != null) {
-                mTitleView.setText(title.toString());
+            if (title == null) {
+                title = mResources.getString(R.string.mcv2_non_music_title_unknown_text);
             }
+            mTitleView.setText(title.toString());
         } else {
             CharSequence title = mPlayer.getTitle();
             if (title == null) {
@@ -2053,6 +2071,7 @@ public class MediaControlView extends ViewGroup {
             }
 
             updateTracks(player, trackInfos);
+            updateMetadata();
         }
 
         @Override
