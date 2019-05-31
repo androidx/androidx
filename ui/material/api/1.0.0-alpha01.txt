@@ -69,9 +69,15 @@ package androidx.ui.material {
   public final class AppBarKt {
     ctor public AppBarKt();
     method public static void AppBar(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void AppBarLeadingIcon();
     method public static void TopAppBar(String? title = null, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), java.util.List<androidx.ui.core.Dp> icons = emptyList());
+    method public static void TopAppBar(androidx.ui.graphics.Color color = +themeColor({ 
+    primary
+}), kotlin.jvm.functions.Function0<kotlin.Unit> leadingIcon, kotlin.jvm.functions.Function0<kotlin.Unit> titleTextLabel, kotlin.jvm.functions.Function0<kotlin.Unit> trailingIcons);
+    method public static void TopAppBarTitleTextLabel(String title);
+    method public static void TopAppBarTrailingIcons(java.util.List<androidx.ui.core.Dp> icons);
   }
 
   public final class ButtonKt {
