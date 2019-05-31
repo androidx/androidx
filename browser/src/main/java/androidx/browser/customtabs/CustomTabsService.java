@@ -49,6 +49,13 @@ public abstract class CustomTabsService extends Service {
             "android.support.customtabs.action.CustomTabsService";
 
     /**
+     * An Intent filter category to signify that the Custom Tabs provider supports customizing
+     * the color of the navigation bar ({@link CustomTabsIntent.Builder#setNavigationBarColor}).
+     */
+    public static final String CATEGORY_NAVBAR_COLOR_CUSTOMIZATION =
+            "androidx.browser.trusted.category.NavBarColorCustomization";
+
+    /**
      * For {@link CustomTabsService#mayLaunchUrl} calls that wants to specify more than one url,
      * this key can be used with {@link Bundle#putParcelable(String, android.os.Parcelable)}
      * to insert a new url to each bundle inside list of bundles.
