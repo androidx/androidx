@@ -159,6 +159,7 @@ public final class ViewPager2 extends ViewGroup {
     private boolean mUserInputEnabled = true;
     private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
     private RecyclerView.AdapterDataObserver mAdapterDataObserver;
+    private AccessibilityProvider mAccessibilityProvider;
 
     public ViewPager2(@NonNull Context context) {
         super(context);
@@ -185,8 +186,6 @@ public final class ViewPager2 extends ViewGroup {
     private void initialize(Context context, AttributeSet attrs) {
         mRecyclerView = new RecyclerViewImpl(context);
         mRecyclerView.setId(ViewCompat.generateViewId());
-        ViewCompat.setImportantForAccessibility(mRecyclerView,
-                ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
         mLayoutManager = new LinearLayoutManagerImpl(context);
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -211,14 +210,6 @@ public final class ViewPager2 extends ViewGroup {
                 new CompositeOnPageChangeCallback(3);
         mScrollEventAdapter.setOnPageChangeCallback(pageChangeEventDispatcher);
 
-        mAdapterDataObserver = new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                updatePageAccessibilityActions();
-            }
-        };
-
         // Callback that updates mCurrentItem after swipes. Also triggered in other cases, but in
         // all those cases mCurrentItem will only be overwritten with the same value.
         final OnPageChangeCallback currentItemUpdater = new OnPageChangeCallback() {
@@ -228,19 +219,11 @@ public final class ViewPager2 extends ViewGroup {
             }
         };
 
-        final OnPageChangeCallback accessibilityUpdater = new OnPageChangeCallback() {
-            @Override
-            public void onPageSelected(int position) {
-                if (mCurrentItem != position) {
-                    updatePageAccessibilityActions();
-                }
-            }
-        };
-
         // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
         pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
-        pageChangeEventDispatcher.addOnPageChangeCallback(accessibilityUpdater);
+        mAccessibilityProvider = new AccessibilityProvider();
+        mAccessibilityProvider.onInitialize(pageChangeEventDispatcher);
         pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
         // Add mPageTransformerAdapter after mExternalPageChangeCallbacks, because page transform
@@ -249,12 +232,6 @@ public final class ViewPager2 extends ViewGroup {
         pageChangeEventDispatcher.addOnPageChangeCallback(mPageTransformerAdapter);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
-
-        if (ViewCompat.getImportantForAccessibility(this)
-                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
-            ViewCompat.setImportantForAccessibility(this,
-                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
-        }
     }
 
     /**
@@ -1210,5 +1187,38 @@ public final class ViewPager2 extends ViewGroup {
      */
     public void removeItemDecoration(@NonNull ItemDecoration decor) {
         mRecyclerView.removeItemDecoration(decor);
+    }
+
+    @SuppressLint("SyntheticAccessor") // TODO: remove after the refactor
+    private class AccessibilityProvider {
+        void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher) {
+            ViewCompat.setImportantForAccessibility(mRecyclerView,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+
+            mAdapterDataObserver = new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onChanged() {
+                    super.onChanged();
+                    updatePageAccessibilityActions();
+                }
+            };
+
+            final OnPageChangeCallback accessibilityUpdater = new OnPageChangeCallback() {
+                @Override
+                public void onPageSelected(int position) {
+                    if (mCurrentItem != position) {
+                        updatePageAccessibilityActions();
+                    }
+                }
+            };
+
+            pageChangeEventDispatcher.addOnPageChangeCallback(accessibilityUpdater);
+
+            if (ViewCompat.getImportantForAccessibility(ViewPager2.this)
+                    == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+                ViewCompat.setImportantForAccessibility(ViewPager2.this,
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+            }
+        }
     }
 }
