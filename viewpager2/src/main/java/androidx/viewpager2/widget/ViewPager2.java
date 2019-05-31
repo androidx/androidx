@@ -551,7 +551,7 @@ public final class ViewPager2 extends ViewGroup {
      */
     public void setOrientation(@Orientation int orientation) {
         mLayoutManager.setOrientation(orientation);
-        updatePageAccessibilityActions();
+        mAccessibilityProvider.onSetOrientation();
     }
 
     public @Orientation int getOrientation() {
@@ -1244,6 +1244,10 @@ public final class ViewPager2 extends ViewGroup {
             if (oldAdapter != null) {
                 oldAdapter.unregisterAdapterDataObserver(mAdapterDataObserver);
             }
+        }
+
+        void onSetOrientation() {
+            updatePageAccessibilityActions();
         }
     }
 }
