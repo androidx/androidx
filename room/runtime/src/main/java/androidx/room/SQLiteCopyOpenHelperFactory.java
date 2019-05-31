@@ -48,6 +48,7 @@ class SQLiteCopyOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
                 configuration.context,
                 mCopyFrom,
                 mCopyFromFilePath,
+                configuration.callback.version,
                 mDelegate.create(configuration));
     }
 }

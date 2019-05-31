@@ -26,6 +26,11 @@ import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +97,37 @@ public class DBUtil {
         for (String triggerName : existingTriggers) {
             if (triggerName.startsWith("room_fts_content_sync_")) {
                 db.execSQL("DROP TRIGGER IF EXISTS " + triggerName);
+            }
+        }
+    }
+
+    /**
+     * Reads the user version number out of the database header from the given file.
+     *
+     * @param databaseFile the database file.
+     * @return the database version
+     * @throws IOException if something goes wrong reading the file, such as bad database header or
+     * missing permissions.
+     *
+     * @see <a href="https://www.sqlite.org/fileformat.html#user_version_number">User Version
+     * Number</a>.
+     */
+    public static int readVersion(@NonNull File databaseFile) throws IOException {
+        FileChannel input = null;
+        try {
+            ByteBuffer buffer = ByteBuffer.allocate(4);
+            input = new FileInputStream(databaseFile).getChannel();
+            input.lock(60, 4, true);
+            input.position(60);
+            int read = input.read(buffer);
+            if (read != 4) {
+                throw new IOException("Bad database header, unable to read 4 bytes at offset 60");
+            }
+            buffer.rewind();
+            return buffer.getInt(); // ByteBuffer is big-endian by default
+        } finally {
+            if (input != null) {
+                input.close();
             }
         }
     }
