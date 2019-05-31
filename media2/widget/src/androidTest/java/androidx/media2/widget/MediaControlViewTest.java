@@ -37,17 +37,14 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.app.KeyguardManager;
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
-import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -240,10 +237,13 @@ public class MediaControlViewTest {
     }
 
     @Test
-    public void testGetMetadata() throws Throwable {
+    public void testSetMetadataForNonMusicFile() throws Throwable {
         final long duration = 49056L;
         final String title = "BigBuckBunny";
-        final CountDownLatch latch = new CountDownLatch(2);
+        final CountDownLatch durationLatch = new CountDownLatch(1);
+        final CountDownLatch titleLatch = new CountDownLatch(1);
+        final MediaMetadata metadata = new MediaMetadata.Builder()
+                .putString(MediaMetadata.METADATA_KEY_TITLE, title).build();
         final MediaController controller =
                 createController(new MediaController.ControllerCallback() {
                     @Override
@@ -255,12 +255,12 @@ public class MediaControlViewTest {
                                 if (metadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
                                     assertEquals(title, metadata.getString(
                                             MediaMetadata.METADATA_KEY_TITLE));
-                                    latch.countDown();
+                                    titleLatch.countDown();
                                 }
                                 if (metadata.containsKey(MediaMetadata.METADATA_KEY_DURATION)) {
                                     assertEquals(duration, metadata.getLong(
                                             MediaMetadata.METADATA_KEY_DURATION));
-                                    latch.countDown();
+                                    durationLatch.countDown();
                                 }
                             }
                         }
@@ -272,81 +272,9 @@ public class MediaControlViewTest {
                 mVideoView.setMediaItem(mFileSchemeMediaItem);
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
-    public void testGetMetadataFromMusicFile() throws Throwable {
-        Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
-                + R.raw.test_music);
-        AssetFileDescriptor afd = mContext.getResources().openRawResourceFd(R.raw.test_music);
-
-        final long duration = 4206L;
-        final int tolerance = 70;
-        final String title = "Chimey Phone";
-        final String artist = "Android";
-        final MediaItem uriMediaItem = createTestMediaItem2(uri);
-        final MediaItem fileMediaItem = new FileMediaItem.Builder(
-                ParcelFileDescriptor.dup(afd.getFileDescriptor()))
-                .setFileDescriptorOffset(afd.getStartOffset())
-                .setFileDescriptorLength(afd.getLength())
-                .build();
-        afd.close();
-        // onCurrentMediaItemChanged is expected to be called 3 times:
-        //   1) after VideoView#setMediaItem is called.
-        //   2) after MediaSessionImplBase updates duration metadata by calling
-        //      MediaItem#setMetadata.
-        //   3) after VideoView extracts metadata and calls MediaItem#setMetadata.
-        final CountDownLatch latchForUri = new CountDownLatch(3);
-        final CountDownLatch latchForFile = new CountDownLatch(3);
-        final MediaController controller =
-                createController(new MediaController.ControllerCallback() {
-                    @Override
-                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
-                            @Nullable MediaItem item) {
-                        if (item != null) {
-                            MediaMetadata metadata = item.getMetadata();
-                            if (metadata != null) {
-                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
-                                    assertEquals(title, metadata.getString(
-                                            MediaMetadata.METADATA_KEY_TITLE));
-                                    countDown();
-                                }
-                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_ARTIST)) {
-                                    assertEquals(artist, metadata.getString(
-                                            MediaMetadata.METADATA_KEY_ARTIST));
-                                    countDown();
-                                }
-                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_DURATION)) {
-                                    assertEquals(duration, metadata.getLong(
-                                            MediaMetadata.METADATA_KEY_DURATION), tolerance);
-                                    countDown();
-                                }
-                            }
-                        }
-                    }
-                    private void countDown() {
-                        if (latchForUri.getCount() != 0) {
-                            latchForUri.countDown();
-                        } else {
-                            latchForFile.countDown();
-                        }
-                    }
-                });
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mVideoView.setMediaItem(uriMediaItem);
-            }
-        });
-        assertTrue(latchForUri.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mVideoView.setMediaItem(fileMediaItem);
-            }
-        });
-        assertTrue(latchForFile.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(durationLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        mFileSchemeMediaItem.setMetadata(metadata);
+        assertTrue(titleLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
