@@ -38,7 +38,8 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(ROBOLECTRIC)
 
-    testCompileOnly(project(":camera:camera-extensions-stub"))
+    testImplementation(project(":camera:camera-extensions-stub"))
+    // To use the extensions-stub for testing directly.
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
