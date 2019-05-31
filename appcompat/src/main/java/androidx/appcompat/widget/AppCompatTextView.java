@@ -18,6 +18,7 @@ package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
@@ -299,6 +300,8 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     @TextViewCompat.AutoSizeTextType
+    // Suppress lint error for TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM [WrongConstant]
+    @SuppressLint("WrongConstant")
     public int getAutoSizeTextType() {
         if (PLATFORM_SUPPORTS_AUTOSIZE) {
             return super.getAutoSizeTextType() == TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM
