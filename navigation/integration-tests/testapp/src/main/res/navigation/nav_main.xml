@@ -32,6 +32,7 @@
     </navigation>
     <dialog
         android:id="@+id/learn_more"
+        android:label="This Should Not Show"
         android:name="androidx.navigation.testapp.LearnMoreDialogFragment">
         <argument android:name="myarg" android:defaultValue="@null" />
         <action

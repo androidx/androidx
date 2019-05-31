@@ -7,6 +7,9 @@ package androidx.navigation {
     method public android.os.Bundle getArguments();
   }
 
+  public interface FloatingWindow {
+  }
+
   public final class NavAction {
     ctor public NavAction(@IdRes int);
     ctor public NavAction(@IdRes int, androidx.navigation.NavOptions?);

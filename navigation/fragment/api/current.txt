@@ -8,7 +8,7 @@ package androidx.navigation.fragment {
     method public boolean popBackStack();
   }
 
-  @androidx.navigation.NavDestination.ClassType(DialogFragment.class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination {
+  @androidx.navigation.NavDestination.ClassType(DialogFragment.class) public static class DialogFragmentNavigator.Destination extends androidx.navigation.NavDestination implements androidx.navigation.FloatingWindow {
     ctor public DialogFragmentNavigator.Destination(androidx.navigation.NavigatorProvider);
     ctor public DialogFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.DialogFragmentNavigator.Destination>);
     method public final String getClassName();
