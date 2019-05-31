@@ -2306,7 +2306,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * @param dy Pixels to scroll vertically
      */
     public void smoothScrollBy(@Px int dx, @Px int dy) {
-        smoothScrollBy(dx, dy, null);
+        smoothScrollBy(dx, dy, null, UNDEFINED_DURATION, false);
     }
 
     /**
@@ -2318,7 +2318,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      *                     {@code null}, RecyclerView will use an internal default interpolator.
      */
     public void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator) {
-        smoothScrollBy(dx, dy, interpolator, UNDEFINED_DURATION);
+        smoothScrollBy(dx, dy, interpolator, UNDEFINED_DURATION, false);
     }
 
     /**
@@ -2336,6 +2336,40 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     public void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator,
             int duration) {
+        smoothScrollBy(dx, dy, interpolator, duration, false);
+    }
+
+    /**
+     * Internal smooth scroll by implementation that currently has some tricky logic related to it's
+     * parameters.
+     * <ul>
+     *   <li>For scrolling to occur, on either dimension, dx or dy must not be equal to 0 and the
+     *   {@link LayoutManager} must support scrolling in a direction for which the value is not 0.
+     *   <li>For smooth scrolling to occur, scrolling must occur and the duration must be equal to
+     *   {@link #UNDEFINED_DURATION} or greater than 0.
+     *   <li>For scrolling to occur with nested scrolling, smooth scrolling must occur and
+     *   {@code withNestedScrolling} must be {@code true}.  This could be updated, but it would
+     *   require that {@link #scrollBy(int, int)} be implemented such that it too can handle nested
+     *   scrolling.
+     * </ul>
+     *
+     * @param dx x distance in pixels.
+     * @param dy y distance in pixels.
+     * @param interpolator {@link Interpolator} to be used for scrolling. If it is {@code null},
+     *                     RecyclerView will use an internal default interpolator.
+     * @param duration Duration of the animation in milliseconds. Set to {@link #UNDEFINED_DURATION}
+     *                 to have the duration be automatically calculated based on an internally
+     *                 defined standard initial velocity. A duration less than 1 (that does not
+     *                 equal UNDEFINED_DURATION), will result in a call to
+     *                 {@link #scrollBy(int, int)}.
+     * @param withNestedScrolling True to perform the smooth scroll with nested scrolling. If
+     *                            {@code duration} is less than 0 and not equal to
+     *                            {@link #UNDEFINED_DURATION}, smooth scrolling will not occur and
+     *                            thus no nested scrolling will occur.
+     */
+    // Should be considered private. Not private to avoid synthetic accessor.
+    void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator,
+            int duration, boolean withNestedScrolling) {
         if (mLayout == null) {
             Log.e(TAG, "Cannot smooth scroll without a LayoutManager set. "
                     + "Call setLayoutManager with a non-null argument.");
@@ -2353,6 +2387,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (dx != 0 || dy != 0) {
             boolean durationSuggestsAnimation = duration == UNDEFINED_DURATION || duration > 0;
             if (durationSuggestsAnimation) {
+                if (withNestedScrolling) {
+                    int nestedScrollAxis = ViewCompat.SCROLL_AXIS_NONE;
+                    if (dx != 0) {
+                        nestedScrollAxis |= ViewCompat.SCROLL_AXIS_HORIZONTAL;
+                    }
+                    if (dy != 0) {
+                        nestedScrollAxis |= ViewCompat.SCROLL_AXIS_VERTICAL;
+                    }
+                    startNestedScroll(nestedScrollAxis, TYPE_NON_TOUCH);
+                }
                 mViewFlinger.smoothScrollBy(dx, dy, duration, interpolator);
             } else {
                 scrollBy(dx, dy);
@@ -10500,7 +10544,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (vScroll == 0 && hScroll == 0) {
                 return false;
             }
-            mRecyclerView.smoothScrollBy(hScroll, vScroll);
+            mRecyclerView.smoothScrollBy(hScroll, vScroll, null, UNDEFINED_DURATION, true);
             return true;
         }
 
@@ -11425,7 +11469,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (verticalThumbDrawable == null || verticalTrackDrawable == null
                 || horizontalThumbDrawable == null || horizontalTrackDrawable == null) {
             throw new IllegalArgumentException(
-                "Trying to set fast scroller without both required drawables." + exceptionLabel());
+                    "Trying to set fast scroller without both required drawables."
+                            + exceptionLabel());
         }
 
         Resources resources = getContext().getResources();
