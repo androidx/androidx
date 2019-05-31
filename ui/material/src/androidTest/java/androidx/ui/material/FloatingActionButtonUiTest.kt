@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import android.graphics.Bitmap
+import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
@@ -25,22 +26,25 @@ import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Wrap
 import androidx.ui.painting.Image
-import androidx.ui.test.android.AndroidUiTestRunner
-import androidx.compose.composer
+import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class FloatingActionButtonUiTest : AndroidUiTestRunner() {
+class FloatingActionButtonUiTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     @Test
-    fun defaultFabHasSizeFromSpec() = withDensity(density) {
+    fun defaultFabHasSizeFromSpec() = withDensity(composeTestRule.density) {
         var size: PxSize? = null
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Wrap {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -57,10 +61,10 @@ class FloatingActionButtonUiTest : AndroidUiTestRunner() {
     }
 
     @Test
-    fun extendedFabHasHeightFromSpec() = withDensity(density) {
+    fun extendedFabHasHeightFromSpec() = withDensity(composeTestRule.density) {
         var size: PxSize? = null
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Wrap {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -76,7 +80,7 @@ class FloatingActionButtonUiTest : AndroidUiTestRunner() {
         }
     }
 
-    private fun createImage() = withDensity(density) {
+    private fun createImage() = withDensity(composeTestRule.density) {
         val size = 24.dp.toIntPx().value
         Image(Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888))
     }

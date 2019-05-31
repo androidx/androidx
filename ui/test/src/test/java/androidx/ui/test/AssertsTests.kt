@@ -17,151 +17,176 @@
 package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.test.helpers.FakeUiTestRunner
+import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
 import org.junit.Test
 
 class AssertsTests {
+
     @Test
     fun assertIsVisible_forVisibleElement_isOk() {
-        FakeUiTestRunner()
-            .withProperties(SemanticsConfiguration().also {
-                it.testTag = "test"
-                it.isHidden = false
-            })
-            .findByTag("test")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
+                    it.testTag = "test"
+                    it.isHidden = false
+                })
+        }
+
+        findByTag("test")
             .assertIsVisible()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsVisible_forNotVisibleElement_throwsError() {
-        FakeUiTestRunner()
-            .withProperties(SemanticsConfiguration().also {
-                it.testTag = "test"
-                it.isHidden = true
-            })
-            .findByTag("test")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
+                    it.testTag = "test"
+                    it.isHidden = true
+                })
+        }
+
+        findByTag("test")
             .assertIsVisible()
     }
 
     @Test
     fun assertIsHidden_forHiddenElement_isOk() {
-        FakeUiTestRunner()
-            .withProperties(SemanticsConfiguration().also {
-                it.testTag = "test"
-                it.isHidden = true
-            })
-            .findByTag("test")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
+                    it.testTag = "test"
+                    it.isHidden = true
+                })
+        }
+
+        findByTag("test")
             .assertIsHidden()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsHidden_forNotHiddenElement_throwsError() {
-        FakeUiTestRunner()
-            .withProperties(SemanticsConfiguration().also {
-                it.testTag = "test"
-                it.isHidden = false
-            })
-            .findByTag("test")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
+                    it.testTag = "test"
+                    it.isHidden = false
+                })
+        }
+
+        findByTag("test")
             .assertIsHidden()
     }
 
     @Test
     fun assertIsChecked_forCheckedElement_isOk() {
-        FakeUiTestRunner()
-            .withProperties(SemanticsConfiguration().also {
-                it.testTag = "test"
-                it.isChecked = true
-            })
-            .findByTag("test")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
+                    it.testTag = "test"
+                    it.isChecked = true
+                })
+        }
+
+        findByTag("test")
             .assertIsChecked()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsChecked_forNotCheckedElement_throwsError() {
-        FakeUiTestRunner()
-            .withProperties(SemanticsConfiguration().also {
-                it.testTag = "test"
-                it.isChecked = false
-            })
-            .findByTag("test")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
+                    it.testTag = "test"
+                    it.isChecked = false
+                })
+        }
+
+        findByTag("test")
             .assertIsHidden()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsSelected_forNotSelectedElement_throwsError() {
-        FakeUiTestRunner()
-            .withProperties(
-                SemanticsConfiguration().also {
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
                     it.isSelected = false
-                }
-            )
-            .findByTag("test")
+                })
+        }
+
+        findByTag("test")
             .assertIsSelected(true)
     }
 
     @Test
     fun assertIsSelected_forSelectedElement_isOk() {
-        FakeUiTestRunner()
-            .withProperties(
-                SemanticsConfiguration().also {
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
                     it.isSelected = true
-                }
-            )
-            .findByTag("test")
+                })
+        }
+
+        findByTag("test")
             .assertIsSelected(true)
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsNotSelected_forSelectedElement_throwsError() {
-        FakeUiTestRunner()
-            .withProperties(
-                SemanticsConfiguration().also {
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
                     it.isSelected = true
-                }
-            )
-            .findByTag("test")
+                })
+        }
+
+        findByTag("test")
             .assertIsSelected(false)
     }
 
     @Test
     fun assertIsNotSelected_forNotSelectedElement_isOk() {
-        FakeUiTestRunner()
-            .withProperties(
-                SemanticsConfiguration().also {
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
                     it.isSelected = false
-                }
-            )
-            .findByTag("test")
+                })
+        }
+
+        findByTag("test")
             .assertIsSelected(false)
     }
 
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {
-        FakeUiTestRunner()
-            .withProperties(
-                SemanticsConfiguration().also {
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
                     it.isInMutuallyExclusiveGroup = false
-                }
-            )
-            .findByTag("test")
+                })
+        }
+
+        findByTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
     @Test
     fun assertItemInExclusiveGroup_forItemInGroup_isOk() {
-        FakeUiTestRunner()
-            .withProperties(
-                SemanticsConfiguration().also {
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withProperties(SemanticsConfiguration().also {
                     it.testTag = "test"
                     it.isInMutuallyExclusiveGroup = true
-                }
-            )
-            .findByTag("test")
+                })
+        }
+
+        findByTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 }

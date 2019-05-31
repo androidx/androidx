@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.OnChildPositioned
@@ -27,16 +28,19 @@ import androidx.ui.layout.Center
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.graphics.Color
-import androidx.ui.test.android.AndroidUiTestRunner
+import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth
-import androidx.compose.composer
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class ColoredRectUiTest : AndroidUiTestRunner() {
+class ColoredRectUiTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     private val bigConstraints = DpConstraints(
         maxWidth = 5000.dp,
@@ -51,7 +55,7 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
         val width = 40.dp
         val height = 71.dp
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Center {
                 Container(constraints = bigConstraints) {
                     OnChildPositioned(onPositioned = { position ->
@@ -62,7 +66,7 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
             Truth.assertThat(size?.width?.round()).isEqualTo(width.toIntPx())
         }
@@ -74,7 +78,7 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
         val width = 40.dp
         val height = 71.dp
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Center {
                 Container(width = width, height = height) {
                     OnChildPositioned(onPositioned = { position ->
@@ -85,7 +89,7 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             Truth.assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
             Truth.assertThat(size?.width?.round()).isEqualTo(width.toIntPx())
         }
@@ -95,7 +99,7 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
     fun coloredRect_expand_WholeScreenSizes() {
         var size: PxSize? = null
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Center {
                 Container(constraints = bigConstraints) {
                     OnChildPositioned(onPositioned = { position ->
@@ -106,8 +110,8 @@ class ColoredRectUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        val dm = activityTestRule.activity.resources.displayMetrics
-        withDensity(density) {
+        val dm = composeTestRule.displayMetrics
+        withDensity(composeTestRule.density) {
             Truth.assertThat(size?.height?.round()?.value).isEqualTo(dm.heightPixels)
             Truth.assertThat(size?.width?.round()?.value).isEqualTo(dm.widthPixels)
         }

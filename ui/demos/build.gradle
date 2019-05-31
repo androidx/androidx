@@ -1,4 +1,6 @@
-import static androidx.build.dependencies.DependenciesKt.KOTLIN_COMPOSE_STDLIB
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -14,6 +16,12 @@ dependencies {
     implementation(project(":ui-material:integration-tests:ui-material-demos"))
     implementation(project(":ui-text:integration-tests:ui-text-demos"))
     implementation(KOTLIN_COMPOSE_STDLIB)
+
+    androidTestImplementation project(':ui-test')
+    androidTestImplementation(JUNIT)
+    androidTestImplementation('androidx.test.ext:junit:1.1.0')
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ESPRESSO_CORE)
 }
 
 android {

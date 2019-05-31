@@ -22,7 +22,7 @@ import androidx.ui.core.semantics.SemanticsConfiguration
  * Asserts that current component is visible.
  */
 // TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
-fun SemanticsTreeQuery.assertIsVisible() =
+fun SemanticsTreeInteraction.assertIsVisible() =
     verifyAssertOnExactlyOne("The component is not visible!") {
         !it.isHidden
     }
@@ -32,7 +32,7 @@ fun SemanticsTreeQuery.assertIsVisible() =
  * the hierarchy and is hidden. If you want to actually verify that the component does not  exist
  * at all, please use [assertDoesNotExist]
  */
-fun SemanticsTreeQuery.assertIsHidden() =
+fun SemanticsTreeInteraction.assertIsHidden() =
     verifyAssertOnExactlyOne("The component is visible!") {
         it.isHidden
     }
@@ -41,7 +41,7 @@ fun SemanticsTreeQuery.assertIsHidden() =
  * Asserts that there is no component that was matched by the query. If the component exists but is
  * hidden use [assertIsHidden] instead.
  */
-fun SemanticsTreeQuery.assertDoesNotExist(): SemanticsTreeQuery {
+fun SemanticsTreeInteraction.assertDoesNotExist(): SemanticsTreeInteraction {
     val foundNodes = findAllMatching()
     if (foundNodes.isNotEmpty()) {
         throw AssertionError("Found '${foundNodes.size}' nodes but 0 was expected!")
@@ -53,19 +53,19 @@ fun SemanticsTreeQuery.assertDoesNotExist(): SemanticsTreeQuery {
  * Asserts that current component is visible.
  */
 // TODO(pavlis): Provide guarantees of being visible VS being actually displayed
-fun SemanticsTreeQuery.assertIsChecked() =
+fun SemanticsTreeInteraction.assertIsChecked() =
     // TODO(pavlis): Throw exception if component is not checkable
     verifyAssertOnExactlyOne("The component is not checked!") {
         it.isChecked == true
     }
 
-fun SemanticsTreeQuery.assertIsNotChecked() =
+fun SemanticsTreeInteraction.assertIsNotChecked() =
     // TODO(pavlis): Throw exception if component is not checkable
     verifyAssertOnExactlyOne("The component is checked!") {
         it.isChecked != true
     }
 
-fun SemanticsTreeQuery.assertIsSelected(expected: Boolean) =
+fun SemanticsTreeInteraction.assertIsSelected(expected: Boolean) =
     // TODO(pavlis): Throw exception if component is not selectable
     verifyAssertOnExactlyOne(
         "The component is expected to be selected = '$expected', but it's not!"
@@ -73,7 +73,7 @@ fun SemanticsTreeQuery.assertIsSelected(expected: Boolean) =
         it.isSelected == expected
     }
 
-fun SemanticsTreeQuery.assertIsInMutuallyExclusiveGroup() =
+fun SemanticsTreeInteraction.assertIsInMutuallyExclusiveGroup() =
     // TODO(pavlis): Throw exception if component is not selectable
     verifyAssertOnExactlyOne(
         "The component is expected to be mutually exclusive group, but it's not!"
@@ -81,14 +81,14 @@ fun SemanticsTreeQuery.assertIsInMutuallyExclusiveGroup() =
         it.isInMutuallyExclusiveGroup
     }
 
-fun SemanticsTreeQuery.assertValueEquals(value: String) =
+fun SemanticsTreeInteraction.assertValueEquals(value: String) =
     verifyAssertOnExactlyOne({ node -> "Expected value: $value Actual value: ${node.value}" }) {
         it.value == value
     }
 
-fun SemanticsTreeQuery.assertSemanticsIsEqualTo(
+fun SemanticsTreeInteraction.assertSemanticsIsEqualTo(
     expectedProperties: SemanticsConfiguration
-): SemanticsTreeQuery {
+): SemanticsTreeInteraction {
     val foundNodes = findAllMatching()
     if (foundNodes.size != 1) {
         throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")
@@ -98,17 +98,17 @@ fun SemanticsTreeQuery.assertSemanticsIsEqualTo(
     return this
 }
 
-internal fun SemanticsTreeQuery.verifyAssertOnExactlyOne(
+internal fun SemanticsTreeInteraction.verifyAssertOnExactlyOne(
     assertionMessage: String,
     condition: (SemanticsConfiguration) -> Boolean
-): SemanticsTreeQuery {
+): SemanticsTreeInteraction {
     return verifyAssertOnExactlyOne({ assertionMessage }, condition)
 }
 
-internal fun SemanticsTreeQuery.verifyAssertOnExactlyOne(
+internal fun SemanticsTreeInteraction.verifyAssertOnExactlyOne(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
-): SemanticsTreeQuery {
+): SemanticsTreeInteraction {
     val foundNodes = findAllMatching()
     if (foundNodes.size != 1) {
         throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")

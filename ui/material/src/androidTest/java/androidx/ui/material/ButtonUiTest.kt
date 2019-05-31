@@ -17,6 +17,7 @@
 package androidx.ui.material
 
 import androidx.test.filters.MediumTest
+import androidx.compose.composer
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
@@ -26,21 +27,24 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.Wrap
-import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertSemanticsIsEqualTo
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import androidx.ui.test.findByText
 import com.google.common.truth.Truth
-import androidx.compose.composer
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class ButtonUiTest : AndroidUiTestRunner() {
+class ButtonUiTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     private val defaultButtonSemantics = createFullSemantics(
         isEnabled = true,
@@ -50,7 +54,7 @@ class ButtonUiTest : AndroidUiTestRunner() {
     @Test
     fun buttonTest_defaultSemantics() {
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Center {
                 TestTag(tag = "myButton") {
                     Button(onClick = {}, text = "myButton")
@@ -65,7 +69,7 @@ class ButtonUiTest : AndroidUiTestRunner() {
     @Test
     fun buttonTest_disabledSemantics() {
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Center {
                 TestTag(tag = "myButton") {
                     Button(text = "myButton")
@@ -88,7 +92,7 @@ class ButtonUiTest : AndroidUiTestRunner() {
         val onClick: () -> Unit = { ++counter }
         val text = "myButton"
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Center {
                 Button(onClick = onClick, text = text)
             }
@@ -116,7 +120,7 @@ class ButtonUiTest : AndroidUiTestRunner() {
 
         val text = "myButton"
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Column {
                 TestTag(tag = button1Tag) {
                     Button(onClick = button1OnClick, text = text)
@@ -151,11 +155,11 @@ class ButtonUiTest : AndroidUiTestRunner() {
     }
 
     @Test
-    fun buttonTest_ButtonHeightIsFromSpec() = withDensity(density) {
+    fun buttonTest_ButtonHeightIsFromSpec() = withDensity(composeTestRule.density) {
         val buttonTag = "button"
         var size: PxSize? = null
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Wrap {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
