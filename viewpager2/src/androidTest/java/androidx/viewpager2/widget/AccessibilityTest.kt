@@ -17,7 +17,6 @@
 package androidx.viewpager2.widget
 
 import android.os.Build
-import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
@@ -25,10 +24,12 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.Accessibilit
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_UP
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,6 +67,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 16)
     fun test_onPerformPageAction() {
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(6)))
@@ -98,20 +100,25 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             val initialPage = viewPager.currentItem
             assertBasicState(initialPage)
 
-            var node = AccessibilityNodeInfo.obtain()
-            activityTestRule.runOnUiThread { viewPager.onInitializeAccessibilityNodeInfo(node) }
-            var collectionInfo = node.collectionInfo
-
-            if (config.orientation == ORIENTATION_VERTICAL) {
-                assertThat(collectionInfo.rowCount, equalTo(6))
-                assertThat(collectionInfo.columnCount, equalTo(0))
-            } else {
-                assertThat(collectionInfo.columnCount, equalTo(6))
-                assertThat(collectionInfo.rowCount, equalTo(0))
+            var node = AccessibilityNodeInfoCompat.obtain()
+            activityTestRule.runOnUiThread {
+                ViewCompat.onInitializeAccessibilityNodeInfo(viewPager, node)
             }
-            assertThat(collectionInfo.isHierarchical, equalTo(false))
-            if (Build.VERSION.SDK_INT >= 21) {
-                assertThat(collectionInfo.selectionMode, equalTo(0))
+            var collectionInfo = node.collectionInfo
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                if (config.orientation == ORIENTATION_VERTICAL) {
+                    assertThat(collectionInfo.rowCount, equalTo(6))
+                    assertThat(collectionInfo.columnCount, equalTo(0))
+                } else {
+                    assertThat(collectionInfo.columnCount, equalTo(6))
+                    assertThat(collectionInfo.rowCount, equalTo(0))
+                }
+                assertThat(collectionInfo.isHierarchical, equalTo(false))
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    assertThat(collectionInfo.selectionMode, equalTo(0))
+                }
+            } else {
+                assertNull(collectionInfo)
             }
         }
     }
