@@ -158,7 +158,6 @@ public final class ViewPager2 extends ViewGroup {
     private PageTransformerAdapter mPageTransformerAdapter;
     private boolean mUserInputEnabled = true;
     private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
-    private RecyclerView.AdapterDataObserver mAdapterDataObserver;
     private AccessibilityProvider mAccessibilityProvider;
 
     public ViewPager2(@NonNull Context context) {
@@ -483,15 +482,10 @@ public final class ViewPager2 extends ViewGroup {
      * @see RecyclerView#setAdapter(Adapter)
      */
     public void setAdapter(@Nullable Adapter adapter) {
-        Adapter oldAdapter = mRecyclerView.getAdapter();
-        if (oldAdapter != null) {
-            oldAdapter.unregisterAdapterDataObserver(mAdapterDataObserver);
-        }
-
+        mAccessibilityProvider.onDetachAdapter(mRecyclerView.getAdapter());
         mRecyclerView.setAdapter(adapter);
         restorePendingState();
-        updatePageAccessibilityActions();
-        adapter.registerAdapterDataObserver(mAdapterDataObserver);
+        mAccessibilityProvider.onAttachAdapter(adapter);
     }
 
     public @Nullable Adapter getAdapter() {
@@ -1194,6 +1188,8 @@ public final class ViewPager2 extends ViewGroup {
 
     @SuppressLint("SyntheticAccessor") // TODO: remove after the refactor
     private class AccessibilityProvider {
+        private RecyclerView.AdapterDataObserver mAdapterDataObserver;
+
         void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher) {
             ViewCompat.setImportantForAccessibility(mRecyclerView,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
@@ -1237,6 +1233,17 @@ public final class ViewPager2 extends ViewGroup {
 
         void onRestorePendingState() {
             updatePageAccessibilityActions();
+        }
+
+        void onAttachAdapter(@Nullable Adapter newAdapter) {
+            updatePageAccessibilityActions();
+            newAdapter.registerAdapterDataObserver(mAdapterDataObserver); // TODO: fix NPE
+        }
+
+        void onDetachAdapter(@Nullable Adapter oldAdapter) {
+            if (oldAdapter != null) {
+                oldAdapter.unregisterAdapterDataObserver(mAdapterDataObserver);
+            }
         }
     }
 }
