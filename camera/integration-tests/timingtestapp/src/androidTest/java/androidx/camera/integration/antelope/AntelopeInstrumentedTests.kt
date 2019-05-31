@@ -17,7 +17,10 @@
 package androidx.camera.integration.antelope
 
 import android.content.Intent
+import android.hardware.camera2.CameraAccessException
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.hardware.camera2.CameraMetadata
 import android.preference.PreferenceManager
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -324,8 +327,8 @@ class AntelopeInstrumentedTests {
         val res = context.resources
         val prefEditor = PreferenceManager.getDefaultSharedPreferences(context).edit()
 
-        // If device doesn't have both a front and back camera, skip this test
-        assumeTrue(hasFrontAndBackCamera())
+        // If device doesn't have both camera 0 and 1, skip this test
+        assumeTrue(hasCameraZeroAndOne())
 
         // Set up switch test
         prefEditor.putString(res.getString(R.string.settings_single_test_type_key), "SWITCH_CAMERA")
@@ -488,7 +491,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putStringSet(res.getString(R.string.settings_autotest_focus_key),
             res.getStringArray(R.array.array_settings_focus).toHashSet())
 
-        if (hasFrontAndBackCamera())
+        if (hasCameraZeroAndOne())
             prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), true)
         else
             prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
@@ -577,7 +580,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putStringSet(res.getString(R.string.settings_autotest_focus_key),
             res.getStringArray(R.array.array_settings_focus).toHashSet())
 
-        if (hasFrontAndBackCamera())
+        if (hasCameraZeroAndOne())
             prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), true)
         else
             prefEditor.putBoolean(res.getString(R.string.settings_autotest_switchtest_key), false)
@@ -638,6 +641,29 @@ class AntelopeInstrumentedTests {
     }
 
     /**
+     * Checks whether the test device has a camera of the given type. Usually
+     * CameraMetadata.LENS_FACING_BACK or CameraMetadata.LENS_FACING_FRONT
+     */
+    private fun hasCameraType(cameraType: Int): Boolean {
+        val activity = activityRule.activity as MainActivity
+        val manager = activity.getSystemService(AppCompatActivity.CAMERA_SERVICE) as CameraManager
+
+        for (cameraId in manager.cameraIdList) {
+            try {
+                val characteristics = manager.getCameraCharacteristics(cameraId)
+                val cameraFacing = characteristics.get(CameraCharacteristics.LENS_FACING)
+
+                if (cameraFacing == cameraType) {
+                    return true
+                }
+            } catch (e: CameraAccessException) {
+                return false
+            }
+        }
+        return false
+    }
+
+    /**
      * Checks if this devices has either a camera with id 0 or id 1
      */
     private fun hasAnyCamera(): Boolean = hasCamera("0") || hasCamera("1")
@@ -645,7 +671,13 @@ class AntelopeInstrumentedTests {
     /**
      * Checks if this devices has both a camera with id 0 and id 1
      */
-    private fun hasFrontAndBackCamera(): Boolean = hasCamera("0") && hasCamera("1")
+    private fun hasCameraZeroAndOne(): Boolean = hasCamera("0") && hasCamera("1")
+
+    /**
+     * Checks if this devices has both a front and back camera
+     */
+    private fun hasFrontAndBackCamera(): Boolean = hasCameraType(CameraMetadata.LENS_FACING_BACK) &&
+            hasCameraType(CameraMetadata.LENS_FACING_FRONT)
 
     /**
      * Determine what the first camera in the system is.
