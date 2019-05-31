@@ -53,6 +53,7 @@ package androidx.core.app {
 
   public static class NotificationCompat.Builder {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getBigContentView();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getColor();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getContentView();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getHeadsUpContentView();
@@ -99,6 +100,9 @@ package androidx.core.app {
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.core.graphics.drawable.IconCompat! mIcon;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean mShouldShowIcon;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CharSequence! mTitle;
+  }
+
+  @IntDef({androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RemoteInput.EditChoicesBeforeSending {
   }
 
   @IntDef({androidx.core.app.RemoteInput.SOURCE_FREE_FORM_INPUT, androidx.core.app.RemoteInput.SOURCE_CHOICE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RemoteInput.Source {
@@ -230,6 +234,10 @@ package androidx.core.content.res {
 
 package androidx.core.graphics {
 
+  public final class Insets {
+    method @RequiresApi(api=29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.Insets wrap(android.graphics.Insets);
+  }
+
   public class TypefaceCompat {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromFontInfo(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFamilyXml(android.content.Context, androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry, android.content.res.Resources, int, int, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean);
@@ -264,6 +272,15 @@ package androidx.core.graphics {
     method public android.graphics.Typeface! createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
     method public android.graphics.Typeface! createFromFontInfo(android.content.Context!, android.os.CancellationSignal!, androidx.core.provider.FontsContractCompat.FontInfo![], int);
     method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(29) public class TypefaceCompatApi29Impl {
+    ctor public TypefaceCompatApi29Impl();
+    method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
+    method public android.graphics.Typeface? createFromFontInfo(android.content.Context!, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
+    method protected android.graphics.Typeface! createFromInputStream(android.content.Context!, java.io.InputStream!);
+    method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
+    method protected androidx.core.provider.FontsContractCompat.FontInfo! findBestInfo(androidx.core.provider.FontsContractCompat.FontInfo![]!, int);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatUtil {
