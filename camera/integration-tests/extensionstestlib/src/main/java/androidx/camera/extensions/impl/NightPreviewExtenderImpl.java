@@ -60,7 +60,7 @@ public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
     }
 
     @Override
-    public RequestUpdateProcessorImpl getRequestUpdatePreviewProcessor() {
+    public ProcessorImpl getProcessor() {
         return RequestUpdateProcessorImpls.noUpdateProcessor();
     }
 
