@@ -1178,7 +1178,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             public void onAnimationEnd(Animator animation) {
                                 container.endViewTransition(animatingView);
                                 animation.removeListener(this);
-                                if (fragment.mView != null) {
+                                if (fragment.mView != null && fragment.mHidden) {
                                     fragment.mView.setVisibility(View.GONE);
                                 }
                             }
