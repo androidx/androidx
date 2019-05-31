@@ -772,10 +772,7 @@ public final class ViewPager2 extends ViewGroup {
      */
     public void setUserInputEnabled(boolean enabled) {
         mUserInputEnabled = enabled;
-        updatePageAccessibilityActions();
-        if (Build.VERSION.SDK_INT < 21) {
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
-        }
+        mAccessibilityProvider.onSetUserInputEnabled();
     }
 
     /**
@@ -1252,6 +1249,13 @@ public final class ViewPager2 extends ViewGroup {
 
         void onSetNewCurrentItem() {
             updatePageAccessibilityActions();
+        }
+
+        void onSetUserInputEnabled() {
+            updatePageAccessibilityActions();
+            if (Build.VERSION.SDK_INT < 21) {
+                sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
+            }
         }
     }
 }
