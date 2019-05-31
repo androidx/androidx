@@ -61,6 +61,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -166,6 +167,12 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @SmallTest
     @SdkSuppress(minSdkVersion = 24)
     public void testSystemJobScheduler_cancelsOnceAtOrAboveApi24() {
+        PersistableBundle extras = new PersistableBundle();
+        extras.putString(EXTRA_WORK_SPEC_ID, TEST_ID);
+        JobInfo job = mock(JobInfo.class);
+        when(job.getExtras()).thenReturn(extras);
+        doReturn(Collections.singletonList(job)).when(mJobScheduler).getAllPendingJobs();
+
         mSystemJobScheduler.cancel(TEST_ID);
         verify(mJobScheduler, times(1)).cancel(anyInt());
     }

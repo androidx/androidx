@@ -15,6 +15,8 @@
  */
 package androidx.work.impl.background.systemjob;
 
+import static android.content.Context.JOB_SCHEDULER_SERVICE;
+
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
 
 import android.app.job.JobInfo;
@@ -60,7 +62,7 @@ public class SystemJobScheduler implements Scheduler {
     public SystemJobScheduler(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         this(context,
                 workManager,
-                (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE),
+                (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE),
                 new SystemJobInfoConverter(context));
     }
 
@@ -178,18 +180,8 @@ public class SystemJobScheduler implements Scheduler {
         } catch (IllegalStateException e) {
             // This only gets thrown if we exceed 100 jobs.  Let's figure out if WorkManager is
             // responsible for all these jobs.
-            int numWorkManagerJobs = 0;
-            List<JobInfo> allJobInfos = mJobScheduler.getAllPendingJobs();
-            //noinspection ConstantConditions
-            if (allJobInfos != null) {  // Apparently this CAN be null on API 23?
-                for (JobInfo currentJobInfo : allJobInfos) {
-                    PersistableBundle extras = currentJobInfo.getExtras();
-                    //noinspection ConstantConditions
-                    if (extras != null && extras.getString(EXTRA_WORK_SPEC_ID) != null) {
-                        ++numWorkManagerJobs;
-                    }
-                }
-            }
+            List<JobInfo> jobs = getPendingJobs(mJobScheduler);
+            int numWorkManagerJobs = jobs != null ? jobs.size() : 0;
 
             String message = String.format(Locale.getDefault(),
                     "JobScheduler 100 job limit exceeded.  We count %d WorkManager "
@@ -203,34 +195,32 @@ public class SystemJobScheduler implements Scheduler {
 
             // Rethrow a more verbose exception.
             throw new IllegalStateException(message, e);
+        } catch (Throwable throwable) {
+            // OEM implementation bugs in JobScheduler cause the app to crash. Avoid crashing.
+            Logger.get().error(TAG, String.format("Unable to schedule %s", workSpec), throwable);
         }
     }
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        // Note: despite what the word "pending" and the associated Javadoc might imply, this is
-        // actually a list of all unfinished jobs that JobScheduler knows about for the current
-        // process.
-        List<JobInfo> allJobInfos = mJobScheduler.getAllPendingJobs();
-        //noinspection ConstantConditions
-        if (allJobInfos != null) {  // Apparently this CAN be null on API 23?
-            for (JobInfo jobInfo : allJobInfos) {
-                PersistableBundle extras = jobInfo.getExtras();
-                //noinspection ConstantConditions
-                if (extras != null && workSpecId.equals(extras.getString(EXTRA_WORK_SPEC_ID))) {
-                    // Its safe to call this method twice.
-                    mWorkManager.getWorkDatabase()
-                            .systemIdInfoDao()
-                            .removeSystemIdInfo(workSpecId);
-
-                    mJobScheduler.cancel(jobInfo.getId());
-
-                    // See comment in #schedule.
-                    if (Build.VERSION.SDK_INT != 23) {
-                        return;
-                    }
+        List<Integer> jobIds = getPendingJobIds(mJobScheduler, workSpecId);
+        if (jobIds != null && !jobIds.isEmpty()) {
+            for (int jobId : jobIds) {
+                try {
+                    mJobScheduler.cancel(jobId);
+                } catch (Throwable throwable) {
+                    // OEM implementation bugs in JobScheduler cause the app to crash.
+                    // Avoid crashing.
+                    Logger.get().error(TAG,
+                            String.format("Exception while trying to cancel WorkSpec (%s)",
+                                    workSpecId), throwable);
                 }
             }
+
+            // Drop the relevant system ids.
+            mWorkManager.getWorkDatabase()
+                .systemIdInfoDao()
+                .removeSystemIdInfo(workSpecId);
         }
     }
 
@@ -238,59 +228,84 @@ public class SystemJobScheduler implements Scheduler {
      * Cancels all the jobs owned by {@link androidx.work.WorkManager} in {@link JobScheduler}.
      */
     public static void jobSchedulerCancelAll(@NonNull Context context) {
-        JobScheduler jobScheduler = (JobScheduler)
-                context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
         if (jobScheduler != null) {
-            List<JobInfo> jobInfos = jobScheduler.getAllPendingJobs();
-            // Apparently this can be null on API 23?
-            //noinspection ConstantConditions
-            if (jobInfos != null) {
-                for (JobInfo jobInfo : jobInfos) {
-                    PersistableBundle extras = jobInfo.getExtras();
-                    // This is a job scheduled by WorkManager.
-                    //noinspection ConstantConditions
-                    if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
-                        jobScheduler.cancel(jobInfo.getId());
+            List<JobInfo> jobs = getPendingJobs(jobScheduler);
+            if (jobs != null && !jobs.isEmpty()) {
+                for (JobInfo jobInfo : jobs) {
+                    int id = jobInfo.getId();
+                    try {
+                        jobScheduler.cancel(id);
+                    } catch (Throwable throwable) {
+                        Logger.get().error(TAG,
+                                String.format(Locale.getDefault(),
+                                        "Exception while trying to cancel Job (%d)", id),
+                                throwable);
                     }
                 }
             }
         }
     }
 
+    @Nullable
+    @SuppressWarnings("ConstantConditions")
+    private static List<JobInfo> getPendingJobs(@NonNull JobScheduler jobScheduler) {
+        List<JobInfo> pendingJobs = null;
+        try {
+            // Note: despite what the word "pending" and the associated Javadoc might imply, this is
+            // actually a list of all unfinished jobs that JobScheduler knows about for the current
+            // process.
+            pendingJobs = jobScheduler.getAllPendingJobs();
+        } catch (Throwable exception) {
+            // OEM implementation bugs in JobScheduler cause the app to crash. Avoid crashing.
+            Logger.get().error(TAG, "getAllPendingJobs() is not reliable on this device.",
+                    exception);
+        }
+
+        if (pendingJobs == null) {
+            return null;
+        }
+
+        // Filter jobs that belong to WorkManager.
+        List<JobInfo> filtered = new ArrayList<>(pendingJobs.size());
+        for (JobInfo jobInfo : pendingJobs) {
+            PersistableBundle extras = jobInfo.getExtras();
+            if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
+                filtered.add(jobInfo);
+            }
+        }
+        return filtered;
+    }
+
     /**
-     * Always wrap a call to getAllPendingJobs() with a try catch as there are platform bugs with
-     * several OEMs in API 23, which cause this method to throw Exceptions.
+     * Always wrap a call to getAllPendingJobs(), schedule() and cancel() with a try catch as there
+     * are platform bugs with several OEMs in API 23, which cause this method to throw Exceptions.
+     *
      * For reference: b/133556574, b/133556809, b/133556535
      */
     @Nullable
+    @SuppressWarnings("ConstantConditions")
     private static List<Integer> getPendingJobIds(
             @NonNull JobScheduler jobScheduler,
             @NonNull String workSpecId) {
 
-        try {
-            // We have at most 2 jobs per WorkSpec
-            List<Integer> pendingJobs = new ArrayList<>(2);
-            List<JobInfo> jobInfos = jobScheduler.getAllPendingJobs();
-            // Apparently this CAN be null on API 23?
-            //noinspection ConstantConditions
-            if (jobInfos != null) {
-                for (JobInfo jobInfo : jobInfos) {
-                    PersistableBundle extras = jobInfo.getExtras();
-                    //noinspection ConstantConditions
-                    if (extras != null
-                            && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
-                        if (workSpecId.equals(
-                                extras.getString(EXTRA_WORK_SPEC_ID))) {
-                            pendingJobs.add(jobInfo.getId());
-                        }
-                    }
-                }
-            }
-            return pendingJobs;
-        } catch (Throwable throwable) {
-            Logger.get().error(TAG, "Ignoring an exception with getPendingJobIds", throwable);
+        List<JobInfo> jobs = getPendingJobs(jobScheduler);
+        if (jobs == null) {
             return null;
         }
+
+        // We have at most 2 jobs per WorkSpec
+        List<Integer> jobIds = new ArrayList<>(2);
+
+        for (JobInfo jobInfo : jobs) {
+            PersistableBundle extras = jobInfo.getExtras();
+            if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
+                if (workSpecId.equals(extras.getString(EXTRA_WORK_SPEC_ID))) {
+                    jobIds.add(jobInfo.getId());
+                }
+            }
+        }
+
+        return jobIds;
     }
 }
