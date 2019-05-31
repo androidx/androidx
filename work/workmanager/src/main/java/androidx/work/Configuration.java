@@ -85,6 +85,8 @@ public final class Configuration {
     }
 
     /**
+     * Gets the {@link Executor} used by {@link WorkManager} to execute {@link Worker}s.
+     *
      * @return The {@link Executor} used by {@link WorkManager} to execute {@link Worker}s
      */
     public @NonNull Executor getExecutor() {
@@ -92,7 +94,9 @@ public final class Configuration {
     }
 
     /**
-     * @return The {@link Executor} used by {@link WorkManager} for all its internal book-keeping.
+     * Gets the {@link Executor} used by {@link WorkManager} for all its internal business logic.
+     *
+     * @return The {@link Executor} used by {@link WorkManager} for all its internal business logic
      */
     @NonNull
     public Executor getTaskExecutor() {
@@ -100,6 +104,9 @@ public final class Configuration {
     }
 
     /**
+     * Gets the {@link WorkerFactory} used by {@link WorkManager} to create
+     * {@link ListenableWorker}s.
+     *
      * @return The {@link WorkerFactory} used by {@link WorkManager} to create
      *         {@link ListenableWorker}s
      */
@@ -108,7 +115,10 @@ public final class Configuration {
     }
 
     /**
-     * @return The minimum logging level.
+     * Gets the minimum logging level for {@link WorkManager}.
+     *
+     * @return The minimum logging level, corresponding to the constants found in
+     * {@link android.util.Log}
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -117,6 +127,8 @@ public final class Configuration {
     }
 
     /**
+     * Gets the first valid id used when scheduling work with {@link android.app.job.JobScheduler}.
+     *
      * @return The first valid id (inclusive) used by {@link WorkManager} when creating new
      *         instances of {@link android.app.job.JobInfo}s.  If the current {@code jobId} goes
      *         beyond the bounds of the defined range of
@@ -129,6 +141,8 @@ public final class Configuration {
     }
 
     /**
+     * Gets the last valid id when scheduling work with {@link android.app.job.JobScheduler}.
+     *
      * @return The last valid id (inclusive) used by {@link WorkManager} when
      *         creating new instances of {@link android.app.job.JobInfo}s.  If the current
      *         {@code jobId} goes beyond the bounds of the defined range of
@@ -141,6 +155,9 @@ public final class Configuration {
     }
 
     /**
+     * Gets the maximum number of system requests that can be made by {@link WorkManager} when using
+     * {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
+     *
      * @return The maximum number of system requests which can be enqueued by {@link WorkManager}
      *         when using {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}
      * @hide
@@ -202,8 +219,7 @@ public final class Configuration {
          * Specifies a {@link Executor} which will be used by WorkManager for all its
          * internal book-keeping.
          *
-         * For best performance this {@link Executor} should be bounded. This {@link Executor}
-         * should *not* be a single threaded executor.
+         * For best performance this {@link Executor} should be bounded.
          *
          * For more information look at
          * {@link androidx.room.RoomDatabase.Builder#setQueryExecutor(Executor)}.

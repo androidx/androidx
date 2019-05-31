@@ -259,7 +259,7 @@ public class SystemJobScheduler implements Scheduler {
     }
 
     /**
-     * Always wrap a call to getPendingJobs() with a try catch as there are platform bugs with
+     * Always wrap a call to getAllPendingJobs() with a try catch as there are platform bugs with
      * several OEMs in API 23, which cause this method to throw Exceptions.
      * For reference: b/133556574, b/133556809, b/133556535
      */
