@@ -1,3 +1,5 @@
+rootProject.name = "androidx"
+
 /////////////////////////////
 //
 // Buildscript utils

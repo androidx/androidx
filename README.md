@@ -81,7 +81,7 @@ You can build maven artifacts locally, and test them directly in your app:
 
 And put in your **project** `build.gradle` file:
 
-    handler.maven { url '/path/to/checkout/out/support/build/support_repo/' }
+    handler.maven { url '/path/to/checkout/out/androidx/build/support_repo/' }
 
 ### Continuous integration
 [Our continuous integration system](https://ci.android.com/builds/branches/aosp-androidx-master-dev/grid?) builds all in progress (and potentially unstable) libraries as new changes are merged. You can manually download these AARs and JARs for your experimentation.
