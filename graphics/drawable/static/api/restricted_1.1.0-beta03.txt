@@ -1,0 +1,9 @@
+// Signature format: 3.0
+package androidx.vectordrawable.graphics.drawable {
+
+  public class VectorDrawableCompat extends android.graphics.drawable.Drawable implements androidx.core.graphics.drawable.TintAwareDrawable {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public float getPixelSize();
+  }
+
+}
+

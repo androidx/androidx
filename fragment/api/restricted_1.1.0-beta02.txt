@@ -1,0 +1,47 @@
+// Signature format: 3.0
+package androidx.fragment.app {
+
+  public class DialogFragment extends androidx.fragment.app.Fragment implements android.content.DialogInterface.OnCancelListener android.content.DialogInterface.OnDismissListener {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setupDialog(android.app.Dialog, int);
+  }
+
+  public class Fragment implements android.content.ComponentCallbacks androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.view.LayoutInflater getLayoutInflater(android.os.Bundle?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final boolean hasOptionsMenu();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final boolean isMenuVisible();
+  }
+
+  public class FragmentActivity extends androidx.activity.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected boolean onPrepareOptionsPanel(android.view.View?, android.view.Menu);
+    method public final void validateRequestPermissionsRequestCode(int);
+  }
+
+  public abstract class FragmentManager {
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.fragment.app.FragmentTransaction openTransaction();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class FragmentTransitionImpl {
+    ctor public FragmentTransitionImpl();
+    method public abstract void addTarget(Object!, android.view.View!);
+    method public abstract void addTargets(Object!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void beginDelayedTransition(android.view.ViewGroup!, Object!);
+    method protected static void bfsAddViewChildren(java.util.List<android.view.View!>!, android.view.View!);
+    method public abstract boolean canHandle(Object!);
+    method public abstract Object! cloneTransition(Object!);
+    method protected void getBoundsOnScreen(android.view.View!, android.graphics.Rect!);
+    method protected static boolean isNullOrEmpty(java.util.List!);
+    method public abstract Object! mergeTransitionsInSequence(Object!, Object!, Object!);
+    method public abstract Object! mergeTransitionsTogether(Object!, Object!, Object!);
+    method public abstract void removeTarget(Object!, android.view.View!);
+    method public abstract void replaceTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void scheduleHideFragmentView(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void scheduleRemoveTargets(Object!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!, Object!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void setEpicenter(Object!, android.view.View!);
+    method public abstract void setEpicenter(Object!, android.graphics.Rect!);
+    method public abstract void setSharedElementTargets(Object!, android.view.View!, java.util.ArrayList<android.view.View!>!);
+    method public abstract void swapSharedElementTargets(Object!, java.util.ArrayList<android.view.View!>!, java.util.ArrayList<android.view.View!>!);
+    method public abstract Object! wrapTransitionInSet(Object!);
+  }
+
+}
+
