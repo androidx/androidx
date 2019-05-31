@@ -16,7 +16,7 @@
 
 package androidx.recyclerview.selection;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.content.Context;
@@ -180,7 +180,7 @@ public abstract class SelectionTracker<K> {
     public abstract boolean deselect(@NonNull K key);
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected abstract AdapterDataObserver getAdapterDataObserver();
 
     /**
@@ -192,7 +192,7 @@ public abstract class SelectionTracker<K> {
      *                 work with the established anchor point to define selection ranges.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public abstract void startRange(int position);
 
     /**
@@ -208,7 +208,7 @@ public abstract class SelectionTracker<K> {
      *         must have been started by a call to {@link #startRange(int)}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public abstract void extendRange(int position);
 
     /**
@@ -217,14 +217,14 @@ public abstract class SelectionTracker<K> {
      * {@link #mergeProvisionalSelection()} is called first.)
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public abstract void endRange();
 
     /**
      * @return Whether or not there is a current range selection active.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public abstract boolean isRangeActive();
 
     /**
@@ -237,7 +237,7 @@ public abstract class SelectionTracker<K> {
      * @param position the anchor position. Must already be selected.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public abstract void anchorRange(int position);
 
     /**
@@ -246,7 +246,7 @@ public abstract class SelectionTracker<K> {
      * @param position the end point.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected abstract void extendProvisionalRange(int position);
 
     /**
@@ -254,14 +254,14 @@ public abstract class SelectionTracker<K> {
      * @param newSelection
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected abstract void setProvisionalSelection(@NonNull Set<K> newSelection);
 
     /**
      * Clears any existing provisional selection
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected abstract void clearProvisionalSelection();
 
     /**
@@ -269,7 +269,7 @@ public abstract class SelectionTracker<K> {
      * provisional selection.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected abstract void mergeProvisionalSelection();
 
     /**
