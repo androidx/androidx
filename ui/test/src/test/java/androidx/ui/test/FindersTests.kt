@@ -18,20 +18,23 @@ package androidx.ui.test
 
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.test.helpers.FakeUiTestRunner
+import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
 import com.google.common.truth.Truth
 import org.junit.Test
 
 class FindersTests {
     @Test
     fun findByTag_zeroOutOfOne_findsNone() {
-        val foundNodes = FakeUiTestRunner()
-            .withSemantics(newNode(
-                SemanticsConfiguration().apply {
-                    testTag = "not_myTestTag"
-                }
-            ))
-            .findByTag("myTestTag")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withSemantics(newNode(
+                    SemanticsConfiguration().apply {
+                        testTag = "not_myTestTag"
+                    }
+                ))
+        }
+
+        val foundNodes = findByTag("myTestTag")
             .findAllMatching()
 
         Truth.assertThat(foundNodes).isEmpty()
@@ -46,9 +49,12 @@ class FindersTests {
             testTag = "myTestTag2"
         })
 
-        val foundNodes = FakeUiTestRunner()
-            .withSemantics(node1, node2)
-            .findByTag("myTestTag")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withSemantics(node1, node2)
+        }
+
+        val foundNodes = findByTag("myTestTag")
             .findAllMatching()
 
         Truth.assertThat(foundNodes).containsExactly(node1)
@@ -67,9 +73,12 @@ class FindersTests {
             }
         )
 
-        val foundNodes = FakeUiTestRunner()
-            .withSemantics(node1, node2)
-            .findByTag("myTestTag")
+        semanticsTreeInteractionFactory = {
+            FakeSemanticsTreeInteraction()
+                .withSemantics(node1, node2)
+        }
+
+        val foundNodes = findByTag("myTestTag")
             .findAllMatching()
 
         Truth.assertThat(foundNodes).containsExactly(node1, node2)

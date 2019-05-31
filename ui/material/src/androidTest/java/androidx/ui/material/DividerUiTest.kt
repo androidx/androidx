@@ -16,6 +16,7 @@
 
 package androidx.ui.material
 
+import androidx.compose.composer
 import androidx.test.filters.MediumTest
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
@@ -24,16 +25,19 @@ import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.test.android.AndroidUiTestRunner
+import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
-import androidx.compose.composer
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class DividerUiTest : AndroidUiTestRunner() {
+class DividerUiTest {
+
+    @get:Rule
+    val composeTestRule = createComposeRule()
 
     private val bigConstraints = DpConstraints(maxWidth = 5000.dp, maxHeight = 5000.dp)
 
@@ -42,7 +46,7 @@ class DividerUiTest : AndroidUiTestRunner() {
     @Test
     fun divider_DefaultSizes() {
         var size: PxSize? = null
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = bigConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -51,8 +55,8 @@ class DividerUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        val dm = activityTestRule.activity.resources.displayMetrics
-        withDensity(density) {
+        val dm = composeTestRule.displayMetrics
+        withDensity(composeTestRule.density) {
             assertThat(size?.height?.round()).isEqualTo(defaultHeight.toIntPx())
             assertThat(size?.width?.value?.toInt()).isEqualTo(dm.widthPixels)
         }
@@ -63,7 +67,7 @@ class DividerUiTest : AndroidUiTestRunner() {
         var size: PxSize? = null
         val height = 20.dp
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = bigConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -72,8 +76,8 @@ class DividerUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        val dm = activityTestRule.activity.resources.displayMetrics
-        withDensity(density) {
+        val dm = composeTestRule.displayMetrics
+        withDensity(composeTestRule.density) {
             assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
             assertThat(size?.width?.value?.toInt()).isEqualTo(dm.widthPixels)
         }
@@ -85,7 +89,7 @@ class DividerUiTest : AndroidUiTestRunner() {
         val indent = 75.dp
         val height = 21.dp
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = bigConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -94,8 +98,8 @@ class DividerUiTest : AndroidUiTestRunner() {
                 }
             }
         }
-        val dm = activityTestRule.activity.resources.displayMetrics
-        withDensity(density) {
+        val dm = composeTestRule.displayMetrics
+        withDensity(composeTestRule.density) {
             assertThat(size?.height?.round()).isEqualTo(height.toIntPx())
             assertThat(size?.width?.value?.toInt()).isEqualTo(dm.widthPixels)
         }

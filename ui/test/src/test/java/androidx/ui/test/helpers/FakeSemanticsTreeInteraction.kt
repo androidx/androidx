@@ -16,40 +16,47 @@
 
 package androidx.ui.test.helpers
 
-import android.view.MotionEvent
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.test.SemanticsTreeInteraction
 import androidx.ui.test.SemanticsTreeNodeStub
-import androidx.ui.test.UiTestRunner
 
-class FakeUiTestRunner : UiTestRunner {
+class FakeSemanticsTreeInteraction : SemanticsTreeInteraction() {
 
     private lateinit var semanticsToUse: List<SemanticsTreeNode>
 
-    fun withProperties(vararg properties: SemanticsConfiguration): FakeUiTestRunner {
+    private val selectors = mutableListOf<(SemanticsTreeNode) -> Boolean>()
+
+    fun withProperties(
+        vararg properties: SemanticsConfiguration
+    ): FakeSemanticsTreeInteraction {
         semanticsToUse = properties.map {
-            SemanticsTreeNodeStub(/* data= */ it) }.toList()
+            SemanticsTreeNodeStub(/* data= */ it)
+        }.toList()
         return this
     }
 
-    fun withSemantics(vararg nodes: SemanticsTreeNode): FakeUiTestRunner {
+    fun withSemantics(vararg nodes: SemanticsTreeNode): FakeSemanticsTreeInteraction {
         semanticsToUse = nodes.toList()
         return this
     }
 
-    override fun findSemantics(
+    override fun addSelector(
         selector: (SemanticsTreeNode) -> Boolean
-    ): List<SemanticsTreeNode> {
+    ): SemanticsTreeInteraction {
+        selectors.add(selector)
+        return this
+    }
+
+    override fun findAllMatching(): List<SemanticsTreeNode> {
         // TODO(pavlis): This is too simplified, use more of the real code so we test more than
         // just a lambda correctness.
-        return semanticsToUse.filter { selector(it) }.toList()
+        return semanticsToUse
+            .filter { node -> selectors.all { selector -> selector(node) } }
+            .toList()
     }
 
-    override fun sendEvent(event: MotionEvent) {
-        // TODO(catalintudor): implement
-    }
-
-    override fun performClick(x: Float, y: Float) {
-        // TODO(malkov): implement?
+    override fun sendClick(x: Float, y: Float) {
+        TODO("replace with host side interaction")
     }
 }

@@ -17,6 +17,7 @@ package androidx.ui.material
 
 import CircularProgressIndicator
 import LinearProgressIndicator
+import androidx.compose.composer
 import androidx.compose.Model
 import androidx.test.filters.LargeTest
 import androidx.ui.core.OnChildPositioned
@@ -27,12 +28,12 @@ import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.assertValueEquals
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
-import androidx.compose.composer
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -44,19 +45,22 @@ private class State {
 
 @LargeTest
 @RunWith(JUnit4::class)
-class ProgressIndicatorTest : AndroidUiTestRunner() {
+class ProgressIndicatorTest {
 
     private val LargeConstraints = DpConstraints(maxWidth = 5000.dp, maxHeight = 5000.dp)
 
     private val ExpectedLinearWidth = 240.dp
     private val ExpectedLinearHeight = 4.dp
 
+    @get:Rule
+    val composeTestRule = createComposeRule()
+
     @Test
     fun determinateLinearProgressIndicator_Progress() {
         val tag = "linear"
         val state = State()
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TestTag(tag = tag) {
                 LinearProgressIndicator(progress = state.progress)
             }
@@ -66,7 +70,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
             .assertIsVisible()
             .assertValueEquals("0.0")
 
-        runOnUiAndWaitForIdle {
+        composeTestRule.runOnUiThread {
             state.progress = 0.5f
         }
 
@@ -78,7 +82,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
     @Test
     fun determinateLinearProgressIndicator_Size() {
         var size: PxSize? = null
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = LargeConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -87,7 +91,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
                 }
             }
         }
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             Truth.assertThat(size?.width?.round()).isEqualTo(ExpectedLinearWidth.toIntPx())
             Truth.assertThat(size?.height?.round()).isEqualTo(ExpectedLinearHeight.toIntPx())
         }
@@ -96,7 +100,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
     @Test
     fun indeterminateLinearProgressIndicator_Size() {
         var size: PxSize? = null
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = LargeConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -105,7 +109,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
                 }
             }
         }
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             Truth.assertThat(size?.width?.round()).isEqualTo(ExpectedLinearWidth.toIntPx())
             Truth.assertThat(size?.height?.round()).isEqualTo(ExpectedLinearHeight.toIntPx())
         }
@@ -116,7 +120,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
         val tag = "circular"
         val state = State()
 
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             TestTag(tag = tag) {
                 CircularProgressIndicator(progress = state.progress)
             }
@@ -126,7 +130,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
             .assertIsVisible()
             .assertValueEquals("0.0")
 
-        runOnUiAndWaitForIdle {
+        composeTestRule.runOnUiThread {
             state.progress = 0.5f
         }
 
@@ -138,7 +142,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
     @Test
     fun determinateCircularProgressIndicator_Size() {
         var size: PxSize? = null
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = LargeConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -147,7 +151,8 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
                 }
             }
         }
-        withDensity(density) {
+
+        withDensity(composeTestRule.density) {
             val expectedCircularDiameter = 4.dp.toIntPx() * 2 + 40.dp.toIntPx()
             Truth.assertThat(size?.width?.round()).isEqualTo(expectedCircularDiameter)
             Truth.assertThat(size?.height?.round()).isEqualTo(expectedCircularDiameter)
@@ -157,7 +162,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
     @Test
     fun indeterminateCircularProgressIndicator_Size() {
         var size: PxSize? = null
-        setMaterialContent {
+        composeTestRule.setMaterialContent {
             Container(constraints = LargeConstraints) {
                 OnChildPositioned(onPositioned = { position ->
                     size = position.size
@@ -166,7 +171,7 @@ class ProgressIndicatorTest : AndroidUiTestRunner() {
                 }
             }
         }
-        withDensity(density) {
+        withDensity(composeTestRule.density) {
             val expectedCircularDiameter = 4.dp.toIntPx() * 2 + 40.dp.toIntPx()
             Truth.assertThat(size?.width?.round()).isEqualTo(expectedCircularDiameter)
             Truth.assertThat(size?.height?.round())

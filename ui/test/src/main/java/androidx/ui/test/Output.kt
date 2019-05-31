@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-fun SemanticsTreeQuery.dumpSemantics(consumer: (String) -> Unit) {
+fun SemanticsTreeInteraction.dumpSemantics(consumer: (String) -> Unit) {
     var builder = StringBuilder()
 
     findAllMatching().forEach {

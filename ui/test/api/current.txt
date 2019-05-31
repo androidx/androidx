@@ -3,20 +3,34 @@ package androidx.ui.test {
 
   public final class ActionsKt {
     ctor public ActionsKt();
-    method public static androidx.ui.test.SemanticsTreeQuery doClick(androidx.ui.test.SemanticsTreeQuery);
+    method public static androidx.ui.test.SemanticsTreeInteraction doClick(androidx.ui.test.SemanticsTreeInteraction);
   }
 
   public final class AssertionsKt {
     ctor public AssertionsKt();
-    method public static androidx.ui.test.SemanticsTreeQuery assertDoesNotExist(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertIsChecked(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertIsHidden(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertIsNotChecked(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertIsSelected(androidx.ui.test.SemanticsTreeQuery, boolean expected);
-    method public static androidx.ui.test.SemanticsTreeQuery assertIsVisible(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
-    method public static androidx.ui.test.SemanticsTreeQuery assertValueEquals(androidx.ui.test.SemanticsTreeQuery, String value);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertDoesNotExist(androidx.ui.test.SemanticsTreeInteraction);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertIsChecked(androidx.ui.test.SemanticsTreeInteraction);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertIsHidden(androidx.ui.test.SemanticsTreeInteraction);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertIsInMutuallyExclusiveGroup(androidx.ui.test.SemanticsTreeInteraction);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertIsNotChecked(androidx.ui.test.SemanticsTreeInteraction);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertIsSelected(androidx.ui.test.SemanticsTreeInteraction, boolean expected);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertIsVisible(androidx.ui.test.SemanticsTreeInteraction);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeInteraction, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
+    method public static androidx.ui.test.SemanticsTreeInteraction assertValueEquals(androidx.ui.test.SemanticsTreeInteraction, String value);
+  }
+
+  public interface ComposeTestRule extends org.junit.rules.TestRule {
+    method public androidx.ui.core.Density getDensity();
+    method public android.util.DisplayMetrics getDisplayMetrics();
+    method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    property public abstract androidx.ui.core.Density density;
+    property public abstract android.util.DisplayMetrics displayMetrics;
+  }
+
+  public final class ComposeTestRuleKt {
+    ctor public ComposeTestRuleKt();
+    method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions = false);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -31,9 +45,9 @@ package androidx.ui.test {
 
   public final class FindersKt {
     ctor public FindersKt();
-    method public static androidx.ui.test.SemanticsTreeQuery findByCondition(androidx.ui.test.UiTestRunner, kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
-    method public static androidx.ui.test.SemanticsTreeQuery findByTag(androidx.ui.test.UiTestRunner, String testTag);
-    method public static androidx.ui.test.SemanticsTreeQuery findByText(androidx.ui.test.UiTestRunner, String text);
+    method public static androidx.ui.test.SemanticsTreeInteraction findByCondition(kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
+    method public static androidx.ui.test.SemanticsTreeInteraction findByTag(String testTag);
+    method public static androidx.ui.test.SemanticsTreeInteraction findByText(String text, boolean ignoreCase = false);
   }
 
   public final class GoldenSemanticsKt {
@@ -45,41 +59,38 @@ package androidx.ui.test {
 
   public final class OutputKt {
     ctor public OutputKt();
-    method public static void dumpSemantics(androidx.ui.test.SemanticsTreeQuery, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
+    method public static void dumpSemantics(androidx.ui.test.SemanticsTreeInteraction, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
   }
 
-  public final class SemanticsTreeQuery {
+  public abstract class SemanticsTreeInteraction {
+    ctor public SemanticsTreeInteraction();
   }
 
-  public interface UiTestRunner {
-    method public java.util.List<androidx.ui.core.SemanticsTreeNode> findSemantics(kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
-    method public void performClick(float x, float y);
-    method public void sendEvent(android.view.MotionEvent event);
+  public final class SemanticsTreeInteractionKt {
+    ctor public SemanticsTreeInteractionKt();
   }
 
 }
 
 package androidx.ui.test.android {
 
-  public class AndroidUiTestRunner implements androidx.ui.test.UiTestRunner {
-    ctor public AndroidUiTestRunner();
-    method public final void TestWrapper(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public java.util.List<androidx.ui.core.SemanticsTreeNode> findSemantics(kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
-    method public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> getActivityTestRule();
-    method public final androidx.ui.core.Density getDensity();
-    method public void performClick(float x, float y);
-    method public final void runOnUiAndWaitForIdle(kotlin.jvm.functions.Function0<kotlin.Unit> runnable);
-    method public void sendEvent(android.view.MotionEvent event);
-    method public final void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    method public final void setup();
-    method public final void waitForIdleScreen();
+  public final class AndroidComposeTestRule implements androidx.ui.test.ComposeTestRule {
+    ctor public AndroidComposeTestRule(boolean disableTransitions, boolean shouldThrowOnRecomposeTimeout);
+    ctor public AndroidComposeTestRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+    method public androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> getActivityTestRule();
+    method public androidx.ui.core.Density getDensity();
+    method public android.util.DisplayMetrics getDisplayMetrics();
+    method public void runOnUiThread(kotlin.jvm.functions.Function0<kotlin.Unit> action);
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> activityTestRule;
-    property public final androidx.ui.core.Density density;
+    property public androidx.ui.core.Density density;
+    property public android.util.DisplayMetrics displayMetrics;
   }
 
-  public final class AndroidUiTestRunnerKt {
-    ctor public AndroidUiTestRunnerKt();
-    method public static void doPollingCheck(kotlin.jvm.functions.Function0<java.lang.Boolean> canProceed, long timeoutPeriod = 3000);
+  public final class AndroidComposeTestRule.AndroidComposeStatement extends org.junit.runners.model.Statement {
+    ctor public AndroidComposeTestRule.AndroidComposeStatement(org.junit.runners.model.Statement base);
+    method public void evaluate();
   }
 
   public final class DefaultTestActivity extends android.app.Activity {
