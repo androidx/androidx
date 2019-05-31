@@ -37,6 +37,7 @@ import static org.mockito.Mockito.when;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.PersistableBundle;
 
@@ -70,6 +71,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
 
     private static final String TEST_ID = "test";
 
+    private ComponentName mJobServiceComponent;
     private WorkManagerImpl mWorkManager;
     private JobScheduler mJobScheduler;
     private SystemJobScheduler mSystemJobScheduler;
@@ -81,6 +83,9 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         Configuration configuration = new Configuration.Builder().build();
         WorkDatabase workDatabase = mock(WorkDatabase.class);
         SystemIdInfoDao systemIdInfoDao = mock(SystemIdInfoDao.class);
+
+        mJobServiceComponent = new ComponentName(context, SystemJobService.class);
+
         mMockWorkSpecDao = mock(WorkSpecDao.class);
 
         mWorkManager = mock(WorkManagerImpl.class);
@@ -97,8 +102,10 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, TEST_ID);
         JobInfo mockJobInfo1 = mock(JobInfo.class);
+        doReturn(mJobServiceComponent).when(mockJobInfo1).getService();
         doReturn(extras).when(mockJobInfo1).getExtras();
         JobInfo mockJobInfo2 = mock(JobInfo.class);
+        doReturn(mJobServiceComponent).when(mockJobInfo2).getService();
         doReturn(extras).when(mockJobInfo2).getExtras();
 
         allJobInfos.add(mockJobInfo1);
@@ -158,7 +165,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 23)
-    public void testSystemJobScheduler_cancelsAllOnApi23() {
+    public void testSystemJobScheduler_cancelsTwiceOnApi23() {
         mSystemJobScheduler.cancel(TEST_ID);
         verify(mJobScheduler, times(2)).cancel(anyInt());
     }
@@ -170,6 +177,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, TEST_ID);
         JobInfo job = mock(JobInfo.class);
+        when(job.getService()).thenReturn(mJobServiceComponent);
         when(job.getExtras()).thenReturn(extras);
         doReturn(Collections.singletonList(job)).when(mJobScheduler).getAllPendingJobs();
 
@@ -206,7 +214,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = 23)
-    public void testSystemJobScheduler_avoidCrash() {
+    public void testSystemJobScheduler_avoidsCrash() {
         doCallRealMethod().when(mSystemJobScheduler)
                 .scheduleInternal(any(WorkSpec.class), anyInt());
 
@@ -218,6 +226,38 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         mSystemJobScheduler.schedule(workSpec);
         // JobScheduler#schedule() should be called once at the very least.
         verify(mJobScheduler, times(1)).schedule(any(JobInfo.class));
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 23)
+    public void testSystemJobScheduler_cancelsInvalidJobs() {
+        List<JobInfo> allJobInfos = new ArrayList<>(2);
+
+        PersistableBundle extras = new PersistableBundle();
+        extras.putString(EXTRA_WORK_SPEC_ID, TEST_ID);
+
+        JobInfo validJob = mock(JobInfo.class);
+        when(validJob.getId()).thenReturn(-1);
+        when(validJob.getService()).thenReturn(mJobServiceComponent);
+        when(validJob.getExtras()).thenReturn(extras);
+
+        JobInfo invalidJob = mock(JobInfo.class);
+        when(invalidJob.getId()).thenReturn(-2);
+        when(invalidJob.getService()).thenReturn(mJobServiceComponent);
+
+        allJobInfos.add(validJob);
+        allJobInfos.add(invalidJob);
+        when(mJobScheduler.getAllPendingJobs()).thenReturn(allJobInfos);
+
+        Context mockContext = mock(Context.class);
+        when(mockContext.getPackageName()).thenReturn(
+                ApplicationProvider.getApplicationContext().getPackageName());
+        when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
+        SystemJobScheduler.cancelInvalidJobs(mockContext);
+
+        verify(mJobScheduler).cancel(invalidJob.getId());
+        verify(mJobScheduler, never()).cancel(validJob.getId());
     }
 
     private void addToWorkSpecDao(WorkSpec workSpec) {

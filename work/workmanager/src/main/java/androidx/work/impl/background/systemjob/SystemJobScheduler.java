@@ -21,6 +21,7 @@ import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXT
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 import android.os.PersistableBundle;
@@ -54,6 +55,7 @@ public class SystemJobScheduler implements Scheduler {
 
     private static final String TAG = Logger.tagWithPrefix("SystemJobScheduler");
 
+    private final Context mContext;
     private final JobScheduler mJobScheduler;
     private final WorkManagerImpl mWorkManager;
     private final IdGenerator mIdGenerator;
@@ -72,6 +74,7 @@ public class SystemJobScheduler implements Scheduler {
             WorkManagerImpl workManager,
             JobScheduler jobScheduler,
             SystemJobInfoConverter systemJobInfoConverter) {
+        mContext = context;
         mWorkManager = workManager;
         mJobScheduler = jobScheduler;
         mIdGenerator = new IdGenerator(context);
@@ -132,7 +135,7 @@ public class SystemJobScheduler implements Scheduler {
                 if (Build.VERSION.SDK_INT == 23) {
                     // Get pending jobIds that might be currently being used.
                     // This is useful only for API 23, because we double schedule jobs.
-                    List<Integer> jobIds = getPendingJobIds(mJobScheduler, workSpec.id);
+                    List<Integer> jobIds = getPendingJobIds(mContext, mJobScheduler, workSpec.id);
 
                     // jobIds can be null if getPendingJobIds() throws an Exception.
                     // When this happens this will not setup a second job, and hence might delay
@@ -180,7 +183,7 @@ public class SystemJobScheduler implements Scheduler {
         } catch (IllegalStateException e) {
             // This only gets thrown if we exceed 100 jobs.  Let's figure out if WorkManager is
             // responsible for all these jobs.
-            List<JobInfo> jobs = getPendingJobs(mJobScheduler);
+            List<JobInfo> jobs = getPendingJobs(mContext, mJobScheduler);
             int numWorkManagerJobs = jobs != null ? jobs.size() : 0;
 
             String message = String.format(Locale.getDefault(),
@@ -203,18 +206,10 @@ public class SystemJobScheduler implements Scheduler {
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        List<Integer> jobIds = getPendingJobIds(mJobScheduler, workSpecId);
+        List<Integer> jobIds = getPendingJobIds(mContext, mJobScheduler, workSpecId);
         if (jobIds != null && !jobIds.isEmpty()) {
             for (int jobId : jobIds) {
-                try {
-                    mJobScheduler.cancel(jobId);
-                } catch (Throwable throwable) {
-                    // OEM implementation bugs in JobScheduler cause the app to crash.
-                    // Avoid crashing.
-                    Logger.get().error(TAG,
-                            String.format("Exception while trying to cancel WorkSpec (%s)",
-                                    workSpecId), throwable);
-                }
+                cancelJobById(mJobScheduler, jobId);
             }
 
             // Drop the relevant system ids.
@@ -224,23 +219,55 @@ public class SystemJobScheduler implements Scheduler {
         }
     }
 
+    private static void cancelJobById(@NonNull JobScheduler jobScheduler, int id) {
+        try {
+            jobScheduler.cancel(id);
+        } catch (Throwable throwable) {
+            // OEM implementation bugs in JobScheduler can cause the app to crash.
+            Logger.get().error(TAG,
+                    String.format(
+                            Locale.getDefault(),
+                            "Exception while trying to cancel job (%d)",
+                            id),
+                    throwable);
+        }
+    }
+
     /**
      * Cancels all the jobs owned by {@link androidx.work.WorkManager} in {@link JobScheduler}.
+     *
+     * @param context The {@link Context} for the {@link JobScheduler}
      */
-    public static void jobSchedulerCancelAll(@NonNull Context context) {
+    public static void cancelAll(@NonNull Context context) {
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
         if (jobScheduler != null) {
-            List<JobInfo> jobs = getPendingJobs(jobScheduler);
+            List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
             if (jobs != null && !jobs.isEmpty()) {
                 for (JobInfo jobInfo : jobs) {
-                    int id = jobInfo.getId();
-                    try {
-                        jobScheduler.cancel(id);
-                    } catch (Throwable throwable) {
-                        Logger.get().error(TAG,
-                                String.format(Locale.getDefault(),
-                                        "Exception while trying to cancel Job (%d)", id),
-                                throwable);
+                    cancelJobById(jobScheduler, jobInfo.getId());
+                }
+            }
+        }
+    }
+
+    /**
+     * Cancels invalid jobs owned by WorkManager.  This iterates all the jobs set for our
+     * {@link SystemJobService} but with invalid extras.  These jobs are invalid (inactionable on
+     * our part) but occupy slots in JobScheduler.  This method is meant to help mitigate problems
+     * like b/134058261, where we have faulty implementations of JobScheduler.
+     *
+     * @param context The {@link Context} for the {@link JobScheduler}
+     */
+    public static void cancelInvalidJobs(@NonNull Context context) {
+        JobScheduler jobScheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
+        if (jobScheduler != null) {
+            List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
+            if (jobs != null && !jobs.isEmpty()) {
+                for (JobInfo jobInfo : jobs) {
+                    PersistableBundle extras = jobInfo.getExtras();
+                    //noinspection ConstantConditions
+                    if (extras == null || !extras.containsKey(EXTRA_WORK_SPEC_ID)) {
+                        cancelJobById(jobScheduler, jobInfo.getId());
                     }
                 }
             }
@@ -248,8 +275,9 @@ public class SystemJobScheduler implements Scheduler {
     }
 
     @Nullable
-    @SuppressWarnings("ConstantConditions")
-    private static List<JobInfo> getPendingJobs(@NonNull JobScheduler jobScheduler) {
+    private static List<JobInfo> getPendingJobs(
+            @NonNull Context context,
+            @NonNull JobScheduler jobScheduler) {
         List<JobInfo> pendingJobs = null;
         try {
             // Note: despite what the word "pending" and the associated Javadoc might imply, this is
@@ -268,9 +296,9 @@ public class SystemJobScheduler implements Scheduler {
 
         // Filter jobs that belong to WorkManager.
         List<JobInfo> filtered = new ArrayList<>(pendingJobs.size());
+        ComponentName jobServiceComponent = new ComponentName(context, SystemJobService.class);
         for (JobInfo jobInfo : pendingJobs) {
-            PersistableBundle extras = jobInfo.getExtras();
-            if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
+            if (jobServiceComponent.equals(jobInfo.getService())) {
                 filtered.add(jobInfo);
             }
         }
@@ -286,10 +314,11 @@ public class SystemJobScheduler implements Scheduler {
     @Nullable
     @SuppressWarnings("ConstantConditions")
     private static List<Integer> getPendingJobIds(
+            @NonNull Context context,
             @NonNull JobScheduler jobScheduler,
             @NonNull String workSpecId) {
 
-        List<JobInfo> jobs = getPendingJobs(jobScheduler);
+        List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
         if (jobs == null) {
             return null;
         }
