@@ -575,7 +575,7 @@ public class WorkManagerImpl extends WorkManager {
     public void rescheduleEligibleWork() {
         // TODO (rahulrav@) Make every scheduler do its own cancelAll().
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            SystemJobScheduler.jobSchedulerCancelAll(getApplicationContext());
+            SystemJobScheduler.cancelAll(getApplicationContext());
         }
 
         // Reset scheduled state.

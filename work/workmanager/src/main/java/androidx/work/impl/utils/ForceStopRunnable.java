@@ -36,6 +36,7 @@ import androidx.work.Logger;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 
@@ -80,6 +81,11 @@ public class ForceStopRunnable implements Runnable {
             Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
         } else {
+            // Mitigation for faulty implementations of JobScheduler (b/134058261
+            if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
+                SystemJobScheduler.cancelInvalidJobs(mContext);
+            }
+
             WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
             WorkSpecDao workSpecDao = workDatabase.workSpecDao();
             workDatabase.beginTransaction();
