@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.antelope
 
+import androidx.camera.integration.antelope.MainActivity.Companion.antelopeIdlingResource
 import com.google.common.math.Stats
 import androidx.camera.integration.antelope.MainActivity.Companion.cameraParams
 import androidx.camera.integration.antelope.MainActivity.Companion.isSingleTestRunning
@@ -61,7 +62,12 @@ fun postTestResults(activity: MainActivity, testConfig: TestConfig) {
         writeCSV(activity, DeviceInfo(activity).deviceShort, csv)
 
         // Indicate to Espresso that a test run has ended
-        MainActivity.antelopeIdlingResource.decrement()
+        try {
+            logd("Decrementing AntelopeIdlingResource")
+            antelopeIdlingResource.decrement()
+        } catch (ex: IllegalStateException) {
+            logd("Antelope idling resource decremented below 0. This should never happen.")
+        }
     } else {
         autoTestRunner(activity)
     }

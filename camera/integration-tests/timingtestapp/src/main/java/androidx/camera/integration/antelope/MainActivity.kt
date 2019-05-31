@@ -386,6 +386,10 @@ class MainActivity : AppCompatActivity() {
         val config = createSingleTestConfig(this)
         setupUIForTest(config, false)
 
+        // Tell Espresso to wait until test run is complete
+        logd("Incrementing AntelopeIdlingResource")
+        antelopeIdlingResource.increment()
+
         initializeTest(this, cameraParams.get(config.camera), config)
     }
 
@@ -393,6 +397,11 @@ class MainActivity : AppCompatActivity() {
     fun startMultiTest() {
         isSingleTestRunning = false
         setupAutoTestRunner(this)
+
+        // Tell Espresso to wait until test run is complete
+        logd("Incrementing AntelopeIdlingResource")
+        antelopeIdlingResource.increment()
+
         autoTestRunner(this)
     }
 
@@ -430,7 +439,12 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Indicate to Espresso that a test run has ended
-        antelopeIdlingResource.decrement()
+        try {
+            logd("Decrementing AntelopeIdlingResource")
+            antelopeIdlingResource.decrement()
+        } catch (ex: IllegalStateException) {
+            logd("Antelope idling resource decremented below 0. This should never happen.")
+        }
     }
 
     /** After tests are completed, reset the UI to the initial state */
