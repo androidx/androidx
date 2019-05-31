@@ -1630,8 +1630,6 @@ public class MediaControlView extends ViewGroup {
     }
 
     void updateReplayButton(boolean toBeShown) {
-        ensurePlayerIsNotNull();
-
         ImageButton playPauseButton = findControlButton(mSizeType, R.id.pause);
         ImageButton ffwdButton = findControlButton(mSizeType, R.id.ffwd);
         if (toBeShown) {
@@ -1649,7 +1647,7 @@ public class MediaControlView extends ViewGroup {
         } else {
             mIsShowingReplayButton = false;
             if (playPauseButton != null) {
-                if (mPlayer.isPlaying()) {
+                if (mPlayer != null && mPlayer.isPlaying()) {
                     playPauseButton.setImageDrawable(
                             mResources.getDrawable(R.drawable.ic_pause_circle_filled));
                     playPauseButton.setContentDescription(
