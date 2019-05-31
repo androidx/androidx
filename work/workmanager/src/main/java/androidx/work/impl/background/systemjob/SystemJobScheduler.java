@@ -180,9 +180,11 @@ public class SystemJobScheduler implements Scheduler {
             // responsible for all these jobs.
             int numWorkManagerJobs = 0;
             List<JobInfo> allJobInfos = mJobScheduler.getAllPendingJobs();
+            //noinspection ConstantConditions
             if (allJobInfos != null) {  // Apparently this CAN be null on API 23?
                 for (JobInfo currentJobInfo : allJobInfos) {
                     PersistableBundle extras = currentJobInfo.getExtras();
+                    //noinspection ConstantConditions
                     if (extras != null && extras.getString(EXTRA_WORK_SPEC_ID) != null) {
                         ++numWorkManagerJobs;
                     }
@@ -210,9 +212,11 @@ public class SystemJobScheduler implements Scheduler {
         // actually a list of all unfinished jobs that JobScheduler knows about for the current
         // process.
         List<JobInfo> allJobInfos = mJobScheduler.getAllPendingJobs();
+        //noinspection ConstantConditions
         if (allJobInfos != null) {  // Apparently this CAN be null on API 23?
             for (JobInfo jobInfo : allJobInfos) {
                 PersistableBundle extras = jobInfo.getExtras();
+                //noinspection ConstantConditions
                 if (extras != null && workSpecId.equals(extras.getString(EXTRA_WORK_SPEC_ID))) {
                     // Its safe to call this method twice.
                     mWorkManager.getWorkDatabase()
@@ -240,10 +244,12 @@ public class SystemJobScheduler implements Scheduler {
         if (jobScheduler != null) {
             List<JobInfo> jobInfos = jobScheduler.getAllPendingJobs();
             // Apparently this can be null on API 23?
+            //noinspection ConstantConditions
             if (jobInfos != null) {
                 for (JobInfo jobInfo : jobInfos) {
                     PersistableBundle extras = jobInfo.getExtras();
                     // This is a job scheduled by WorkManager.
+                    //noinspection ConstantConditions
                     if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
                         jobScheduler.cancel(jobInfo.getId());
                     }
@@ -263,13 +269,15 @@ public class SystemJobScheduler implements Scheduler {
             @NonNull String workSpecId) {
 
         try {
-            // We have atmost 2 jobs per WorkSpec
+            // We have at most 2 jobs per WorkSpec
             List<Integer> pendingJobs = new ArrayList<>(2);
             List<JobInfo> jobInfos = jobScheduler.getAllPendingJobs();
             // Apparently this CAN be null on API 23?
+            //noinspection ConstantConditions
             if (jobInfos != null) {
                 for (JobInfo jobInfo : jobInfos) {
                     PersistableBundle extras = jobInfo.getExtras();
+                    //noinspection ConstantConditions
                     if (extras != null
                             && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
                         if (workSpecId.equals(
