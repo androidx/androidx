@@ -43,7 +43,10 @@ import org.junit.FixMethodOrder
 import org.junit.runners.MethodSorters
 import java.util.concurrent.TimeUnit
 import androidx.camera.integration.antelope.MainActivity.Companion.antelopeIdlingResource
+import androidx.test.filters.FlakyTest
 import org.junit.After
+
+const val PREVIEW_BUFFER = "1500"
 
 /**
  * Suite of tests that cover the major use cases for Antelope.
@@ -168,7 +171,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(res.getString(R.string.settings_single_test_camera_key),
             getFirstCamera())
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
@@ -209,7 +212,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_imagesize_key), "Max")
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "3")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
 
         if (hasCamera("1"))
@@ -259,7 +262,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_camera_key),
             getFirstCamera())
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "3")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
@@ -303,7 +306,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_camera_key),
             getFirstCamera())
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "30")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "1500")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
@@ -348,7 +351,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(res.getString(R.string.settings_single_test_camera_key),
             getFirstCamera())
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
@@ -388,7 +391,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_focus_key), "Auto")
         prefEditor.putString(res.getString(R.string.settings_single_test_camera_key),
             getFirstCamera())
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), false)
         prefEditor.commit()
 
@@ -416,6 +419,7 @@ class AntelopeInstrumentedTests {
     /**
      * Performs a multi capture with the camera device 0 using the Camera 1 API
      */
+    @FlakyTest
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -440,7 +444,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_camera_key),
             getFirstCamera())
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "3")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
@@ -483,7 +487,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putString(res.getString(R.string.settings_single_test_camera_key),
             getFirstCamera())
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "3")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.commit()
 
@@ -534,7 +538,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putBoolean(res.getString(R.string.settings_autotest_cameras_key), true)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "1")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.commit()
 
         // Tell Espresso to wait until test run is complete
@@ -584,7 +588,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putBoolean(res.getString(R.string.settings_autotest_cameras_key), true)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "1")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.commit()
 
         // Tell Espresso to wait until test run is complete
@@ -602,6 +606,7 @@ class AntelopeInstrumentedTests {
     /**
      * Performs a full set of captures for all possible cameras/image sizes/tests for Camera1
      */
+    @FlakyTest
     @Test
     @LargeTest
     @RepeatRule.Repeat(times = 1)
@@ -634,7 +639,7 @@ class AntelopeInstrumentedTests {
         prefEditor.putBoolean(res.getString(R.string.settings_autotest_cameras_key), true)
         prefEditor.putBoolean(res.getString(R.string.settings_autodelete_key), true)
         prefEditor.putString(res.getString(R.string.settings_numtests_key), "1")
-        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), "250")
+        prefEditor.putString(res.getString(R.string.settings_previewbuffer_key), PREVIEW_BUFFER)
         prefEditor.commit()
 
         // Tell Espresso to wait until test run is complete

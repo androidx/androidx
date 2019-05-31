@@ -22,7 +22,6 @@ import androidx.camera.integration.antelope.cameracontrollers.camera1OpenCamera
 import androidx.camera.integration.antelope.cameracontrollers.camera2OpenCamera
 import androidx.camera.integration.antelope.cameracontrollers.cameraXOpenCamera
 import androidx.camera.integration.antelope.cameracontrollers.cameraXTakePicture
-import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
 import androidx.camera.integration.antelope.cameracontrollers.closePreviewAndCamera
 import androidx.camera.integration.antelope.cameracontrollers.initializeStillCapture
 
@@ -78,8 +77,6 @@ internal fun runInitTest(
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
 
-    closeAllCameras(activity, config)
-
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
     config.currentRunningTest = TestType.INIT
@@ -108,8 +105,6 @@ internal fun runSwitchTest(activity: MainActivity, params: CameraParams, config:
     logd("Starting with camera: " + config.switchTestCurrentCamera)
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
-
-    closeAllCameras(activity, config)
 
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
@@ -179,8 +174,6 @@ internal fun runPreviewTest(activity: MainActivity, params: CameraParams, config
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
 
-    closeAllCameras(activity, config)
-
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
     config.currentRunningTest = TestType.PREVIEW
@@ -195,8 +188,6 @@ internal fun runPhotoTest(activity: MainActivity, params: CameraParams, config: 
     logd("Running photo test")
     activity.startBackgroundThread(params)
     activity.showProgressBar(true)
-
-    closeAllCameras(activity, config)
 
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
@@ -254,8 +245,6 @@ internal fun runMultiPhotoTest(activity: MainActivity, params: CameraParams, con
         config.isFirstOnCaptureComplete = true
     }
 
-    closeAllCameras(activity, config)
-
     setupImageReader(activity, params, config)
     params.timer = CameraTimer()
     params.timer.testStart = System.currentTimeMillis()
@@ -290,8 +279,6 @@ internal fun runMultiPhotoChainTest(
         config.currentRunningTest = TestType.MULTI_PHOTO_CHAIN
         logd("About to start multi chain test. multi_counter: " + multiCounter + " and test: " +
             config.currentRunningTest.toString())
-
-        closeAllCameras(activity, config)
 
         setupImageReader(activity, params, config)
         beginTest(activity, params, config)
@@ -482,8 +469,6 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                     .add((params.timer.testEnd - params.timer.testStart) -
                     (params.timer.previewFillEnd - params.timer.previewFillStart))
 
-                closeAllCameras(activity, config)
-
                 multiCounter = 0
             } else {
                 logd("Capture " + (Math.abs(multiCounter - PrefHelper.getNumTests(activity)) + 1) +
@@ -540,8 +525,6 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                 config.testResults.totalNoPreview
                     .add((params.timer.testEnd - params.timer.testStart) -
                     (params.timer.previewFillEnd - params.timer.previewFillStart))
-
-                closeAllCameras(activity, config)
 
                 multiCounter = 0
             } else {

@@ -68,6 +68,7 @@ class CameraParams {
     internal var hasMono: Boolean = false
     internal var hasAF: Boolean = false
     internal var megapixels: Int = 0
+    internal var isLegacy: Boolean = false
     internal var cam1AFSupported: Boolean = false
     internal var characteristics: CameraCharacteristics? = null
 
