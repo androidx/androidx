@@ -15,7 +15,7 @@ dependencies {
     implementation(project(":palette"))
     implementation(project(":recyclerview"))
     implementation project(':recyclerview-selection')
-    implementation(project(":core"))
+    implementation(project(":core:core"))
     api(KOTLIN_STDLIB)
 }
 

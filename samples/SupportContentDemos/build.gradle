@@ -30,7 +30,7 @@ dependencies {
     implementation(project(":contentpager"))
     implementation(project(":cardview"))
     implementation(project(":coordinatorlayout"))
-    implementation(project(":core"))
+    implementation(project(":core:core"))
 }
 
 android {
