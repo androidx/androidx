@@ -895,7 +895,7 @@ public final class ViewPager2 extends ViewGroup {
     @RequiresApi(17)
     public void setLayoutDirection(int layoutDirection) {
         super.setLayoutDirection(layoutDirection);
-        updatePageAccessibilityActions();
+        mAccessibilityProvider.onSetLayoutDirection();
     }
 
     @Override
@@ -1256,6 +1256,10 @@ public final class ViewPager2 extends ViewGroup {
             if (Build.VERSION.SDK_INT < 21) {
                 sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
             }
+        }
+
+        void onSetLayoutDirection() {
+            updatePageAccessibilityActions();
         }
     }
 }
