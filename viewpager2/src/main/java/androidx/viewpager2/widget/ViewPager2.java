@@ -383,7 +383,7 @@ public final class ViewPager2 extends ViewGroup {
         mCurrentItem = Math.max(0, Math.min(mPendingCurrentItem, adapter.getItemCount() - 1));
         mPendingCurrentItem = NO_POSITION;
         mRecyclerView.scrollToPosition(mCurrentItem);
-        updatePageAccessibilityActions();
+        mAccessibilityProvider.onRestorePendingState();
     }
 
     @Override
@@ -1233,6 +1233,10 @@ public final class ViewPager2 extends ViewGroup {
                 throw new IllegalStateException();
             }
             return "androidx.viewpager.widget.ViewPager";
+        }
+
+        void onRestorePendingState() {
+            updatePageAccessibilityActions();
         }
     }
 }
