@@ -30,6 +30,7 @@ dependencies {
     implementation(project(":core"))
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(project(":concurrent-listenablefuture"))
+    implementation(project(":concurrent-listenablefuture-callback"))
 
     annotationProcessor(AUTO_VALUE)
 

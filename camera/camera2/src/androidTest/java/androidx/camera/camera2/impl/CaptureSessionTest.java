@@ -45,6 +45,7 @@ import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.testing.CameraUtil;
+import androidx.concurrent.ListenableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
@@ -59,6 +60,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -148,36 +150,48 @@ public final class CaptureSessionTest {
     }
 
     @Test
-    public void releaseUnopenedSession() {
+    public void releaseUnopenedSession() throws ExecutionException, InterruptedException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        captureSession.release();
+        ListenableFuture<Void> releaseFuture = captureSession.release();
+
+        // Wait for release
+        releaseFuture.get();
 
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
     }
 
     @Test
-    public void closeOpenedSession() throws CameraAccessException, InterruptedException {
+    public void closeOpenedSession()
+            throws CameraAccessException, InterruptedException, ExecutionException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
 
         captureSession.close();
 
-        Thread.sleep(3000);
-        // Session should not get released until triggered by another session opening
+        // Session should be in closed state immediately after calling close() on an
+        // opening/opened session.
         assertThat(captureSession.getState()).isEqualTo(State.CLOSED);
+
+        // Release the session to clean up for next test
+        ListenableFuture<Void> releaseFuture = captureSession.release();
+
+        // Wait for release to finish
+        releaseFuture.get();
     }
 
     @Test
-    public void releaseOpenedSession() throws CameraAccessException, InterruptedException {
+    public void releaseOpenedSession()
+            throws CameraAccessException, InterruptedException, ExecutionException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
-        captureSession.release();
+        ListenableFuture<Void> releaseFuture = captureSession.release();
 
-        Thread.sleep(3000);
+        // Wait for release
+        releaseFuture.get();
         assertThat(captureSession.getState()).isEqualTo(State.RELEASED);
 
         // StateCallback.onClosed() should be called to signal the session is closed.
@@ -269,7 +283,7 @@ public final class CaptureSessionTest {
 
     @Test
     public void surfaceOnDetachedListenerIsCalledWhenSessionIsClose()
-            throws CameraAccessException, InterruptedException {
+            throws CameraAccessException, InterruptedException, ExecutionException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
@@ -287,9 +301,10 @@ public final class CaptureSessionTest {
         };
         mTestParameters0.mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
 
-        captureSession.release();
+        ListenableFuture<Void> releaseFuture = captureSession.release();
 
-        Thread.sleep(3000);
+        // Wait for release
+        releaseFuture.get();
 
         Mockito.verify(listener, times(1)).onSurfaceDetached();
     }
