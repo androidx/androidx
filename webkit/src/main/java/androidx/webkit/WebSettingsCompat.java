@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.webkit.WebSettings;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.WebSettingsAdapter;
@@ -58,13 +59,13 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setOffscreenPreRaster(WebSettings webSettings, boolean enabled) {
+    public static void setOffscreenPreRaster(@NonNull WebSettings settings, boolean enabled) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         if (webviewFeature.isSupportedByFramework()) {
-            webSettings.setOffscreenPreRaster(enabled);
+            settings.setOffscreenPreRaster(enabled);
         } else if (webviewFeature.isSupportedByWebView()) {
-            getAdapter(webSettings).setOffscreenPreRaster(enabled);
+            getAdapter(settings).setOffscreenPreRaster(enabled);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -85,13 +86,13 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static boolean getOffscreenPreRaster(WebSettings webSettings) {
+    public static boolean getOffscreenPreRaster(@NonNull WebSettings settings) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
         if (webviewFeature.isSupportedByFramework()) {
-            return webSettings.getOffscreenPreRaster();
+            return settings.getOffscreenPreRaster();
         } else if (webviewFeature.isSupportedByWebView()) {
-            return getAdapter(webSettings).getOffscreenPreRaster();
+            return getAdapter(settings).getOffscreenPreRaster();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -119,13 +120,13 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setSafeBrowsingEnabled(WebSettings webSettings, boolean enabled) {
+    public static void setSafeBrowsingEnabled(@NonNull WebSettings settings, boolean enabled) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
         if (webviewFeature.isSupportedByFramework()) {
-            webSettings.setSafeBrowsingEnabled(enabled);
+            settings.setSafeBrowsingEnabled(enabled);
         } else if (webviewFeature.isSupportedByWebView()) {
-            getAdapter(webSettings).setSafeBrowsingEnabled(enabled);
+            getAdapter(settings).setSafeBrowsingEnabled(enabled);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -145,13 +146,13 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static boolean getSafeBrowsingEnabled(WebSettings webSettings) {
+    public static boolean getSafeBrowsingEnabled(@NonNull WebSettings settings) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
         if (webviewFeature.isSupportedByFramework()) {
-            return webSettings.getSafeBrowsingEnabled();
+            return settings.getSafeBrowsingEnabled();
         } else if (webviewFeature.isSupportedByWebView()) {
-            return getAdapter(webSettings).getSafeBrowsingEnabled();
+            return getAdapter(settings).getSafeBrowsingEnabled();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -184,14 +185,14 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setDisabledActionModeMenuItems(WebSettings webSettings,
+    public static void setDisabledActionModeMenuItems(@NonNull WebSettings settings,
             @MenuItemFlags int menuItems) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
         if (webviewFeature.isSupportedByFramework()) {
-            webSettings.setDisabledActionModeMenuItems(menuItems);
+            settings.setDisabledActionModeMenuItems(menuItems);
         } else if (webviewFeature.isSupportedByWebView()) {
-            getAdapter(webSettings).setDisabledActionModeMenuItems(menuItems);
+            getAdapter(settings).setDisabledActionModeMenuItems(menuItems);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -211,13 +212,13 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static @MenuItemFlags int getDisabledActionModeMenuItems(WebSettings webSettings) {
+    public static @MenuItemFlags int getDisabledActionModeMenuItems(@NonNull WebSettings settings) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
         if (webviewFeature.isSupportedByFramework()) {
-            return webSettings.getDisabledActionModeMenuItems();
+            return settings.getDisabledActionModeMenuItems();
         } else if (webviewFeature.isSupportedByWebView()) {
-            return getAdapter(webSettings).getDisabledActionModeMenuItems();
+            return getAdapter(settings).getDisabledActionModeMenuItems();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -243,11 +244,12 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setWillSuppressErrorPage(WebSettings webSettings, boolean suppressed) {
+    public static void setWillSuppressErrorPage(@NonNull WebSettings settings,
+            boolean suppressed) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
         if (webviewFeature.isSupportedByWebView()) {
-            getAdapter(webSettings).setWillSuppressErrorPage(suppressed);
+            getAdapter(settings).setWillSuppressErrorPage(suppressed);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -272,11 +274,11 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static boolean willSuppressErrorPage(WebSettings webSettings) {
+    public static boolean willSuppressErrorPage(@NonNull WebSettings settings) {
         WebViewFeatureInternal webviewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
         if (webviewFeature.isSupportedByWebView()) {
-            return getAdapter(webSettings).willSuppressErrorPage();
+            return getAdapter(settings).willSuppressErrorPage();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -352,11 +354,12 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static void setForceDark(WebSettings webSettings, @ForceDark int forceDarkMode) {
+    public static void setForceDark(@NonNull WebSettings settings,
+            @ForceDark int forceDarkMode) {
         WebViewFeatureInternal webViewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
         if (webViewFeature.isSupportedByWebView()) {
-            getAdapter(webSettings).setForceDark(forceDarkMode);
+            getAdapter(settings).setForceDark(forceDarkMode);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
@@ -383,18 +386,18 @@ public class WebSettingsCompat {
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public static @ForceDark int getForceDark(WebSettings webSettings) {
+    public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
         WebViewFeatureInternal webViewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
         if (webViewFeature.isSupportedByWebView()) {
-            return getAdapter(webSettings).getForceDark();
+            return getAdapter(settings).getForceDark();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
-    private static WebSettingsAdapter getAdapter(WebSettings webSettings) {
-        return WebViewGlueCommunicator.getCompatConverter().convertSettings(webSettings);
+    private static WebSettingsAdapter getAdapter(WebSettings settings) {
+        return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
     }
 }
 
