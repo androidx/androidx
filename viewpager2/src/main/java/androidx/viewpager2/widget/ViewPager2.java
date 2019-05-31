@@ -622,7 +622,7 @@ public final class ViewPager2 extends ViewGroup {
 
         float previousItem = mCurrentItem;
         mCurrentItem = item;
-        updatePageAccessibilityActions();
+        mAccessibilityProvider.onSetNewCurrentItem();
 
         if (!mScrollEventAdapter.isIdle()) {
             // Scroll in progress, overwrite previousItem with actual current position
@@ -1247,6 +1247,10 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         void onSetOrientation() {
+            updatePageAccessibilityActions();
+        }
+
+        void onSetNewCurrentItem() {
             updatePageAccessibilityActions();
         }
     }
