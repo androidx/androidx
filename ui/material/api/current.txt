@@ -93,10 +93,12 @@ package androidx.ui.material {
 
   public final class CheckboxKt {
     ctor public CheckboxKt();
-    method public static void Checkbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.graphics.Color color = +themeColor({ 
     secondary
 }));
-    method public static androidx.ui.baseui.selection.ToggleableState parentCheckboxState(androidx.ui.baseui.selection.ToggleableState... childrenStates);
+    method public static void TriStateCheckbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, androidx.ui.graphics.Color color = +themeColor({ 
+    secondary
+}));
   }
 
   public final class DividerKt {
