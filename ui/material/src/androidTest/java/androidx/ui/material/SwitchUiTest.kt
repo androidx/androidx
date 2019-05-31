@@ -64,10 +64,10 @@ class SwitchUiTest {
         composeTestRule.setMaterialContent {
             Column {
                 TestTag(tag = "checked") {
-                    Switch(checked = true)
+                    Switch(checked = true, onCheckedChange = null)
                 }
                 TestTag(tag = "unchecked") {
-                    Switch(checked = false)
+                    Switch(checked = false, onCheckedChange = null)
                 }
             }
         }
@@ -81,7 +81,7 @@ class SwitchUiTest {
         composeTestRule.setMaterialContent {
             val (checked, onChecked) = +state { false }
             TestTag(tag = defaultSwitchTag) {
-                Switch(checked = checked, onClick = { onChecked(!checked) })
+                Switch(checked, onChecked)
             }
         }
         findByTag(defaultSwitchTag)
@@ -96,7 +96,7 @@ class SwitchUiTest {
         composeTestRule.setMaterialContent {
             val (checked, onChecked) = +state { false }
             TestTag(tag = defaultSwitchTag) {
-                Switch(checked = checked, onClick = { onChecked(!checked) })
+                Switch(checked, onChecked)
             }
         }
         findByTag(defaultSwitchTag)
@@ -112,7 +112,7 @@ class SwitchUiTest {
         composeTestRule.setMaterialContent {
             val (checked, _) = +state { false }
             TestTag(tag = defaultSwitchTag) {
-                Switch(checked = checked)
+                Switch(checked = checked, onCheckedChange = null)
             }
         }
         findByTag(defaultSwitchTag)
@@ -143,7 +143,7 @@ class SwitchUiTest {
                 OnChildPositioned(onPositioned = { coordinates ->
                     switchSize = coordinates.size
                 }) {
-                    Switch(checked = checked)
+                    Switch(checked = checked, onCheckedChange = null)
                 }
             }
         }
