@@ -36,9 +36,10 @@ dependencies {
     api(project(":paging:paging-common"))
     api(project(":arch:core-runtime"))
     api(RX_JAVA)
+    implementation(KOTLIN_STDLIB)
 
+    testImplementation project(':internal-testutils-common')
     testImplementation(JUNIT)
-    testImplementation(KOTLIN_STDLIB)
     testImplementation(KOTLIN_TEST_COMMON)
 }
 

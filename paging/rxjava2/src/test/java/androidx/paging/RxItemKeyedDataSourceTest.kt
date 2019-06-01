@@ -20,6 +20,7 @@ import androidx.paging.ListenableItemKeyedDataSource.InitialResult
 import androidx.paging.ListenableItemKeyedDataSource.LoadInitialParams
 import androidx.paging.ListenableItemKeyedDataSource.LoadParams
 import androidx.paging.ListenableItemKeyedDataSource.Result
+import androidx.testutils.TestExecutor
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import org.junit.Test
@@ -125,7 +126,7 @@ class RxItemKeyedDataSourceTest {
         executor.executeAll()
         val actual = future.get(100, TimeUnit.MILLISECONDS)
 
-        assertEquals(InitialResult<Int>((0..2).toList(), 0, 3), actual)
+        assertEquals(InitialResult((0..2).toList(), 0, 3), actual)
     }
 
     @Test
@@ -161,7 +162,7 @@ class RxItemKeyedDataSourceTest {
         executor.executeAll()
         val actual = future.get(100, TimeUnit.MILLISECONDS)
 
-        assertEquals(Result<Int>((0..2).toList()), actual)
+        assertEquals(Result((0..2).toList()), actual)
     }
 
     @Test
@@ -197,7 +198,7 @@ class RxItemKeyedDataSourceTest {
         executor.executeAll()
         val actual = future.get(100, TimeUnit.MILLISECONDS)
 
-        assertEquals(Result<Int>((-3..-1).toList()), actual)
+        assertEquals(Result((-3..-1).toList()), actual)
     }
 
     @Test

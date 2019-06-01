@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.paging.ListenablePageKeyedDataSource.LoadInitialParams
 import androidx.paging.ListenablePageKeyedDataSource.LoadParams
+import androidx.testutils.TestExecutor
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import org.junit.Test
@@ -168,7 +169,7 @@ class RxPageKeyedDataSourceTest {
         executor.executeAll()
         val actual = future.get(100, TimeUnit.MILLISECONDS)
 
-        assertEquals(ListenablePageKeyedDataSource.Result<Int, Int>((0..2).toList(), 3), actual)
+        assertEquals(ListenablePageKeyedDataSource.Result((0..2).toList(), 3), actual)
     }
 
     @Test
@@ -204,7 +205,7 @@ class RxPageKeyedDataSourceTest {
         executor.executeAll()
         val actual = future.get(100, TimeUnit.MILLISECONDS)
 
-        assertEquals(ListenablePageKeyedDataSource.Result<Int, Int>((-3..-1).toList(), 3), actual)
+        assertEquals(ListenablePageKeyedDataSource.Result((-3..-1).toList(), 3), actual)
     }
 
     @Test
