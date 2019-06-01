@@ -30,6 +30,12 @@ package androidx.paging {
     method public androidx.paging.LivePagedListBuilder<Key,Value> setInitialLoadKey(Key? key);
   }
 
+  public final class LivePagedListKt {
+    ctor public LivePagedListKt();
+    method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
+    method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
+  }
+
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
     ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
