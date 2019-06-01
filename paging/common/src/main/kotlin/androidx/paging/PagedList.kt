@@ -119,7 +119,11 @@ import java.util.concurrent.Executor
  * @param T The type of the entries in the list.
  */
 abstract class PagedList<T : Any> : AbstractList<T> {
-    internal companion object {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    companion object {
         /**
          * Create a [PagedList] which loads data from the provided data source on a background
          * thread,posting updates to the main thread.
@@ -136,9 +140,12 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          *
          * @return [ListenableFuture] for newly created [PagedList], which will page in data from
          * the [DataSource] as needed.
+         *
+         * @hide
          */
         @JvmStatic
-        internal fun <K : Any, T : Any> create(
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        fun <K : Any, T : Any> create(
             dataSource: DataSource<K, T>,
             notifyExecutor: Executor,
             fetchExecutor: Executor,
@@ -815,7 +822,11 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         open fun onItemAtEndLoaded(itemAtEnd: T) {}
     }
 
-    internal abstract class LoadStateManager {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    abstract class LoadStateManager {
         var refresh = LoadState.IDLE
             private set
         private var mRefreshError: Throwable? = null
@@ -856,7 +867,11 @@ abstract class PagedList<T : Any> : AbstractList<T> {
             onStateChanged(type, state, error)
         }
 
-        protected abstract fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?)
+        /**
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise.
+        abstract fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?)
 
         fun dispatchCurrentLoadState(listener: LoadStateListener) {
             listener.onLoadStateChanged(LoadType.REFRESH, refresh, mRefreshError)
@@ -891,8 +906,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected fun getStorage() = storage
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
+    fun getStorage() = storage
 
     internal val mainThreadExecutor: Executor
     internal val backgroundThreadExecutor: Executor
@@ -904,8 +919,11 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * Last access location, in total position space (including offset).
      *
      * Used by positional data sources to initialize loading near viewport
+     *
+     * @hide
      */
-    internal var lastLoad = 0
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // internal otherwise
+    var lastLoad = 0
     internal var lastItem: T? = null
 
     internal val requiredRemainder: Int
@@ -1044,7 +1062,12 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     open val positionOffset: Int
         get() = storage.positionOffset
 
-    internal open fun setInitialLoadState(loadState: LoadState, error: Throwable?) {}
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    open fun setInitialLoadState(loadState: LoadState, error: Throwable?) {
+    }
 
     /**
      * Retry any retryable errors associated with this [PagedList].

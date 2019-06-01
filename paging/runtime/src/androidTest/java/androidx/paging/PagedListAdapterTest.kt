@@ -46,19 +46,16 @@ class PagedListAdapterTest {
     inner class Adapter(
         private val onChangedLegacy: AsyncPagedListDiffer.PagedListListener<String>? = null,
         private val onChanged: AsyncPagedListDiffer.PagedListListener<String>? = null
-
     ) : PagedListAdapter<String, RecyclerView.ViewHolder>(differConfig) {
         init {
-            mDiffer.mMainThreadExecutor = mainThread
+            differ.mainThreadExecutor = mainThread
         }
 
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             throw IllegalStateException("not supported")
-        }
 
-        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) =
             throw IllegalStateException("not supported")
-        }
 
         override fun onCurrentListChanged(currentList: PagedList<String>?) {
             onChangedLegacy?.onCurrentListChanged(null, currentList)

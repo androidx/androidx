@@ -162,9 +162,7 @@ class LivePagedListBuilderTest {
         val factory = MockDataSourceFactory()
         factory.enqueueRetryableError()
 
-        val livePagedList = LivePagedListBuilder(
-            factory, 2
-        )
+        val livePagedList = LivePagedListBuilder(factory, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
