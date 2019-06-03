@@ -120,26 +120,6 @@ public final class ViewPager2 extends ViewGroup {
      */
     public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1;
 
-    private static final AccessibilityViewCommand ACTION_PAGE_FORWARD =
-            new AccessibilityViewCommand() {
-        @Override
-        public boolean perform(@NonNull View view, @Nullable CommandArguments arguments) {
-            ViewPager2 viewPager = (ViewPager2) view;
-            viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
-            return true;
-        }
-    };
-
-    private static final AccessibilityViewCommand ACTION_PAGE_BACKWARD =
-            new AccessibilityViewCommand() {
-        @Override
-        public boolean perform(@NonNull View view, @Nullable CommandArguments arguments) {
-            ViewPager2 viewPager = (ViewPager2) view;
-            viewPager.setCurrentItem(viewPager.getCurrentItem() - 1, true);
-            return true;
-        }
-    };
-
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
     private final Rect mTmpChildRect = new Rect();
@@ -1091,6 +1071,28 @@ public final class ViewPager2 extends ViewGroup {
 
     @SuppressLint("SyntheticAccessor") // TODO: remove after the refactor
     private class AccessibilityProvider {
+        private final AccessibilityViewCommand mActionPageForward =
+                new AccessibilityViewCommand() {
+                    @Override
+                    public boolean perform(@NonNull View view,
+                            @Nullable CommandArguments arguments) {
+                        ViewPager2 viewPager = (ViewPager2) view;
+                        viewPager.setCurrentItem(viewPager.getCurrentItem() + 1, true);
+                        return true;
+                    }
+                };
+
+        private final AccessibilityViewCommand mActionPageBackward =
+                new AccessibilityViewCommand() {
+                    @Override
+                    public boolean perform(@NonNull View view,
+                            @Nullable CommandArguments arguments) {
+                        ViewPager2 viewPager = (ViewPager2) view;
+                        viewPager.setCurrentItem(viewPager.getCurrentItem() - 1, true);
+                        return true;
+                    }
+                };
+
         private RecyclerView.AdapterDataObserver mAdapterDataObserver;
 
         void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher) {
@@ -1230,20 +1232,20 @@ public final class ViewPager2 extends ViewGroup {
 
                 if (mCurrentItem < itemCount - 1) {
                     ViewCompat.replaceAccessibilityAction(viewPager, actionPageForward, null,
-                            ACTION_PAGE_FORWARD);
+                            mActionPageForward);
                 }
                 if (mCurrentItem > 0) {
                     ViewCompat.replaceAccessibilityAction(viewPager, actionPageBackward, null,
-                            ACTION_PAGE_BACKWARD);
+                            mActionPageBackward);
                 }
             } else {
                 if (mCurrentItem < itemCount - 1) {
                     ViewCompat.replaceAccessibilityAction(viewPager, ACTION_PAGE_DOWN, null,
-                            ACTION_PAGE_FORWARD);
+                            mActionPageForward);
                 }
                 if (mCurrentItem > 0) {
                     ViewCompat.replaceAccessibilityAction(viewPager, ACTION_PAGE_UP, null,
-                            ACTION_PAGE_BACKWARD);
+                            mActionPageBackward);
                 }
             }
         }
