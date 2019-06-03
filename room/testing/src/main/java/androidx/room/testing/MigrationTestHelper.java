@@ -309,8 +309,8 @@ public class MigrationTestHelper extends TestWatcher {
                 throw new FileNotFoundException("Cannot find the schema file in the assets folder. "
                         + "Make sure to include the exported json schemas in your test assert "
                         + "inputs. See "
-                        + "https://developer.android.com/topic/libraries/architecture/"
-                        + "room.html#db-migration-testing for details. Missing file: "
+                        + "https://developer.android.com/training/data-storage/room/"
+                        + "migrating-db-versions#export-schema for details. Missing file: "
                         + testAssetsIOExceptions.getMessage());
             }
         }
