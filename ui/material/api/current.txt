@@ -19,7 +19,7 @@ package androidx.ui.baseui {
 
   public final class SimpleImageKt {
     ctor public SimpleImageKt();
-    method public static void SimpleImage(androidx.ui.painting.Image image);
+    method public static void SimpleImage(androidx.ui.painting.Image image, androidx.ui.graphics.Color? tint = null);
   }
 
 }
@@ -28,7 +28,7 @@ package androidx.ui.baseui.selection {
 
   public final class MutuallyExclusiveSetItemKt {
     ctor public MutuallyExclusiveSetItemKt();
-    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class ToggleableKt {
@@ -356,6 +356,12 @@ package androidx.ui.material {
     method public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.graphics.Color color = +themeColor({ 
     secondaryVariant
 }));
+  }
+
+  public final class TabKt {
+    ctor public TabKt();
+    method public static void Tab(String? text = null, androidx.ui.painting.Image? icon = null, boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected);
+    method public static <T> void TabRow(java.util.List<? extends T> items, int selectedIndex, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> tab);
   }
 
   public final class TextKt {

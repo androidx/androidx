@@ -16,6 +16,7 @@
 
 <resources>
     <style name="TestTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">#ffffff</item>
         <item name="android:windowActionBar">false</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowContentOverlay">@null</item>

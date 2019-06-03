@@ -21,6 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Semantics
 import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.semantics.SemanticsAction
+import androidx.ui.core.semantics.SemanticsActionType
 
 /**
  * Component for representing one option out of many
@@ -29,21 +31,23 @@ import androidx.ui.core.gesture.PressReleasedGestureDetector
  * Provides click handling as well as [Semantics] for accessibility
  *
  * @param selected whether or not this item is selected in mutually exclusion set
- * @param onSelect callback to invoke when this item is clicked
+ * @param onClick callback to invoke when this item is clicked
  */
 @Composable
 fun MutuallyExclusiveSetItem(
     selected: Boolean,
-    onSelect: () -> Unit,
+    onClick: () -> Unit,
     @Children children: @Composable() () -> Unit
 ) {
-    PressReleasedGestureDetector(
-        onRelease = onSelect,
-        consumeDownOnStart = false
-    ) {
-        Semantics(
-            inMutuallyExclusiveGroup = true,
-            selected = selected
+    // TODO: when semantics can be merged, we should make this use Clickable internally rather
+    // than duplicating logic
+    Semantics(
+        inMutuallyExclusiveGroup = true,
+        selected = selected,
+        actions = listOf<SemanticsAction<*>>(SemanticsAction(SemanticsActionType.Tap, onClick))) {
+        PressReleasedGestureDetector(
+            onRelease = onClick,
+            consumeDownOnStart = false
         ) {
             children()
         }

@@ -42,7 +42,6 @@ import androidx.ui.engine.geometry.shrink
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
@@ -149,7 +148,7 @@ class RadioGroupScope internal constructor() {
             Ripple(bounded = true) {
                 MutuallyExclusiveSetItem(
                     selected = selected,
-                    onSelect = { if (!selected) onSelect() }) {
+                    onClick = { if (!selected) onSelect() }) {
                     children()
                 }
             }

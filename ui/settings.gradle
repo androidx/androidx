@@ -19,7 +19,7 @@ def includeProject(name, filePath) {
     project(name).projectDir = file
 }
 
-
+includeProject(":annotation:annotation-sampled", "../annotation/annotation-sampled")
 includeProject(":benchmark", "../benchmark")
 includeProject(":benchmark:benchmark-gradle-plugin", "../benchmark/gradle-plugin")
 includeProject(":compose:compose-runtime", "../compose/compose-runtime")
@@ -35,6 +35,7 @@ includeProject(":ui-framework", "framework")
 includeProject(":ui-framework:integration-tests:ui-framework-demos", "framework/integration-tests/framework-demos")
 includeProject(":ui-material", "material")
 includeProject(":ui-material:integration-tests:ui-material-demos", "material/integration-tests/material-demos")
+includeProject(":ui-material:integration-tests:samples", "material/integration-tests/samples")
 includeProject(":ui-material:integration-tests:ui-material-studies", "material/integration-tests/material-studies")
 includeProject(":ui-platform", "platform")
 includeProject(":ui-test", "test")

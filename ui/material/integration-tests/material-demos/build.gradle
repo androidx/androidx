@@ -23,6 +23,7 @@ dependencies {
     api project(':ui-material')
     api project(':ui-android-view-non-ir')
     implementation project(":ui-layout")
+    implementation project(":ui-material:integration-tests:samples")
 }
 
 android {

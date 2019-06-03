@@ -14,20 +14,31 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import androidx.build.Publish
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("com.android.library")
+    id("AndroidXUiPlugin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
-    implementation(KOTLIN_STDLIB)
+    kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
+
+    implementation project(":annotation:annotation-sampled")
+
+    api(KOTLIN_COMPOSE_STDLIB)
+    api project(":compose:compose-runtime")
+    api project(':ui-material')
 }
 
-androidx {
-    publish = Publish.NONE
-    toolingProject = true
+android {
+    tasks.withType(KotlinCompile).configureEach {
+        kotlinOptions {
+            useIR = true
+        }
+    }
 }
