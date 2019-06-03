@@ -871,9 +871,6 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
-    /**
-     * LinearLayoutManager that uses calculateExtraLayoutSpace to implement mOffscreenPageLimit
-     */
     private class LinearLayoutManagerImpl extends LinearLayoutManager {
         LinearLayoutManagerImpl(Context context) {
             super(context);
