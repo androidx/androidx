@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureRequest.Key;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
@@ -31,10 +30,8 @@ import androidx.camera.core.Config.Option;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -50,9 +47,6 @@ public final class CaptureConfig {
 
     /** The set of {@link Surface} that data from the camera will be put into. */
     final List<DeferrableSurface> mSurfaces;
-
-    /** The parameters used to configure the {@link CaptureRequest}. */
-    final Map<Key<?>, CaptureRequestParameter<?>> mCaptureRequestParameters;
 
     final Config mImplementationOptions;
 
@@ -77,7 +71,6 @@ public final class CaptureConfig {
      * <p>In practice, the {@link CaptureConfig.Builder} will be used to construct a CaptureConfig.
      *
      * @param surfaces                 The set of {@link Surface} where data will be put into.
-     * @param captureRequestParameters The parameters used to configure the {@link CaptureRequest}.
      * @param implementationOptions    The generic parameters to be passed to the {@link BaseCamera}
      *                                 class.
      * @param templateType             The template for parameters of the CaptureRequest. This
@@ -87,14 +80,12 @@ public final class CaptureConfig {
      */
     CaptureConfig(
             List<DeferrableSurface> surfaces,
-            Map<Key<?>, CaptureRequestParameter<?>> captureRequestParameters,
             Config implementationOptions,
             int templateType,
             List<CameraCaptureCallback> cameraCaptureCallbacks,
             boolean useRepeatingSurface,
             Object tag) {
         mSurfaces = surfaces;
-        mCaptureRequestParameters = captureRequestParameters;
         mImplementationOptions = implementationOptions;
         mTemplateType = templateType;
         mCameraCaptureCallbacks = Collections.unmodifiableList(cameraCaptureCallbacks);
@@ -110,10 +101,6 @@ public final class CaptureConfig {
     /** Get all the surfaces that the request will write data to. */
     public List<DeferrableSurface> getSurfaces() {
         return Collections.unmodifiableList(mSurfaces);
-    }
-
-    public Map<Key<?>, CaptureRequestParameter<?>> getCameraCharacteristics() {
-        return Collections.unmodifiableMap(mCaptureRequestParameters);
     }
 
     public Config getImplementationOptions() {
@@ -150,11 +137,6 @@ public final class CaptureConfig {
         }
         CaptureRequest.Builder builder = device.createCaptureRequest(mTemplateType);
 
-        for (CaptureRequestParameter<?> captureRequestParameter :
-                mCaptureRequestParameters.values()) {
-            captureRequestParameter.apply(builder);
-        }
-
         List<Surface> surfaceList = DeferrableSurfaces.surfaceList(mSurfaces);
 
         if (surfaceList.isEmpty()) {
@@ -187,11 +169,6 @@ public final class CaptureConfig {
         }
         CaptureRequest.Builder builder = device.createCaptureRequest(mTemplateType);
 
-        for (CaptureRequestParameter<?> captureRequestParameter :
-                mCaptureRequestParameters.values()) {
-            captureRequestParameter.apply(builder);
-        }
-
         return builder;
     }
 
@@ -219,8 +196,6 @@ public final class CaptureConfig {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Builder {
         private final Set<DeferrableSurface> mSurfaces = new HashSet<>();
-        private final Map<Key<?>, CaptureRequestParameter<?>> mCaptureRequestParameters =
-                new HashMap<>();
         private MutableConfig mImplementationOptions = MutableOptionsBundle.create();
         private int mTemplateType = -1;
         private List<CameraCaptureCallback> mCameraCaptureCallbacks = new ArrayList<>();
@@ -232,7 +207,6 @@ public final class CaptureConfig {
 
         private Builder(CaptureConfig base) {
             mSurfaces.addAll(base.mSurfaces);
-            mCaptureRequestParameters.putAll(base.mCaptureRequestParameters);
             mImplementationOptions = MutableOptionsBundle.from(base.mImplementationOptions);
             mTemplateType = base.mTemplateType;
             mCameraCaptureCallbacks.addAll(base.getCameraCaptureCallbacks());
@@ -321,16 +295,6 @@ public final class CaptureConfig {
             return mSurfaces;
         }
 
-        /** Add a {@link CaptureRequest.Key}-value pair to the request. */
-        public <T> void addCharacteristic(Key<T> key, T value) {
-            mCaptureRequestParameters.put(key, CaptureRequestParameter.create(key, value));
-        }
-
-        /** Add a set of {@link CaptureRequest.Key}-value pairs to the request. */
-        public void addCharacteristics(Map<Key<?>, CaptureRequestParameter<?>> characteristics) {
-            mCaptureRequestParameters.putAll(characteristics);
-        }
-
         public void setImplementationOptions(Config config) {
             mImplementationOptions = MutableOptionsBundle.from(config);
         }
@@ -354,8 +318,8 @@ public final class CaptureConfig {
             }
         }
 
-        Map<Key<?>, CaptureRequestParameter<?>> getCharacteristic() {
-            return mCaptureRequestParameters;
+        public Config getImplementationOptions() {
+            return mImplementationOptions;
         }
 
         boolean isUseRepeatingSurface() {
@@ -377,7 +341,6 @@ public final class CaptureConfig {
         public CaptureConfig build() {
             return new CaptureConfig(
                     new ArrayList<>(mSurfaces),
-                    new HashMap<>(mCaptureRequestParameters),
                     OptionsBundle.from(mImplementationOptions),
                     mTemplateType,
                     mCameraCaptureCallbacks,

@@ -23,9 +23,9 @@ import static org.mockito.Mockito.mock;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureRequest.Key;
 import android.view.Surface;
 
+import androidx.camera.core.Config.Option;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -36,11 +36,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
-import java.util.Map;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class CaptureConfigTest {
+    private static final Option<Integer> OPTION = Config.Option.create(
+            "camerax.test.option_0", Integer.class);
+
     private DeferrableSurface mMockSurface0;
 
     @Before
@@ -108,23 +110,18 @@ public class CaptureConfigTest {
     }
 
     @Test
-    public void builderAddCharacteristic() {
+    public void builderAddOption() {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
 
-        builder.addCharacteristic(
-                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        MutableOptionsBundle options = MutableOptionsBundle.create();
+        options.insertOption(OPTION, 1);
+        builder.addImplementationOptions(options);
         CaptureConfig captureConfig = builder.build();
 
-        Map<Key<?>, CaptureRequestParameter<?>> parameterMap =
-                captureConfig.getCameraCharacteristics();
+        Config config = captureConfig.getImplementationOptions();
 
-        assertThat(parameterMap.containsKey(CaptureRequest.CONTROL_AF_MODE)).isTrue();
-        assertThat(parameterMap)
-                .containsEntry(
-                        CaptureRequest.CONTROL_AF_MODE,
-                        CaptureRequestParameter.create(
-                                CaptureRequest.CONTROL_AF_MODE,
-                                CaptureRequest.CONTROL_AF_MODE_AUTO));
+        assertThat(config.containsOption(OPTION)).isTrue();
+        assertThat(config.retrieveOption(OPTION)).isEqualTo(1);
     }
 
     @Test
