@@ -961,8 +961,7 @@ public final class ViewPager2 extends ViewGroup {
             super.onInitializeAccessibilityEvent(event);
             event.setFromIndex(mCurrentItem);
             event.setToIndex(mCurrentItem);
-            event.setSource(ViewPager2.this);
-            event.setClassName(ViewPager2.this.getAccessibilityClassName());
+            mAccessibilityProvider.onRvInitializeAccessibilityEvent(event);
         }
 
         @SuppressLint("ClickableViewAccessibility")
@@ -1274,6 +1273,12 @@ public final class ViewPager2 extends ViewGroup {
                     : getCurrentItem() + 1;
             setCurrentItem(nextItem, true);
             return true;
+        }
+
+        void onRvInitializeAccessibilityEvent(
+                @NonNull AccessibilityEvent event) {
+            event.setSource(ViewPager2.this);
+            event.setClassName(ViewPager2.this.getAccessibilityClassName());
         }
     }
 }
