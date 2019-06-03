@@ -25,6 +25,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
+import androidx.ui.core.RepaintBoundaryNode
 import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.changedToDownIgnoreConsumed
@@ -160,7 +161,10 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                     child.child
                 }
                 is DrawNode -> {
-                    null
+                    child.child
+                }
+                is RepaintBoundaryNode -> {
+                    child.child
                 }
             }
         }
