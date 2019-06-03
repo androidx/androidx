@@ -4,7 +4,9 @@ package androidx.ui.core {
   public final class AndroidCraneView extends android.view.ViewGroup implements androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
     ctor public AndroidCraneView(android.content.Context context);
     method public androidx.ui.core.PxPosition calculatePosition();
+    method public void callDraw(androidx.ui.painting.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize, androidx.ui.core.DensityReceiver densityReceiver);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getCommitUnsubscribe();
     method public androidx.ui.core.Constraints getConstraints();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
@@ -14,16 +16,23 @@ package androidx.ui.core {
     method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void onRequestLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
+    method public void requestRelayout(androidx.ui.core.LayoutNode layoutNode);
     method public void sendEvent(android.view.MotionEvent event);
+    method public void setCommitUnsubscribe(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? commitUnsubscribe;
     property public final androidx.ui.core.Constraints constraints;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? ref;
     property public final androidx.ui.core.LayoutNode root;
+  }
+
+  public final class AndroidOwnerKt {
+    ctor public AndroidOwnerKt();
   }
 
   public abstract sealed class ComponentNode implements androidx.compose.Emittable {
@@ -39,6 +48,7 @@ package androidx.ui.core {
     method public final Object? getOwnerData();
     method public final androidx.ui.core.ComponentNode? getParent();
     method public androidx.ui.core.LayoutNode? getParentLayoutNode();
+    method public androidx.ui.core.RepaintBoundaryNode? getRepaintBoundary();
     method public final void setDepth(int p);
     method public final void setOwnerData(Object? p);
     method public void setParentLayoutNode(androidx.ui.core.LayoutNode? p);
@@ -50,6 +60,7 @@ package androidx.ui.core {
     property public final Object? ownerData;
     property public final androidx.ui.core.ComponentNode? parent;
     property public androidx.ui.core.LayoutNode? parentLayoutNode;
+    property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
   }
 
   public final class ComponentNodesKt {
@@ -106,7 +117,7 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx getX();
     method public androidx.ui.core.IntPx getY();
     method public void moveTo(androidx.ui.core.IntPx x, androidx.ui.core.IntPx y);
-    method public kotlin.Unit? requestLayout();
+    method public kotlin.Unit? requestRemeasure();
     method public void resize(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height);
     method public void setAffectsParentSize(boolean p);
     method public void setConstraints(androidx.ui.core.Constraints p);
@@ -146,7 +157,7 @@ package androidx.ui.core {
     method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
-    method public void onRequestLayout(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
@@ -164,6 +175,24 @@ package androidx.ui.core {
     method public T? getValue();
     method public void setValue(T? p);
     property public final T? value;
+  }
+
+  public final class RepaintBoundaryNode extends androidx.ui.core.SingleChildComponentNode {
+    ctor public RepaintBoundaryNode(String? name);
+    method public androidx.ui.core.IntPx getContainerX();
+    method public androidx.ui.core.IntPx getContainerY();
+    method public androidx.ui.core.IntPx getLayoutX();
+    method public androidx.ui.core.IntPx getLayoutY();
+    method public String? getName();
+    method public void setContainerX(androidx.ui.core.IntPx p);
+    method public void setContainerY(androidx.ui.core.IntPx p);
+    method public void setLayoutX(androidx.ui.core.IntPx p);
+    method public void setLayoutY(androidx.ui.core.IntPx p);
+    property public final androidx.ui.core.IntPx containerX;
+    property public final androidx.ui.core.IntPx containerY;
+    property public final androidx.ui.core.IntPx layoutX;
+    property public final androidx.ui.core.IntPx layoutY;
+    property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.SingleChildComponentNode {
