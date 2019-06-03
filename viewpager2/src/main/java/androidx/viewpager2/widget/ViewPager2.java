@@ -854,41 +854,6 @@ public final class ViewPager2 extends ViewGroup {
         mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
-    private void addCollectionInfo(AccessibilityNodeInfo info) {
-        int rowCount = 0;
-        int colCount = 0;
-        if (getAdapter() != null) {
-            if (getOrientation() == ORIENTATION_VERTICAL) {
-                rowCount = getAdapter().getItemCount();
-            } else {
-                colCount = getAdapter().getItemCount();
-            }
-        }
-        AccessibilityNodeInfoCompat nodeInfoCompat = AccessibilityNodeInfoCompat.wrap(info);
-        AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
-                AccessibilityNodeInfoCompat.CollectionInfoCompat.obtain(rowCount, colCount,
-                        /* hierarchical= */false,
-                        AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE);
-        nodeInfoCompat.setCollectionInfo(collectionInfo);
-    }
-
-    private void addScrollActions(AccessibilityNodeInfo info) {
-        if (getAdapter() == null) {
-            return;
-        }
-        int itemCount = mRecyclerView.getAdapter().getItemCount();
-        if (itemCount == 0 || !mUserInputEnabled) {
-            return;
-        }
-        if (mCurrentItem > 0) {
-            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
-        }
-        if (mCurrentItem < itemCount - 1) {
-            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
-        }
-        info.setScrollable(true);
-    }
-
     @Override
     public boolean performAccessibilityAction(int action, Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
@@ -1281,6 +1246,41 @@ public final class ViewPager2 extends ViewGroup {
                             ACTION_PAGE_BACKWARD);
                 }
             }
+        }
+
+        private void addCollectionInfo(AccessibilityNodeInfo info) {
+            int rowCount = 0;
+            int colCount = 0;
+            if (getAdapter() != null) {
+                if (getOrientation() == ORIENTATION_VERTICAL) {
+                    rowCount = getAdapter().getItemCount();
+                } else {
+                    colCount = getAdapter().getItemCount();
+                }
+            }
+            AccessibilityNodeInfoCompat nodeInfoCompat = AccessibilityNodeInfoCompat.wrap(info);
+            AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
+                    AccessibilityNodeInfoCompat.CollectionInfoCompat.obtain(rowCount, colCount,
+                            /* hierarchical= */false,
+                            AccessibilityNodeInfoCompat.CollectionInfoCompat.SELECTION_MODE_NONE);
+            nodeInfoCompat.setCollectionInfo(collectionInfo);
+        }
+
+        private void addScrollActions(AccessibilityNodeInfo info) {
+            if (getAdapter() == null) {
+                return;
+            }
+            int itemCount = mRecyclerView.getAdapter().getItemCount();
+            if (itemCount == 0 || !mUserInputEnabled) {
+                return;
+            }
+            if (mCurrentItem > 0) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+            }
+            if (mCurrentItem < itemCount - 1) {
+                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+            }
+            info.setScrollable(true);
         }
     }
 }
