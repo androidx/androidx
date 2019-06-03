@@ -412,8 +412,8 @@ public final class NavigationUI {
      * @param navigationView The NavigationView that should be kept in sync with changes to the
      *                       NavController.
      * @param navController The NavController that supplies the primary and secondary menu.
- *                      Navigation actions on this NavController will be reflected in the
- *                      selected item in the NavigationView.
+     *                      Navigation actions on this NavController will be reflected in the
+     *                      selected item in the NavigationView.
      */
     public static void setupWithNavController(@NonNull final NavigationView navigationView,
             @NonNull final NavController navController) {
@@ -489,8 +489,8 @@ public final class NavigationUI {
      * @param bottomNavigationView The BottomNavigationView that should be kept in sync with
      *                             changes to the NavController.
      * @param navController The NavController that supplies the primary menu.
- *                      Navigation actions on this NavController will be reflected in the
- *                      selected item in the BottomNavigationView.
+     *                      Navigation actions on this NavController will be reflected in the
+     *                      selected item in the BottomNavigationView.
      */
     public static void setupWithNavController(
             @NonNull final BottomNavigationView bottomNavigationView,
