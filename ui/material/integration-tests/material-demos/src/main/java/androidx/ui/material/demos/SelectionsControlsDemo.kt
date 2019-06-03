@@ -32,23 +32,15 @@ import androidx.ui.material.Checkbox
 import androidx.ui.material.RadioButton
 import androidx.ui.material.RadioGroup
 import androidx.ui.material.Switch
-import androidx.ui.material.parentCheckboxState
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.Color
 import androidx.compose.Composable
-import androidx.compose.Model
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
-
-@Model
-class CheckboxState(var value: ToggleableState) {
-    fun toggle() {
-        value = if (value == Checked) Unchecked else Checked
-    }
-}
+import androidx.ui.material.TriStateCheckbox
 
 private val customColor = Color(0xFFFF5722.toInt())
 private val customColor2 = Color(0xFFE91E63.toInt())
@@ -128,40 +120,29 @@ fun CustomRadioGroup() {
 @Composable
 fun CheckboxDemo() {
     Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-        val state = +memo { CheckboxState(Checked) }
-        val state2 = +memo { CheckboxState(Checked) }
-        val state3 = +memo { CheckboxState(Checked) }
-        fun calcParentState() = parentCheckboxState(state.value, state2.value, state3.value)
+        val (state, onStateChange) = +state { true }
+        val (state2, onStateChange2) = +state { true }
+        val (state3, onStateChange3) = +state { true }
+        val parentState = +memo(state, state2, state3) {
+            if (state && state2 && state3) ToggleableState.Checked
+            else if (!state && !state2 && !state3) ToggleableState.Unchecked
+            else ToggleableState.Indeterminate
+        }
         val onParentClick = {
-            val s = if (calcParentState() == Checked) {
-                Unchecked
-            } else {
-                Checked
-            }
-            state.value = s
-            state2.value = s
-            state3.value = s
+            val s = parentState != Checked
+            onStateChange(s)
+            onStateChange2(s)
+            onStateChange3(s)
         }
         Row {
-            Checkbox(value = calcParentState(), onClick = onParentClick)
-            Text(text = "This is parent", style = +themeTextStyle { body1 })
+            TriStateCheckbox(value = parentState, onClick = onParentClick)
+            Text(text = "This is parent TriStateCheckbox", style = +themeTextStyle { body1 })
         }
         Padding(left = 10.dp) {
             Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-                Checkbox(
-                    value = state.value,
-                    color = customColor,
-                    onClick = { state.toggle() })
-                Checkbox(
-                    value = state2.value,
-                    onClick = { state2.toggle() },
-                    color = customColor2
-                )
-                Checkbox(
-                    value = state3.value,
-                    onClick = { state3.toggle() },
-                    color = customColor3
-                )
+                Checkbox(state, onStateChange, customColor)
+                Checkbox(state2, onStateChange2, customColor2)
+                Checkbox(state3, onStateChange3, customColor3)
             }
         }
     }

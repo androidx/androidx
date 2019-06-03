@@ -16,6 +16,7 @@
 
 package androix.ui.test
 
+import android.view.Surface
 import androidx.compose.composer
 import android.widget.FrameLayout
 import android.widget.LinearLayout
@@ -33,6 +34,7 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.TriStateCheckbox
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.DisableTransitions
 import androidx.ui.test.android.DefaultTestActivity
@@ -124,7 +126,7 @@ class MultipleComposeRootsTest {
                         MaterialTheme {
                             Surface {
                                 TestTag(tag = "checkbox1") {
-                                    Checkbox(
+                                    TriStateCheckbox(
                                         value = state1.value,
                                         onClick = {
                                             state1.toggle()
@@ -143,7 +145,7 @@ class MultipleComposeRootsTest {
                         MaterialTheme {
                             Surface {
                                 TestTag(tag = "checkbox2") {
-                                    Checkbox(
+                                    TriStateCheckbox(
                                         value = state2.value,
                                         onClick = {
                                             state1.toggle()

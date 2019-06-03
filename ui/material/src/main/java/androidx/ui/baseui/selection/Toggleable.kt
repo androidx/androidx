@@ -55,3 +55,8 @@ enum class ToggleableState {
     Unchecked,
     Indeterminate
 }
+
+internal fun ToggleableState(checked: Boolean) = when (checked) {
+    true -> ToggleableState.Checked
+    false -> ToggleableState.Unchecked
+}

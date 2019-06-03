@@ -40,17 +40,14 @@ import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
+import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
+import androidx.ui.core.round
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-@Model
-class CheckboxState(var value: ToggleableState = Checked) {
-    fun toggle() {
-        value = if (value == Checked) Unchecked else Checked
-    }
-}
 
 @MediumTest
 @RunWith(JUnit4::class)
@@ -85,10 +82,10 @@ class CheckboxUiTest {
         composeTestRule.setMaterialContent {
             Column {
                 TestTag(tag = "checkboxUnchecked") {
-                    Checkbox(value = Unchecked)
+                    Checkbox(false, {})
                 }
                 TestTag(tag = "checkboxChecked") {
-                    Checkbox(value = Checked)
+                    Checkbox(true, {})
                 }
             }
         }
@@ -102,15 +99,10 @@ class CheckboxUiTest {
 
     @Test
     fun checkBoxTest_toggle() {
-        val state = CheckboxState(value = Unchecked)
-
         composeTestRule.setMaterialContent {
+            val (checked, onCheckedChange) = +state { false }
             TestTag(tag = defaultTag) {
-                Checkbox(
-                    value = state.value,
-                    onClick = {
-                        state.toggle()
-                    })
+                Checkbox(checked, onCheckedChange)
             }
         }
 
@@ -122,15 +114,10 @@ class CheckboxUiTest {
 
     @Test
     fun checkBoxTest_toggle_twice() {
-        val state = CheckboxState(value = Unchecked)
-
         composeTestRule.setMaterialContent {
+            val (checked, onCheckedChange) = +state { false }
             TestTag(tag = defaultTag) {
-                Checkbox(
-                    value = state.value,
-                    onClick = {
-                        state.toggle()
-                    })
+                Checkbox(checked, onCheckedChange)
             }
         }
 
@@ -144,11 +131,11 @@ class CheckboxUiTest {
 
     @Test
     fun checkBoxTest_untoggleable_whenNoLambda() {
-        val state = CheckboxState(value = Unchecked)
 
         composeTestRule.setMaterialContent {
+            val (checked, _) = +state { false }
             TestTag(tag = defaultTag) {
-                Checkbox(value = state.value)
+                Checkbox(checked, null)
             }
         }
 
@@ -181,7 +168,7 @@ class CheckboxUiTest {
                 OnChildPositioned(onPositioned = { coordinates ->
                     checkboxSize = coordinates.size
                 }) {
-                    Checkbox(value = checkboxValue)
+                    TriStateCheckbox(value = checkboxValue, onClick = null)
                 }
             }
         }

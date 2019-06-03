@@ -17,6 +17,8 @@
 package androix.ui.test
 
 import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.TestTag
@@ -51,15 +53,12 @@ class RecompositionDetectionTest {
      */
     @Test
     fun actionShouldTriggerRecomposeAndTimeOutShouldNotHappen() {
-        val state = CheckboxState(value = ToggleableState.Unchecked)
         composeTestRule.setContent {
+            val (checked, onCheckedChange) = +state { false }
             MaterialTheme {
                 Surface {
                     TestTag(tag = "checkbox") {
-                        Checkbox(
-                            value = state.value,
-                            onClick = { state.toggle() }
-                        )
+                        Checkbox(checked, onCheckedChange)
                     }
                 }
             }
