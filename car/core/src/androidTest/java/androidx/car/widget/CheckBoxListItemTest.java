@@ -158,7 +158,7 @@ public class CheckBoxListItemTest {
     @Test
     public void testClickableItem_setClickable() {
         CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
-        item0.setClickable(true);
+        item0.setEntireItemClickable(true);
 
         List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
@@ -169,7 +169,7 @@ public class CheckBoxListItemTest {
     @Test
     public void testClickableItem_ClickingTogglesCheckBox() {
         CheckBoxListItem item0 = new CheckBoxListItem(mActivity);
-        item0.setClickable(true);
+        item0.setEntireItemClickable(true);
 
         List<CheckBoxListItem> items = Arrays.asList(item0);
         setupPagedListView(items);
