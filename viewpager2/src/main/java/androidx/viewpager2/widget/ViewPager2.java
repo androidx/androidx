@@ -266,56 +266,6 @@ public final class ViewPager2 extends ViewGroup {
         return super.getAccessibilityClassName();
     }
 
-    /**
-     * Update the ViewPager2's available page accessibility actions. These are updated in response
-     * to page, adapter, and orientation changes. Compatible with API >= 21.
-     */
-    void updatePageAccessibilityActions() {
-        ViewCompat.removeAccessibilityAction(this, ACTION_PAGE_LEFT.getId());
-        ViewCompat.removeAccessibilityAction(this, ACTION_PAGE_RIGHT.getId());
-        ViewCompat.removeAccessibilityAction(this, ACTION_PAGE_UP.getId());
-        ViewCompat.removeAccessibilityAction(this, ACTION_PAGE_DOWN.getId());
-
-        if (getAdapter() == null) {
-            return;
-        }
-
-        int itemCount = getAdapter().getItemCount();
-        if (itemCount == 0) {
-            return;
-        }
-
-        if (!isUserInputEnabled()) {
-            return;
-        }
-
-        if (getOrientation() == ORIENTATION_HORIZONTAL) {
-            boolean isLayoutRtl = isLayoutRtl();
-            AccessibilityNodeInfoCompat.AccessibilityActionCompat actionPageForward =
-                    isLayoutRtl ? ACTION_PAGE_LEFT : ACTION_PAGE_RIGHT;
-            AccessibilityNodeInfoCompat.AccessibilityActionCompat actionPageBackward =
-                    isLayoutRtl ? ACTION_PAGE_RIGHT : ACTION_PAGE_LEFT;
-
-            if (mCurrentItem < itemCount - 1) {
-                ViewCompat.replaceAccessibilityAction(this, actionPageForward, null,
-                        ACTION_PAGE_FORWARD);
-            }
-            if (mCurrentItem > 0) {
-                ViewCompat.replaceAccessibilityAction(this, actionPageBackward, null,
-                        ACTION_PAGE_BACKWARD);
-            }
-        } else {
-            if (mCurrentItem < itemCount - 1) {
-                ViewCompat.replaceAccessibilityAction(this, ACTION_PAGE_DOWN, null,
-                        ACTION_PAGE_FORWARD);
-            }
-            if (mCurrentItem > 0) {
-                ViewCompat.replaceAccessibilityAction(this, ACTION_PAGE_UP, null,
-                        ACTION_PAGE_BACKWARD);
-            }
-        }
-    }
-
     private void setOrientation(Context context, AttributeSet attrs) {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewPager2);
         if (Build.VERSION.SDK_INT >= 29) {
@@ -1279,6 +1229,58 @@ public final class ViewPager2 extends ViewGroup {
                 @NonNull AccessibilityEvent event) {
             event.setSource(ViewPager2.this);
             event.setClassName(ViewPager2.this.getAccessibilityClassName());
+        }
+
+        /**
+         * Update the ViewPager2's available page accessibility actions. These are updated in
+         * response to page, adapter, and orientation changes. Compatible with API >= 21.
+         */
+        private void updatePageAccessibilityActions() {
+            ViewPager2 viewPager = ViewPager2.this;
+
+            ViewCompat.removeAccessibilityAction(viewPager, ACTION_PAGE_LEFT.getId());
+            ViewCompat.removeAccessibilityAction(viewPager, ACTION_PAGE_RIGHT.getId());
+            ViewCompat.removeAccessibilityAction(viewPager, ACTION_PAGE_UP.getId());
+            ViewCompat.removeAccessibilityAction(viewPager, ACTION_PAGE_DOWN.getId());
+
+            if (getAdapter() == null) {
+                return;
+            }
+
+            int itemCount = getAdapter().getItemCount();
+            if (itemCount == 0) {
+                return;
+            }
+
+            if (!isUserInputEnabled()) {
+                return;
+            }
+
+            if (getOrientation() == ORIENTATION_HORIZONTAL) {
+                boolean isLayoutRtl = isLayoutRtl();
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat actionPageForward =
+                        isLayoutRtl ? ACTION_PAGE_LEFT : ACTION_PAGE_RIGHT;
+                AccessibilityNodeInfoCompat.AccessibilityActionCompat actionPageBackward =
+                        isLayoutRtl ? ACTION_PAGE_RIGHT : ACTION_PAGE_LEFT;
+
+                if (mCurrentItem < itemCount - 1) {
+                    ViewCompat.replaceAccessibilityAction(viewPager, actionPageForward, null,
+                            ACTION_PAGE_FORWARD);
+                }
+                if (mCurrentItem > 0) {
+                    ViewCompat.replaceAccessibilityAction(viewPager, actionPageBackward, null,
+                            ACTION_PAGE_BACKWARD);
+                }
+            } else {
+                if (mCurrentItem < itemCount - 1) {
+                    ViewCompat.replaceAccessibilityAction(viewPager, ACTION_PAGE_DOWN, null,
+                            ACTION_PAGE_FORWARD);
+                }
+                if (mCurrentItem > 0) {
+                    ViewCompat.replaceAccessibilityAction(viewPager, ACTION_PAGE_UP, null,
+                            ACTION_PAGE_BACKWARD);
+                }
+            }
         }
     }
 }
