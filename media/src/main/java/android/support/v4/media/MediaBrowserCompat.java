@@ -15,7 +15,6 @@
  */
 package android.support.v4.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_ADD_SUBSCRIPTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_CONNECT;
@@ -445,7 +444,7 @@ public final class MediaBrowserCompat {
      *         String, Bundle)}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable Bundle getNotifyChildrenChangedOptions() {
         return mImpl.getNotifyChildrenChangedOptions();
     }
