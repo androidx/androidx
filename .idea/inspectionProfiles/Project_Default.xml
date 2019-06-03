@@ -51,6 +51,9 @@
         <option name="namePattern" value="[A-Za-z\d]+" />
       </scope>
     </inspection_tool>
+    <inspection_tool class="RemoveEmptyParenthesesFromAnnotationEntry" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <scope name="Compose" level="WEAK WARNING" enabled="false" />
+    </inspection_tool>
     <inspection_tool class="TestFunctionName" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <scope name="Compose" level="WEAK WARNING" enabled="true">
         <option name="namePattern" value="[A-Za-z_\d]+" />
