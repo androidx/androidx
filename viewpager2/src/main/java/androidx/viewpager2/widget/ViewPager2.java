@@ -52,6 +52,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -120,6 +121,8 @@ public final class ViewPager2 extends ViewGroup {
      */
     public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1;
 
+    private static boolean sFeatureEnhancedA11yEnabled = false;
+
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
     private final Rect mTmpChildRect = new Rect();
@@ -138,7 +141,7 @@ public final class ViewPager2 extends ViewGroup {
     private PageTransformerAdapter mPageTransformerAdapter;
     private boolean mUserInputEnabled = true;
     private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
-    private AccessibilityProvider mAccessibilityProvider;
+    AccessibilityProvider mAccessibilityProvider; // to avoid creation of a synthetic accessor
 
     public ViewPager2(@NonNull Context context) {
         super(context);
@@ -163,6 +166,10 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     private void initialize(Context context, AttributeSet attrs) {
+        mAccessibilityProvider = sFeatureEnhancedA11yEnabled
+                ? new PageAwareAccessibilityProvider()
+                : new BasicAccessibilityProvider();
+
         mRecyclerView = new RecyclerViewImpl(context);
         mRecyclerView.setId(ViewCompat.generateViewId());
 
@@ -201,7 +208,6 @@ public final class ViewPager2 extends ViewGroup {
         // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
         pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
-        mAccessibilityProvider = new PageAwareAccessibilityProvider();
         mAccessibilityProvider.onInitialize(pageChangeEventDispatcher);
         pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
@@ -852,6 +858,14 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
+        public CharSequence getAccessibilityClassName() {
+            if (mAccessibilityProvider.handlesRvGetAccessibilityClassName()) {
+                return mAccessibilityProvider.onRvGetAccessibilityClassName();
+            }
+            return super.getAccessibilityClassName();
+        }
+
+        @Override
         public void onInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(event);
             event.setFromIndex(mCurrentItem);
@@ -874,6 +888,22 @@ public final class ViewPager2 extends ViewGroup {
     private class LinearLayoutManagerImpl extends LinearLayoutManager {
         LinearLayoutManagerImpl(Context context) {
             super(context);
+        }
+
+        @Override
+        public boolean performAccessibilityAction(@NonNull RecyclerView.Recycler recycler,
+                @NonNull RecyclerView.State state, int action, @Nullable Bundle args) {
+            if (mAccessibilityProvider.handlesLmPerformAccessibilityAction(action)) {
+                return mAccessibilityProvider.onLmPerformAccessibilityAction(action);
+            }
+            return super.performAccessibilityAction(recycler, state, action, args);
+        }
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+                @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+            super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+            mAccessibilityProvider.onLmInitializeAccessibilityNodeInfo(info);
         }
 
         @Override
@@ -1066,38 +1096,115 @@ public final class ViewPager2 extends ViewGroup {
         mRecyclerView.removeItemDecoration(decor);
     }
 
-    private interface AccessibilityProvider {
-        void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher);
+    private abstract class AccessibilityProvider {
+        void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher) {
+        }
 
-        boolean handlesGetAccessibilityClassName();
+        boolean handlesGetAccessibilityClassName() {
+            return false;
+        }
 
-        String onGetAccessibilityClassName();
+        String onGetAccessibilityClassName() {
+            throw new IllegalStateException("Not implemented.");
+        }
 
-        void onRestorePendingState();
+        void onRestorePendingState() {
+        }
 
-        void onAttachAdapter(@Nullable RecyclerView.Adapter newAdapter);
+        void onAttachAdapter(@Nullable RecyclerView.Adapter newAdapter) {
+        }
 
-        void onDetachAdapter(@Nullable RecyclerView.Adapter oldAdapter);
+        void onDetachAdapter(@Nullable RecyclerView.Adapter oldAdapter) {
+        }
 
-        void onSetOrientation();
+        void onSetOrientation() {
+        }
 
-        void onSetNewCurrentItem();
+        void onSetNewCurrentItem() {
+        }
 
-        void onSetUserInputEnabled();
+        void onSetUserInputEnabled() {
+        }
 
-        void onSetLayoutDirection();
+        void onSetLayoutDirection() {
+        }
 
-        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info);
+        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
+        }
 
-        boolean handlesPerformAccessibilityAction(int action, Bundle arguments);
+        boolean handlesPerformAccessibilityAction(int action, Bundle arguments) {
+            return false;
+        }
 
-        boolean onPerformAccessibilityAction(int action, Bundle arguments);
+        boolean onPerformAccessibilityAction(int action, Bundle arguments) {
+            throw new IllegalStateException("Not implemented.");
+        }
 
-        void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event);
+        void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
+        }
+
+        boolean handlesLmPerformAccessibilityAction(int action) {
+            return false;
+        }
+
+        boolean onLmPerformAccessibilityAction(int action) {
+            throw new IllegalStateException("Not implemented.");
+        }
+
+        void onLmInitializeAccessibilityNodeInfo(@NonNull AccessibilityNodeInfoCompat info) {
+        }
+
+        boolean handlesRvGetAccessibilityClassName() {
+            return false;
+        }
+
+        CharSequence onRvGetAccessibilityClassName() {
+            throw new IllegalStateException("Not implemented.");
+        }
+    }
+
+    class BasicAccessibilityProvider extends AccessibilityProvider {
+        @Override
+        public boolean handlesLmPerformAccessibilityAction(int action) {
+            return (action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
+                    || action == AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD)
+                    && !isUserInputEnabled();
+        }
+
+        @Override
+        public boolean onLmPerformAccessibilityAction(int action) {
+            if (!handlesLmPerformAccessibilityAction(action)) {
+                throw new IllegalStateException();
+            }
+            return false;
+        }
+
+        @Override
+        public void onLmInitializeAccessibilityNodeInfo(
+                @NonNull AccessibilityNodeInfoCompat info) {
+            if (!isUserInputEnabled()) {
+                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_BACKWARD);
+                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_FORWARD);
+                info.setScrollable(false);
+            }
+        }
+
+        @Override
+        public boolean handlesRvGetAccessibilityClassName() {
+            return true;
+        }
+
+        @Override
+        public CharSequence onRvGetAccessibilityClassName() {
+            if (!handlesRvGetAccessibilityClassName()) {
+                throw new IllegalStateException();
+            }
+            return "androidx.viewpager.widget.ViewPager";
+        }
     }
 
     @SuppressLint("SyntheticAccessor") // TODO: remove after the refactor
-    private class PageAwareAccessibilityProvider implements AccessibilityProvider {
+    class PageAwareAccessibilityProvider extends AccessibilityProvider {
         private final AccessibilityViewCommand mActionPageForward =
                 new AccessibilityViewCommand() {
                     @Override
