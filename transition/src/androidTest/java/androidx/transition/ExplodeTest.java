@@ -16,6 +16,8 @@
 
 package androidx.transition;
 
+import static androidx.transition.AtLeastOnceWithin.atLeastOnceWithin;
+
 import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalMatchers.and;
 import static org.mockito.AdditionalMatchers.geq;
@@ -23,7 +25,6 @@ import static org.mockito.AdditionalMatchers.gt;
 import static org.mockito.AdditionalMatchers.leq;
 import static org.mockito.AdditionalMatchers.lt;
 import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.graphics.Color;
@@ -36,9 +37,7 @@ import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.verification.VerificationMode;
 
 @LargeTest
 public class ExplodeTest extends BaseTransitionTest {
@@ -82,7 +81,6 @@ public class ExplodeTest extends BaseTransitionTest {
         });
     }
 
-    @Ignore("Temporarily disabled due to b/112005299")
     @Test
     public void testExplode() throws Throwable {
         rule.runOnUiThread(new Runnable() {
@@ -106,6 +104,7 @@ public class ExplodeTest extends BaseTransitionTest {
         verifyMovement(mBlueSquare, Gravity.RIGHT | Gravity.BOTTOM, true);
         verifyMovement(mYellowSquare, Gravity.LEFT | Gravity.BOTTOM, true);
         waitForEnd();
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         verifyNoTranslation(mRedSquare);
         verifyNoTranslation(mGreenSquare);
@@ -117,7 +116,6 @@ public class ExplodeTest extends BaseTransitionTest {
         assertEquals(View.INVISIBLE, mYellowSquare.getVisibility());
     }
 
-    @Ignore("Temporarily disabled due to b/112005299")
     @Test
     public void testImplode() throws Throwable {
         rule.runOnUiThread(new Runnable() {
@@ -168,31 +166,30 @@ public class ExplodeTest extends BaseTransitionTest {
     private void verifyMovement(View v, int direction, boolean movingOut) {
         final float startX = v.getTranslationX();
         final float startY = v.getTranslationY();
-        final VerificationMode mode = timeout(1000).atLeastOnce();
         if ((direction & Gravity.LEFT) == Gravity.LEFT) {
             if (movingOut) {
-                verify(v, mode).setTranslationX(and(lt(0f), lt(startX)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(lt(0f), lt(startX)));
             } else {
-                verify(v, mode).setTranslationX(and(leq(0f), gt(startX)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(leq(0f), gt(startX)));
             }
         } else if ((direction & Gravity.RIGHT) == Gravity.RIGHT) {
             if (movingOut) {
-                verify(v, mode).setTranslationX(and(gt(0f), gt(startX)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(gt(0f), gt(startX)));
             } else {
-                verify(v, mode).setTranslationX(and(geq(0f), lt(startX)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(geq(0f), lt(startX)));
             }
         }
         if ((direction & Gravity.TOP) == Gravity.TOP) {
             if (movingOut) {
-                verify(v, mode).setTranslationY(and(lt(0f), lt(startY)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(lt(0f), lt(startY)));
             } else {
-                verify(v, mode).setTranslationY(and(leq(0f), gt(startY)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(leq(0f), gt(startY)));
             }
         } else if ((direction & Gravity.BOTTOM) == Gravity.BOTTOM) {
             if (movingOut) {
-                verify(v, mode).setTranslationY(and(gt(0f), gt(startY)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(gt(0f), gt(startY)));
             } else {
-                verify(v, mode).setTranslationY(and(geq(0f), lt(startY)));
+                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(geq(0f), lt(startY)));
             }
         }
     }
