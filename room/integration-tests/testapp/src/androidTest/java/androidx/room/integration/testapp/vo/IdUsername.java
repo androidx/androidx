@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.room.vo
+package androidx.room.integration.testapp.vo;
 
-import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
-import javax.lang.model.element.ExecutableElement
+import androidx.room.ColumnInfo;
 
-/**
- * Base class for shortcut methods in @DAO.
- */
-abstract class ShortcutMethod(
-    val element: ExecutableElement,
-    val name: String,
-    val entities: Map<String, ShortcutEntity>,
-    val parameters: List<ShortcutQueryParameter>,
-    val methodBinder: DeleteOrUpdateMethodBinder?
-)
+public class IdUsername {
+    @ColumnInfo(name = "mId")
+    public final int id;
+    @ColumnInfo(name = "mName")
+    public final String name;
+
+    public IdUsername(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+}
