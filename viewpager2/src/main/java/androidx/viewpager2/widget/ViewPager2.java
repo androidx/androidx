@@ -121,6 +121,7 @@ public final class ViewPager2 extends ViewGroup {
      */
     public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1;
 
+    /** Feature flag while stabilizing enhanced a11y */
     private static boolean sFeatureEnhancedA11yEnabled = false;
 
     // reused in layout(...)
@@ -134,7 +135,7 @@ public final class ViewPager2 extends ViewGroup {
     LinearLayoutManager mLayoutManager;
     private int mPendingCurrentItem = NO_POSITION;
     private Parcelable mPendingAdapterState;
-    private RecyclerView mRecyclerView;
+    RecyclerView mRecyclerView; // to avoid creation of a synthetic accessor
     private PagerSnapHelper mPagerSnapHelper;
     private ScrollEventAdapter mScrollEventAdapter;
     private FakeDrag mFakeDragger;
@@ -1203,7 +1204,6 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
-    @SuppressLint("SyntheticAccessor") // TODO: remove after the refactor
     class PageAwareAccessibilityProvider extends AccessibilityProvider {
         private final AccessibilityViewCommand mActionPageForward =
                 new AccessibilityViewCommand() {
@@ -1340,8 +1340,7 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
-        public void onRvInitializeAccessibilityEvent(
-                @NonNull AccessibilityEvent event) {
+        public void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
             event.setSource(ViewPager2.this);
             event.setClassName(ViewPager2.this.getAccessibilityClassName());
         }
@@ -1350,7 +1349,7 @@ public final class ViewPager2 extends ViewGroup {
          * Update the ViewPager2's available page accessibility actions. These are updated in
          * response to page, adapter, and orientation changes. Compatible with API >= 21.
          */
-        private void updatePageAccessibilityActions() {
+        void updatePageAccessibilityActions() {
             ViewPager2 viewPager = ViewPager2.this;
 
             ViewCompat.removeAccessibilityAction(viewPager, ACTION_PAGE_LEFT.getId());
@@ -1420,8 +1419,8 @@ public final class ViewPager2 extends ViewGroup {
             if (getAdapter() == null) {
                 return;
             }
-            int itemCount = mRecyclerView.getAdapter().getItemCount();
-            if (itemCount == 0 || !mUserInputEnabled) {
+            int itemCount = mRecyclerView.getAdapter().getItemCount(); // TODO: fix NPE
+            if (itemCount == 0 || !isUserInputEnabled()) {
                 return;
             }
             if (mCurrentItem > 0) {
