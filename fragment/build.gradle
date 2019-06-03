@@ -41,6 +41,13 @@ dependencies {
     }
 }
 
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
+
 androidx {
     name = "Android Support Library fragment"
     publish = Publish.SNAPSHOT_AND_RELEASE

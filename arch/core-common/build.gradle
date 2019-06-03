@@ -32,6 +32,9 @@ dependencies {
     testCompile(MOCKITO_CORE)
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 androidx {
     name = "Android Arch-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE

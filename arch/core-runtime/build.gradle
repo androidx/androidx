@@ -30,6 +30,13 @@ dependencies {
     api(project(":arch:core-common"))
 }
 
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
+
 androidx {
     name = "Android Arch-Runtime"
     publish = Publish.SNAPSHOT_AND_RELEASE

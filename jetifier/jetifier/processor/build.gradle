@@ -24,6 +24,9 @@ plugins {
     id("kotlin")
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
     compile project(':jetifier-core')
     compile("org.ow2.asm:asm:6.0")

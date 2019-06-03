@@ -29,6 +29,10 @@ dependencies {
 }
 
 android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
     lintOptions {
         // Lint bug causes the BanTargetApiAnnotation lint check to crash in this project.
         // remove when b/120615476 is fixed.

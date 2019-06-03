@@ -40,6 +40,13 @@ dependencies {
     androidTestImplementation(ESPRESSO_CORE)
 }
 
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
+
 androidx {
     name = "Android Core-Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
