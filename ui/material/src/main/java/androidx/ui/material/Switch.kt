@@ -46,21 +46,22 @@ import androidx.ui.painting.StrokeCap
  * A Switch is a two state toggleable component that provides on/off like options
  *
  * @param checked whether or not this components is checked
- * @param onClick callback to be invoked when Switch is clicked.
- * if [null], Switch will show static [checked] state and remain disabled
+ * @param onCheckedChange callback to be invoked when Switch is being clicked,
+ * therefore the change of checked state is requested.
+ * if [null], Switch appears in [checked] state and remains disabled
  * @param color optional active color for Switch,
  * by default [MaterialColors.secondaryVariant] will be used
  */
 @Composable
 fun Switch(
     checked: Boolean,
-    onClick: (() -> Unit)? = null,
+    onCheckedChange: ((Boolean) -> Unit)?,
     color: Color = +themeColor { secondaryVariant }
 ) {
     val value = if (checked) ToggleableState.Checked else ToggleableState.Unchecked
     Wrap {
         Ripple(bounded = false) {
-            Toggleable(value = value, onToggle = onClick) {
+            Toggleable(value = value, onToggle = onCheckedChange?.let { { it(!checked) } }) {
                 Padding(padding = DefaultSwitchPadding) {
                     Container(width = SwitchWidth, height = SwitchHeight) {
                         DrawSwitch(checked = checked, checkedThumbColor = color)
