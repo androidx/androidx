@@ -23,7 +23,6 @@
     </declare-styleable>
 
     <declare-styleable name="NavHostFragment">
-        <attr name="navGraph" format="reference" />
         <attr name="defaultNavHost" format="boolean" />
     </declare-styleable>
 </resources>

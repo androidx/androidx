@@ -325,13 +325,15 @@ public class NavHostFragment extends Fragment implements NavHost {
             @Nullable Bundle savedInstanceState) {
         super.onInflate(context, attrs, savedInstanceState);
 
-        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NavHostFragment);
-        final int graphId = a.getResourceId(R.styleable.NavHostFragment_navGraph, 0);
-        final boolean defaultHost = a.getBoolean(R.styleable.NavHostFragment_defaultNavHost, false);
-
+        final TypedArray navHost = context.obtainStyledAttributes(attrs, R.styleable.NavHost);
+        final int graphId = navHost.getResourceId(R.styleable.NavHost_navGraph, 0);
         if (graphId != 0) {
             mGraphId = graphId;
         }
+        navHost.recycle();
+
+        final TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.NavHostFragment);
+        final boolean defaultHost = a.getBoolean(R.styleable.NavHostFragment_defaultNavHost, false);
         if (defaultHost) {
             mDefaultNavHost = true;
         }
