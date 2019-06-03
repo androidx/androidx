@@ -245,7 +245,7 @@ final class CaptureSession {
                     if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P
                             && builder != null && !presetList.isEmpty()) {
                         for (CaptureConfig config : presetList) {
-                            applyImplementationOptionTCaptureBuilder(builder,
+                            applyImplementationOptionToCaptureBuilder(builder,
                                     config.getImplementationOptions());
                         }
 
@@ -458,11 +458,11 @@ final class CaptureSession {
             List<CaptureConfig> repeatingRequestList =
                     eventCallbacks.createComboCallback().onRepeating();
             for (CaptureConfig config : repeatingRequestList) {
-                applyImplementationOptionTCaptureBuilder(builder,
+                applyImplementationOptionToCaptureBuilder(builder,
                         config.getImplementationOptions());
             }
 
-            applyImplementationOptionTCaptureBuilder(
+            applyImplementationOptionToCaptureBuilder(
                     builder, captureConfig.getImplementationOptions());
 
             CameraCaptureSession.CaptureCallback comboCaptureCallback =
@@ -478,7 +478,7 @@ final class CaptureSession {
         }
     }
 
-    private void applyImplementationOptionTCaptureBuilder(
+    private void applyImplementationOptionToCaptureBuilder(
             CaptureRequest.Builder builder, Config config) {
         Camera2Config camera2Config = new Camera2Config(config);
         for (Option<?> option : camera2Config.getCaptureRequestOptions()) {
@@ -522,7 +522,10 @@ final class CaptureSession {
                 CaptureRequest.Builder builder =
                         captureConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
 
-                applyImplementationOptionTCaptureBuilder(
+                applyImplementationOptionToCaptureBuilder(builder,
+                        mSessionConfig.getRepeatingCaptureConfig().getImplementationOptions());
+
+                applyImplementationOptionToCaptureBuilder(
                         builder, captureConfig.getImplementationOptions());
 
                 CaptureRequest captureRequest = builder.build();

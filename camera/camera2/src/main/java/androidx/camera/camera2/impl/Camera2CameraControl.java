@@ -285,12 +285,15 @@ public final class Camera2CameraControl implements CameraControl {
         }
 
         if (!torch) {
+            // Send capture request with AE_MODE_ON + FLASH_MODE_OFF to turn off torch.
             CaptureConfig.Builder singleRequestBuilder = createCaptureBuilderWithSharedOptions();
             singleRequestBuilder.setTemplateType(getDefaultTemplate());
             singleRequestBuilder.setUseRepeatingSurface(true);
             Camera2Config.Builder configBuilder = new Camera2Config.Builder();
             configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
                     CaptureRequest.CONTROL_AE_MODE_ON);
+            configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
+                    CaptureRequest.FLASH_MODE_OFF);
             singleRequestBuilder.addImplementationOptions(configBuilder.build());
             notifyCaptureRequests(Collections.singletonList(singleRequestBuilder.build()));
         }
