@@ -121,7 +121,7 @@ public class SwitchListItemActivity extends Activity {
 
             item = new SwitchListItem(mContext);
             item.setTitle("Clicking item toggles switch");
-            item.setClickable(true);
+            item.setEntireItemClickable(true);
             item.setOnCheckedChangeListener(mListener);
             mItems.add(item);
 
