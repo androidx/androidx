@@ -1169,7 +1169,13 @@ public abstract class SessionPlayer implements AutoCloseable {
         }
 
         private boolean intEquals(String key, MediaFormat format1, MediaFormat format2) {
-            return format1.getInteger(key) == format2.getInteger(key);
+            boolean exists1 = format1.containsKey(key);
+            boolean exists2 = format2.containsKey(key);
+            if (exists1 && exists2) {
+                return format1.getInteger(key) == format2.getInteger(key);
+            } else {
+                return !exists1 && !exists2;
+            }
         }
 
         private void parcelIntValue(String key) {

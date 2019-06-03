@@ -63,7 +63,6 @@ import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -943,7 +942,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore("b/134375069")
     @Test
     public void testOnSubtitleData() throws InterruptedException {
         prepareLooper();
