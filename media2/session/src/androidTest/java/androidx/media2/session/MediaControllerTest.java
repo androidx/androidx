@@ -1721,7 +1721,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertNull(controller.getSelectedTrack(testTrackType));
     }
 
-    @Ignore
+    @Ignore("b/134375069")
     @Test
     public void testOnSubtitleData() throws InterruptedException {
         prepareLooper();

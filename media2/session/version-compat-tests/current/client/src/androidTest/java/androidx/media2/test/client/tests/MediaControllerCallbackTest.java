@@ -943,7 +943,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Ignore
+    @Ignore("b/134375069")
     @Test
     public void testOnSubtitleData() throws InterruptedException {
         prepareLooper();
