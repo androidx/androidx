@@ -56,8 +56,8 @@ function runTest() {
   ./gradlew $SERVICE_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
 
   echo "Installing the test apks"
-  adb $DEVICE_SERIAL install -r "../../out/dist/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
-  adb $DEVICE_SERIAL install -r "../../out/dist/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  adb $DEVICE_SERIAL install -r "../../out/dist/apks/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  adb $DEVICE_SERIAL install -r "../../out/dist/apks/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
 
   echo "Running the tests"
   local test_command="adb $DEVICE_SERIAL shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"

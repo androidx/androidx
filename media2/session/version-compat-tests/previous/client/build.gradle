@@ -22,7 +22,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(project(":media2:media2-session"))
+    androidTestImplementation("androidx.media2:media2-session:1.0.0-beta02")
     androidTestImplementation(project(":support-media2-test-common"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

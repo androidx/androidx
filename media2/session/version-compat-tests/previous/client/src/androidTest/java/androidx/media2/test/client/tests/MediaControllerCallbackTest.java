@@ -942,41 +942,6 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
-    @Test
-    public void testOnSubtitleData() throws InterruptedException {
-        prepareLooper();
-
-        MediaFormat format = new MediaFormat();
-        format.setString(MediaFormat.KEY_LANGUAGE, "und");
-        format.setString(MediaFormat.KEY_MIME, SubtitleData.MIMETYPE_TEXT_CEA_608);
-        MediaMetadata metadata = new MediaMetadata.Builder()
-                .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, "onSubtitleData").build();
-        final MediaItem testItem = new MediaItem.Builder().setMetadata(metadata).build();
-        final TrackInfo testTrack = new TrackInfo(1, testItem, TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE,
-                format);
-        final SubtitleData testData = new SubtitleData(123, 456,
-                new byte[] { 7, 8, 9, 0, 1, 2, 3, 4, 5, 6 });
-
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController.ControllerCallback callback =
-                new MediaController.ControllerCallback() {
-                    @Override
-                    public void onSubtitleData(@NonNull MediaController controller,
-                            @NonNull MediaItem item, @NonNull TrackInfo track,
-                            @NonNull SubtitleData data) {
-                        MediaTestUtils.assertMediaIdEquals(testItem, item);
-                        assertEquals(testTrack, track);
-                        assertEquals(testData, data);
-                        latch.countDown();
-                    }
-                };
-
-        MediaController controller = createController(mRemoteSession2.getToken(), true, null,
-                callback);
-        mRemoteSession2.getMockPlayer().notifySubtitleData(testItem, testTrack, testData);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-    }
-
     private void testControllerAfterSessionIsClosed(String id) throws InterruptedException {
         // This cause session service to be died.
         mRemoteSession2.close();
