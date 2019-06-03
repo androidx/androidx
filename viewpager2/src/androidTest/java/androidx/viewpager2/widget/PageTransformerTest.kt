@@ -176,7 +176,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
     private fun Context.swipeToPage(currentPage: Int, targetPage: Int) {
         val latch = viewPager.addWaitForScrolledLatch(targetPage)
         swipe(currentPage, targetPage)
-        latch.await(1, SECONDS)
+        latch.await(2, SECONDS)
         assertBasicState(targetPage)
     }
 
