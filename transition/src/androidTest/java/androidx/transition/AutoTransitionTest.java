@@ -24,11 +24,9 @@ import android.graphics.Color;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 
-import org.junit.Before;
 import org.junit.Test;
 
 @MediumTest
@@ -38,21 +36,21 @@ public class AutoTransitionTest extends BaseTest {
     private View mView0;
     private View mView1;
 
-    @UiThreadTest
-    @Before
-    public void setUp() {
-        mRoot = (LinearLayout) rule.getActivity().getRoot();
-        mView0 = new View(rule.getActivity());
-        mView0.setBackgroundColor(Color.RED);
-        mRoot.addView(mView0, new LinearLayout.LayoutParams(100, 100));
-        mView1 = new View(rule.getActivity());
-        mView1.setBackgroundColor(Color.BLUE);
-        mRoot.addView(mView1, new LinearLayout.LayoutParams(100, 100));
-    }
-
     @LargeTest
     @Test
     public void testLayoutBetweenFadeAndChangeBounds() throws Throwable {
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRoot = (LinearLayout) rule.getActivity().getRoot();
+                mView0 = new View(rule.getActivity());
+                mView0.setBackgroundColor(Color.RED);
+                mRoot.addView(mView0, new LinearLayout.LayoutParams(100, 100));
+                mView1 = new View(rule.getActivity());
+                mView1.setBackgroundColor(Color.BLUE);
+                mRoot.addView(mView1, new LinearLayout.LayoutParams(100, 100));
+            }
+        });
         final LayoutCounter counter = new LayoutCounter();
         rule.runOnUiThread(new Runnable() {
             @Override
@@ -65,6 +63,7 @@ public class AutoTransitionTest extends BaseTest {
         final SyncTransitionListener listener = new SyncTransitionListener(
                 SyncTransitionListener.EVENT_END);
         final Transition transition = new AutoTransition();
+        transition.setDuration(10);
         transition.addListener(listener);
         rule.runOnUiThread(new Runnable() {
             @Override
