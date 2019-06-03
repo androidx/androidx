@@ -941,15 +941,8 @@ public final class ViewPager2 extends ViewGroup {
 
     @Override
     public boolean performAccessibilityAction(int action, Bundle arguments) {
-        switch (action) {
-            case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
-            case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
-                int nextItem = (action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD)
-                        ? getCurrentItem() - 1
-                        : getCurrentItem() + 1;
-
-                setCurrentItem(nextItem, true);
-                return true;
+        if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
+            return mAccessibilityProvider.onPerformAccessibilityAction(action, arguments);
         }
         return super.performAccessibilityAction(action, arguments);
     }
@@ -1264,6 +1257,23 @@ public final class ViewPager2 extends ViewGroup {
         void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
             addCollectionInfo(info);
             addScrollActions(info);
+        }
+
+        boolean handlesPerformAccessibilityAction(int action, Bundle arguments) {
+            return action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
+                    || action == AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD;
+        }
+
+        boolean onPerformAccessibilityAction(int action, Bundle arguments) {
+            if (!handlesPerformAccessibilityAction(action, arguments)) {
+                throw new IllegalStateException();
+            }
+
+            int nextItem = (action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD)
+                    ? getCurrentItem() - 1
+                    : getCurrentItem() + 1;
+            setCurrentItem(nextItem, true);
+            return true;
         }
     }
 }
