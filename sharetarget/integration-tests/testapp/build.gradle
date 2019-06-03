@@ -27,7 +27,3 @@ dependencies {
     api(project(":appcompat"))
     api(CONSTRAINT_LAYOUT, { transitive = true })
 }
-
-android {
-    compileSdkVersion 28
-}

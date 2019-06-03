@@ -24,11 +24,9 @@ plugins {
 }
 
 android {
-    compileSdkVersion 28
     defaultConfig {
         applicationId "androidx.camera.integration.antelope"
         minSdkVersion 21
-        targetSdkVersion 28
         versionCode 35
         versionName "1.35"
     }
@@ -46,10 +44,6 @@ android {
         debug {
             testCoverageEnabled true
         }
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
     }
     testOptions {
         animationsDisabled = true
