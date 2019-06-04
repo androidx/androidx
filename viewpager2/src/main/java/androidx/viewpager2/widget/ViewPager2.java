@@ -1323,7 +1323,9 @@ public final class ViewPager2 extends ViewGroup {
         @Override
         public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
             addCollectionInfo(info);
-            addScrollActions(info);
+            if (Build.VERSION.SDK_INT >= 16) {
+                addScrollActions(info);
+            }
         }
 
         @Override
