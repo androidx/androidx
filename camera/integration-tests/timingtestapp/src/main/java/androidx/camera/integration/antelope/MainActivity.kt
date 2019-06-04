@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity() {
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE)
                     as android.content.ClipboardManager
                 val clip = ClipData.newPlainText("Log", log)
-                clipboard.primaryClip = clip
+                clipboard.setPrimaryClip(clip)
                 Toast.makeText(this, getString(R.string.log_copied),
                     Toast.LENGTH_SHORT).show()
             }
