@@ -156,6 +156,8 @@ public final class NavigationUI {
      * destination. On all other destinations, the ActionBar will show the Up button.
      * Call {@link NavController#navigateUp()} to handle the Up button.
      *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
+     *
      * @param activity The activity hosting the action bar that should be kept in sync with changes
      *                 to the NavController.
      * @param navController The NavController that supplies the secondary menu. Navigation actions
@@ -181,6 +183,9 @@ public final class NavigationUI {
      * the drawer icon if the given DrawerLayout is non null. On all other destinations,
      * the ActionBar will show the Up button.
      * Call {@link #navigateUp(NavController, DrawerLayout)} to handle the Up button.
+     *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
+     *
      * @param activity The activity hosting the action bar that should be kept in sync with changes
      *                 to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
@@ -207,6 +212,9 @@ public final class NavigationUI {
      * <p>The {@link AppBarConfiguration} you provide controls how the Navigation button is
      * displayed.
      * Call {@link #navigateUp(NavController, AppBarConfiguration)} to handle the Up button.
+     *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
+     *
      *  @param activity The activity hosting the action bar that should be kept in sync with changes
      *                 to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
@@ -232,6 +240,8 @@ public final class NavigationUI {
      * method will call {@link NavController#navigateUp()} when the Navigation button
      * is clicked.
      *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
+     *
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
      * @param navController The NavController that supplies the secondary menu. Navigation actions
      *                      on this NavController will be reflected in the title of the Toolbar.
@@ -254,6 +264,8 @@ public final class NavigationUI {
      * the drawer icon if the given DrawerLayout is non null. On all other destinations,
      * the Toolbar will show the Up button. This method will call
      * {@link #navigateUp(NavController, DrawerLayout)} when the Navigation button is clicked.
+     *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
      *
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
@@ -280,6 +292,8 @@ public final class NavigationUI {
      * displayed and what action is triggered when the Navigation button is tapped. This method
      * will call {@link #navigateUp(NavController, AppBarConfiguration)} when the Navigation button
      * is clicked.
+     *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
      *
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
      * @param navController The NavController whose navigation actions will be reflected
@@ -313,6 +327,8 @@ public final class NavigationUI {
      * method will call {@link NavController#navigateUp()} when the Navigation button
      * is clicked.
      *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
+     *
      * @param collapsingToolbarLayout The CollapsingToolbarLayout that should be kept in sync with
      *                                changes to the NavController.
      * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
@@ -340,6 +356,8 @@ public final class NavigationUI {
      * the drawer icon if the given DrawerLayout is non null. On all other destinations,
      * the Toolbar will show the Up button. This method will call
      * {@link #navigateUp(NavController, DrawerLayout)} when the Navigation button is clicked.
+     *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
      *
      * @param collapsingToolbarLayout The CollapsingToolbarLayout that should be kept in sync with
      *                                changes to the NavController.
@@ -371,6 +389,8 @@ public final class NavigationUI {
      * displayed and what action is triggered when the Navigation button is tapped. This method
      * will call {@link #navigateUp(NavController, AppBarConfiguration)} when the Navigation button
      * is clicked.
+     *
+     * <p>Destinations that implement {@link androidx.navigation.FloatingWindow} will be ignored.
      *
      * @param collapsingToolbarLayout The CollapsingToolbarLayout that should be kept in sync with
      *                                changes to the NavController.
