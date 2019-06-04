@@ -1281,7 +1281,9 @@ public final class ViewPager2 extends ViewGroup {
         @Override
         public void onAttachAdapter(@Nullable Adapter newAdapter) {
             updatePageAccessibilityActions();
-            newAdapter.registerAdapterDataObserver(mAdapterDataObserver); // TODO: fix NPE
+            if (newAdapter != null) {
+                newAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+            }
         }
 
         @Override
@@ -1416,10 +1418,11 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         private void addScrollActions(AccessibilityNodeInfo info) {
-            if (getAdapter() == null) {
+            final Adapter adapter = getAdapter();
+            if (adapter == null) {
                 return;
             }
-            int itemCount = mRecyclerView.getAdapter().getItemCount(); // TODO: fix NPE
+            int itemCount = adapter.getItemCount();
             if (itemCount == 0 || !isUserInputEnabled()) {
                 return;
             }
