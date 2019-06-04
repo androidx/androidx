@@ -401,6 +401,74 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun getBoundingBoxForTextPosition_ltr_singleLine() {
+        val text = "abc"
+        val fontSize = 50.0f
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+        paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
+        // test positions that are 0, 1, 2 ... which maps to chars 0, 1, 2 ...
+        for (i in 0..text.length - 1) {
+            val textPosition = TextPosition(i, TextAffinity.upstream)
+            val box = paragraph.getBoundingBoxForTextPosition(textPosition)
+            assertThat(box.left, equalTo(i * fontSize))
+            assertThat(box.right, equalTo((i + 1) * fontSize))
+            assertThat(box.top, equalTo(0f))
+            assertThat(box.bottom, equalTo(fontSize))
+        }
+    }
+
+    @Test
+    fun getBoundingBoxForTextPosition_ltr_multiLines() {
+        val firstLine = "abc"
+        val secondLine = "def"
+        val text = firstLine + secondLine
+        val fontSize = 50.0f
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+        paragraph.layout(ParagraphConstraints(width = firstLine.length * fontSize))
+
+        // test positions are 3, 4, 5 and always on the second line
+        // which maps to chars 3, 4, 5
+        for (i in 0..secondLine.length - 1) {
+            val textPosition = TextPosition(i + firstLine.length, TextAffinity.upstream)
+            val box = paragraph.getBoundingBoxForTextPosition(textPosition)
+            assertThat(box.left, equalTo(i * fontSize))
+            assertThat(box.right, equalTo((i + 1) * fontSize))
+            assertThat(box.top, equalTo(fontSize))
+            assertThat(box.bottom, equalTo((2f + 1 / 5f) * fontSize))
+        }
+    }
+
+    @Test
+    fun getBoundingBoxForTextPosition_ltr_textPosition_negative() {
+        val text = "abc"
+        val fontSize = 50.0f
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+        paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
+
+        val textPosition = TextPosition(-1, TextAffinity.upstream)
+        val box = paragraph.getBoundingBoxForTextPosition(textPosition)
+        assertThat(box.left, equalTo(0f))
+        assertThat(box.right, equalTo(0f))
+        assertThat(box.top, equalTo(0f))
+        assertThat(box.bottom, equalTo(fontSize))
+    }
+
+    @Test(expected = java.lang.IndexOutOfBoundsException::class)
+    fun getBoundingBoxForTextPosition_ltr_textPosition_larger_than_length_throw_exception() {
+        val text = "abc"
+        val fontSize = 50.0f
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+        paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
+
+        val textPosition = TextPosition(text.length + 1, TextAffinity.upstream)
+        paragraph.getBoundingBoxForTextPosition(textPosition)
+    }
+
+    @Test
     fun locale_withCJK_shouldNotDrawSame() {
         val text = "\u82B1"
         val fontSize = 10.0f
