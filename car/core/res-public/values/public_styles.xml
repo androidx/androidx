@@ -29,43 +29,30 @@
     <public type="style" name="TextAppearance.Car.Body1.Medium" />
     <public type="style" name="TextAppearance.Car.Body1.Light" />
     <public type="style" name="TextAppearance.Car.Body1.Medium.Light" />
-    <public type="style" name="TextAppearance.Car.Body1.Dark" />
-    <public type="style" name="TextAppearance.Car.Body1.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.Body2" />
     <public type="style" name="TextAppearance.Car.Body2.Light" />
-    <public type="style" name="TextAppearance.Car.Body2.Dark" />
     <public type="style" name="TextAppearance.Car.Body3" />
     <public type="style" name="TextAppearance.Car.Body3.Medium" />
     <public type="style" name="TextAppearance.Car.Body3.Light" />
     <public type="style" name="TextAppearance.Car.Body3.Medium.Light" />
-    <public type="style" name="TextAppearance.Car.Body3.Dark" />
-    <public type="style" name="TextAppearance.Car.Body3.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.Body4" />
     <public type="style" name="TextAppearance.Car.Body4.Medium" />
     <public type="style" name="TextAppearance.Car.Body4.Light" />
     <public type="style" name="TextAppearance.Car.Body4.Medium.Light" />
-    <public type="style" name="TextAppearance.Car.Body4.Dark" />
-    <public type="style" name="TextAppearance.Car.Body4.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.SubText1" />
     <public type="style" name="TextAppearance.Car.SubText1.Medium" />
     <public type="style" name="TextAppearance.Car.SubText1.Light" />
     <public type="style" name="TextAppearance.Car.SubText1.Medium.Light" />
-    <public type="style" name="TextAppearance.Car.SubText1.Dark" />
-    <public type="style" name="TextAppearance.Car.SubText1.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.SubText1.Medium.Accent" />
     <public type="style" name="TextAppearance.Car.SubText2" />
     <public type="style" name="TextAppearance.Car.SubText2.Medium" />
     <public type="style" name="TextAppearance.Car.SubText2.Light" />
     <public type="style" name="TextAppearance.Car.SubText2.Medium.Light" />
-    <public type="style" name="TextAppearance.Car.SubText2.Dark" />
-    <public type="style" name="TextAppearance.Car.SubText2.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.SubText2.Medium.Accent" />
     <public type="style" name="TextAppearance.Car.SubText3" />
     <public type="style" name="TextAppearance.Car.SubText3.Medium" />
     <public type="style" name="TextAppearance.Car.SubText3.Light" />
     <public type="style" name="TextAppearance.Car.SubText3.Medium.Light" />
-    <public type="style" name="TextAppearance.Car.SubText3.Dark" />
-    <public type="style" name="TextAppearance.Car.SubText3.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.SubText3.Medium.Accent" />
     <public type="style" name="TextAppearance.Car.SubText4" />
     <public type="style" name="TextAppearance.Car.Subheader" />
@@ -120,7 +107,10 @@
     <!-- Checkbox Styles -->
     <public type="style" name="Widget.Car.Checkbox" />
     <public type="style" name="Widget.Car.Checkbox.Light" />
-    <public type="style" name="Widget.Car.Checkbox.Dark" />
+
+    <!-- RadioButton Styles -->
+    <public type="style" name="Widget.Car.RadioButton" />
+    <public type="style" name="Widget.Car.RadioButton.Light" />
 
     <!-- Dialog Styles -->
     <public type="style" name="Widget.Car.Dialog" />
