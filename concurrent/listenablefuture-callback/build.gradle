@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.1.0-rc01")
+    compile("androidx.annotation:annotation:1.1.0")
     compile(project(":concurrent-listenablefuture"))
     testCompile(JUNIT)
     testCompile(TRUTH)
