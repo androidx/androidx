@@ -56,7 +56,7 @@ class IsolationActivity : android.app.Activity() {
         }
 
         findViewById<TextView>(R.id.clock_state).text = when {
-            Clocks.areLocked -> "Locked Clocks"
+            CpuInfo.locked -> "Locked Clocks"
             AndroidBenchmarkRunner.sustainedPerformanceModeInUse -> "Sustained Performance Mode"
             else -> ""
         }

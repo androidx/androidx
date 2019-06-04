@@ -77,7 +77,10 @@ class ResultWriterTest {
                             "sdk": ${Build.VERSION.SDK_INT}
                         }
                     },
-                    "cpuLocked": ${Clocks.areLocked},
+                    "cpuCoreCount": ${CpuInfo.coreDirs.size},
+                    "cpuLocked": ${CpuInfo.locked},
+                    "cpuMaxFreqHz": ${CpuInfo.maxFreqHz},
+                    "memTotalBytes": ${MemInfo.memTotalBytes},
                     "sustainedPerformanceModeEnabled": $sustainedPerformanceModeInUse
                 },
                 "benchmarks": [
