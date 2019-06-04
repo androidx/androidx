@@ -209,6 +209,8 @@ public final class ViewPager2 extends ViewGroup {
         // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
         pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
+        // Allow a11y to register its listeners just after currentItemUpdater (so it has the
+        // right data). TODO: replace ordering comments with a test.
         mAccessibilityProvider.onInitialize(pageChangeEventDispatcher, mRecyclerView);
         pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
