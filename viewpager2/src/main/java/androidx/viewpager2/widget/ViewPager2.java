@@ -135,7 +135,7 @@ public final class ViewPager2 extends ViewGroup {
     LinearLayoutManager mLayoutManager;
     private int mPendingCurrentItem = NO_POSITION;
     private Parcelable mPendingAdapterState;
-    RecyclerView mRecyclerView; // to avoid creation of a synthetic accessor
+    private RecyclerView mRecyclerView;
     private PagerSnapHelper mPagerSnapHelper;
     private ScrollEventAdapter mScrollEventAdapter;
     private FakeDrag mFakeDragger;
@@ -209,7 +209,7 @@ public final class ViewPager2 extends ViewGroup {
         // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
         pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
-        mAccessibilityProvider.onInitialize(pageChangeEventDispatcher);
+        mAccessibilityProvider.onInitialize(pageChangeEventDispatcher, mRecyclerView);
         pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
         // Add mPageTransformerAdapter after mExternalPageChangeCallbacks, because page transform
@@ -1098,7 +1098,8 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     private abstract class AccessibilityProvider {
-        void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher) {
+        void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
+                @NonNull RecyclerView recyclerView) {
         }
 
         boolean handlesGetAccessibilityClassName() {
@@ -1112,10 +1113,10 @@ public final class ViewPager2 extends ViewGroup {
         void onRestorePendingState() {
         }
 
-        void onAttachAdapter(@Nullable RecyclerView.Adapter newAdapter) {
+        void onAttachAdapter(@Nullable Adapter newAdapter) {
         }
 
-        void onDetachAdapter(@Nullable RecyclerView.Adapter oldAdapter) {
+        void onDetachAdapter(@Nullable Adapter oldAdapter) {
         }
 
         void onSetOrientation() {
@@ -1230,8 +1231,9 @@ public final class ViewPager2 extends ViewGroup {
         private RecyclerView.AdapterDataObserver mAdapterDataObserver;
 
         @Override
-        public void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher) {
-            ViewCompat.setImportantForAccessibility(mRecyclerView,
+        public void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
+                @NonNull RecyclerView recyclerView) {
+            ViewCompat.setImportantForAccessibility(recyclerView,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
             mAdapterDataObserver = new RecyclerView.AdapterDataObserver() {
