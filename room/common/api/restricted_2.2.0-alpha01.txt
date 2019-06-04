@@ -12,3 +12,11 @@ package androidx.room {
 
 }
 
+package androidx.room.util {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SneakyThrow {
+    method public static void reThrow(Exception);
+  }
+
+}
+
