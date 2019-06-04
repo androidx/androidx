@@ -25,6 +25,9 @@ plugins {
 
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
     compile("com.google.code.gson:gson:2.8.0")
     compile(KOTLIN_STDLIB)

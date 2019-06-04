@@ -25,9 +25,6 @@ plugins {
     id("java")
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
-
 dependencies {
     compile(project(":lifecycle:lifecycle-common"))
     compile("androidx.annotation:annotation:1.1.0-rc01")

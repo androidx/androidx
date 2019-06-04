@@ -32,6 +32,9 @@ dependencies {
     testCompile(TRUTH)
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 androidx {
     name = "ListenableFuture Callback Adapter"
     publish = Publish.SNAPSHOT_AND_RELEASE
