@@ -238,6 +238,10 @@ open class BaseTest {
         }
 
         fun assertPageActions() {
+            if (!ViewPager2.sFeatureEnhancedA11yEnabled) {
+                return // these assertions only apply to enhanced a11y
+            }
+
             var customActions = getActionList(viewPager)
             var currentPage = viewPager.currentItem
             var numPages = viewPager.adapter!!.itemCount
