@@ -227,7 +227,7 @@ public class WorkManagerImpl extends WorkManager {
         WorkDatabase database = WorkDatabase.create(
                 applicationContext, configuration.getTaskExecutor(), useTestDatabase);
         Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
-        List<Scheduler> schedulers = createSchedulers(applicationContext);
+        List<Scheduler> schedulers = createSchedulers(applicationContext, workTaskExecutor);
         Processor processor = new Processor(
                 context,
                 configuration,
@@ -657,9 +657,11 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public @NonNull List<Scheduler> createSchedulers(Context context) {
+    public @NonNull List<Scheduler> createSchedulers(Context context, TaskExecutor taskExecutor) {
         return Arrays.asList(
                 Schedulers.createBestAvailableBackgroundScheduler(context, this),
-                new GreedyScheduler(context, this));
+                // Specify the task executor directly here as this happens before internalInit.
+                // GreedyScheduler creates ConstraintTrackers and controllers eagerly.
+                new GreedyScheduler(context, taskExecutor, this));
     }
 }

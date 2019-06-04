@@ -24,6 +24,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * Tracks whether or not the device's battery is charging.
@@ -37,9 +38,10 @@ public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<B
     /**
      * Create an instance of {@link BatteryChargingTracker}.
      * @param context The application {@link Context}
+     * @param taskExecutor The internal {@link TaskExecutor} being used by WorkManager.
      */
-    public BatteryChargingTracker(Context context) {
-        super(context);
+    public BatteryChargingTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
+        super(context, taskExecutor);
     }
 
     @Override
