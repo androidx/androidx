@@ -65,7 +65,6 @@ import androidx.testutils.PollingCheck;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -1721,7 +1720,6 @@ public class MediaControllerTest extends MediaSessionTestBase {
         assertNull(controller.getSelectedTrack(testTrackType));
     }
 
-    @Ignore("b/134375069")
     @Test
     public void testOnSubtitleData() throws InterruptedException {
         prepareLooper();
