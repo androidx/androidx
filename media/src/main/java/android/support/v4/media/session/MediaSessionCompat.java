@@ -507,8 +507,8 @@ public class MediaSessionCompat {
      * {@link MediaButtonReceiver} for more details.
      * </p>
      * The {@code sessionInfo} can include additional unchanging information about this session.
-     * For example, it can include the version of the application, or the list of the custom
-     * commands that this session supports.
+     * For example, it can include the version of the application, or other app-specific
+     * unchanging information.
      *
      * @param context The context to use to create the session.
      * @param tag A short name for debugging purposes.
@@ -521,9 +521,7 @@ public class MediaSessionCompat {
      * @param sessionInfo A bundle for additional information about this session,
      *                    or {@link Bundle#EMPTY} if none. Controllers can get this information
      *                    by calling {@link MediaControllerCompat#getSessionInfo()}.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
             @Nullable ComponentName mbrComponent, @Nullable PendingIntent mbrIntent,
             @Nullable Bundle sessionInfo) {
@@ -559,14 +557,16 @@ public class MediaSessionCompat {
             mbrIntent = PendingIntent.getBroadcast(context,
                     0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
         }
-        // TODO(b/130282718): Use new constructor (sessionInfo) of the fwk MediaSession from Q.
-        if (android.os.Build.VERSION.SDK_INT >= 28) {
-            mImpl = new MediaSessionImplApi28(context, tag, session2Token, sessionInfo);
-            // Set default callback to respond to controllers' extra binder requests.
-            setCallback(new Callback() {});
-            mImpl.setMediaButtonReceiver(mbrIntent);
-        } else if (android.os.Build.VERSION.SDK_INT >= 21) {
-            mImpl = new MediaSessionImplApi21(context, tag, session2Token, sessionInfo);
+
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            MediaSession sessionFwk = createFwkMediaSession(context, tag, sessionInfo);
+            if (android.os.Build.VERSION.SDK_INT >= 29) {
+                mImpl = new MediaSessionImplApi29(sessionFwk, session2Token, sessionInfo);
+            } else if (android.os.Build.VERSION.SDK_INT >= 28) {
+                mImpl = new MediaSessionImplApi28(sessionFwk, session2Token, sessionInfo);
+            } else {
+                mImpl = new MediaSessionImplApi21(sessionFwk, session2Token, sessionInfo);
+            }
             // Set default callback to respond to controllers' extra binder requests.
             setCallback(new Callback() {});
             mImpl.setMediaButtonReceiver(mbrIntent);
@@ -588,6 +588,16 @@ public class MediaSessionCompat {
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
         mController = new MediaControllerCompat(context, this);
+    }
+
+    @RequiresApi(21)
+    private MediaSession createFwkMediaSession(Context context, String tag,
+            Bundle sessionInfo) {
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            return new MediaSession(context, tag, sessionInfo);
+        } else {
+            return new MediaSession(context, tag);
+        }
     }
 
     /**
@@ -999,7 +1009,9 @@ public class MediaSessionCompat {
             return null;
         }
         MediaSessionImpl impl;
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            impl = new MediaSessionImplApi29(mediaSession);
+        } else if (Build.VERSION.SDK_INT >= 28) {
             impl = new MediaSessionImplApi28(mediaSession);
         } else {
             // API 21+
@@ -1321,9 +1333,7 @@ public class MediaSessionCompat {
          * @param speed the playback speed
          * @see #setPlaybackState(PlaybackStateCompat)
          * @see PlaybackStateCompat.Builder#setState(int, long, float)
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public void onSetPlaybackSpeed(float speed) {
         }
 
@@ -1715,6 +1725,14 @@ public class MediaSessionCompat {
                 ensureClassLoader(extras);
                 setCurrentControllerInfo();
                 Callback.this.onPrepareFromUri(uri, extras);
+                clearCurrentControllerInfo();
+            }
+
+            @RequiresApi(29)
+            @Override
+            public void onSetPlaybackSpeed(float speed) {
+                setCurrentControllerInfo();
+                Callback.this.onSetPlaybackSpeed(speed);
                 clearCurrentControllerInfo();
             }
         }
@@ -3561,7 +3579,7 @@ public class MediaSessionCompat {
         final MediaSession mSessionFwk;
         final Token mToken;
         final Object mLock = new Object();
-        final Bundle mSessionInfo;
+        Bundle mSessionInfo;
 
         boolean mDestroyed = false;
         final RemoteCallbackList<IMediaControllerCallback> mExtraControllerCallbacks =
@@ -3578,9 +3596,9 @@ public class MediaSessionCompat {
         @GuardedBy("mLock")
         RemoteUserInfo mRemoteUserInfo;
 
-        MediaSessionImplApi21(Context context, String tag, VersionedParcelable session2Token,
+        MediaSessionImplApi21(MediaSession sessionFwk, VersionedParcelable session2Token,
                 Bundle sessionInfo) {
-            mSessionFwk = new MediaSession(context, tag);
+            mSessionFwk = sessionFwk;
             mToken = new Token(mSessionFwk.getSessionToken(), new ExtraSession(), session2Token);
             mSessionInfo = sessionInfo;
             // For backward compatibility, these flags are always set.
@@ -3594,7 +3612,6 @@ public class MediaSessionCompat {
             }
             mSessionFwk = (MediaSession) mediaSession;
             mToken = new Token(mSessionFwk.getSessionToken(), new ExtraSession());
-            // TODO(b/130282718): Get sessionInfo from mSessionFwk from Android Q
             mSessionInfo = null;
             // For backward compatibility, these flags are always set.
             setFlags(FLAG_HANDLES_MEDIA_BUTTONS | FLAG_HANDLES_TRANSPORT_CONTROLS);
@@ -4136,9 +4153,9 @@ public class MediaSessionCompat {
 
     @RequiresApi(28)
     static class MediaSessionImplApi28 extends MediaSessionImplApi21 {
-        MediaSessionImplApi28(Context context, String tag, VersionedParcelable session2Token,
+        MediaSessionImplApi28(MediaSession sessionFwk, VersionedParcelable session2Token,
                 Bundle sessionInfo) {
-            super(context, tag, session2Token, sessionInfo);
+            super(sessionFwk, session2Token, sessionInfo);
         }
 
         MediaSessionImplApi28(Object mediaSession) {
@@ -4155,6 +4172,19 @@ public class MediaSessionCompat {
             android.media.session.MediaSessionManager.RemoteUserInfo info =
                     ((MediaSession) mSessionFwk).getCurrentControllerInfo();
             return new RemoteUserInfo(info);
+        }
+    }
+
+    @RequiresApi(29)
+    static class MediaSessionImplApi29 extends MediaSessionImplApi28 {
+        MediaSessionImplApi29(MediaSession sessionFwk, VersionedParcelable session2Token,
+                Bundle sessionInfo) {
+            super(sessionFwk, session2Token, sessionInfo);
+        }
+
+        MediaSessionImplApi29(Object mediaSession) {
+            super(mediaSession);
+            mSessionInfo = ((MediaSession) mediaSession).getController().getSessionInfo();
         }
     }
 }

@@ -22,6 +22,8 @@ package androidx.leanback.preference {
     method @Deprecated public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment! newInstanceMulti(String!);
     method @Deprecated public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment! newInstanceSingle(String!);
     method @Deprecated public androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter();
+    method @Deprecated public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
   }
 
   @Deprecated public class LeanbackListPreferenceDialogFragment.AdapterMulti extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder> implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
@@ -68,6 +70,7 @@ package androidx.leanback.preference {
   @Deprecated public class LeanbackPreferenceDialogFragment extends android.app.Fragment {
     ctor @Deprecated public LeanbackPreferenceDialogFragment();
     method @Deprecated public androidx.preference.DialogPreference! getPreference();
+    method @Deprecated public void onCreate(android.os.Bundle!);
     field @Deprecated public static final String ARG_KEY = "key";
   }
 
@@ -89,8 +92,12 @@ package androidx.leanback.preference {
 
   @Deprecated public abstract class LeanbackSettingsFragment extends android.app.Fragment implements androidx.preference.PreferenceFragment.OnPreferenceDisplayDialogCallback androidx.preference.PreferenceFragment.OnPreferenceStartFragmentCallback androidx.preference.PreferenceFragment.OnPreferenceStartScreenCallback {
     ctor @Deprecated public LeanbackSettingsFragment();
+    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public void onPause();
     method @Deprecated public boolean onPreferenceDisplayDialog(androidx.preference.PreferenceFragment, androidx.preference.Preference!);
     method @Deprecated public abstract void onPreferenceStartInitialScreen();
+    method @Deprecated public void onResume();
+    method @Deprecated public void onViewCreated(android.view.View!, android.os.Bundle!);
     method @Deprecated public void startImmersiveFragment(android.app.Fragment);
     method @Deprecated public void startPreferenceFragment(android.app.Fragment);
   }

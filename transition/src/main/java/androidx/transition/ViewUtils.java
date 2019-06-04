@@ -16,18 +16,16 @@
 
 package androidx.transition;
 
+import android.annotation.SuppressLint;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
-import android.util.Log;
 import android.util.Property;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
-
-import java.lang.reflect.Field;
 
 /**
  * Compatibility utilities for platform features of {@link View}.
@@ -37,16 +35,18 @@ class ViewUtils {
     private static final ViewUtilsBase IMPL;
     private static final String TAG = "ViewUtils";
 
-    private static Field sViewFlagsField;
-    private static boolean sViewFlagsFieldFetched;
-    private static final int VISIBILITY_MASK = 0x0000000C;
-
     static {
-        if (Build.VERSION.SDK_INT >= 22) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            // TODO: replace with 'new ViewUtilsApi29()' when we can use an SDK_INT check as lint
+            //       doesn't understand BuildCompat API checks
+            IMPL = createViewUtilsApi29();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            IMPL = new ViewUtilsApi23();
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
             IMPL = new ViewUtilsApi22();
-        } else if (Build.VERSION.SDK_INT >= 21) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             IMPL = new ViewUtilsApi21();
-        } else if (Build.VERSION.SDK_INT >= 19) {
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             IMPL = new ViewUtilsApi19();
         } else {
             IMPL = new ViewUtilsBase();
@@ -145,15 +145,7 @@ class ViewUtils {
      *                   {@link View#GONE}.
      */
     static void setTransitionVisibility(@NonNull View view, int visibility) {
-        fetchViewFlagsField();
-        if (sViewFlagsField != null) {
-            try {
-                int viewFlags = sViewFlagsField.getInt(view);
-                sViewFlagsField.setInt(view, (viewFlags & ~VISIBILITY_MASK) | visibility);
-            } catch (IllegalAccessException e) {
-                // Do nothing
-            }
-        }
+        IMPL.setTransitionVisibility(view, visibility);
     }
 
     /**
@@ -210,16 +202,10 @@ class ViewUtils {
         IMPL.setLeftTopRightBottom(v, left, top, right, bottom);
     }
 
-    private static void fetchViewFlagsField() {
-        if (!sViewFlagsFieldFetched) {
-            try {
-                sViewFlagsField = View.class.getDeclaredField("mViewFlags");
-                sViewFlagsField.setAccessible(true);
-            } catch (NoSuchFieldException e) {
-                Log.i(TAG, "fetchViewFlagsField: ");
-            }
-            sViewFlagsFieldFetched = true;
-        }
+    // TODO: delete when we use an SDK_INT check as lint doesn't understand BuildCompat API checks
+    @SuppressLint("NewApi")
+    private static ViewUtilsApi29 createViewUtilsApi29() {
+        return new ViewUtilsApi29();
     }
 
     private ViewUtils() {

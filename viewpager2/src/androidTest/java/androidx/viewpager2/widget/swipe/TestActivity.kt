@@ -24,7 +24,7 @@ import androidx.viewpager2.test.R
 class TestActivity : RecreatedAppCompatActivity(R.layout.activity_test_layout) {
     public override fun onCreate(savedInstanceState: Bundle?) {
         if (intent?.hasExtra(EXTRA_LANGUAGE) == true) {
-            LocaleTestUtils(this).setLocale(intent.getStringExtra(EXTRA_LANGUAGE))
+            LocaleTestUtils(this).setLocale(intent.getStringExtra(EXTRA_LANGUAGE)!!)
         }
         super.onCreate(savedInstanceState)
 

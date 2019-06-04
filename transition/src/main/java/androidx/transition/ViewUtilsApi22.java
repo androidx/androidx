@@ -17,49 +17,31 @@
 package androidx.transition;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 @RequiresApi(22)
 class ViewUtilsApi22 extends ViewUtilsApi21 {
 
-    private static final String TAG = "ViewUtilsApi22";
-
-    private static Method sSetLeftTopRightBottomMethod;
-    private static boolean sSetLeftTopRightBottomMethodFetched;
+    /**
+     * False when linking of the hidden setLeftTopRightBottom method has previously failed.
+     */
+    private static boolean sTryHiddenSetLeftTopRightBottom = true;
 
     @Override
-    public void setLeftTopRightBottom(View v, int left, int top, int right, int bottom) {
-        fetchSetLeftTopRightBottomMethod();
-        if (sSetLeftTopRightBottomMethod != null) {
+    @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
+    public void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
+        if (sTryHiddenSetLeftTopRightBottom) {
+            // Since this was an @hide method made public, we can link directly against it with
+            // a try/catch for its absence instead of doing the same through reflection.
             try {
-                sSetLeftTopRightBottomMethod.invoke(v, left, top, right, bottom);
-            } catch (IllegalAccessException e) {
-                // Do nothing
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e.getCause());
+                v.setLeftTopRightBottom(left, top, right, bottom);
+            } catch (NoSuchMethodError e) {
+                sTryHiddenSetLeftTopRightBottom = false;
             }
         }
     }
-
-    @SuppressLint("PrivateApi")
-    private void fetchSetLeftTopRightBottomMethod() {
-        if (!sSetLeftTopRightBottomMethodFetched) {
-            try {
-                sSetLeftTopRightBottomMethod = View.class.getDeclaredMethod("setLeftTopRightBottom",
-                        int.class, int.class, int.class, int.class);
-                sSetLeftTopRightBottomMethod.setAccessible(true);
-            } catch (NoSuchMethodException e) {
-                Log.i(TAG, "Failed to retrieve setLeftTopRightBottom method", e);
-            }
-            sSetLeftTopRightBottomMethodFetched = true;
-        }
-    }
-
 }
 

@@ -67,21 +67,45 @@ public final class RemoteInput {
     /** The user selected one of the choices from {@link #getChoices}. */
     public static final int SOURCE_CHOICE = 1;
 
+    /** @hide */
+    @IntDef(value = {EDIT_CHOICES_BEFORE_SENDING_AUTO, EDIT_CHOICES_BEFORE_SENDING_DISABLED,
+            EDIT_CHOICES_BEFORE_SENDING_ENABLED})
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface EditChoicesBeforeSending {}
+
+    /** The platform will determine whether choices will be edited before being sent to the app. */
+    public static final int EDIT_CHOICES_BEFORE_SENDING_AUTO = 0;
+
+    /** Tapping on a choice should send the input immediately, without letting the user edit it. */
+    public static final int EDIT_CHOICES_BEFORE_SENDING_DISABLED = 1;
+
+    /** Tapping on a choice should let the user edit the input before it is sent to the app. */
+    public static final int EDIT_CHOICES_BEFORE_SENDING_ENABLED = 2;
+
     private final String mResultKey;
     private final CharSequence mLabel;
     private final CharSequence[] mChoices;
     private final boolean mAllowFreeFormTextInput;
+    @EditChoicesBeforeSending private final int mEditChoicesBeforeSending;
     private final Bundle mExtras;
     private final Set<String> mAllowedDataTypes;
 
     RemoteInput(String resultKey, CharSequence label, CharSequence[] choices,
-            boolean allowFreeFormTextInput, Bundle extras, Set<String> allowedDataTypes) {
+            boolean allowFreeFormTextInput, @EditChoicesBeforeSending int editChoicesBeforeSending,
+            Bundle extras, Set<String> allowedDataTypes) {
         this.mResultKey = resultKey;
         this.mLabel = label;
         this.mChoices = choices;
         this.mAllowFreeFormTextInput = allowFreeFormTextInput;
+        this.mEditChoicesBeforeSending = editChoicesBeforeSending;
         this.mExtras = extras;
         this.mAllowedDataTypes = allowedDataTypes;
+        if (getEditChoicesBeforeSending() == EDIT_CHOICES_BEFORE_SENDING_ENABLED
+                && !getAllowFreeFormInput()) {
+            throw new IllegalArgumentException(
+                "setEditChoicesBeforeSending requires setAllowFreeFormInput");
+        }
     }
 
     /**
@@ -133,6 +157,14 @@ public final class RemoteInput {
     }
 
     /**
+     * Gets whether tapping on a choice should let the user edit the input before it is sent to the
+     * app.
+     */
+    @EditChoicesBeforeSending public int getEditChoicesBeforeSending() {
+        return mEditChoicesBeforeSending;
+    }
+
+    /**
      * Get additional metadata carried around with this remote input.
      */
     public Bundle getExtras() {
@@ -149,6 +181,8 @@ public final class RemoteInput {
         private CharSequence mLabel;
         private CharSequence[] mChoices;
         private boolean mAllowFreeFormTextInput = true;
+        @EditChoicesBeforeSending
+        private int mEditChoicesBeforeSending = EDIT_CHOICES_BEFORE_SENDING_AUTO;
 
         /**
          * Create a builder object for {@link androidx.core.app.RemoteInput} objects.
@@ -229,6 +263,19 @@ public final class RemoteInput {
         }
 
         /**
+         * Specifies whether tapping on a choice should let the user edit the input before it is
+         * sent to the app. The default is {@link #EDIT_CHOICES_BEFORE_SENDING_AUTO}.
+         *
+         * It cannot be used if {@link #setAllowFreeFormInput} has been set to false.
+         */
+        @NonNull
+        public Builder setEditChoicesBeforeSending(
+                @EditChoicesBeforeSending int editChoicesBeforeSending) {
+            mEditChoicesBeforeSending = editChoicesBeforeSending;
+            return this;
+        }
+
+        /**
          * Merge additional metadata into this builder.
          *
          * <p>Values within the Bundle will replace existing extras values in this Builder.
@@ -264,6 +311,7 @@ public final class RemoteInput {
                     mLabel,
                     mChoices,
                     mAllowFreeFormTextInput,
+                    mEditChoicesBeforeSending,
                     mExtras,
                     mAllowedDataTypes);
         }
@@ -510,12 +558,16 @@ public final class RemoteInput {
 
     @RequiresApi(20)
     static android.app.RemoteInput fromCompat(RemoteInput src) {
-        return new android.app.RemoteInput.Builder(src.getResultKey())
-                .setLabel(src.getLabel())
-                .setChoices(src.getChoices())
-                .setAllowFreeFormInput(src.getAllowFreeFormInput())
-                .addExtras(src.getExtras())
-                .build();
+        android.app.RemoteInput.Builder builder =
+                new android.app.RemoteInput.Builder(src.getResultKey())
+                        .setLabel(src.getLabel())
+                        .setChoices(src.getChoices())
+                        .setAllowFreeFormInput(src.getAllowFreeFormInput())
+                        .addExtras(src.getExtras());
+        if (Build.VERSION.SDK_INT >= 29) {
+            builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());
+        }
+        return builder.build();
     }
 
     @RequiresApi(16)

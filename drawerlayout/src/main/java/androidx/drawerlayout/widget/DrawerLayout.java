@@ -51,10 +51,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.customview.view.AbsSavedState;
@@ -157,7 +159,9 @@ public class DrawerLayout extends ViewGroup {
     @Retention(RetentionPolicy.SOURCE)
     private @interface EdgeGravity {}
 
+
     private static final int MIN_DRAWER_MARGIN = 64; // dp
+    private static final int DRAWER_ELEVATION = 10; //dp
 
     private static final int DEFAULT_SCRIM_COLOR = 0x99000000;
 
@@ -246,6 +250,8 @@ public class DrawerLayout extends ViewGroup {
 
     private Rect mChildHitRect;
     private Matrix mChildInvertedMatrix;
+
+    private static boolean sEdgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29;
 
     /**
      * Listener for monitoring events about drawers.
@@ -1036,6 +1042,8 @@ public class DrawerLayout extends ViewGroup {
     }
 
     @SuppressLint("WrongConstant")
+    // Remove deprecation suppression once b/120984242 is resolved.
+    @SuppressWarnings("deprecation")
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -1294,6 +1302,23 @@ public class DrawerLayout extends ViewGroup {
                 }
             }
         }
+
+        if (sEdgeSizeUsingSystemGestureInsets) {
+            // Update the ViewDragHelper edge sizes to match the gesture insets
+            WindowInsets rootInsets = getRootWindowInsets();
+            if (rootInsets != null) {
+                WindowInsetsCompat rootInsetsCompat = WindowInsetsCompat.wrap(rootInsets);
+                Insets gestureInsets = rootInsetsCompat.getSystemGestureInsets();
+
+                // We use Math.max() here since the gesture insets will be 0 if the device
+                // does not have gesture navigation enabled
+                mLeftDragger.setEdgeSize(
+                        Math.max(mLeftDragger.getDefaultEdgeSize(), gestureInsets.left));
+                mRightDragger.setEdgeSize(
+                        Math.max(mRightDragger.getDefaultEdgeSize(), gestureInsets.right));
+            }
+        }
+
         mInLayout = false;
         mFirstLayout = false;
     }
@@ -1322,6 +1347,8 @@ public class DrawerLayout extends ViewGroup {
         }
     }
 
+    // Remove deprecation suppression once b/120984242 is resolved.
+    @SuppressWarnings("deprecation")
     private static boolean hasOpaqueBackground(View v) {
         final Drawable bg = v.getBackground();
         if (bg != null) {

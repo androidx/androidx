@@ -18,10 +18,13 @@ package androidx.biometric;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +65,7 @@ public class BiometricFragment extends Fragment {
     private boolean mShowing;
     private android.hardware.biometrics.BiometricPrompt mBiometricPrompt;
     private CancellationSignal mCancellationSignal;
+    private boolean mStartRespectingCancel;
     // Do not rely on the application's executor when calling into the framework's code.
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor = new Executor() {
@@ -170,6 +174,13 @@ public class BiometricFragment extends Fragment {
      * Cancel the authentication.
      */
     protected void cancel() {
+        // TODO(b/128747871): Change to == Q
+        if (Build.VERSION.SDK_INT >= 29 && isDeviceCredentialAllowed()) {
+            if (!mStartRespectingCancel) {
+                Log.w(TAG, "Ignoring fast cancel signal");
+                return;
+            }
+        }
         if (mCancellationSignal != null) {
             mCancellationSignal.cancel();
         }
@@ -201,19 +212,50 @@ public class BiometricFragment extends Fragment {
         mBundle = bundle;
     }
 
+    public boolean isDeviceCredentialAllowed() {
+        return mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         // Start the actual authentication when the fragment is attached.
         if (!mShowing) {
             mNegativeButtonText = mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
-            mBiometricPrompt = new android.hardware.biometrics.BiometricPrompt.Builder(getContext())
-                    .setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE))
+            final android.hardware.biometrics.BiometricPrompt.Builder builder =
+                    new android.hardware.biometrics.BiometricPrompt.Builder(getContext());
+            builder.setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE))
                     .setSubtitle(mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE))
-                    .setDescription(mBundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION))
-                    .setNegativeButton(mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
-                            mClientExecutor, mNegativeButtonListener)
-                    .build();
+                    .setDescription(mBundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION));
+            // The negative text could be empty if setDeviceCredentialAllowed is true.
+            if (!TextUtils.isEmpty(mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT))) {
+                builder.setNegativeButton(
+                        mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
+                        mClientExecutor, mNegativeButtonListener);
+            }
+
+            if (Build.VERSION.SDK_INT >= 29) {
+                builder.setConfirmationRequired(
+                        mBundle.getBoolean((BiometricPrompt.KEY_REQUIRE_CONFIRMATION), true));
+                builder.setDeviceCredentialAllowed(
+                        mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL));
+            }
+
+            if (Build.VERSION.SDK_INT >= 29) { // TODO(b/128747871): Change to == Q
+                if (mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false)) {
+                    mStartRespectingCancel = false;
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            // Hack almost over 9000, ignore cancel signal in Q if it's within the
+                            // first quarter second.
+                            mStartRespectingCancel = true;
+                        }
+                    }, 250 /* ms */);
+                }
+            }
+
+            mBiometricPrompt = builder.build();
             mCancellationSignal = new CancellationSignal();
             if (mCryptoObject == null) {
                 mBiometricPrompt.authenticate(mCancellationSignal, mExecutor,

@@ -205,6 +205,13 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         .setVibrate(null);
             }
         }
+        if (Build.VERSION.SDK_INT >= 29) {
+            mBuilder.setAllowSystemGeneratedContextualActions(
+                    b.mAllowSystemGeneratedContextualActions);
+            // TODO: Consider roundtripping NotificationCompat.BubbleMetadata on pre-Q platforms.
+            mBuilder.setBubbleMetadata(
+                    NotificationCompat.BubbleMetadata.toPlatform(b.mBubbleMetadata));
+        }
     }
 
     @Override
@@ -279,6 +286,10 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 actionBuilder.setSemanticAction(action.getSemanticAction());
             }
 
+            if (Build.VERSION.SDK_INT >= 29) {
+                actionBuilder.setContextual(action.isContextual());
+            }
+
             actionExtras.putBoolean(NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE,
                     action.getShowsUserInterface());
             actionBuilder.addExtras(actionExtras);
@@ -289,6 +300,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         }
     }
 
+    @SuppressWarnings("deprecation")
     protected Notification buildInternal() {
         if (Build.VERSION.SDK_INT >= 26) {
             return mBuilder.build();
@@ -409,7 +421,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
             return notification;
         } else {
-            //noinspection deprecation
             return mBuilder.getNotification();
         }
     }

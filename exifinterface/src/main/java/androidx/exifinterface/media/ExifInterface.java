@@ -2850,10 +2850,6 @@ public class ExifInterface {
      */
     public static final int REDUCED_RESOLUTION_IMAGE = 1;
 
-    // TODO: Replace the following constants once Q is released. (b/124409340)
-    private static final int METADATA_KEY_EXIF_OFFSET = 33;
-    private static final int METADATA_KEY_EXIF_LENGTH = 34;
-
     // Maximum size for checking file type signature (see image_type_recognition_lite.cc)
     private static final int SIGNATURE_CHECK_SIZE = 5000;
 
@@ -5454,9 +5450,9 @@ public class ExifInterface {
             }
 
             String exifOffsetStr = retriever.extractMetadata(
-                    METADATA_KEY_EXIF_OFFSET);
+                    MediaMetadataRetriever.METADATA_KEY_EXIF_OFFSET);
             String exifLengthStr = retriever.extractMetadata(
-                    METADATA_KEY_EXIF_LENGTH);
+                    MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH);
             String hasImage = retriever.extractMetadata(
                     MediaMetadataRetriever.METADATA_KEY_HAS_IMAGE);
             String hasVideo = retriever.extractMetadata(

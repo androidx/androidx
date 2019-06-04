@@ -29,7 +29,8 @@ class GhostViewUtils {
     @Nullable
     static GhostView addGhost(@NonNull View view, @NonNull ViewGroup viewGroup,
             @Nullable Matrix matrix) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // Use the platform implementation on P as we can't backport the shadows drawing.
             return GhostViewPlatform.addGhost(view, viewGroup, matrix);
         } else {
             return GhostViewPort.addGhost(view, viewGroup, matrix);
@@ -37,7 +38,8 @@ class GhostViewUtils {
     }
 
     static void removeGhost(View view) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
+            // Use the platform implementation on P as we can't backport the shadows drawing.
             GhostViewPlatform.removeGhost(view);
         } else {
             GhostViewPort.removeGhost(view);

@@ -74,6 +74,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -904,6 +905,15 @@ public class ViewCompat {
 
     private static @Nullable View.AccessibilityDelegate
             getAccessibilityDelegateInternal(@NonNull View v) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return v.getAccessibilityDelegate();
+        } else {
+            return getAccessibilityDelegateThroughReflection(v);
+        }
+    }
+
+    private static @Nullable View.AccessibilityDelegate getAccessibilityDelegateThroughReflection(
+            @NonNull View v) {
         if (sAccessibilityDelegateCheckFailed) {
             return null; // View implementation might have changed.
         }
@@ -2429,7 +2439,7 @@ public class ViewCompat {
                 public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
                     WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
                     compatInsets = listener.onApplyWindowInsets(view, compatInsets);
-                    return (WindowInsets) WindowInsetsCompat.unwrap(compatInsets);
+                    return WindowInsetsCompat.unwrap(compatInsets);
                 }
             });
         }
@@ -2450,7 +2460,7 @@ public class ViewCompat {
     public static WindowInsetsCompat onApplyWindowInsets(@NonNull View view,
             WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = (WindowInsets)  WindowInsetsCompat.unwrap(insets);
+            WindowInsets unwrapped = WindowInsetsCompat.unwrap(insets);
             WindowInsets result = view.onApplyWindowInsets(unwrapped);
             if (!result.equals(unwrapped)) {
                 unwrapped = new WindowInsets(result);
@@ -2475,7 +2485,7 @@ public class ViewCompat {
     public static WindowInsetsCompat dispatchApplyWindowInsets(@NonNull View view,
             WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = (WindowInsets) WindowInsetsCompat.unwrap(insets);
+            WindowInsets unwrapped = WindowInsetsCompat.unwrap(insets);
             WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
             if (!result.equals(unwrapped)) {
                 unwrapped = new WindowInsets(result);
@@ -2483,6 +2493,40 @@ public class ViewCompat {
             return WindowInsetsCompat.wrap(unwrapped);
         }
         return insets;
+    }
+
+    /**
+     * Sets a list of areas within this view's post-layout coordinate space where the system
+     * should not intercept touch or other pointing device gestures. <em>This method should
+     * be called by {@link View#onLayout(boolean, int, int, int, int)} or
+     * {@link View#onDraw(Canvas)}.</em>
+     * <p>
+     * On devices running API 28 and below, this method has no effect.
+     *
+     * @param rects A list of precision gesture regions that this view needs to function correctly
+     * @see View#setSystemGestureExclusionRects
+     */
+    public static void setSystemGestureExclusionRects(@NonNull View view,
+            @NonNull List<Rect> rects) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            view.setSystemGestureExclusionRects(rects);
+        }
+    }
+
+    /**
+     * Retrieve the list of areas within this view's post-layout coordinate space where the system
+     * should not intercept touch or other pointing device gestures.
+     * <p>
+     * On devices running API 28 and below, this method always returns an empty list.
+     *
+     * @see View#getSystemGestureExclusionRects
+     */
+    @NonNull
+    public static List<Rect> getSystemGestureExclusionRects(@NonNull View view) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            return view.getSystemGestureExclusionRects();
+        }
+        return Collections.emptyList();
     }
 
     /**

@@ -474,7 +474,7 @@ internal class ParagraphAndroid constructor(
             style.locale?.let {
                 spannableString.setSpan(
                     // TODO(Migration/haoyuchang): support locale fallback in the framework
-                    LocaleSpan(Locale(it.languageCode, it.countryCode)),
+                    LocaleSpan(Locale(it.languageCode, it.countryCode!!)),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

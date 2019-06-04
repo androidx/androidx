@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -118,6 +119,12 @@ public class WearableActionDrawerView extends WearableDrawerView {
         if (attrs != null) {
             TypedArray typedArray = context.obtainStyledAttributes(
                     attrs, R.styleable.WearableActionDrawerView, defStyleAttr, 0 /* defStyleRes */);
+
+            if (Build.VERSION.SDK_INT >= 29) {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.WearableActionDrawerView, attrs, typedArray,
+                        defStyleAttr, 0);
+            }
 
             try {
                 mTitle = typedArray.getString(R.styleable.WearableActionDrawerView_drawerTitle);

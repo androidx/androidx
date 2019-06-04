@@ -97,6 +97,7 @@ class SingleDocumentFile extends DocumentFile {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean delete() {
         try {
             return DocumentsContract.deleteDocument(mContext.getContentResolver(), mUri);

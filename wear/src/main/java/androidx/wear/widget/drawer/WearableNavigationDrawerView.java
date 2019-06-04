@@ -19,6 +19,7 @@ package androidx.wear.widget.drawer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.AttributeSet;
@@ -142,6 +143,12 @@ public class WearableNavigationDrawerView extends WearableDrawerView {
                     R.styleable.WearableNavigationDrawerView,
                     defStyleAttr,
                     0 /* defStyleRes */);
+
+            if (Build.VERSION.SDK_INT >= 29) {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.WearableNavigationDrawerView, attrs, typedArray,
+                        defStyleAttr, 0);
+            }
 
             //noinspection WrongConstant
             navStyle = typedArray.getInt(

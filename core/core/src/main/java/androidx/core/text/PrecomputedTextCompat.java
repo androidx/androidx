@@ -18,6 +18,7 @@ package androidx.core.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.Layout;
 import android.text.PrecomputedText;
@@ -191,9 +192,18 @@ public class PrecomputedTextCompat implements Spannable {
             }
         }
 
+        @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
         Params(@NonNull TextPaint paint, @NonNull TextDirectionHeuristic textDir,
                 int strategy, int frequency) {
-            mWrapped = null;
+            if (Build.VERSION.SDK_INT >= 29) {
+                mWrapped = new PrecomputedText.Params.Builder(paint)
+                        .setBreakStrategy(strategy)
+                        .setHyphenationFrequency(frequency)
+                        .setTextDirection(textDir)
+                        .build();
+            } else {
+                mWrapped = null;
+            }
             mPaint = paint;
             mTextDir = textDir;
             mBreakStrategy = strategy;
@@ -206,7 +216,7 @@ public class PrecomputedTextCompat implements Spannable {
             mTextDir = wrapped.getTextDirection();
             mBreakStrategy = wrapped.getBreakStrategy();
             mHyphenationFrequency = wrapped.getHyphenationFrequency();
-            mWrapped = null;
+            mWrapped = (Build.VERSION.SDK_INT >= 29) ? wrapped : null;
         }
 
         /**
@@ -262,11 +272,6 @@ public class PrecomputedTextCompat implements Spannable {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public boolean equalsWithoutTextDirection(@NonNull Params other) {
-
-            if (mWrapped != null) {
-                return mWrapped.equals(other.mWrapped);
-            }
-
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (mBreakStrategy != other.getBreakStrategy()) {
                     return false;
@@ -422,12 +427,18 @@ public class PrecomputedTextCompat implements Spannable {
      * @param params parameters that define how text will be precomputed
      * @return A {@link PrecomputedText}
      */
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public static PrecomputedTextCompat create(@NonNull CharSequence text, @NonNull Params params) {
         Preconditions.checkNotNull(text);
         Preconditions.checkNotNull(params);
 
         try {
             TraceCompat.beginSection("PrecomputedText");
+
+            if (Build.VERSION.SDK_INT >= 29 && params.mWrapped != null) {
+                return new PrecomputedTextCompat(
+                        PrecomputedText.create(text, params.mWrapped), params);
+            }
 
             ArrayList<Integer> ends = new ArrayList<>();
 
@@ -488,7 +499,7 @@ public class PrecomputedTextCompat implements Spannable {
         mText = precomputed;
         mParams = params;
         mParagraphEnds = null;
-        mWrapped = null;
+        mWrapped = (Build.VERSION.SDK_INT >= 29) ? precomputed : null;
     }
 
     /**
@@ -515,24 +526,39 @@ public class PrecomputedTextCompat implements Spannable {
     /**
      * Returns the count of paragraphs.
      */
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public @IntRange(from = 0) int getParagraphCount() {
-        return mParagraphEnds.length;
+        if (Build.VERSION.SDK_INT >= 29) {
+            return mWrapped.getParagraphCount();
+        } else {
+            return mParagraphEnds.length;
+        }
     }
 
     /**
      * Returns the paragraph start offset of the text.
      */
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public @IntRange(from = 0) int getParagraphStart(@IntRange(from = 0) int paraIndex) {
         Preconditions.checkArgumentInRange(paraIndex, 0, getParagraphCount(), "paraIndex");
-        return paraIndex == 0 ? 0 : mParagraphEnds[paraIndex - 1];
+        if (Build.VERSION.SDK_INT >= 29) {
+            return mWrapped.getParagraphStart(paraIndex);
+        } else {
+            return paraIndex == 0 ? 0 : mParagraphEnds[paraIndex - 1];
+        }
     }
 
     /**
      * Returns the paragraph end offset of the text.
      */
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public @IntRange(from = 0) int getParagraphEnd(@IntRange(from = 0) int paraIndex) {
         Preconditions.checkArgumentInRange(paraIndex, 0, getParagraphCount(), "paraIndex");
-        return mParagraphEnds[paraIndex];
+        if (Build.VERSION.SDK_INT >= 29) {
+            return mWrapped.getParagraphEnd(paraIndex);
+        } else {
+            return mParagraphEnds[paraIndex];
+        }
     }
 
     /**
@@ -646,25 +672,35 @@ public class PrecomputedTextCompat implements Spannable {
     /**
      * @throws IllegalArgumentException if {@link MetricAffectingSpan} is specified.
      */
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     @Override
     public void setSpan(Object what, int start, int end, int flags) {
         if (what instanceof MetricAffectingSpan) {
             throw new IllegalArgumentException(
                     "MetricAffectingSpan can not be set to PrecomputedText.");
         }
-        mText.setSpan(what, start, end, flags);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mWrapped.setSpan(what, start, end, flags);
+        } else {
+            mText.setSpan(what, start, end, flags);
+        }
     }
 
     /**
      * @throws IllegalArgumentException if {@link MetricAffectingSpan} is specified.
      */
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     @Override
     public void removeSpan(Object what) {
         if (what instanceof MetricAffectingSpan) {
             throw new IllegalArgumentException(
                     "MetricAffectingSpan can not be removed from PrecomputedText.");
         }
-        mText.removeSpan(what);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mWrapped.removeSpan(what);
+        } else {
+            mText.removeSpan(what);
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -672,9 +708,15 @@ public class PrecomputedTextCompat implements Spannable {
     //
     // Just proxy for underlying mText if appropriate.
 
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     @Override
     public <T> T[] getSpans(int start, int end, Class<T> type) {
-        return mText.getSpans(start, end, type);
+        if (Build.VERSION.SDK_INT >= 29) {
+            return mWrapped.getSpans(start, end, type);
+        } else {
+            return mText.getSpans(start, end, type);
+        }
+
     }
 
     @Override

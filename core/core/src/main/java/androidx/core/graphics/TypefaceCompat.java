@@ -18,6 +18,7 @@ package androidx.core.graphics;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -40,10 +41,13 @@ import androidx.core.provider.FontsContractCompat.FontInfo;
 /**
  * Helper for accessing features in {@link Typeface}.
  */
+@SuppressLint("NewApi")  // TODO: Remove this suppression once Q SDK is released.
 public class TypefaceCompat {
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            sTypefaceCompatImpl = new TypefaceCompatApi29Impl();
+        } else if (Build.VERSION.SDK_INT >= 28) {
             sTypefaceCompatImpl = new TypefaceCompatApi28Impl();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             sTypefaceCompatImpl = new TypefaceCompatApi26Impl();

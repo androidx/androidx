@@ -70,6 +70,15 @@ public class DrawableUtils {
      * use reflection. Since the {@code Insets} class is hidden also, we return a Rect instead.
      */
     public static Rect getOpticalBounds(Drawable drawable) {
+        if (Build.VERSION.SDK_INT >= 29) {
+            final android.graphics.Insets insets = drawable.getOpticalInsets();
+            final Rect result = new Rect();
+            result.left = insets.left;
+            result.right = insets.right;
+            result.top = insets.top;
+            result.bottom = insets.bottom;
+            return result;
+        }
         if (sInsetsClazz != null) {
             try {
                 // If the Drawable is wrapped, we need to manually unwrap it and process

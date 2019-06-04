@@ -17,13 +17,18 @@
 package androidx.core.view.accessibility;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
 
+import android.graphics.Region;
 import android.os.Build;
+import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -31,6 +36,9 @@ import androidx.test.filters.SmallTest;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -107,6 +115,16 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testGetSetTextEntryKey() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setTextEntryKey(true);
+        assertThat(nodeCompat.isTextEntryKey(), is(true));
+        nodeCompat.setTextEntryKey(false);
+        assertThat(nodeCompat.isTextEntryKey(), is(false));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testAccessibilityActionsNotNull() {
         try {
             AccessibilityActionCompat actionCompat;
@@ -145,6 +163,30 @@ public class AccessibilityNodeInfoCompatTest {
                     is(getExpectedActionId(android.R.id.accessibilityActionHideTooltip)));
         } catch (NullPointerException e) {
             Assert.fail("Expected no NullPointerException, but got: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testTouchDelegateInfo() {
+        final Map<Region, View> targetMap = new HashMap<>(1);
+        final Region region = new Region(1, 1, 10, 10);
+        targetMap.put(region, new View(InstrumentationRegistry.getContext()));
+        final TouchDelegateInfoCompat delegateInfo = new TouchDelegateInfoCompat(targetMap);
+        final AccessibilityNodeInfoCompat accessibilityNodeInfoCompat =
+                obtainedWrappedNodeCompat();
+        accessibilityNodeInfoCompat.setTouchDelegateInfo(delegateInfo);
+        final TouchDelegateInfoCompat touchDelegateInfoResult =
+                accessibilityNodeInfoCompat.getTouchDelegateInfo();
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertThat(touchDelegateInfoResult.getRegionCount(), is(1));
+            assertThat(touchDelegateInfoResult.getRegionAt(0), is(region));
+            // getTargetForRegion return null, since we are not a11y service
+            assertThat(touchDelegateInfoResult.getTargetForRegion(region), is(nullValue()));
+        } else {
+            assertThat(touchDelegateInfoResult, is(nullValue()));
+            assertThat(delegateInfo.getRegionCount(), is(0));
+            assertThat(delegateInfo.getRegionAt(0), is(nullValue()));
+            assertThat(delegateInfo.getTargetForRegion(region), is(nullValue()));
         }
     }
 

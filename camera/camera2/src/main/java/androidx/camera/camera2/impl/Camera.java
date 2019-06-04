@@ -46,7 +46,6 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.core.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
-import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -552,7 +551,7 @@ final class Camera implements BaseCamera {
                     Log.w(TAG, "Check legacy device failed.", e);
                 }
 
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && !BuildCompat.isAtLeastQ()
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && Build.VERSION.SDK_INT < 29
                         && isLegacyDevice) {
                     // To configure surface again before close camera. This step would
                     // disconnect

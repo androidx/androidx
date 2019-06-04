@@ -30,6 +30,8 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Rect;
+import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
@@ -44,7 +46,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
@@ -239,6 +243,24 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
 
         // NO_ID is always invalid
         ViewCompat.requireViewById(container, View.NO_ID);
+    }
+
+    @Test
+    public void testSystemGestureExclusionRects() {
+        final View container = mActivityTestRule.getActivity().findViewById(R.id.container);
+
+        final List<Rect> expected = new ArrayList<>();
+        expected.add(new Rect(0, 0, 25, 25));
+        final List<Rect> rects = new ArrayList<>(expected);
+
+        ViewCompat.setSystemGestureExclusionRects(container, rects);
+        final List<Rect> returnedRects = ViewCompat.getSystemGestureExclusionRects(container);
+
+        if (Build.VERSION.SDK_INT >= 29) {
+            assertEquals("round trip for expected rects", expected, returnedRects);
+        } else {
+            assertTrue("empty list for old device", returnedRects.isEmpty());
+        }
     }
 
     private static boolean isViewIdGenerated(int id) {

@@ -99,6 +99,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         void onTitleChanged(@Nullable CharSequence newTitle);
     }
 
+    @SuppressWarnings("deprecation")
     protected CarDrawerAdapter(Context context, boolean showDisabledListOnEmpty) {
         mShowDisabledListOnEmpty = showDisabledListOnEmpty;
 

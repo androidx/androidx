@@ -35,7 +35,9 @@ import static org.junit.Assert.fail;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioAttributes;
@@ -173,7 +175,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     @Test
     public void testNotificationActionBuilder_copiesRemoteInputs() throws Throwable {
         NotificationCompat.Action a = newActionBuilder()
-                .addRemoteInput(new RemoteInput("a", "b", null, false, null, null)).build();
+                .addRemoteInput(new RemoteInput("a", "b", null, false,
+                        RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, null, null)).build();
 
         NotificationCompat.Action aCopy = new NotificationCompat.Action.Builder(a).build();
 
@@ -257,6 +260,26 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(result.getExtras().getBoolean(
                 NotificationCompat.Action.EXTRA_SHOWS_USER_INTERFACE, true));
         assertFalse(result.getShowsUserInterface());
+    }
+
+    @SdkSuppress(minSdkVersion = 20)
+    @Test
+    public void testGetActionCompatFromAction_withRemoteInputs_doesntCrash() {
+        NotificationCompat.Action action = newActionBuilder()
+                .addRemoteInput(new RemoteInput(
+                        "a",
+                        "b",
+                        null /* choices */,
+                        false /* allowFreeFormTextInput */,
+                        RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO,
+                        null /* extras */,
+                        null /* allowedDataTypes */)).build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+
+        NotificationCompat.Action result =
+                NotificationCompat.getActionCompatFromAction(notification.actions[0]);
+
+        assertEquals(1, result.getRemoteInputs().length);
     }
 
     @SdkSuppress(minSdkVersion = 17)
@@ -942,6 +965,173 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .build();
 
         assertEquals("example title", NotificationCompat.getContentTitle(notification));
+    }
+
+    @Test
+    public void action_builder_defaultNotContextual() {
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                        .build();
+        assertFalse(action.isContextual());
+    }
+
+    @Test
+    public void action_builder_setContextual() {
+        // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
+        // action.
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
+                        .setContextual(true)
+                        .build();
+        assertTrue(action.isContextual());
+    }
+
+    @Test
+    public void action_builder_contextual_invalidIntentCausesNpe() {
+        NotificationCompat.Action.Builder builder =
+                new NotificationCompat.Action.Builder(0, "Test Title", null)
+                        .setContextual(true);
+        try {
+            builder.build();
+            fail("Creating a contextual Action with a null PendingIntent should cause a "
+                    + " NullPointerException");
+        } catch (NullPointerException e) {
+            // Expected
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28) // TODO(gsennton): this test only applies to Q+ devices.
+    public void action_contextual_toAndFromNotification() {
+        if (Build.VERSION.SDK_INT < 29) return;
+        // Without a PendingIntent the Action.Builder class throws an NPE when building a contextual
+        // action.
+        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        NotificationCompat.Action action =
+                new NotificationCompat.Action.Builder(0, "Test Title", pendingIntent)
+                        .setContextual(true)
+                        .build();
+        Notification notification = newNotificationBuilder().addAction(action).build();
+        NotificationCompat.Action result = NotificationCompat.getAction(notification, 0);
+
+        assertTrue(result.isContextual());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // TODO(gsennton): This only works on Q+
+    public void getAllowSystemGeneratedContextualActions_trueByDefault() {
+        if (Build.VERSION.SDK_INT < 29) return;
+        Notification notification =
+                new NotificationCompat.Builder(mContext, "test channel").build();
+        assertTrue(NotificationCompat.getAllowSystemGeneratedContextualActions(notification));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // TODO(gsennton): This only works on Q+
+    public void getAllowSystemGeneratedContextualActions() {
+        if (Build.VERSION.SDK_INT < 29) return;
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setAllowSystemGeneratedContextualActions(false)
+                .build();
+        assertFalse(NotificationCompat.getAllowSystemGeneratedContextualActions(notification));
+    }
+
+    @Test
+    public void setBubbleMetadata() {
+        IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
+                mContext.getResources(),
+                R.drawable.notification_bg_normal));
+
+        PendingIntent intent =
+                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+
+        PendingIntent deleteIntent =
+                PendingIntent.getActivity(mContext, 1, new Intent(), 0);
+
+        NotificationCompat.BubbleMetadata originalBubble =
+                new NotificationCompat.BubbleMetadata.Builder()
+                        .setAutoExpandBubble(true)
+                        .setDeleteIntent(deleteIntent)
+                        .setDesiredHeight(600)
+                        .setIcon(icon)
+                        .setIntent(intent)
+                        .setSuppressNotification(true)
+                        .build();
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setBubbleMetadata(originalBubble)
+                .build();
+
+        NotificationCompat.BubbleMetadata roundtripBubble =
+                NotificationCompat.getBubbleMetadata(notification);
+
+        // Bubbles are only supported on Q and above; on P and earlier, simply verify that the above
+        // code does not crash.
+        if (Build.VERSION.SDK_INT < 29) {
+            return;
+        }
+
+        // TODO: Check notification itself.
+
+        assertNotNull(roundtripBubble);
+
+        assertEquals(originalBubble.getAutoExpandBubble(), roundtripBubble.getAutoExpandBubble());
+        assertEquals(originalBubble.getDeleteIntent(), roundtripBubble.getDeleteIntent());
+        assertEquals(originalBubble.getDesiredHeight(), roundtripBubble.getDesiredHeight());
+        // TODO: Check getIcon().
+        /* assertEquals(originalBubble.getIcon().toIcon(), roundtripBubble.getIcon().toIcon()); */
+        assertEquals(originalBubble.getIntent(), roundtripBubble.getIntent());
+        assertEquals(
+                originalBubble.isNotificationSuppressed(),
+                roundtripBubble.isNotificationSuppressed());
+    }
+
+    @Test
+    public void setBubbleMetadataDesiredHeightResId() {
+        IconCompat icon = IconCompat.createWithAdaptiveBitmap(BitmapFactory.decodeResource(
+                mContext.getResources(),
+                R.drawable.notification_bg_normal));
+
+        PendingIntent intent =
+                PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+
+        NotificationCompat.BubbleMetadata originalBubble =
+                new NotificationCompat.BubbleMetadata.Builder()
+                        .setDesiredHeightResId(R.dimen.compat_notification_large_icon_max_height)
+                        .setIcon(icon)
+                        .setIntent(intent)
+                        .build();
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setBubbleMetadata(originalBubble)
+                .build();
+
+        NotificationCompat.BubbleMetadata roundtripBubble =
+                NotificationCompat.getBubbleMetadata(notification);
+
+        // Bubbles are only supported on Q and above; on P and earlier, simply verify that the above
+        // code does not crash.
+        if (Build.VERSION.SDK_INT < 29) {
+            return;
+        }
+
+        // TODO: Check notification itself.
+
+        assertNotNull(roundtripBubble);
+
+        assertEquals(
+                originalBubble.getDesiredHeightResId(),
+                roundtripBubble.getDesiredHeightResId());
+    }
+
+    @Test
+    public void setBubbleMetadataToNull() {
+        Notification notification = new NotificationCompat.Builder(mContext, "test channel")
+                .setBubbleMetadata(null)
+                .build();
+
+        assertNull(NotificationCompat.getBubbleMetadata(notification));
     }
 
     // Add the @Test annotation to enable this test. This test is disabled by default as it's not a

@@ -49,7 +49,7 @@ dependencies {
 
 task generateSdkResource() {
     inputs.property("prebuiltsRoot", prebuiltsRoot)
-    inputs.property("compileSdkVersion", SupportConfig.TARGET_SDK_VERSION)
+    inputs.property("compileSdkVersion", SupportConfig.COMPILE_SDK_VERSION)
     inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
     inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
     inputs.property("debugKeystore", debugKeystore)
@@ -61,7 +61,7 @@ task generateSdkResource() {
         // so we don't use it and write a file manually
         new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
             writer.write("prebuiltsRepo=$prebuiltsRoot\n")
-            writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
+            writer.write("compileSdkVersion=\"$SupportConfig.COMPILE_SDK_VERSION\"\n")
             writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
             writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
             writer.write("debugKeystore=$debugKeystore\n")
