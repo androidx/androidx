@@ -61,6 +61,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.ViewDragHelper;
+import androidx.drawerlayout.R;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -158,9 +159,7 @@ public class DrawerLayout extends ViewGroup {
     @Retention(RetentionPolicy.SOURCE)
     private @interface EdgeGravity {}
 
-
     private static final int MIN_DRAWER_MARGIN = 64; // dp
-    private static final int DRAWER_ELEVATION = 10; //dp
 
     private static final int DEFAULT_SCRIM_COLOR = 0x99000000;
 
@@ -314,11 +313,11 @@ public class DrawerLayout extends ViewGroup {
     }
 
     public DrawerLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.drawerLayoutStyle);
     }
 
-    public DrawerLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    public DrawerLayout(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
         setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         final float density = getResources().getDisplayMetrics().density;
         mMinDrawerMargin = (int) (MIN_DRAWER_MARGIN * density + 0.5f);
@@ -368,7 +367,17 @@ public class DrawerLayout extends ViewGroup {
             }
         }
 
-        mDrawerElevation = DRAWER_ELEVATION * density;
+        TypedArray a = context
+                .obtainStyledAttributes(attrs, R.styleable.DrawerLayout, defStyleAttr, 0);
+        try {
+            if (a.hasValue(R.styleable.DrawerLayout_elevation)) {
+                mDrawerElevation = a.getDimension(R.styleable.DrawerLayout_elevation, 0);
+            } else {
+                mDrawerElevation = getResources().getDimension(R.dimen.def_drawer_elevation);
+            }
+        } finally {
+            a.recycle();
+        }
 
         mNonDrawerViews = new ArrayList<View>();
     }
