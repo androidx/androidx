@@ -164,4 +164,276 @@ class RecordingInputConnectionTest {
         assertEquals(CommitTextEditOp("Hello, ", 1), editOps[0])
         assertEquals(CommitTextEditOp("World.", 1), editOps[1])
     }
+
+    @Test
+    fun setComposingRegion() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+
+        // Mark first "H" as composition.
+        assertTrue(ic.setComposingRegion(0, 1))
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(SetComposingRegionEditOp(0, 1), editOps[0])
+    }
+
+    @Test
+    fun setComposingRegion_batchSession() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+
+        // Do not callback to listener during batch session.
+        ic.beginBatchEdit()
+
+        assertTrue(ic.setComposingRegion(0, 1))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.setComposingRegion(1, 2))
+        verify(listener, never()).onEditOperations(any())
+
+        ic.endBatchEdit()
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(2, editOps.size)
+        assertEquals(SetComposingRegionEditOp(0, 1), editOps[0])
+        assertEquals(SetComposingRegionEditOp(1, 2), editOps[1])
+    }
+
+    @Test
+    fun setComposingTextTest() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+
+        // Inserting "Hello, " into the empty text field.
+        assertTrue(ic.setComposingText("Hello, ", 1))
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(SetComposingTextEditOp("Hello, ", 1), editOps[0])
+    }
+
+    @Test
+    fun setComposingTextTest_batchSession() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+
+        // IME set text "Hello, World." with two setComposingText API within the single batch
+        // session. Do not callback to listener during batch session.
+        ic.beginBatchEdit()
+
+        assertTrue(ic.setComposingText("Hello, ", 1))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.setComposingText("World.", 1))
+        verify(listener, never()).onEditOperations(any())
+
+        ic.endBatchEdit()
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(2, editOps.size)
+        assertEquals(SetComposingTextEditOp("Hello, ", 1), editOps[0])
+        assertEquals(SetComposingTextEditOp("World.", 1), editOps[1])
+    }
+
+    @Test
+    fun deleteSurroundingText() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+
+        // Delete first "Hello, " characters
+        assertTrue(ic.deleteSurroundingText(0, 6))
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(DeleteSurroundingTextEditOp(0, 6), editOps[0])
+    }
+
+    @Test
+    fun deleteSurroundingText_batchSession() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+
+        // Do not callback to listener during batch session.
+        ic.beginBatchEdit()
+
+        assertTrue(ic.deleteSurroundingText(0, 6))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.deleteSurroundingText(0, 5))
+        verify(listener, never()).onEditOperations(any())
+
+        ic.endBatchEdit()
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(2, editOps.size)
+        assertEquals(DeleteSurroundingTextEditOp(0, 6), editOps[0])
+        assertEquals(DeleteSurroundingTextEditOp(0, 5), editOps[1])
+    }
+
+    @Test
+    fun deleteSurroundingTextInCodePoints() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+
+        // Delete first "Hello, " characters
+        assertTrue(ic.deleteSurroundingTextInCodePoints(0, 6))
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(DeleteSurroundingTextInCodePointsEditOp(0, 6), editOps[0])
+    }
+
+    @Test
+    fun deleteSurroundingTextInCodePoints_batchSession() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+
+        // Do not callback to listener during batch session.
+        ic.beginBatchEdit()
+
+        assertTrue(ic.deleteSurroundingTextInCodePoints(0, 6))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.deleteSurroundingTextInCodePoints(0, 5))
+        verify(listener, never()).onEditOperations(any())
+
+        ic.endBatchEdit()
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(2, editOps.size)
+        assertEquals(DeleteSurroundingTextInCodePointsEditOp(0, 6), editOps[0])
+        assertEquals(DeleteSurroundingTextInCodePointsEditOp(0, 5), editOps[1])
+    }
+
+    @Test
+    fun setSelection() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+
+        // Select "Hello, "
+        assertTrue(ic.setSelection(0, 6))
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(SetSelectionEditOp(0, 6), editOps[0])
+    }
+
+    @Test
+    fun setSelection_batchSession() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+
+        // Do not callback to listener during batch session.
+        ic.beginBatchEdit()
+
+        assertTrue(ic.setSelection(0, 6))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.setSelection(6, 11))
+        verify(listener, never()).onEditOperations(any())
+
+        ic.endBatchEdit()
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(2, editOps.size)
+        assertEquals(SetSelectionEditOp(0, 6), editOps[0])
+        assertEquals(SetSelectionEditOp(6, 11), editOps[1])
+    }
+
+    @Test
+    fun finishComposingText() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World.", selection = TextRange(0, 0))
+
+        // Cancel any ongoing composition. In this example, there is no composition range, but
+        // should record the API call
+        assertTrue(ic.finishComposingText())
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(FinishComposingTextEditOp(), editOps[0])
+    }
+
+    @Test
+    fun finishComposingText_batchSession() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "Hello, World", selection = TextRange(0, 0))
+
+        // Do not callback to listener during batch session.
+        ic.beginBatchEdit()
+
+        assertTrue(ic.finishComposingText())
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.finishComposingText())
+        verify(listener, never()).onEditOperations(any())
+
+        ic.endBatchEdit()
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(2, editOps.size)
+        assertEquals(FinishComposingTextEditOp(), editOps[0])
+        assertEquals(FinishComposingTextEditOp(), editOps[1])
+    }
+
+    @Test
+    fun mixedAPICalls_batchSession() {
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        ic.inputState = InputState(text = "", selection = TextRange(0, 0))
+
+        // Do not callback to listener during batch session.
+        ic.beginBatchEdit()
+
+        assertTrue(ic.setComposingText("Hello, ", 1))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.finishComposingText())
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.commitText("World.", 1))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.setSelection(0, 12))
+        verify(listener, never()).onEditOperations(any())
+
+        assertTrue(ic.commitText("", 1))
+        verify(listener, never()).onEditOperations(any())
+
+        ic.endBatchEdit()
+
+        verify(listener, times(1)).onEditOperations(captor.capture())
+        val editOps = captor.lastValue
+        assertEquals(5, editOps.size)
+        assertEquals(SetComposingTextEditOp("Hello, ", 1), editOps[0])
+        assertEquals(FinishComposingTextEditOp(), editOps[1])
+        assertEquals(CommitTextEditOp("World.", 1), editOps[2])
+        assertEquals(SetSelectionEditOp(0, 12), editOps[3])
+        assertEquals(CommitTextEditOp("", 1), editOps[4])
+    }
 }
