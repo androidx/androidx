@@ -28,60 +28,58 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.car.R;
 import androidx.car.util.DropShadowScrollListener;
+import androidx.car.widget.CheckBoxListItem;
 import androidx.car.widget.ListItem;
 import androidx.car.widget.ListItemAdapter;
 import androidx.car.widget.ListItemProvider;
 import androidx.car.widget.PagedListView;
-import androidx.car.widget.RadioButtonListItem;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * A subclass of {@link Dialog} that is tailored for the car environment. This dialog can display a
- * title, body text, a fixed list of single choice items and up to two buttons -- a positive and
- * negative button. Single choice items use a radio button to indicate selection.
+ * title, body text, a fixed list of multiple choice items and up to two buttons -- a positive and
+ * negative button. Multiple choice items use a checkbox to indicate selection.
  *
- * <p>Note that this dialog cannot be created with an empty list.
+ * <p>Note that this dialog cannot be created with an empty list or without a positive button.
  */
-public final class CarSingleChoiceDialog extends Dialog {
-    private static final String TAG = "CarSingleChoiceDialog";
-
+public final class CarMultipleChoiceDialog extends Dialog {
     private final CharSequence mTitle;
     private final CharSequence mBodyText;
-
     private final CharSequence mPositiveButtonText;
     private final CharSequence mNegativeButtonText;
-
-    private ListItemAdapter mAdapter;
-    private int mSelectedItem;
-
     private TextView mTitleView;
     private TextView mBodyTextView;
+
+    private boolean[] mCheckedItems;
+
+    private ListItemAdapter mAdapter;
 
     private PagedListView mList;
 
     @Nullable
-    private final OnClickListener mOnClickListener;
+    private final OnMultiChoiceClickListener mOnClickListener;
 
     /** Flag for if a touch on the scrim of the dialog will dismiss it. */
     private boolean mDismissOnTouchOutside;
 
-    CarSingleChoiceDialog(Context context, Builder builder) {
+    CarMultipleChoiceDialog(Context context, Builder builder) {
         super(context, CarDialogUtil.getDialogTheme(context));
 
         mTitle = builder.mTitle;
         mBodyText = builder.mSubtitle;
-        mSelectedItem = builder.mSelectedItem;
         mOnClickListener = builder.mOnClickListener;
         mPositiveButtonText = builder.mPositiveButtonText;
         mNegativeButtonText = builder.mNegativeButtonText;
+
+        mCheckedItems = new boolean[builder.mItems.size()];
 
         initializeWithItems(builder.mItems);
     }
@@ -141,7 +139,8 @@ public final class CarSingleChoiceDialog extends Dialog {
             positiveButtonView.setText(mPositiveButtonText);
             positiveButtonView.setOnClickListener(v -> {
                 if (mOnClickListener != null) {
-                    mOnClickListener.onClick(this, mSelectedItem);
+                    mOnClickListener.onClick(this,
+                            Arrays.copyOf(mCheckedItems, mCheckedItems.length));
                 }
                 dismiss();
             });
@@ -204,7 +203,7 @@ public final class CarSingleChoiceDialog extends Dialog {
 
     /**
      * Initializes {@link #mAdapter} to display the items in the given array by utilizing
-     * {@link RadioButtonListItem}.
+     * {@link CheckBoxListItem}.
      */
     private void initializeWithItems(List<Item> items) {
         List<ListItem> listItems = new ArrayList<>();
@@ -217,67 +216,83 @@ public final class CarSingleChoiceDialog extends Dialog {
     }
 
     /**
-     * Creates the {@link RadioButtonListItem} that represents an item in the {@code
-     * CarSingleChoiceDialog}.
+     * Creates the {@link CheckBoxListItem} that represents an item in the {@code
+     * CarMultipleChoiceDialog}.
      *
-     * @param {@link Item} to display as a {@code RadioButtonListItem}.
+     * @param {@link   Item} to display as a {@link CheckBoxListItem}.
      * @param position The position of the item in the list.
      */
-    private RadioButtonListItem createItem(Item selectionItem, int position) {
-        RadioButtonListItem item = new RadioButtonListItem(getContext());
+    private CheckBoxListItem createItem(Item selectionItem, int position) {
+        CheckBoxListItem item = new CheckBoxListItem(getContext());
         item.setTitle(selectionItem.mTitle);
         item.setBody(selectionItem.mBody);
         item.setShowCompoundButtonDivider(false);
         item.addViewBinder(vh -> {
-            vh.getCompoundButton().setChecked(mSelectedItem == position);
+            vh.getCompoundButton().setChecked(selectionItem.mIsChecked);
             vh.getCompoundButton().setOnCheckedChangeListener(
                     (buttonView, isChecked) -> {
-                        mSelectedItem = position;
-                        // Refresh other radio button list items.
-                        mAdapter.notifyDataSetChanged();
+                        mCheckedItems[position] = isChecked;
                     });
         });
 
+        mCheckedItems[position] = selectionItem.mIsChecked;
         return item;
     }
 
     /**
-     * A struct that holds data for a single choice item. A single choice item is a combination of
-     * the item title and optional body text.
+     * A struct that holds data for a multiple choice item. A multiple choice item is a
+     * combination of the item title and optional body text.
      */
     public static class Item {
 
         final CharSequence mTitle;
         final CharSequence mBody;
+        final boolean mIsChecked;
 
         /**
          * Creates a Item.
          *
-         * @param title The title of the item. This value must be non-empty.
+         * @param title   The title of the item. This value must be non-empty.
+         * @param checked Whether the item is selected.
          */
-        public Item(@NonNull CharSequence title) {
-            this(title,  /* body= */ "");
+        public Item(@NonNull CharSequence title, boolean checked) {
+            this(title,  /* body= */ null, checked);
         }
 
-
         /**
          * Creates a Item.
          *
-         * @param title The title of the item. This value must be non-empty.
-         * @param body  The secondary body text of the item.
+         * @param title   The title of the item. This value must be non-empty.
+         * @param body    The secondary body text of the item.
+         * @param checked Whether the item is selected.
          */
-        public Item(@NonNull CharSequence title, @NonNull CharSequence body) {
+        public Item(@NonNull CharSequence title, @Nullable CharSequence body, boolean checked) {
             if (TextUtils.isEmpty(title)) {
                 throw new IllegalArgumentException("Title cannot be empty.");
             }
 
             mTitle = title;
             mBody = body;
+            mIsChecked = checked;
         }
     }
 
     /**
-     * Builder class that can be used to create a {@link CarSingleChoiceDialog} by configuring
+     * Interface used to allow the creator the dialog to run some code when the selection of items
+     * is confirmed with the positive button of {@link CarMultipleChoiceDialog}.
+     */
+    public interface OnMultiChoiceClickListener {
+        /**
+         * This method will be invoked when the positive button of the dialog is clicked.
+         *
+         * @param dialog       the dialog where the selection was made
+         * @param checkedItems specifies which items are checked.
+         */
+        void onClick(@NonNull DialogInterface dialog, @NonNull boolean[] checkedItems);
+    }
+
+    /**
+     * Builder class that can be used to create a {@link CarMultipleChoiceDialog} by configuring
      * the options for the list and behavior of the dialog.
      */
     public static final class Builder {
@@ -286,8 +301,7 @@ public final class CarSingleChoiceDialog extends Dialog {
         CharSequence mTitle;
         CharSequence mSubtitle;
         List<Item> mItems;
-        int mSelectedItem;
-        OnClickListener mOnClickListener;
+        OnMultiChoiceClickListener mOnClickListener;
 
         CharSequence mPositiveButtonText;
         CharSequence mNegativeButtonText;
@@ -310,7 +324,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          *
          * @param titleId The resource id of the string to be used as the title.
          *                Text style will be retained.
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @return This {@link Builder} object to allow for chaining of calls.
          */
         @NonNull
         public Builder setTitle(@StringRes int titleId) {
@@ -322,7 +336,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * Sets the title of the dialog for be the given string.
          *
          * @param title The string to be used as the title.
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @return This {@link Builder} object to allow for chaining of calls.
          */
         @NonNull
         public Builder setTitle(@Nullable CharSequence title) {
@@ -335,7 +349,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          *
          * @param bodyTextId The resource id of the string to be used as the body.
          *                   Text style will be retained.
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @return This {@link Builder} object to allow for chaining of calls.
          */
         @NonNull
         public Builder setBody(@StringRes int bodyTextId) {
@@ -347,7 +361,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * Sets the bodyText of the dialog for be the given string.
          *
          * @param bodyText The string to be used as the body.
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @return This {@link Builder} object to allow for chaining of calls.
          */
         @NonNull
         public Builder setBody(@Nullable CharSequence bodyText) {
@@ -358,33 +372,19 @@ public final class CarSingleChoiceDialog extends Dialog {
         /**
          * Sets the items that should appear in the list.
          *
-         * <p>If a {@link DialogInterface.OnClickListener} is given, then it will be notified
-         * of the click.The {@code which} parameter of the
-         * {@link DialogInterface.OnClickListener#onClick(DialogInterface, int)} method will be
-         * the position of the item. This position maps to the index of the item in the given list.
-         *
          * <p>The provided list of items cannot be {@code null} or empty. Passing an empty list
          * to this method will throw can exception.
-         * *
          *
-         * @param items        The items that will appear in the list.
-         * @param selectedItem Specifies which item is checked initially. This value must map to
-         *                     a valid index in the given list.
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @param items The items that will appear in the list.
+         * @return This {@link Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setItems(@NonNull List<Item> items,
-                @IntRange(from = 0) int selectedItem) {
+        public Builder setItems(@NonNull List<Item> items) {
             if (items.size() == 0) {
                 throw new IllegalArgumentException("Provided list of items cannot be empty.");
             }
 
-            if (selectedItem >= items.size()) {
-                throw new IllegalArgumentException("Selected item is not a valid index.");
-            }
-
             mItems = items;
-            mSelectedItem = selectedItem;
             return this;
         }
 
@@ -392,14 +392,13 @@ public final class CarSingleChoiceDialog extends Dialog {
          * Configure the dialog to include a positive button.
          *
          * @param textId          The resource id of the text to display in the positive button.
-         * @param onClickListener The listener that will be notified of a selection.
-         * @return This Builder object to allow for chaining of calls to set methods.
+         * @param onClickListener The listener that will be notified of item selection.
+         * @return This {@link Builder} object to allow for chaining of calls to set methods.
          */
         @NonNull
         public Builder setPositiveButton(@StringRes int textId,
-                @NonNull OnClickListener onClickListener) {
-            mPositiveButtonText = mContext.getText(textId);
-            mOnClickListener = onClickListener;
+                @NonNull OnMultiChoiceClickListener onClickListener) {
+            setPositiveButton(mContext.getText(textId), onClickListener);
             return this;
         }
 
@@ -408,11 +407,11 @@ public final class CarSingleChoiceDialog extends Dialog {
          *
          * @param text            The text to display in the positive button.
          * @param onClickListener The listener that will be notified of a selection.
-         * @return This Builder object to allow for chaining of calls to set methods.
+         * @return This {@link Builder} object to allow for chaining of calls to set methods.
          */
         @NonNull
         public Builder setPositiveButton(@NonNull CharSequence text,
-                @NonNull OnClickListener onClickListener) {
+                @NonNull OnMultiChoiceClickListener onClickListener) {
             mPositiveButtonText = text;
             mOnClickListener = onClickListener;
             return this;
@@ -422,7 +421,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * Configure the dialog to include a negative button.
          *
          * @param textId The resource id of the text to display in the negative button.
-         * @return This Builder object to allow for chaining of calls to set methods.
+         * @return This {@link Builder} object to allow for chaining of calls to set methods.
          */
         @NonNull
         public Builder setNegativeButton(@StringRes int textId) {
@@ -434,7 +433,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * Configure the dialog to include a negative button.
          *
          * @param text The text to display in the negative button.
-         * @return This Builder object to allow for chaining of calls to set methods.
+         * @return This {@link Builder} object to allow for chaining of calls to set methods.
          */
         @NonNull
         public Builder setNegativeButton(@NonNull CharSequence text) {
@@ -445,7 +444,7 @@ public final class CarSingleChoiceDialog extends Dialog {
         /**
          * Sets whether the dialog is cancelable or not. Default is {@code true}.
          *
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @return This {@link Builder} object to allow for chaining of calls.
          */
         @NonNull
         public Builder setCancelable(boolean cancelable) {
@@ -462,7 +461,7 @@ public final class CarSingleChoiceDialog extends Dialog {
          * and not just when it is canceled, see {@link #setOnDismissListener(OnDismissListener)}.
          *
          * @param onCancelListener The listener to be invoked when this dialog is canceled.
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @return This {@link Builder} object to allow for chaining of calls.
          * @see #setCancelable(boolean)
          * @see #setOnDismissListener(OnDismissListener)
          */
@@ -475,7 +474,7 @@ public final class CarSingleChoiceDialog extends Dialog {
         /**
          * Sets the callback that will be called when the dialog is dismissed for any reason.
          *
-         * @return This {@code Builder} object to allow for chaining of calls.
+         * @return This {@link Builder} object to allow for chaining of calls.
          */
         @NonNull
         public Builder setOnDismissListener(@Nullable OnDismissListener onDismissListener) {
@@ -484,11 +483,11 @@ public final class CarSingleChoiceDialog extends Dialog {
         }
 
         /**
-         * Creates a {@link CarSingleChoiceDialog}, which is returned as a {@link Dialog}, with the
-         * arguments supplied to this {@code Builder}.
+         * Creates a {@link CarMultipleChoiceDialog}, which is returned as a {@link Dialog}, with
+         * the arguments supplied to this {@link Builder}.
          *
-         * <p>If {@link #setItems(List, int)} is never called, then calling this method will throw
-         * an exception.
+         * <p>If {@link #setItems(List)} is never called, then calling this method
+         * will throw an exception.
          *
          * <p>Calling this method does not display the dialog. Utilize this dialog within a
          * {@link androidx.fragment.app.DialogFragment} to show the dialog.
@@ -498,22 +497,16 @@ public final class CarSingleChoiceDialog extends Dialog {
             // Check that the dialog was created with a list of items.
             if (mItems == null || mItems.size() == 0) {
                 throw new IllegalStateException(
-                        "CarSingleChoiceDialog cannot be created with a non-empty list.");
-            }
-
-            if (mSelectedItem < 0 || mSelectedItem >= mItems.size()) {
-                throw new IllegalStateException(
-                        "CarSingleChoiceDialog cannot be created with an invalid initial "
-                                + "selected item.");
+                        "CarMultipleChoiceDialog must be created with a non-empty list.");
             }
 
             if (TextUtils.isEmpty(mPositiveButtonText)) {
                 throw new IllegalStateException(
-                        "CarSingleChoiceDialog cannot be created without a positive button.");
+                        "CarMultipleChoiceDialog cannot be created without a positive button.");
             }
 
-            CarSingleChoiceDialog dialog = new CarSingleChoiceDialog(mContext,
-                    /* builder= */this);
+            CarMultipleChoiceDialog dialog = new CarMultipleChoiceDialog(mContext,
+                    /* builder= */ this);
 
             dialog.setCancelable(mCancelable);
             dialog.setCanceledOnTouchOutside(mCancelable);
