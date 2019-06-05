@@ -55,6 +55,7 @@ import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
@@ -220,6 +221,22 @@ internal class ParagraphAndroid constructor(
         val bottom = ensureLayout.getLineBottom(line)
 
         return Pair(Offset(horizontal, top), Offset(horizontal, bottom))
+    }
+
+    /**
+     * Returns the bounding box as Rect of the character for given TextPosition. Rect includes the
+     * top, bottom, left and right of a character.
+     */
+    // TODO:(qqd) Implement RTL case.
+    fun getBoundingBoxForTextPosition(textPosition: TextPosition): Rect {
+        val left = ensureLayout.getPrimaryHorizontal(textPosition.offset)
+        val right = ensureLayout.getPrimaryHorizontal(textPosition.offset + 1)
+
+        val line = ensureLayout.getLineForOffset(textPosition.offset)
+        val top = ensureLayout.getLineTop(line)
+        val bottom = ensureLayout.getLineBottom(line)
+
+        return Rect(top = top, bottom = bottom, left = left, right = right)
     }
 
     fun getPathForRange(start: Int, end: Int): Path {
