@@ -146,8 +146,48 @@ public final class CaptureSessionTest {
                 .onConfigured(any(CameraCaptureSession.class));
 
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
-        verify(mTestParameters0.mSessionCameraCaptureCallback, timeout(3000).atLeast(1))
+        verify(mTestParameters0.mSessionCameraCaptureCallback, timeout(3000).atLeastOnce())
                 .onCaptureCompleted(any(CameraCaptureResult.class));
+    }
+
+    @Test
+    public void openCaptureSessionWithOptionOverride()
+            throws CameraAccessException, InterruptedException {
+        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+
+        mTestParameters0.waitForData();
+
+        assertThat(captureSession.getState()).isEqualTo(State.OPENED);
+
+        // StateCallback.onConfigured() should be called to signal the session is configured.
+        verify(mTestParameters0.mSessionStateCallback, times(1))
+                .onConfigured(any(CameraCaptureSession.class));
+
+        ArgumentCaptor<CameraCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
+                CameraCaptureResult.class);
+
+        // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
+        verify(mTestParameters0.mSessionCameraCaptureCallback, timeout(3000).atLeastOnce())
+                .onCaptureCompleted(captureResultCaptor.capture());
+
+        CameraCaptureResult cameraCaptureResult = captureResultCaptor.getValue();
+        assertThat(cameraCaptureResult).isInstanceOf(Camera2CameraCaptureResult.class);
+
+        CaptureResult captureResult =
+                ((Camera2CameraCaptureResult) cameraCaptureResult).getCaptureResult();
+
+        // From CameraEventCallbacks option
+        assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AF_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_AF_MODE_MACRO);
+        assertThat(captureResult.getRequest().get(CaptureRequest.FLASH_MODE)).isEqualTo(
+                CaptureRequest.FLASH_MODE_TORCH);
+
+        // From SessionConfig option
+        assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AE_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_AE_MODE_ON);
     }
 
     @Test
@@ -240,7 +280,7 @@ public final class CaptureSessionTest {
                 .onConfigured(any(CameraCaptureSession.class));
 
         // Second session should have CameraCaptureCallback.onCaptureCompleted() call.
-        verify(mTestParameters1.mSessionCameraCaptureCallback, timeout(3000).atLeast(1))
+        verify(mTestParameters1.mSessionCameraCaptureCallback, timeout(3000).atLeastOnce())
                 .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
@@ -265,6 +305,47 @@ public final class CaptureSessionTest {
     }
 
     @Test
+    public void issueCaptureRequestAppendAndOverrideRepeatingOptions()
+            throws CameraAccessException, InterruptedException {
+        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+
+        mTestParameters0.waitForData();
+
+        assertThat(captureSession.getState()).isEqualTo(State.OPENED);
+
+        captureSession.issueCaptureRequests(
+                Collections.singletonList(mTestParameters0.mCaptureConfig));
+
+        mTestParameters0.waitForCameraCaptureCallback();
+
+        ArgumentCaptor<CameraCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
+                CameraCaptureResult.class);
+
+        // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
+        verify(mTestParameters0.mCameraCaptureCallback, timeout(3000).times(1))
+                .onCaptureCompleted(captureResultCaptor.capture());
+
+        CameraCaptureResult cameraCaptureResult = captureResultCaptor.getValue();
+        assertThat(cameraCaptureResult).isInstanceOf(Camera2CameraCaptureResult.class);
+
+        CaptureResult captureResult =
+                ((Camera2CameraCaptureResult) cameraCaptureResult).getCaptureResult();
+
+        // From CaptureConfig option
+        assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AF_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_AF_MODE_EDOF);
+
+        // From CameraEventCallbacks option
+        assertThat(captureResult.getRequest().get(CaptureRequest.FLASH_MODE)).isEqualTo(
+                CaptureRequest.FLASH_MODE_TORCH);
+
+        // From SessionConfig option
+        assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AE_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_AE_MODE_ON);
+    }
+
     public void issueCaptureRequestBeforeCaptureSessionOpened()
             throws CameraAccessException, InterruptedException {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
@@ -519,12 +600,63 @@ public final class CaptureSessionTest {
                     new CameraEventCallbacks(mMockCameraEventCallback));
             builder.addImplementationOptions(mockCameraEventCallbackConfig);
 
+            // Set capture request options
+            // ==================================================================================
+            // Priority | Component        | AF_MODE       | FLASH_MODE         | AE_MODE
+            // ----------------------------------------------------------------------------------
+            // P1 | CaptureConfig          | AF_MODE_EDOF  |
+            // ----------------------------------------------------------------------------------
+            // P2 | CameraEventCallbacks   | AF_MODE_MACRO | FLASH_MODE_TORCH   |
+            // ----------------------------------------------------------------------------------
+            // P3 | SessionConfig          | AF_MODE_AUTO  | FLASH_MODE_SINGLE  | AE_MODE_ON
+            // ==================================================================================
+
+            Camera2Config.Builder camera2ConfigBuilder = new Camera2Config.Builder();
+
+            // Add capture request options for CameraEventCallbacks
+            CameraEventCallback cameraEventCallback = new CameraEventCallback() {
+                @Override
+                public CaptureConfig onRepeating() {
+                    CaptureConfig.Builder builder = new CaptureConfig.Builder();
+                    builder.addImplementationOptions(
+                            new Camera2Config.Builder()
+                                    .setCaptureRequestOption(
+                                            CaptureRequest.CONTROL_AF_MODE,
+                                            CaptureRequest.CONTROL_AF_MODE_MACRO)
+                                    .setCaptureRequestOption(
+                                            CaptureRequest.FLASH_MODE,
+                                            CaptureRequest.FLASH_MODE_TORCH)
+                                    .build());
+                    return builder.build();
+                }
+            };
+            new Camera2Config.Extender(camera2ConfigBuilder)
+                    .setCameraEventCallback(
+                            new CameraEventCallbacks(cameraEventCallback));
+
+            // Add capture request options for SessionConfig
+            camera2ConfigBuilder
+                    .setCaptureRequestOption(
+                            CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+                    .setCaptureRequestOption(
+                            CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_SINGLE)
+                    .setCaptureRequestOption(
+                            CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
+
+            builder.addImplementationOptions(camera2ConfigBuilder.build());
+
             mSessionConfig = builder.build();
 
             CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
             captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             captureConfigBuilder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
             captureConfigBuilder.addCameraCaptureCallback(mComboCameraCaptureCallback);
+
+            // Add capture request options for CaptureConfig
+            captureConfigBuilder.addImplementationOptions(new Camera2Config.Builder()
+                    .setCaptureRequestOption(
+                            CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_EDOF)
+                    .build());
 
             mCaptureConfig = captureConfigBuilder.build();
         }
