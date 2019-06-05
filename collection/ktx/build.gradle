@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.collection:collection:1.1.0-rc01")
+    compile(project(":collection"))
     compile(KOTLIN_STDLIB)
     testCompile(JUNIT)
     testCompile(TRUTH)
