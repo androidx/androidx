@@ -411,6 +411,11 @@ fun PxSize.center(): PxPosition {
 }
 
 /**
+ * Returns the smallest dimension size.
+ */
+val PxSize.minDimension get() = min(width, height)
+
+/**
  * A two-dimensional position using [Px] for units
  */
 data class PxPosition(val x: Px, val y: Px) {
