@@ -26,11 +26,13 @@ import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.net.ConnectivityManagerCompat;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * A {@link ConstraintTracker} for monitoring network state.
@@ -60,9 +62,10 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     /**
      * Create an instance of {@link NetworkStateTracker}
      * @param context the application {@link Context}
+     * @param taskExecutor The internal {@link TaskExecutor} being used by WorkManager.
      */
-    public NetworkStateTracker(Context context) {
-        super(context);
+    public NetworkStateTracker(@NonNull Context context, @NonNull TaskExecutor taskExecutor) {
+        super(context, taskExecutor);
         mConnectivityManager =
                 (ConnectivityManager) mAppContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (isNetworkCallbackSupported()) {
