@@ -6,6 +6,7 @@ package androidx.room {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Flowable<T!>! createFlowable(androidx.room.RoomDatabase!, boolean, String![]!, java.util.concurrent.Callable<T!>!);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Observable<T!>! createObservable(androidx.room.RoomDatabase!, String![]!, java.util.concurrent.Callable<T!>!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Observable<T!>! createObservable(androidx.room.RoomDatabase!, boolean, String![]!, java.util.concurrent.Callable<T!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Single<T!>! createSingle(java.util.concurrent.Callable<T!>!);
   }
 
 }
