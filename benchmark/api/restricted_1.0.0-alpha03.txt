@@ -1,0 +1,11 @@
+// Signature format: 3.0
+package androidx.benchmark {
+
+
+  public static final class IsolationActivity.Companion {
+    method @AnyThread public void finishSingleton();
+    method @WorkerThread public void launchSingleton();
+  }
+
+}
+
