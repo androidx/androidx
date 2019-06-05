@@ -37,6 +37,7 @@ limitations under the License.
         <item name="android:colorPrimaryDark">@android:color/black</item>
         <item name="android:editTextColor">@color/car_body1_light</item>
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
+        <item name="textInputStyle">@style/Widget.Design.TextInputLayout</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
         <item name="android:listPreferredItemHeightSmall">@dimen/car_double_line_list_item_height
@@ -259,7 +260,7 @@ limitations under the License.
     <!-- Framework and AppCompat Dialog Themes -->
     <!-- ===================================== -->
 
-    <!-- Styles for framework and the Appcompat AlertDialog. This style will automatically
+    <!-- Styles for framework and the MaterialComponents AlertDialog. This style will automatically
          change the background color of the dialog based on the day/night mode. -->
     <style name="Theme.Car.Dialog.Alert" parent="Theme.MaterialComponents.Dialog.Alert">
         <item name="android:background">@color/car_card</item>
@@ -285,6 +286,7 @@ limitations under the License.
         <item name="buttonBarNegativeButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="buttonBarPositiveButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="listDividerAlertDialog">@drawable/car_preference_divider</item>
+        <item name="textInputStyle">@style/Widget.Design.TextInputLayout</item>
     </style>
 
     <!-- Style for framework and the Appcompat AlertDialog that is fixed to have a light colored
