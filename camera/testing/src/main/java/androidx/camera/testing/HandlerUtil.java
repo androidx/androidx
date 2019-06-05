@@ -34,7 +34,7 @@ public final class HandlerUtil {
      * Handler}.
      */
     public static void waitForLooperToIdle(Handler handler) throws InterruptedException {
-        final LooperCompat looper = new LooperCompat(handler.getLooper());
+        final Looper looper = handler.getLooper();
         final Semaphore semaphore = new Semaphore(0);
 
         // Post a message that will add the idle handler. This will ensure the handler is not
@@ -43,7 +43,7 @@ public final class HandlerUtil {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                MessageQueue messageQueue = looper.getQueue();
+                MessageQueue messageQueue = LooperCompat.getQueue(looper);
                 messageQueue.addIdleHandler(new MessageQueue.IdleHandler() {
                     @Override
                     public boolean queueIdle() {
