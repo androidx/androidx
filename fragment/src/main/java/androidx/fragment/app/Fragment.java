@@ -58,8 +58,8 @@ import androidx.annotation.StringRes;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.util.DebugUtils;
 import androidx.core.view.LayoutInflaterCompat;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
@@ -459,7 +459,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mLifecycleRegistry = new LifecycleRegistry(this);
         mSavedStateRegistryController = SavedStateRegistryController.create(this);
         if (Build.VERSION.SDK_INT >= 19) {
-            mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
+            mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
                 @Override
                 public void onStateChanged(@NonNull LifecycleOwner source,
                         @NonNull Lifecycle.Event event) {

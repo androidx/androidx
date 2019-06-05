@@ -29,8 +29,8 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
@@ -91,7 +91,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     + "initialization.");
         }
         if (Build.VERSION.SDK_INT >= 19) {
-            getLifecycle().addObserver(new GenericLifecycleObserver() {
+            getLifecycle().addObserver(new LifecycleEventObserver() {
                 @Override
                 public void onStateChanged(@NonNull LifecycleOwner source,
                         @NonNull Lifecycle.Event event) {
@@ -105,7 +105,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             });
         }
-        getLifecycle().addObserver(new GenericLifecycleObserver() {
+        getLifecycle().addObserver(new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner source,
                     @NonNull Lifecycle.Event event) {
