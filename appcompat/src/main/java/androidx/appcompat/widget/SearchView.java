@@ -34,6 +34,7 @@ import android.database.Cursor;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -1693,8 +1694,12 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     void forceSuggestionQuery() {
-        HIDDEN_METHOD_INVOKER.doBeforeTextChanged(mSearchSrcTextView);
-        HIDDEN_METHOD_INVOKER.doAfterTextChanged(mSearchSrcTextView);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mSearchSrcTextView.refreshAutoCompleteResults();
+        } else {
+            HIDDEN_METHOD_INVOKER.doBeforeTextChanged(mSearchSrcTextView);
+            HIDDEN_METHOD_INVOKER.doAfterTextChanged(mSearchSrcTextView);
+        }
     }
 
     static boolean isLandscapeMode(Context context) {
@@ -2020,7 +2025,6 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     private static class AutoCompleteTextViewReflector {
         private Method doBeforeTextChanged, doAfterTextChanged;
         private Method ensureImeVisible;
-        private Method showSoftInputUnchecked;
 
         AutoCompleteTextViewReflector() {
             try {

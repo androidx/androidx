@@ -695,6 +695,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             int defStyleRes = 0;
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
                     defStyle, defStyleRes);
+            if (Build.VERSION.SDK_INT >= 29) {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.RecyclerView, attrs, a, defStyle, defStyleRes);
+            }
             String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
             int descendantFocusability = a.getInt(
                     R.styleable.RecyclerView_android_descendantFocusability, -1);
@@ -720,6 +724,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (Build.VERSION.SDK_INT >= 21) {
                 a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
                         defStyle, defStyleRes);
+                if (Build.VERSION.SDK_INT >= 29) {
+                    saveAttributeDataForStyleable(
+                            context, NESTED_SCROLLING_ATTRS, attrs, a, defStyle, defStyleRes);
+                }
                 nestedScrollingEnabled = a.getBoolean(0, true);
                 a.recycle();
             }

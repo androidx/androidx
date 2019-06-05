@@ -220,6 +220,17 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
                 0, R.style.Widget_Support_CoordinatorLayout)
                 : context.obtainStyledAttributes(attrs, R.styleable.CoordinatorLayout,
                         defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            if (defStyleAttr == 0) {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.CoordinatorLayout, attrs, a, 0,
+                        R.style.Widget_Support_CoordinatorLayout);
+            } else {
+                saveAttributeDataForStyleable(
+                        context, R.styleable.CoordinatorLayout, attrs, a, defStyleAttr, 0);
+            }
+        }
+
         final int keylineArrayRes = a.getResourceId(R.styleable.CoordinatorLayout_keylines, 0);
         if (keylineArrayRes != 0) {
             final Resources res = context.getResources();

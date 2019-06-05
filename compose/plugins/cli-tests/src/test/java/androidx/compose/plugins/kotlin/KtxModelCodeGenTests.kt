@@ -254,9 +254,7 @@ class KtxModelCodeGenTests : AbstractCodegenTest() {
               </Observe>
             }
 
-            val president = FrameManager.framed { PersonD("$PRESIDENT_NAME_1", ${
-                PRESIDENT_AGE_1
-            }).apply { age = $PRESIDENT_AGE_1 } }
+            val president = FrameManager.framed { PersonD("$PRESIDENT_NAME_1", $PRESIDENT_AGE_1).apply { age = $PRESIDENT_AGE_1 } }
             """, { mapOf("name" to name, "age" to age) }, """
                president.name = name
                president.age = age

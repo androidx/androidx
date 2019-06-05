@@ -29,6 +29,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -150,6 +151,10 @@ public class MediaRouteButton extends View {
         context = getContext();
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.MediaRouteButton, defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.MediaRouteButton, attrs, a, defStyleAttr, 0);
+        }
         if (isInEditMode()) {
             mRouter = null;
             mCallback = null;

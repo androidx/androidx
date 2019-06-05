@@ -16,6 +16,7 @@ package androidx.leanback.widget.picker;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -75,6 +76,10 @@ public class DatePicker extends Picker {
 
         final TypedArray attributesArray = context.obtainStyledAttributes(attrs,
                 R.styleable.lbDatePicker);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.lbDatePicker, attrs, attributesArray, 0, 0);
+        }
         String minDate;
         String maxDate;
         String datePickerFormat;

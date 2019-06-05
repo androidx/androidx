@@ -213,24 +213,19 @@ public class ShortcutInfoCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
-    public void testToShortcutInfo_extrasBundle() {
+    public void testToShortcutInfo() {
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
         String disabledMessage = "Test disabled message";
         Set<String> categories = new HashSet<>();
         categories.add("cat1");
         categories.add("cat2");
-        Person[] persons = {
-                new Person.Builder().setName("P1").build(),
-                new Person.Builder().setName("P2").build()};
 
         ShortcutInfoCompat compat = mBuilder
                 .setActivity(activity)
                 .setCategories(categories)
                 .setDisabledMessage(disabledMessage)
                 .setLongLabel(longLabel)
-                .setPersons(persons)
-                .setLongLived()
                 .build();
 
         ShortcutInfo shortcut = compat.toShortcutInfo();
@@ -243,6 +238,21 @@ public class ShortcutInfoCompatTest {
         assertEquals(disabledMessage, shortcut.getDisabledMessage());
         assertEquals(activity, shortcut.getActivity());
         assertEquals(categories, shortcut.getCategories());
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26, maxSdkVersion = 28)
+    public void testToShortcutInfo_extrasBundle() {
+        Person[] persons = {
+                new Person.Builder().setName("P1").build(),
+                new Person.Builder().setName("P2").build()};
+
+        ShortcutInfoCompat compat = mBuilder
+                .setPersons(persons)
+                .setLongLived()
+                .build();
+
+        ShortcutInfo shortcut = compat.toShortcutInfo();
 
         assertNotNull(shortcut.getExtras());
         assertTrue(ShortcutInfoCompat.getLongLivedFromExtra(shortcut.getExtras()));

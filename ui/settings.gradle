@@ -63,3 +63,5 @@ if (!startParameter.projectProperties.containsKey('android.injected.invoked.from
 // dumb test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":dumb-tests", "../dumb-tests")
+
+includeProject(":fakeannotations", "../fakeannotations")

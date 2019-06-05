@@ -122,6 +122,10 @@ public class CardView extends FrameLayout {
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CardView, defStyleAttr,
                 R.style.CardView);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.CardView, attrs, a, defStyleAttr, R.style.CardView);
+        }
         ColorStateList backgroundColor;
         if (a.hasValue(R.styleable.CardView_cardBackgroundColor)) {
             backgroundColor = a.getColorStateList(R.styleable.CardView_cardBackgroundColor);

@@ -18,6 +18,7 @@ package androidx.core.view;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.View;
 import android.view.animation.Interpolator;
@@ -69,6 +70,7 @@ public final class ViewPropertyAnimatorCompat {
         }
 
         @Override
+        @SuppressLint("WrongConstant")
         public void onAnimationEnd(View view) {
             if (mVpa.mOldLayerType > -1) {
                 view.setLayerType(mVpa.mOldLayerType, null);
@@ -672,6 +674,7 @@ public final class ViewPropertyAnimatorCompat {
      * @see View#setLayerType(int, android.graphics.Paint)
      * @return This object, allowing calls to methods in this class to be chained.
      */
+    @SuppressLint("WrongConstant")
     public ViewPropertyAnimatorCompat withLayer() {
         View view;
         if ((view = mView.get()) != null) {
