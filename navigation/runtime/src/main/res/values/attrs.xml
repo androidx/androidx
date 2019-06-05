@@ -20,6 +20,10 @@
         <attr name="targetPackage" format="string" />
     </declare-styleable>
 
+    <declare-styleable name="NavHost">
+        <attr name="navGraph" format="reference" />
+    </declare-styleable>
+
     <declare-styleable name="NavInclude">
         <attr name="graph" format="reference" />
     </declare-styleable>

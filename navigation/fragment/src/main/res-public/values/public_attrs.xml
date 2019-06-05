@@ -18,5 +18,4 @@
 <!-- Definitions of attributes to be exposed as public -->
 <resources>
     <public type="attr" name="defaultNavHost"/>
-    <public type="attr" name="navGraph"/>
 </resources>
