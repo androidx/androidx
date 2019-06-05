@@ -127,6 +127,9 @@ public final class DialogFragmentNavigator extends Navigator<DialogFragmentNavig
     @Override
     @Nullable
     public Bundle onSaveState() {
+        if (mDialogCount == 0) {
+            return null;
+        }
         Bundle b = new Bundle();
         b.putInt(KEY_DIALOG_COUNT, mDialogCount);
         return b;
