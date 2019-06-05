@@ -34,8 +34,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
@@ -296,7 +296,7 @@ public abstract class FragmentStateAdapter extends
             if (mFragmentManager.isDestroyed()) {
                 return; // nothing we can do
             }
-            mLifecycle.addObserver(new GenericLifecycleObserver() {
+            mLifecycle.addObserver(new LifecycleEventObserver() {
                 @Override
                 public void onStateChanged(@NonNull LifecycleOwner source,
                         @NonNull Lifecycle.Event event) {
@@ -523,7 +523,7 @@ public abstract class FragmentStateAdapter extends
             }
         };
 
-        mLifecycle.addObserver(new GenericLifecycleObserver() {
+        mLifecycle.addObserver(new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner source,
                     @NonNull Lifecycle.Event event) {

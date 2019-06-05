@@ -19,8 +19,8 @@ package androidx.activity;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.ArrayDeque;
@@ -208,7 +208,7 @@ public final class OnBackPressedDispatcher {
         }
     }
 
-    private class LifecycleOnBackPressedCancellable implements GenericLifecycleObserver,
+    private class LifecycleOnBackPressedCancellable implements LifecycleEventObserver,
             Cancellable {
         private final Lifecycle mLifecycle;
         private final OnBackPressedCallback mOnBackPressedCallback;
