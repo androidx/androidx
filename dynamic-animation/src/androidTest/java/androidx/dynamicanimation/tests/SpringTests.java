@@ -149,6 +149,28 @@ public class SpringTests {
         verify(listener, timeout(1000)).onAnimationEnd(anim, false, 1000f, 0f);
     }
 
+    /**
+     * Cancel a spring animation right after an animateToFinalPosition() is called.
+     */
+    @Test
+    public void testCancelAfterAnimateToFinalPosition() {
+        final SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.TRANSLATION_X,
+                0);
+        final DynamicAnimation.OnAnimationEndListener listener = mock(
+                DynamicAnimation.OnAnimationEndListener.class);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+            anim.addEndListener(listener);
+            anim.start();
+            assertTrue(anim.isRunning());
+            anim.animateToFinalPosition(200f);
+            anim.cancel();
+            anim.animateToFinalPosition(-200f);
+            anim.skipToEnd();
+        });
+        verify(listener, timeout(1000)).onAnimationEnd(anim, true, 0f, 0f);
+        verify(listener, timeout(1000)).onAnimationEnd(anim, false, -200f, 0f);
+    }
+
 
     /**
      * Check the final position of the default spring against what's being set through the
