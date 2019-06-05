@@ -32,16 +32,8 @@ android {
     }
 }
 
-configurations {
-    repackage
-}
-
 dependencies {
     api(project(":room:room-common"))
-    // ----------- Start of workaround to include room-common-java8 inside of aar as jar ----------
-    repackage(project(":room:room-common-java8")) { transitive = false } // no dependencies
-    implementation files(configurations.repackage) // files causes it to be bundled inside of aar
-    // ----------- End of workaround to include room-common-java8 inside of aar as jar ------------
     api(ANDROIDX_SQLITE_FRAMEWORK)
     api(ANDROIDX_SQLITE)
     implementation(ARCH_CORE_RUNTIME)
@@ -76,11 +68,6 @@ android.libraryVariants.all { variant ->
         dependsOn variant.javaCompileProvider.get()
         from variant.javaCompileProvider.get().destinationDir
         destinationDir new File(project.buildDir, "libJar")
-    }
-
-    // Make javaCompile task depend on room-common-java8 jar task.
-    variant.javaCompileProvider.configure { task ->
-        task.dependsOn(":room:room-common-java8:jar")
     }
 }
 
