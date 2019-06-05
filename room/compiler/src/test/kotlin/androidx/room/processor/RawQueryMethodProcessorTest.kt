@@ -31,6 +31,7 @@ import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVE
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.RawQueryMethod
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth
@@ -43,6 +44,8 @@ import com.squareup.javapoet.TypeName
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
+import simpleRun
+import javax.lang.model.util.ElementFilter
 
 class RawQueryMethodProcessorTest {
     @Test
@@ -185,6 +188,27 @@ class RawQueryMethodProcessorTest {
         )
     }
 
+    interface RawQuerySuspendUnitDao {
+        @RawQuery
+        suspend fun foo(query: SupportSQLiteQuery)
+    }
+
+    @Test
+    fun suspendUnit() {
+        simpleRun { invocation ->
+            val daoElement =
+                invocation.typeElement(RawQuerySuspendUnitDao::class.java.canonicalName)
+            val daoFunctionElement = ElementFilter.methodsIn(daoElement.enclosedElements).first()
+            RawQueryMethodProcessor(
+                baseContext = invocation.context,
+                containing = MoreTypes.asDeclared(daoElement.asType()),
+                executableElement = daoFunctionElement
+            ).process()
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.RAW_QUERY_BAD_RETURN_TYPE
+        )
+    }
+
     @Test
     fun noArgs() {
         singleQueryMethod(
@@ -270,14 +294,14 @@ class RawQueryMethodProcessorTest {
     }
 
     private fun singleQueryMethod(
-            vararg input: String,
-            handler: (RawQueryMethod, TestInvocation) -> Unit
+        vararg input: String,
+        handler: (RawQueryMethod, TestInvocation) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        DAO_PREFIX
-                                + input.joinToString("\n")
-                                + DAO_SUFFIX
+                        DAO_PREFIX +
+                                input.joinToString("\n") +
+                                DAO_SUFFIX
                 ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER,
                         COMMON.DATA_SOURCE_FACTORY, COMMON.POSITIONAL_DATA_SOURCE,
                         COMMON.NOT_AN_ENTITY))
