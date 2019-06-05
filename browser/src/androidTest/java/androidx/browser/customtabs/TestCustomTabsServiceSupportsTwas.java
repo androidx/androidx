@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,12 @@
  * limitations under the License.
  */
 
-package android.support.customtabs;
-
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.customtabs.ICustomTabsCallback;
+package androidx.browser.customtabs;
 
 /**
- * Interface to a PostMessageService.
- * @hide
+ * A {@link TestCustomTabsService} that in the manifest also supports Trusted Web Activities. This
+ * is so the two services can be turned on and off individually.
  */
-interface IPostMessageService {
-    void onMessageChannelReady(in ICustomTabsCallback callback, in Bundle extras) = 1;
-    void onPostMessage(in ICustomTabsCallback callback, String message, in Bundle extras) = 2;
+public class TestCustomTabsServiceSupportsTwas extends TestCustomTabsService {
+
 }
