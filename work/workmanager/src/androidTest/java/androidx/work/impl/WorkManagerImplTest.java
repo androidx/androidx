@@ -1370,7 +1370,8 @@ public class WorkManagerImplTest {
     @Test
     @LargeTest
     public void testCancelAllWork_updatesLastCancelAllTime() {
-        Preferences preferences = new Preferences(ApplicationProvider.getApplicationContext());
+        Preferences preferences = new Preferences(
+                (Context) ApplicationProvider.getApplicationContext());
         preferences.setLastCancelAllTimeMillis(0L);
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -1384,7 +1385,8 @@ public class WorkManagerImplTest {
     @LargeTest
     @SuppressWarnings("unchecked")
     public void testCancelAllWork_updatesLastCancelAllTimeLiveData() throws InterruptedException {
-        Preferences preferences = new Preferences(ApplicationProvider.getApplicationContext());
+        Preferences preferences = new Preferences(
+                (Context) ApplicationProvider.getApplicationContext());
         preferences.setLastCancelAllTimeMillis(0L);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();

@@ -29,6 +29,9 @@ dependencies {
     compile("androidx.annotation:annotation:1.0.0")
 }
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 androidx {
     name = "ListenableFuture"
     publish = Publish.SNAPSHOT_AND_RELEASE
