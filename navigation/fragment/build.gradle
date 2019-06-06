@@ -33,7 +33,7 @@ android {
 }
 
 dependencies {
-    api(project(":fragment"))
+    api(project(":fragment:fragment"))
     api(project(":navigation:navigation-runtime"))
 
     androidTestImplementation(project(":navigation:navigation-testing"))

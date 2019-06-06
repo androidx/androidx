@@ -27,7 +27,7 @@ plugins {
 
 dependencies {
     api(project(":core:core"))
-    api(project(":fragment"))
+    api(project(":fragment:fragment"))
     api(project(":recyclerview"))
     implementation("androidx.collection:collection:1.1.0")
 
