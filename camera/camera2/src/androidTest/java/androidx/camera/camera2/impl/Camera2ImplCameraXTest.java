@@ -279,19 +279,20 @@ public final class Camera2ImplCameraXTest {
     public void bind_unbind_loopWithOutAnalyzer() {
         ImageAnalysisConfig.Builder builder =
                 new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
         mLifecycle.startAndResume();
 
         for (int i = 0; i < 2; i++) {
+            CameraDevice.StateCallback callback = Mockito.mock(CameraDevice.StateCallback.class);
+            new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
             ImageAnalysisConfig config = builder.build();
             ImageAnalysis useCase = new ImageAnalysis(config);
             CameraX.bindToLifecycle(mLifecycle, useCase);
 
-            verify(mMockStateCallback, timeout(5000)).onOpened(any(CameraDevice.class));
+            verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
             CameraX.unbind(useCase);
 
-            verify(mMockStateCallback, timeout(3000)).onClosed(any(CameraDevice.class));
+            verify(callback, timeout(3000)).onClosed(any(CameraDevice.class));
         }
     }
 
@@ -299,20 +300,21 @@ public final class Camera2ImplCameraXTest {
     public void bind_unbind_loopWithAnalyzer() {
         ImageAnalysisConfig.Builder builder =
                 new ImageAnalysisConfig.Builder().setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Config.Extender(builder).setDeviceStateCallback(mMockStateCallback);
         mLifecycle.startAndResume();
 
         for (int i = 0; i < 2; i++) {
+            CameraDevice.StateCallback callback = Mockito.mock(CameraDevice.StateCallback.class);
+            new Camera2Config.Extender(builder).setDeviceStateCallback(callback);
             ImageAnalysisConfig config = builder.build();
             ImageAnalysis useCase = new ImageAnalysis(config);
             CameraX.bindToLifecycle(mLifecycle, useCase);
             useCase.setAnalyzer(mImageAnalyzer);
 
-            verify(mMockStateCallback, timeout(5000)).onOpened(any(CameraDevice.class));
+            verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
             CameraX.unbind(useCase);
 
-            verify(mMockStateCallback, timeout(3000)).onClosed(any(CameraDevice.class));
+            verify(callback, timeout(3000)).onClosed(any(CameraDevice.class));
         }
     }
 
