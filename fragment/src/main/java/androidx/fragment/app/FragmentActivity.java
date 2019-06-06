@@ -999,7 +999,7 @@ public class FragmentActivity extends ComponentActivity implements
                 continue;
             }
             if (fragment.getLifecycle().getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-                fragment.mLifecycleRegistry.markState(state);
+                fragment.mLifecycleRegistry.setCurrentState(state);
                 hadNotMarked = true;
             }
 

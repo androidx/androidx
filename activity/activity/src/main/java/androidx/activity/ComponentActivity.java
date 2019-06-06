@@ -159,7 +159,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         Lifecycle lifecycle = getLifecycle();
         if (lifecycle instanceof LifecycleRegistry) {
-            ((LifecycleRegistry) lifecycle).markState(Lifecycle.State.CREATED);
+            ((LifecycleRegistry) lifecycle).setCurrentState(Lifecycle.State.CREATED);
         }
         super.onSaveInstanceState(outState);
         mSavedStateRegistryController.performSave(outState);
