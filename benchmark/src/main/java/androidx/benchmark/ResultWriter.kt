@@ -90,6 +90,7 @@ internal object ResultWriter {
             .name("metrics").metricsObject(report)
             .name("warmupIterations").value(report.warmupIterations)
             .name("repeatIterations").value(report.repeatIterations)
+            .name("thermalThrottleSleepSeconds").value(report.thermalThrottleSleepSeconds)
 
         return endObject()
     }
