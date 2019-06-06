@@ -29,7 +29,7 @@ dependencies {
     api(project(":remotecallback"))
     implementation "androidx.annotation:annotation:1.1.0"
     implementation "androidx.core:core:1.1.0-rc01"
-    implementation project(':collection')
+    implementation project(':collection:collection')
 }
 
 androidx {

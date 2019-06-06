@@ -27,7 +27,7 @@ plugins {
 
 dependencies {
     implementation "androidx.annotation:annotation:1.1.0"
-    implementation project(path: ':collection')
+    implementation project(':collection:collection')
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

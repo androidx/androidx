@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    compile(project(":collection"))
+    compile(project(":collection:collection"))
     compile(KOTLIN_STDLIB)
     testCompile(JUNIT)
     testCompile(TRUTH)
