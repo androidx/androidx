@@ -46,6 +46,35 @@ package androidx.car.app {
     method public CharSequence getTitle();
   }
 
+  public final class CarMultipleChoiceDialog extends android.app.Dialog {
+  }
+
+  public static final class CarMultipleChoiceDialog.Builder {
+    ctor public CarMultipleChoiceDialog.Builder(android.content.Context);
+    method public android.app.Dialog create();
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setBody(@StringRes int);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setBody(CharSequence?);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setCancelable(boolean);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setItems(java.util.List<androidx.car.app.CarMultipleChoiceDialog.Item!>);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setNegativeButton(@StringRes int);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setNegativeButton(CharSequence);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener?);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener?);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setPositiveButton(@StringRes int, androidx.car.app.CarMultipleChoiceDialog.OnMultiChoiceClickListener);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setPositiveButton(CharSequence, androidx.car.app.CarMultipleChoiceDialog.OnMultiChoiceClickListener);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setTitle(@StringRes int);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setTitle(CharSequence?);
+  }
+
+  public static class CarMultipleChoiceDialog.Item {
+    ctor public CarMultipleChoiceDialog.Item(CharSequence, boolean);
+    ctor public CarMultipleChoiceDialog.Item(CharSequence, CharSequence?, boolean);
+  }
+
+  public static interface CarMultipleChoiceDialog.OnMultiChoiceClickListener {
+    method public void onClick(android.content.DialogInterface, boolean[]);
+  }
+
   public final class CarSingleChoiceDialog extends android.app.Dialog {
   }
 

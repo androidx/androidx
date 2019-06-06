@@ -252,13 +252,23 @@
         </activity>
 
         <activity android:name=".CarSingleChoiceDialogDemoActivity"
-            android:label="CarSingleSelectionDialog Demo"
+            android:label="CarSingleChoiceDialog Demo"
             android:parentActivityName=".SupportCarDemoActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".CarMultipleChoiceDialogDemoActivity"
+            android:label="CarMultipleChoiceDialog Demo"
+            android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name=".CheckBoxListItemActivity"
             android:label="CheckBoxListItem Demo"
             android:parentActivityName=".SupportCarDemoActivity">
