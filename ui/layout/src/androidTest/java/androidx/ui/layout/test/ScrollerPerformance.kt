@@ -76,7 +76,7 @@ class ScrollerPerformance : LayoutTest() {
                             scrollerPosition.position = 0.px
                         }
                         FrameManager.nextFrame()
-                        compositionContext.compose()
+                        compositionContext.recomposeSync()
                     }
                     view.measure(widthSpec, heightSpec)
                     view.layout(view.left, view.top, view.right, view.bottom)
@@ -102,7 +102,7 @@ class ScrollerPerformance : LayoutTest() {
                         scrollerPosition.position = 0.px
                     }
                     FrameManager.nextFrame()
-                    compositionContext.compose()
+                    compositionContext.recomposeSync()
                 }
                 benchmarkRule.measureRepeated(exec)
             }
