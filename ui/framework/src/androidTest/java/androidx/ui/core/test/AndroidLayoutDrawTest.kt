@@ -729,9 +729,6 @@ fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
                 placeables.forEach { child ->
                     child.place(0.ipx, 0.ipx)
                 }
-                placeables.forEach { child ->
-                    child.place(0.ipx, 0.ipx)
-                }
             }
         }, children = children
     )
@@ -757,9 +754,6 @@ fun Align(@Children children: @Composable() () -> Unit) {
                 maxWidth = max(child.width, maxWidth)
             }
             layout(maxWidth, maxHeight) {
-                placeables.forEach { child ->
-                    child.place(0.ipx, 0.ipx)
-                }
                 placeables.forEach { child ->
                     child.place(0.ipx, 0.ipx)
                 }
@@ -789,9 +783,6 @@ fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
                 maxWidth = max(child.width + totalDiff, maxWidth)
             }
             layout(maxWidth, maxHeight) {
-                placeables.forEach { child ->
-                    child.place(size, size)
-                }
                 placeables.forEach { child ->
                     child.place(size, size)
                 }
