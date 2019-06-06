@@ -21,7 +21,7 @@
     <attr name="elevation" format="dimension" />
 
     <declare-styleable name="DrawerLayout">
-        <!-- The height difference between the drawer and the base surface -->
+        <!-- The height difference between the drawer and the base surface. Only takes effect on API 21 and above -->
         <attr name="elevation"/>
     </declare-styleable>
 </resources>
