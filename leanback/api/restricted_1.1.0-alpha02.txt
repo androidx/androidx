@@ -17,10 +17,6 @@ package androidx.leanback.app {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class BackgroundFragment extends android.app.Fragment {
     ctor public BackgroundFragment();
-    method public void onDestroy();
-    method public void onResume();
-    method public void onStart();
-    method public void onStop();
   }
 
   @Deprecated public class GuidedStepFragment extends android.app.Fragment implements androidx.leanback.widget.GuidedActionAdapter.FocusListener {
@@ -32,7 +28,6 @@ package androidx.leanback.app {
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class GuidedStepFragment.DummyFragment extends android.app.Fragment {
     ctor @Deprecated public GuidedStepFragment.DummyFragment();
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
   }
 
   public class GuidedStepSupportFragment extends androidx.fragment.app.Fragment implements androidx.leanback.widget.GuidedActionAdapter.FocusListener {

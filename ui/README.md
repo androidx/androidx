@@ -78,4 +78,4 @@ The modules within UI are structured as follows
    Text engine
 
 ## Feedback
-To provide feedback or report bugs, please refer to the main [AndroidX contribution guide](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/README.md) and report your bugs [here](https://b.corp.google.com/issues/new?component=612128)
+To provide feedback or report bugs, please refer to the main [AndroidX contribution guide](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/README.md) and report your bugs [here](https://issuetracker.google.com/issues/new?component=612128)

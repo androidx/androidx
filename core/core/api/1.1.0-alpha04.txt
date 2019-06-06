@@ -2337,7 +2337,6 @@ package androidx.core.view.accessibility {
     method public int getTextSelectionEnd();
     method public int getTextSelectionStart();
     method public CharSequence? getTooltipText();
-    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat? getTouchDelegateInfo();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getTraversalAfter();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getTraversalBefore();
     method public String! getViewIdResourceName();
@@ -2363,7 +2362,6 @@ package androidx.core.view.accessibility {
     method public boolean isScrollable();
     method public boolean isSelected();
     method public boolean isShowingHintText();
-    method public boolean isTextEntryKey();
     method public boolean isVisibleToUser();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!, int);
@@ -2423,10 +2421,8 @@ package androidx.core.view.accessibility {
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
     method public void setText(CharSequence!);
-    method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);
     method public void setTooltipText(CharSequence?);
-    method public void setTouchDelegateInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat);
     method public void setTraversalAfter(android.view.View!);
     method public void setTraversalAfter(android.view.View!, int);
     method public void setTraversalBefore(android.view.View!);
@@ -2498,10 +2494,6 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_MOVE_WINDOW;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_NEXT_AT_MOVEMENT_GRANULARITY;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_NEXT_HTML_ELEMENT;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_DOWN;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_LEFT;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_RIGHT;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_UP;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PASTE;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PREVIOUS_HTML_ELEMENT;
@@ -2552,13 +2544,6 @@ package androidx.core.view.accessibility {
     field public static final int RANGE_TYPE_FLOAT = 1; // 0x1
     field public static final int RANGE_TYPE_INT = 0; // 0x0
     field public static final int RANGE_TYPE_PERCENT = 2; // 0x2
-  }
-
-  public static final class AccessibilityNodeInfoCompat.TouchDelegateInfoCompat {
-    ctor public AccessibilityNodeInfoCompat.TouchDelegateInfoCompat(java.util.Map<android.graphics.Region,android.view.View>);
-    method public android.graphics.Region? getRegionAt(@IntRange(from=0) int);
-    method @IntRange(from=0) public int getRegionCount();
-    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getTargetForRegion(android.graphics.Region);
   }
 
   public class AccessibilityNodeProviderCompat {

@@ -169,12 +169,6 @@ package androidx.core.graphics {
     method public static inline float[] values(android.graphics.Matrix);
   }
 
-  public final class PaintKt {
-    ctor public PaintKt();
-    method public static inline boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat? blendModeCompat);
-    method public static inline boolean setBlendModeColorFilter(android.graphics.Paint, @ColorInt int color, androidx.core.graphics.BlendModeCompat? blendModeCompat);
-  }
-
   public final class PathKt {
     ctor public PathKt();
     method @RequiresApi(19) public static inline infix android.graphics.Path and(android.graphics.Path, android.graphics.Path p);

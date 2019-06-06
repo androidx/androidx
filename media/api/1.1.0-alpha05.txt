@@ -285,7 +285,6 @@ package android.support.v4.media.session {
     method public abstract void sendCustomAction(android.support.v4.media.session.PlaybackStateCompat.CustomAction!, android.os.Bundle!);
     method public abstract void sendCustomAction(String!, android.os.Bundle!);
     method public abstract void setCaptioningEnabled(boolean);
-    method public void setPlaybackSpeed(float);
     method public abstract void setRating(android.support.v4.media.RatingCompat!);
     method public abstract void setRating(android.support.v4.media.RatingCompat!, android.os.Bundle!);
     method public abstract void setRepeatMode(int);
@@ -364,7 +363,6 @@ package android.support.v4.media.session {
     method public void onRewind();
     method public void onSeekTo(long);
     method public void onSetCaptioningEnabled(boolean);
-    method public void onSetPlaybackSpeed(float);
     method public void onSetRating(android.support.v4.media.RatingCompat!);
     method public void onSetRating(android.support.v4.media.RatingCompat!, android.os.Bundle!);
     method public void onSetRepeatMode(int);

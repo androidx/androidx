@@ -2354,7 +2354,6 @@ package androidx.core.view.accessibility {
     method public boolean isScrollable();
     method public boolean isSelected();
     method public boolean isShowingHintText();
-    method public boolean isTextEntryKey();
     method public boolean isVisibleToUser();
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!);
     method public static androidx.core.view.accessibility.AccessibilityNodeInfoCompat! obtain(android.view.View!, int);
@@ -2414,7 +2413,6 @@ package androidx.core.view.accessibility {
     method public void setSource(android.view.View!);
     method public void setSource(android.view.View!, int);
     method public void setText(CharSequence!);
-    method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);
     method public void setTooltipText(CharSequence?);
     method public void setTraversalAfter(android.view.View!);
@@ -2488,10 +2486,6 @@ package androidx.core.view.accessibility {
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_MOVE_WINDOW;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_NEXT_AT_MOVEMENT_GRANULARITY;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_NEXT_HTML_ELEMENT;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_DOWN;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_LEFT;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_RIGHT;
-    field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat ACTION_PAGE_UP;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PASTE;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY;
     field public static final androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! ACTION_PREVIOUS_HTML_ELEMENT;
