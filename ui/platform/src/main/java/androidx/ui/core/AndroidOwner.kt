@@ -44,7 +44,7 @@ class AndroidCraneView constructor(context: Context)
 
     val root = LayoutNode()
     // LayoutNodes that need measure and layout, the value is true when measure is needed
-    private val relayoutNodes = mutableMapOf<LayoutNode, Boolean>()
+    private val relayoutNodes = mutableSetOf<LayoutNode>()
 
     // Map from model to DrawNodes that should be redrawn or LayoutNodes that need measuring
     private val modelToNodes = ObserverMap<Any, ComponentNode>()
@@ -196,7 +196,7 @@ class AndroidCraneView constructor(context: Context)
             layout.needsRemeasure = true
         }
 
-        relayoutNodes[layout] = true
+        relayoutNodes += layout
 
         if (layout == root) {
             requestLayout()
@@ -208,12 +208,12 @@ class AndroidCraneView constructor(context: Context)
     }
 
     fun requestRelayout(layoutNode: LayoutNode) {
-        if (!relayoutNodes.containsKey(layoutNode)) {
-            relayoutNodes[layoutNode] = false
+        if (relayoutNodes.isEmpty()) {
             Choreographer.getInstance().postFrameCallback {
                 measureAndLayout()
             }
         }
+        relayoutNodes += layoutNode
     }
 
     override fun onAttach(node: ComponentNode) {
@@ -245,10 +245,9 @@ class AndroidCraneView constructor(context: Context)
         try {
             val frame = currentFrame()
             frame.observeReads(frameReadObserver) {
-                relayoutNodes.entries.sortedBy { it.key.depth }
-                    .forEach { (layoutNode, needsMeasure) ->
+                relayoutNodes.sortedBy { it.depth }.forEach { layoutNode ->
                         if (relayoutNodes.contains(layoutNode)) {
-                            if (needsMeasure) {
+                            if (layoutNode.needsRemeasure) {
                                 val parent = layoutNode.parentLayoutNode
                                 if (parent != null) {
                                     // This should call measure and layout on the child
