@@ -521,11 +521,6 @@ package androidx.core.view {
   @IntDef(flag=true, value={androidx.core.view.ViewCompat.SCROLL_INDICATOR_TOP, androidx.core.view.ViewCompat.SCROLL_INDICATOR_BOTTOM, androidx.core.view.ViewCompat.SCROLL_INDICATOR_LEFT, androidx.core.view.ViewCompat.SCROLL_INDICATOR_RIGHT, androidx.core.view.ViewCompat.SCROLL_INDICATOR_START, androidx.core.view.ViewCompat.SCROLL_INDICATOR_END}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.ScrollIndicators {
   }
 
-  public class WindowInsetsCompat {
-    method @RequiresApi(20) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.view.WindowInsets? unwrap(androidx.core.view.WindowInsetsCompat);
-    method @RequiresApi(20) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.view.WindowInsetsCompat wrap(android.view.WindowInsets);
-  }
-
 }
 
 package androidx.core.view.accessibility {

@@ -1307,7 +1307,8 @@ public class DrawerLayout extends ViewGroup {
             // Update the ViewDragHelper edge sizes to match the gesture insets
             WindowInsets rootInsets = getRootWindowInsets();
             if (rootInsets != null) {
-                WindowInsetsCompat rootInsetsCompat = WindowInsetsCompat.wrap(rootInsets);
+                WindowInsetsCompat rootInsetsCompat = WindowInsetsCompat
+                        .toWindowInsetsCompat(rootInsets);
                 Insets gestureInsets = rootInsetsCompat.getSystemGestureInsets();
 
                 // We use Math.max() here since the gesture insets will be 0 if the device

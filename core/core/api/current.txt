@@ -2313,6 +2313,8 @@ package androidx.core.view {
     method public boolean isRound();
     method public androidx.core.view.WindowInsetsCompat! replaceSystemWindowInsets(int, int, int, int);
     method public androidx.core.view.WindowInsetsCompat! replaceSystemWindowInsets(android.graphics.Rect!);
+    method @RequiresApi(20) public android.view.WindowInsets? toWindowInsets();
+    method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets);
   }
 
 }
