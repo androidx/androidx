@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-    api(project(":fragment-ktx"))
+    api(project(":fragment:fragment-ktx"))
     api(ANDROIDX_TEST_CORE)
     api(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_STDLIB)

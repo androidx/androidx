@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":fragment"))
+    api(project(":fragment:fragment"))
     api(project(":appcompat"))
 
     implementation(ANDROIDX_TEST_EXT_JUNIT)

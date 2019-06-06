@@ -10,7 +10,7 @@ dependencies {
     implementation(project(":slidingpanelayout"))
     implementation(project(":swiperefreshlayout"))
     implementation(project(":legacy-support-core-utils"))
-    implementation(project(":fragment"))
+    implementation(project(":fragment:fragment"))
     implementation(project(":media"))
     implementation(project(":lifecycle:lifecycle-extensions"))
 }
