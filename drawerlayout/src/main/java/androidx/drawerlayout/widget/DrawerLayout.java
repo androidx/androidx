@@ -369,7 +369,7 @@ public class DrawerLayout extends ViewGroup {
             }
         }
 
-        TypedArray a = context
+        final TypedArray a = context
                 .obtainStyledAttributes(attrs, R.styleable.DrawerLayout, defStyleAttr, 0);
         try {
             if (a.hasValue(R.styleable.DrawerLayout_elevation)) {
