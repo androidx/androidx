@@ -103,13 +103,14 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mWorkManagerImpl = mock(WorkManagerImpl.class);
         mScheduler = mock(Scheduler.class);
         when(mWorkManagerImpl.getWorkDatabase()).thenReturn(mDatabase);
+        when(mWorkManagerImpl.getWorkTaskExecutor()).thenReturn(mWorkTaskExecutor);
         when(mWorkManagerImpl.getConfiguration()).thenReturn(mConfiguration);
 
-        mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext));
-        mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext));
+        mBatteryChargingTracker = spy(new BatteryChargingTracker(mContext, mWorkTaskExecutor));
+        mBatteryNotLowTracker = spy(new BatteryNotLowTracker(mContext, mWorkTaskExecutor));
         // Requires API 24+ types.
         mNetworkStateTracker = mock(NetworkStateTracker.class);
-        mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext));
+        mStorageNotLowTracker = spy(new StorageNotLowTracker(mContext, mWorkTaskExecutor));
         mTracker = mock(Trackers.class);
 
         when(mTracker.getBatteryChargingTracker()).thenReturn(mBatteryChargingTracker);

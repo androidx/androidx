@@ -25,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 /**
  * A {@link ConstraintController} for monitoring that any usable network connection is available.
@@ -36,8 +37,8 @@ import androidx.work.impl.model.WorkSpec;
  */
 
 public class NetworkConnectedController extends ConstraintController<NetworkState> {
-    public NetworkConnectedController(Context context) {
-        super(Trackers.getInstance(context).getNetworkStateTracker());
+    public NetworkConnectedController(Context context, TaskExecutor taskExecutor) {
+        super(Trackers.getInstance(context, taskExecutor).getNetworkStateTracker());
     }
 
     @Override
