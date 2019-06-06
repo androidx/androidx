@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    implementation "androidx.annotation:annotation:1.1.0-rc01"
+    implementation "androidx.annotation:annotation:1.1.0"
     implementation project(":appcompat")
     api "androidx.collection:collection:1.1.0-rc01"
     api(project(":remotecallback"))

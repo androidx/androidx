@@ -27,7 +27,7 @@ plugins {
 
 dependencies {
     compile(project(":lifecycle:lifecycle-common"))
-    compile("androidx.annotation:annotation:1.1.0-rc01")
+    compile("androidx.annotation:annotation:1.1.0")
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
