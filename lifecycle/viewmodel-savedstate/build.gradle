@@ -38,7 +38,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
-    api project(":fragment"), {
+    api project(":fragment:fragment"), {
         exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
     }
 
