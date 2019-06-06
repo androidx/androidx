@@ -24,6 +24,7 @@ import androidx.ui.core.Text
 import androidx.ui.core.px
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
+import androidx.ui.core.selection.SelectionMode
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
@@ -97,6 +98,10 @@ fun TextDemo() {
                 EditLine()
                 TagLine(tag = "selection")
                 TextDemoSelection()
+                TagLine(tag = "selection in 2D Array Vertical")
+                TextDemoSelection2DArrayVertical()
+                TagLine(tag = "selection in 2D Array Horizontal")
+                TextDemoSelection2DArrayHorizontal()
                 TagLine(tag = "composable textspan")
                 TextDemoComposableTextSpan()
                 TagLine(tag = "fontSizeScale")
@@ -575,6 +580,93 @@ fun TextDemoSelection() {
                     text = "\nまず、現在天下が魏・呉・蜀に分れており、そのうち蜀は疲弊していることを指摘する。",
                     style = TextStyle(locale = Locale("ja", "JP"))
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun TextDemoSelection2DArrayVertical() {
+    var text = ""
+    for (i in 1..3) {
+        text = "$text$displayText" + "\n"
+    }
+
+    val colorList = listOf(
+        Color(0xFFFF0000.toInt()),
+        Color(0xFF00FF00.toInt()),
+        Color(0xFF0000FF.toInt()),
+        Color(0xFF00FFFF.toInt()),
+        Color(0xFFFF00FF.toInt()),
+        Color(0xFFFFFF00.toInt()),
+        Color(0xFF0000FF.toInt()),
+        Color(0xFF00FF00.toInt()),
+        Color(0xFFFF0000.toInt())
+        )
+
+    val selection = +state<Selection?> { null }
+    SelectionContainer(
+        selection = selection.value,
+        onSelectionChange = { selection.value = it }) {
+        Column {
+            for (i in 0..2) {
+                Row {
+                    for (j in 0..2) {
+                        Text {
+                            Span(
+                                text = text,
+                                style = TextStyle(
+                                    color = colorList[i * 3 + j],
+                                    fontSize = fontSize6
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TextDemoSelection2DArrayHorizontal() {
+    var text = ""
+    for (i in 1..3) {
+        text = "$text$displayText" + "\n"
+    }
+
+    val colorList = listOf(
+        Color(0xFFFF0000.toInt()),
+        Color(0xFF00FF00.toInt()),
+        Color(0xFF0000FF.toInt()),
+        Color(0xFF00FFFF.toInt()),
+        Color(0xFFFF00FF.toInt()),
+        Color(0xFFFFFF00.toInt()),
+        Color(0xFF0000FF.toInt()),
+        Color(0xFF00FF00.toInt()),
+        Color(0xFFFF0000.toInt())
+    )
+
+    val selection = +state<Selection?> { null }
+    SelectionContainer(
+        selection = selection.value,
+        onSelectionChange = { selection.value = it },
+        mode = SelectionMode.Horizontal) {
+        Column {
+            for (i in 0..2) {
+                Row {
+                    for (j in 0..2) {
+                        Text {
+                            Span(
+                                text = text,
+                                style = TextStyle(
+                                    color = colorList[i * 3 + j],
+                                    fontSize = fontSize6
+                                )
+                            )
+                        }
+                    }
+                }
             }
         }
     }

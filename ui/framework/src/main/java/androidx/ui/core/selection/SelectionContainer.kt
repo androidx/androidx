@@ -51,6 +51,8 @@ fun SelectionContainer(
     selection: Selection?,
     /** A function containing customized behaviour when selection changes. */
     onSelectionChange: (Selection?) -> Unit,
+    /** Selection mode. The default mode is Vertical. */
+    mode: SelectionMode = SelectionMode.Vertical,
     @Children children: @Composable() () -> Unit
 ) {
     val manager = +memo { SelectionManager() }
@@ -60,6 +62,7 @@ fun SelectionContainer(
     // +memo(onSelectionChange) { manager.onSelectionChange = onSelectionChange }
     manager.selection = selection
     manager.onSelectionChange = onSelectionChange
+    manager.mode = mode
 
     SelectionRegistrarAmbient.Provider(value = manager) {
         val content = @Composable {
