@@ -64,22 +64,25 @@ interface LiveDataScope<T> {
     suspend fun emitSource(source: LiveData<T>): DisposableHandle
 
     /**
-     * Denotes the value of the [LiveData] when this block is started.
+     * References the current value of the [LiveData].
      *
-     * If it is the first time block is running, [initialValue] will be `null`. You can use this
+     * If the block never `emit`ed a value, [latestValue] will be `null`. You can use this
      * value to check what was then latest value `emit`ed by your `block` before it got cancelled.
      *
-     * Note that if the block called [emitSource], then `initialValue` will be last value
+     * Note that if the block called [emitSource], then `latestValue` will be last value
      * dispatched by the `source` [LiveData].
      */
-    val initialValue: T?
+    val latestValue: T?
 }
 
 internal class LiveDataScopeImpl<T>(
     internal var target: CoroutineLiveData<T>,
-    context: CoroutineContext,
-    override val initialValue: T? = target.value
+    context: CoroutineContext
 ) : LiveDataScope<T> {
+
+    override val latestValue: T?
+        get() = target.value
+
     // use `liveData` provided context + main dispatcher to communicate with the target
     // LiveData. This gives us main thread safety as well as cancellation cooperation
     private val coroutineContext = context + Dispatchers.Main
@@ -231,7 +234,7 @@ internal class CoroutineLiveData<T>(
  *
  * After a cancellation, if the [LiveData] becomes active again, the [block] will be re-executed
  * from the beginning. If you would like to continue the operations based on where it was stopped
- * last, you can use the [LiveDataScope.initialValue] function to get the last
+ * last, you can use the [LiveDataScope.latestValue] function to get the last
  * [LiveDataScope.emit]ed value.
 
  * If the [block] completes successfully *or* is cancelled due to reasons other than [LiveData]
