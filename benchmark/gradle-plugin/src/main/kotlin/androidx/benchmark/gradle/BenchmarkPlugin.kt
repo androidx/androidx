@@ -84,6 +84,12 @@ class BenchmarkPlugin : Plugin<Project> {
             )
         }
 
+        // NOTE: This argument is checked by ResultWriter to enable CI reports.
+        extension.defaultConfig.testInstrumentationRunnerArgument(
+            "androidx.benchmark.output.enable",
+            "true"
+        )
+
         // NOTE: .all here is a Gradle API, which will run the callback passed to it after the
         // extension variants have been resolved.
         var applied = false
@@ -91,12 +97,6 @@ class BenchmarkPlugin : Plugin<Project> {
             if (!applied) {
                 applied = true
                 project.tasks.named("connectedAndroidTest").configure {
-                    // NOTE: This argument is checked by ResultWriter to enable CI reports.
-                    extension.defaultConfig.testInstrumentationRunnerArgument(
-                        "androidx.benchmark.output.enable",
-                        "true"
-                    )
-
                     configureWithConnectedAndroidTest(project, it)
                 }
             }
