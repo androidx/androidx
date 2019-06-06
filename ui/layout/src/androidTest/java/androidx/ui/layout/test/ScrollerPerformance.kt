@@ -77,6 +77,7 @@ class ScrollerPerformance : LayoutTest() {
                         }
                         FrameManager.nextFrame()
                         compositionContext.recomposeSync()
+                        view.requestLayout()
                     }
                     view.measure(widthSpec, heightSpec)
                     view.layout(view.left, view.top, view.right, view.bottom)
