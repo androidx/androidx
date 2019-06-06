@@ -21,20 +21,24 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.work.Logger;
+import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.background.systemalarm.ConstraintProxy.BatteryChargingProxy;
 import androidx.work.impl.background.systemalarm.ConstraintProxy.BatteryNotLowProxy;
 import androidx.work.impl.background.systemalarm.ConstraintProxy.NetworkStateProxy;
 import androidx.work.impl.background.systemalarm.ConstraintProxy.StorageNotLowProxy;
 import androidx.work.impl.utils.PackageManagerHelper;
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 
 /**
  * The {@link BroadcastReceiver} responsible for updating constraint proxies.
  */
 public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
-    private static final String TAG = Logger.tagWithPrefix("ConstrntProxyUpdtRecvr");
-
+    // Synthetic access
+    static final String TAG = Logger.tagWithPrefix("ConstrntProxyUpdtRecvr");
     static final String ACTION = "androidx.work.impl.background.systemalarm.UpdateProxies";
 
     static final String KEY_BATTERY_NOT_LOW_PROXY_ENABLED = "KEY_BATTERY_NOT_LOW_PROXY_ENABLED";
@@ -75,39 +79,56 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
     }
 
     @Override
-    public void onReceive(Context context, Intent intent) {
+    public void onReceive(@NonNull final Context context, @Nullable final Intent intent) {
         String action = intent != null ? intent.getAction() : null;
         if (!ACTION.equals(action)) {
             Logger.get().debug(TAG, String.format("Ignoring unknown action %s", action));
         } else {
-            boolean batteryNotLowProxyEnabled = intent.getBooleanExtra(
-                    KEY_BATTERY_NOT_LOW_PROXY_ENABLED, false);
-            boolean batteryChargingProxyEnabled = intent.getBooleanExtra(
-                    KEY_BATTERY_CHARGING_PROXY_ENABLED, false);
-            boolean storageNotLowProxyEnabled = intent.getBooleanExtra(
-                    KEY_STORAGE_NOT_LOW_PROXY_ENABLED, false);
-            boolean networkStateProxyEnabled = intent.getBooleanExtra(
-                    KEY_NETWORK_STATE_PROXY_ENABLED, false);
+            final PendingResult pendingResult = goAsync();
+            WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
+            TaskExecutor taskExecutor = workManager.getWorkTaskExecutor();
+            taskExecutor.executeOnBackgroundThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Doing this on a background thread, as using PackageManager to enable
+                        // or disable proxies involves writes to the filesystem.
+                        // b/134418962
+                        boolean batteryNotLowProxyEnabled = intent.getBooleanExtra(
+                                KEY_BATTERY_NOT_LOW_PROXY_ENABLED, false);
+                        boolean batteryChargingProxyEnabled = intent.getBooleanExtra(
+                                KEY_BATTERY_CHARGING_PROXY_ENABLED, false);
+                        boolean storageNotLowProxyEnabled = intent.getBooleanExtra(
+                                KEY_STORAGE_NOT_LOW_PROXY_ENABLED, false);
+                        boolean networkStateProxyEnabled = intent.getBooleanExtra(
+                                KEY_NETWORK_STATE_PROXY_ENABLED, false);
 
-            Logger.get().debug(
-                    TAG,
-                    String.format("Updating proxies: BatteryNotLowProxy enabled (%s), "
-                                    + "BatteryChargingProxy enabled (%s), "
-                                    + "StorageNotLowProxy (%s), "
-                                    + "NetworkStateProxy enabled (%s)",
-                            batteryNotLowProxyEnabled,
-                            batteryChargingProxyEnabled,
-                            storageNotLowProxyEnabled,
-                            networkStateProxyEnabled));
+                        Logger.get().debug(
+                                TAG,
+                                String.format("Updating proxies: BatteryNotLowProxy enabled (%s), "
+                                                + "BatteryChargingProxy enabled (%s), "
+                                                + "StorageNotLowProxy (%s), "
+                                                + "NetworkStateProxy enabled (%s)",
+                                        batteryNotLowProxyEnabled,
+                                        batteryChargingProxyEnabled,
+                                        storageNotLowProxyEnabled,
+                                        networkStateProxyEnabled));
 
-            PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
-                    batteryNotLowProxyEnabled);
-            PackageManagerHelper.setComponentEnabled(context, BatteryChargingProxy.class,
-                    batteryChargingProxyEnabled);
-            PackageManagerHelper.setComponentEnabled(context, StorageNotLowProxy.class,
-                    storageNotLowProxyEnabled);
-            PackageManagerHelper.setComponentEnabled(context, NetworkStateProxy.class,
-                    networkStateProxyEnabled);
+                        PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
+                                batteryNotLowProxyEnabled);
+                        PackageManagerHelper.setComponentEnabled(context,
+                                BatteryChargingProxy.class,
+                                batteryChargingProxyEnabled);
+                        PackageManagerHelper.setComponentEnabled(context, StorageNotLowProxy.class,
+                                storageNotLowProxyEnabled);
+                        PackageManagerHelper.setComponentEnabled(context, NetworkStateProxy.class,
+                                networkStateProxyEnabled);
+                    } finally {
+                        pendingResult.finish();
+                    }
+                }
+            });
         }
     }
+
 }
