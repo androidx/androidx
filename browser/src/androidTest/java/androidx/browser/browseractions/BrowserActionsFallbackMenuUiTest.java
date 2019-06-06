@@ -27,6 +27,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.browser.R;
+import androidx.browser.customtabs.EnableComponentsTestRule;
 import androidx.browser.customtabs.TestActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -34,6 +35,7 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +55,12 @@ public class BrowserActionsFallbackMenuUiTest {
     @Rule
     public final ActivityTestRule<TestActivity> mActivityTestRule =
             new ActivityTestRule<>(TestActivity.class);
+
+    @Rule
+    public final EnableComponentsTestRule mEnableComponents = new EnableComponentsTestRule(
+            TestActivity.class
+    );
+
     private Context mContext;
     private List<BrowserActionItem> mMenuItems;
     private List<String> mMenuItemTitles;
@@ -110,6 +118,7 @@ public class BrowserActionsFallbackMenuUiTest {
      * Test whether {@link BrowserActionsFallbackMenuUi} is inflated correctly.
      */
     @Test
+    @Ignore("Test is flaky and we're removing Browser Actions.")
     public void testBrowserActionsFallbackMenuShownCorrectly() throws InterruptedException {
         final CountDownLatch signal = new CountDownLatch(1);
         final BrowserActionsFallbackMenuUi.BrowserActionsFallMenuUiListener listener =

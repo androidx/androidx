@@ -17,9 +17,12 @@
 package androidx.browser.customtabs;
 
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.support.customtabs.ICustomTabsService;
+
+import androidx.annotation.RestrictTo;
 
 /**
  * Abstract {@link ServiceConnection} to use while binding to a {@link CustomTabsService}. Any
@@ -27,11 +30,24 @@ import android.support.customtabs.ICustomTabsService;
  * connection like rebinding on disconnect.
  */
 public abstract class CustomTabsServiceConnection implements ServiceConnection {
+    private Context mApplicationContext;
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    /* package */ void setApplicationContext(Context context) {
+        mApplicationContext = context;
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    /* package */ Context getApplicationContext() {
+        return mApplicationContext;
+    }
 
     @Override
     public final void onServiceConnected(ComponentName name, IBinder service) {
         onCustomTabsServiceConnected(name, new CustomTabsClient(
-                ICustomTabsService.Stub.asInterface(service), name) {
+                ICustomTabsService.Stub.asInterface(service), name, mApplicationContext) {
         });
     }
 

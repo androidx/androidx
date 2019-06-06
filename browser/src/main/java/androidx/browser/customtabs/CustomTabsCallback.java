@@ -19,6 +19,7 @@ package androidx.browser.customtabs;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.RestrictTo;
 import androidx.browser.customtabs.CustomTabsService.Relation;
 
 /**
@@ -56,6 +57,15 @@ public class CustomTabsCallback {
      * Sent when the tab becomes hidden.
      */
     public static final int TAB_HIDDEN = 6;
+
+    /**
+     * Key for the extra included in {@link #onRelationshipValidationResult} {@code extras}
+     * containing whether the verification was performed while the device was online. This may be
+     * missing in cases verification was short cut.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String ONLINE_EXTRAS_KEY = "online";
 
     /**
      * To be called when a navigation event happens.
