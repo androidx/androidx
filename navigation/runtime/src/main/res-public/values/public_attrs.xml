@@ -21,4 +21,5 @@
     <public type="attr" name="data"/>
     <public type="attr" name="dataPattern"/>
     <public type="attr" name="graph"/>
+    <public type="attr" name="navGraph"/>
 </resources>
