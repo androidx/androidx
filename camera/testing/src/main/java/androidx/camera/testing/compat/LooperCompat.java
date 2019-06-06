@@ -25,21 +25,15 @@ import java.lang.reflect.Method;
 
 /** Compat functions for {@link Looper} */
 public final class LooperCompat {
-    private final Looper mLooper;
-
-    public LooperCompat(Looper looper) {
-        mLooper = looper;
-    }
-
     /** Returns the {@link MessageQueue} for the given {@link Looper}. */
-    public MessageQueue getQueue() {
+    public static MessageQueue getQueue(Looper looper) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return mLooper.getQueue();
+            return looper.getQueue();
         } else {
             Method getQueue;
             try {
                 getQueue = Looper.class.getMethod("getQueue");
-                return (MessageQueue) getQueue.invoke(mLooper);
+                return (MessageQueue) getQueue.invoke(looper);
 
             } catch (NoSuchMethodException e) {
                 throw new RuntimeException("Unable to retrieve getQueue via reflection.");
@@ -48,4 +42,6 @@ public final class LooperCompat {
             }
         }
     }
+
+    private LooperCompat() {}
 }
