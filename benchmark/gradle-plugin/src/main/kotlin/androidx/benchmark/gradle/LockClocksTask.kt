@@ -17,21 +17,28 @@
 package androidx.benchmark.gradle
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
+import org.gradle.kotlin.dsl.property
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
-import javax.inject.Inject
 
-open class LockClocksTask @Inject constructor(private val adb: Adb) : DefaultTask() {
+open class LockClocksTask : DefaultTask() {
     init {
         group = "Android"
         description = "locks clocks of connected, supported, rooted device"
     }
 
+    @Input
+    val adbPath: Property<String> = project.objects.property()
+
     @Suppress("unused")
     @TaskAction
     fun exec() {
+        val adb = Adb(adbPath.get(), logger)
+
         // Skip "adb root" if already rooted as it will fail.
         if (adb.execSync("shell su exit", shouldThrow = false).exitValue != 0) {
             adb.execSync("root", silent = true)

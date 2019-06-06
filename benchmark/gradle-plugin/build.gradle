@@ -29,6 +29,8 @@ plugins {
     id("java-gradle-plugin")
 }
 
+apply from: "kotlin-dsl-dependency.gradle.kts"
+
 ext.generatedResources = "$buildDir/generated/resources"
 ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"
 
