@@ -4,10 +4,15 @@ package androidx.room {
   public class DatabaseConfiguration {
     method public boolean isMigrationRequired(int, int);
     method @Deprecated public boolean isMigrationRequiredFrom(int);
+    field public static final int COPY_FROM_ASSET = 1; // 0x1
+    field public static final int COPY_FROM_FILE = 2; // 0x2
+    field public static final int COPY_FROM_NONE = 0; // 0x0
     field public final boolean allowDestructiveMigrationOnDowngrade;
     field public final boolean allowMainThreadQueries;
     field public final java.util.List<androidx.room.RoomDatabase.Callback!>? callbacks;
     field public final android.content.Context context;
+    field @androidx.room.DatabaseConfiguration.CopyFrom public final int copyFrom;
+    field public final String? copyFromPath;
     field public final androidx.room.RoomDatabase.JournalMode! journalMode;
     field public final androidx.room.RoomDatabase.MigrationContainer migrationContainer;
     field public final boolean multiInstanceInvalidation;
@@ -16,6 +21,9 @@ package androidx.room {
     field public final boolean requireMigration;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
     field public final java.util.concurrent.Executor transactionExecutor;
+  }
+
+  @IntDef({androidx.room.DatabaseConfiguration.COPY_FROM_NONE, androidx.room.DatabaseConfiguration.COPY_FROM_ASSET, androidx.room.DatabaseConfiguration.COPY_FROM_FILE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface DatabaseConfiguration.CopyFrom {
   }
 
   public class InvalidationTracker {
@@ -68,6 +76,8 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T!> addMigrations(androidx.room.migration.Migration!...);
     method public androidx.room.RoomDatabase.Builder<T!> allowMainThreadQueries();
     method public T build();
+    method public androidx.room.RoomDatabase.Builder<T!> createFromAsset(String);
+    method public androidx.room.RoomDatabase.Builder<T!> createFromFile(String);
     method public androidx.room.RoomDatabase.Builder<T!> enableMultiInstanceInvalidation();
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigration();
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationFrom(int...);
