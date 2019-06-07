@@ -23,6 +23,7 @@ import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(21)
@@ -32,7 +33,7 @@ class RoundedBitmapDrawable21 extends RoundedBitmapDrawable {
     }
 
     @Override
-    public void getOutline(Outline outline) {
+    public void getOutline(@NonNull Outline outline) {
         updateDstRect();
         outline.setRoundRect(mDstRect, getCornerRadius());
     }

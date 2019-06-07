@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.text.style.ClickableSpan;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -64,7 +65,7 @@ public final class AccessibilityClickableSpanCompat extends ClickableSpan {
      * be determined by the AccessibilityNodeInfo.
      */
     @Override
-    public void onClick(View unused) {
+    public void onClick(@NonNull View unused) {
         Bundle arguments = new Bundle();
         arguments.putInt(SPAN_ID, mOriginalClickableSpanId);
         mNodeInfoCompat.performAction(mClickableSpanActionId, arguments);

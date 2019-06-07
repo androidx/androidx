@@ -762,6 +762,7 @@ public final class NotificationManagerCompat {
             service.notify(packageName, id, tag, notif);
         }
 
+        @NonNull
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder("NotifyTask[");
@@ -802,6 +803,7 @@ public final class NotificationManagerCompat {
             }
         }
 
+        @NonNull
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder("CancelTask[");

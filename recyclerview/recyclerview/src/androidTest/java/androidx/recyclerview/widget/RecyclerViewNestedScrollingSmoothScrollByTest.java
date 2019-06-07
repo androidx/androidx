@@ -38,7 +38,6 @@ import androidx.core.view.NestedScrollingParent3;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -334,41 +333,41 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
         }
 
         @Override
-        public boolean onStartNestedScroll(@NotNull View child, @NotNull View target, int axes) {
+        public boolean onStartNestedScroll(@NonNull View child, @NonNull View target, int axes) {
             return false;
         }
 
         @Override
-        public void onNestedScrollAccepted(@NotNull View child, @NotNull View target, int axes) {
+        public void onNestedScrollAccepted(@NonNull View child, @NonNull View target, int axes) {
 
         }
 
         @Override
-        public void onStopNestedScroll(@NotNull View target) {
+        public void onStopNestedScroll(@NonNull View target) {
 
         }
 
         @Override
-        public void onNestedScroll(@NotNull View target, int dxConsumed, int dyConsumed,
+        public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
                 int dxUnconsumed,
                 int dyUnconsumed) {
 
         }
 
         @Override
-        public void onNestedPreScroll(@NotNull View target, int dx, int dy,
-                @NotNull int[] consumed) {
+        public void onNestedPreScroll(@NonNull View target, int dx, int dy,
+                @NonNull int[] consumed) {
 
         }
 
         @Override
-        public boolean onNestedFling(@NotNull View target, float velocityX, float velocityY,
+        public boolean onNestedFling(@NonNull View target, float velocityX, float velocityY,
                 boolean consumed) {
             return false;
         }
 
         @Override
-        public boolean onNestedPreFling(@NotNull View target, float velocityX, float velocityY) {
+        public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
             return false;
         }
 
@@ -392,9 +391,9 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
             mVertical = vertical;
         }
 
-        @NotNull
+        @NonNull
         @Override
-        public RecyclerView.ViewHolder onCreateViewHolder(@NotNull ViewGroup parent,
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                 int viewType) {
             View view = new View(mContext);
 
@@ -415,7 +414,7 @@ public class RecyclerViewNestedScrollingSmoothScrollByTest {
         }
 
         @Override
-        public void onBindViewHolder(@NotNull RecyclerView.ViewHolder holder, int position) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
         }
 

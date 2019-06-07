@@ -703,6 +703,7 @@ public class IconCompat extends CustomVersionedParcelable {
         return bundle;
     }
 
+    @NonNull
     @Override
     public String toString() {
         if (mType == TYPE_UNKNOWN) {

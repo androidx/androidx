@@ -263,7 +263,7 @@ public class ActivityOptionsCompat {
         }
 
         @Override
-        public void update(ActivityOptionsCompat otherOptions) {
+        public void update(@NonNull ActivityOptionsCompat otherOptions) {
             if (otherOptions instanceof ActivityOptionsCompatImpl) {
                 ActivityOptionsCompatImpl otherImpl =
                         (ActivityOptionsCompatImpl) otherOptions;
@@ -272,12 +272,13 @@ public class ActivityOptionsCompat {
         }
 
         @Override
-        public void requestUsageTimeReport(PendingIntent receiver) {
+        public void requestUsageTimeReport(@NonNull PendingIntent receiver) {
             if (Build.VERSION.SDK_INT >= 23) {
                 mActivityOptions.requestUsageTimeReport(receiver);
             }
         }
 
+        @NonNull
         @Override
         public ActivityOptionsCompat setLaunchBounds(@Nullable Rect screenSpacePixelRect) {
             if (Build.VERSION.SDK_INT < 24) {

@@ -759,6 +759,7 @@ public class PrecomputedTextCompat implements Spannable {
         return mText.subSequence(start, end);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return mText.toString();

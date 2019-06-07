@@ -3971,6 +3971,7 @@ public class AccessibilityNodeInfoCompat {
         return true;
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

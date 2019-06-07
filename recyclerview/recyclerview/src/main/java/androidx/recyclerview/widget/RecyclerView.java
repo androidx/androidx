@@ -11547,7 +11547,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     @Override
     public final void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
-            int dyUnconsumed, int[] offsetInWindow, int type, int[] consumed) {
+            int dyUnconsumed, int[] offsetInWindow, int type, @NonNull int[] consumed) {
         getScrollingChildHelper().dispatchNestedScroll(dxConsumed, dyConsumed,
                 dxUnconsumed, dyUnconsumed, offsetInWindow, type, consumed);
     }

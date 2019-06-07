@@ -55,6 +55,7 @@ public final class LayoutInflaterCompat {
             return mDelegateFactory.onCreateView(parent, name, context, attributeSet);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return getClass().getName() + "{" + mDelegateFactory + "}";

@@ -30,7 +30,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -264,7 +264,7 @@ public class JobIntentServiceTest {
         }
 
         @Override
-        protected void onHandleWork(@Nullable Intent intent) {
+        protected void onHandleWork(@NonNull Intent intent) {
             Log.i(TAG, "Handling work: " + intent);
             updateServiceState("Handling work: " + intent);
             mReceivedWork.add(intent);
