@@ -51,6 +51,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(database.implTypeName)
         builder.apply {
+            addOriginatingElement(database.element)
             addModifiers(PUBLIC)
             addModifiers(FINAL)
             superclass(database.typeName)
