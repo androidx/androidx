@@ -11,7 +11,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0-rc01")
     api(project(":documentfile"))
-    api(project(":loader"))
+    api(project(":loader:loader"))
     api(project(":localbroadcastmanager"))
     api(project(":print"))
 }
