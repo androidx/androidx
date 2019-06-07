@@ -34,4 +34,16 @@ public interface ViewModelStoreOwner {
      */
     @NonNull
     ViewModelStore getViewModelStore();
+
+    /**
+     * Returns the default {@link ViewModelProvider.Factory} that should be
+     * used when no custom {@code Factory} is provided to the
+     * {@link ViewModelProvider} constructors.
+     *
+     * @return a {@code ViewModelProvider.Factory}
+     */
+    @NonNull
+    default ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+        return ViewModelProvider.NewInstanceFactory.getInstance();
+    }
 }
