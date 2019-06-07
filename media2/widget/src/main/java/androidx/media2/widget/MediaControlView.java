@@ -75,6 +75,14 @@ import java.util.Locale;
  * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
  * select audio track, and adjust playback speed.
  * <p>
+ * For simple use cases not requiring communication with {@link MediaSession}, apps need to create
+ * a {@link SessionPlayer} (e.g. {@link androidx.media2.player.MediaPlayer}) and set it to this view
+ * by calling {@link #setPlayer}.
+ * For more advanced use cases that require {@link MediaSession} (e.g. handling media key events,
+ * integrating with other MediaSession apps as Assistant), apps need to create
+ * a {@link MediaController} attached to the {@link MediaSession} and set it to this view
+ * by calling {@link #setMediaController}.
+ * <p>
  * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which will
  * internally create a MediaControlView instance and handle all the commands from buttons inside
  * MediaControlView. It is also possible to create a MediaControlView programmatically and add it
