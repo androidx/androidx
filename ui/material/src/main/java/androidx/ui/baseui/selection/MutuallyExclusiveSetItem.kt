@@ -29,16 +29,16 @@ import androidx.ui.core.gesture.PressReleasedGestureDetector
  * Provides click handling as well as [Semantics] for accessibility
  *
  * @param selected whether or not this item is selected in mutually exclusion set
- * @param onSelected callback to invoke when this item is clicked
+ * @param onSelect callback to invoke when this item is clicked
  */
 @Composable
 fun MutuallyExclusiveSetItem(
     selected: Boolean,
-    onSelected: () -> Unit,
+    onSelect: () -> Unit,
     @Children children: @Composable() () -> Unit
 ) {
     PressReleasedGestureDetector(
-        onRelease = onSelected,
+        onRelease = onSelect,
         consumeDownOnStart = false
     ) {
         Semantics(

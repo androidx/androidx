@@ -26,6 +26,8 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
 import androidx.ui.baseui.selection.MutuallyExclusiveSetItem
+import androidx.ui.baseui.selection.Toggleable
+import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
@@ -45,6 +47,7 @@ import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
+import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
@@ -92,7 +95,8 @@ fun RadioGroup(@Children children: @Composable RadioGroupScope.() -> Unit) {
  * @param options list of [String] to provide RadioButtons label
  * @param selectedOption label which represents selected RadioButton,
  * or [null] if nothing is selected
- * @param onOptionSelected callback to be invoked when RadioButton is selected
+ * @param onSelectedChange callback to be invoked when RadioButton is clicked,
+ * therefore the selection of this item is requested
  * @param radioColor color for RadioButtons when selected.
  * [MaterialColors.secondary] is used by default
  * @param textStyle parameters for text customization
@@ -101,7 +105,7 @@ fun RadioGroup(@Children children: @Composable RadioGroupScope.() -> Unit) {
 fun RadioGroup(
     options: List<String>,
     selectedOption: String?,
-    onOptionSelected: (String) -> Unit,
+    onSelectedChange: (String) -> Unit,
     radioColor: Color = +themeColor { secondary },
     textStyle: TextStyle? = null
 ) {
@@ -110,7 +114,7 @@ fun RadioGroup(
             options.forEach { text ->
                 RadioGroupTextItem(
                     selected = (text == selectedOption),
-                    onSelected = { onOptionSelected(text) },
+                    onSelect = { onSelectedChange(text) },
                     text = text,
                     radioColor = radioColor,
                     textStyle = textStyle
@@ -132,20 +136,20 @@ class RadioGroupScope internal constructor() {
      * consider using [RadioGroupTextItem].
      *
      * @param selected whether or not this item is selected
-     * @param onSelected callback to be invoked when your item is selected,
-     * does nothing if item is already selected
+     * @param onSelect callback to be invoked when your item is being clicked,
+     * therefore the selection of this item is requested. Not invoked if item is already selected
      */
     @Composable
     fun RadioGroupItem(
         selected: Boolean,
-        onSelected: () -> Unit,
+        onSelect: () -> Unit,
         @Children children: @Composable() () -> Unit
     ) {
         Container {
             Ripple(bounded = true) {
                 MutuallyExclusiveSetItem(
                     selected = selected,
-                    onSelected = { if (!selected) onSelected() }) {
+                    onSelect = { if (!selected) onSelect() }) {
                     children()
                 }
             }
@@ -161,8 +165,8 @@ class RadioGroupScope internal constructor() {
      * * for selected radio button, [MaterialColors.primary] will be used
      *
      * @param selected whether or not radio button in this item is selected
-     * @param onSelected callback to be invoked when your item is selected
-     * does nothing if item is already selected
+     * @param onSelect callback to be invoked when your item is being clicked,
+     * therefore the selection of this item is requested. Not invoked if item is already selected
      * @param text to put as a label description of this item
      * @param radioColor color for RadioButtons when selected.
      * [MaterialColors.secondary] is used by default
@@ -171,17 +175,15 @@ class RadioGroupScope internal constructor() {
     @Composable
     fun RadioGroupTextItem(
         selected: Boolean,
-        onSelected: () -> Unit,
+        onSelect: () -> Unit,
         text: String,
         radioColor: Color = +themeColor { secondary },
         textStyle: TextStyle? = null
     ) {
-        RadioGroupItem(selected = selected, onSelected = onSelected) {
-            val padding =
-                EdgeInsets(top = DefaultRadioItemPadding, bottom = DefaultRadioItemPadding)
-            Padding(padding = padding) {
+        RadioGroupItem(selected = selected, onSelect = onSelect) {
+            Padding(padding = DefaultRadioItemPadding) {
                 Row(mainAxisSize = MainAxisSize.Max, mainAxisAlignment = MainAxisAlignment.Start) {
-                    RadioButton(selected = selected, color = radioColor)
+                    RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Padding(left = DefaultRadioLabelOffset) {
                         Text(text = text, style = +themeTextStyle { body1.merge(textStyle) })
                     }
@@ -199,26 +201,39 @@ class RadioGroupScope internal constructor() {
  * the user can choose from.
  *
  * @param selected boolean state for this button: either it is selected or not
+ * @param onSelect callback to be invoked when RadioButton is being clicked,
+ * therefore the selection of this item is requested. Not invoked if item is already selected
  * @param color optional color. [MaterialColors.secondary] is used by default
  */
 @Composable
 fun RadioButton(
     selected: Boolean,
+    onSelect: (() -> Unit)?,
     color: Color = +themeColor { secondary }
 ) {
-    Padding(padding = RadioButtonPadding) {
-        Container(width = RadioButtonSize, height = RadioButtonSize) {
-            val unselectedColor = (+themeColor { onSurface }).copy(alpha = UnselectedOpacity)
-            val definition = +memo(color, unselectedColor) {
-                generateTransitionDefinition(color, unselectedColor)
-            }
-            Transition(definition = definition, toState = selected) { state ->
-                DrawRadioButton(
-                    color = state[ColorProp],
-                    outerRadius = state[OuterRadiusProp],
-                    innerRadius = state[InnerRadiusProp],
-                    gap = state[GapProp]
-                )
+    Wrap {
+        Ripple(bounded = false) {
+            Toggleable(
+                value = if (selected) ToggleableState.Checked else ToggleableState.Unchecked,
+                onToggle = onSelect
+            ) {
+                Padding(padding = RadioButtonPadding) {
+                    Container(width = RadioButtonSize, height = RadioButtonSize) {
+                        val unselectedColor =
+                            (+themeColor { onSurface }).copy(alpha = UnselectedOpacity)
+                        val definition = +memo(color, unselectedColor) {
+                            generateTransitionDefinition(color, unselectedColor)
+                        }
+                        Transition(definition = definition, toState = selected) { state ->
+                            DrawRadioButton(
+                                color = state[ColorProp],
+                                outerRadius = state[OuterRadiusProp],
+                                innerRadius = state[InnerRadiusProp],
+                                gap = state[GapProp]
+                            )
+                        }
+                    }
+                }
             }
         }
     }
