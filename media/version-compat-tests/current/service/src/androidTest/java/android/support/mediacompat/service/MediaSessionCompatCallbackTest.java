@@ -73,6 +73,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -208,6 +209,30 @@ public class MediaSessionCompatCallbackTest {
                 info.getPlaybackType());
         assertEquals(errorMsg, mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC),
                 info.getCurrentVolume());
+    }
+
+    /**
+     * Tests whether the constructor of {@link MediaSessionCompat} throws an
+     * {@link IllegalArgumentException} when the sessionInfo contains any custom Parcelables.
+     */
+    @Test
+    @SmallTest
+    public void testCustomParcelableInSessionInfoThrowsIAE() {
+        Bundle sessionInfo = new Bundle();
+        sessionInfo.putParcelable("key", new CustomParcelable(1));
+
+        MediaSessionCompat session = null;
+        try {
+            session = new MediaSessionCompat(getApplicationContext(), TEST_SESSION_TAG,
+                    null, null, sessionInfo);
+            fail("The constructor should throw IAE for this sessionInfo!");
+        } catch (IllegalArgumentException ex) {
+            // Expected.
+        }
+
+        if (session != null) {
+            session.release();
+        }
     }
 
     @Test
