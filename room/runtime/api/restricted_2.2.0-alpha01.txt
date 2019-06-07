@@ -129,6 +129,10 @@ package androidx.room.util {
     field public final java.util.Set<java.lang.String!>! options;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SneakyThrow {
+    method public static void reThrow(Exception);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class StringUtil {
     method public static void appendPlaceholders(StringBuilder!, int);
     method public static String? joinIntoString(java.util.List<java.lang.Integer!>?);
