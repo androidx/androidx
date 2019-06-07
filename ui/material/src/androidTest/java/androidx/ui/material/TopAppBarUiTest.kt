@@ -26,6 +26,10 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import com.google.common.truth.Truth
 import androidx.compose.composer
+import androidx.compose.unaryPlus
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.currentTextStyle
+import androidx.ui.painting.TextStyle
 import androidx.ui.test.assertDoesNotExist
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.createComposeRule
@@ -84,7 +88,7 @@ class TopAppBarUiTest {
         composeTestRule.setMaterialContent {
             TopAppBar()
         }
-        findByTag("Title text label").assertDoesNotExist()
+        findByText("Title").assertDoesNotExist()
     }
 
     @Test
@@ -93,47 +97,209 @@ class TopAppBarUiTest {
         composeTestRule.setMaterialContent {
             TopAppBar(title = title)
         }
-        findByTag("Title text label").assertIsVisible()
-        // TODO: I want to assert this is the same as the item above instead of visible
         findByText(title).assertIsVisible()
     }
 
     @Test
-    fun topAppBarTest_TrailingIcons_noIcons() {
+    fun topAppBar_defaultPositioning() {
+        var leadingIconInfo: LayoutCoordinates? = null
+        var titleLabelInfo: LayoutCoordinates? = null
+        var trailingIconInfo: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            TopAppBar()
+            Container {
+                TopAppBar(
+                    leadingIcon = {
+                        OnChildPositioned(onPositioned = { position ->
+                            leadingIconInfo = position
+                        }) {
+                            AppBarLeadingIcon()
+                        }
+                    },
+                    titleTextLabel = {
+                        OnChildPositioned(onPositioned = { position ->
+                            titleLabelInfo = position
+                        }) {
+                            TopAppBarTitleTextLabel("title")
+                        }
+                    },
+                    trailingIcons = {
+                        OnChildPositioned(onPositioned = { position ->
+                            trailingIconInfo = position
+                        }) {
+                            TopAppBarTrailingIcons(listOf(24.dp, 24.dp))
+                        }
+                    }
+                )
+            }
         }
-        findByTag("Trailing icon").assertDoesNotExist()
+
+        withDensity(composeTestRule.density) {
+            val dm = composeTestRule.displayMetrics
+
+            // Leading icon should be in the front
+            val leadingIconPositionX = leadingIconInfo?.position?.x!!.value
+            val leadingIconExpectedPositionX = 0f
+            Truth.assertThat(leadingIconPositionX).isEqualTo(leadingIconExpectedPositionX)
+
+            // Title should be next
+            val titleLabelPositionX = titleLabelInfo?.position?.x!!
+            val titleLabelExpectedPositionX = leadingIconInfo?.size?.width!! + 32.dp.toIntPx()
+            Truth.assertThat(titleLabelPositionX).isEqualTo(titleLabelExpectedPositionX)
+
+            // Trailing icons should be in the second half of the screen
+            val trailingIconPositionX = trailingIconInfo?.position?.x!!
+            val totalSpaceMiddle = dm.widthPixels / 2f
+            Truth.assertThat(trailingIconPositionX.value).isGreaterThan(totalSpaceMiddle)
+        }
     }
 
     @Test
-    fun topAppBarTest_TrailingIcons_oneIcon() {
+    fun topAppBar_noTitlePositioning() {
+        var leadingIconInfo: LayoutCoordinates? = null
+        var trailingIconInfo: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            TopAppBar(icons = listOf(24.dp))
+            Container {
+                TopAppBar(
+                    leadingIcon = {
+                        OnChildPositioned(onPositioned = { position ->
+                            leadingIconInfo = position
+                        }) {
+                            AppBarLeadingIcon()
+                        }
+                    },
+                    titleTextLabel = {},
+                    trailingIcons = {
+                        OnChildPositioned(onPositioned = { position ->
+                            trailingIconInfo = position
+                        }) {
+                            TopAppBarTrailingIcons(listOf(24.dp, 24.dp))
+                        }
+                    }
+                )
+            }
+        }
+
+        withDensity(composeTestRule.density) {
+            val dm = composeTestRule.displayMetrics
+
+            // Leading icon should be in the front
+            val leadingIconPositionX = leadingIconInfo?.position?.x!!.value
+            val leadingIconExpectedPositionX = 0f
+            Truth.assertThat(leadingIconPositionX).isEqualTo(leadingIconExpectedPositionX)
+
+            // Trailing icons should be in the second half of the screen
+            val trailingIconPositionX = trailingIconInfo?.position?.x!!
+            val totalSpaceMiddle = dm.widthPixels / 2f
+            Truth.assertThat(trailingIconPositionX.value).isGreaterThan(totalSpaceMiddle)
+        }
+    }
+
+    @Test
+    fun topAppBar_titleDefaultStyle() {
+        var textStyle: TextStyle? = null
+        var h6Style: TextStyle? = null
+        composeTestRule.setMaterialContent {
+            Container {
+                TopAppBar(
+                    leadingIcon = {},
+                    titleTextLabel = {
+                        textStyle = +currentTextStyle()
+                        h6Style = +themeTextStyle { h6 }
+                    },
+                    trailingIcons = {}
+                )
+            }
+        }
+        Truth.assertThat(textStyle!!.fontSize).isEqualTo(h6Style!!.fontSize)
+        Truth.assertThat(textStyle!!.fontFamily).isEqualTo(h6Style!!.fontFamily)
+    }
+
+    @Test
+    fun topAppBarTrailingIcons_noIcons() {
+        var trailingIconInfo: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Container {
+                OnChildPositioned(onPositioned = { position ->
+                    trailingIconInfo = position
+                }) {
+                    TopAppBarTrailingIcons(emptyList())
+                }
+            }
+        }
+        findByTag("Trailing icon").assertDoesNotExist()
+
+        withDensity(composeTestRule.density) {
+            val trailingIconWidth = trailingIconInfo?.size?.width?.round()
+            Truth.assertThat(trailingIconWidth).isNull()
+        }
+    }
+
+    @Test
+    fun topAppBarTrailingIcons_oneIcon() {
+        var trailingIconInfo: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Container {
+                OnChildPositioned(onPositioned = { position ->
+                    trailingIconInfo = position
+                }) {
+                    TopAppBarTrailingIcons(icons = listOf(24.dp))
+                }
+            }
         }
         findByTag("Trailing icon").assertIsVisible()
         findByTag("Overflow icon").assertDoesNotExist()
+
+        withDensity(composeTestRule.density) {
+            val trailingIconExpectedWidth = 24.dp + 24.dp // icon and spacer
+            val trailingIconWidth = trailingIconInfo?.size?.width?.round()
+            Truth.assertThat(trailingIconWidth).isEqualTo(trailingIconExpectedWidth.toIntPx())
+        }
     }
 
     @Test
-    fun topAppBarTest_TrailingIcons_twoIcons() {
+    fun topAppBarTrailingIcons_twoIcons() {
+        var trailingIconInfo: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            TopAppBar(icons = listOf(24.dp, 24.dp))
+            Container {
+                OnChildPositioned(onPositioned = { position ->
+                    trailingIconInfo = position
+                }) {
+                    TopAppBarTrailingIcons(icons = listOf(24.dp, 24.dp))
+                }
+            }
         }
         // TODO: need API to assert I can find 2 items
         // findByTag("Trailing icon").assertIsVisible()
         findByTag("Overflow icon").assertDoesNotExist()
+
+        withDensity(composeTestRule.density) {
+            val trailingIconExpectedWidth = (24.dp * 2) + (24.dp * 2) // icons and spacers
+            val trailingIconWidth = trailingIconInfo?.size?.width?.round()
+            Truth.assertThat(trailingIconWidth).isEqualTo(trailingIconExpectedWidth.toIntPx())
+        }
     }
 
     @Test
-    fun topAppBarTest_TrailingIcons_threeIcons() {
+    fun topAppBarTrailingIcons_threeIcons() {
+        var trailingIconInfo: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            TopAppBar(icons = listOf(24.dp, 24.dp, 24.dp))
+            Container {
+                OnChildPositioned(onPositioned = { position ->
+                    trailingIconInfo = position
+                }) {
+                    TopAppBarTrailingIcons(icons = listOf(24.dp, 24.dp, 24.dp))
+                }
+            }
         }
         // TODO: need API to assert I can find 3 items
         // findByTag("Trailing icon").assertIsVisible()
         findByTag("Overflow icon").assertIsVisible()
-    }
 
-    // TODO: test icons are attached to the "end" side
+        withDensity(composeTestRule.density) {
+            val trailingIconExpectedWidth = (24.dp * 2) + (24.dp * 3) + // icons and spacers
+                    12.dp // overflow
+            val trailingIconWidth = trailingIconInfo?.size?.width?.round()
+            Truth.assertThat(trailingIconWidth).isEqualTo(trailingIconExpectedWidth.toIntPx())
+        }
+    }
 }
