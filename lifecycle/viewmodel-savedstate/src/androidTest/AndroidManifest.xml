@@ -21,6 +21,8 @@
     <application>
         <activity
             android:name="androidx.lifecycle.viewmodel.savedstate.activity.FakingSavedStateActivity"/>
+        <activity
+            android:name="androidx.lifecycle.viewmodel.savedstate.SavedStateFactoryTest$MyActivity"/>
     </application>
 
 </manifest>
