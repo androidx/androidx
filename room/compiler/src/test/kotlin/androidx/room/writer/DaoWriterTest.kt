@@ -89,19 +89,16 @@ class DaoWriterTest {
                                     .getElementsAnnotatedWith(
                                             androidx.room.Database::class.java)
                                     .firstOrNull()
-                            val dbType = MoreTypes.asDeclared(if (db != null) {
-                                db.asType()
-                            } else {
-                                invocation.context.processingEnv.elementUtils
-                                        .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType()
-                            })
+                                    ?: invocation.context.processingEnv.elementUtils
+                                        .getTypeElement(RoomTypeNames.ROOM_DB.toString())
+                            val dbType = MoreTypes.asDeclared(db.asType())
                             val parser = DaoProcessor(
                                     baseContext = invocation.context,
                                     element = MoreElements.asType(dao),
                                     dbType = dbType,
                                     dbVerifier = createVerifierFromEntitiesAndViews(invocation))
                             val parsedDao = parser.process()
-                            DaoWriter(parsedDao, invocation.processingEnv)
+                            DaoWriter(parsedDao, db, invocation.processingEnv)
                                     .write(invocation.processingEnv)
                             true
                         }

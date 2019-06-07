@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package testapp;
+package room.testapp;
 
 import androidx.room.Dao;
 import androidx.room.Query;
@@ -22,7 +22,7 @@ import androidx.room.Query;
 import java.util.List;
 
 @Dao
-public interface TestDao {
-    @Query("SELECT * FROM test_entity")
-    List<TestEntity> getAll();
+public interface Dao1 {
+    @Query("SELECT * FROM entity1")
+    List<Entity1> getAll();
 }

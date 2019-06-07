@@ -642,4 +642,10 @@ object ProcessorErrors {
                     "or int (the number of deleted rows).")
         }
     }.toString()
+
+    val JDK_VERSION_HAS_BUG =
+        "Current JDK version ${System.getProperty("java.runtime.version") ?: ""} has a bug" +
+                " (https://bugs.openjdk.java.net/browse/JDK-8007720)" +
+                " that prevents Room from being incremental." +
+                " Consider using JDK 11+ or the embedded JDK shipped with Android Studio 3.5+."
 }
