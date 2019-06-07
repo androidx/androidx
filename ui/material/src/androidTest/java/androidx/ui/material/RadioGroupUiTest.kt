@@ -89,7 +89,7 @@ class RadioGroupUiTest {
                         RadioGroupTextItem(
                             text = item,
                             selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                            onSelect = { select.selected = item })
                     }
                 }
             }
@@ -121,7 +121,7 @@ class RadioGroupUiTest {
                         RadioGroupTextItem(
                             text = item,
                             selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                            onSelect = { select.selected = item })
                     }
                 }
             }
@@ -149,7 +149,7 @@ class RadioGroupUiTest {
                         RadioGroupTextItem(
                             text = item,
                             selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                            onSelect = { select.selected = item })
                     }
                 }
             }
@@ -177,7 +177,7 @@ class RadioGroupUiTest {
                         RadioGroupTextItem(
                             text = item,
                             selected = (select.selected == item),
-                            onSelected = { select.selected = item })
+                            onSelect = { select.selected = item })
                     }
                 }
             }
@@ -225,7 +225,7 @@ class RadioGroupUiTest {
                 OnChildPositioned(onPositioned = { coordinates ->
                     radioSize = coordinates.size
                 }) {
-                    RadioButton(selected = selected)
+                    RadioButton(selected = selected, onSelect = null)
                 }
             }
         }
