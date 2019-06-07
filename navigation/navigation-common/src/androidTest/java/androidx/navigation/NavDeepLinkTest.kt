@@ -120,6 +120,21 @@ class NavDeepLinkTest {
     }
 
     @Test
+    fun deepLinkArgumentInvalidMatch() {
+        val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users/{id}/posts"
+        val deepLink = NavDeepLink(deepLinkArgument)
+
+        val id = "invalid"
+        val matchArgs = deepLink.getMatchingArguments(
+            Uri.parse(deepLinkArgument.replace("{id}", id)),
+            mapOf("id" to NavArgument.Builder().setType(NavType.IntType).build())
+        )
+        assertWithMessage("Args should be null")
+            .that(matchArgs)
+            .isNull()
+    }
+
+    @Test
     fun deepLinkQueryParamArgumentMatch() {
         val deepLinkArgument = "$DEEP_LINK_EXACT_HTTPS/users?id={id}"
         val deepLink = NavDeepLink(deepLinkArgument)
