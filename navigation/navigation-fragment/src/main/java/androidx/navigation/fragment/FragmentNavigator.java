@@ -94,11 +94,9 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                     + " saved its state");
             return false;
         }
-        if (mFragmentManager.getBackStackEntryCount() > 0) {
-            mFragmentManager.popBackStack(
-                    generateBackStackName(mBackStack.size(), mBackStack.peekLast()),
-                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
-        } // else, we're on the first Fragment, so there's nothing to pop from FragmentManager
+        mFragmentManager.popBackStack(
+                generateBackStackName(mBackStack.size(), mBackStack.peekLast()),
+                FragmentManager.POP_BACK_STACK_INCLUSIVE);
         mBackStack.removeLast();
         return true;
     }

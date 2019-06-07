@@ -554,22 +554,32 @@ class FragmentNavigatorTest {
     @Test
     fun testMultipleNavigateFragmentTransactionsThenPop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity,
-                fragmentManager, R.id.container)
+            fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.className = EmptyFragment::class.java.name
+        val destination2 = fragmentNavigator.createDestination()
+        destination2.className = Fragment::class.java.name
 
-        // Push 4 fragments without executing pending transactions.
+        // Push 3 fragments without executing pending transactions.
         destination.id = INITIAL_FRAGMENT
         fragmentNavigator.navigate(destination, null, null, null)
-        destination.id = SECOND_FRAGMENT
-        fragmentNavigator.navigate(destination, null, null, null)
+        destination2.id = SECOND_FRAGMENT
+        fragmentNavigator.navigate(destination2, null, null, null)
         destination.id = THIRD_FRAGMENT
         fragmentNavigator.navigate(destination, null, null, null)
 
         // Now pop the Fragment
         val popped = fragmentNavigator.popBackStack()
         fragmentManager.executePendingTransactions()
-        assertTrue("FragmentNavigator should return true when popping the third fragment", popped)
+        assertWithMessage("FragmentNavigator should return true when popping the third fragment")
+            .that(popped).isTrue()
+        // We should ensure the fragment manager is on the proper fragment at the end
+        assertWithMessage("FragmentManager back stack should have only SECOND_FRAGMENT")
+            .that(fragmentManager.backStackEntryCount)
+            .isEqualTo(1)
+        assertWithMessage("PrimaryFragment should be the correct type")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isNotInstanceOf(EmptyFragment::class.java)
     }
 
     @UiThreadTest
