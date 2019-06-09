@@ -273,11 +273,8 @@ public final class SavedStateHandle {
             int[].class,
             long.class,
             long[].class,
-            long.class,
-            long[].class,
             String.class,
             String[].class,
-
             //bundle
             Binder.class,
             Bundle.class,
