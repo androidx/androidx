@@ -15,7 +15,7 @@ dependencies {
     api("androidx.core:core:1.1.0-rc01")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
-    api(project(":fragment:fragment"))
+    api("androidx.fragment:fragment:1.1.0-rc01")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
 
