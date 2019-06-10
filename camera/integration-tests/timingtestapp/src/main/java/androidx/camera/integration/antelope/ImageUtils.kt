@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.integration.antelope
 
 import android.annotation.TargetApi
@@ -230,7 +232,7 @@ fun deleteTestPhotos(activity: MainActivity) {
 
     if (photosDir.exists()) {
 
-        for (photo in photosDir.listFiles())
+        for (photo in photosDir.listFiles()!!)
             photo.delete()
 
         // Files are deleted, let media scanner know

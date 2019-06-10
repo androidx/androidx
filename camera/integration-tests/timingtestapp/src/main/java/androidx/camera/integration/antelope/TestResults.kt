@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.integration.antelope
 
 import android.content.Intent
@@ -326,7 +328,7 @@ fun deleteCSVFiles(activity: MainActivity) {
 
     if (csvDir.exists()) {
 
-        for (csv in csvDir.listFiles())
+        for (csv in csvDir.listFiles()!!)
             csv.delete()
 
         // Files are deleted, let media scanner know
