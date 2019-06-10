@@ -59,7 +59,7 @@ dependencies {
     implementation(project(":fragment:fragment"))
     implementation(project(":appcompat"))
     implementation(ANDROIDX_COLLECTION)
-    implementation(project(":preference")) // Still in alpha
+    implementation(project(":preference:preference")) // Still in alpha
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
     implementation(KOTLIN_STDLIB)
