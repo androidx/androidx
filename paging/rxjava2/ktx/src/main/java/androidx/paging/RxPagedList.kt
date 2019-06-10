@@ -21,7 +21,7 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
 
-private fun <Key, Value> createRxPagedListBuilder(
+private fun <Key : Any, Value : Any> createRxPagedListBuilder(
     dataSourceFactory: DataSource.Factory<Key, Value>,
     config: PagedList.Config,
     initialLoadKey: Key?,
@@ -30,8 +30,8 @@ private fun <Key, Value> createRxPagedListBuilder(
     notifyScheduler: Scheduler?
 ): RxPagedListBuilder<Key, Value> {
     val builder = RxPagedListBuilder(dataSourceFactory, config)
-            .setInitialLoadKey(initialLoadKey)
-            .setBoundaryCallback(boundaryCallback)
+        .setInitialLoadKey(initialLoadKey)
+        .setBoundaryCallback(boundaryCallback)
     if (fetchScheduler != null) builder.setFetchScheduler(fetchScheduler)
     if (notifyScheduler != null) builder.setNotifyScheduler(notifyScheduler)
     return builder
@@ -56,7 +56,7 @@ private fun <Key, Value> createRxPagedListBuilder(
  * @see RxPagedListBuilder
  * @see toFlowable
  */
-fun <Key, Value> DataSource.Factory<Key, Value>.toObservable(
+fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -64,12 +64,13 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toObservable(
     notifyScheduler: Scheduler? = null
 ): Observable<PagedList<Value>> {
     return createRxPagedListBuilder(
-            dataSourceFactory = this,
-            config = config,
-            initialLoadKey = initialLoadKey,
-            boundaryCallback = boundaryCallback,
-            fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler).buildObservable()
+        dataSourceFactory = this,
+        config = config,
+        initialLoadKey = initialLoadKey,
+        boundaryCallback = boundaryCallback,
+        fetchScheduler = fetchScheduler,
+        notifyScheduler = notifyScheduler
+    ).buildObservable()
 }
 
 /**
@@ -91,7 +92,7 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toObservable(
  * @see RxPagedListBuilder
  * @see toFlowable
  */
-fun <Key, Value> DataSource.Factory<Key, Value>.toObservable(
+fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toObservable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -99,12 +100,13 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toObservable(
     notifyScheduler: Scheduler? = null
 ): Observable<PagedList<Value>> {
     return createRxPagedListBuilder(
-            dataSourceFactory = this,
-            config = Config(pageSize),
-            initialLoadKey = initialLoadKey,
-            boundaryCallback = boundaryCallback,
-            fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler).buildObservable()
+        dataSourceFactory = this,
+        config = Config(pageSize),
+        initialLoadKey = initialLoadKey,
+        boundaryCallback = boundaryCallback,
+        fetchScheduler = fetchScheduler,
+        notifyScheduler = notifyScheduler
+    ).buildObservable()
 }
 
 /**
@@ -127,7 +129,7 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toObservable(
  * @see RxPagedListBuilder
  * @see toObservable
  */
-fun <Key, Value> DataSource.Factory<Key, Value>.toFlowable(
+fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -136,12 +138,13 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toFlowable(
     backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST
 ): Flowable<PagedList<Value>> {
     return createRxPagedListBuilder(
-            dataSourceFactory = this,
-            config = config,
-            initialLoadKey = initialLoadKey,
-            boundaryCallback = boundaryCallback,
-            fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler).buildFlowable(backpressureStrategy)
+        dataSourceFactory = this,
+        config = config,
+        initialLoadKey = initialLoadKey,
+        boundaryCallback = boundaryCallback,
+        fetchScheduler = fetchScheduler,
+        notifyScheduler = notifyScheduler
+    ).buildFlowable(backpressureStrategy)
 }
 
 /**
@@ -164,7 +167,7 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toFlowable(
  * @see RxPagedListBuilder
  * @see toObservable
  */
-fun <Key, Value> DataSource.Factory<Key, Value>.toFlowable(
+fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toFlowable(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
@@ -173,10 +176,11 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toFlowable(
     backpressureStrategy: BackpressureStrategy = BackpressureStrategy.LATEST
 ): Flowable<PagedList<Value>> {
     return createRxPagedListBuilder(
-            dataSourceFactory = this,
-            config = Config(pageSize),
-            initialLoadKey = initialLoadKey,
-            boundaryCallback = boundaryCallback,
-            fetchScheduler = fetchScheduler,
-            notifyScheduler = notifyScheduler).buildFlowable(backpressureStrategy)
+        dataSourceFactory = this,
+        config = Config(pageSize),
+        initialLoadKey = initialLoadKey,
+        boundaryCallback = boundaryCallback,
+        fetchScheduler = fetchScheduler,
+        notifyScheduler = notifyScheduler
+    ).buildFlowable(backpressureStrategy)
 }

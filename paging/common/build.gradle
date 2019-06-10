@@ -34,10 +34,13 @@ dependencies {
     compile("androidx.annotation:annotation:1.1.0")
     compile(ARCH_CORE_COMMON)
     compile("androidx.concurrent:concurrent-futures:1.0.0-alpha02")
+    implementation(KOTLIN_STDLIB)
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
-    testCompile(KOTLIN_STDLIB)
+    testImplementation MOCKITO_KOTLIN, {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
     testCompile(GUAVA)
     testImplementation project(':internal-testutils-common')
 }

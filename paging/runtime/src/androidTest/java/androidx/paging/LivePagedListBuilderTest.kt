@@ -181,9 +181,15 @@ class LivePagedListBuilderTest {
         assertNotNull(initPagedList!!)
         assertTrue(initPagedList is InitialPagedList<*, *>)
 
-        val loadStateListener = PagedList.LoadStateListener { type, state, error ->
-            if (type == REFRESH) {
-                loadStates.add(LoadState(type, state, error))
+        val loadStateListener = object : PagedList.LoadStateListener {
+            override fun onLoadStateChanged(
+                type: PagedList.LoadType,
+                state: PagedList.LoadState,
+                error: Throwable?
+            ) {
+                if (type == REFRESH) {
+                    loadStates.add(LoadState(type, state, error))
+                }
             }
         }
         initPagedList.addWeakLoadStateListener(loadStateListener)
