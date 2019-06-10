@@ -18,15 +18,13 @@ package androidx.activity
 
 import android.os.Bundle
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
 import androidx.savedstate.SavedStateRegistry
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -34,59 +32,53 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ComponentActivitySavedStateTest {
 
-    @get:Rule
-    val activityRule = ActivityTestRule<SavedStateActivity>(SavedStateActivity::class.java)
-
     @After
     fun clear() {
         SavedStateActivity.checkEnabledInOnCreate = false
     }
 
-    @Throws(Throwable::class)
-    private fun initializeSavedState(): SavedStateActivity {
-        val activity = activityRule.activity
-        activityRule.runOnUiThread {
-            assertThat(activity.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)).isTrue()
-            val registry = activity.savedStateRegistry
-            val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
-            assertThat(savedState).isNull()
-            registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
-        }
-        return activity
+    private fun ActivityScenario<SavedStateActivity>.initializeSavedState() = withActivity {
+        assertThat(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)).isTrue()
+        val registry = savedStateRegistry
+        val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
+        assertThat(savedState).isNull()
+        registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
     }
 
     @Test
     @Throws(Throwable::class)
     fun savedState() {
-        initializeSavedState()
-        val recreated = recreateActivity(activityRule)
-        activityRule.runOnUiThread {
-            assertThat(recreated.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)).isTrue()
-            checkDefaultSavedState(recreated.savedStateRegistry)
+        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+            initializeSavedState()
+            recreate()
+            moveToState(Lifecycle.State.CREATED)
+            withActivity {
+                assertThat(lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)).isTrue()
+                checkDefaultSavedState(savedStateRegistry)
+            }
         }
     }
 
     @Test
     @Throws(Throwable::class)
     fun savedStateLateInit() {
-        initializeSavedState()
-        val recreated = recreateActivity(activityRule)
-        activityRule.runOnUiThread {
-            recreated.lifecycle.addObserver(object : LifecycleObserver {
-                @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-                fun onResume() {
-                    checkDefaultSavedState(recreated.savedStateRegistry)
-                }
-            })
+        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+            initializeSavedState()
+            recreate()
+            withActivity {
+                checkDefaultSavedState(savedStateRegistry)
+            }
         }
     }
 
     @Test
     @Throws(Throwable::class)
     fun savedStateEarlyRegister() {
-        initializeSavedState()
-        SavedStateActivity.checkEnabledInOnCreate = true
-        recreateActivity(activityRule)
+        with(ActivityScenario.launch(SavedStateActivity::class.java)) {
+            initializeSavedState()
+            SavedStateActivity.checkEnabledInOnCreate = true
+            recreate()
+        }
     }
 }
 

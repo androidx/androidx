@@ -20,35 +20,31 @@ import android.os.Bundle
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import org.junit.Rule
+import androidx.testutils.withActivity
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityLifecycleTest {
 
-    @get:Rule
-    val activityRule = ActivityTestRule(LifecycleComponentActivity::class.java, false, false)
-
     @Test
     @Throws(Throwable::class)
     fun testLifecycleObserver() {
-        activityRule.launchActivity(null)
-        val activity = activityRule.activity
-        val activityCallbackLifecycleOwner = activity.activityCallbackLifecycleOwner
-        val lifecycleObserver = activity.lifecycleObserver
-        val countDownLatch = activity.destroyCountDownLatch
-        activityRule.finishActivity()
-        countDownLatch.await(1, TimeUnit.SECONDS)
+        lateinit var activity: LifecycleComponentActivity
+        lateinit var activityCallbackLifecycleOwner: LifecycleOwner
+        lateinit var lifecycleObserver: LifecycleEventObserver
+        ActivityScenario.launch(LifecycleComponentActivity::class.java).use { scenario ->
+            activity = scenario.withActivity { this }
+            activityCallbackLifecycleOwner = activity.activityCallbackLifecycleOwner
+            lifecycleObserver = activity.lifecycleObserver
+        }
 
         // The Activity's lifecycle callbacks should fire first,
         // followed by the activity's lifecycle observers
@@ -84,7 +80,6 @@ class ComponentActivityLifecycleTest {
 class LifecycleComponentActivity : ComponentActivity() {
     val activityCallbackLifecycleOwner: LifecycleOwner = mock(LifecycleOwner::class.java)
     val lifecycleObserver: LifecycleEventObserver = mock(LifecycleEventObserver::class.java)
-    val destroyCountDownLatch = CountDownLatch(1)
 
     init {
         lifecycle.addObserver(lifecycleObserver)
@@ -118,6 +113,5 @@ class LifecycleComponentActivity : ComponentActivity() {
     override fun onDestroy() {
         lifecycleObserver.onStateChanged(activityCallbackLifecycleOwner, Lifecycle.Event.ON_DESTROY)
         super.onDestroy()
-        destroyCountDownLatch.countDown()
     }
 }

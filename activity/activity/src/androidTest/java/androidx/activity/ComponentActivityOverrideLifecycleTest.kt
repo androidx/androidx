@@ -19,21 +19,18 @@ package androidx.activity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
-import androidx.test.rule.ActivityTestRule
+import androidx.test.filters.LargeTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityOverrideLifecycleTest {
-
-    @get:Rule
-    val activityRule = ActivityTestRule(LazyOverrideLifecycleComponentActivity::class.java)
 
     @UiThreadTest
     @Test
@@ -46,19 +43,18 @@ class ComponentActivityOverrideLifecycleTest {
         }
     }
 
-    @UiThreadTest
     @Test
     fun testOverrideLifecycle() {
-        val activity = activityRule.activity
-
-        assertThat(activity.lifecycle.currentState)
-            .isEqualTo(Lifecycle.State.RESUMED)
+        with(ActivityScenario.launch(LazyOverrideLifecycleComponentActivity::class.java)) {
+            assertThat(withActivity { lifecycle.currentState })
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
     }
 }
 
 class EagerOverrideLifecycleComponentActivity : ComponentActivity() {
 
-    val overrideLifecycle = LifecycleRegistry(this)
+    private val overrideLifecycle = LifecycleRegistry(this)
 
     override fun getLifecycle(): Lifecycle {
         return overrideLifecycle
