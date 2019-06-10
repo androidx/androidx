@@ -465,7 +465,7 @@ public class CarListDialog extends Dialog {
          * @see #setOnDismissListener(OnDismissListener)
          */
         @NonNull
-        public Builder setOnCancelListener(OnCancelListener onCancelListener) {
+        public Builder setOnCancelListener(@NonNull OnCancelListener onCancelListener) {
             mOnCancelListener = onCancelListener;
             return this;
         }
@@ -476,7 +476,7 @@ public class CarListDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setOnDismissListener(OnDismissListener onDismissListener) {
+        public Builder setOnDismissListener(@NonNull OnDismissListener onDismissListener) {
             mOnDismissListener = onDismissListener;
             return this;
         }
