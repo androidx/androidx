@@ -25,38 +25,38 @@ limitations under the License.
     <style name="TextAppearance.Car.Display1">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_display1_size</item>
-        <item name="android:textColor">@color/car_display1</item>
+        <item name="android:textColor">@color/car_primary_text</item>
     </style>
 
     <style name="TextAppearance.Car.Display1.Light">
-        <item name="android:textColor">@color/car_display1_light</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.Display2">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_display2_size</item>
-        <item name="android:textColor">@color/car_display2</item>
+        <item name="android:textColor">@color/car_primary_text</item>
     </style>
 
     <style name="TextAppearance.Car.Display2.Light">
-        <item name="android:textColor">@color/car_display2_light</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.Display3">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_display3_size</item>
-        <item name="android:textColor">@color/car_display3</item>
+        <item name="android:textColor">@color/car_primary_text</item>
     </style>
 
     <style name="TextAppearance.Car.Display3.Light">
-        <item name="android:textColor">@color/car_display3_light</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
     <!-- The styling for body text. The color of this text changes based on the day/night mode. -->
     <style name="TextAppearance.Car.Body1">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body1_size</item>
-        <item name="android:textColor">@color/car_body1</item>
+        <item name="android:textColor">@color/car_primary_text</item>
     </style>
 
     <style name="TextAppearance.Car.Body1.Medium">
@@ -65,38 +65,23 @@ limitations under the License.
 
     <!-- Body1 text that is permanently a light color. -->
     <style name="TextAppearance.Car.Body1.Light">
-        <item name="android:textColor">@color/car_body1_light</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.Body1.Medium.Light">
-        <item name="android:textColor">@color/car_body1_light</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
-    <!-- Body1 text that is permanently a dark color. -->
-    <style name="TextAppearance.Car.Body1.Dark">
-        <item name="android:textColor">@color/car_body1_dark</item>
-    </style>
-
-    <style name="TextAppearance.Car.Body1.Medium.Dark">
-        <item name="android:textColor">@color/car_body1_dark</item>
-    </style>
-
-    <!-- An alternate styling for body text that is both a different color and size than
-         CarBody1. -->
+    <!-- An alternate styling for body text that is a different size than CarBody1. -->
     <style name="TextAppearance.Car.Body2">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body2_size</item>
-        <item name="android:textColor">@color/car_body2</item>
+        <item name="android:textColor">@color/car_primary_text</item>
     </style>
 
     <!-- Body2 text that is permanently a light color. -->
     <style name="TextAppearance.Car.Body2.Light">
-        <item name="android:textColor">@color/car_body2_light</item>
-    </style>
-
-    <!-- Body2 text that is permanently a dark color. -->
-    <style name="TextAppearance.Car.Body2.Dark">
-        <item name="android:textColor">@color/car_body2_dark</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
     <!-- A smaller styling for body text. The color of this text changes based on the day/night
@@ -104,7 +89,7 @@ limitations under the License.
     <style name="TextAppearance.Car.Body3">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_body3_size</item>
-        <item name="android:textColor">@color/car_body3</item>
+        <item name="android:textColor">@color/car_secondary_text</item>
     </style>
 
     <style name="TextAppearance.Car.Body3.Medium">
@@ -112,19 +97,11 @@ limitations under the License.
     </style>
 
     <style name="TextAppearance.Car.Body3.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.Body3.Medium.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
-    </style>
-
-    <style name="TextAppearance.Car.Body3.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
-    </style>
-
-    <style name="TextAppearance.Car.Body3.Medium.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.Body3.Medium.Accent">
@@ -142,15 +119,7 @@ limitations under the License.
     </style>
 
     <style name="TextAppearance.Car.Body4.Medium.Light" parent="TextAppearance.Car.SubText1.Medium.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
-    </style>
-
-    <style name="TextAppearance.Car.Body4.Dark" parent="TextAppearance.Car.SubText1.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
-    </style>
-
-    <style name="TextAppearance.Car.Body4.Medium.Dark" parent="TextAppearance.Car.SubText1.Medium.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.Body4.Medium.Accent" parent="TextAppearance.Car.SubText1.Medium.Accent">
@@ -160,7 +129,7 @@ limitations under the License.
     <style name="TextAppearance.Car.SubText1">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_subtext1_size</item>
-        <item name="android:textColor">@color/car_subtext1</item>
+        <item name="android:textColor">@color/car_secondary_text</item>
     </style>
 
     <style name="TextAppearance.Car.SubText1.Medium">
@@ -168,19 +137,11 @@ limitations under the License.
     </style>
 
     <style name="TextAppearance.Car.SubText1.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.SubText1.Medium.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
-    </style>
-
-    <style name="TextAppearance.Car.SubText1.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
-    </style>
-
-    <style name="TextAppearance.Car.SubText1.Medium.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.SubText1.Medium.Accent">
@@ -190,7 +151,7 @@ limitations under the License.
     <style name="TextAppearance.Car.SubText2">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_subtext2_size</item>
-        <item name="android:textColor">@color/car_subtext2</item>
+        <item name="android:textColor">@color/car_secondary_text</item>
     </style>
 
     <style name="TextAppearance.Car.SubText2.Medium">
@@ -198,19 +159,11 @@ limitations under the License.
     </style>
 
     <style name="TextAppearance.Car.SubText2.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.SubText2.Medium.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
-    </style>
-
-    <style name="TextAppearance.Car.SubText2.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
-    </style>
-
-    <style name="TextAppearance.Car.SubText2.Medium.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.SubText2.Medium.Accent">
@@ -220,7 +173,7 @@ limitations under the License.
     <style name="TextAppearance.Car.SubText3">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_subtext3_size</item>
-        <item name="android:textColor">@color/car_subtext3</item>
+        <item name="android:textColor">@color/car_secondary_text</item>
     </style>
 
     <style name="TextAppearance.Car.SubText3.Medium">
@@ -228,19 +181,11 @@ limitations under the License.
     </style>
 
     <style name="TextAppearance.Car.SubText3.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.SubText3.Medium.Light">
-        <item name="android:textColor">@color/car_body3_light</item>
-    </style>
-
-    <style name="TextAppearance.Car.SubText3.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
-    </style>
-
-    <style name="TextAppearance.Car.SubText3.Medium.Dark">
-        <item name="android:textColor">@color/car_body3_dark</item>
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <style name="TextAppearance.Car.SubText3.Medium.Accent">
@@ -271,6 +216,15 @@ limitations under the License.
     <!-- Styles for an error message for TextInputLayouts. -->
     <style name="TextAppearance.Car.Error" parent="TextAppearance.Car.Body2">
         <item name="android:textColor">@color/car_red_400</item>
+    </style>
+
+    <!-- Style for body text in a list item. -->
+    <style name="TextAppearance.Car.ListItem.BodyText" parent="TextAppearance.Car.Body3">
+        <item name="android:textColor">@color/car_secondary_text</item>
+    </style>
+
+    <style name="TextAppearance.Car.ListItem.BodyText.Light">
+        <item name="android:textColor">@color/car_secondary_text_light</item>
     </style>
 
     <!-- Style for the Alpha Jump button in the Scrollbar View -->
@@ -415,7 +369,7 @@ limitations under the License.
     <!-- The style for the regular buttons. -->
     <style name="Widget.Car.Button" parent="Widget.MaterialComponents.Button">
         <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Medium</item>>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Medium</item>
         <item name="android:ellipsize">none</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:maxEms">@integer/car_button_max_ems</item>
@@ -426,17 +380,12 @@ limitations under the License.
         <item name="android:singleLine">true</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/car_button_background</item>
-        <item name="android:textColor">@color/car_body1</item>
-    </style>
-
-    <!-- A style for buttons that is fixed with dark-colored text. -->
-    <style name="Widget.Car.Button.DarkText">
-        <item name="android:textColor">@color/car_body1_dark</item>
+        <item name="android:textColor">@color/car_primary_text</item>
     </style>
 
     <!-- A style for buttons that is fixed with light-colored text. -->
     <style name="Widget.Car.Button.LightText">
-        <item name="android:textColor">@color/car_body1_light</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
     <!-- The style for borderless buttons. -->
@@ -570,7 +519,7 @@ limitations under the License.
         <item name="listItemBackground">@drawable/car_list_item_background</item>
         <item name="listItemBackgroundColor">@color/car_card</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1</item>
-        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.ListItem.BodyText</item>
     </style>
 
     <!-- A styling for ListItems that has light text on a dark-colored background. This style
@@ -580,7 +529,7 @@ limitations under the License.
         <item name="listItemForeground">@drawable/car_card_ripple_background_light</item>
         <item name="listItemBackgroundColor">@color/car_card_dark</item>
         <item name="listItemTitleTextAppearance">@style/TextAppearance.Car.Body1.Light</item>
-        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.Body2.Light</item>
+        <item name="listItemBodyTextAppearance">@style/TextAppearance.Car.ListItem.BodyText.Light</item>
     </style>
 
     <!-- =============== -->
@@ -590,19 +539,27 @@ limitations under the License.
 
     <style name="Widget.Car.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1</item>
-        <item name="android:textColor">@color/car_body1</item>
         <item name="android:buttonTint">?android:attr/colorAccent</item>
         <item name="buttonTint">?android:attr/colorAccent</item>
     </style>
 
     <style name="Widget.Car.CheckBox.Light">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Light</item>
-        <item name="android:textColor">@color/car_body1_light</item>
     </style>
 
-    <style name="Widget.Car.CheckBox.Dark">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Dark</item>
-        <item name="android:textColor">@color/car_body1_dark</item>
+    <!-- ================== -->
+    <!-- RadioButton Styles -->
+    <!-- ================== -->
+    <eat-comment />
+
+    <style name="Widget.Car.RadioButton" parent="Widget.AppCompat.CompoundButton.RadioButton">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1</item>
+        <item name="android:buttonTint">?android:attr/colorAccent</item>
+        <item name="buttonTint">?android:attr/colorAccent</item>
+    </style>
+
+    <style name="Widget.Car.RadioButton.Light">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Light</item>
     </style>
 
     <!-- ============= -->
@@ -626,13 +583,9 @@ limitations under the License.
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Medium.Light</item>
     </style>
 
-    <!-- Title text for a dialog that is fixed in a dark color. -->
-    <style name="Widget.Car.Dialog.Title.Dark">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Medium.Dark</item>
-    </style>
-
     <!-- The body text for a dialog. -->
     <style name="Widget.Car.Dialog.Body">
+        <item name="android:textColor">@color/car_secondary_text</item>
         <item name="android:textAppearance">@style/TextAppearance.Car.Body3</item>
     </style>
 
@@ -641,14 +594,10 @@ limitations under the License.
         <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Light</item>
     </style>
 
-    <!-- Body text for a dialog that is fixed in a dark color. -->
-    <style name="Widget.Car.Dialog.Body.Dark">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Dark</item>
-    </style>
-
     <!-- The style for dialog buttons. This style removes the horizontal padding from the
          borderless buttons to ensure they are flush to the text. -->
     <style name="Widget.Car.Dialog.Button" parent="Widget.Car.Button.Borderless.Colored">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Medium</item>
         <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>

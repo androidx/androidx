@@ -49,11 +49,11 @@
         <item name="selectableItemBackground">@color/car_card_ripple_background_dark</item>
         <item name="selectableItemBackgroundBorderless">@color/car_card_ripple_background_dark</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background_dark</item>
-        <item name="titleTextAppearance">@style/TextAppearance.Car.Body1.Dark</item>
+        <item name="titleTextAppearance">@style/TextAppearance.Car.Body1</item>
     </style>
 
     <!-- The actual hamburger icon. Permanently makes the color a dark color. -->
     <style name="CarDrawerArrowStyle" parent="@style/Widget.Car.DrawerArrowToggle">
-        <item name="color">@color/car_body1_dark</item>
+        <item name="color">@color/car_grey_900</item>
     </style>
 </resources>

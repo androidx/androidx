@@ -37,7 +37,7 @@
     <View
         android:id="@+id/radiobutton_divider"
         style="@style/CarListVerticalDivider"
-        android:layout_marginEnd="@dimen/car_padding_4"
+        android:layout_marginEnd="@dimen/car_padding_3"
         android:background="?attr/listItemActionDividerColor"
         app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
         app:layout_constraintStart_toEndOf="@+id/radiobutton_widget"
