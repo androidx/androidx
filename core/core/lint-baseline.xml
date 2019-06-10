@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `parent` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public AccessibilityNodeInfoCompat getParent() {"
+        errorLine2="                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2078"
+            column="40"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2093"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`CollectionInfoCompat`) and setter parameter type (`Object`) getter and setter methods for property `collectionInfo` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public CollectionInfoCompat getCollectionInfo() {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2862"
+            column="33"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2872"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`CollectionItemInfoCompat`) and setter parameter type (`Object`) getter and setter methods for property `collectionItemInfo` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public CollectionItemInfoCompat getCollectionItemInfo() {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2895"
+            column="37"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2881"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `labelFor` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public AccessibilityNodeInfoCompat getLabelFor() {"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3136"
+            column="40"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3099"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `labeledBy` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public AccessibilityNodeInfoCompat getLabeledBy() {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3192"
+            column="40"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3150"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getCanOpenPopup` such that `canOpenPopup` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean canOpenPopup() {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3205"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `traversalBefore` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public AccessibilityNodeInfoCompat getTraversalBefore() {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3406"
+            column="40"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3428"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `traversalAfter` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public AccessibilityNodeInfoCompat getTraversalAfter() {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3471"
+            column="40"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="3493"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`AccessibilityNodeInfoCompat`) and setter parameter type (`View`) getter and setter methods for property `source` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public AccessibilityNodeInfoCompat getSource() {"
+        errorLine2="                                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
+            line="157"
+            column="40"/>
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityRecordCompat.java"
+            line="95"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `setLongpressEnabled` such that (along with the `isLongpressEnabled` getter) Kotlin code can access it as a property (`longpressEnabled`); see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public void setIsLongpressEnabled(boolean enabled) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/GestureDetectorCompat.java"
+            line="555"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getShouldShowIcon` such that `shouldShowIcon` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean shouldShowIcon() {"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/RemoteActionCompat.java"
+            line="150"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getMipMap` such that `mipMap` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean hasMipMap() {"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/RoundedBitmapDrawable.java"
+            line="181"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getAntiAlias` such that `antiAlias` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean hasAntiAlias() {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/RoundedBitmapDrawable.java"
+            line="205"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;r&quot;, in androidx.core.os.HandlerCompat.postDelayed) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @Nullable Object token, long delayMillis) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/HandlerCompat.java"
+            line="143"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;component&quot;, in androidx.core.view.KeyEventDispatcher.dispatchKeyEvent) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @Nullable View root, @Nullable Window.Callback callback, @NonNull KeyEvent event) {"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/KeyEventDispatcher.java"
+            line="79"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;callable&quot;, in androidx.core.provider.SelfDestructiveThread.postAndWait) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public &lt;T> T postAndWait(final Callable&lt;T> callable, int timeoutMillis)"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/provider/SelfDestructiveThread.java"
+            line="164"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;action&quot;, in androidx.core.view.ViewCompat.postOnAnimationDelayed) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            long delayMillis) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewCompat.java"
+            line="1041"
+            column="13"/>
+    </issue>
+
+</issues>

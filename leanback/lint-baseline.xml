@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getHasMediaRowSeparator` such that `hasMediaRowSeparator` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean hasMediaRowSeparator() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/AbstractMediaItemPresenter.java"
+            line="493"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getHasStableIds` such that `hasStableIds` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public final boolean hasStableIds() {"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ObjectAdapter.java"
+            line="295"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This getter should be public such that `pageCount` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    int getPageCount() {"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/PagingIndicator.java"
+            line="347"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`List&lt;PropertyMarkerValue>`) and setter parameter type (`PropertyMarkerValue...`) getter and setter methods for property `propertyRanges` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public final List&lt;Parallax.PropertyMarkerValue> getPropertyRanges() {"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
+            line="64"
+            column="53"/>
+        <location
+            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
+            line="87"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`List&lt;Float>`) and setter parameter type (`float...`) getter and setter methods for property `weights` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public final List&lt;Float> getWeights() {"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
+            line="76"
+            column="30"/>
+        <location
+            file="src/main/java/androidx/leanback/widget/ParallaxEffect.java"
+            line="103"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getSecondaryActionsHidden` such that `secondaryActionsHidden` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean areSecondaryActionsHidden() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/PlaybackControlsRowPresenter.java"
+            line="286"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getIs24Hour` such that `is24Hour` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean is24Hour() {"
+        errorLine2="                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/picker/TimePicker.java"
+            line="436"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;what&quot;, in androidx.leanback.graphics.CompositeDrawable.scheduleDrawable) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
+        errorLine2="                                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/graphics/CompositeDrawable.java"
+            line="220"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 3, &quot;focusListener&quot;, in androidx.leanback.widget.GuidedActionAdapter.GuidedActionAdapter) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            FocusListener focusListener, GuidedActionsStylist presenter, boolean isSubAdapter) {"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/leanback/widget/GuidedActionAdapter.java"
+            line="144"
+            column="74"/>
+    </issue>
+
+</issues>
