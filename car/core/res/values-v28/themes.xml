@@ -21,7 +21,7 @@
         <item name="android:background">@color/car_card</item>
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
-        <item name="android:colorControlNormal">@color/car_body2</item>
+        <item name="android:colorControlNormal">@color/car_grey_650</item>
         <item name="android:colorControlActivated">@color/car_accent</item>
         <item name="android:dialogCornerRadius">@dimen/car_radius_3</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
@@ -32,7 +32,7 @@
         <item name="android:listPreferredItemPaddingEnd">@dimen/car_keyline_1</item>
         <item name="android:scrollbarSize">@dimen/car_scroll_bar_thumb_width</item>
         <item name="android:textAppearanceLarge">@style/TextAppearance.Car.Body2</item>
-        <item name="android:textColorPrimary">@color/car_body2</item>
+        <item name="android:textColorPrimary">@color/car_primary_text</item>
         <item name="android:windowAnimationStyle">@style/Car.Dialog.Animation</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title</item>
         <item name="alertDialogStyle">@style/AlertDialog</item>
