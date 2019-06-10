@@ -245,8 +245,8 @@ public class ListItemAdapter extends
     /**
      * Registers a custom {@link ListItem} that this adapter will handle. The custom list item will
      * be identified by the unique view id that is passed to this method. The {@code function}
-     * should a reference to the method that will create the {@code ViewHolder} that houses the
-     * custom {@code ListItem}.
+     * should a reference to the method that will create the {@link ListItem.ViewHolder} that houses
+     * the custom {@link ListItem}.
      *
      * <pre>{@code
      * int viewType = -1;
