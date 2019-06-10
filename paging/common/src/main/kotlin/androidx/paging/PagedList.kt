@@ -1368,3 +1368,35 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         }
     }
 }
+
+/**
+ * Constructs a [PagedList], convenience for [PagedList.Builder].
+ *
+ * @param Key Type of key used to load data from the DataSource.
+ * @param Value Type of items held and loaded by the PagedList.
+ * @param dataSource DataSource the PagedList will load from.
+ * @param config Config that defines how the PagedList loads data from its DataSource.
+ * @param notifyExecutor Executor that receives PagedList updates, and where [PagedList.Callback]
+ *                       calls are dispatched. Generally, this is the UI/main thread.
+ * @param fetchExecutor Executor used to fetch from DataSources, generally a background thread pool
+ *                      for e.g. I/O or network loading.
+ * @param boundaryCallback BoundaryCallback for listening to out-of-data events.
+ * @param initialKey Key the DataSource should load around as part of initialization.
+ */
+@Suppress("FunctionName")
+fun <Key : Any, Value : Any> PagedList(
+    dataSource: DataSource<Key, Value>,
+    config: Config,
+    notifyExecutor: Executor,
+    fetchExecutor: Executor,
+    boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
+    initialKey: Key? = null
+): PagedList<Value> {
+    @Suppress("DEPRECATION")
+    return PagedList.Builder(dataSource, config)
+        .setNotifyExecutor(notifyExecutor)
+        .setFetchExecutor(fetchExecutor)
+        .setBoundaryCallback(boundaryCallback)
+        .setInitialKey(initialKey)
+        .build()
+}

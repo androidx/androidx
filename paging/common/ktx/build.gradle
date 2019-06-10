@@ -26,10 +26,7 @@ plugins {
 }
 
 dependencies {
-    compile(project(":paging:paging-common"))
-    compile(KOTLIN_STDLIB)
-
-    testImplementation(JUNIT)
+    api(project(":paging:paging-common"))
 }
 
 androidx {

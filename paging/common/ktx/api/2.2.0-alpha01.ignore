@@ -1,2 +1,2 @@
-RemovedClass: androidx.paging.PagedListConfigKt:
-    Removed class androidx.paging.PagedListConfigKt
+RemovedPackage: androidx.paging:
+    Removed package androidx.paging
