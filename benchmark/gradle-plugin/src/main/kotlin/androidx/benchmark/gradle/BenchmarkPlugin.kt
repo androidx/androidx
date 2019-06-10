@@ -81,12 +81,12 @@ class BenchmarkPlugin : Plugin<Project> {
             }
         }
 
-        val adb = Adb(project)
-        project.tasks.register("lockClocks", LockClocksTask::class.java, adb)
-        project.tasks.register("unlockClocks", UnlockClocksTask::class.java, adb)
-        val benchmarkReportTask =
-            project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
-        benchmarkReportTask.configure { it.dependsOn("connectedAndroidTest") }
+        project.tasks.register("lockClocks", LockClocksTask::class.java).configure {
+            it.adbPath.set(extension.adbExecutable.absolutePath)
+        }
+        project.tasks.register("unlockClocks", UnlockClocksTask::class.java).configure {
+            it.adbPath.set(extension.adbExecutable.absolutePath)
+        }
 
         val extensionVariants = when (extension) {
             is AppExtension -> extension.applicationVariants
@@ -107,6 +107,13 @@ class BenchmarkPlugin : Plugin<Project> {
         extensionVariants.all {
             if (!applied) {
                 applied = true
+
+                project.tasks.register("benchmarkReport", BenchmarkReportTask::class.java)
+                    .configure {
+                        it.adbPath.set(extension.adbExecutable.absolutePath)
+                        it.dependsOn(project.tasks.named("connectedAndroidTest"))
+                    }
+
                 project.tasks.named("connectedAndroidTest").configure {
                     configureWithConnectedAndroidTest(project, it)
                 }
