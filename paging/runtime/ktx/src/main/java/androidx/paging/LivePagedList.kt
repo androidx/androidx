@@ -34,17 +34,17 @@ import java.util.concurrent.Executor
  *
  * @see LivePagedListBuilder
  */
-fun <Key, Value> DataSource.Factory<Key, Value>.toLiveData(
+fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
 ): LiveData<PagedList<Value>> {
     return LivePagedListBuilder(this, config)
-            .setInitialLoadKey(initialLoadKey)
-            .setBoundaryCallback(boundaryCallback)
-            .setFetchExecutor(fetchExecutor)
-            .build()
+        .setInitialLoadKey(initialLoadKey)
+        .setBoundaryCallback(boundaryCallback)
+        .setFetchExecutor(fetchExecutor)
+        .build()
 }
 
 /**
@@ -61,15 +61,15 @@ fun <Key, Value> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
-fun <Key, Value> DataSource.Factory<Key, Value>.toLiveData(
+fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
 ): LiveData<PagedList<Value>> {
     return LivePagedListBuilder(this, Config(pageSize))
-            .setInitialLoadKey(initialLoadKey)
-            .setBoundaryCallback(boundaryCallback)
-            .setFetchExecutor(fetchExecutor)
-            .build()
+        .setInitialLoadKey(initialLoadKey)
+        .setBoundaryCallback(boundaryCallback)
+        .setFetchExecutor(fetchExecutor)
+        .build()
 }

@@ -33,7 +33,7 @@ import io.reactivex.functions.Cancellable;
 
 /**
  * Builder for {@code Observable<PagedList>} or {@code Flowable<PagedList>}, given a
- * {@link DataSource.Factory} and a {@link PagedList.Config}.
+ * {@link androidx.paging.DataSource.Factory} and a {@link androidx.paging.PagedList.Config}.
  * <p>
  * The required parameters are in the constructor, so you can simply construct and build, or
  * optionally enable extra features (such as initial load key, or BoundaryCallback).
@@ -90,8 +90,10 @@ public final class RxPagedListBuilder<Key, Value> {
      * @param pageSize          Size of pages to load.
      */
     @SuppressWarnings("unused")
-    public RxPagedListBuilder(@NonNull DataSource.Factory<Key, Value> dataSourceFactory,
-            int pageSize) {
+    public RxPagedListBuilder(
+            @NonNull DataSource.Factory<Key, Value> dataSourceFactory,
+            int pageSize
+    ) {
         this(dataSourceFactory, new PagedList.Config.Builder().setPageSize(pageSize).build());
     }
 
@@ -112,8 +114,8 @@ public final class RxPagedListBuilder<Key, Value> {
     }
 
     /**
-     * Sets a {@link PagedList.BoundaryCallback} on each PagedList created, typically used to load
-     * additional data from network when paging from local storage.
+     * Sets a {@link androidx.paging.PagedList.BoundaryCallback} on each PagedList created,
+     * typically used to load additional data from network when paging from local storage.
      *
      * Pass a BoundaryCallback to listen to when the PagedList runs out of data to load. If this
      * method is not called, or {@code null} is passed, you will not be notified when each
@@ -149,8 +151,8 @@ public final class RxPagedListBuilder<Key, Value> {
      * receiving PagedLists will also receive the internal updates to the PagedList.
      *
      * @param scheduler Scheduler that receives PagedList updates, and where
-     *                  {@link PagedList.Callback} calls are dispatched. Generally, this is the
-     *                  UI/main thread.
+     *                  {@link androidx.paging.PagedList.Callback} calls are dispatched. Generally,
+     *                  this is the UI/main thread.
      * @return this
      */
     @NonNull

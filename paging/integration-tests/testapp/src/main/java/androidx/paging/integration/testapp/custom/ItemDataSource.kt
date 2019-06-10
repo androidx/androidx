@@ -60,8 +60,8 @@ internal class ItemDataSource : PositionalDataSource<Item>() {
     }
 
     override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<Item>) {
-        val position = PositionalDataSource.computeInitialLoadPosition(params, COUNT)
-        val loadSize = PositionalDataSource.computeInitialLoadSize(params, position, COUNT)
+        val position = computeInitialLoadPosition(params, COUNT)
+        val loadSize = computeInitialLoadSize(params, position, COUNT)
         val data = loadRangeInternal(position, loadSize)
         if (data == null) {
             callback.onError(RetryableItemError())

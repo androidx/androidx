@@ -27,7 +27,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * {@link RecyclerView.Adapter RecyclerView.Adapter} base class for presenting paged data from
- * {@link PagedList}s in a {@link RecyclerView}.
+ * {@link androidx.paging.PagedList}s in a {@link RecyclerView}.
  * <p>
  * This class is a convenience wrapper around {@link AsyncPagedListDiffer} that implements common
  * default behavior for item counting, and listening to PagedList update callbacks.

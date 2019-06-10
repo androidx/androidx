@@ -34,7 +34,7 @@ import java.util.concurrent.Executor
  * @param initialKey Key the DataSource should load around as part of initialization.
  */
 @Suppress("FunctionName")
-fun <Key, Value> PagedList(
+fun <Key : Any, Value : Any> PagedList(
     dataSource: DataSource<Key, Value>,
     config: PagedList.Config,
     notifyExecutor: Executor,

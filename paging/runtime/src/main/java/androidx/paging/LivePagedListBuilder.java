@@ -27,14 +27,14 @@ import androidx.lifecycle.LiveData;
 import java.util.concurrent.Executor;
 
 /**
- * Builder for {@code LiveData<PagedList>}, given a {@link DataSource.Factory} and a
- * {@link PagedList.Config}.
+ * Builder for {@code LiveData<PagedList>}, given a {@link androidx.paging.DataSource.Factory} and a
+ * {@link androidx.paging.PagedList.Config}.
  * <p>
  * The required parameters are in the constructor, so you can simply construct and build, or
  * optionally enable extra features (such as initial load key, or BoundaryCallback).
  *
  * @param <Key> Type of input valued used to load data from the DataSource. Must be integer if
- *             you're using PositionalDataSource.
+ *              you're using PositionalDataSource.
  * @param <Value> Item type being presented.
  */
 public final class LivePagedListBuilder<Key, Value> {
@@ -99,8 +99,8 @@ public final class LivePagedListBuilder<Key, Value> {
     }
 
     /**
-     * Sets a {@link PagedList.BoundaryCallback} on each PagedList created, typically used to load
-     * additional data from network when paging from local storage.
+     * Sets a {@link androidx.paging.PagedList.BoundaryCallback} on each PagedList created,
+     * typically used to load additional data from network when paging from local storage.
      * <p>
      * Pass a BoundaryCallback to listen to when the PagedList runs out of data to load. If this
      * method is not called, or {@code null} is passed, you will not be notified when each

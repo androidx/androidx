@@ -98,9 +98,11 @@ class LivePagedList<Key, Value> extends LiveData<PagedList<Value>>
         mCurrentData.getDataSource().removeInvalidatedCallback(mCallback);
         dataSource.addInvalidatedCallback(mCallback);
 
-        mCurrentData.setInitialLoadState(PagedList.LoadState.LOADING, null);
+        //noinspection KotlinInternalInJava
+        mCurrentData.setInitialLoadState$paging_common(PagedList.LoadState.LOADING, null);
 
-        return PagedList.create(
+        //noinspection KotlinInternalInJava
+        return PagedList.create$paging_common(
                 dataSource,
                 mNotifyExecutor,
                 mFetchExecutor,
@@ -116,7 +118,8 @@ class LivePagedList<Key, Value> extends LiveData<PagedList<Value>>
                 .isRetryableError(throwable)
                 ? PagedList.LoadState.RETRYABLE_ERROR
                 : PagedList.LoadState.ERROR;
-        mCurrentData.setInitialLoadState(loadState, throwable);
+        //noinspection KotlinInternalInJava
+        mCurrentData.setInitialLoadState$paging_common(loadState, throwable);
     }
 
     @Override
