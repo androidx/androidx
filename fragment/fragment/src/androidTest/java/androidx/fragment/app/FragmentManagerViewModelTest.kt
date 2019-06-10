@@ -73,11 +73,13 @@ class FragmentManagerViewModelTest {
         assertThat(viewModel.getViewModelStore(fragment)).isNotSameInstanceAs(viewModelStore)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testEmptySnapshot() {
         assertThat(viewModel.snapshot).isNull()
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testRetainedFragmentsInSnapshot() {
         val fragment = mock(Fragment::class.java)
@@ -89,6 +91,7 @@ class FragmentManagerViewModelTest {
         assertThat(viewModel.retainedFragments).containsExactly(fragment)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testChildNonConfigInSnapshot() {
         val fragment = Fragment()
@@ -100,6 +103,7 @@ class FragmentManagerViewModelTest {
         assertThat(viewModel.getChildNonConfig(fragment)).isEqualTo(childNonConfig)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testViewModelStoreInSnapshot() {
         val fragment = Fragment()
@@ -111,6 +115,7 @@ class FragmentManagerViewModelTest {
         assertThat(viewModel.getViewModelStore(fragment)).isSameInstanceAs(viewModelStore)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testShouldDestroyWithSnapshot() {
         val fragment = mock(Fragment::class.java)
