@@ -1312,6 +1312,10 @@ package androidx.ui.graphics {
 
 package androidx.ui.input {
 
+  public final class EditOperationKt {
+    ctor public EditOperationKt();
+  }
+
   public final class EditorState {
     ctor public EditorState(String text, androidx.ui.core.TextRange selection, androidx.ui.core.TextRange? composition);
     ctor public EditorState();
