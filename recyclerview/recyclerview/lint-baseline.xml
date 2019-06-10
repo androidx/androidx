@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getHasFixedSize` such that `hasFixedSize` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean hasFixedSize() {"
+        errorLine2="                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
+            line="1083"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getHasStableIds` such that `hasStableIds` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="        public final boolean hasStableIds() {"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
+            line="7140"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `setRecyclable` such that (along with the `isRecyclable` getter) Kotlin code can access it as a property (`recyclable`); see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="        public final void setIsRecyclable(boolean recyclable) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
+            line="11381"
+            column="27"/>
+    </issue>
+
+</issues>

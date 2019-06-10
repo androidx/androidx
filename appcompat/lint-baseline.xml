@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`View`) and setter parameter type (`ScrollingTabContainerView`) getter and setter methods for property `tabContainer` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public View getTabContainer() {"
+        errorLine2="                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
+            line="242"
+            column="17"/>
+        <location
+            file="src/main/java/androidx/appcompat/widget/ActionBarContainer.java"
+            line="228"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getOverlayMode` such that `overlayMode` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean isInOverlayMode() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ActionBarOverlayLayout.java"
+            line="194"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`ActionBar`) and setter parameter type (`Toolbar`) getter and setter methods for property `supportActionBar` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public ActionBar getSupportActionBar() {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
+            line="129"
+            column="22"/>
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
+            line="149"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`ActionBar`) and setter parameter type (`Toolbar`) getter and setter methods for property `supportActionBar` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public abstract ActionBar getSupportActionBar();"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
+            line="270"
+            column="31"/>
+        <location
+            file="src/main/java/androidx/appcompat/app/AppCompatDelegate.java"
+            line="287"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`Theme`) and setter parameter type (`int`) getter and setter methods for property `theme` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public Resources.Theme getTheme() {"
+        errorLine2="                           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
+            line="141"
+            column="28"/>
+        <location
+            file="src/main/java/androidx/appcompat/view/ContextThemeWrapper.java"
+            line="125"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This getter should be public such that `itemIndexOffset` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    int getItemIndexOffset() {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/ListMenuPresenter.java"
+            line="160"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This getter should be public such that `qwertyMode` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    boolean isQwertyMode() {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuBuilder.java"
+            line="797"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This getter should be public such that `optionalIconsVisible` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    boolean getOptionalIconsVisible() {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuBuilder.java"
+            line="1352"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This getter should be public such that `callback` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    Runnable getCallback() {"
+        errorLine2="             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
+            line="232"
+            column="14"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`SubMenu`) and setter parameter type (`SubMenuBuilder`) getter and setter methods for property `subMenu` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public SubMenu getSubMenu() {"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
+            line="418"
+            column="20"/>
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
+            line="427"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `setActionButton` such that (along with the `isActionButton` getter) Kotlin code can access it as a property (`actionButton`); see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public void setIsActionButton(boolean isActionButton) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/view/menu/MenuItemImpl.java"
+            line="719"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;listener&quot;, in androidx.appcompat.app.AlertDialog.Builder.setCursor) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                String labelColumn) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/app/AlertDialog.java"
+            line="677"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;adapter&quot;, in androidx.appcompat.widget.DecorToolbar.setDropdownParams) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    void setDropdownParams(SpinnerAdapter adapter, AdapterView.OnItemSelectedListener listener);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/DecorToolbar.java"
+            line="83"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;adapter&quot;, in androidx.appcompat.widget.ToolbarWidgetWrapper.setDropdownParams) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            AdapterView.OnItemSelectedListener listener) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ToolbarWidgetWrapper.java"
+            line="513"
+            column="13"/>
+    </issue>
+
+</issues>

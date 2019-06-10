@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getState` such that `state` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public abstract T getInitialState();"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/constraints/trackers/ConstraintTracker.java"
+            line="124"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getRequiresCharging` such that `requiresCharging` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean requiresCharging() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/Constraints.java"
+            line="120"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getRequiresDeviceIdle` such that `requiresDeviceIdle` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean requiresDeviceIdle() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/Constraints.java"
+            line="137"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getRequiresBatteryNotLow` such that `requiresBatteryNotLow` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean requiresBatteryNotLow() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/Constraints.java"
+            line="154"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getRequiresStorageNotLow` such that `requiresStorageNotLow` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean requiresStorageNotLow() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/Constraints.java"
+            line="170"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`LiveData&lt;State>`) and setter parameter type (`State`) getter and setter methods for property `state` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public @NonNull LiveData&lt;State> getState() {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/OperationImpl.java"
+            line="52"
+            column="37"/>
+        <location
+            file="src/main/java/androidx/work/impl/OperationImpl.java"
+            line="61"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getNeedsReschedule` such that `needsReschedule` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean needsReschedule() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/Preferences.java"
+            line="82"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="The getter return type (`boolean`) and setter parameter type (`long`) getter and setter methods for property `periodic` should have exactly the same type to allow be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean isPeriodic() {"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
+            line="168"
+            column="20"/>
+        <location
+            file="src/main/java/androidx/work/impl/model/WorkSpec.java"
+            line="181"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;mappingMethod&quot;, in androidx.work.impl.utils.LiveDataUtils.dedupedMappedLiveDataFor) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull final TaskExecutor workTaskExecutor) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/LiveDataUtils.java"
+            line="54"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;queryExecutor&quot;, in androidx.work.impl.WorkDatabase.create) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            boolean useTestDatabase) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/WorkDatabase.java"
+            line="104"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 6, &quot;backgroundExecutor&quot;, in androidx.work.WorkerParameters.WorkerParameters) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull WorkerFactory workerFactory) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/WorkerParameters.java"
+            line="64"
+            column="13"/>
+    </issue>
+
+</issues>
