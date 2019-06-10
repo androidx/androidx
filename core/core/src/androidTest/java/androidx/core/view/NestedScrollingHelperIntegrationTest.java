@@ -151,7 +151,7 @@ public class NestedScrollingHelperIntegrationTest {
 
         @Override
         public void onNestedPreScroll(@NonNull View target, int dx, int dy,
-                @NonNull int[] consumed) {
+                 @NonNull int[] consumed) {
             dispatchNestedPreScroll(dx, dy, consumed, null);
         }
 

@@ -461,7 +461,7 @@ public class NestedScrollViewScrollingTest extends
         @Override
         public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
                 int dyUnconsumed, @Nullable int[] offsetInWindow, int type,
-                @Nullable int[] consumed) {
+                @NonNull int[] consumed) {
         }
 
         @Override
@@ -512,39 +512,40 @@ public class NestedScrollViewScrollingTest extends
         }
 
         @Override
-        public boolean onStartNestedScroll(View child, View target, int axes) {
+        public boolean onStartNestedScroll(@NonNull  View child, @NonNull View target, int axes) {
             return false;
         }
 
         @Override
-        public void onNestedScrollAccepted(View child, View target, int axes) {
+        public void onNestedScrollAccepted(@NonNull  View child, @NonNull View target, int axes) {
 
         }
 
         @Override
-        public void onStopNestedScroll(View target) {
+        public void onStopNestedScroll(@NonNull  View target) {
 
         }
 
         @Override
-        public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed) {
+        public void onNestedScroll(@NonNull  View target, int dxConsumed, int dyConsumed,
+                int dxUnconsumed, int dyUnconsumed) {
 
         }
 
         @Override
-        public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+        public void onNestedPreScroll(
+                @NonNull  View target, int dx, int dy, @NonNull int[] consumed) {
 
         }
 
         @Override
-        public boolean onNestedFling(View target, float velocityX, float velocityY,
+        public boolean onNestedFling(@NonNull  View target, float velocityX, float velocityY,
                 boolean consumed) {
             return false;
         }
 
         @Override
-        public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+        public boolean onNestedPreFling(@NonNull  View target, float velocityX, float velocityY) {
             return false;
         }
 

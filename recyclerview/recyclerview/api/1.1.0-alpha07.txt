@@ -377,7 +377,7 @@ package androidx.recyclerview.widget {
     method public int computeVerticalScrollRange();
     method public boolean dispatchNestedPreScroll(int, int, int[]!, int[]!, int);
     method public boolean dispatchNestedScroll(int, int, int, int, int[]!, int);
-    method public final void dispatchNestedScroll(int, int, int, int, int[]!, int, int[]!);
+    method public final void dispatchNestedScroll(int, int, int, int, int[]!, int, int[]);
     method public boolean drawChild(android.graphics.Canvas!, android.view.View!, long);
     method public android.view.View? findChildViewUnder(float, float);
     method public android.view.View? findContainingItemView(android.view.View);

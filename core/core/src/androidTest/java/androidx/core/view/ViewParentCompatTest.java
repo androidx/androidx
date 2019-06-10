@@ -169,9 +169,8 @@ public class ViewParentCompatTest {
             implements NestedScrollingParent{
 
         @Override
-        public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
-                int dyUnconsumed) {
-
+        public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
+                int dxUnconsumed, int dyUnconsumed) {
         }
     }
 
