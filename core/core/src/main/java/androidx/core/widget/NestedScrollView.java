@@ -359,33 +359,36 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     // NestedScrollingParent
 
     @Override
-    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {
+    public boolean onStartNestedScroll(
+            @NonNull View child, @NonNull View target, int nestedScrollAxes) {
         return onStartNestedScroll(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
-    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {
+    public void onNestedScrollAccepted(
+            @NonNull View child, @NonNull View target, int nestedScrollAxes) {
         onNestedScrollAccepted(child, target, nestedScrollAxes, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
-    public void onStopNestedScroll(View target) {
+    public void onStopNestedScroll(@NonNull View target) {
         onStopNestedScroll(target, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
-    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,
-            int dyUnconsumed) {
+    public void onNestedScroll(@NonNull View target, int dxConsumed, int dyConsumed,
+            int dxUnconsumed, int dyUnconsumed) {
         onNestedScrollInternal(dyUnconsumed, ViewCompat.TYPE_TOUCH, null);
     }
 
     @Override
-    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {
+    public void onNestedPreScroll(@NonNull View target, int dx, int dy, @NonNull int[] consumed) {
         onNestedPreScroll(target, dx, dy, consumed, ViewCompat.TYPE_TOUCH);
     }
 
     @Override
-    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {
+    public boolean onNestedFling(
+            @NonNull View target, float velocityX, float velocityY, boolean consumed) {
         if (!consumed) {
             dispatchNestedFling(0, velocityY, true);
             fling((int) velocityY);
@@ -395,7 +398,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
     }
 
     @Override
-    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {
+    public boolean onNestedPreFling(@NonNull View target, float velocityX, float velocityY) {
         return dispatchNestedPreFling(velocityX, velocityY);
     }
 
@@ -2046,6 +2049,7 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
             dest.writeInt(scrollPosition);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return "HorizontalScrollView.SavedState{"

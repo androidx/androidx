@@ -275,7 +275,6 @@ public class ShortcutInfoCompat {
     @RequiresApi(25)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
-    @Nullable
     static boolean getLongLivedFromExtra(@NonNull PersistableBundle bundle) {
         if (bundle == null || !bundle.containsKey(EXTRA_LONG_LIVED)) {
             return false;

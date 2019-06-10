@@ -337,7 +337,7 @@ public class NestedScrollViewNestedScrollingParent3Test {
         @Override
         public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
                 int dyUnconsumed, @Nullable int[] offsetInWindow, int type,
-                @Nullable int[] consumed) {
+                @NonNull int[] consumed) {
         }
     }
 

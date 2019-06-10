@@ -89,7 +89,7 @@ class WrappedDrawableApi21 extends WrappedDrawableApi14 {
     }
 
     @Override
-    public void setTintMode(PorterDuff.Mode tintMode) {
+    public void setTintMode(@NonNull PorterDuff.Mode tintMode) {
         if (isCompatTintEnabled()) {
             super.setTintMode(tintMode);
         } else {

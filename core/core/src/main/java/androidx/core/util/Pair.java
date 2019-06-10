@@ -66,6 +66,7 @@ public class Pair<F, S> {
         return (first == null ? 0 : first.hashCode()) ^ (second == null ? 0 : second.hashCode());
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Pair{" + String.valueOf(first) + " " + String.valueOf(second) + "}";

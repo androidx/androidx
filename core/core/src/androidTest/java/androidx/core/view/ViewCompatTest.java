@@ -36,6 +36,7 @@ import android.support.v4.BaseInstrumentationTestCase;
 import android.view.Display;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -310,7 +311,7 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
         @Override
         public void dispatchNestedScroll(int dxConsumed, int dyConsumed, int dxUnconsumed,
                 int dyUnconsumed, @Nullable int[] offsetInWindow, int type,
-                @Nullable int[] consumed) {
+                @NonNull int[] consumed) {
         }
     }
 }

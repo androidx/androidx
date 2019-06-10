@@ -21,6 +21,8 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.graphics.Rect;
 import android.view.accessibility.AccessibilityWindowInfo;
 
+import androidx.annotation.NonNull;
+
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityWindowInfo}.
  */
@@ -336,6 +338,7 @@ public class AccessibilityWindowInfoCompat {
         return true;
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

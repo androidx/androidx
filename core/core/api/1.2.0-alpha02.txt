@@ -85,15 +85,15 @@ package androidx.core.app {
 
   @RequiresApi(28) public class AppComponentFactory extends android.app.AppComponentFactory {
     ctor public AppComponentFactory();
-    method public final android.app.Activity! instantiateActivity(ClassLoader!, String!, android.content.Intent!) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.app.Activity instantiateActivity(ClassLoader, String, android.content.Intent?) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
     method public android.app.Activity instantiateActivityCompat(ClassLoader, String, android.content.Intent?) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
-    method public final android.app.Application! instantiateApplication(ClassLoader!, String!) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.app.Application instantiateApplication(ClassLoader, String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
     method public android.app.Application instantiateApplicationCompat(ClassLoader, String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
-    method public final android.content.ContentProvider! instantiateProvider(ClassLoader!, String!) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.content.ContentProvider instantiateProvider(ClassLoader, String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
     method public android.content.ContentProvider instantiateProviderCompat(ClassLoader, String) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
-    method public final android.content.BroadcastReceiver! instantiateReceiver(ClassLoader!, String!, android.content.Intent!) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.content.BroadcastReceiver instantiateReceiver(ClassLoader, String, android.content.Intent?) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
     method public android.content.BroadcastReceiver instantiateReceiverCompat(ClassLoader, String, android.content.Intent?) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
-    method public final android.app.Service! instantiateService(ClassLoader!, String!, android.content.Intent!) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
+    method public final android.app.Service instantiateService(ClassLoader, String, android.content.Intent?) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
     method public android.app.Service instantiateServiceCompat(ClassLoader, String, android.content.Intent?) throws java.lang.ClassNotFoundException, java.lang.IllegalAccessException, java.lang.InstantiationException;
   }
 
@@ -2320,7 +2320,7 @@ package androidx.core.view {
 package androidx.core.view.accessibility {
 
   public final class AccessibilityClickableSpanCompat extends android.text.style.ClickableSpan {
-    method public void onClick(android.view.View!);
+    method public void onClick(android.view.View);
   }
 
   public final class AccessibilityEventCompat {
