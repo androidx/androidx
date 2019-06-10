@@ -110,6 +110,12 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
 
     private void copyDatabaseFile(File destinationFile) {
         try {
+            File parent = destinationFile.getParentFile();
+            if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                throw new IOException("Unable to create directories for "
+                        + destinationFile.getAbsolutePath());
+            }
+
             InputStream input;
             switch (mCopyFrom) {
                 case COPY_FROM_NONE:

@@ -36,7 +36,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.filters.Suppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +48,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 @SmallTest
-@Suppress
 @RunWith(AndroidJUnit4.class)
 public class PrepackageTest {
 
@@ -89,6 +87,7 @@ public class PrepackageTest {
     @Test
     public void createFromAsset_notFound() {
         Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products_notFound.db");
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products_notFound.db")
                 .createFromAsset("databases/products_notFound.db")
@@ -220,7 +219,7 @@ public class PrepackageTest {
     @Test
     public void createFromFile() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
-
+        context.deleteDatabase("products_external.db");
         File dataDbFile = new File(ContextCompat.getDataDir(context), "products_external.db");
         context.deleteDatabase(dataDbFile.getAbsolutePath());
 
