@@ -52,6 +52,16 @@ internal class RecordingInputConnection(
     // The recoding editing ops.
     private val editOps = mutableListOf<EditOperation>()
 
+    // Add edit op to internal list with wrapping batch edit.
+    private fun addEditOpWithBatch(editOp: EditOperation) {
+        beginBatchEdit()
+        try {
+            editOps.add(editOp)
+        } finally {
+            endBatchEdit()
+        }
+    }
+
     // /////////////////////////////////////////////////////////////////////////////////////////////
     // Callbacks for text editing session
     // /////////////////////////////////////////////////////////////////////////////////////////////
@@ -83,43 +93,44 @@ internal class RecordingInputConnection(
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "commitText($text, $newCursorPosition)") }
-        beginBatchEdit()
-        try {
-            editOps.add(CommitTextEditOp(text.toString(), newCursorPosition))
-        } finally {
-            endBatchEdit()
-        }
+        addEditOpWithBatch(CommitTextEditOp(text.toString(), newCursorPosition))
         return true
     }
 
     override fun setComposingRegion(start: Int, end: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "setComposingRegion($start, $end)") }
-        TODO("not implemented")
+        addEditOpWithBatch(SetComposingRegionEditOp(start, end))
+        return true
     }
 
     override fun setComposingText(text: CharSequence?, newCursorPosition: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "setComposingText($text, $newCursorPosition)") }
-        TODO("not implemented")
+        addEditOpWithBatch(SetComposingTextEditOp(text.toString(), newCursorPosition))
+        return true
     }
 
     override fun deleteSurroundingTextInCodePoints(beforeLength: Int, afterLength: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "deleteSurroundingTextInCodePoints($beforeLength, $afterLength)") }
-        TODO("not implemented")
+        addEditOpWithBatch(DeleteSurroundingTextInCodePointsEditOp(beforeLength, afterLength))
+        return true
     }
 
     override fun deleteSurroundingText(beforeLength: Int, afterLength: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "deleteSurroundingText($beforeLength, $afterLength)") }
-        TODO("not implemented")
+        addEditOpWithBatch(DeleteSurroundingTextEditOp(beforeLength, afterLength))
+        return true
     }
 
     override fun setSelection(start: Int, end: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "setSelection($start, $end)") }
-        TODO("not implemented")
+        addEditOpWithBatch(SetSelectionEditOp(start, end))
+        return true
     }
 
     override fun finishComposingText(): Boolean {
         if (DEBUG) { Log.d(TAG, "finishComposingText()") }
-        TODO("not implemented")
+        addEditOpWithBatch(FinishComposingTextEditOp())
+        return true
     }
 
     override fun sendKeyEvent(event: KeyEvent?): Boolean {
