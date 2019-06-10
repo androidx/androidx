@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.4.0" client="gradle" variant="all" version="3.4.0">
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
-        id="ObsoleteLintCustomCheck"
-        message="Lint found an issue registry (`androidx.build.lint.AndroidXIssueRegistry`) which did not specify the Lint API version it was compiled with.&#xA;&#xA;**This means that the lint checks are likely not compatible.**&#xA;&#xA;If you are the author of this lint check, make your lint `IssueRegistry` class contain&#xA;  override val api: Int = com.android.tools.lint.detector.api.CURRENT_API&#xA;or from Java,&#xA;  @Override public int getApi() { return com.android.tools.lint.detector.api.ApiKt.CURRENT_API; }&#xA;&#xA;If you are just using lint checks from a third party library you have no control over, you can disable these lint checks (if they misbehave) like this:&#xA;&#xA;    android {&#xA;        lintOptions {&#xA;            disable &quot;BanKeepAnnotation&quot;,&#xA;                    &quot;BanParcelableUsage&quot;,&#xA;                    &quot;BanTargetApiAnnotation&quot;,&#xA;                    &quot;MissingTestSizeAnnotation&quot;,&#xA;                    &quot;ObsoleteBuildCompat&quot;&#xA;        }&#xA;    }&#xA;"
-        includedVariants="debug"
-        excludedVariants="release">
+        id="NewApi"
+        message="Exception requires API level 23 (current min is 23): `android.security.keystore.KeyPermanentlyInvalidatedException`, and having a surrounding/preceding version check **does** not help since prior to API level 19, just **loading** the class will cause a crash. Consider marking the surrounding class with `RequiresApi(19)` to ensure that the class is never loaded except when on API 19 or higher."
+        errorLine1="        } catch (KeyPermanentlyInvalidatedException e) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="../../../../out/buildSrc/lint-checks/build/libs/lint-checks.jar"/>
+            file="src/main/java/com/example/android/biometric/BiometricPromptDemo.java"
+            line="314"
+            column="18"/>
     </issue>
 
     <issue

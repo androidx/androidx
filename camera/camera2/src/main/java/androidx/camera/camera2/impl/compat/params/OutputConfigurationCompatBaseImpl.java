@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.impl.compat.params;
 
+import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.util.Log;
 import android.util.Size;
@@ -224,6 +225,7 @@ class OutputConfigurationCompatBaseImpl implements
         // only valid up to API 24, and are not guaranteed to work on API levels greater than 23.
         //=========================================================================================
 
+        @SuppressLint("BlockedPrivateApi")
         private static Size getSurfaceSize(@NonNull Surface surface) {
             try {
                 Class<?> legacyCameraDeviceClass = Class.forName(LEGACY_CAMERA_DEVICE_CLASS);
@@ -240,6 +242,7 @@ class OutputConfigurationCompatBaseImpl implements
             }
         }
 
+        @SuppressLint("BlockedPrivateApi")
         private static int getSurfaceFormat(@NonNull Surface surface) {
             try {
                 Class<?> legacyCameraDeviceClass = Class.forName(LEGACY_CAMERA_DEVICE_CLASS);
@@ -257,6 +260,7 @@ class OutputConfigurationCompatBaseImpl implements
 
         }
 
+        @SuppressLint("SoonBlockedPrivateApi")
         private static int getSurfaceGenerationId(@NonNull Surface surface) {
             try {
                 Method getGenerationId = Surface.class.getDeclaredMethod(GET_GENERATION_ID_METHOD);

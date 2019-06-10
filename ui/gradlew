@@ -9,6 +9,10 @@
 # Override Kotlin version needed for compose - see buildSrc/build_dependencies.gradle
 export KOTLIN_OVERRIDE="1.3.30-compose-20190503"
 
+# Override AGP version until we have a 3.5* compatible build of Compose Studio
+# TODO: Remove after b/132355581
+export GRADLE_PLUGIN_VERSION="3.4.0"
+
 # Path to the directory containing this script
 DIR="`dirname \"$0\"`/"
 
