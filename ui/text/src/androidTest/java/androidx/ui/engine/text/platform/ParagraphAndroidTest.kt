@@ -7,6 +7,7 @@ import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.LocaleSpan
+import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
@@ -292,6 +293,46 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(AbsoluteSizeSpan::class, 0, "abc".length)
+        )
+    }
+
+    @Test
+    fun textStyle_setFontSizeScaleOnWholeText() {
+        val text = "abcde"
+        val fontSizeScale = 2.0f
+        val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(100f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(RelativeSizeSpan::class, 0, text.length) {
+                it.sizeChange == fontSizeScale
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setFontSizeScaleOnPartText() {
+        val text = "abcde"
+        val fontSizeScale = 2.0f
+        val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100f)
+
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(RelativeSizeSpan::class, 0, "abc".length) {
+                it.sizeChange == fontSizeScale
+            }
         )
     }
 

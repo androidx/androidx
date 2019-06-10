@@ -1100,6 +1100,142 @@ class ParagraphIntegrationTest {
     }
 
     @Test
+    fun textStyle_fontSizeScale() {
+        val text = "abcde"
+        val fontSize = 20f
+        val fontSizeScale = 0.5f
+        val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length)),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(
+            paragraphImpl.getLineRight(0),
+            equalTo(text.length * fontSize * fontSizeScale)
+        )
+    }
+
+    @Test
+    fun textStyle_fontSizeScaleNested() {
+        val text = "abcde"
+        val fontSize = 20f
+        val fontSizeScale = 0.5f
+        val textStyle = TextStyle(fontSizeScale = fontSizeScale)
+
+        val fontSizeScaleNested = 2f
+        val textStyleNested = TextStyle(fontSizeScale = fontSizeScaleNested)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleNested, 0, text.length)
+            ),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(
+            paragraphImpl.getLineRight(0),
+            equalTo(text.length * fontSize * fontSizeScale * fontSizeScaleNested)
+        )
+    }
+
+    @Test
+    fun textStyle_fontSizeScaleWithFontSizeFirst() {
+        val text = "abcde"
+        val paragraphFontSize = 20f
+
+        val fontSize = 30f
+        val fontSizeStyle = TextStyle(fontSize = fontSize)
+
+        val fontSizeScale = 0.5f
+        val fontSizeScaleStyle = TextStyle(fontSizeScale = fontSizeScale)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(fontSizeStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(fontSizeScaleStyle, 0, text.length)
+            ),
+            fontSize = paragraphFontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(
+            paragraphImpl.getLineRight(0),
+            equalTo(text.length * fontSize * fontSizeScale)
+        )
+    }
+
+    @Test
+    fun textStyle_fontSizeScaleWithFontSizeSecond() {
+        val text = "abcde"
+        val paragraphFontSize = 20f
+
+        val fontSize = 30f
+        val fontSizeStyle = TextStyle(fontSize = fontSize)
+
+        val fontSizeScale = 0.5f
+        val fontSizeScaleStyle = TextStyle(fontSizeScale = fontSizeScale)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(fontSizeScaleStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(fontSizeStyle, 0, text.length)
+            ),
+            fontSize = paragraphFontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(
+            paragraphImpl.getLineRight(0),
+            equalTo(text.length * fontSize)
+        )
+    }
+
+    @Test
+    fun textStyle_fontSizeScaleWithFontSizeNested() {
+        val text = "abcde"
+        val paragraphFontSize = 20f
+
+        val fontSize = 30f
+        val fontSizeStyle = TextStyle(fontSize = fontSize)
+
+        val fontSizeScale1 = 0.5f
+        val fontSizeScaleStyle1 = TextStyle(fontSizeScale = fontSizeScale1)
+
+        val fontSizeScale2 = 2f
+        val fontSizeScaleStyle2 = TextStyle(fontSizeScale = fontSizeScale2)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(fontSizeScaleStyle1, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(fontSizeStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(fontSizeScaleStyle2, 0, text.length)
+            ),
+            fontSize = paragraphFontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(
+            paragraphImpl.getLineRight(0),
+            equalTo(text.length * fontSize * fontSizeScale2)
+        )
+    }
+
+    @Test
     fun textStyle_setLetterSpacingOnWholeText() {
         val text = "abcde"
         val fontSize = 20.0f
