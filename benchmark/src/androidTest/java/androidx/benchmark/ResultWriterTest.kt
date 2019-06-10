@@ -37,6 +37,7 @@ class ResultWriterTest {
         className = "package.Class1",
         data = listOf(100, 101, 102),
         repeatIterations = 100000,
+        thermalThrottleSleepSeconds = 90000000,
         warmupIterations = 8000
     )
     private val reportB = BenchmarkState.Report(
@@ -44,6 +45,7 @@ class ResultWriterTest {
         className = "package.Class2",
         data = listOf(100, 101, 102),
         repeatIterations = 100000,
+        thermalThrottleSleepSeconds = 90000000,
         warmupIterations = 8000
     )
 
@@ -97,7 +99,8 @@ class ResultWriterTest {
                             }
                         },
                         "warmupIterations": 8000,
-                        "repeatIterations": 100000
+                        "repeatIterations": 100000,
+                        "thermalThrottleSleepSeconds": 90000000
                     },
                     {
                         "name": "MethodB",
@@ -115,7 +118,8 @@ class ResultWriterTest {
                             }
                         },
                         "warmupIterations": 8000,
-                        "repeatIterations": 100000
+                        "repeatIterations": 100000,
+                        "thermalThrottleSleepSeconds": 90000000
                     }
                 ]
             }

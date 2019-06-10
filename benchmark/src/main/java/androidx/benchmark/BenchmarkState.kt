@@ -21,6 +21,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Debug
 import android.util.Log
+import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -70,9 +71,11 @@ class BenchmarkState internal constructor() {
 
     private var startTimeNs: Long = 0 // System.nanoTime() at start of last warmup/test iter.
 
-    private var paused: Boolean = false
+    private var paused = false
     private var pausedTimeNs: Long = 0 // The System.nanoTime() when the pauseTiming() is called.
     private var pausedDurationNs: Long = 0 // The duration of paused state in nano sec.
+    private var thermalThrottleSleepSeconds: Long =
+        0 // The duration of sleep due to thermal throttling.
 
     private var repeatCount = 0
 
@@ -205,6 +208,7 @@ class BenchmarkState internal constructor() {
         pausedDurationNs = 0
         iterationsRemaining = maxIterations
         repeatCount = 0
+        thermalThrottleSleepSeconds = 0
         state = RUNNING
         startTimeNs = System.nanoTime()
     }
@@ -218,7 +222,7 @@ class BenchmarkState internal constructor() {
         if (repeatCount >= REPEAT_COUNT) {
             if (performThrottleChecks &&
                 throttleRemainingRetries > 0 &&
-                sleepIfThermalThrottled()
+                sleepIfThermalThrottled(THROTTLE_BACKOFF_S)
             ) {
                 // We've slept due to thermal throttle - retry benchmark!
                 throttleRemainingRetries -= 1
@@ -331,6 +335,7 @@ class BenchmarkState internal constructor() {
         val testName: String,
         val data: List<Long>,
         val repeatIterations: Int,
+        val thermalThrottleSleepSeconds: Long,
         val warmupIterations: Int
     ) {
         val stats = Stats(data)
@@ -341,6 +346,7 @@ class BenchmarkState internal constructor() {
         testName = testName,
         data = results,
         repeatIterations = maxIterations,
+        thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
         warmupIterations = warmupIteration
     )
 
@@ -375,6 +381,18 @@ class BenchmarkState internal constructor() {
         InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
     }
 
+    private fun sleepIfThermalThrottled(sleepSeconds: Long) = when {
+        ThrottleDetector.isDeviceThermalThrottled() -> {
+            Log.d(TAG, "THERMAL THROTTLE DETECTED, SLEEPING FOR $sleepSeconds SECONDS")
+            val startTime = System.nanoTime()
+            Thread.sleep(TimeUnit.SECONDS.toMillis(sleepSeconds))
+            val sleepTime = System.nanoTime() - startTime
+            thermalThrottleSleepSeconds += TimeUnit.NANOSECONDS.toSeconds(sleepTime)
+            true
+        }
+        else -> false
+    }
+
     internal companion object {
         private const val TAG = "Benchmark"
         private const val STUDIO_OUTPUT_KEY_PREFIX = "android.studio.display."
@@ -407,6 +425,8 @@ class BenchmarkState internal constructor() {
          * @param dataNs List of all measured results, in nanoseconds
          * @param warmupIterations Number of iterations of warmup before measurements started.
          *                         Should be no less than 0.
+         * @param thermalThrottleSleepSeconds Number of seconds benchmark was paused during thermal
+         *                                    throttling.
          * @param repeatIterations Number of iterations in between each measurement. Should be no
          *                         less than 1.
          */
@@ -416,14 +436,16 @@ class BenchmarkState internal constructor() {
             className: String,
             testName: String,
             dataNs: List<Long>,
-            @androidx.annotation.IntRange(from = 0) warmupIterations: Int,
-            @androidx.annotation.IntRange(from = 1) repeatIterations: Int
+            @IntRange(from = 0) warmupIterations: Int,
+            @IntRange(from = 0) thermalThrottleSleepSeconds: Long,
+            @IntRange(from = 1) repeatIterations: Int
         ) {
             val report = Report(
                 className = className,
                 testName = testName,
                 data = dataNs,
                 repeatIterations = repeatIterations,
+                thermalThrottleSleepSeconds = thermalThrottleSleepSeconds,
                 warmupIterations = warmupIterations
             )
 
@@ -436,16 +458,6 @@ class BenchmarkState internal constructor() {
 
             // Report values to file output
             ResultWriter.appendReport(report)
-        }
-
-        internal fun sleepIfThermalThrottled(): Boolean {
-            return if (ThrottleDetector.isDeviceThermalThrottled()) {
-                Log.d(TAG, "THERMAL THROTTLE DETECTED, SLEEPING FOR $THROTTLE_BACKOFF_S SECONDS")
-                Thread.sleep(TimeUnit.SECONDS.toMillis(THROTTLE_BACKOFF_S))
-                true
-            } else {
-                false
-            }
         }
 
         internal fun ideSummaryLineWrapped(key: String, nanos: Long): String {
