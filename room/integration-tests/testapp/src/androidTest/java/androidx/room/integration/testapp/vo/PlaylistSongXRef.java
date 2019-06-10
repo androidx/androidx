@@ -20,6 +20,7 @@ import static androidx.room.ForeignKey.CASCADE;
 
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
+import androidx.room.Index;
 
 @Entity(
         primaryKeys = {"mPlaylistId", "mSongId"},
@@ -34,6 +35,10 @@ import androidx.room.ForeignKey;
                         parentColumns = "mSongId",
                         childColumns = "mSongId",
                         onDelete = CASCADE),
+        },
+        indices = {
+                @Index("mPlaylistId"),
+                @Index("mSongId")
         }
 )
 public class PlaylistSongXRef {

@@ -21,6 +21,7 @@ import androidx.room.preconditions.Checks
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
+import androidx.room.vo.Warning
 import java.io.File
 import java.util.LinkedHashSet
 import javax.annotation.processing.ProcessingEnvironment
@@ -95,7 +96,7 @@ class Context private constructor(
         return Pair(result, collector)
     }
 
-    fun fork(element: Element): Context {
+    fun fork(element: Element, forceSuppressedWarnings: Set<Warning> = emptySet()): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
         val canReUseAdapterStore = processConvertersResult.classes.isEmpty()
@@ -105,7 +106,8 @@ class Context private constructor(
         } else {
             processConvertersResult + this.typeConverters
         }
-        val subSuppressedWarnings = suppressedWarnings + logger.suppressedWarnings
+        val subSuppressedWarnings =
+            forceSuppressedWarnings + suppressedWarnings + logger.suppressedWarnings
         val subCache = Cache(cache, subTypeConverters.classes, subSuppressedWarnings)
         val subContext = Context(
                 processingEnv = processingEnv,
