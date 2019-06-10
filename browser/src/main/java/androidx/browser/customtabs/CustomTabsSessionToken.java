@@ -48,7 +48,7 @@ public class CustomTabsSessionToken {
     @Nullable final ICustomTabsCallback mCallbackBinder;
     @Nullable private final PendingIntent mSessionId;
 
-    private final CustomTabsCallback mCallback;
+    @Nullable private final CustomTabsCallback mCallback;
 
     /* package */ static class MockCallback extends ICustomTabsCallback.Stub {
         @Override
@@ -79,10 +79,9 @@ public class CustomTabsSessionToken {
      * @param intent The intent to generate the token from. This has to include an extra for
      *               {@link CustomTabsIntent#EXTRA_SESSION}.
      * @return The token that was generated.
-     *
-     * TODO(peconn): Mark @Nullable with an API change.
      */
-    public static CustomTabsSessionToken getSessionTokenFromIntent(Intent intent) {
+    public static @Nullable CustomTabsSessionToken getSessionTokenFromIntent(
+            @NonNull Intent intent) {
         Bundle b = intent.getExtras();
         if (b == null) return null;
         IBinder binder = BundleCompat.getBinder(b, CustomTabsIntent.EXTRA_SESSION);
@@ -158,7 +157,8 @@ public class CustomTabsSessionToken {
         };
     }
 
-    IBinder getCallbackBinder() {
+    @Nullable IBinder getCallbackBinder() {
+        if (mCallbackBinder == null) return null;
         return mCallbackBinder.asBinder();
     }
 
@@ -203,14 +203,14 @@ public class CustomTabsSessionToken {
      * @return {@link CustomTabsCallback} corresponding to this session if there was any non-null
      *         callbacks passed by the client.
      */
-    public CustomTabsCallback getCallback() {
+    public @Nullable CustomTabsCallback getCallback() {
         return mCallback;
     }
 
     /**
      * @return Whether this token is associated with the given session.
      */
-    public boolean isAssociatedWith(CustomTabsSession session) {
+    public boolean isAssociatedWith(@NonNull CustomTabsSession session) {
         return session.getBinder().equals(mCallbackBinder);
     }
 }
