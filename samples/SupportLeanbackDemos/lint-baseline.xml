@@ -1,14 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.2.0-beta05">
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
         id="MissingSuperCall"
-        severity="Error"
         message="Overriding method should call `super.onPictureInPictureModeChanged`"
-        category="Correctness"
-        priority="9"
-        summary="Missing Super Call"
-        explanation="Some methods, such as `View#onDetachedFromWindow`, require that you also call the super implementation as part of your method."
         errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -19,12 +14,7 @@
 
     <issue
         id="MissingSuperCall"
-        severity="Error"
         message="Overriding method should call `super.onPictureInPictureModeChanged`"
-        category="Correctness"
-        priority="9"
-        summary="Missing Super Call"
-        explanation="Some methods, such as `View#onDetachedFromWindow`, require that you also call the super implementation as part of your method."
         errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -35,14 +25,7 @@
 
     <issue
         id="DefaultLocale"
-        severity="Warning"
         message="Implicitly using the default locale is a common source of bugs: Use `String.format(Locale, ...)` instead"
-        category="Correctness"
-        priority="6"
-        summary="Implied default locale in case conversion"
-        explanation="Calling `String#toLowerCase()` or `#toUpperCase()` **without specifying an explicit locale** is a common source of bugs. The reason for that is that those methods will use the current locale on the user&apos;s device, and even though the code appears to work correctly when you are developing the app, it will fail in some locales. For example, in the Turkish locale, the uppercase replacement for `i` is **not** `I`.&#xA;&#xA;If you want the methods to just perform ASCII replacement, for example to convert an enum name, call `String#toUpperCase(Locale.US)` instead. If you really want to use the current locale, call `String#toUpperCase(Locale.getDefault())` instead."
-        url="http://developer.android.com/reference/java/util/Locale.html#default_locale"
-        urls="http://developer.android.com/reference/java/util/Locale.html#default_locale"
         errorLine1="        b.append(String.format(&quot;%.2f&quot;, ((float) seconds + seconds2)));"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -52,304 +35,8 @@
     </issue>
 
     <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#getPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#setPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                        ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.PlaybackParams#setSpeed"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                                      ~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#getPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="704"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.PlaybackParams#getSpeed"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
-        errorLine2="                                            ~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="704"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#getPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="761"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#setPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="761"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.PlaybackParams#setSpeed"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="761"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#getPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="794"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#setPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="794"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.PlaybackParams#setSpeed"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="794"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#getPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="836"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#setPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="836"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.PlaybackParams#setSpeed"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="836"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#getPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="927"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.MediaPlayer#setPlaybackParams"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                ~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="927"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        severity="Error"
-        message="Call requires API level 23 (current min is 21): android.media.PlaybackParams#setSpeed"
-        category="Correctness"
-        priority="6"
-        summary="Calling new methods on older versions"
-        explanation="This check scans through all the Android API calls in the application and warns about any calls that are not available on **all** versions targeted by this application (according to its minimum SDK attribute in the manifest).&#xA;&#xA;If you really want to use this API and don&apos;t need to support older devices just set the `minSdkVersion` in your `build.gradle` or `AndroidManifest.xml` files.&#xA;&#xA;If your code is **deliberately** accessing newer APIs, and you have ensured (e.g. with conditional execution) that this code will only ever be called on a supported platform, then you can annotate your class or method with the `@TargetApi` annotation specifying the local minimum SDK to apply, such as `@TargetApi(11)`, such that this check considers 11 rather than your manifest file&apos;s minimum SDK as the required API level.&#xA;&#xA;If you are deliberately setting `android:` attributes in style definitions, make sure you place this in a `values-v`*NN* folder in order to avoid running into runtime conflicts on certain devices where manufacturers have added custom attributes whose ids conflict with the new ones on later platforms.&#xA;&#xA;Similarly, you can use tools:targetApi=&quot;11&quot; in an XML file to indicate that the element will only be inflated in an adequate context."
-        errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
-        errorLine2="                                                              ~~~~~~~~"
-        quickfix="studio">
-        <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="927"
-            column="63"/>
-    </issue>
-
-    <issue
         id="SdCardPath"
-        severity="Warning"
         message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        category="Correctness"
-        priority="6"
-        summary="Hardcoded reference to `/sdcard`"
-        explanation="Your code should not reference the `/sdcard` path directly; instead use `Environment.getExternalStorageDirectory().getPath()`.&#xA;&#xA;Similarly, do not reference the `/data/data/` path directly; it can vary in multi-user scenarios. Instead, use `Context.getFilesDir().getPath()`."
-        url="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
-        urls="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
         errorLine1="                        &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -360,14 +47,7 @@
 
     <issue
         id="SdCardPath"
-        severity="Warning"
         message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        category="Correctness"
-        priority="6"
-        summary="Hardcoded reference to `/sdcard`"
-        explanation="Your code should not reference the `/sdcard` path directly; instead use `Environment.getExternalStorageDirectory().getPath()`.&#xA;&#xA;Similarly, do not reference the `/data/data/` path directly; it can vary in multi-user scenarios. Instead, use `Context.getFilesDir().getPath()`."
-        url="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
-        urls="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
         errorLine1="                        &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -378,14 +58,7 @@
 
     <issue
         id="SdCardPath"
-        severity="Warning"
         message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        category="Correctness"
-        priority="6"
-        summary="Hardcoded reference to `/sdcard`"
-        explanation="Your code should not reference the `/sdcard` path directly; instead use `Environment.getExternalStorageDirectory().getPath()`.&#xA;&#xA;Similarly, do not reference the `/data/data/` path directly; it can vary in multi-user scenarios. Instead, use `Context.getFilesDir().getPath()`."
-        url="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
-        urls="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
         errorLine1="                    &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -396,14 +69,7 @@
 
     <issue
         id="SdCardPath"
-        severity="Warning"
         message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        category="Correctness"
-        priority="6"
-        summary="Hardcoded reference to `/sdcard`"
-        explanation="Your code should not reference the `/sdcard` path directly; instead use `Environment.getExternalStorageDirectory().getPath()`.&#xA;&#xA;Similarly, do not reference the `/data/data/` path directly; it can vary in multi-user scenarios. Instead, use `Context.getFilesDir().getPath()`."
-        url="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
-        urls="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
         errorLine1="                                &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -414,14 +80,7 @@
 
     <issue
         id="SdCardPath"
-        severity="Warning"
         message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        category="Correctness"
-        priority="6"
-        summary="Hardcoded reference to `/sdcard`"
-        explanation="Your code should not reference the `/sdcard` path directly; instead use `Environment.getExternalStorageDirectory().getPath()`.&#xA;&#xA;Similarly, do not reference the `/data/data/` path directly; it can vary in multi-user scenarios. Instead, use `Context.getFilesDir().getPath()`."
-        url="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
-        urls="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
         errorLine1="                    &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -432,14 +91,7 @@
 
     <issue
         id="SdCardPath"
-        severity="Warning"
         message="Do not hardcode &quot;/sdcard/&quot;; use `Environment.getExternalStorageDirectory().getPath()` instead"
-        category="Correctness"
-        priority="6"
-        summary="Hardcoded reference to `/sdcard`"
-        explanation="Your code should not reference the `/sdcard` path directly; instead use `Environment.getExternalStorageDirectory().getPath()`.&#xA;&#xA;Similarly, do not reference the `/data/data/` path directly; it can vary in multi-user scenarios. Instead, use `Context.getFilesDir().getPath()`."
-        url="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
-        urls="http://developer.android.com/guide/topics/data/data-storage.html#filesExternal"
         errorLine1="                                &quot;/sdcard/seek/frame_%04d.jpg&quot;));"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -450,15 +102,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="89"
@@ -467,15 +113,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="90"
@@ -484,15 +124,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="97"
@@ -501,15 +135,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="98"
@@ -518,15 +146,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="105"
@@ -535,15 +157,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="106"
@@ -552,15 +168,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `resizeableActivity` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:resizeableActivity=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="113"
@@ -569,15 +179,9 @@
 
     <issue
         id="UnusedAttribute"
-        severity="Warning"
         message="Attribute `supportsPictureInPicture` is only used in API level 24 and higher (current min is 21)"
-        category="Correctness"
-        priority="6"
-        summary="Attribute unused on older versions"
-        explanation="This check finds attributes set in XML files that were introduced in a version newer than the oldest version targeted by your application (with the `minSdkVersion` attribute).&#xA;&#xA;This is not an error; the application will simply ignore the attribute. However, if the attribute is important to the appearance or functionality of your application, you should consider finding an alternative way to achieve the same result with only available attributes, and then you can optionally create a copy of the layout in a layout-vNN folder which will be used on API NN or higher where you can take advantage of the newer attribute.&#xA;&#xA;Note: This check does not only apply to attributes. For example, some tags can be unused too, such as the new `&lt;tag>` element in layouts introduced in API 21."
         errorLine1="            android:supportsPictureInPicture=&quot;true&quot;"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="114"
@@ -585,31 +189,8 @@
     </issue>
 
     <issue
-        id="InflateParams"
-        severity="Warning"
-        message="Avoid passing `null` as the view root (needed to resolve layout parameters on the inflated layout&apos;s root element)"
-        category="Correctness"
-        priority="5"
-        summary="Layout Inflation without a Parent"
-        explanation="When inflating a layout, avoid passing in null as the parent view, since otherwise any layout parameters on the root of the inflated layout will be ignored."
-        url="http://www.doubleencore.com/2013/05/layout-inflation-as-intended"
-        urls="http://www.doubleencore.com/2013/05/layout-inflation-as-intended"
-        errorLine1="        View view = getLayoutInflater().inflate(R.layout.horizontal_grid, null, false);"
-        errorLine2="                                                                          ~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/HorizontalGridTestActivity.java"
-            line="55"
-            column="75"/>
-    </issue>
-
-    <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 32 (leanback.BrowseAnimationFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -620,12 +201,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -636,12 +212,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 30 (leanback.BrowseSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -652,12 +223,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -668,12 +234,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -684,12 +245,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -700,12 +256,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -716,12 +267,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -732,12 +278,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -748,12 +289,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -764,12 +300,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 29 (leanback.ErrorSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;button clicked&quot;);"
         errorLine2="                      ~~~">
         <location
@@ -780,12 +311,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -796,12 +322,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 44 (leanback.GuidedStepSupportHalfScreenActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.v(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -812,12 +333,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.v(TAG, &quot;onScrollStateChanged &quot;"
         errorLine2="                      ~~~">
         <location
@@ -828,12 +344,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                        if (DEBUG) Log.d(TAG, &quot;onChildSelected position=&quot; + position);"
         errorLine2="                                         ~~~">
         <location
@@ -844,12 +355,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        if (DEBUG) Log.v(TAG, &quot;onCreate&quot;);"
         errorLine2="                         ~~~">
         <location
@@ -860,12 +366,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        if (DEBUG) Log.v(TAG, &quot;onNewIntent &quot; + intent);"
         errorLine2="                         ~~~">
         <location
@@ -876,12 +377,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="            if (DEBUG) Log.v(TAG, &quot;createViewHolder &quot; + viewType);"
         errorLine2="                             ~~~">
         <location
@@ -892,12 +388,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 26 (HorizontalGridTestActivity)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="            if (DEBUG) Log.v(TAG, &quot;bindViewHolder &quot; + position + &quot; &quot; + baseHolder);"
         errorLine2="                             ~~~">
         <location
@@ -908,12 +399,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -924,12 +410,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -940,12 +421,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 24 (leanback.DetailsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -956,12 +432,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -972,12 +443,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -988,12 +454,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 31 (leanback.DetailsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -1004,12 +465,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -1020,12 +476,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 33 (leanback.PlaybackControlsFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -1036,28 +487,18 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 28 (PlaybackTransportControlGlue)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="            Log.e(TAG, &quot;disconnectToMediaSession: Media session disconnected&quot;);"
         errorLine2="                  ~~~">
         <location
             file="src/main/java/com/example/android/leanback/PlaybackTransportControlGlueSample.java"
-            line="158"
+            line="156"
             column="19"/>
     </issue>
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -1068,12 +509,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 28 (leanback.RowsSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -1084,12 +520,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Change %s&quot;, newQuery));"
         errorLine2="              ~~~">
         <location
@@ -1100,12 +531,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 30 (leanback.SearchSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, String.format(&quot;Search Query Text Submit %s&quot;, query));"
         errorLine2="              ~~~">
         <location
@@ -1116,12 +542,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -1132,12 +553,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -1148,12 +564,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 29 (leanback.VerticalGridFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -1164,12 +575,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="        Log.i(TAG, &quot;onCreate&quot;);"
         errorLine2="              ~~~">
         <location
@@ -1180,12 +586,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemSelected: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -1196,12 +597,7 @@
 
     <issue
         id="LongLogTag"
-        severity="Error"
         message="The logging tag can be at most 23 characters, was 36 (leanback.VerticalGridSupportFragment)"
-        category="Correctness"
-        priority="5"
-        summary="Too Long Log Tags"
-        explanation="Log tags are only allowed to be at most 23 tag characters long."
         errorLine1="                Log.i(TAG, &quot;onItemClicked: &quot; + item + &quot; row &quot; + row);"
         errorLine2="                      ~~~">
         <location
@@ -1212,29 +608,18 @@
 
     <issue
         id="GradleDependency"
-        severity="Warning"
         message="A newer version of com.google.code.gson:gson than 2.6.2 is available: 2.8.2"
-        category="Correctness"
-        priority="4"
-        summary="Obsolete Gradle Dependency"
-        explanation="This detector looks for usages of libraries where the version you are using is not the current stable release. Using older versions is fine, and there are cases where you deliberately want to stick with an older version. However, you may simply not be aware that a more recent version is available, and that is what this lint check helps find."
         errorLine1="    implementation &apos;com.google.code.gson:gson:2.6.2&apos;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="build.gradle"
-            line="8"
+            line="9"
             column="5"/>
     </issue>
 
     <issue
         id="GradleOverrides"
-        severity="Warning"
         message="This `versionCode` value (`1`) is not used; it is always overridden by the value specified in the Gradle build script (`1`)"
-        category="Correctness"
-        priority="4"
-        summary="Value overridden by Gradle build script"
-        explanation="The value of (for example) `minSdkVersion` is only used if it is not specified in the `build.gradle` build scripts. When specified in the Gradle build scripts, the manifest value is ignored and can be misleading, so should be removed to avoid ambiguity."
         errorLine1="    android:versionCode=&quot;1&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1245,12 +630,7 @@
 
     <issue
         id="GradleOverrides"
-        severity="Warning"
         message="This `versionName` value (`1.0`) is not used; it is always overridden by the value specified in the Gradle build script (`1.0`)"
-        category="Correctness"
-        priority="4"
-        summary="Value overridden by Gradle build script"
-        explanation="The value of (for example) `minSdkVersion` is only used if it is not specified in the `build.gradle` build scripts. When specified in the Gradle build scripts, the manifest value is ignored and can be misleading, so should be removed to avoid ambiguity."
         errorLine1="    android:versionName=&quot;1.0&quot;>"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1261,17 +641,9 @@
 
     <issue
         id="PermissionImpliesUnsupportedHardware"
-        severity="Warning"
         message="Permission exists without corresponding hardware `&lt;uses-feature android:name=&quot;android.hardware.microphone&quot; required=&quot;false&quot;>` tag."
-        category="Correctness"
-        priority="3"
-        summary="Permission Implies Unsupported Hardware"
-        explanation="The &lt;uses-permission> element should not require a permission that implies an unsupported TV hardware feature. Google Play assumes that certain hardware related permissions indicate that the underlying hardware features are required by default. To fix the issue, consider declaring the corresponding uses-feature element with required=&quot;false&quot; attribute."
-        url="http://developer.android.com/guide/topics/manifest/uses-feature-element.html#permissions"
-        urls="http://developer.android.com/guide/topics/manifest/uses-feature-element.html#permissions"
         errorLine1="    &lt;uses-permission android:name=&quot;android.permission.RECORD_AUDIO&quot; />"
-        errorLine2="     ~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="15"
@@ -1280,17 +652,9 @@
 
     <issue
         id="AllowBackup"
-        severity="Warning"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        category="Security"
-        priority="3"
-        summary="AllowBackup/FullBackupContent Problems"
-        explanation="The `allowBackup` attribute determines if an application&apos;s data can be backed up and restored. It is documented at http://developer.android.com/reference/android/R.attr.html#allowBackup&#xA;&#xA;By default, this flag is set to `true`. When this flag is set to `true`, application data can be backed up and restored by the user using `adb backup` and `adb restore`.&#xA;&#xA;This may have security consequences for an application. `adb backup` allows users who have enabled USB debugging to copy application data off of the device. Once backed up, all application data can be read by the user. `adb restore` allows creation of application data from a source specified by the user. Following a restore, applications should not assume that the data, file permissions, and directory permissions were created by the application itself.&#xA;&#xA;Setting `allowBackup=&quot;false&quot;` opts an application out of both backup and restore.&#xA;&#xA;To fix this warning, decide whether your application should support backup, and explicitly set `android:allowBackup=(true|false)&quot;`.&#xA;&#xA;If not set to false, and if targeting API 23 or later, lint will also warn that you should set `android:fullBackupContent` to configure auto backup."
-        url="https://developer.android.com/training/backup/autosyncapi.html"
-        urls="https://developer.android.com/training/backup/autosyncapi.html,http://developer.android.com/reference/android/R.attr.html#allowBackup"
         errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
@@ -1299,17 +663,9 @@
 
     <issue
         id="AllowBackup"
-        severity="Warning"
         message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
-        category="Security"
-        priority="3"
-        summary="AllowBackup/FullBackupContent Problems"
-        explanation="The `allowBackup` attribute determines if an application&apos;s data can be backed up and restored. It is documented at http://developer.android.com/reference/android/R.attr.html#allowBackup&#xA;&#xA;By default, this flag is set to `true`. When this flag is set to `true`, application data can be backed up and restored by the user using `adb backup` and `adb restore`.&#xA;&#xA;This may have security consequences for an application. `adb backup` allows users who have enabled USB debugging to copy application data off of the device. Once backed up, all application data can be read by the user. `adb restore` allows creation of application data from a source specified by the user. Following a restore, applications should not assume that the data, file permissions, and directory permissions were created by the application itself.&#xA;&#xA;Setting `allowBackup=&quot;false&quot;` opts an application out of both backup and restore.&#xA;&#xA;To fix this warning, decide whether your application should support backup, and explicitly set `android:allowBackup=(true|false)&quot;`.&#xA;&#xA;If not set to false, and if targeting API 23 or later, lint will also warn that you should set `android:fullBackupContent` to configure auto backup."
-        url="https://developer.android.com/training/backup/autosyncapi.html"
-        urls="https://developer.android.com/training/backup/autosyncapi.html,http://developer.android.com/reference/android/R.attr.html#allowBackup"
         errorLine1="    &lt;application"
-        errorLine2="     ~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
@@ -1318,12 +674,7 @@
 
     <issue
         id="StaticFieldLeak"
-        severity="Warning"
-        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapTaskBase)"
-        category="Performance"
-        priority="6"
-        summary="Static Field Leaks"
-        explanation="A static field will leak contexts.&#xA;&#xA;Non-static inner classes have an implicit reference to their outer class. If that outer class is for example a `Fragment` or `Activity`, then this reference means that the long-running handler/loader/task will hold a reference to the activity which prevents it from getting garbage collected.&#xA;&#xA;Similarly, direct field references to activities and fragments from these longer running instances can cause leaks.&#xA;&#xA;ViewModel classes should never point to Views or non-application Contexts."
+        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapTaskBase)"
         errorLine1="    class LoadBitmapTaskBase extends AsyncTask&lt;Request, Object, Request> {"
         errorLine2="          ~~~~~~~~~~~~~~~~~~">
         <location
@@ -1334,12 +685,7 @@
 
     <issue
         id="StaticFieldLeak"
-        severity="Warning"
-        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapIntoBackgroundManagerTask)"
-        category="Performance"
-        priority="6"
-        summary="Static Field Leaks"
-        explanation="A static field will leak contexts.&#xA;&#xA;Non-static inner classes have an implicit reference to their outer class. If that outer class is for example a `Fragment` or `Activity`, then this reference means that the long-running handler/loader/task will hold a reference to the activity which prevents it from getting garbage collected.&#xA;&#xA;Similarly, direct field references to activities and fragments from these longer running instances can cause leaks.&#xA;&#xA;ViewModel classes should never point to Views or non-application Contexts."
+        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapIntoBackgroundManagerTask)"
         errorLine1="    class LoadBitmapIntoBackgroundManagerTask extends LoadBitmapTaskBase {"
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1350,12 +696,7 @@
 
     <issue
         id="StaticFieldLeak"
-        severity="Warning"
-        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapCallbackTask)"
-        category="Performance"
-        priority="6"
-        summary="Static Field Leaks"
-        explanation="A static field will leak contexts.&#xA;&#xA;Non-static inner classes have an implicit reference to their outer class. If that outer class is for example a `Fragment` or `Activity`, then this reference means that the long-running handler/loader/task will hold a reference to the activity which prevents it from getting garbage collected.&#xA;&#xA;Similarly, direct field references to activities and fragments from these longer running instances can cause leaks.&#xA;&#xA;ViewModel classes should never point to Views or non-application Contexts."
+        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.BackgroundHelper.LoadBitmapCallbackTask)"
         errorLine1="    class LoadBitmapCallbackTask extends LoadBitmapTaskBase {"
         errorLine2="          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -1366,12 +707,7 @@
 
     <issue
         id="StaticFieldLeak"
-        severity="Warning"
-        message="This AsyncTask class should be static or leaks might occur (com.example.android.leanback.PlaybackSeekAsyncDataProvider.LoadBitmapTask)"
-        category="Performance"
-        priority="6"
-        summary="Static Field Leaks"
-        explanation="A static field will leak contexts.&#xA;&#xA;Non-static inner classes have an implicit reference to their outer class. If that outer class is for example a `Fragment` or `Activity`, then this reference means that the long-running handler/loader/task will hold a reference to the activity which prevents it from getting garbage collected.&#xA;&#xA;Similarly, direct field references to activities and fragments from these longer running instances can cause leaks.&#xA;&#xA;ViewModel classes should never point to Views or non-application Contexts."
+        message="This `AsyncTask` class should be static or leaks might occur (com.example.android.leanback.PlaybackSeekAsyncDataProvider.LoadBitmapTask)"
         errorLine1="    class LoadBitmapTask extends AsyncTask&lt;Object, Object, Bitmap> {"
         errorLine2="          ~~~~~~~~~~~~~~">
         <location
@@ -1382,247 +718,20 @@
 
     <issue
         id="HandlerLeak"
-        severity="Warning"
         message="This Handler class should be static or leaks might occur (com.example.android.leanback.MediaSessionService.MediaPlayerAudioHandler)"
-        category="Performance"
-        priority="4"
-        summary="Handler reference leaks"
-        explanation="Since this Handler is declared as an inner class, it may prevent the outer class from being garbage collected. If the Handler is using a Looper or MessageQueue for a thread other than the main thread, then there is no issue. If the Handler is using the Looper or MessageQueue of the main thread, you need to fix your Handler declaration, as follows: Declare the Handler as a static class; In the outer class, instantiate a WeakReference to the outer class and pass this object to your Handler when you instantiate the Handler; Make all references to members of the outer class using the WeakReference object."
         errorLine1="    private class MediaPlayerAudioHandler extends Handler {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="86"
+            line="87"
             column="19"/>
     </issue>
 
     <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/browse.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/browse_support.xml"
-            line="20"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/date_picker.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/details_activity.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/guided_step_activity.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/onboarding.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/pin_picker.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_activity.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_activity_support.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_transportcontrol_activity.xml"
-            line="17"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/playback_transportcontrol_activity_support.xml"
-            line="19"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MergeRootFrame"
-        severity="Warning"
-        message="This `&lt;FrameLayout>` can be replaced with a `&lt;merge>` tag"
-        category="Performance"
-        priority="4"
-        summary="FrameLayout can be replaced with `&lt;merge>` tag"
-        explanation="If a `&lt;FrameLayout>` is the root of a layout and does not provide background or padding etc, it can often be replaced with a `&lt;merge>` tag which is slightly more efficient. Note that this depends on context, so make sure you understand how the `&lt;merge>` tag works before proceeding."
-        url="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        urls="http://android-developers.blogspot.com/2009/03/android-layout-tricks-3-optimize-by.html"
-        errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
-        <location
-            file="src/main/res/layout/time_picker.xml"
-            line="18"
-            column="1"/>
-    </issue>
-
-    <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.array.pref_parent_control_entries_summaries` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;array name=&quot;pref_parent_control_entries_summaries&quot;>"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/arrays.xml"
             line="46"
@@ -1631,158 +740,86 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.raw.browse` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.raw.browse` appears to be unused">
         <location
             file="src/main/res/raw/browse.mp4"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.details_img` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.details_img` appears to be unused">
         <location
             file="src/main/res/drawable/details_img.png"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.google_android` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.google_android` appears to be unused">
         <location
             file="src/main/res/drawable/google_android.png"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.google_logo` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.google_logo` appears to be unused">
         <location
             file="src/main/res/drawable/google_logo.png"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.google_photo` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.google_photo` appears to be unused">
         <location
             file="src/main/res/drawable/google_photo.jpeg"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.ic_guidedstep_option_a` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.ic_guidedstep_option_a` appears to be unused">
         <location
             file="src/main/res/drawable/ic_guidedstep_option_a.png"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.ic_guidedstep_option_b` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.ic_guidedstep_option_b` appears to be unused">
         <location
             file="src/main/res/drawable/ic_guidedstep_option_b.png"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.ic_guidedstep_option_c` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.ic_guidedstep_option_c` appears to be unused">
         <location
             file="src/main/res/drawable/ic_guidedstep_option_c.png"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.drawable.ic_settings_wifi_3_bar` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.drawable.ic_settings_wifi_3_bar` appears to be unused">
         <location
             file="src/main/res/drawable-xhdpi/ic_settings_wifi_3_bar.png"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.raw.media0` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.raw.media0` appears to be unused">
         <location
             file="src/main/res/raw/media0.mp3"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
-        message="The resource `R.raw.media1` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
-        quickfix="studio">
+        message="The resource `R.raw.media1` appears to be unused">
         <location
             file="src/main/res/raw/media1.mp3"/>
     </issue>
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.layout.playback_controls` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^"
-        quickfix="studio">
+        errorLine2="^">
         <location
             file="src/main/res/layout/playback_controls.xml"
             line="17"
@@ -1791,15 +828,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.layout.playback_controls_support` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^"
-        quickfix="studio">
+        errorLine2="^">
         <location
             file="src/main/res/layout/playback_controls_support.xml"
             line="19"
@@ -1808,15 +839,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.string.playbackoverlay` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;string name=&quot;playbackoverlay&quot;>PlaybackOverlay&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="53"
@@ -1825,15 +850,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.string.playbackoverlay_description` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;string name=&quot;playbackoverlay_description&quot;>PlaybackOverlayFragment test&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="54"
@@ -1842,15 +861,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.string.playbackoverlay_support` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;string name=&quot;playbackoverlay_support&quot;>PlaybackOverlay(support version)&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="55"
@@ -1859,15 +872,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.string.playbackoverlay_support_description` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;string name=&quot;playbackoverlay_support_description&quot;>PlaybackOverlaySupportFragment test&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="56"
@@ -1876,15 +883,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.string.legacydetails_off` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;string name=&quot;legacydetails_off&quot;>Use New DetailsPresenter&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="75"
@@ -1893,15 +894,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.string.legacydetails_on` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;string name=&quot;legacydetails_on&quot;>Use Legacy DetailsPresenter&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="76"
@@ -1910,15 +905,9 @@
 
     <issue
         id="UnusedResources"
-        severity="Warning"
         message="The resource `R.string.guidedstep_fourth_description` appears to be unused"
-        category="Performance"
-        priority="3"
-        summary="Unused resources"
-        explanation="Unused resources make applications larger and slow down builds.&#xA;&#xA;The unused resource check can ignore tests. If you want to include resources that are only referenced from tests, consider packaging them in a test source set instead.&#xA;&#xA;You can include test sources in the unused resource check by setting the system property lint.unused-resources.include-tests=true, and to exclude them (usually for performance reasons), use lint.unused-resources.exclude-tests=true."
         errorLine1="    &lt;string name=&quot;guidedstep_fourth_description&quot;>Fourth step of guided sequence&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="99"
@@ -1927,12 +916,7 @@
 
     <issue
         id="UselessParent"
-        severity="Warning"
         message="This `LinearLayout` layout or its `RelativeLayout` parent is useless"
-        category="Performance"
-        priority="2"
-        summary="Useless parent layout"
-        explanation="A layout with children that has no siblings, is not a scrollview or a root layout, and does not have a background, can be removed and have its children moved directly into the parent for a flatter and more efficient layout hierarchy."
         errorLine1="    &lt;LinearLayout"
         errorLine2="     ~~~~~~~~~~~~">
         <location
@@ -1943,353 +927,177 @@
 
     <issue
         id="IconColors"
-        severity="Warning"
-        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes"
-        category="Usability:Icons"
-        priority="6"
-        summary="Icon colors do not follow the recommended visual style"
-        explanation="Notification icons and Action Bar icons should only white and shades of gray. See the Android Design Guide for more details. Note that the way Lint decides whether an icon is an action bar icon or a notification icon is based on the filename prefix: `ic_menu_` for action bar icons, `ic_stat_` for notification icons etc. These correspond to the naming conventions documented in http://developer.android.com/guide/practices/ui_guidelines/icon_design.html"
-        url="http://developer.android.com/design/style/iconography.html"
-        urls="http://developer.android.com/design/style/iconography.html">
+        message="Action Bar icons should use a single gray color (`#333333` for light themes (with 60%/30% opacity for enabled/disabled), and `#FFFFFF` with opacity 80%/30% for dark themes">
         <location
             file="src/main/res/drawable/ic_action_a.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/details_img.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/details_img.png` in densityless folder">
         <location
             file="src/main/res/drawable/details_img.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/details_img_16x9.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/details_img_16x9.png` in densityless folder">
         <location
             file="src/main/res/drawable/details_img_16x9.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_1.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_1.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_1.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_2.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_2.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_2.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_3.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_3.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_3.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_4.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_4.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_4.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_5.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_5.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_5.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_6.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_6.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_6.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_7.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_7.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_7.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/gallery_photo_8.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/gallery_photo_8.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/gallery_photo_8.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/google_android.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/google_android.png` in densityless folder">
         <location
             file="src/main/res/drawable/google_android.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/google_logo.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/google_logo.png` in densityless folder">
         <location
             file="src/main/res/drawable/google_logo.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/google_map.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/google_map.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/google_map.jpg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/google_photo.jpeg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/google_photo.jpeg` in densityless folder">
         <location
             file="src/main/res/drawable/google_photo.jpeg"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/ic_action_a.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/ic_action_a.png` in densityless folder">
         <location
             file="src/main/res/drawable/ic_action_a.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_a.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_a.png` in densityless folder">
         <location
             file="src/main/res/drawable/ic_guidedstep_option_a.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_b.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_b.png` in densityless folder">
         <location
             file="src/main/res/drawable/ic_guidedstep_option_b.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_c.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/ic_guidedstep_option_c.png` in densityless folder">
         <location
             file="src/main/res/drawable/ic_guidedstep_option_c.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/ic_title.png` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/ic_title.png` in densityless folder">
         <location
             file="src/main/res/drawable/ic_title.png"/>
     </issue>
 
     <issue
         id="IconLocation"
-        severity="Warning"
-        message="Found bitmap drawable `res/drawable/spiderman.jpg` in densityless folder"
-        category="Usability:Icons"
-        priority="5"
-        summary="Image defined in density-independent drawable folder"
-        explanation="The res/drawable folder is intended for density-independent graphics such as shapes defined in XML. For bitmaps, move it to `drawable-mdpi` and consider providing higher and lower resolution versions in `drawable-ldpi`, `drawable-hdpi` and `drawable-xhdpi`. If the icon **really** is density independent (for example a solid color) you can place it in `drawable-nodpi`."
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Found bitmap drawable `res/drawable/spiderman.jpg` in densityless folder">
         <location
             file="src/main/res/drawable/spiderman.jpg"/>
     </issue>
 
     <issue
         id="IconDensities"
-        severity="Warning"
-        message="Missing the following drawables in `drawable-hdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)"
-        category="Usability:Icons"
-        priority="4"
-        summary="Icon densities validation"
-        explanation="Icons will look best if a custom version is provided for each of the major screen density classes (low, medium, high, extra high). This lint check identifies icons which do not have complete coverage across the densities.&#xA;&#xA;Low density is not really used much anymore, so this check ignores the ldpi density. To force lint to include it, set the environment variable `ANDROID_LINT_INCLUDE_LDPI=true`. For more information on current density usage, see http://developer.android.com/resources/dashboard/screens.html"
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Missing the following drawables in `drawable-hdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)">
         <location
             file="src/main/res/drawable-hdpi"/>
     </issue>
 
     <issue
         id="IconDensities"
-        severity="Warning"
-        message="Missing the following drawables in `drawable-mdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)"
-        category="Usability:Icons"
-        priority="4"
-        summary="Icon densities validation"
-        explanation="Icons will look best if a custom version is provided for each of the major screen density classes (low, medium, high, extra high). This lint check identifies icons which do not have complete coverage across the densities.&#xA;&#xA;Low density is not really used much anymore, so this check ignores the ldpi density. To force lint to include it, set the environment variable `ANDROID_LINT_INCLUDE_LDPI=true`. For more information on current density usage, see http://developer.android.com/resources/dashboard/screens.html"
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Missing the following drawables in `drawable-mdpi`: bg.png, ic_settings_apps.png, ic_settings_parental_control.png, ic_settings_time.png, ic_settings_wifi_3_bar.png... (46 more)">
         <location
             file="src/main/res/drawable-mdpi"/>
     </issue>
 
     <issue
         id="IconMissingDensityFolder"
-        severity="Warning"
-        message="Missing density variation folders in `src/main/res`: drawable-xxhdpi"
-        category="Usability:Icons"
-        priority="3"
-        summary="Missing density folder"
-        explanation="Icons will look best if a custom version is provided for each of the major screen density classes (low, medium, high, extra-high, extra-extra-high). This lint check identifies folders which are missing, such as `drawable-hdpi`.&#xA;&#xA;Low density is not really used much anymore, so this check ignores the ldpi density. To force lint to include it, set the environment variable `ANDROID_LINT_INCLUDE_LDPI=true`. For more information on current density usage, see http://developer.android.com/resources/dashboard/screens.html"
-        url="http://developer.android.com/guide/practices/screens_support.html"
-        urls="http://developer.android.com/guide/practices/screens_support.html">
+        message="Missing density variation folders in `src/main/res`: drawable-xxhdpi">
         <location
             file="src/main/res"/>
     </issue>
 
     <issue
         id="GoogleAppIndexingWarning"
-        severity="Warning"
         message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        category="Usability"
-        priority="5"
-        summary="Missing support for Firebase App Indexing"
-        explanation="Adds URLs to get your app into the Google index, to get installs and traffic to your app from Google Search."
-        url="https://g.co/AppIndexing/AndroidStudio"
-        urls="https://g.co/AppIndexing/AndroidStudio"
         errorLine1="    &lt;application"
-        errorLine2="    ^"
-        quickfix="studio">
+        errorLine2="    ^">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
@@ -2298,15 +1106,9 @@
 
     <issue
         id="TextFields"
-        severity="Warning"
         message="This text field does not specify an `inputType`"
-        category="Usability"
-        priority="5"
-        summary="Missing `inputType`"
-        explanation="Providing an `inputType` attribute on a text field improves usability because depending on the data to be input, optimized keyboards can be shown to the user (such as just digits and parentheses for a phone number). &#xA;&#xA;The lint detector also looks at the `id` of the view, and if the id offers a hint of the purpose of the field (for example, the `id` contains the phrase `phone` or `email`), then lint will also ensure that the `inputType` contains the corresponding type attributes.&#xA;&#xA;If you really want to keep the text field generic, you can suppress this warning by setting `inputType=&quot;text&quot;`."
         errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~"
-        quickfix="studio">
+        errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="15"
@@ -2315,15 +1117,9 @@
 
     <issue
         id="TextFields"
-        severity="Warning"
         message="This text field does not specify an `inputType`"
-        category="Usability"
-        priority="5"
-        summary="Missing `inputType`"
-        explanation="Providing an `inputType` attribute on a text field improves usability because depending on the data to be input, optimized keyboards can be shown to the user (such as just digits and parentheses for a phone number). &#xA;&#xA;The lint detector also looks at the `id` of the view, and if the id offers a hint of the purpose of the field (for example, the `id` contains the phrase `phone` or `email`), then lint will also ensure that the `inputType` contains the corresponding type attributes.&#xA;&#xA;If you really want to keep the text field generic, you can suppress this warning by setting `inputType=&quot;text&quot;`."
         errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~"
-        quickfix="studio">
+        errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="24"
@@ -2332,15 +1128,9 @@
 
     <issue
         id="TextFields"
-        severity="Warning"
         message="This text field does not specify an `inputType`"
-        category="Usability"
-        priority="5"
-        summary="Missing `inputType`"
-        explanation="Providing an `inputType` attribute on a text field improves usability because depending on the data to be input, optimized keyboards can be shown to the user (such as just digits and parentheses for a phone number). &#xA;&#xA;The lint detector also looks at the `id` of the view, and if the id offers a hint of the purpose of the field (for example, the `id` contains the phrase `phone` or `email`), then lint will also ensure that the `inputType` contains the corresponding type attributes.&#xA;&#xA;If you really want to keep the text field generic, you can suppress this warning by setting `inputType=&quot;text&quot;`."
         errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~"
-        quickfix="studio">
+        errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="33"
@@ -2349,14 +1139,7 @@
 
     <issue
         id="Autofill"
-        severity="Warning"
         message="Missing `autofillHints` attribute"
-        category="Usability"
-        priority="3"
-        summary="Use Autofill"
-        explanation="Specify an `autofillHints` attribute when targeting SDK version 26 or higher or explicitly specify that the view is not important for autofill. Your app can help an autofill service classify the data correctly by providing the meaning of each view that could be autofillable, such as views representing usernames, passwords, credit card fields, email addresses, etc.&#xA;&#xA;The hints can have any value, but it is recommended to use predefined values like &apos;username&apos; for a username or &apos;creditCardNumber&apos; for a credit card number. For a list of all predefined autofill hint constants, see the `AUTOFILL_HINT_` constants in the `View` reference at https://developer.android.com/reference/android/view/View.html.&#xA;&#xA;You can mark a view unimportant for autofill by specifying an `importantForAutofill` attribute on that view or a parent view. See https://developer.android.com/reference/android/view/View.html#setImportantForAutofill(int)."
-        url="https://developer.android.com/guide/topics/text/autofill.html"
-        urls="https://developer.android.com/guide/topics/text/autofill.html"
         errorLine1="        &lt;EditText"
         errorLine2="         ~~~~~~~~">
         <location
@@ -2367,14 +1150,7 @@
 
     <issue
         id="Autofill"
-        severity="Warning"
         message="Missing `autofillHints` attribute"
-        category="Usability"
-        priority="3"
-        summary="Use Autofill"
-        explanation="Specify an `autofillHints` attribute when targeting SDK version 26 or higher or explicitly specify that the view is not important for autofill. Your app can help an autofill service classify the data correctly by providing the meaning of each view that could be autofillable, such as views representing usernames, passwords, credit card fields, email addresses, etc.&#xA;&#xA;The hints can have any value, but it is recommended to use predefined values like &apos;username&apos; for a username or &apos;creditCardNumber&apos; for a credit card number. For a list of all predefined autofill hint constants, see the `AUTOFILL_HINT_` constants in the `View` reference at https://developer.android.com/reference/android/view/View.html.&#xA;&#xA;You can mark a view unimportant for autofill by specifying an `importantForAutofill` attribute on that view or a parent view. See https://developer.android.com/reference/android/view/View.html#setImportantForAutofill(int)."
-        url="https://developer.android.com/guide/topics/text/autofill.html"
-        urls="https://developer.android.com/guide/topics/text/autofill.html"
         errorLine1="        &lt;EditText"
         errorLine2="         ~~~~~~~~">
         <location
@@ -2385,14 +1161,7 @@
 
     <issue
         id="Autofill"
-        severity="Warning"
         message="Missing `autofillHints` attribute"
-        category="Usability"
-        priority="3"
-        summary="Use Autofill"
-        explanation="Specify an `autofillHints` attribute when targeting SDK version 26 or higher or explicitly specify that the view is not important for autofill. Your app can help an autofill service classify the data correctly by providing the meaning of each view that could be autofillable, such as views representing usernames, passwords, credit card fields, email addresses, etc.&#xA;&#xA;The hints can have any value, but it is recommended to use predefined values like &apos;username&apos; for a username or &apos;creditCardNumber&apos; for a credit card number. For a list of all predefined autofill hint constants, see the `AUTOFILL_HINT_` constants in the `View` reference at https://developer.android.com/reference/android/view/View.html.&#xA;&#xA;You can mark a view unimportant for autofill by specifying an `importantForAutofill` attribute on that view or a parent view. See https://developer.android.com/reference/android/view/View.html#setImportantForAutofill(int)."
-        url="https://developer.android.com/guide/topics/text/autofill.html"
-        urls="https://developer.android.com/guide/topics/text/autofill.html"
         errorLine1="        &lt;EditText"
         errorLine2="         ~~~~~~~~">
         <location
@@ -2403,15 +1172,9 @@
 
     <issue
         id="LabelFor"
-        severity="Warning"
         message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
-        category="Accessibility"
-        priority="2"
-        summary="Missing accessibility label"
-        explanation="Editable text fields should provide an `android:hint` or, provided your `minSdkVersion` is at least 17, they may be referenced by a view with a `android:labelFor` attribute.&#xA;&#xA;When using `android:labelFor`, be sure to provide an `android:text` or an `android:contentDescription`.&#xA;&#xA;If your view is labeled but by a label in a different layout which includes this one, just suppress this warning from lint."
         errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~"
-        quickfix="studio">
+        errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="15"
@@ -2420,15 +1183,9 @@
 
     <issue
         id="LabelFor"
-        severity="Warning"
         message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
-        category="Accessibility"
-        priority="2"
-        summary="Missing accessibility label"
-        explanation="Editable text fields should provide an `android:hint` or, provided your `minSdkVersion` is at least 17, they may be referenced by a view with a `android:labelFor` attribute.&#xA;&#xA;When using `android:labelFor`, be sure to provide an `android:text` or an `android:contentDescription`.&#xA;&#xA;If your view is labeled but by a label in a different layout which includes this one, just suppress this warning from lint."
         errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~"
-        quickfix="studio">
+        errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="24"
@@ -2437,15 +1194,9 @@
 
     <issue
         id="LabelFor"
-        severity="Warning"
         message="Missing accessibility label: provide either a view with an `android:labelFor` that references this view or provide an `android:hint`"
-        category="Accessibility"
-        priority="2"
-        summary="Missing accessibility label"
-        explanation="Editable text fields should provide an `android:hint` or, provided your `minSdkVersion` is at least 17, they may be referenced by a view with a `android:labelFor` attribute.&#xA;&#xA;When using `android:labelFor`, be sure to provide an `android:text` or an `android:contentDescription`.&#xA;&#xA;If your view is labeled but by a label in a different layout which includes this one, just suppress this warning from lint."
         errorLine1="        &lt;EditText"
-        errorLine2="         ~~~~~~~~"
-        quickfix="studio">
+        errorLine2="         ~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="33"
@@ -2454,14 +1205,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="        vh.getSubtitle().setText(&quot;2013 - 2014   Drama   TV-14&quot;);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2472,14 +1216,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="        vh.getBody().setText(&quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do &quot;"
         errorLine2="                             ^">
         <location
@@ -2490,14 +1227,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="        vh.getBody().setText(&quot;Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do &quot;"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2508,14 +1238,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="                + &quot;eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim &quot;"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2526,14 +1249,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="                + &quot;veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo &quot;"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2544,14 +1260,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="                + &quot;consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse &quot;"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2562,14 +1271,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="                + &quot;cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non &quot;"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2580,14 +1282,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="                + &quot;proident, sunt in culpa qui officia deserunt mollit anim id est laborum.&quot;);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2598,14 +1293,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="Do not concatenate text displayed with `setText`. Use resource string with placeholders."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="            ((TextView) holder.itemView).setText(&quot;Item &quot;+position);"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~">
         <location
@@ -2616,14 +1304,7 @@
 
     <issue
         id="SetTextI18n"
-        severity="Warning"
         message="String literal in `setText` can not be translated. Use Android resources instead."
-        category="Internationalization"
-        priority="6"
-        summary="TextView Internationalization"
-        explanation="When calling `TextView#setText`&#xA;* Never call `Number#toString()` to format numbers; it will not handle fraction separators and locale-specific digits properly. Consider using `String#format` with proper format specifications (`%d` or `%f`) instead.&#xA;* Do not pass a string literal (e.g. &quot;Hello&quot;) to display text. Hardcoded text can not be properly translated to other languages. Consider using Android resource strings instead.&#xA;* Do not build messages by concatenating text chunks. Such messages can not be properly translated."
-        url="http://developer.android.com/guide/topics/resources/localization.html"
-        urls="http://developer.android.com/guide/topics/resources/localization.html"
         errorLine1="            ((TextView) holder.itemView).setText(&quot;Item &quot;+position);"
         errorLine2="                                                 ~~~~~~~">
         <location
@@ -2634,12 +1315,7 @@
 
     <issue
         id="HardcodedText"
-        severity="Warning"
         message="Hardcoded string &quot;Header 1&quot;, should use `@string` resource"
-        category="Internationalization"
-        priority="5"
-        summary="Hardcoded text"
-        explanation="Hardcoding text attributes directly in layout files is bad for several reasons:&#xA;&#xA;* When creating configuration variations (for example for landscape or portrait) you have to repeat the actual text (and keep it up to date when making changes)&#xA;&#xA;* The application cannot be translated to other languages by just adding new translations for existing string resources.&#xA;&#xA;There are quickfixes to automatically extract this hardcoded string into a resource lookup."
         errorLine1="            android:text=&quot;Header 1&quot;"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2650,12 +1326,7 @@
 
     <issue
         id="HardcodedText"
-        severity="Warning"
         message="Hardcoded string &quot;Header 2&quot;, should use `@string` resource"
-        category="Internationalization"
-        priority="5"
-        summary="Hardcoded text"
-        explanation="Hardcoding text attributes directly in layout files is bad for several reasons:&#xA;&#xA;* When creating configuration variations (for example for landscape or portrait) you have to repeat the actual text (and keep it up to date when making changes)&#xA;&#xA;* The application cannot be translated to other languages by just adding new translations for existing string resources.&#xA;&#xA;There are quickfixes to automatically extract this hardcoded string into a resource lookup."
         errorLine1="            android:text=&quot;Header 2&quot;"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2666,12 +1337,7 @@
 
     <issue
         id="HardcodedText"
-        severity="Warning"
         message="Hardcoded string &quot;Header 3&quot;, should use `@string` resource"
-        category="Internationalization"
-        priority="5"
-        summary="Hardcoded text"
-        explanation="Hardcoding text attributes directly in layout files is bad for several reasons:&#xA;&#xA;* When creating configuration variations (for example for landscape or portrait) you have to repeat the actual text (and keep it up to date when making changes)&#xA;&#xA;* The application cannot be translated to other languages by just adding new translations for existing string resources.&#xA;&#xA;There are quickfixes to automatically extract this hardcoded string into a resource lookup."
         errorLine1="            android:text=&quot;Header 3&quot;"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -2682,15 +1348,9 @@
 
     <issue
         id="RtlHardcoded"
-        severity="Warning"
         message="Consider replacing `android:layout_alignParentRight` with `android:layout_alignParentEnd=&quot;true&quot;` to better support right-to-left layouts"
-        category="Internationalization:Bidirectional Text"
-        priority="5"
-        summary="Using left/right instead of start/end attributes"
-        explanation="Using `Gravity#LEFT` and `Gravity#RIGHT` can lead to problems when a layout is rendered in locales where text flows from right to left. Use `Gravity#START` and `Gravity#END` instead. Similarly, in XML `gravity` and `layout_gravity` attributes, use `start` rather than `left`.&#xA;&#xA;For XML attributes such as paddingLeft and `layout_marginLeft`, use `paddingStart` and `layout_marginStart`. **NOTE**: If your `minSdkVersion` is less than 17, you should add **both** the older left/right attributes **as well as** the new start/right attributes. On older platforms, where RTL is not supported and the start/right attributes are unknown and therefore ignored, you need the older left/right attributes. There is a separate lint check which catches that type of error.&#xA;&#xA;(Note: For `Gravity#LEFT` and `Gravity#START`, you can use these constants even when targeting older platforms, because the `start` bitmask is a superset of the `left` bitmask. Therefore, you can use `gravity=&quot;start&quot;` rather than `gravity=&quot;left|start&quot;`.)"
         errorLine1="        android:layout_alignParentRight=&quot;true&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="11"
@@ -2699,15 +1359,9 @@
 
     <issue
         id="RtlHardcoded"
-        severity="Warning"
         message="Consider replacing `android:layout_marginRight` with `android:layout_marginEnd=&quot;128dp&quot;` to better support right-to-left layouts"
-        category="Internationalization:Bidirectional Text"
-        priority="5"
-        summary="Using left/right instead of start/end attributes"
-        explanation="Using `Gravity#LEFT` and `Gravity#RIGHT` can lead to problems when a layout is rendered in locales where text flows from right to left. Use `Gravity#START` and `Gravity#END` instead. Similarly, in XML `gravity` and `layout_gravity` attributes, use `start` rather than `left`.&#xA;&#xA;For XML attributes such as paddingLeft and `layout_marginLeft`, use `paddingStart` and `layout_marginStart`. **NOTE**: If your `minSdkVersion` is less than 17, you should add **both** the older left/right attributes **as well as** the new start/right attributes. On older platforms, where RTL is not supported and the start/right attributes are unknown and therefore ignored, you need the older left/right attributes. There is a separate lint check which catches that type of error.&#xA;&#xA;(Note: For `Gravity#LEFT` and `Gravity#START`, you can use these constants even when targeting older platforms, because the `start` bitmask is a superset of the `left` bitmask. Therefore, you can use `gravity=&quot;start&quot;` rather than `gravity=&quot;left|start&quot;`.)"
         errorLine1="        android:layout_marginRight=&quot;128dp&quot;"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~"
-        quickfix="studio">
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/page_fragment.xml"
             line="12"

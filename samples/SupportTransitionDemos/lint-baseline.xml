@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0">
-
-    <issue
-        id="FindViewByIdCast"
-        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
-        errorLine1="            mViews.add(findViewById(R.id.view_1));"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="59"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="FindViewByIdCast"
-        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
-        errorLine1="            mViews.add(findViewById(R.id.view_2));"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="60"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="FindViewByIdCast"
-        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
-        errorLine1="            mViews.add(findViewById(R.id.view_3));"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="61"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="FindViewByIdCast"
-        message="Add explicit cast here; won&apos;t compile with Java language level 1.8 without it"
-        errorLine1="            mViews.add(findViewById(R.id.view_4));"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="62"
-            column="24"/>
-    </issue>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
         id="UnusedAttribute"
@@ -54,6 +10,17 @@
             file="src/main/res/layout/begin_delayed.xml"
             line="31"
             column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `elevation` is only used in API level 21 and higher (current min is 14)"
+        errorLine1="    android:elevation=&quot;16dp&quot;/>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/layout/red_square.xml"
+            line="24"
+            column="5"/>
     </issue>
 
     <issue
@@ -82,28 +49,28 @@
         id="AllowBackup"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
         errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="24"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
         id="AllowBackup"
         message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
         errorLine1="    &lt;application android:label=&quot;@string/activity_sample_code&quot;"
-        errorLine2="    ^">
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="24"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
         id="Overdraw"
         message="Possible overdraw: Root element paints background `#f00` with a theme that also paints a background (inferred theme is `@style/Theme_Transition`)"
-        errorLine1="    android:background=&quot;#f00&quot;/>"
+        errorLine1="    android:background=&quot;#f00&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/red_square.xml"
@@ -178,66 +145,66 @@
         id="ButtonStyle"
         message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
         errorLine1="        &lt;Button"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/image_transform.xml"
             line="30"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue
         id="ButtonStyle"
         message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
         errorLine1="        &lt;Button"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/image_transform.xml"
             line="35"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue
         id="ButtonStyle"
         message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
         errorLine1="        &lt;Button"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/image_transform.xml"
             line="40"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue
         id="ButtonStyle"
         message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
         errorLine1="        &lt;Button"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/image_transform.xml"
             line="55"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue
         id="ButtonStyle"
         message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
         errorLine1="        &lt;Button"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/image_transform.xml"
             line="60"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue
         id="ButtonStyle"
         message="Buttons in button bars should be borderless; use `style=&quot;?android:attr/buttonBarButtonStyle&quot;` (and `?android:attr/buttonBarStyle` on the parent)"
         errorLine1="        &lt;Button"
-        errorLine2="        ^">
+        errorLine2="         ~~~~~~">
         <location
             file="src/main/res/layout/image_transform.xml"
             line="65"
-            column="9"/>
+            column="10"/>
     </issue>
 
     <issue

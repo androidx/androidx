@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getMediaItem` such that `mediaItem` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public abstract @Nullable MediaItem getCurrentMediaItem();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="425"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl.setEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    public void setEventCallback(@NonNull Executor executor, @NonNull EventCallback eventCallback) {"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
+            line="160"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl.setDrmEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull DrmEventCallback eventCallback) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
+            line="177"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer.registerPlayerCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull PlayerCallback callback) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer.java"
+            line="2409"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2.setEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull Executor executor, @NonNull EventCallback eventCallback);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="980"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2.setDrmEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                                             @NonNull DrmEventCallback eventCallback);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
+            line="1535"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2Impl.setEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull EventCallback eventCallback) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
+            line="666"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2Impl.setDrmEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                                    @NonNull DrmEventCallback eventCallback) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
+            line="702"
+            column="37"/>
+    </issue>
+
+</issues>

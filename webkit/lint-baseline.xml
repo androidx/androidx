@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2019 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="KotlinPropertyAccess"
+        message="This method should be called `getWillSuppressErrorPage` such that `willSuppressErrorPage` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
+        errorLine1="    public boolean willSuppressErrorPage() {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebSettingsAdapter.java"
+            line="85"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;callback&quot;, in org.chromium.support_lib_boundary.WebMessagePortBoundaryInterface.setWebMessageCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            /* WebMessageCallback */ InvocationHandler callback, Handler handler);"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessagePortBoundaryInterface.java"
+            line="22"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 2, &quot;executor&quot;, in androidx.webkit.WebViewCompat.setWebViewRenderProcessClient) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewCompat.java"
+            line="548"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.webkit.internal.WebViewProviderAdapter.setWebViewRenderProcessClient) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="            Executor executor, WebViewRenderProcessClient webViewRenderProcessClient) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="116"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;message&quot;, in org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface.postMessageToMainFrame) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="    void postMessageToMainFrame(/* WebMessage */ InvocationHandler message, Uri targetOrigin);"
+        errorLine2="                                                                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="19"
+            column="77"/>
+    </issue>
+
+</issues>

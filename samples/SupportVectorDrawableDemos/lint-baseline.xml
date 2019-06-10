@@ -1,103 +1,103 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="4" by="lint 3.0.0">
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/animation_vector_drawable_grouping_1.xml"
             line="16"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion.xml"
             line="16"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/animation_vector_drawable_grouping_1_path_motion_object.xml"
             line="17"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/animation_vector_drawable_grouping_accelerate.xml"
             line="17"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/animation_vector_drawable_grouping_decelerate.xml"
             line="16"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/animation_vector_progress_bar.xml"
             line="16"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:aapt=&quot;http://schemas.android.com/aapt&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/btn_radio_on_to_off_bundle.xml"
             line="16"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/ic_hourglass_animation.xml"
             line="15"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
         id="NewApi"
         message="`&lt;animated-vector>` requires API level 21 (current min is 14)"
         errorLine1="&lt;animated-vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;"
-        errorLine2="^">
+        errorLine2=" ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/drawable/ic_signal_airplane_v2_animation.xml"
             line="15"
-            column="1"/>
+            column="2"/>
     </issue>
 
     <issue
@@ -186,6 +186,369 @@
             file="src/main/res/interpolator/control_points_interpolator.xml"
             line="22"
             column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startX=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endX=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endY=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startX=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endX=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endY=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;?colorPrimary&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.4&quot; android:color=&quot;#fff&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item.xml"
+            line="29"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.9&quot; android:color=&quot;?colorControlActivated&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item.xml"
+            line="30"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startX=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endX=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endY=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;?colorPrimary&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.4&quot; android:color=&quot;#f00&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="29"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.4&quot; android:color=&quot;#fff&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="30"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.9&quot; android:color=&quot;?colorControlActivated&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_linear_item_overlap.xml"
+            line="31"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;?colorPrimary&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_radial_item.xml"
+            line="27"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.4&quot; android:color=&quot;#fff&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_radial_item.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.9&quot; android:color=&quot;?colorControlActivated&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_radial_item.xml"
+            line="29"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;?colorPrimary&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_radial_item_short.xml"
+            line="24"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.9&quot; android:color=&quot;?colorControlActivated&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_radial_item_short.xml"
+            line="25"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;?colorPrimary&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item.xml"
+            line="27"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.4&quot; android:color=&quot;#fff&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.9&quot; android:color=&quot;?colorControlActivated&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item.xml"
+            line="29"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;-0.3&quot; android:color=&quot;#f00&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item_long.xml"
+            line="24"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;?colorPrimary&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item_long.xml"
+            line="25"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.4&quot; android:color=&quot;#0f0&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item_long.xml"
+            line="26"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.6&quot; android:color=&quot;#00f&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item_long.xml"
+            line="27"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.7&quot; android:color=&quot;?colorControlActivated&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item_long.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;1.5&quot; android:color=&quot;#00f&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/fill_gradient_sweep_item_long.xml"
+            line="29"
+            column="11"/>
     </issue>
 
     <issue
@@ -285,6 +648,204 @@
             file="src/main/res/interpolator/single_control_point_interpolator.xml"
             line="21"
             column="19"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startX=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endX=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startX=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endX=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item.xml"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item.xml"
+            line="25"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item.xml"
+            line="26"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;#f00&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item.xml"
+            line="28"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.2&quot; android:color=&quot;#f0f&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item.xml"
+            line="29"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.9&quot; android:color=&quot;#f00f&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item.xml"
+            line="30"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startX=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item_alpha.xml"
+            line="20"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endX` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endX=&quot;100&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item_alpha.xml"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `startY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:startY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item_alpha.xml"
+            line="22"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `endY` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    android:endY=&quot;0&quot;"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item_alpha.xml"
+            line="23"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.1&quot; android:color=&quot;#f00&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item_alpha.xml"
+            line="25"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.2&quot; android:color=&quot;#2f0f&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item_alpha.xml"
+            line="26"
+            column="11"/>
+    </issue>
+
+    <issue
+        id="UnusedAttribute"
+        message="Attribute `offset` is only used in API level 24 and higher (current min is 14)"
+        errorLine1="    &lt;item android:offset=&quot;0.9&quot; android:color=&quot;#f00f&quot;/>"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/color/stroke_gradient_item_alpha.xml"
+            line="27"
+            column="11"/>
     </issue>
 
     <issue
@@ -554,23 +1115,23 @@
     <issue
         id="AllowBackup"
         message="On SDK version 23 and up, your app data will be automatically backed up and restored on app install. Consider adding the attribute `android:fullBackupContent` to specify an `@xml` resource which configures which files to backup. More info: https://developer.android.com/training/backup/autosyncapi.html"
-        errorLine1="    &lt;application android:icon=&quot;@drawable/app_sample_code&quot; android:label=&quot;SupportVectorDrawableDemos&quot; >"
-        errorLine2="    ^">
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
         id="AllowBackup"
         message="Should explicitly set `android:allowBackup` to `true` or `false` (it&apos;s `true` by default, and that can have some security implications for the application&apos;s data)"
-        errorLine1="    &lt;application android:icon=&quot;@drawable/app_sample_code&quot; android:label=&quot;SupportVectorDrawableDemos&quot; >"
-        errorLine2="    ^">
+        errorLine1="    &lt;application"
+        errorLine2="     ~~~~~~~~~~~">
         <location
             file="src/main/AndroidManifest.xml"
             line="19"
-            column="5"/>
+            column="6"/>
     </issue>
 
     <issue
@@ -682,7 +1243,7 @@
     <issue
         id="GoogleAppIndexingWarning"
         message="App is not indexable by Google Search; consider adding at least one Activity with an ACTION-VIEW intent filter. See issue explanation for more details."
-        errorLine1="    &lt;application android:icon=&quot;@drawable/app_sample_code&quot; android:label=&quot;SupportVectorDrawableDemos&quot; >"
+        errorLine1="    &lt;application"
         errorLine2="    ^">
         <location
             file="src/main/AndroidManifest.xml"
@@ -697,7 +1258,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="115"
+            line="116"
             column="9"/>
     </issue>
 
@@ -708,7 +1269,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="117"
+            line="118"
             column="28"/>
     </issue>
 
@@ -719,7 +1280,7 @@
         errorLine2="        ^">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="125"
+            line="126"
             column="9"/>
     </issue>
 
@@ -730,7 +1291,7 @@
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="127"
+            line="128"
             column="28"/>
     </issue>
 
@@ -741,7 +1302,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="45"
+            line="46"
             column="27"/>
     </issue>
 
@@ -752,7 +1313,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="47"
+            line="48"
             column="27"/>
     </issue>
 
@@ -763,7 +1324,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="49"
+            line="50"
             column="27"/>
     </issue>
 
@@ -774,7 +1335,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="51"
+            line="52"
             column="27"/>
     </issue>
 
@@ -785,7 +1346,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="60"
+            line="61"
             column="43"/>
     </issue>
 
@@ -796,7 +1357,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="65"
+            line="66"
             column="43"/>
     </issue>
 
@@ -807,7 +1368,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="72"
+            line="73"
             column="43"/>
     </issue>
 
@@ -818,7 +1379,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="77"
+            line="78"
             column="43"/>
     </issue>
 
@@ -829,7 +1390,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="89"
+            line="90"
             column="43"/>
     </issue>
 
@@ -840,7 +1401,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="94"
+            line="95"
             column="43"/>
     </issue>
 
@@ -851,7 +1412,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="102"
+            line="103"
             column="43"/>
     </issue>
 
@@ -862,7 +1423,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/AVDCListenerDemo.java"
-            line="107"
+            line="108"
             column="43"/>
     </issue>
 
@@ -873,7 +1434,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
-            line="69"
+            line="71"
             column="19"/>
     </issue>
 
@@ -884,7 +1445,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
-            line="69"
+            line="71"
             column="19"/>
     </issue>
 
@@ -895,7 +1456,7 @@
         errorLine2="                                                                ~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/SimpleAnimatedVectorDrawable.java"
-            line="69"
+            line="71"
             column="65"/>
     </issue>
 
@@ -906,7 +1467,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
-            line="119"
+            line="125"
             column="19"/>
     </issue>
 
@@ -917,7 +1478,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
-            line="119"
+            line="125"
             column="19"/>
     </issue>
 
@@ -928,7 +1489,7 @@
         errorLine2="                                                                ~~~~~">
         <location
             file="src/main/java/com/example/android/support/vectordrawable/app/SimpleStaticVectorDrawable.java"
-            line="119"
+            line="125"
             column="65"/>
     </issue>
 
