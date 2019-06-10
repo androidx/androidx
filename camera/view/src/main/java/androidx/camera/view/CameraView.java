@@ -78,7 +78,6 @@ public final class CameraView extends ViewGroup {
     static final int INDEFINITE_VIDEO_SIZE = -1;
 
     private static final String EXTRA_SUPER = "super";
-    private static final String EXTRA_QUALITY = "quality";
     private static final String EXTRA_ZOOM_LEVEL = "zoom_level";
     private static final String EXTRA_PINCH_TO_ZOOM_ENABLED = "pinch_to_zoom_enabled";
     private static final String EXTRA_FLASH = "flash";
@@ -200,9 +199,6 @@ public final class CameraView extends ViewGroup {
                     ScaleType.fromId(
                             a.getInteger(R.styleable.CameraView_scaleType,
                                     getScaleType().getId())));
-            setQuality(
-                    Quality.fromId(
-                            a.getInteger(R.styleable.CameraView_quality, getQuality().getId())));
             setPinchToZoomEnabled(
                     a.getBoolean(
                             R.styleable.CameraView_pinchToZoomEnabled, isPinchToZoomEnabled()));
@@ -265,7 +261,6 @@ public final class CameraView extends ViewGroup {
         Bundle state = new Bundle();
         state.putParcelable(EXTRA_SUPER, super.onSaveInstanceState());
         state.putInt(EXTRA_SCALE_TYPE, getScaleType().getId());
-        state.putInt(EXTRA_QUALITY, getQuality().getId());
         state.putFloat(EXTRA_ZOOM_LEVEL, getZoomLevel());
         state.putBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED, isPinchToZoomEnabled());
         state.putString(EXTRA_FLASH, getFlash().name());
@@ -287,7 +282,6 @@ public final class CameraView extends ViewGroup {
             Bundle state = (Bundle) savedState;
             super.onRestoreInstanceState(state.getParcelable(EXTRA_SUPER));
             setScaleType(ScaleType.fromId(state.getInt(EXTRA_SCALE_TYPE)));
-            setQuality(Quality.fromId(state.getInt(EXTRA_QUALITY)));
             setZoomLevel(state.getFloat(EXTRA_ZOOM_LEVEL));
             setPinchToZoomEnabled(state.getBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED));
             setFlash(FlashMode.valueOf(state.getString(EXTRA_FLASH)));
@@ -569,26 +563,6 @@ public final class CameraView extends ViewGroup {
             mScaleType = scaleType;
             requestLayout();
         }
-    }
-
-    /**
-     * Gets the current quality for image and video outputs.
-     *
-     * @return The current {@link Quality}. Currently only {@link Quality#HIGH} is supported.
-     */
-    Quality getQuality() {
-        return mCameraModule.getQuality();
-    }
-
-    /**
-     * Sets the quality for image and video outputs.
-     *
-     * @param quality The {@link Quality} used for image and video. Currently only {@link
-     *                Quality#HIGH} is supported.
-     * @throws UnsupportedOperationException if any quality other than HIGH is set.
-     */
-    void setQuality(Quality quality) {
-        mCameraModule.setQuality(quality);
     }
 
     /**
@@ -1027,40 +1001,6 @@ public final class CameraView extends ViewGroup {
             for (ScaleType st : values()) {
                 if (st.mId == id) {
                     return st;
-                }
-            }
-            throw new IllegalArgumentException();
-        }
-    }
-
-    /**
-     * Determines the resolution of CameraView's outputs. All resolutions are best attempts, and
-     * will fall to lower qualities if the Android device cannot support them. Resolutions also may
-     * change in the future (if, say, Android adds 8k resolution).
-     *
-     * <p>(*) {@link Quality#MAX} will output at 4k. (*) {@link Quality#HIGH} will output at 1080p.
-     * (*) {@link Quality#MEDIUM} will output at 720. (*) {@link Quality#LOW} will output at 480.
-     */
-    enum Quality {
-        MAX(0),
-        HIGH(1),
-        MEDIUM(2),
-        LOW(3);
-
-        private int mId;
-
-        int getId() {
-            return mId;
-        }
-
-        Quality(int id) {
-            mId = id;
-        }
-
-        static Quality fromId(int id) {
-            for (Quality f : values()) {
-                if (f.mId == id) {
-                    return f;
                 }
             }
             throw new IllegalArgumentException();
