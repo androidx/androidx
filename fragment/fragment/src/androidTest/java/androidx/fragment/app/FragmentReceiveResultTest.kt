@@ -184,7 +184,7 @@ class FragmentReceiveResultTest {
             hasResult = true
             this.requestCode = requestCode
             this.resultCode = resultCode
-            resultContent = data!!.getStringExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT)
+            resultContent = data!!.getStringExtra(FragmentResultActivity.EXTRA_RESULT_CONTENT)!!
             resultReceiveLatch.countDown()
         }
     }

@@ -219,6 +219,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     }
 
     // Make sure that onSharedElementStart and onSharedElementEnd are called
+    @Suppress("UNCHECKED_CAST")
     @Test
     fun callStartEndWithSharedElements() {
         val fragment1 = setupInitialFragment()
