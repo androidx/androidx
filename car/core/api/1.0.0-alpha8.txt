@@ -15,8 +15,8 @@ package androidx.car.app {
     method public androidx.car.app.CarAlertDialog.Builder setHeaderIcon(android.graphics.drawable.Icon?);
     method public androidx.car.app.CarAlertDialog.Builder setNegativeButton(@StringRes int, android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarAlertDialog.Builder setNegativeButton(CharSequence, android.content.DialogInterface.OnClickListener?);
-    method public androidx.car.app.CarAlertDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener?);
-    method public androidx.car.app.CarAlertDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener?);
+    method public androidx.car.app.CarAlertDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
+    method public androidx.car.app.CarAlertDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
     method public androidx.car.app.CarAlertDialog.Builder setPositiveButton(@StringRes int, android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarAlertDialog.Builder setPositiveButton(CharSequence, android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarAlertDialog.Builder setTitle(@StringRes int);
@@ -33,8 +33,8 @@ package androidx.car.app {
     method public androidx.car.app.CarListDialog.Builder setInitialPosition(int);
     method public androidx.car.app.CarListDialog.Builder setItems(CharSequence![], android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarListDialog.Builder setItems(androidx.car.app.CarListDialog.DialogSubSection![], android.content.DialogInterface.OnClickListener?);
-    method public androidx.car.app.CarListDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener!);
-    method public androidx.car.app.CarListDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener!);
+    method public androidx.car.app.CarListDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
+    method public androidx.car.app.CarListDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
     method public androidx.car.app.CarListDialog.Builder setTitle(@StringRes int);
     method public androidx.car.app.CarListDialog.Builder setTitle(CharSequence!);
   }
@@ -58,8 +58,8 @@ package androidx.car.app {
     method public androidx.car.app.CarMultipleChoiceDialog.Builder setItems(java.util.List<androidx.car.app.CarMultipleChoiceDialog.Item!>);
     method public androidx.car.app.CarMultipleChoiceDialog.Builder setNegativeButton(@StringRes int);
     method public androidx.car.app.CarMultipleChoiceDialog.Builder setNegativeButton(CharSequence);
-    method public androidx.car.app.CarMultipleChoiceDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener?);
-    method public androidx.car.app.CarMultipleChoiceDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener?);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
+    method public androidx.car.app.CarMultipleChoiceDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
     method public androidx.car.app.CarMultipleChoiceDialog.Builder setPositiveButton(@StringRes int, androidx.car.app.CarMultipleChoiceDialog.OnMultiChoiceClickListener);
     method public androidx.car.app.CarMultipleChoiceDialog.Builder setPositiveButton(CharSequence, androidx.car.app.CarMultipleChoiceDialog.OnMultiChoiceClickListener);
     method public androidx.car.app.CarMultipleChoiceDialog.Builder setTitle(@StringRes int);
@@ -87,8 +87,8 @@ package androidx.car.app {
     method public androidx.car.app.CarSingleChoiceDialog.Builder setItems(java.util.List<androidx.car.app.CarSingleChoiceDialog.Item!>, @IntRange(from=0) int);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setNegativeButton(@StringRes int);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setNegativeButton(CharSequence);
-    method public androidx.car.app.CarSingleChoiceDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener?);
-    method public androidx.car.app.CarSingleChoiceDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener?);
+    method public androidx.car.app.CarSingleChoiceDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
+    method public androidx.car.app.CarSingleChoiceDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setPositiveButton(@StringRes int, android.content.DialogInterface.OnClickListener);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setPositiveButton(CharSequence, android.content.DialogInterface.OnClickListener);
     method public androidx.car.app.CarSingleChoiceDialog.Builder setTitle(@StringRes int);
