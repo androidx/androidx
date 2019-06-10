@@ -107,7 +107,7 @@ class ControllerHostCallbacks(
     }
 
     override fun onSupportInvalidateOptionsMenu() {
-        activity.supportInvalidateOptionsMenu()
+        activity.invalidateOptionsMenu()
     }
 
     override fun onStartActivityFromFragment(

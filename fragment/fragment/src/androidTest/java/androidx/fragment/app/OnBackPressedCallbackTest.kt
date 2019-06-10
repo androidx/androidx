@@ -234,7 +234,7 @@ class OnBackPressedCallbackTest {
                 .that(fragmentCallback.count)
                 .isEqualTo(1)
             assertThat(fragmentManager.findFragmentById(R.id.content))
-                .isSameAs(fragment)
+                .isSameInstanceAs(fragment)
 
             val grandChildFragmentManager = fragment.childFragment!!.childFragmentManager
             val grandChildFragment = StrictFragment()
