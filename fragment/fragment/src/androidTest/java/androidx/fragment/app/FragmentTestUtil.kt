@@ -15,11 +15,9 @@
  */
 package androidx.fragment.app
 
-import android.app.Activity
 import android.os.Build
 import android.view.ViewGroup
 import androidx.annotation.LayoutRes
-import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.runOnUiThreadRethrow
@@ -106,14 +104,4 @@ fun forceGC() {
             } while (leak[(Math.random() * leak.size).toInt()].get() != null)
         }
     }
-}
-
-inline fun <reified A : Activity, T : Any> ActivityScenario<A>.withActivity(
-    crossinline block: A.() -> T
-): T {
-    lateinit var value: T
-    onActivity { activity ->
-        value = block(activity)
-    }
-    return value
 }
