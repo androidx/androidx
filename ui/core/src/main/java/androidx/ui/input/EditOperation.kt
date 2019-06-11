@@ -14,36 +14,42 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY
 import java.util.Objects
 
 /**
- * An enum class for the type of edit operations.
+ * Constants for editing operation types.
  */
-internal enum class OpType {
-    COMMIT_TEXT,
-    SET_COMPOSING_REGION,
-    SET_COMPOSING_TEXT,
-    DELETE_SURROUNDING_TEXT,
-    DELETE_SURROUNDING_TEXT_IN_CODE_POINTS,
-    SET_SELECTION,
-    FINISH_COMPOSING_TEXT
-}
+/** @hide */ @RestrictTo(LIBRARY) const val COMMIT_TEXT = 0
+/** @hide */ @RestrictTo(LIBRARY) const val SET_COMPOSING_REGION = 1
+/** @hide */ @RestrictTo(LIBRARY) const val SET_COMPOSING_TEXT = 2
+/** @hide */ @RestrictTo(LIBRARY) const val DELETE_SURROUNDING_TEXT = 3
+/** @hide */ @RestrictTo(LIBRARY) const val DELETE_SURROUNDING_TEXT_IN_CODE_POINTS = 4
+/** @hide */ @RestrictTo(LIBRARY) const val SET_SELECTION = 5
+/** @hide */ @RestrictTo(LIBRARY) const val FINISH_COMPOSING_TEXT = 6
 
 /**
  * A base class of all EditOperations
  *
  * An EditOperation is a representation of platform IME API call. For example, in Android,
  * InputConnection#commitText API call is translated to CommitTextEditOp object.
+ *
+ * @hide
  */
-internal open class EditOperation(val type: OpType)
+@RestrictTo(LIBRARY)
+open class EditOperation(val type: Int)
 
 /**
  * An edit operation represent commitText callback from InputMethod.
  * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#commitText(java.lang.CharSequence,%20int)
+ *
+ * @hide
  */
-internal data class CommitTextEditOp(
+@RestrictTo(LIBRARY)
+data class CommitTextEditOp(
     /**
      * The text to commit. We ignore any styles in the original API.
      */
@@ -54,13 +60,15 @@ internal data class CommitTextEditOp(
      * See original commitText API docs for more details.
      */
     val newCursorPostion: Int
-) : EditOperation(OpType.COMMIT_TEXT)
+) : EditOperation(COMMIT_TEXT)
 
 /**
  * An edit operation represents setComposingRegion callback from InputMethod.
  *
+ * @hide
  */
-internal data class SetComposingRegionEditOp(
+@RestrictTo(LIBRARY)
+data class SetComposingRegionEditOp(
     /**
      * The inclusive start offset of the composing region.
      */
@@ -70,14 +78,17 @@ internal data class SetComposingRegionEditOp(
      * The exclusive end offset of the composing region
      */
     val end: Int
-) : EditOperation(OpType.SET_COMPOSING_REGION)
+) : EditOperation(SET_COMPOSING_REGION)
 
 /**
  * An edit operation represents setComposingText callback from InputMethod
  *
  * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setComposingText(java.lang.CharSequence,%2520int)
+ *
+ * @hide
  */
-internal data class SetComposingTextEditOp(
+@RestrictTo(LIBRARY)
+data class SetComposingTextEditOp(
     /**
      * The composing text.
      */
@@ -87,14 +98,17 @@ internal data class SetComposingTextEditOp(
      * See original setComposingText API docs for more details.
      */
     val newCursorPosition: Int
-) : EditOperation(OpType.SET_COMPOSING_TEXT)
+) : EditOperation(SET_COMPOSING_TEXT)
 
 /**
  * An edit operation represents deleteSurroundingText callback from InputMethod
  *
  * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingText(int,%2520int)
+ *
+ * @hide
  */
-internal data class DeleteSurroundingTextEditOp(
+@RestrictTo(LIBRARY)
+data class DeleteSurroundingTextEditOp(
     /**
      * The number of characters in UTF-16 before the cursor to be deleted.
      */
@@ -103,14 +117,17 @@ internal data class DeleteSurroundingTextEditOp(
      * The number of characters in UTF-16 after the cursor to be deleted.
      */
     val afterLength: Int
-) : EditOperation(OpType.DELETE_SURROUNDING_TEXT)
+) : EditOperation(DELETE_SURROUNDING_TEXT)
 
 /**
  * An edit operation represents deleteSurroundingTextInCodePoitns callback from InputMethod
  *
  * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#deleteSurroundingTextInCodePoints(int,%2520int)
+ *
+ * @hide
  */
-internal data class DeleteSurroundingTextInCodePointsEditOp(
+@RestrictTo(LIBRARY)
+data class DeleteSurroundingTextInCodePointsEditOp(
     /**
      * The number oc characters in Unicode code points before the cursor to be deleted.
      */
@@ -119,14 +136,17 @@ internal data class DeleteSurroundingTextInCodePointsEditOp(
      * The number oc characters in Unicode code points after the cursor to be deleted.
      */
     val afterLength: Int
-) : EditOperation(OpType.DELETE_SURROUNDING_TEXT_IN_CODE_POINTS)
+) : EditOperation(DELETE_SURROUNDING_TEXT_IN_CODE_POINTS)
 
 /**
  * An edit operation represents setSelection callback from InputMethod
  *
  * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#setSelection(int,%2520int)
+ *
+ * @hide
  */
-internal data class SetSelectionEditOp(
+@RestrictTo(LIBRARY)
+data class SetSelectionEditOp(
     /**
      * The inclusive start offset of the selection region.
      */
@@ -135,14 +155,17 @@ internal data class SetSelectionEditOp(
      * The exclusive end offset of the selection region.
      */
     val end: Int
-) : EditOperation(OpType.SET_SELECTION)
+) : EditOperation(SET_SELECTION)
 
 /**
  * An edit operation represents finishComposingText callback from InputMEthod
  *
  * @see https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()
+ *
+ * @hide
  */
-internal class FinishComposingTextEditOp : EditOperation(OpType.FINISH_COMPOSING_TEXT) {
+@RestrictTo(LIBRARY)
+class FinishComposingTextEditOp : EditOperation(FINISH_COMPOSING_TEXT) {
 
     // Class with empty arguments default ctor cannot be data class.
     // Treating all FinishComposingTextEditOp are equal object.
