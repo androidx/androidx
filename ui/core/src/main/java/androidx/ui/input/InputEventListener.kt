@@ -14,12 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.input
+package androidx.ui.input
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY
 /**
  * An interface of listening IME events.
+ *
+ * @hide
  */
-internal interface InputEventListener {
+@RestrictTo(LIBRARY)
+interface InputEventListener {
     /**
      * Called when IME sends some input events.
      *
