@@ -895,6 +895,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         dbVerifier = verifier
                     )
                     val parsedQuery = parser.process()
+                    @Suppress("UNCHECKED_CAST")
                     handler(parsedQuery as T, invocation)
                     true
                 }

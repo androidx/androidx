@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.camera.integration.antelope
 
 import android.content.Intent
@@ -608,11 +610,11 @@ class AntelopeInstrumentedTests {
         val csvDir = File(Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DOCUMENTS), MainActivity.LOG_DIR)
 
-        if (csvDir.exists()) {
+        return if (csvDir.exists()) {
             val children = csvDir.listFiles()
-            return (children.isEmpty())
+            (children!!.isEmpty())
         } else {
-            return true
+            true
         }
     }
 
@@ -623,11 +625,11 @@ class AntelopeInstrumentedTests {
         val photoDir = File(Environment.getExternalStoragePublicDirectory(
             Environment.DIRECTORY_DCIM), MainActivity.PHOTOS_DIR)
 
-        if (photoDir.exists()) {
+        return if (photoDir.exists()) {
             val children = photoDir.listFiles()
-            return (children.isEmpty())
+            (children!!.isEmpty())
         } else {
-            return true
+            true
         }
     }
 
