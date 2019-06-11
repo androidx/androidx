@@ -598,13 +598,11 @@ fun TextDemoComposableTextSpan() {
 
 @Composable
 fun TextDemoFontSizeScale() {
-    CraneWrapper {
-        Text {
-            Span(style = TextStyle(fontSize = fontSize8)) {
-                for (i in 4..12 step 4) {
-                    val scale = i * 0.1f
-                    Span("fontSizeScale=$scale\n", style = TextStyle(fontSizeScale = scale))
-                }
+    Text {
+        Span(style = TextStyle(fontSize = fontSize8)) {
+            for (i in 4..12 step 4) {
+                val scale = i * 0.1f
+                Span("fontSizeScale=$scale\n", style = TextStyle(fontSizeScale = scale))
             }
         }
     }
