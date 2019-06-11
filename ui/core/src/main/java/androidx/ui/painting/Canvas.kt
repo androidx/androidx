@@ -16,16 +16,12 @@
 
 package androidx.ui.painting
 
-import android.graphics.Matrix
 import androidx.ui.Vertices
-import androidx.ui.core.toFrameworkRect
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
-import androidx.ui.vectormath64.degrees
-import androidx.ui.vectormath64.isIdentity
 
 // TODO(mount/njawad): Separate the platform-independent API from the platform-dependent.
 // TODO(Migration/njawad): Copy the class here
@@ -63,29 +59,22 @@ import androidx.ui.vectormath64.isIdentity
  * To end the recording, call [PictureRecorder.endRecording] on the
  * given recorder.
  */
-class Canvas {
 
-    private val internalCanvas: android.graphics.Canvas
+// /* expect */ fun Canvas(image: Image): Canvas
+//
+// /* expect */ fun Canvas(
+//    recorder: PictureRecorder,
+//    cullRect: Rect = Rect.largest
+// ): Canvas
 
-    constructor(
-        recorder: PictureRecorder,
-        cullRect: Rect = Rect.largest
-    ) : this(recorder.frameworkPicture.beginRecording(
-            cullRect.width.toInt(),
-            cullRect.height.toInt())
-    )
+/* expect */ typealias NativeCanvas = android.graphics.Canvas
 
-    constructor(frameworkCanvas: android.graphics.Canvas) {
-        internalCanvas = frameworkCanvas
-    }
+interface Canvas {
 
-    fun toFrameworkCanvas(): android.graphics.Canvas {
-        return internalCanvas
-    }
-
-    private val internalPath = Path()
-
-    private val internalRectF = android.graphics.RectF()
+    /**
+     * Return an instance of the native primitive that implements the Canvas interface
+     */
+    val nativeCanvas: NativeCanvas
 
     /**
      * Saves a copy of the current transform and clip on the save stack.
@@ -97,9 +86,21 @@ class Canvas {
      *  * [saveLayer], which does the same thing but additionally also groups the
      *    commands done until the matching [restore].
      */
-    fun save() {
-        internalCanvas.save()
-    }
+    // TODO (njawad) replace with lambda overload when multi-child ComponentNode support is added
+    fun save()
+
+    /**
+     * Pops the current save stack, if there is anything to pop.
+     * Otherwise, does nothing.
+     *
+     * Use [save] and [saveLayer] to push state onto the stack.
+     *
+     * If the state was pushed with with [saveLayer], then this call will also
+     * cause the new layer to be composited into the previous layer.
+     */
+    // TODO (njawad) remove when save with lambda receiver overload is supported with multi-child
+    // ComponentNodes
+    fun restore()
 
     /**
      * Saves a copy of the current transform and clip on the save stack, and then
@@ -213,21 +214,7 @@ class Canvas {
      *    [saveLayer].
      */
     @SuppressWarnings("deprecation")
-    fun saveLayer(bounds: Rect?, paint: Paint) {
-        if (bounds == null) {
-            TODO("Migration/njawad framework does not have quivalent for saveLayerWithoutBounds")
-        } else {
-            @Suppress("DEPRECATION")
-            internalCanvas.saveLayer(
-                    bounds.left,
-                    bounds.top,
-                    bounds.right,
-                    bounds.bottom,
-                    paint.toFrameworkPaint(),
-                    android.graphics.Canvas.ALL_SAVE_FLAG
-            )
-        }
-    }
+    fun saveLayer(bounds: Rect?, paint: Paint)
 
     // TODO(Migration/njawad find equivalent implementation for _saveLayerWithoutBounds or not
 //    void _saveLayerWithoutBounds(List<dynamic> paintObjects, ByteData paintData)
@@ -240,35 +227,10 @@ class Canvas {
 //    ByteData paintData) native 'Canvas_saveLayer';
 
     /**
-     * Pops the current save stack, if there is anything to pop.
-     * Otherwise, does nothing.
-     *
-     * Use [save] and [saveLayer] to push state onto the stack.
-     *
-     * If the state was pushed with with [saveLayer], then this call will also
-     * cause the new layer to be composited into the previous layer.
-     */
-    fun restore() {
-        internalCanvas.restore()
-    }
-
-    /**
-     * Returns the number of items on the save stack, including the
-     * initial state. This means it returns 1 for a clean canvas, and
-     * that each call to [save] and [saveLayer] increments it, and that
-     * each matching call to [restore] decrements it.
-     *
-     * This number cannot go below 1.
-     */
-    fun getSaveCount(): Int = internalCanvas.saveCount
-
-    /**
      * Add a translation to the current transform, shifting the coordinate space
      * horizontally by the first argument and vertically by the second argument.
      */
-    fun translate(dx: Float, dy: Float) {
-        internalCanvas.translate(dx, dy)
-    }
+    fun translate(dx: Float, dy: Float)
 
     /**
      * Add an axis-aligned scale to the current transform, scaling by the first
@@ -278,14 +240,10 @@ class Canvas {
      * If [sy] is unspecified, [sx] will be used for the scale in both
      * directions.
      */
-    fun scale(sx: Float, sy: Float = sx) {
-        internalCanvas.scale(sx, sy)
-    }
+    fun scale(sx: Float, sy: Float = sx)
 
     /** Add a rotation to the current transform. The argument is in radians clockwise. */
-    fun rotate(radians: Float) {
-        internalCanvas.rotate(degrees(radians))
-    }
+    fun rotate(radians: Float)
 
     /**
      * Add an axis-aligned skew to the current transform, with the first argument
@@ -293,41 +251,13 @@ class Canvas {
      * second argument being the vertical skew in radians clockwise around the
      * origin.
      */
-    fun skew(sx: Float, sy: Float) {
-        internalCanvas.skew(sx, sy)
-    }
+    fun skew(sx: Float, sy: Float)
 
     /**
      * Multiply the current transform by the specified 4⨉4 transformation matrix
      * specified as a list of values in column-major order.
      */
-    fun transform(matrix4: Matrix4) {
-        if (!matrix4.isIdentity()) {
-            val frameworkMatrix = Matrix()
-            if (matrix4.get(2, 0) != 0f ||
-                    matrix4.get(2, 1) != 0f ||
-                    matrix4.get(2, 0) != 0f ||
-                    matrix4.get(2, 1) != 0f ||
-                    matrix4.get(2, 2) != 1f ||
-                    matrix4.get(2, 3) != 0f ||
-                    matrix4.get(3, 2) != 0f) {
-                throw IllegalStateException("Android does not support arbitrary transforms")
-            }
-            val values = floatArrayOf(
-                matrix4.get(0, 0),
-                matrix4.get(1, 0),
-                matrix4.get(3, 0),
-                matrix4.get(0, 1),
-                matrix4.get(1, 1),
-                matrix4.get(3, 1),
-                matrix4.get(0, 3),
-                matrix4.get(1, 3),
-                matrix4.get(3, 3)
-            )
-            frameworkMatrix.setValues(values)
-            toFrameworkCanvas().concat(frameworkMatrix)
-        }
-    }
+    fun concat(matrix4: Matrix4)
 
     /**
      * Reduces the clip region to the intersection of the current clip and the
@@ -343,15 +273,7 @@ class Canvas {
      * current clip.
      */
     @SuppressWarnings("deprecation")
-    fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.intersect) {
-        val frameworkRect = rect.toFrameworkRect()
-        @Suppress("DEPRECATION")
-        when (clipOp) {
-            ClipOp.intersect -> internalCanvas.clipRect(frameworkRect)
-            ClipOp.difference -> internalCanvas.clipRect(frameworkRect,
-                    android.graphics.Region.Op.DIFFERENCE)
-        }
-    }
+    fun clipRect(rect: Rect, clipOp: ClipOp = ClipOp.intersect)
 
     /**
      * Reduces the clip region to the intersection of the current clip and the
@@ -362,11 +284,7 @@ class Canvas {
      * in incorrect blending at the clip boundary. See [saveLayer] for a
      * discussion of how to address that and some examples of using [clipRRect].
      */
-    fun clipRRect(rrect: RRect) {
-        internalPath.reset()
-        internalPath.addRRect(rrect)
-        clipPath(internalPath)
-    }
+    fun clipRRect(rrect: RRect)
 
     /**
      * Reduces the clip region to the intersection of the current clip and the
@@ -377,18 +295,14 @@ class Canvas {
      * in incorrect blending at the clip boundary. See [saveLayer] for a
      * discussion of how to address that.
      */
-    fun clipPath(path: Path) {
-        internalCanvas.clipPath(path.toFrameworkPath())
-    }
+    fun clipPath(path: Path)
 
     /**
      * Paints the given [Color] onto the canvas, applying the given
      * [BlendMode], with the given color being the source and the background
      * being the destination.
      */
-    fun drawColor(color: Color, blendMode: BlendMode) {
-        internalCanvas.drawColor(color.toArgb(), blendMode.toPorterDuffMode())
-    }
+    fun drawColor(color: Color, blendMode: BlendMode)
 
     /**
      * Draws a line between the given points using the given paint. The line is
@@ -396,15 +310,7 @@ class Canvas {
      *
      * The `p1` and `p2` arguments are interpreted as offsets from the origin.
      */
-    fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
-        internalCanvas.drawLine(
-                p1.dx,
-                p1.dy,
-                p2.dx,
-                p2.dy,
-                paint.toFrameworkPaint()
-        )
-    }
+    fun drawLine(p1: Offset, p2: Offset, paint: Paint)
 
     /**
      * Fills the canvas with the given [Paint].
@@ -412,27 +318,19 @@ class Canvas {
      * To fill the canvas with a solid color and blend mode, consider
      * [drawColor] instead.
      */
-    fun drawPaint(paint: Paint) {
-        internalCanvas.drawPaint(paint.toFrameworkPaint())
-    }
+    fun drawPaint(paint: Paint)
 
     /**
      * Draws a rectangle with the given [Paint]. Whether the rectangle is filled
      * or stroked (or both) is controlled by [Paint.style].
      */
-    fun drawRect(rect: Rect, paint: Paint) {
-        internalCanvas.drawRect(rect.toFrameworkRect(), paint.toFrameworkPaint())
-    }
+    fun drawRect(rect: Rect, paint: Paint)
 
     /**
      * Draws a rounded rectangle with the given [Paint]. Whether the rectangle is
      * filled or stroked (or both) is controlled by [Paint.style].
      */
-    fun drawRRect(rrect: RRect, paint: Paint) {
-        internalPath.reset()
-        internalPath.addRRect(rrect)
-        internalCanvas.drawPath(internalPath.toFrameworkPath(), paint.toFrameworkPaint())
-    }
+    fun drawRRect(rrect: RRect, paint: Paint)
 
     /**
      * Draws a shape consisting of the difference between two rounded rectangles
@@ -441,30 +339,14 @@ class Canvas {
      *
      * This shape is almost but not quite entirely unlike an annulus.
      */
-    fun drawDRRect(outer: RRect, inner: RRect, paint: Paint) {
-        // TODO(Migration/njawad find better way to recreate functionality with Framework APIs
-        // without creating temporary paths on each draw call
-        val outerPath = Path()
-        val innerPath = Path()
-
-        outerPath.addRRect(outer)
-        innerPath.addRRect(inner)
-
-        internalPath.reset()
-        internalPath.op(outerPath, innerPath, PathOperation.difference)
-        internalCanvas.drawPath(internalPath.toFrameworkPath(), paint.toFrameworkPaint())
-    }
+    fun drawDRRect(outer: RRect, inner: RRect, paint: Paint)
 
     /**
      * Draws an axis-aligned oval that fills the given axis-aligned rectangle
      * with the given [Paint]. Whether the oval is filled or stroked (or both) is
      * controlled by [Paint.style].
      */
-    fun drawOval(rect: Rect, paint: Paint) {
-        internalRectF.set(rect.toFrameworkRect())
-        internalCanvas.drawOval(internalRectF,
-                paint.toFrameworkPaint())
-    }
+    fun drawOval(rect: Rect, paint: Paint)
 
     /**
      * Draws a circle centered at the point given by the first argument and
@@ -472,14 +354,7 @@ class Canvas {
      * the third argument. Whether the circle is filled or stroked (or both) is
      * controlled by [Paint.style].
      */
-    fun drawCircle(c: Offset, radius: Float, paint: Paint) {
-        internalCanvas.drawCircle(
-            c.dx,
-            c.dy,
-            radius,
-            paint.toFrameworkPaint()
-        )
-    }
+    fun drawCircle(center: Offset, radius: Float, paint: Paint)
 
     /**
      * Draw an arc scaled to fit inside the given rectangle. It starts from
@@ -499,38 +374,20 @@ class Canvas {
         sweepAngle: Float,
         useCenter: Boolean,
         paint: Paint
-    ) {
-        internalRectF.set(rect.toFrameworkRect())
-        internalCanvas.drawArc(
-                internalRectF,
-                startAngle,
-                sweepAngle,
-                useCenter,
-                paint.toFrameworkPaint()
-        )
-    }
+    )
 
     /**
      * Draws the given [Path] with the given [Paint]. Whether this shape is
      * filled or stroked (or both) is controlled by [Paint.style]. If the path is
      * filled, then subpaths within it are implicitly closed (see [Path.close]).
      */
-    fun drawPath(path: Path, paint: Paint) {
-        internalCanvas.drawPath(path.toFrameworkPath(), paint.toFrameworkPaint())
-    }
+    fun drawPath(path: Path, paint: Paint)
 
     /**
      * Draws the given [Image] into the canvas with its top-left corner at the
      * given [Offset]. The image is composited into the canvas using the given [Paint].
      */
-    fun drawImage(image: Image, p: Offset, paint: Paint) {
-        internalCanvas.drawBitmap(
-                image.bitmap,
-                p.dx,
-                p.dy,
-                paint.toFrameworkPaint()
-        )
-    }
+    fun drawImage(image: Image, topLeftOffset: Offset, paint: Paint)
 
 //    void _drawImage(Image image,
 //    double x,
@@ -549,26 +406,13 @@ class Canvas {
      * image) can be batched into a single call to [drawAtlas] to improve
      * performance.
      */
-    fun drawImageRect(image: Image, src: Rect, dst: Rect, paint: Paint) {
-        internalCanvas.drawBitmap(
-                image.bitmap,
-                src.toFrameworkRect(),
-                dst.toFrameworkRect(),
-                paint.toFrameworkPaint()
-        )
-    }
+    fun drawImageRect(image: Image, src: Rect, dst: Rect, paint: Paint)
 
     /**
      * Draw the given picture onto the canvas. To create a picture, see
      * [PictureRecorder].
      */
-    fun drawPicture(picture: Picture) {
-        _drawPicture(picture.frameworkPicture)
-    }
-
-    private fun _drawPicture(picture: android.graphics.Picture) {
-        internalCanvas.drawPicture(picture)
-    }
+    fun drawPicture(picture: Picture)
 
     /**
      * Draws the text in the given [Paragraph] into this canvas at the given [Offset].
@@ -607,55 +451,7 @@ class Canvas {
      *  * [drawRawPoints], which takes `points` as a [Float32List] rather than a
      *    [List<Offset>].
      */
-    fun drawPoints(pointMode: PointMode, points: List<Offset>, paint: Paint) {
-        when (pointMode) {
-            // Draw a line between each pair of points, each point has at most one line
-            // If the number of points is odd, then the last point is ignored.
-            PointMode.lines -> drawLines(points, paint, 2)
-
-            // Connect each adjacent point with a line
-            PointMode.polygon -> drawLines(points, paint, 1)
-
-            // Draw a point at each provided coordinate
-            PointMode.points -> drawPoints(points, paint)
-        }
-    }
-
-    private fun drawPoints(points: List<Offset>, paint: Paint) {
-        for (point in points) {
-            internalCanvas.drawPoint(point.dx,
-                    point.dy,
-                    paint.toFrameworkPaint())
-        }
-    }
-
-    /**
-     * Draw lines connecting points based on the corresponding step.
-     *
-     * ex. 3 points with a step of 1 would draw 2 lines between the first and second points
-     * and another between the second and third
-     *
-     * ex. 4 points with a step of 2 would draw 2 lines between the first and second and another
-     * between the third and fourth. If there is an odd number of points, the last point is
-     * ignored
-     *
-     * @see drawRawLines
-     */
-    private fun drawLines(points: List<Offset>, paint: Paint, stepBy: Int) {
-        if (points.size >= 2) {
-            for (i in 0 until points.size - 1 step stepBy) {
-                val p1 = points[i]
-                val p2 = points[i + 1]
-                internalCanvas.drawLine(
-                        p1.dx,
-                        p1.dy,
-                        p2.dx,
-                        p2.dy,
-                        paint.toFrameworkPaint()
-                )
-            }
-        }
-    }
+    fun drawPoints(pointMode: PointMode, points: List<Offset>, paint: Paint)
 
     /**
      * Draws a sequence of points according to the given [PointMode].
@@ -668,86 +464,13 @@ class Canvas {
      *  * [drawPoints], which takes `points` as a [List<Offset>] rather than a
      *    [List<Float32List>].
      */
-    fun drawRawPoints(pointMode: PointMode, points: FloatArray, paint: Paint) {
-        if (points.size % 2 != 0) {
-            throw IllegalArgumentException("points must have an even number of values")
-        }
-        when (pointMode) {
-            PointMode.lines -> drawRawLines(points, paint, 2)
-            PointMode.polygon -> drawRawLines(points, paint, 1)
-            PointMode.points -> drawRawPoints(points, paint, 2)
-        }
-    }
-
-    private fun drawRawPoints(points: FloatArray, paint: Paint, stepBy: Int) {
-        if (points.size % 2 == 0) {
-            for (i in 0 until points.size - 1 step stepBy) {
-                val x = points[i]
-                val y = points[i + 1]
-                internalCanvas.drawPoint(x, y, paint.toFrameworkPaint())
-            }
-        }
-    }
-
-    /**
-     * Draw lines connecting points based on the corresponding step. The points are interpreted
-     * as x, y coordinate pairs in alternating index positions
-     *
-     * ex. 3 points with a step of 1 would draw 2 lines between the first and second points
-     * and another between the second and third
-     *
-     * ex. 4 points with a step of 2 would draw 2 lines between the first and second and another
-     * between the third and fourth. If there is an odd number of points, the last point is
-     * ignored
-     *
-     * @see drawLines
-     */
-    private fun drawRawLines(points: FloatArray, paint: Paint, stepBy: Int) {
-        // Float array is treated as alternative set of x and y coordinates
-        // x1, y1, x2, y2, x3, y3, ... etc.
-        if (points.size >= 4 && points.size % 2 == 0) {
-            for (i in 0 until points.size - 3 step stepBy * 2) {
-                val x1 = points[i]
-                val y1 = points[i + 1]
-                val x2 = points[i + 2]
-                val y2 = points[i + 3]
-                internalCanvas.drawLine(
-                        x1,
-                        y1,
-                        x2,
-                        y2,
-                        paint.toFrameworkPaint()
-                )
-            }
-        }
-    }
+    fun drawRawPoints(pointMode: PointMode, points: FloatArray, paint: Paint)
 //
 //    void _drawPoints(List<dynamic> paintObjects,
 //    ByteData paintData,
 //    int pointMode,
 //    Float32List points) native 'Canvas_drawPoints';
-    fun drawVertices(
-        vertices: Vertices,
-        @Suppress("UNUSED_PARAMETER") blendMode: BlendMode,
-        paint: Paint
-    ) {
-        // TODO(Migration/njawad align drawVertices blendMode parameter usage with framework
-        // android.graphics.Canvas#drawVertices does not consume a blendmode argument
-        internalCanvas.drawVertices(
-                vertices.vertexMode.toFrameworkVertexMode(),
-                vertices.positions.size,
-                vertices.positions,
-                0, // TODO(Migration/njawad figure out proper vertOffset)
-                vertices.textureCoordinates,
-                0, // TODO(Migration/njawad figure out proper texOffset)
-                vertices.colors,
-                0, // TODO(Migration/njawad figure out proper colorOffset)
-                vertices.indices,
-                0, // TODO(Migration/njawad figure out proper indexOffset)
-                vertices.indices.size,
-                paint.toFrameworkPaint()
-        )
-    }
+    fun drawVertices(vertices: Vertices, blendMode: BlendMode, paint: Paint)
 
 //    //
 //    // See also:

@@ -29,7 +29,7 @@ class Paint {
     private var internalShader: Shader? = null
     private var internalColorFilter: ColorFilter? = null
 
-    internal fun toFrameworkPaint(): android.graphics.Paint = internalPaint
+    fun asFrameworkPaint(): android.graphics.Paint = internalPaint
 
     var alpha: Float
         get() = internalPaint.alpha / 255.0f

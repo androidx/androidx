@@ -50,11 +50,13 @@ fun ClipPath(
 //        return super.hitTest(result, position = position)
 //    }
     Draw { canvas, parentSize ->
-        canvas.save()
+        // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
+        canvas.nativeCanvas.save()
         canvas.clipPath(clipper.getClip(parentSize, density))
     }
     children()
     Draw { canvas, _ ->
-        canvas.restore()
+        // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
+        canvas.nativeCanvas.restore()
     }
 }

@@ -456,7 +456,7 @@ class AndroidCraneView constructor(context: Context)
     }
 
     internal fun drawChild(canvas: Canvas, view: View, drawingTime: Long) {
-        super.drawChild(canvas.toFrameworkCanvas(), view, drawingTime)
+        super.drawChild(canvas.nativeCanvas, view, drawingTime)
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
@@ -714,7 +714,7 @@ private class RepaintBoundaryView(
     }
 
     fun drawChild(canvas: Canvas, child: View, drawingTime: Long) {
-        drawChild(canvas.toFrameworkCanvas(), child, drawingTime)
+        drawChild(canvas.nativeCanvas, child, drawingTime)
     }
 
     override fun dispatchDraw(canvas: android.graphics.Canvas) {

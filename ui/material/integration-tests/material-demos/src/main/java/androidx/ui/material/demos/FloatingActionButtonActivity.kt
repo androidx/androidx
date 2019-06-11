@@ -17,9 +17,8 @@
 package androidx.ui.material.demos
 
 import android.app.Activity
-import android.graphics.BitmapFactory
 import android.os.Bundle
-import androidx.ui.painting.Image
+import androidx.ui.painting.imageFromResource
 import androidx.compose.setContent
 import androidx.compose.composer
 
@@ -27,7 +26,7 @@ class FloatingActionButtonActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val icon = Image(BitmapFactory.decodeResource(resources, R.drawable.ic_favorite))
-        setContent { FloatingActionButtonDemo(icon = icon)}
+        val icon = imageFromResource(resources, R.drawable.ic_favorite)
+        setContent { FloatingActionButtonDemo(icon = icon) }
     }
 }
