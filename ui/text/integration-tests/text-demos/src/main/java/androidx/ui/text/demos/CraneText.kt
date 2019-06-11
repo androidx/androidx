@@ -99,6 +99,8 @@ fun TextDemo() {
                 TextDemoSelection()
                 TagLine(tag = "composable textspan")
                 TextDemoComposableTextSpan()
+                TagLine(tag = "fontSizeScale")
+                TextDemoFontSizeScale()
             }
         }
     }
@@ -589,6 +591,20 @@ fun TextDemoComposableTextSpan() {
             text.forEachIndexed { index, ch ->
                 val color = lerp(color1, color2, index.toFloat() / text.lastIndex)
                 Span(text = "$ch", style = TextStyle(color = color))
+            }
+        }
+    }
+}
+
+@Composable
+fun TextDemoFontSizeScale() {
+    CraneWrapper {
+        Text {
+            Span(style = TextStyle(fontSize = fontSize8)) {
+                for (i in 4..12 step 4) {
+                    val scale = i * 0.1f
+                    Span("fontSizeScale=$scale\n", style = TextStyle(fontSizeScale = scale))
+                }
             }
         }
     }

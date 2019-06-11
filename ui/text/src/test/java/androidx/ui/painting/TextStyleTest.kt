@@ -773,6 +773,59 @@ class TextStyleTest {
     }
 
     @Test
+    fun `lerp fontSizeScale with a and b are not Null`() {
+        val fontSizeScale1 = 2.0f
+        val fontSizeScale2 = 4.0f
+        val t = 0.8f
+        val textStyle1 = TextStyle(fontSizeScale = fontSizeScale1)
+        val textStyle2 = TextStyle(fontSizeScale = fontSizeScale2)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        // a + (b - a) * t = 2.0f + (4.0f  - 2.0f) * 0.8f = 3.6f
+        assertThat(newTextStyle?.fontSizeScale).isEqualTo(3.6f)
+    }
+
+    @Test
+    fun `lerp fontSizeScale with a not Null and b is Null`() {
+        val fontSizeScale = 2.0f
+        val t = 0.8f
+        val textStyle1 = TextStyle(fontSizeScale = fontSizeScale)
+        val textStyle2 = TextStyle()
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        // b is Null and is considered 1.0f
+        // a + (b - a) * t = 2.0f + (1.0f  - 2.0f) * 0.8f = 1.2f
+        assertThat(newTextStyle?.fontSizeScale).isEqualTo(1.2f)
+    }
+
+    @Test
+    fun `lerp fontSizeScale with a is Null and b not Null`() {
+        val fontSizeScale = 2.0f
+        val t = 0.8f
+        val textStyle1 = TextStyle()
+        val textStyle2 = TextStyle(fontSizeScale = fontSizeScale)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        // a is Null and is considered 1.0f
+        // a + (b - a) * t = 1.0f + (2.0f  - 1.0f) * 0.8f = 1.8f
+        assertThat(newTextStyle?.fontSizeScale).isEqualTo(1.8f)
+    }
+
+    @Test
+    fun `lerp fontSizeScale with a and b are Null`() {
+        val t = 0.8f
+        val textStyle1 = TextStyle()
+        val textStyle2 = TextStyle()
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        assertThat(newTextStyle?.fontSizeScale).isNull()
+    }
+
+    @Test
     fun `lerp fontWeight with a is Null and t is smaller than half`() {
         val fontWeight = FontWeight.w700
         val t = 0.3f

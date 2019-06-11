@@ -26,6 +26,7 @@ import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LeadingMarginSpan
 import android.text.style.LocaleSpan
+import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
@@ -418,6 +419,16 @@ internal class ParagraphAndroid constructor(
             style.fontSize?.let {
                 spannableString.setSpan(
                     AbsoluteSizeSpan(it.roundToInt()),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            // Be aware that fontSizeScale must be applied after fontSize.
+            style.fontSizeScale?.let {
+                spannableString.setSpan(
+                    RelativeSizeSpan(it),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
