@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.compose.Recomposer
 import androidx.compose.Children
 import androidx.compose.Component
 import androidx.compose.Composable

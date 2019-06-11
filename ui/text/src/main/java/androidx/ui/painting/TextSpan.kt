@@ -16,7 +16,7 @@
 
 package androidx.ui.painting
 
-import androidx.ui.engine.text.ParagraphBuilder
+import androidx.annotation.RestrictTo
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.basictypes.RenderComparison
@@ -44,33 +44,6 @@ class TextSpan(
     val children: MutableList<TextSpan> = mutableListOf()/*,
     val recognizer: GestureRecognizer? = null*/
 ) {
-
-    /**
-     * Apply the [style], [text], and [children] of this object to the given [ParagraphBuilder],
-     * from which a [Paragraph] can be obtained.
-     * [Paragraph] objects can be drawn on [Canvas] objects.
-     *
-     * Rather than using this directly, it's simpler to use the [TextPainter] class to paint
-     * [TextSpan] objects onto [Canvas] objects.
-     */
-    fun build(builder: ParagraphBuilder, textScaleFactor: Float = 1.0f) {
-        val hasStyle: Boolean = style != null
-        if (hasStyle) {
-            builder.pushStyle(style!!.getTextStyle(textScaleFactor))
-        }
-
-        text?.let {
-            builder.addText(it)
-        }
-
-        children.forEach {
-            it.build(builder, textScaleFactor)
-        }
-
-        if (hasStyle) {
-            builder.pop()
-        }
-    }
 
     /**
      * Walks this text span and its descendants in pre-order and calls [visitor]
@@ -192,4 +165,46 @@ class TextSpan(
         }
         return result
     }
+}
+
+private data class RecordInternal(
+    val style: TextStyle,
+    val start: Int,
+    var end: Int
+)
+
+private fun TextSpan.annotatedStringVisitor(
+    includeRootStyle: Boolean,
+    stringBuilder: java.lang.StringBuilder,
+    styles: MutableList<RecordInternal>
+) {
+    val styleSpan = if (includeRootStyle) {
+        style?.let {
+            val span = RecordInternal(it, stringBuilder.length, -1)
+            styles.add(span)
+            span
+        }
+    } else null
+
+    text?.let { stringBuilder.append(text) }
+    for (child in children) {
+        child.annotatedStringVisitor(true, stringBuilder, styles)
+    }
+
+    if (styleSpan != null) {
+        styleSpan.end = stringBuilder.length
+    }
+}
+
+/**
+ * Convert a [TextSpan] into an [AnnotatedString].
+ * @param includeRootStyle whether to attach the text style in the root [TextSpan] to the output
+ *  [AnnotatedString]. It's useful when the top level [TextStyle] is used as global text style setting.
+ */
+fun TextSpan.toAnnotatedString(includeRootStyle: Boolean = true): AnnotatedString {
+    val stringBuilder = java.lang.StringBuilder()
+    val tempRecords = mutableListOf<RecordInternal>()
+    annotatedStringVisitor(includeRootStyle, stringBuilder, tempRecords)
+    val records = tempRecords.map { AnnotatedString.Item(it.style, it.start, it.end) }
+    return AnnotatedString(stringBuilder.toString(), records)
 }
