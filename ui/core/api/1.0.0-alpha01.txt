@@ -1337,6 +1337,21 @@ package androidx.ui.input {
 
 package androidx.ui.painting {
 
+  public final class AndroidCanvasKt {
+    ctor public AndroidCanvasKt();
+    method public static androidx.ui.painting.Canvas Canvas(androidx.ui.painting.Image image);
+    method public static androidx.ui.painting.Canvas Canvas(androidx.ui.painting.PictureRecorder recorder, androidx.ui.engine.geometry.Rect cullRect = Rect.largest);
+    method public static androidx.ui.painting.Canvas Canvas(android.graphics.Canvas c);
+    method public static inline void withSave(androidx.ui.painting.Canvas, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static inline void withSaveLayer(androidx.ui.painting.Canvas, androidx.ui.engine.geometry.Rect? bounds, androidx.ui.painting.Paint paint, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  public final class AndroidImageKt {
+    ctor public AndroidImageKt();
+    method public static androidx.ui.painting.Image Image(int width, int height, androidx.ui.painting.ImageConfig config = ImageConfig.Argb8888, boolean hasAlpha = true, androidx.ui.graphics.ColorSpace colorSpace = ColorSpace.get(ColorSpace.Named.Srgb));
+    method public static androidx.ui.painting.Image imageFromResource(android.content.res.Resources res, int resId);
+  }
+
   public enum BlendMode {
     method public final android.graphics.PorterDuff.Mode toPorterDuffMode();
     enum_constant public static final androidx.ui.painting.BlendMode clear;
@@ -1377,17 +1392,16 @@ package androidx.ui.painting {
     enum_constant public static final androidx.ui.painting.BlurStyle solid;
   }
 
-  public final class Canvas {
-    ctor public Canvas(androidx.ui.painting.PictureRecorder recorder, androidx.ui.engine.geometry.Rect cullRect);
-    ctor public Canvas(android.graphics.Canvas frameworkCanvas);
+  public interface Canvas {
     method public void clipPath(androidx.ui.painting.Path path);
     method public void clipRRect(androidx.ui.engine.geometry.RRect rrect);
     method public void clipRect(androidx.ui.engine.geometry.Rect rect, androidx.ui.painting.ClipOp clipOp = ClipOp.intersect);
+    method public void concat(androidx.ui.vectormath64.Matrix4 matrix4);
     method public void drawArc(androidx.ui.engine.geometry.Rect rect, float startAngle, float sweepAngle, boolean useCenter, androidx.ui.painting.Paint paint);
-    method public void drawCircle(androidx.ui.engine.geometry.Offset c, float radius, androidx.ui.painting.Paint paint);
+    method public void drawCircle(androidx.ui.engine.geometry.Offset center, float radius, androidx.ui.painting.Paint paint);
     method public void drawColor(androidx.ui.graphics.Color color, androidx.ui.painting.BlendMode blendMode);
     method public void drawDRRect(androidx.ui.engine.geometry.RRect outer, androidx.ui.engine.geometry.RRect inner, androidx.ui.painting.Paint paint);
-    method public void drawImage(androidx.ui.painting.Image image, androidx.ui.engine.geometry.Offset p, androidx.ui.painting.Paint paint);
+    method public void drawImage(androidx.ui.painting.Image image, androidx.ui.engine.geometry.Offset topLeftOffset, androidx.ui.painting.Paint paint);
     method public void drawImageRect(androidx.ui.painting.Image image, androidx.ui.engine.geometry.Rect src, androidx.ui.engine.geometry.Rect dst, androidx.ui.painting.Paint paint);
     method public void drawLine(androidx.ui.engine.geometry.Offset p1, androidx.ui.engine.geometry.Offset p2, androidx.ui.painting.Paint paint);
     method public void drawOval(androidx.ui.engine.geometry.Rect rect, androidx.ui.painting.Paint paint);
@@ -1399,16 +1413,19 @@ package androidx.ui.painting {
     method public void drawRawPoints(androidx.ui.painting.PointMode pointMode, float[] points, androidx.ui.painting.Paint paint);
     method public void drawRect(androidx.ui.engine.geometry.Rect rect, androidx.ui.painting.Paint paint);
     method public void drawVertices(androidx.ui.Vertices vertices, androidx.ui.painting.BlendMode blendMode, androidx.ui.painting.Paint paint);
-    method public int getSaveCount();
+    method public android.graphics.Canvas getNativeCanvas();
     method public void restore();
     method public void rotate(float radians);
     method public void save();
     method public void saveLayer(androidx.ui.engine.geometry.Rect? bounds, androidx.ui.painting.Paint paint);
     method public void scale(float sx, float sy = sx);
     method public void skew(float sx, float sy);
-    method public android.graphics.Canvas toFrameworkCanvas();
-    method public void transform(androidx.ui.vectormath64.Matrix4 matrix4);
     method public void translate(float dx, float dy);
+    property public abstract android.graphics.Canvas nativeCanvas;
+  }
+
+  public final class CanvasKt {
+    ctor public CanvasKt();
   }
 
   public enum ClipOp {
@@ -1443,20 +1460,38 @@ package androidx.ui.painting {
     method public androidx.ui.painting.Gradient sweep(androidx.ui.engine.geometry.Offset center, java.util.List<androidx.ui.graphics.Color> colors, java.util.List<java.lang.Float> colorStops, androidx.ui.painting.TileMode tileMode = TileMode.clamp, float startAngle, float endAngle = 6.2831855f, androidx.ui.vectormath64.Matrix4 matrix4);
   }
 
-  public final class Image {
-    ctor public Image(internal android.graphics.Bitmap bitmap);
-    method public void dispose();
+  public interface Image {
+    method public androidx.ui.graphics.ColorSpace getColorSpace();
+    method public androidx.ui.painting.ImageConfig getConfig();
+    method public boolean getHasAlpha();
     method public int getHeight();
+    method public android.graphics.Bitmap getNativeImage();
     method public int getWidth();
-    method public kotlinx.coroutines.Deferred<java.nio.ByteBuffer> toByteData(kotlinx.coroutines.CoroutineScope, androidx.ui.painting.ImageByteFormat format = ImageByteFormat.rawRgba);
-    property public final int height;
-    property public final int width;
+    method public void prepareToDraw();
+    property public abstract androidx.ui.graphics.ColorSpace colorSpace;
+    property public abstract androidx.ui.painting.ImageConfig config;
+    property public abstract boolean hasAlpha;
+    property public abstract int height;
+    property public abstract android.graphics.Bitmap nativeImage;
+    property public abstract int width;
   }
 
   public enum ImageByteFormat {
     enum_constant public static final androidx.ui.painting.ImageByteFormat png;
     enum_constant public static final androidx.ui.painting.ImageByteFormat rawRgba;
     enum_constant public static final androidx.ui.painting.ImageByteFormat rawUnmodified;
+  }
+
+  public enum ImageConfig {
+    enum_constant public static final androidx.ui.painting.ImageConfig Alpha8;
+    enum_constant public static final androidx.ui.painting.ImageConfig Argb8888;
+    enum_constant public static final androidx.ui.painting.ImageConfig F16;
+    enum_constant public static final androidx.ui.painting.ImageConfig Gpu;
+    enum_constant public static final androidx.ui.painting.ImageConfig Rgb565;
+  }
+
+  public final class ImageKt {
+    ctor public ImageKt();
   }
 
   public enum ImageRepeat {
@@ -1483,6 +1518,7 @@ package androidx.ui.painting {
 
   public final class Paint {
     ctor public Paint();
+    method public android.graphics.Paint asFrameworkPaint();
     method public float getAlpha();
     method public androidx.ui.painting.BlendMode getBlendMode();
     method public androidx.ui.graphics.Color getColor();

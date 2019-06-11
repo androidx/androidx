@@ -166,13 +166,15 @@ private class DefaultRippleEffect(
         val originOffset = transform.getAsTranslation()
         val clipRect = if (bounded) coordinates.size.toRect() else null
         if (originOffset == null) {
-            canvas.save()
-            canvas.transform(transform)
+            // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
+            canvas.nativeCanvas.save()
+            canvas.concat(transform)
             if (clipRect != null) {
                 canvas.clipRect(clipRect)
             }
             canvas.drawCircle(centerOffset, radius, paint)
-            canvas.restore()
+            // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
+            canvas.nativeCanvas.restore()
         } else {
             if (clipRect != null) {
                 canvas.save()
@@ -180,7 +182,8 @@ private class DefaultRippleEffect(
             }
             canvas.drawCircle(centerOffset + originOffset, radius, paint)
             if (clipRect != null) {
-                canvas.restore()
+                // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
+                canvas.nativeCanvas.restore()
             }
         }
     }
