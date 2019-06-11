@@ -20,7 +20,6 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelLazy
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.ViewModelProvider.Factory
 
 /**
@@ -42,10 +41,7 @@ inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
     noinline factoryProducer: (() -> Factory)? = null
 ): Lazy<VM> {
     val factoryPromise = factoryProducer ?: {
-        val application = application ?: throw IllegalArgumentException(
-            "ViewModel can be accessed only when Activity is attached"
-        )
-        AndroidViewModelFactory.getInstance(application)
+        defaultViewModelProviderFactory
     }
 
     return ViewModelLazy(VM::class, { viewModelStore }, factoryPromise)
