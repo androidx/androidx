@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl.utils.futures;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 import androidx.concurrent.ListenableFuture;
@@ -35,8 +36,9 @@ public final class Futures {
 
     /**
      * Returns an implementation of {@link ListenableFuture} which immediately contains a result.
+     *
      * @param value The result that is immediately set on the future.
-     * @param <V> The type of the result.
+     * @param <V>   The type of the result.
      * @return A future which immediately contains the result.
      */
     public static <V> ListenableFuture<V> immediateFuture(@Nullable V value) {
@@ -44,7 +46,20 @@ public final class Futures {
             return ImmediateFuture.nullFuture();
         }
 
-        return new ImmediateFuture<>(value);
+        return new ImmediateFuture.ImmediateSuccessfulFuture<>(value);
+    }
+
+    /**
+     * Returns an implementation of {@link ListenableFuture} which immediately contains an
+     * exception that will be thrown by {@link Future#get()}.
+     *
+     * @param cause The cause of the {@link ExecutionException} that will be thrown by
+     * {@link Future#get()}.
+     * @param <V>   The type of the result.
+     * @return A future which immediately contains an exception.
+     */
+    public static <V> ListenableFuture<V> immediateFailedFuture(@NonNull Throwable cause) {
+        return new ImmediateFuture.ImmediateFailedFuture<>(cause);
     }
 
     /**
