@@ -210,6 +210,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @VisibleForTesting
+    @Nullable
     public ListenableWorker getDelegate() {
         return mDelegate;
     }
