@@ -20,20 +20,17 @@ import android.os.Bundle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import com.google.common.truth.Truth
-import org.junit.Rule
+import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityRunOnNextRecreateTest {
-
-    @get:Rule
-    val activityRule = ActivityTestRule<AutoRestarterActivity>(AutoRestarterActivity::class.java)
 
     private class Restarted2 : SavedStateRegistry.AutoRecreated {
         override fun onRecreated(owner: SavedStateRegistryOwner) {
@@ -43,13 +40,12 @@ class ComponentActivityRunOnNextRecreateTest {
 
     @Test
     fun test() {
-        activityRule.runOnUiThread {
-            activityRule.activity.savedStateRegistry
-                .runOnNextRecreation(Restarted2::class.java)
-        }
-        val newActivity = recreateActivity(activityRule)
-        newActivity.runOnUiThread {
-            Truth.assertThat(newActivity.observerExecuted).isTrue()
+        with(ActivityScenario.launch(AutoRestarterActivity::class.java)) {
+            withActivity {
+                savedStateRegistry.runOnNextRecreation(Restarted2::class.java)
+            }
+            recreate()
+            assertThat(withActivity { observerExecuted }).isTrue()
         }
     }
 }
@@ -62,7 +58,7 @@ class AutoRestarterActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
             lifecycle.addObserver(LifecycleEventObserver { _, _ ->
-                Truth.assertThat(restartedValue).isEqualTo("restarted")
+                assertThat(restartedValue).isEqualTo("restarted")
                 observerExecuted = true
             })
         }
