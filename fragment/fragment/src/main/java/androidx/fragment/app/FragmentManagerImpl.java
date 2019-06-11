@@ -2800,7 +2800,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     private void dispatchParentPrimaryNavigationFragmentChanged(@Nullable Fragment f) {
-        if (f != null) {
+        if (f != null && mActive.get(f.mWho) == f) {
             f.performPrimaryNavigationFragmentChanged();
         }
     }

@@ -212,6 +212,48 @@ class PrimaryNavFragmentTest {
             .isNull()
     }
 
+    @Test
+    fun replacePrimaryNavAfterSetPrimary() {
+        val fm = activityRule.activity.supportFragmentManager
+        val strictFragment1 = spy(StrictFragment())
+        val strictFragment2 = spy(StrictFragment())
+        val inOrder = inOrder(strictFragment1, strictFragment2)
+
+        fm.beginTransaction()
+            .add(android.R.id.content, strictFragment1)
+            .setPrimaryNavigationFragment(strictFragment1)
+            .commit()
+        executePendingTransactions(fm)
+
+        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertWithMessage("new fragment is not primary nav fragment")
+            .that(fm.primaryNavigationFragment)
+            .isSameInstanceAs(strictFragment1)
+
+        // Note that we specifically call setPrimaryNavigationFragment() before the replace() call
+        fm.beginTransaction()
+            .setPrimaryNavigationFragment(strictFragment2)
+            .replace(android.R.id.content, strictFragment2)
+            .addToBackStack(null)
+            .commit()
+        executePendingTransactions(fm)
+
+        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(false)
+        inOrder.verify(strictFragment2).onPrimaryNavigationFragmentChanged(true)
+        assertWithMessage("primary nav fragment not set correctly after replace")
+            .that(fm.primaryNavigationFragment)
+            .isSameInstanceAs(strictFragment2)
+
+        activityRule.onBackPressed()
+
+        // Note that strictFragment2 does not get a callback since the
+        // pop of the replace happens before the pop of the setPrimaryFragment
+        inOrder.verify(strictFragment1).onPrimaryNavigationFragmentChanged(true)
+        assertWithMessage("primary nav fragment is restored after popping replace")
+            .that(fm.primaryNavigationFragment)
+            .isSameInstanceAs(strictFragment1)
+    }
+
     private fun executePendingTransactions(fm: FragmentManager) {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
