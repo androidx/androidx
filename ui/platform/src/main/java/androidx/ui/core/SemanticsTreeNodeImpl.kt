@@ -27,7 +27,7 @@ import androidx.ui.core.semantics.SemanticsConfiguration
 class SemanticsTreeNodeImpl(
     override val parent: SemanticsTreeNode?,
     override val data: SemanticsConfiguration,
-    private val layoutNode: LayoutNode?
+    private val semanticsComponentNode: SemanticsComponentNode
 ) : SemanticsTreeNode {
     private val _children = mutableSetOf<SemanticsTreeNode>()
     override val children: Set<SemanticsTreeNode>
@@ -37,7 +37,11 @@ class SemanticsTreeNodeImpl(
         _children.add(child)
     }
     override val globalPosition: PxPosition?
-        get() = layoutNode?.localToGlobal(PxPosition(0.px, 0.px))
+        get() {
+            // TODO(ryanmentley): Handle multiple children better
+            val layoutNode = semanticsComponentNode.findLastLayoutChild { true }
+            return layoutNode?.localToGlobal(PxPosition(0.px, 0.px))
+        }
 }
 
 /**
@@ -60,7 +64,7 @@ private fun findAllSemanticNodesInternal(
         val wrapper = SemanticsTreeNodeImpl(
             parent = parent,
             data = currentNode.semanticsConfiguration,
-            layoutNode = currentNode.layoutNode
+            semanticsComponentNode = currentNode
         )
         parent?.addChild(wrapper)
         nodes.add(wrapper)
