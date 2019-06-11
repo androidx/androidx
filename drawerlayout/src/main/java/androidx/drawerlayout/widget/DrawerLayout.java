@@ -51,10 +51,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.GravityCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.customview.view.AbsSavedState;
@@ -1294,7 +1296,8 @@ public class DrawerLayout extends ViewGroup {
             // Update the ViewDragHelper edge sizes to match the gesture insets
             WindowInsets rootInsets = getRootWindowInsets();
             if (rootInsets != null) {
-                android.graphics.Insets gestureInsets = rootInsets.getSystemGestureInsets();
+                WindowInsetsCompat rootInsetsCompat = WindowInsetsCompat.wrap(rootInsets);
+                Insets gestureInsets = rootInsetsCompat.getSystemGestureInsets();
 
                 // We use Math.max() here since the gesture insets will be 0 if the device
                 // does not have gesture navigation enabled
