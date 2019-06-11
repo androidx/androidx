@@ -31,8 +31,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.collection.SparseArrayCompat;
-import androidx.core.app.ActivityManagerCompat;
 import androidx.room.DatabaseConfiguration.CopyFrom;
 import androidx.room.migration.Migration;
 import androidx.room.util.SneakyThrow;
@@ -45,10 +43,12 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -492,11 +492,18 @@ public abstract class RoomDatabase {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 ActivityManager manager = (ActivityManager)
                         context.getSystemService(Context.ACTIVITY_SERVICE);
-                if (manager != null && !ActivityManagerCompat.isLowRamDevice(manager)) {
+                if (manager != null && !isLowRamDevice(manager)) {
                     return WRITE_AHEAD_LOGGING;
                 }
             }
             return TRUNCATE;
+        }
+
+        private static boolean isLowRamDevice(@NonNull ActivityManager activityManager) {
+            if (Build.VERSION.SDK_INT >= 19) {
+                return activityManager.isLowRamDevice();
+            }
+            return false;
         }
     }
 
@@ -920,8 +927,7 @@ public abstract class RoomDatabase {
      * between two versions.
      */
     public static class MigrationContainer {
-        private SparseArrayCompat<SparseArrayCompat<Migration>> mMigrations =
-                new SparseArrayCompat<>();
+        private HashMap<Integer, TreeMap<Integer, Migration>> mMigrations = new HashMap<>();
 
         /**
          * Adds the given migrations to the list of available migrations. If 2 migrations have the
@@ -938,16 +944,16 @@ public abstract class RoomDatabase {
         private void addMigration(Migration migration) {
             final int start = migration.startVersion;
             final int end = migration.endVersion;
-            SparseArrayCompat<Migration> targetMap = mMigrations.get(start);
+            TreeMap<Integer, Migration> targetMap = mMigrations.get(start);
             if (targetMap == null) {
-                targetMap = new SparseArrayCompat<>();
+                targetMap = new TreeMap<>();
                 mMigrations.put(start, targetMap);
             }
             Migration existing = targetMap.get(end);
             if (existing != null) {
                 Log.w(Room.LOG_TAG, "Overriding migration " + existing + " with " + migration);
             }
-            targetMap.append(end, migration);
+            targetMap.put(end, migration);
         }
 
         /**
@@ -972,27 +978,20 @@ public abstract class RoomDatabase {
 
         private List<Migration> findUpMigrationPath(List<Migration> result, boolean upgrade,
                 int start, int end) {
-            final int searchDirection = upgrade ? -1 : 1;
             while (upgrade ? start < end : start > end) {
-                SparseArrayCompat<Migration> targetNodes = mMigrations.get(start);
+                TreeMap<Integer, Migration> targetNodes = mMigrations.get(start);
                 if (targetNodes == null) {
                     return null;
                 }
                 // keys are ordered so we can start searching from one end of them.
-                final int size = targetNodes.size();
-                final int firstIndex;
-                final int lastIndex;
-
+                Set<Integer> keySet;
                 if (upgrade) {
-                    firstIndex = size - 1;
-                    lastIndex = -1;
+                    keySet = targetNodes.descendingKeySet();
                 } else {
-                    firstIndex = 0;
-                    lastIndex = size;
+                    keySet = targetNodes.keySet();
                 }
                 boolean found = false;
-                for (int i = firstIndex; i != lastIndex; i += searchDirection) {
-                    final int targetVersion = targetNodes.keyAt(i);
+                for (int targetVersion : keySet) {
                     final boolean shouldAddToPath;
                     if (upgrade) {
                         shouldAddToPath = targetVersion <= end && targetVersion > start;
@@ -1000,7 +999,7 @@ public abstract class RoomDatabase {
                         shouldAddToPath = targetVersion >= end && targetVersion < start;
                     }
                     if (shouldAddToPath) {
-                        result.add(targetNodes.valueAt(i));
+                        result.add(targetNodes.get(targetVersion));
                         start = targetVersion;
                         found = true;
                         break;

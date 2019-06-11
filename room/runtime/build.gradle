@@ -37,11 +37,8 @@ dependencies {
     api(ANDROIDX_SQLITE_FRAMEWORK)
     api(ANDROIDX_SQLITE)
     implementation(ARCH_CORE_RUNTIME)
-    implementation(ANDROIDX_CORE)
-    implementation(ANDROIDX_COLLECTION)
     compileOnly(ARCH_PAGING_COMMON)
     compileOnly(ARCH_LIFECYCLE_LIVEDATA_CORE)
-    implementation(ANDROIDX_COLLECTION)
 
     testImplementation(ARCH_CORE_TESTING)
     testImplementation(JUNIT)

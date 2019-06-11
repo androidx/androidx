@@ -28,8 +28,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.arch.core.internal.SafeIterableMap;
-import androidx.collection.ArrayMap;
-import androidx.collection.ArraySet;
 import androidx.lifecycle.LiveData;
 import androidx.sqlite.db.SimpleSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteDatabase;
@@ -39,6 +37,7 @@ import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -85,7 +84,7 @@ public class InvalidationTracker {
 
     @NonNull
     @VisibleForTesting
-    final ArrayMap<String, Integer> mTableIdLookup;
+    final HashMap<String, Integer> mTableIdLookup;
     final String[] mTableNames;
 
     @NonNull
@@ -135,7 +134,7 @@ public class InvalidationTracker {
             Map<String, Set<String>> viewTables, String... tableNames) {
         mDatabase = database;
         mObservedTableTracker = new ObservedTableTracker(tableNames.length);
-        mTableIdLookup = new ArrayMap<>();
+        mTableIdLookup = new HashMap<>();
         mViewTables = viewTables;
         mInvalidationLiveDataContainer = new InvalidationLiveDataContainer(mDatabase);
         final int size = tableNames.length;
@@ -295,7 +294,7 @@ public class InvalidationTracker {
      * @return The names of the underlying tables.
      */
     private String[] resolveViews(String[] names) {
-        Set<String> tables = new ArraySet<>();
+        Set<String> tables = new HashSet<>();
         for (String name : names) {
             final String lowercase = name.toLowerCase(Locale.US);
             if (mViewTables.containsKey(lowercase)) {
@@ -412,7 +411,7 @@ public class InvalidationTracker {
         }
 
         private Set<Integer> checkUpdatedTable() {
-            ArraySet<Integer> invalidatedTableIds = new ArraySet<>();
+            HashSet<Integer> invalidatedTableIds = new HashSet<>();
             Cursor cursor = mDatabase.query(new SimpleSQLiteQuery(SELECT_UPDATED_TABLES_SQL));
             //noinspection TryFinallyCanBeTryWithResources
             try {
@@ -601,7 +600,7 @@ public class InvalidationTracker {
             mTableIds = tableIds;
             mTableNames = tableNames;
             if (tableIds.length == 1) {
-                ArraySet<String> set = new ArraySet<>();
+                HashSet<String> set = new HashSet<>();
                 set.add(mTableNames[0]);
                 mSingleTableSet = Collections.unmodifiableSet(set);
             } else {
@@ -626,7 +625,7 @@ public class InvalidationTracker {
                         invalidatedTables = mSingleTableSet;
                     } else {
                         if (invalidatedTables == null) {
-                            invalidatedTables = new ArraySet<>(size);
+                            invalidatedTables = new HashSet<>(size);
                         }
                         invalidatedTables.add(mTableNames[index]);
                     }
@@ -654,7 +653,7 @@ public class InvalidationTracker {
                     }
                 }
             } else {
-                ArraySet<String> set = new ArraySet<>();
+                HashSet<String> set = new HashSet<>();
                 for (String table : tables) {
                     for (String ourTable : mTableNames) {
                         if (ourTable.equalsIgnoreCase(table)) {
