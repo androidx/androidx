@@ -19,6 +19,7 @@ package androidx.lifecycle
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.withContext
@@ -178,6 +179,7 @@ internal class PausingDispatcher : CoroutineDispatcher() {
     @JvmField
     internal val dispatchQueue = DispatchQueue()
 
+    @ExperimentalCoroutinesApi
     override fun dispatch(context: CoroutineContext, block: Runnable) {
         dispatchQueue.runOrEnqueue(block)
     }

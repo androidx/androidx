@@ -65,7 +65,7 @@ class FakeLifecycleOwner(initialState: Lifecycle.State? = null) : LifecycleOwner
         }
     }
 
-    private suspend fun getObserverCount(count: Int): Int {
+    private suspend fun getObserverCount(): Int {
         return withContext(Dispatchers.Main) {
             registry.observerCount
         }

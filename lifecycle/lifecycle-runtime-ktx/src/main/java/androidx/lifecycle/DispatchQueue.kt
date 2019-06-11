@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.AnyThread
 import androidx.annotation.MainThread
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.util.ArrayDeque
 import java.util.Queue
 import kotlin.coroutines.EmptyCoroutineContext
@@ -86,6 +87,7 @@ internal class DispatchQueue {
     private fun canRun() = finished || !paused
 
     @AnyThread
+    @ExperimentalCoroutinesApi
     @SuppressLint("WrongThread") // false negative, we are checking the thread
     fun runOrEnqueue(runnable: Runnable) {
         Dispatchers.Main.immediate.dispatch(EmptyCoroutineContext, Runnable {
