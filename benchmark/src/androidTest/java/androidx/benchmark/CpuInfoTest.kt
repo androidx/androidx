@@ -25,51 +25,51 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ClocksTest {
+class CpuInfoTest {
     @Test
     fun allSimilarCoresSameFreqs() {
-        assertTrue(Clocks.isCpuLocked(
+        assertTrue(CpuInfo.isCpuLocked(
             listOf(
-                Clocks.CoreDir(true, listOf(1, 2, 3), 2),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 2),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 2),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 2)
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 2, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 2, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 2, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 2, 1000)
             )
         ))
     }
 
     @Test
     fun differentMaxFrequencies() {
-        assertFalse(Clocks.isCpuLocked(
+        assertFalse(CpuInfo.isCpuLocked(
             listOf(
-                Clocks.CoreDir(true, listOf(1, 2, 3), 2),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 2),
-                Clocks.CoreDir(true, listOf(1, 2), 2),
-                Clocks.CoreDir(true, listOf(1, 2), 2)
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 2, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 2, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2), 2, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2), 2, 1000)
             )
         ))
     }
 
     @Test
     fun differentCurrentMinFrequencies() {
-        assertFalse(Clocks.isCpuLocked(
+        assertFalse(CpuInfo.isCpuLocked(
             listOf(
-                Clocks.CoreDir(true, listOf(1, 2, 3), 3),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 3),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 3),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 2)
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 3, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 3, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 3, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 2, 1000)
             )
         ))
     }
 
     @Test
     fun currentMinEqualsMinAvailable() {
-        assertFalse(Clocks.isCpuLocked(
+        assertFalse(CpuInfo.isCpuLocked(
             listOf(
-                Clocks.CoreDir(true, listOf(1, 2, 3), 1),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 1),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 1),
-                Clocks.CoreDir(true, listOf(1, 2, 3), 1)
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 1, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 1, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 1, 1000),
+                CpuInfo.CoreDir(true, listOf(1, 2, 3), 1, 1000)
             )
         ))
     }

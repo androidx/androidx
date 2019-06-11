@@ -121,7 +121,7 @@ internal object WarningState {
             """.trimMarginWrapNewlines()
         }
 
-        if (isDeviceRooted && !Clocks.areLocked) {
+        if (isDeviceRooted && !CpuInfo.locked) {
             warningPrefix += "UNLOCKED_"
             warningString += """
                 |WARNING: Unlocked CPU clocks
@@ -132,7 +132,7 @@ internal object WarningState {
             """.trimMarginWrapNewlines()
         }
 
-        if (!Clocks.areLocked &&
+        if (!CpuInfo.locked &&
             AndroidBenchmarkRunner.isSustainedPerformanceModeSupported() &&
             !AndroidBenchmarkRunner.sustainedPerformanceModeInUse
         ) {

@@ -77,7 +77,7 @@ open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         // as possible, before WarningState gets lazily initialized. Otherwise we may print false
         // warnings about needing the runner, when the runner simply hasn't initialized yet.
         runnerInUse = true
-        sustainedPerformanceModeInUse = !Clocks.areLocked && isSustainedPerformanceModeSupported()
+        sustainedPerformanceModeInUse = !CpuInfo.locked && isSustainedPerformanceModeSupported()
 
         if (sustainedPerformanceModeInUse) {
             // Keep at least one core busy. Together with a single threaded benchmark, this makes

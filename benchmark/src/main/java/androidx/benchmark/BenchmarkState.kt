@@ -286,7 +286,7 @@ class BenchmarkState internal constructor() {
         when (state) {
             NOT_STARTED -> {
                 if (performThrottleChecks &&
-                    !Clocks.areLocked &&
+                    !CpuInfo.locked &&
                     !AndroidBenchmarkRunner.sustainedPerformanceModeInUse &&
                     !WarningState.isEmulator
                 ) {
