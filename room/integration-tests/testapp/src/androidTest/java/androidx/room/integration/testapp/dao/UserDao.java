@@ -33,6 +33,7 @@ import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Day;
 import androidx.room.integration.testapp.vo.NameAndLastName;
 import androidx.room.integration.testapp.vo.User;
+import androidx.room.integration.testapp.vo.UserAndFriends;
 import androidx.room.integration.testapp.vo.UserSummary;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
@@ -83,6 +84,9 @@ public abstract class UserDao {
 
     @Query("select * from user where custommm = :customField")
     public abstract List<User> findByCustomField(String customField);
+
+    @Query("select * from user")
+    public abstract List<UserAndFriends> loadUserAndFriends();
 
     @Insert
     public abstract void insert(User user);

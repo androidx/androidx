@@ -142,9 +142,20 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector)
                     if (shouldCopyCursor) "true" else "false")
 
             beginControlFlow("try").apply {
-                addStatement("final $T $L = $T.getColumnIndex($L, $S)",
-                    TypeName.INT, itemKeyIndexVar, RoomTypeNames.CURSOR_UTIL, cursorVar,
-                    relation.entityField.columnName)
+                if (relation.junction != null) {
+                    // when using a junction table the relationship map is keyed on the parent
+                    // reference column of the junction table, the same column used in the WHERE IN
+                    // clause, this column is the rightmost column in the generated SELECT
+                    // clause.
+                    val junctionParentColumnIndex = relation.projection.size
+                    addStatement("final $T $L = $L; // $L",
+                        TypeName.INT, itemKeyIndexVar, junctionParentColumnIndex,
+                        relation.junction.parentField.columnName)
+                } else {
+                    addStatement("final $T $L = $T.getColumnIndex($L, $S)",
+                        TypeName.INT, itemKeyIndexVar, RoomTypeNames.CURSOR_UTIL, cursorVar,
+                        relation.entityField.columnName)
+                }
 
                 beginControlFlow("if ($L == -1)", itemKeyIndexVar).apply {
                     addStatement("return")

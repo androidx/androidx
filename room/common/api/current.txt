@@ -120,6 +120,12 @@ package androidx.room {
     method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
   }
 
+  @java.lang.annotation.Target({}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Junction {
+    method public abstract String entityColumn() default "";
+    method public abstract String parentColumn() default "";
+    method public abstract Class value();
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) public @interface OnConflictStrategy {
     field public static final int ABORT = 3; // 0x3
     field @Deprecated public static final int FAIL = 4; // 0x4
@@ -141,6 +147,7 @@ package androidx.room {
   }
 
   @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Relation {
+    method public abstract androidx.room.Junction associateBy() default @androidx.room.Junction;
     method public abstract Class entity() default java.lang.Object.class;
     method public abstract String entityColumn();
     method public abstract String parentColumn();

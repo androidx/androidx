@@ -378,6 +378,30 @@ object ProcessorErrors {
                 " Options: ${availableColumns.joinToString(", ")}"
     }
 
+    fun relationCannotFindJunctionEntityField(
+        entityName: String,
+        columnName: String,
+        availableColumns: List<String>
+    ): String {
+        return "Cannot find the child entity referencing column `$columnName` in the junction " +
+                "$entityName. Options: ${availableColumns.joinToString(", ")}"
+    }
+
+    fun relationCannotFindJunctionParentField(
+        entityName: String,
+        columnName: String,
+        availableColumns: List<String>
+    ): String {
+        return "Cannot find the parent entity referencing column `$columnName` in the junction " +
+                "$entityName. Options: ${availableColumns.joinToString(", ")}"
+    }
+
+    fun junctionColumnWithoutIndex(entityName: String, columnName: String) =
+            "The column $columnName in the junction entity $entityName is being used to resolve " +
+                    "a relationship but it is not covered by any index. This might cause a " +
+                    "full table scan when resolving the relationship, it is highly advised to " +
+                    "create an index that covers this column."
+
     val RELATION_IN_ENTITY = "Entities cannot have relations."
 
     val CANNOT_FIND_TYPE = "Cannot find type."

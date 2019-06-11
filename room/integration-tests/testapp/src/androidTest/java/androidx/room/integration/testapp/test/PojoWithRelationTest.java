@@ -27,6 +27,7 @@ import androidx.room.integration.testapp.vo.PetWithToyIds;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
+import androidx.room.integration.testapp.vo.UserAndAllPetsViaJunction;
 import androidx.room.integration.testapp.vo.UserAndPetAdoptionDates;
 import androidx.room.integration.testapp.vo.UserAndPetsAndHouses;
 import androidx.room.integration.testapp.vo.UserIdAndPetNames;
@@ -259,6 +260,27 @@ public class PojoWithRelationTest extends TestDatabaseTest {
             assertThat(result.get(i).getUser(), is(users.get(i)));
             assertThat(result.get(i).getPets(), is(pets.get(i)));
             assertThat(result.get(i).getHouses(), is(houses.get(i)));
+        }
+    }
+
+    @Test
+    public void viaJunction() {
+        User[] users = TestUtil.createUsersArray(1, 2, 3);
+        Pet[][] userPets = new Pet[3][];
+        mUserDao.insertAll(users);
+        for (User user : users) {
+            Pet[] pets = TestUtil.createPetsForUser(user.getId(), user.getId() * 10,
+                    user.getId() - 1);
+            mPetDao.insertAll(pets);
+            userPets[user.getId() - 1] = pets;
+        }
+        List<UserAndAllPets> usersAndPets = mUserPetDao.loadAllUsersWithTheirPets();
+        List<UserAndAllPetsViaJunction> userAndPetsViaJunctions =
+                mUserPetDao.loadAllUsersWithTheirPetsViaJunction();
+        assertThat(usersAndPets.size(), is(userAndPetsViaJunctions.size()));
+        for (int i = 0; i < usersAndPets.size(); i++) {
+            assertThat(usersAndPets.get(i).user, is(userAndPetsViaJunctions.get(i).user));
+            assertThat(usersAndPets.get(i).pets, is(userAndPetsViaJunctions.get(i).pets));
         }
     }
 }
