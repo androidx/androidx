@@ -49,7 +49,6 @@ import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
 import androidx.camera.core.VideoCaptureConfig;
 import androidx.camera.view.CameraView.CaptureMode;
-import androidx.camera.view.CameraView.Quality;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -79,7 +78,6 @@ final class CameraXModule {
     private final ImageCaptureConfig.Builder mImageCaptureConfigBuilder;
     private final CameraView mCameraView;
     final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
-    private CameraView.Quality mQuality = CameraView.Quality.HIGH;
     private CameraView.CaptureMode mCaptureMode = CaptureMode.IMAGE;
     private long mMaxVideoDuration = CameraView.INDEFINITE_VIDEO_DURATION;
     private long mMaxVideoSize = CameraView.INDEFINITE_VIDEO_SIZE;
@@ -578,17 +576,6 @@ final class CameraXModule {
         }
 
         return rotationDegrees;
-    }
-
-    public CameraView.Quality getQuality() {
-        return mQuality;
-    }
-
-    public void setQuality(Quality quality) {
-        if (quality != Quality.HIGH) {
-            throw new UnsupportedOperationException("Only supported Quality is HIGH");
-        }
-        this.mQuality = quality;
     }
 
     public void invalidateView() {

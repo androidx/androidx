@@ -24,12 +24,6 @@ limitations under the License.
             <enum name="front" value="1" />
             <enum name="back" value="2" />
         </attr>
-        <attr name="quality" format="enum">
-            <enum name="max" value="0" />
-            <enum name="high" value="1" />
-            <enum name="medium" value="2" />
-            <enum name="low" value="3" />
-        </attr>
         <attr name="captureMode" format="enum">
             <enum name="image" value="0" />
             <enum name="video" value="1" />
