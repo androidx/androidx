@@ -16,6 +16,8 @@
 
 package androidx.ui.input
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.ui.core.TextRange
 import java.lang.IllegalArgumentException
 
@@ -23,8 +25,11 @@ import java.lang.IllegalArgumentException
  * The editing buffer
  *
  * This class manages the all editing relate states, editing buffers, selection, styles, etc.
+ *
+ * @hide
  */
-internal class EditingBuffer(
+@RestrictTo(LIBRARY)
+class EditingBuffer(
     /**
      * The initial text of this editing buffer
      *
@@ -104,6 +109,11 @@ internal class EditingBuffer(
      * [] operator for the character at the index.
      */
     operator fun get(index: Int): Char = gapBuffer[index]
+
+    /**
+     * Returns the length of the buffer.
+     */
+    val length: Int get() = gapBuffer.length
 
     init {
         val start = initialSelection.start

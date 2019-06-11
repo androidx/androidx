@@ -30,6 +30,7 @@ import org.junit.runners.JUnit4
 class EditingBufferTest {
 
     private fun assertStrWithChars(expected: String, eb: EditingBuffer) {
+        assertEquals(expected.length, eb.length)
         assertEquals(expected, eb.toString())
         for (i in 0 until expected.length) {
             assertEquals(expected[i], eb[i])
