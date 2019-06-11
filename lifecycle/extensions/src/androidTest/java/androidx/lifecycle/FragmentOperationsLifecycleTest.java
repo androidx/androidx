@@ -28,6 +28,7 @@ import static org.hamcrest.Matchers.is;
 
 import static java.util.Arrays.asList;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.activity.EmptyActivity;
@@ -102,11 +103,11 @@ public class FragmentOperationsLifecycleTest {
         return observer;
     }
 
-    private static class CollectingObserver implements LifecycleObserver {
+    private static class CollectingObserver implements LifecycleEventObserver {
         final List<Lifecycle.Event> mCollectedEvents = new ArrayList<>();
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-        public void anyEvent(LifecycleOwner owner, Lifecycle.Event event) {
+        @Override
+        public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
             mCollectedEvents.add(event);
         }
 
