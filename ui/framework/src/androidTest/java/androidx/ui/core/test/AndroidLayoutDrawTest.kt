@@ -53,6 +53,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Density
 import androidx.ui.core.DensityAmbient
+import androidx.ui.core.RepaintBoundary
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -132,6 +133,70 @@ class AndroidLayoutDrawTest {
         }
 
         validateSquareColors(outerColor = red, innerColor = yellow, size = 10)
+    }
+
+    // Tests that recomposition of nested repaint boundaries work
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun recomposeNestedRepaintBoundariesColorChange() {
+        val white = Color(0xFFFFFFFF.toInt())
+        val blue = Color(0xFF000080.toInt())
+        val model = SquareModel(outerColor = blue, innerColor = white)
+        composeSquaresWithNestedRepaintBoundaries(model)
+        validateSquareColors(outerColor = blue, innerColor = white, size = 10)
+
+        drawLatch = CountDownLatch(1)
+        val yellow = Color(0xFFFFFF00.toInt())
+        runOnUiThread {
+            model.innerColor = yellow
+        }
+
+        validateSquareColors(outerColor = blue, innerColor = yellow, size = 10)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun recomposeNestedRepaintBoundariesSizeChange() {
+        val white = Color(0xFFFFFFFF.toInt())
+        val blue = Color(0xFF000080.toInt())
+        val model = SquareModel(outerColor = blue, innerColor = white)
+        composeSquaresWithNestedRepaintBoundaries(model)
+        validateSquareColors(outerColor = blue, innerColor = white, size = 10)
+
+        drawLatch = CountDownLatch(1)
+        runOnUiThread {
+            model.size = 20.ipx
+        }
+
+        validateSquareColors(outerColor = blue, innerColor = white, size = 20)
+    }
+
+    // When there is a repaint boundary around a moving child, the child move
+    // should be reflected in the repainted bitmap
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun recomposeRepaintBoundariesMove() {
+        val white = Color(0xFFFFFFFF.toInt())
+        val blue = Color(0xFF000080.toInt())
+        val model = SquareModel(outerColor = blue, innerColor = white)
+        var offset = OffsetModel(10.ipx)
+        composeMovingSquaresWithRepaintBoundary(model, offset)
+        validateSquareColors(outerColor = blue, innerColor = white, size = 10)
+
+        drawLatch = CountDownLatch(1)
+        runOnUiThread {
+            // there isn't going to be a normal draw because we are just moving the repaint
+            // boundary, but we should have a draw cycle
+            findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
+                ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    drawLatch.countDown()
+                }
+            })
+            offset.offset = 20.ipx
+        }
+
+        validateSquareColors(outerColor = blue, innerColor = white, offset = 10, size = 10)
     }
 
     // Tests that recomposition works with models used within Layout components
@@ -471,7 +536,7 @@ class AndroidLayoutDrawTest {
                 })
             }
         }
-        assertTrue(layoutLatch.await(10, TimeUnit.SECONDS))
+        layoutLatch.await(1, TimeUnit.SECONDS)
 
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
@@ -606,6 +671,60 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    private fun composeSquaresWithNestedRepaintBoundaries(model: SquareModel) {
+        runOnUiThread {
+            activity.setContent {
+                CraneWrapper {
+                    Draw { canvas, parentSize ->
+                        val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(parentSize.toRect(), paint)
+                    }
+                    Padding(size = model.size) {
+                        RepaintBoundary {
+                            RepaintBoundary {
+                                AtLeastSize(size = model.size) {
+                                    Draw { canvas, parentSize ->
+                                        drawLatch.countDown()
+                                        val paint = Paint()
+                                        paint.color = model.innerColor
+                                        canvas.drawRect(parentSize.toRect(), paint)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun composeMovingSquaresWithRepaintBoundary(model: SquareModel, offset: OffsetModel) {
+        runOnUiThread {
+            activity.setContent {
+                CraneWrapper {
+                    Draw { canvas, parentSize ->
+                        val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(parentSize.toRect(), paint)
+                    }
+                    Position(size = model.size * 3, offset = offset) {
+                        RepaintBoundary {
+                            AtLeastSize(size = model.size) {
+                                Draw { canvas, parentSize ->
+                                    drawLatch.countDown()
+                                    val paint = Paint()
+                                    paint.color = model.innerColor
+                                    canvas.drawRect(parentSize.toRect(), paint)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private fun composeNestedSquares(model: SquareModel) {
         runOnUiThread {
             activity.setContent {
@@ -645,14 +764,15 @@ class AndroidLayoutDrawTest {
         outerColor: Color,
         innerColor: Color,
         size: Int,
+        offset: Int = 0,
         totalSize: Int = size * 3
     ) {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
         val bitmap = waitAndScreenShot()
         assertEquals(totalSize, bitmap.width)
         assertEquals(totalSize, bitmap.height)
-        val squareStart = (totalSize - size) / 2
-        val squareEnd = totalSize - squareStart
+        val squareStart = (totalSize - size) / 2 + offset
+        val squareEnd = totalSize - ((totalSize - size) / 2) + offset
         for (x in 0 until totalSize) {
             for (y in 0 until totalSize) {
                 val pixel = bitmap.getPixel(x, y)
@@ -835,6 +955,20 @@ fun TwoMeasureLayout(
     }
 }
 
+@Composable
+fun Position(size: IntPx, offset: OffsetModel, @Children children: @Composable() () -> Unit) {
+    Layout(children) { measurables, constraints ->
+        val placeables = measurables.map { m ->
+            m.measure(constraints)
+        }
+        layout(size, size) {
+            placeables.forEach { child ->
+                child.place(offset.offset, offset.offset)
+            }
+        }
+    }
+}
+
 class DrawCounterListener(private val view: View) :
     ViewTreeObserver.OnPreDrawListener {
     val latch = CountDownLatch(5)
@@ -856,3 +990,6 @@ class SquareModel(
     var outerColor: Color = Color(0xFF000080.toInt()),
     var innerColor: Color = Color(0xFFFFFFFF.toInt())
 )
+
+@Model
+class OffsetModel(var offset: IntPx)
