@@ -60,7 +60,11 @@ class RxCallableQueryResultBinder(
             }
         }.build()
         scope.builder().apply {
-            addStatement("return $T.fromCallable($L)", rxType.className, callable)
+            if (rxType == RxType.SINGLE) {
+                addStatement("return $T.createSingle($L)", RoomRxJava2TypeNames.RX_ROOM, callable)
+            } else {
+                addStatement("return $T.fromCallable($L)", rxType.className, callable)
+            }
         }
     }
 
