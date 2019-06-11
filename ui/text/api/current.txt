@@ -381,54 +381,50 @@ package androidx.ui.engine.window {
 package androidx.ui.painting {
 
   public final class TextPainter {
-    ctor public TextPainter(androidx.ui.painting.TextSpan? text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection? textDirection, float textScaleFactor, Integer? maxLines, Boolean? ellipsis, androidx.ui.engine.window.Locale? locale);
+    ctor public TextPainter(androidx.ui.painting.TextSpan? text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection? textDirection, float textScaleFactor, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale, androidx.ui.graphics.Color selectionColor);
     ctor public TextPainter();
     method public androidx.ui.engine.text.ParagraphStyle createParagraphStyle(androidx.ui.engine.text.TextDirection? defaultTextDirection = null);
     method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset> getCaretForTextPosition(androidx.ui.engine.text.TextPosition position);
     method public boolean getDidExceedMaxLines();
-    method public Boolean? getEllipsis();
     method public float getHeight();
-    method public androidx.ui.engine.text.Paragraph? getLayoutTemplate();
     method public androidx.ui.engine.window.Locale? getLocale();
     method public float getMaxIntrinsicWidth();
     method public Integer? getMaxLines();
     method public float getMinIntrinsicWidth();
-    method public boolean getNeedsLayout();
-    method public androidx.ui.engine.text.Paragraph? getParagraph();
-    method public androidx.ui.painting.Path getPathForSelection(androidx.ui.services.text_editing.TextSelection selection);
+    method public androidx.ui.rendering.paragraph.TextOverflow? getOverflow();
     method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getPreferredLineHeight();
+    method public androidx.ui.graphics.Color getSelectionColor();
     method public androidx.ui.engine.geometry.Size getSize();
+    method public boolean getSoftWrap();
     method public androidx.ui.painting.TextSpan? getText();
     method public androidx.ui.engine.text.TextAlign getTextAlign();
     method public androidx.ui.engine.text.TextDirection? getTextDirection();
     method public float getTextScaleFactor();
     method public float getWidth();
     method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
-    method public void layout(float minWidth = 0.0f, float maxWidth = Float.POSITIVE_INFINITY);
+    method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
-    method public void setEllipsis(Boolean? value);
-    method public void setLayoutTemplate(androidx.ui.engine.text.Paragraph? p);
+    method public void paintSelection(androidx.ui.services.text_editing.TextSelection selection, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void setLocale(androidx.ui.engine.window.Locale? value);
     method public void setMaxLines(Integer? value);
-    method public void setNeedsLayout(boolean p);
-    method public void setParagraph(androidx.ui.engine.text.Paragraph? p);
+    method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow? value);
+    method public void setSelectionColor(androidx.ui.graphics.Color p);
+    method public void setSoftWrap(boolean value);
     method public void setText(androidx.ui.painting.TextSpan? value);
     method public void setTextAlign(androidx.ui.engine.text.TextAlign value);
     method public void setTextDirection(androidx.ui.engine.text.TextDirection? value);
     method public void setTextScaleFactor(float value);
     property public final boolean didExceedMaxLines;
-    property public final Boolean? ellipsis;
     property public final float height;
-    property public final androidx.ui.engine.text.Paragraph? layoutTemplate;
     property public final androidx.ui.engine.window.Locale? locale;
     property public final float maxIntrinsicWidth;
     property public final Integer? maxLines;
     property public final float minIntrinsicWidth;
-    property public final boolean needsLayout;
-    property public final androidx.ui.engine.text.Paragraph? paragraph;
+    property public final androidx.ui.rendering.paragraph.TextOverflow? overflow;
     property public final float preferredLineHeight;
     property public final androidx.ui.engine.geometry.Size size;
+    property public final boolean softWrap;
     property public final androidx.ui.painting.TextSpan? text;
     property public final androidx.ui.engine.text.TextAlign textAlign;
     property public final androidx.ui.engine.text.TextDirection? textDirection;
@@ -559,55 +555,6 @@ package androidx.ui.painting.basictypes {
 }
 
 package androidx.ui.rendering.paragraph {
-
-  public final class RenderParagraph {
-    ctor public RenderParagraph(androidx.ui.painting.TextSpan text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection textDirection, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, float textScaleFactor, Integer? maxLines, androidx.ui.graphics.Color selectionColor);
-    method public float computeMaxIntrinsicWidth();
-    method public float computeMinIntrinsicWidth();
-    method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset> getCaretForTextPosition(androidx.ui.engine.text.TextPosition position);
-    method public float getHeight();
-    method public Integer? getMaxLines();
-    method public androidx.ui.rendering.paragraph.TextOverflow getOverflow();
-    method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
-    method public androidx.ui.engine.geometry.Size getSize();
-    method public boolean getSoftWrap();
-    method public androidx.ui.painting.TextSpan getText();
-    method public androidx.ui.engine.text.TextAlign getTextAlign();
-    method public androidx.ui.engine.text.TextDirection getTextDirection();
-    method public androidx.ui.painting.TextPainter getTextPainter();
-    method public float getTextScaleFactor();
-    method public androidx.ui.engine.geometry.Size getTextSize();
-    method public float getWidth();
-    method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
-    method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
-    method public void paintSelection(androidx.ui.painting.Canvas canvas, androidx.ui.services.text_editing.TextSelection selection);
-    method public void performLayout(androidx.ui.core.Constraints constraints);
-    method public void setMaxLines(Integer? value);
-    method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow value);
-    method public void setSize(androidx.ui.engine.geometry.Size p);
-    method public void setSoftWrap(boolean value);
-    method public void setText(androidx.ui.painting.TextSpan value);
-    method public void setTextAlign(androidx.ui.engine.text.TextAlign value);
-    method public void setTextDirection(androidx.ui.engine.text.TextDirection value);
-    method public void setTextPainter(androidx.ui.painting.TextPainter p);
-    method public void setTextScaleFactor(float value);
-    property public final float height;
-    property public final Integer? maxLines;
-    property public final androidx.ui.rendering.paragraph.TextOverflow overflow;
-    property public final androidx.ui.engine.geometry.Size size;
-    property public final boolean softWrap;
-    property public final androidx.ui.painting.TextSpan text;
-    property public final androidx.ui.engine.text.TextAlign textAlign;
-    property public final androidx.ui.engine.text.TextDirection textDirection;
-    property public final androidx.ui.painting.TextPainter textPainter;
-    property public final float textScaleFactor;
-    property public final androidx.ui.engine.geometry.Size textSize;
-    property public final float width;
-  }
-
-  public final class RenderParagraphKt {
-    ctor public RenderParagraphKt();
-  }
 
   public enum TextOverflow {
     enum_constant public static final androidx.ui.rendering.paragraph.TextOverflow Clip;
