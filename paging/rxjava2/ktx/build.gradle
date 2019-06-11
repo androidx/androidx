@@ -38,12 +38,13 @@ dependencies {
     api(project(":paging:paging-rxjava2"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":paging:paging-common-ktx"))
+    implementation(KOTLIN_STDLIB)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(ARCH_CORE_TESTING)
+    androidTestImplementation(ESPRESSO_CORE)
 }
 
 androidx {

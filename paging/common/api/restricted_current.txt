@@ -32,10 +32,6 @@ package androidx.paging {
 
 package androidx.paging.futures {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class DirectExecutor implements java.util.concurrent.Executor {
-    method public void execute(Runnable runnable);
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface FutureCallback<V> {
     method public void onError(Throwable throwable);
     method public void onSuccess(V? value);
