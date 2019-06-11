@@ -18,11 +18,11 @@ package androidx.activity
 
 import android.widget.TextView
 import androidx.activity.test.R
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -30,15 +30,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ContentViewTest {
 
-    @get:Rule
-    val activityRule = ActivityTestRule(ContentViewActivity::class.java)
-
     @Test
     fun testLifecycleObserver() {
-        val activity = activityRule.activity
-        val inflatedTextView: TextView = activity.findViewById(R.id.inflated_text_view)
-        assertThat(inflatedTextView)
-            .isNotNull()
+        with(ActivityScenario.launch(ContentViewActivity::class.java)) {
+            val inflatedTextView: TextView = withActivity { findViewById(R.id.inflated_text_view) }
+            assertThat(inflatedTextView)
+                .isNotNull()
+        }
     }
 }
 

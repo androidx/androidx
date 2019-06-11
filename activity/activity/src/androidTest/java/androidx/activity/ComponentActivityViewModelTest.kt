@@ -17,33 +17,22 @@
 package androidx.activity
 
 import android.os.Bundle
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityViewModelTest {
-
-    companion object {
-        private const val TIMEOUT = 2 // secs
-    }
-
-    @get:Rule
-    var activityRule = ActivityTestRule(ViewModelActivity::class.java)
 
     @Test(expected = IllegalStateException::class)
     @UiThreadTest
@@ -54,53 +43,41 @@ class ComponentActivityViewModelTest {
 
     @Test
     fun testSameViewModelStorePrePostOnCreate() {
-        val activity = activityRule.activity
-        assertWithMessage(
-            "Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore")
-            .that(activity.preOnCreateViewModelStore)
-            .isSameInstanceAs(activity.postOnCreateViewModelStore)
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            assertWithMessage(
+                "Pre-onCreate() ViewModelStore should equal the post-onCreate() ViewModelStore")
+                .that(withActivity { preOnCreateViewModelStore })
+                .isSameInstanceAs(withActivity { postOnCreateViewModelStore })
+        }
     }
 
     @Test
     fun testSameActivityViewModels() {
-        val activityModel = arrayOfNulls<TestViewModel>(1)
-        val defaultActivityModel = arrayOfNulls<TestViewModel>(1)
-        val viewModelActivity = activityRule.activity
-        activityRule.runOnUiThread {
-            activityModel[0] = viewModelActivity.activityModel
-            defaultActivityModel[0] = viewModelActivity.defaultActivityModel
-            assertThat(defaultActivityModel[0]).isNotSameInstanceAs(activityModel[0])
-        }
-        val recreatedActivity = recreateActivity(activityRule)
-        activityRule.runOnUiThread {
-            assertThat(recreatedActivity.activityModel)
-                .isSameInstanceAs(activityModel[0])
-            assertThat(recreatedActivity.defaultActivityModel)
-                .isSameInstanceAs(defaultActivityModel[0])
+        with(ActivityScenario.launch(ViewModelActivity::class.java)) {
+            val activityModel = withActivity { activityModel }
+            val defaultActivityModel = withActivity { defaultActivityModel }
+            assertThat(defaultActivityModel).isNotSameInstanceAs(activityModel)
+
+            recreate()
+
+            assertThat(withActivity { activityModel })
+                .isSameInstanceAs(activityModel)
+            assertThat(withActivity { defaultActivityModel })
+                .isSameInstanceAs(defaultActivityModel)
         }
     }
 
     @Test
     @Throws(Throwable::class)
     fun testActivityOnCleared() {
-        val activity = activityRule.activity
-        val latch = CountDownLatch(1)
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_DESTROY) {
-                activity.window.decorView.post {
-                    try {
-                        assertThat(activity.activityModel.cleared).isTrue()
-                        assertThat(activity.defaultActivityModel.cleared).isTrue()
-                    } finally {
-                        latch.countDown()
-                    }
-                }
-            }
+        lateinit var activityModel: TestViewModel
+        lateinit var defaultActivityModel: TestViewModel
+        ActivityScenario.launch(ViewModelActivity::class.java).use { scenario ->
+            activityModel = scenario.withActivity { this.activityModel }
+            defaultActivityModel = scenario.withActivity { this.defaultActivityModel }
         }
-
-        activityRule.runOnUiThread { activity.lifecycle.addObserver(observer) }
-        activity.finish()
-        assertThat(latch.await(TIMEOUT.toLong(), TimeUnit.SECONDS)).isTrue()
+        assertThat(activityModel.cleared).isTrue()
+        assertThat(defaultActivityModel.cleared).isTrue()
     }
 }
 
