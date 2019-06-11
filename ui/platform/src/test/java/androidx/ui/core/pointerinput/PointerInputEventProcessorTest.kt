@@ -497,13 +497,13 @@ class PointerInputEventProcessorTest {
      *
      *  -------------
      *  |     |     |
-     *  |  T  |     |
+     *  |  t  |     |
      *  |     |     |
      *  |-----|     |
      *  |           |
      *  |     |-----|
      *  |     |     |
-     *  |     |  T  |
+     *  |     |  t  |
      *  |     |     |
      *  -------------
      *
@@ -574,14 +574,14 @@ class PointerInputEventProcessorTest {
      * This test creates a layout of this shape:
      *
      *  ---------------
-     *  | T      |    |
+     *  | t      |    |
      *  |        |    |
      *  |  |-------|  |
-     *  |  | T     |  |
+     *  |  | t     |  |
      *  |  |       |  |
      *  |  |       |  |
      *  |--|  |-------|
-     *  |  |  | T     |
+     *  |  |  | t     |
      *  |  |  |       |
      *  |  |  |       |
      *  |  |--|       |
@@ -678,15 +678,15 @@ class PointerInputEventProcessorTest {
      *
      *  ---------------
      *  |             |
-     *  |      T      |
+     *  |      t      |
      *  |             |
      *  |  |-------|  |
      *  |  |       |  |
-     *  |  |   T   |  |
+     *  |  |   t   |  |
      *  |  |       |  |
      *  |  |-------|  |
      *  |             |
-     *  |      T      |
+     *  |      t      |
      *  |             |
      *  ---------------
      *
@@ -770,7 +770,7 @@ class PointerInputEventProcessorTest {
      *  |               |
      *  |   |-------|   |
      *  |   |       |   |
-     *  | T |   T   | T |
+     *  | t |   t   | t |
      *  |   |       |   |
      *  |   |-------|   |
      *  |               |
@@ -846,6 +846,491 @@ class PointerInputEventProcessorTest {
         verifyNoMoreInteractions(
             childPointerInputNode1.pointerInputHandler,
             childPointerInputNode2.pointerInputHandler
+        )
+    }
+
+    /**
+     * This test creates a layout of this shape:
+     *
+     *    t            t
+     *   |---|
+     *  t|t  |  t      t t
+     *   |   |
+     *   |---|
+     *
+     *    t     t      t
+     *
+     *              |---|
+     *              |   |
+     *  t t     t   |  t|t
+     *              |---|
+     *    t            t
+     *
+     * One PointerInputNode with 2 child LayoutNodes that are far apart.  Touches happen both
+     * inside the bounding box that wraps around the LayoutNodes, and just outside of it.  Those
+     * that happen inside all hit, those that happen outside do not.
+     */
+    @Test
+    fun process_ManyPointersOnPinWith2LnsThatAreTopLeftBottomRight_onlyCorrectPointersHit() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(100, 100, 200, 200))
+            emitInsertAt(1, LayoutNode(300, 300, 400, 400))
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+        val offsetsThatHit =
+            listOf(
+                PxPosition(100.px, 100.px),
+                PxPosition(250.px, 100.px),
+                PxPosition(399.px, 100.px),
+                PxPosition(100.px, 250.px),
+                PxPosition(250.px, 250.px),
+                PxPosition(399.px, 250.px),
+                PxPosition(100.px, 399.px),
+                PxPosition(250.px, 399.px),
+                PxPosition(399.px, 399.px)
+            )
+        val offsetsThatMiss =
+            listOf(
+                PxPosition(100.px, 99.px),
+                PxPosition(399.px, 99.px),
+                PxPosition(99.px, 100.px),
+                PxPosition(400.px, 100.px),
+                PxPosition(99.px, 399.px),
+                PxPosition(400.px, 399.px),
+                PxPosition(100.px, 400.px),
+                PxPosition(399.px, 400.px)
+            )
+        val allOffsets = offsetsThatHit + offsetsThatMiss
+        val pointerInputEvent =
+            PointerInputEvent(
+                11L.millisecondsToTimestamp(),
+                (0 until allOffsets.size).map {
+                    PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
+                }
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent)
+
+        // Assert
+
+        val expectedChanges =
+            (0 until offsetsThatHit.size).map {
+                PointerInputChange(
+                    id = it,
+                    current = PointerInputData(
+                        11L.millisecondsToTimestamp(),
+                        offsetsThatHit[it] - PxPosition(100.px, 100.px),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+        PointerEventPass.values().forEach { pointerEventPass ->
+            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler
+        )
+    }
+
+    /**
+     * This test creates a layout of this shape:
+     *
+     *    t            t
+     *              |---|
+     *  t t     t   |  t|t
+     *              |   |
+     *              |---|
+     *
+     *    t     t      t
+     *
+     *   |---|
+     *   |   |
+     *  t|t  |  t      t t
+     *   |---|
+     *    t            t
+     *
+     * One PointerInputNode with 2 child LayoutNodes that are far apart.  Touches happen both
+     * inside the bounding box that wraps around the LayoutNodes, and just outside of it.  Those
+     * that happen inside all hit, those that happen outside do not.
+     */
+    @Test
+    fun process_ManyPointersOnPinWith2LnsThatAreTopRightBottomLeft_onlyCorrectPointersHit() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(300, 100, 400, 200))
+            emitInsertAt(1, LayoutNode(100, 300, 200, 400))
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+        val offsetsThatHit =
+            listOf(
+                PxPosition(100.px, 100.px),
+                PxPosition(250.px, 100.px),
+                PxPosition(399.px, 100.px),
+                PxPosition(100.px, 250.px),
+                PxPosition(250.px, 250.px),
+                PxPosition(399.px, 250.px),
+                PxPosition(100.px, 399.px),
+                PxPosition(250.px, 399.px),
+                PxPosition(399.px, 399.px)
+            )
+        val offsetsThatMiss =
+            listOf(
+                PxPosition(100.px, 99.px),
+                PxPosition(399.px, 99.px),
+                PxPosition(99.px, 100.px),
+                PxPosition(400.px, 100.px),
+                PxPosition(99.px, 399.px),
+                PxPosition(400.px, 399.px),
+                PxPosition(100.px, 400.px),
+                PxPosition(399.px, 400.px)
+            )
+        val allOffsets = offsetsThatHit + offsetsThatMiss
+        val pointerInputEvent =
+            PointerInputEvent(
+                11L.millisecondsToTimestamp(),
+                (0 until allOffsets.size).map {
+                    PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
+                }
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent)
+
+        // Assert
+
+        val expectedChanges =
+            (0 until offsetsThatHit.size).map {
+                PointerInputChange(
+                    id = it,
+                    current = PointerInputData(
+                        11L.millisecondsToTimestamp(),
+                        offsetsThatHit[it] - PxPosition(100.px, 100.px),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+        PointerEventPass.values().forEach { pointerEventPass ->
+            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler
+        )
+    }
+
+    /**
+     * This test creates a layout of this shape:
+     *     0   1   2   3   4
+     *   .........   .........
+     * 0 .     t .   . t     .
+     *   .   |---|---|---|   .
+     * 1 . t | t |   | t | t .
+     *   ....|---|   |---|....
+     * 2     |           |
+     *   ....|---|   |---|....
+     * 3 . t | t |   | t | t .
+     *   .   |---|---|---|   .
+     * 4 .     t .   . t     .
+     *   .........   .........
+     *
+     * 4 PointerInputNodes around 4 LayoutNodes that are clipped by their parent LayoutNode. 4
+     * touches touch just inside the parent LayoutNode and inside the child LayoutNodes. 8
+     * touches touch just outside the parent LayoutNode but inside the child LayoutNodes.
+     *
+     * Because LayoutNodes clip the bounds where children LayoutNodes can be hit, all 8 should miss,
+     * but the other 4 touches are inside both, so hit.
+     */
+    @Test
+    fun process_4DownInClippedAreaOfLnsWrappedByPins_onlyCorrectPointersHit() {
+
+        // Arrange
+
+        val singlePointerInputHandler = spy(MyPointerInputHandler())
+        val pointerInputNode1 = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(-1, -1, 1, 1))
+            pointerInputHandler = singlePointerInputHandler
+        }
+        val pointerInputNode2 = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(2, -1, 4, 1))
+            pointerInputHandler = singlePointerInputHandler
+        }
+        val pointerInputNode3 = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(-1, 2, 1, 4))
+            pointerInputHandler = singlePointerInputHandler
+        }
+        val pointerInputNode4 = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(2, 2, 4, 4))
+            pointerInputHandler = singlePointerInputHandler
+        }
+        val parentLayoutNode = LayoutNode(1, 1, 4, 4).apply {
+            emitInsertAt(0, pointerInputNode1)
+            emitInsertAt(1, pointerInputNode2)
+            emitInsertAt(2, pointerInputNode3)
+            emitInsertAt(3, pointerInputNode4)
+        }
+        root.apply {
+            emitInsertAt(0, parentLayoutNode)
+        }
+        val offsetsThatHit =
+            listOf(
+                PxPosition(1.px, 1.px),
+                PxPosition(3.px, 1.px),
+                PxPosition(1.px, 3.px),
+                PxPosition(3.px, 3.px)
+            )
+        val offsetsThatMiss =
+            listOf(
+                PxPosition(1.px, 0.px),
+                PxPosition(3.px, 0.px),
+                PxPosition(0.px, 1.px),
+                PxPosition(4.px, 1.px),
+                PxPosition(0.px, 3.px),
+                PxPosition(4.px, 3.px),
+                PxPosition(1.px, 4.px),
+                PxPosition(3.px, 4.px)
+            )
+        val allOffsets = offsetsThatHit + offsetsThatMiss
+        val pointerInputEvent =
+            PointerInputEvent(
+                11L.millisecondsToTimestamp(),
+                (0 until allOffsets.size).map {
+                    PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
+                }
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent)
+
+        // Assert
+
+        val expectedChanges =
+            (0 until offsetsThatHit.size).map {
+                PointerInputChange(
+                    id = it,
+                    current = PointerInputData(
+                        11L.millisecondsToTimestamp(),
+                        PxPosition(
+                            if (offsetsThatHit[it].x == 1.px) 1.px else 0.px,
+                            if (offsetsThatHit[it].y == 1.px) 1.px else 0.px
+                        ),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+        PointerEventPass.values().forEach { pointerEventPass ->
+            expectedChanges.forEach { change ->
+                verify(singlePointerInputHandler).invoke(listOf(change), pointerEventPass)
+            }
+        }
+        verifyNoMoreInteractions(
+            singlePointerInputHandler
+        )
+    }
+
+    /**
+     * This test creates a layout of this shape:
+     *
+     *                .....
+     *                . B .
+     *                .....
+     *         t   t
+     *        |-----|
+     *       t|t   t|t
+     *        |  A  |
+     *       t|t   t|t
+     *        |-----|
+     *         t   t
+     *  .....
+     *  . C .
+     *  .....
+     *
+     * Here we have a LayoutNode (A) that is the parent of a PointerInputNode that is then a parent
+     * of LayoutNodes B and C.  4 touches are performed in the corners of (A).
+     *
+     * Even though B and C are themselves are not touchable because they are laid out outside of the
+     * bounds of their parent LayoutNode, the PointerInputNode that wraps them is sized to include
+     * the space underneath A, so all 4 touches should hit.
+     */
+    @Test
+    fun process_lnWithPinWith2LnsOutsideOfLayoutBoundsPointerInsidePin_pointersHit() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(350, -50, 400, 0))
+            emitInsertAt(1, LayoutNode(-50, 350, 0, 400))
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        val layoutNode: LayoutNode = LayoutNode(100, 100, 400, 400).apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+        root.apply {
+            emitInsertAt(0, layoutNode)
+        }
+        val offsetsThatHit =
+            listOf(
+                PxPosition(100.px, 100.px),
+                PxPosition(399.px, 100.px),
+                PxPosition(100.px, 399.px),
+                PxPosition(399.px, 399.px)
+            )
+        val offsetsThatMiss =
+            listOf(
+                PxPosition(100.px, 99.px),
+                PxPosition(399.px, 99.px),
+                PxPosition(99.px, 100.px),
+                PxPosition(400.px, 100.px),
+                PxPosition(99.px, 399.px),
+                PxPosition(400.px, 399.px),
+                PxPosition(100.px, 400.px),
+                PxPosition(399.px, 400.px)
+            )
+        val allOffsets = offsetsThatHit + offsetsThatMiss
+        val pointerInputEvent =
+            PointerInputEvent(
+                11L.millisecondsToTimestamp(),
+                (0 until allOffsets.size).map {
+                    PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
+                }
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent)
+
+        // Assert
+
+        val expectedChanges =
+            (0 until offsetsThatHit.size).map {
+                PointerInputChange(
+                    id = it,
+                    current = PointerInputData(
+                        11L.millisecondsToTimestamp(),
+                        offsetsThatHit[it] - PxPosition(50.px, 50.px),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+        PointerEventPass.values().forEach { pointerEventPass ->
+            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler
+        )
+    }
+
+    /**
+     * This test creates a layout of this shape:
+     *
+     *    t            t
+     *                  *
+     *  t t     t      t t
+     *
+     *
+     *
+     *    t     t      t
+     *
+     *
+     *
+     *  t t     t      t t
+     *   *
+     *    t            t
+     *
+     * One PointerInputNode with 2 child LayoutNodes that have no size (represented by *).  Touches
+     * happen both inside the bounding box that wraps around the LayoutNodes, and just outside of
+     * it.  Those that happen inside all hit, those that happen outside do not.
+     */
+    @Test
+    fun process_ManyPointersOnPinWith2LnsWithNoSize_onlyCorrectPointersHit() {
+
+        // Arrange
+
+        val pointerInputNode: PointerInputNode = PointerInputNode().apply {
+            emitInsertAt(0, LayoutNode(400, 100, 400, 100))
+            emitInsertAt(1, LayoutNode(100, 400, 100, 400))
+            pointerInputHandler = spy(MyPointerInputHandler())
+        }
+        root.apply {
+            emitInsertAt(0, pointerInputNode)
+        }
+        val offsetsThatHit =
+            listOf(
+                PxPosition(100.px, 100.px),
+                PxPosition(250.px, 100.px),
+                PxPosition(399.px, 100.px),
+                PxPosition(100.px, 250.px),
+                PxPosition(250.px, 250.px),
+                PxPosition(399.px, 250.px),
+                PxPosition(100.px, 399.px),
+                PxPosition(250.px, 399.px),
+                PxPosition(399.px, 399.px)
+            )
+        val offsetsThatMiss =
+            listOf(
+                PxPosition(100.px, 99.px),
+                PxPosition(399.px, 99.px),
+                PxPosition(99.px, 100.px),
+                PxPosition(400.px, 100.px),
+                PxPosition(99.px, 399.px),
+                PxPosition(400.px, 399.px),
+                PxPosition(100.px, 400.px),
+                PxPosition(399.px, 400.px)
+            )
+        val allOffsets = offsetsThatHit + offsetsThatMiss
+        val pointerInputEvent =
+            PointerInputEvent(
+                11L.millisecondsToTimestamp(),
+                (0 until allOffsets.size).map {
+                    PointerInputEventData(it, 11L.millisecondsToTimestamp(), allOffsets[it], true)
+                }
+            )
+
+        // Act
+
+        pointerInputEventProcessor.process(pointerInputEvent)
+
+        // Assert
+
+        val expectedChanges =
+            (0 until offsetsThatHit.size).map {
+                PointerInputChange(
+                    id = it,
+                    current = PointerInputData(
+                        11L.millisecondsToTimestamp(),
+                        offsetsThatHit[it] - PxPosition(100.px, 100.px),
+                        true
+                    ),
+                    previous = PointerInputData(null, null, false),
+                    consumed = ConsumedData()
+                )
+            }
+        PointerEventPass.values().forEach { pointerEventPass ->
+            verify(pointerInputNode.pointerInputHandler).invoke(expectedChanges, pointerEventPass)
+        }
+        verifyNoMoreInteractions(
+            pointerInputNode.pointerInputHandler
         )
     }
 
@@ -1219,7 +1704,7 @@ class PointerInputEventProcessorTest {
         // Act
 
         pointerInputEventProcessor.process(down)
-        parentPointerInputNode.emitRemoveAt(0, 1)
+        parentLayoutNode.emitRemoveAt(0, 1)
         pointerInputEventProcessor.process(up)
 
         // Assert
