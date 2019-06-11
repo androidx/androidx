@@ -98,13 +98,14 @@ fun TypeElement.getAllMethodsIncludingSupers(): Set<ExecutableElement> {
 interface ClassGetter {
     fun getAsTypeMirror(methodName: String): TypeMirror?
     fun getAsTypeMirrorList(methodName: String): List<TypeMirror>
-    fun <T : Annotation> getAsAnnotationBox(methodName: String): Array<AnnotationBox<T>>
+    fun <T : Annotation> getAsAnnotationBox(methodName: String): AnnotationBox<T>
+    fun <T : Annotation> getAsAnnotationBoxArray(methodName: String): Array<AnnotationBox<T>>
 }
 
 /**
  * Class that helps to read values from annotations. Simple types as string, int, lists can
  * be read from [value]. If you need to read classes or another annotations from annotation use
- * [getAsTypeMirror] and [getAsAnnotationBox] correspondingly.
+ * [getAsTypeMirror], [getAsAnnotationBox] and [getAsAnnotationBoxArray] correspondingly.
  */
 class AnnotationBox<T : Annotation>(private val obj: Any) : ClassGetter by (obj as ClassGetter) {
     @Suppress("UNCHECKED_CAST")
@@ -133,6 +134,10 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
                 }
             }
             returnType == Int::class.java -> value.getAsInt(defaultValue as Int?)
+            returnType.isAnnotation -> {
+                @Suppress("UNCHECKED_CAST")
+                AnnotationClassVisitor(returnType as Class<out Annotation>).visit(value)
+            }
             returnType.isArray && returnType.componentType.isAnnotation -> {
                 @Suppress("UNCHECKED_CAST")
                 ListVisitor(returnType.componentType as Class<out Annotation>).visit(value)
@@ -151,6 +156,7 @@ private fun <T : Annotation> AnnotationMirror.box(cl: Class<T>): AnnotationBox<T
             ClassGetter::getAsTypeMirror.name -> map[args[0]]
             ClassGetter::getAsTypeMirrorList.name -> map[args[0]]
             "getAsAnnotationBox" -> map[args[0]]
+            "getAsAnnotationBoxArray" -> map[args[0]]
             else -> map[method.name]
         }
     })
