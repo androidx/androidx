@@ -60,8 +60,8 @@ public class TableInfoTest {
                         + "name TEXT)");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", false, 1),
-                        new TableInfo.Column("name", "TEXT", false, 0)),
+                toMap(new TableInfo.Column("id", "INTEGER", false, 1, null),
+                        new TableInfo.Column("name", "TEXT", false, 0, null)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -72,8 +72,8 @@ public class TableInfoTest {
                         + "name TEXT, PRIMARY KEY(name, id))");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", false, 2),
-                        new TableInfo.Column("name", "TEXT", false, 1)),
+                toMap(new TableInfo.Column("id", "INTEGER", false, 2, null),
+                        new TableInfo.Column("name", "TEXT", false, 1, null)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -85,9 +85,9 @@ public class TableInfoTest {
         mDb.execSQL("ALTER TABLE foo ADD COLUMN added REAL;");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", false, 0),
-                        new TableInfo.Column("name", "TEXT", false, 1),
-                        new TableInfo.Column("added", "REAL", false, 0)),
+                toMap(new TableInfo.Column("id", "INTEGER", false, 0, null),
+                        new TableInfo.Column("name", "TEXT", false, 1, null),
+                        new TableInfo.Column("added", "REAL", false, 0, null)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -97,7 +97,7 @@ public class TableInfoTest {
                 "CREATE TABLE foo (name TEXT NOT NULL)");
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("name", "TEXT", true, 0)),
+                toMap(new TableInfo.Column("name", "TEXT", true, 0, null)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -108,7 +108,7 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("name", "TEXT", false, 0)),
+                toMap(new TableInfo.Column("name", "TEXT", false, 0, "blah")),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -179,7 +179,7 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("n", "INTEGER", false, 0)),
+                toMap(new TableInfo.Column("n", "INTEGER", false, 0, null)),
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
@@ -197,11 +197,11 @@ public class TableInfoTest {
         TableInfo info = TableInfo.read(mDb, "foo");
         assertThat(info, is(new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("n", "INTEGER", false, 0),
-                        new TableInfo.Column("indexed", "TEXT", false, 0),
-                        new TableInfo.Column("unique_indexed", "TEXT", false, 0),
-                        new TableInfo.Column("a", "INTEGER", false, 0),
-                        new TableInfo.Column("b", "INTEGER", false, 0)),
+                toMap(new TableInfo.Column("n", "INTEGER", false, 0, null),
+                        new TableInfo.Column("indexed", "TEXT", false, 0, null),
+                        new TableInfo.Column("unique_indexed", "TEXT", false, 0, null),
+                        new TableInfo.Column("a", "INTEGER", false, 0, null),
+                        new TableInfo.Column("b", "INTEGER", false, 0, null)),
                 Collections.<TableInfo.ForeignKey>emptySet(),
                 toSet(new TableInfo.Index("index_foo_blahblah", false,
                         Arrays.asList("a", "b")),

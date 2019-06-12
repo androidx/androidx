@@ -3,6 +3,7 @@ package androidx.room {
 
   @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ColumnInfo {
     method @androidx.room.ColumnInfo.Collate public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
+    method public abstract String defaultValue() default androidx.room.ColumnInfo.VALUE_UNSPECIFIED;
     method public abstract boolean index() default false;
     method public abstract String name() default androidx.room.ColumnInfo.INHERIT_FIELD_NAME;
     method @androidx.room.ColumnInfo.SQLiteTypeAffinity public abstract int typeAffinity() default androidx.room.ColumnInfo.UNDEFINED;
@@ -18,6 +19,7 @@ package androidx.room {
     field public static final int UNDEFINED = 1; // 0x1
     field @RequiresApi(21) public static final int UNICODE = 6; // 0x6
     field public static final int UNSPECIFIED = 1; // 0x1
+    field public static final String VALUE_UNSPECIFIED = "[value-unspecified]";
   }
 
   @IntDef({androidx.room.ColumnInfo.UNSPECIFIED, androidx.room.ColumnInfo.BINARY, androidx.room.ColumnInfo.NOCASE, androidx.room.ColumnInfo.RTRIM, androidx.room.ColumnInfo.LOCALIZED, androidx.room.ColumnInfo.UNICODE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface ColumnInfo.Collate {

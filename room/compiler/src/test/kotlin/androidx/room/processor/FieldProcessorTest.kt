@@ -30,6 +30,8 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,6 +50,7 @@ class FieldProcessorTest {
         const val ENTITY_PREFIX = """
                 package foo.bar;
                 import androidx.room.*;
+                import androidx.annotation.NonNull;
                 @Entity
                 abstract class MyEntity {
                 """
@@ -347,6 +350,79 @@ class FieldProcessorTest {
                                 collate = collate,
                                 affinity = SQLTypeAffinity.TEXT)))
             }.compilesWithoutError()
+        }
+    }
+
+    @Test
+    fun defaultValues_number() {
+        testDefaultValue("\"1\"", "int") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("1")))
+        }.compilesWithoutError()
+        testDefaultValue("\"\"", "int") { defaultValue ->
+            assertThat(defaultValue, `is`(nullValue()))
+        }.compilesWithoutError()
+        testDefaultValue("\"null\"", "Integer") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("null")))
+        }.compilesWithoutError()
+        testDefaultValue("ColumnInfo.VALUE_UNSPECIFIED", "int") { defaultValue ->
+            assertThat(defaultValue, `is`(nullValue()))
+        }.compilesWithoutError()
+        testDefaultValue("\"CURRENT_TIMESTAMP\"", "long") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("CURRENT_TIMESTAMP")))
+        }.compilesWithoutError()
+        testDefaultValue("\"true\"", "boolean") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("true")))
+        }.compilesWithoutError()
+        testDefaultValue("\"false\"", "boolean") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("false")))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun defaultValues_nonNull() {
+        testDefaultValue("\"null\"", "int") {
+        }.failsToCompile().withErrorContaining(ProcessorErrors.DEFAULT_VALUE_NULLABILITY)
+        testDefaultValue("\"null\"", "@NonNull String") {
+        }.failsToCompile().withErrorContaining(ProcessorErrors.DEFAULT_VALUE_NULLABILITY)
+    }
+
+    @Test
+    fun defaultValues_text() {
+        testDefaultValue("\"a\"", "String") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("'a'")))
+        }.compilesWithoutError()
+        testDefaultValue("\"'a'\"", "String") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("'a'")))
+        }.compilesWithoutError()
+        testDefaultValue("\"\"", "String") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("''")))
+        }.compilesWithoutError()
+        testDefaultValue("\"null\"", "String") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("null")))
+        }.compilesWithoutError()
+        testDefaultValue("ColumnInfo.VALUE_UNSPECIFIED", "String") { defaultValue ->
+            assertThat(defaultValue, `is`(nullValue()))
+        }.compilesWithoutError()
+        testDefaultValue("\"CURRENT_TIMESTAMP\"", "String") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("CURRENT_TIMESTAMP")))
+        }.compilesWithoutError()
+        testDefaultValue("\"('Created at ' || CURRENT_TIMESTAMP)\"", "String") { defaultValue ->
+            assertThat(defaultValue, `is`(equalTo("('Created at ' || CURRENT_TIMESTAMP)")))
+        }.compilesWithoutError()
+    }
+
+    private fun testDefaultValue(
+        defaultValue: String,
+        fieldType: String,
+        body: (String?) -> Unit
+    ): CompileTester {
+        return singleEntity(
+            """
+                @ColumnInfo(defaultValue = $defaultValue)
+                $fieldType name;
+            """
+        ) { field, _ ->
+            body(field.defaultValue)
         }
     }
 

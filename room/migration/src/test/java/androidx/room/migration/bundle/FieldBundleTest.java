@@ -27,36 +27,43 @@ import org.junit.runners.JUnit4;
 public class FieldBundleTest {
     @Test
     public void schemaEquality_same_equal() {
-        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false);
-        FieldBundle copy = new FieldBundle("foo", "foo", "text", false);
+        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false, null);
+        FieldBundle copy = new FieldBundle("foo", "foo", "text", false, null);
         assertThat(bundle.isSchemaEqual(copy), is(true));
     }
 
     @Test
     public void schemaEquality_diffNonNull_notEqual() {
-        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false);
-        FieldBundle copy = new FieldBundle("foo", "foo", "text", true);
+        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false, null);
+        FieldBundle copy = new FieldBundle("foo", "foo", "text", true, null);
         assertThat(bundle.isSchemaEqual(copy), is(false));
     }
 
     @Test
     public void schemaEquality_diffColumnName_notEqual() {
-        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false);
-        FieldBundle copy = new FieldBundle("foo", "foo2", "text", true);
+        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false, null);
+        FieldBundle copy = new FieldBundle("foo", "foo2", "text", true, null);
         assertThat(bundle.isSchemaEqual(copy), is(false));
     }
 
     @Test
     public void schemaEquality_diffAffinity_notEqual() {
-        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false);
-        FieldBundle copy = new FieldBundle("foo", "foo2", "int", false);
+        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false, null);
+        FieldBundle copy = new FieldBundle("foo", "foo2", "int", false, null);
         assertThat(bundle.isSchemaEqual(copy), is(false));
     }
 
     @Test
     public void schemaEquality_diffPath_equal() {
-        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false);
-        FieldBundle copy = new FieldBundle("foo>bar", "foo", "text", false);
+        FieldBundle bundle = new FieldBundle("foo", "foo", "text", false, null);
+        FieldBundle copy = new FieldBundle("foo>bar", "foo", "text", false, null);
         assertThat(bundle.isSchemaEqual(copy), is(true));
+    }
+
+    @Test
+    public void schemeEquality_diffDefaultValue_notEqual() {
+        FieldBundle bundle = new FieldBundle("foo", "foo", "text", true, null);
+        FieldBundle copy = new FieldBundle("foo", "foo", "text", true, "bar");
+        assertThat(bundle.isSchemaEqual(copy), is(false));
     }
 }
