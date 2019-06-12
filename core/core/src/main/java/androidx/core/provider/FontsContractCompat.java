@@ -364,7 +364,11 @@ public class FontsContractCompat {
             if (sExecutor == null) {
                 synchronized (sLock) {
                     if (sExecutor == null) {
-                        sExecutor = Executors.newFixedThreadPool(1);
+                        sExecutor = Executors.newFixedThreadPool(1, runnable -> {
+                            final Thread t = new Thread(runnable);
+                            t.setName("fonts");
+                            return t;
+                        });
                     }
                 }
             }
