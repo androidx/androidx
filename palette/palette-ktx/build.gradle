@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    api(project(":palette"))
+    api(project(":palette:palette"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
