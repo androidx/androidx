@@ -44,9 +44,11 @@ package androidx.room.migration.bundle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FieldBundle {
-    ctor public FieldBundle(String!, String!, String!, boolean);
+    ctor @Deprecated public FieldBundle(String!, String!, String!, boolean);
+    ctor public FieldBundle(String!, String!, String!, boolean, String!);
     method public String! getAffinity();
     method public String! getColumnName();
+    method public String! getDefaultValue();
     method public String! getFieldPath();
     method public boolean isNonNull();
     method public boolean isSchemaEqual(androidx.room.migration.bundle.FieldBundle!);

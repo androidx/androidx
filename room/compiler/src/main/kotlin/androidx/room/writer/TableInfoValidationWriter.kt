@@ -45,12 +45,13 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
                     columnListType, entity.fields.size)
             entity.fields.forEach { field ->
-                addStatement("$L.put($S, new $T($S, $S, $L, $L))",
+                addStatement("$L.put($S, new $T($S, $S, $L, $L, $S))",
                         columnListVar, field.columnName, RoomTypeNames.TABLE_INFO_COLUMN,
                         /*name*/ field.columnName,
                         /*type*/ field.affinity?.name ?: SQLTypeAffinity.TEXT.name,
                         /*nonNull*/ field.nonNull,
-                        /*pkeyPos*/ entity.primaryKey.fields.indexOf(field) + 1)
+                        /*pkeyPos*/ entity.primaryKey.fields.indexOf(field) + 1,
+                        /*defaultValue*/ field.defaultValue)
             }
 
             val foreignKeySetVar = scope.getTmpVar("_foreignKeys$suffix")

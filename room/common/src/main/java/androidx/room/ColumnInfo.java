@@ -74,6 +74,47 @@ public @interface ColumnInfo {
     @Collate int collate() default UNSPECIFIED;
 
     /**
+     * The default value for this column.
+     * <pre>
+     *   {@literal @}ColumnInfo(defaultValue = "No name")
+     *   public String name;
+     *
+     *  {@literal @}ColumnInfo(defaultValue = "0")
+     *   public int flag;
+     * </pre>
+     * <p>
+     * Note that the default value you specify here will <em>NOT</em> be used if you simply
+     * insert the {@link Entity} with {@link Insert @Insert}. In that case, any value assigned in
+     * Java/Kotlin will be used. Use {@link Query @Query} with an <code>INSERT</code> statement
+     * and skip this column there in order to use this default value.
+     * </p>
+     * <p>
+     * NULL, CURRENT_TIMESTAMP and other SQLite constant values are interpreted as such. If you want
+     * to use them as strings for some reason, surround them with single-quotes.
+     * </p>
+     * <pre>
+     *   {@literal @}ColumnInfo(defaultValue = "NULL")
+     *   {@literal @}Nullable
+     *   public String description;
+     *
+     *   {@literal @}ColumnInfo(defaultValue = "'NULL'")
+     *   {@literal @}NonNull
+     *   public String name;
+     * </pre>
+     * <p>
+     * You can also use constant expressions by surrounding them with parentheses.
+     * </p>
+     * <pre>
+     *   {@literal @}CoumnInfo(defaultValue = "('Created at' || CURRENT_TIMESTAMP)")
+     *   public String notice;
+     * </pre>
+     *
+     * @return The default value for this column.
+     * @see #VALUE_UNSPECIFIED
+     */
+    String defaultValue() default VALUE_UNSPECIFIED;
+
+    /**
      * Constant to let Room inherit the field name as the column name. If used, Room will use the
      * field name as the column name.
      */
@@ -162,4 +203,9 @@ public @interface ColumnInfo {
     @Retention(RetentionPolicy.CLASS)
     @interface Collate {
     }
+
+    /**
+     * A constant for {@link #defaultValue()} that makes the column to have no default value.
+     */
+    String VALUE_UNSPECIFIED = "[value-unspecified]";
 }

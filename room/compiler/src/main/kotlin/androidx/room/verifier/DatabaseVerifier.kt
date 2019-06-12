@@ -117,14 +117,22 @@ class DatabaseVerifier private constructor(
             } else {
                 entity.createTableQuery
             }
-            stmt.executeUpdate(stripLocalizeCollations(createTableQuery))
+            try {
+                stmt.executeUpdate(stripLocalizeCollations(createTableQuery))
+            } catch (e: SQLException) {
+                context.logger.e(entity.element, "${e.message}")
+            }
             entity.indices.forEach {
                 stmt.executeUpdate(it.createQuery(entity.tableName))
             }
         }
         views.forEach { view ->
             val stmt = connection.createStatement()
-            stmt.executeUpdate(stripLocalizeCollations(view.createViewQuery))
+            try {
+                stmt.executeUpdate(stripLocalizeCollations(view.createViewQuery))
+            } catch (e: SQLException) {
+                context.logger.e(view.element, "${e.message}")
+            }
         }
     }
 

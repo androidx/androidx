@@ -29,6 +29,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Room;
 import androidx.room.migration.Migration;
 import androidx.room.migration.bundle.SchemaBundle;
@@ -251,6 +252,26 @@ public class MigrationTest {
     @Test
     public void addViewFailure() throws IOException {
         testFailure(7, 8);
+    }
+
+    @Test
+    public void addDefaultValue() throws IOException {
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 8);
+        final TableInfo oldTable = TableInfo.read(db, MigrationDb.Entity2.TABLE_NAME);
+        final TableInfo.Column oldColumn = oldTable.columns.get("name");
+        assertThat(oldColumn, is(notNullValue()));
+        assertThat(oldColumn.defaultValue, is(nullValue()));
+        db.close();
+        db = helper.runMigrationsAndValidate(TEST_DB, 9, false, MIGRATION_8_9);
+        final TableInfo table = TableInfo.read(db, MigrationDb.Entity2.TABLE_NAME);
+        final TableInfo.Column column = table.columns.get("name");
+        assertThat(column, is(notNullValue()));
+        assertThat(column.defaultValue, is(equalTo("'Unknown'")));
+    }
+
+    @Test
+    public void addDefaultValueFailure() throws IOException {
+        testFailure(8, 9);
     }
 
     @Test
@@ -541,6 +562,20 @@ public class MigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_8_9 = new Migration(8, 9) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            // Add DEFAULT constraint to Entity2.name.
+            database.execSQL("ALTER TABLE Entity2 RENAME TO save_Entity2");
+            database.execSQL("CREATE TABLE IF NOT EXISTS Entity2 "
+                    + "(`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+                    + "`addedInV3` TEXT, `name` TEXT DEFAULT 'Unknown')");
+            database.execSQL("INSERT INTO Entity2 (id, addedInV3, name) "
+                    + "SELECT id, addedInV3, name FROM save_Entity2");
+            database.execSQL("DROP TABLE save_Entity2");
+        }
+    };
+
     /**
      * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
@@ -581,7 +616,7 @@ public class MigrationTest {
 
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
             MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-            MIGRATION_7_8};
+            MIGRATION_7_8, MIGRATION_8_9};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {
