@@ -160,15 +160,6 @@ class Paragraph internal constructor(
     }
 
     /**
-     * Returns the coordinates of top and bottom end of the Caret for given TextPosition. The Caret
-     * is on the left side of the character at the given TextPosition for LTR text, and on the right
-     * side of the character at the given TextPosition for RTL text.
-     */
-    fun getCaretForTextPosition(textPosition: TextPosition): Pair<Offset, Offset> {
-        return paragraphImpl.getCaretForTextPosition(textPosition)
-    }
-
-    /**
      * Returns the bounding box as Rect of the character for given TextPosition. Rect includes the
      * top, bottom, left and right of a character.
      */

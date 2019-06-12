@@ -504,16 +504,6 @@ class TextPainter(
     }
 
     /**
-     * Returns the Caret as a vertical bar for given text position, at which to paint the caret.
-     *
-     * Valid only after [layout] has been called.
-     */
-    fun getCaretForTextPosition(position: TextPosition): Pair<Offset, Offset> {
-        assert(!needsLayout)
-        return paragraph!!.getCaretForTextPosition(position)
-    }
-
-    /**
      * Returns the bounding box as Rect of the character for given TextPosition. Rect includes the
      * top, bottom, left and right of a character.
      *

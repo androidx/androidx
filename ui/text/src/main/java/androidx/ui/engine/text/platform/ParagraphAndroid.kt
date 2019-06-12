@@ -214,16 +214,6 @@ internal class ParagraphAndroid constructor(
         )
     }
 
-    fun getCaretForTextPosition(textPosition: TextPosition): Pair<Offset, Offset> {
-        val horizontal = ensureLayout.getPrimaryHorizontal(textPosition.offset)
-
-        val line = ensureLayout.getLineForOffset(textPosition.offset)
-        val top = ensureLayout.getLineTop(line)
-        val bottom = ensureLayout.getLineBottom(line)
-
-        return Pair(Offset(horizontal, top), Offset(horizontal, bottom))
-    }
-
     /**
      * Returns the bounding box as Rect of the character for given TextPosition. Rect includes the
      * top, bottom, left and right of a character.
