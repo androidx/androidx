@@ -77,6 +77,8 @@
     <color name="car_body2_light">@color/car_primary_text_dark</color>
     <color name="car_body3_light">@color/car_secondary_text_light</color>
     <color name="car_body3_dark">@color/car_secondary_text_dark</color>
+    <color name="car_body4_light">@color/car_secondary_text_dark</color>
+    <color name="car_subtext1_light">@color/car_secondary_text_dark</color>
 
     <!-- The tinting color for an icon. This icon is assumed to be on a light background. -->
     <color name="car_tint">@color/car_tint_dark</color>
