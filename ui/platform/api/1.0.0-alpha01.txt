@@ -82,6 +82,18 @@ package androidx.ui.core {
     method public static void visitLayoutChildren(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,kotlin.Unit> block);
   }
 
+  public final class DataNode<T> extends androidx.ui.core.ComponentNode {
+    ctor public DataNode(androidx.ui.core.DataNodeKey<T> key, T! value);
+    method public androidx.ui.core.DataNodeKey<T> getKey();
+    method public T! getValue();
+    method public void setValue(T? p);
+  }
+
+  public final class DataNodeKey<T> {
+    ctor public DataNodeKey(String name);
+    method public String getName();
+  }
+
   public final class DebugUtilsKt {
     ctor public DebugUtilsKt();
     method public static inline void ifDebug(kotlin.jvm.functions.Function0<kotlin.Unit> block);
@@ -112,7 +124,6 @@ package androidx.ui.core {
     method public androidx.ui.core.MeasurableLayout? getLayout();
     method public boolean getNeedsRelayout();
     method public boolean getNeedsRemeasure();
-    method public Object? getParentData();
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
     method public boolean getVisible();
     method public androidx.ui.core.IntPx getWidth();
@@ -126,7 +137,6 @@ package androidx.ui.core {
     method public void setLayout(androidx.ui.core.MeasurableLayout? p);
     method public void setNeedsRelayout$lintWithKotlin(boolean p);
     method public void setNeedsRemeasure$lintWithKotlin(boolean p);
-    method public void setParentData(Object? p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
     method public void startLayout();
     method public void startMeasure();
@@ -137,7 +147,6 @@ package androidx.ui.core {
     property public final androidx.ui.core.MeasurableLayout? layout;
     property public final boolean needsRelayout;
     property public final boolean needsRemeasure;
-    property public final Object? parentData;
     property public androidx.ui.core.LayoutNode? parentLayoutNode;
     property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
     property public final boolean visible;

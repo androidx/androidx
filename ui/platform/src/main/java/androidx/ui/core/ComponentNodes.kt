@@ -392,11 +392,6 @@ class LayoutNode : ComponentNode() {
         private set
 
     /**
-     * Opaque data provided by the layout parent
-     */
-    var parentData: Any? = null
-
-    /**
      * `true` when the parent's size depends on this LayoutNode's size
      */
     var affectsParentSize: Boolean = false
@@ -723,6 +718,24 @@ class SemanticsComponentNode(
         needsSemanticsUpdate = true
     }
 }
+
+/**
+ * The key used in DataNode.
+ * TODO(mount): Make this inline
+ *
+ * @param T Identifies the type used in the value
+ * @property name A unique name identifying the type of the key.
+ */
+class DataNodeKey<T>(val name: String)
+
+/**
+ * A ComponentNode that stores a value in the emitted hierarchy
+ *
+ * @param T The type used for the value
+ * @property key The key object used to identify the key
+ * @property value The value of the data being stored in the hierarchy
+ */
+class DataNode<T>(val key: DataNodeKey<T>, var value: T) : ComponentNode()
 
 /**
  * Returns [ComponentNode.owner] or throws if it is null.
