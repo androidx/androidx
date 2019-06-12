@@ -179,18 +179,13 @@ class LivePagedListBuilderTest {
         assertNotNull(initPagedList!!)
         assertTrue(initPagedList is InitialPagedList<*, *>)
 
-        val loadStateListener = object : PagedList.LoadStateListener {
-            override fun onLoadStateChanged(
-                type: PagedList.LoadType,
-                state: PagedList.LoadState,
-                error: Throwable?
-            ) {
+        val loadStateChangedCallback =
+            { type: PagedList.LoadType, state: PagedList.LoadState, error: Throwable? ->
                 if (type == REFRESH) {
                     loadStates.add(LoadState(type, state, error))
                 }
             }
-        }
-        initPagedList.addWeakLoadStateListener(loadStateListener)
+        initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
 
         // flush loadInitial, done with passed executor
         backgroundExecutor.executeAll()
@@ -220,8 +215,8 @@ class LivePagedListBuilderTest {
         )
 
         // the IDLE result shows up on the next PagedList
-        initPagedList.removeWeakLoadStateListener(loadStateListener)
-        pagedListHolder[0]!!.addWeakLoadStateListener(loadStateListener)
+        initPagedList.removeWeakLoadStateListener(loadStateChangedCallback)
+        pagedListHolder[0]!!.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
                 LoadState(REFRESH, LOADING, null),
