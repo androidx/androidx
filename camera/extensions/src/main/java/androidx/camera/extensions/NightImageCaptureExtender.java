@@ -34,12 +34,15 @@ public class NightImageCaptureExtender extends ImageCaptureExtender {
      * {@link androidx.camera.core.ImageCapture}.
      */
     public static NightImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
-        try {
-            return new VendorNightImageCaptureExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No night image capture extender found. Falling back to default.");
-            return new DefaultNightImageCaptureExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorNightImageCaptureExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No night image capture extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultNightImageCaptureExtender();
     }
 
     /** Empty implementation of night extender which does nothing. */

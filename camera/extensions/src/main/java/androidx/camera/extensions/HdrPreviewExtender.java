@@ -34,12 +34,15 @@ public class HdrPreviewExtender extends PreviewExtender {
      * {@link androidx.camera.core.Preview}.
      */
     public static HdrPreviewExtender create(PreviewConfig.Builder builder) {
-        try {
-            return new VendorHdrPreviewExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No HDR preview extender found. Falling back to default.");
-            return new DefaultHdrPreviewExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorHdrPreviewExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No HDR preview extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultHdrPreviewExtender();
     }
 
     /** Empty implementation of HDR extender which does nothing. */

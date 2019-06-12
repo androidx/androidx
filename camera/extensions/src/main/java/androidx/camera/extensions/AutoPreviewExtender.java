@@ -34,12 +34,15 @@ public class AutoPreviewExtender extends PreviewExtender {
      * {@link androidx.camera.core.Preview}.
      */
     public static AutoPreviewExtender create(PreviewConfig.Builder builder) {
-        try {
-            return new VendorAutoPreviewExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No auto preview extender found. Falling back to default.");
-            return new DefaultAutoPreviewExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorAutoPreviewExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No auto preview extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultAutoPreviewExtender();
     }
 
     /** Empty implementation of auto extender which does nothing. */
