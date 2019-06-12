@@ -2434,13 +2434,11 @@ public class ViewCompat {
                 return;
             }
 
-            v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
-                @Override
-                public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
-                    WindowInsetsCompat compatInsets = WindowInsetsCompat.wrap(insets);
-                    compatInsets = listener.onApplyWindowInsets(view, compatInsets);
-                    return WindowInsetsCompat.unwrap(compatInsets);
-                }
+            v.setOnApplyWindowInsetsListener((view, insets) -> {
+                WindowInsetsCompat compatInsets = WindowInsetsCompat
+                        .toWindowInsetsCompat(insets);
+                compatInsets = listener.onApplyWindowInsets(view, compatInsets);
+                return compatInsets.toWindowInsets();
             });
         }
     }
@@ -2460,12 +2458,12 @@ public class ViewCompat {
     public static WindowInsetsCompat onApplyWindowInsets(@NonNull View view,
             WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = WindowInsetsCompat.unwrap(insets);
+            WindowInsets unwrapped = insets.toWindowInsets();
             WindowInsets result = view.onApplyWindowInsets(unwrapped);
             if (!result.equals(unwrapped)) {
                 unwrapped = new WindowInsets(result);
             }
-            return WindowInsetsCompat.wrap(unwrapped);
+            return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
         }
         return insets;
     }
@@ -2485,12 +2483,12 @@ public class ViewCompat {
     public static WindowInsetsCompat dispatchApplyWindowInsets(@NonNull View view,
             WindowInsetsCompat insets) {
         if (Build.VERSION.SDK_INT >= 21) {
-            WindowInsets unwrapped = WindowInsetsCompat.unwrap(insets);
+            WindowInsets unwrapped = insets.toWindowInsets();
             WindowInsets result = view.dispatchApplyWindowInsets(unwrapped);
             if (!result.equals(unwrapped)) {
                 unwrapped = new WindowInsets(result);
             }
-            return WindowInsetsCompat.wrap(unwrapped);
+            return WindowInsetsCompat.toWindowInsetsCompat(unwrapped);
         }
         return insets;
     }
