@@ -33,8 +33,7 @@ dependencies {
 
     api project(":compose-runtime")
     api project(":ui-core")
-    //implementation project(":ui-platform")
-    api project(":ui-platform")
+    implementation project(":ui-platform")
     api(KOTLIN_COMPOSE_STDLIB)
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
