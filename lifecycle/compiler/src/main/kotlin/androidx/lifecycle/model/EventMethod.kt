@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.lifecycle.model
 
 import androidx.lifecycle.OnLifecycleEvent
@@ -21,9 +23,11 @@ import androidx.lifecycle.getPackageQName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
-data class EventMethod(val method: ExecutableElement,
-                       val onLifecycleEvent: OnLifecycleEvent,
-                       val type: TypeElement) {
+data class EventMethod(
+    val method: ExecutableElement,
+    val onLifecycleEvent: OnLifecycleEvent,
+    val type: TypeElement
+) {
 
     fun packageName() = type.getPackageQName()
 }
