@@ -37,6 +37,10 @@ import androidx.compose.state
 import androidx.compose.memo
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
+import androidx.ui.core.selection.Selection
+import androidx.ui.core.selection.SelectionRegistrarAmbient
+import androidx.ui.core.selection.TextSelectionHandler
+import androidx.ui.engine.text.TextAffinity
 import androidx.ui.painting.TextPainter
 
 private val DefaultTextAlign: TextAlign = TextAlign.Start
@@ -214,30 +218,37 @@ internal fun Text(
                     val startPx = selectionCoordinates.first - relativePosition
                     val endPx = selectionCoordinates.second - relativePosition
 
-                    val start = Offset(startPx.x.value, startPx.y.value)
-                    val end = Offset(endPx.x.value, endPx.y.value)
+                    val startOffset = Offset(startPx.x.value, startPx.y.value)
+                    val endOffset = Offset(endPx.x.value, endPx.y.value)
 
-                    var selectionStart = textPainter.getPositionForOffset(start)
-                    var selectionEnd = textPainter.getPositionForOffset(end)
+                    var selectionStart = textPainter.getPositionForOffset(startOffset)
+                    var selectionEnd = textPainter.getPositionForOffset(endOffset)
 
                     if (selectionStart.offset == selectionEnd.offset) {
                         val wordBoundary = textPainter.getWordBoundary(selectionStart)
                         selectionStart =
                             TextPosition(wordBoundary.start, selectionStart.affinity)
                         selectionEnd = TextPosition(wordBoundary.end, selectionEnd.affinity)
+                    } else {
+                        // Currently on Android, selection end is the offset after last character.
+                        // But when dragging happens, current Crane Text Selection end is the offset
+                        // of the last character. Thus before calling drawing selection background,
+                        // make the selection end matches Android behaviour.
+                        selectionEnd = TextPosition(selectionEnd.offset + 1, TextAffinity.upstream)
                     }
 
                     internalSelection.value =
                         TextSelection(selectionStart.offset, selectionEnd.offset)
 
-                    // TODO(qqd): Determine a set of coordinates around a character that we need.
-                    // Clean up the lower layer's getCaretForTextPosition methods.
-                    // Currently the left bottom corner of a character is returned.
+                    // In Crane Text Selection, the selection end should be the last character, thus
+                    // make the selection end matches Crane behaviour.
+                    selectionEnd = TextPosition(selectionEnd.offset - 1, TextAffinity.upstream)
+
                     return Selection(
                         startOffset =
-                        textPainter.getCaretForTextPosition(selectionStart).second,
+                        textPainter.getBoundingBoxForTextPosition(selectionStart),
                         endOffset =
-                        textPainter.getCaretForTextPosition(selectionEnd).second,
+                        textPainter.getBoundingBoxForTextPosition(selectionEnd),
                         startLayoutCoordinates = layoutCoordinates.value!!,
                         endLayoutCoordinates = layoutCoordinates.value!!
                     )
