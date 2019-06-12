@@ -97,13 +97,40 @@ class ScrollerPerformance : LayoutTest() {
             override fun run() {
                 compositionContext.compose()
                 val exec: BenchmarkRule.Scope.() -> Unit = {
-                    if (scrollerPosition.position == 0.px) {
-                        scrollerPosition.position = 10.px
-                    } else {
-                        scrollerPosition.position = 0.px
+                    runWithTimingDisabled {
+                        if (scrollerPosition.position == 0.px) {
+                            scrollerPosition.position = 10.px
+                        } else {
+                            scrollerPosition.position = 0.px
+                        }
+                        FrameManager.nextFrame()
                     }
-                    FrameManager.nextFrame()
                     compositionContext.recomposeSync()
+                }
+                benchmarkRule.measureRepeated(exec)
+            }
+        })
+    }
+
+    @Test
+    fun benchmarkLargeComposition() {
+        val scrollerPosition = ScrollerPosition()
+        val compositionContext =
+            composeScroller(scrollerPosition = scrollerPosition)
+
+        activityTestRule.runOnUiThread(object : Runnable {
+            override fun run() {
+                compositionContext.compose()
+                val exec: BenchmarkRule.Scope.() -> Unit = {
+                    runWithTimingDisabled {
+                        if (scrollerPosition.position == 0.px) {
+                            scrollerPosition.position = 10.px
+                        } else {
+                            scrollerPosition.position = 0.px
+                        }
+                        FrameManager.nextFrame()
+                    }
+                    compositionContext.compose()
                 }
                 benchmarkRule.measureRepeated(exec)
             }
