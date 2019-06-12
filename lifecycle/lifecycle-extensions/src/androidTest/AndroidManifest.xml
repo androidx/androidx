@@ -19,13 +19,7 @@
           package="androidx.lifecycle.extensions.test">
 
     <application>
-        <activity android:name="androidx.lifecycle.viewmodeltest.ViewModelActivity"
-                  android:theme="@style/Base.Theme.AppCompat">
-        </activity>
         <activity android:name="androidx.lifecycle.EmptyActivity"/>
-        <activity android:name="androidx.lifecycle.activity.FragmentLifecycleActivity"
-            android:theme="@style/Base.Theme.AppCompat"/>
-        <activity android:name="androidx.lifecycle.activity.EmptyActivity"/>
     </application>
 
 </manifest>
