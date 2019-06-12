@@ -19,6 +19,7 @@ package androidx.camera.camera2.impl;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
@@ -58,11 +59,14 @@ public final class Camera2SessionOptionUnpackerTest {
         CameraDevice.StateCallback deviceCallback = mock(CameraDevice.StateCallback.class);
         CameraCaptureSession.StateCallback sessionStateCallback =
                 mock(CameraCaptureSession.StateCallback.class);
+        CameraEventCallbacks cameraEventCallbacks = mock(CameraEventCallbacks.class);
+        when(cameraEventCallbacks.clone()).thenReturn(cameraEventCallbacks);
 
         new Camera2Config.Extender(imageCaptureConfigBuilder)
                 .setSessionCaptureCallback(captureCallback)
                 .setDeviceStateCallback(deviceCallback)
-                .setSessionStateCallback(sessionStateCallback);
+                .setSessionStateCallback(sessionStateCallback)
+                .setCameraEventCallback(cameraEventCallbacks);
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         mUnpacker.unpack(imageCaptureConfigBuilder.build(), sessionBuilder);
@@ -79,5 +83,8 @@ public final class Camera2SessionOptionUnpackerTest {
         assertThat(sessionConfig.getDeviceStateCallbacks()).containsExactly(deviceCallback);
         assertThat(sessionConfig.getSessionStateCallbacks())
                 .containsExactly(sessionStateCallback);
+        assertThat(
+                new Camera2Config(sessionConfig.getImplementationOptions()).getCameraEventCallback(
+                        null)).isEqualTo(cameraEventCallbacks);
     }
 }

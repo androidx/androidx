@@ -25,6 +25,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Range;
 
 import androidx.camera.camera2.impl.Camera2CaptureCallbacks;
+import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.Config;
@@ -46,6 +47,8 @@ public final class Camera2ConfigTest {
             CameraCaptureSessionStateCallbacks.createNoOpCallback();
     private static final CameraDevice.StateCallback DEVICE_STATE_CALLBACK =
             CameraDeviceStateCallbacks.createNoOpCallback();
+    private static final CameraEventCallbacks CAMERA_EVENT_CALLBACKS =
+            CameraEventCallbacks.createEmptyCallback();
 
     @Test
     public void emptyConfigurationDoesNotContainTemplateType() {
@@ -103,6 +106,18 @@ public final class Camera2ConfigTest {
 
         assertThat(config.getDeviceStateCallback(/*valueIfMissing=*/ null))
                 .isSameInstanceAs(DEVICE_STATE_CALLBACK);
+    }
+
+    @Test
+    public void canExtendWithCameraEventCallback() {
+        FakeConfig.Builder builder = new FakeConfig.Builder();
+
+        new Camera2Config.Extender(builder).setCameraEventCallback(CAMERA_EVENT_CALLBACKS);
+
+        Camera2Config config = new Camera2Config(builder.build());
+
+        assertThat(config.getCameraEventCallback(/*valueIfMissing=*/ null))
+                .isSameAs(CAMERA_EVENT_CALLBACKS);
     }
 
     @Test
