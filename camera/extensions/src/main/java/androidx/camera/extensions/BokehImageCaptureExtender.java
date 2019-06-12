@@ -34,12 +34,15 @@ public class BokehImageCaptureExtender extends ImageCaptureExtender {
      * {@link androidx.camera.core.ImageCapture}.
      */
     public static BokehImageCaptureExtender create(ImageCaptureConfig.Builder builder) {
-        try {
-            return new VendorBokehImageCaptureExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No bokeh image capture extender found. Falling back to default.");
-            return new DefaultBokehImageCaptureExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorBokehImageCaptureExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No bokeh image capture extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultBokehImageCaptureExtender();
     }
 
     /** Empty implementation of bokeh extender which does nothing. */

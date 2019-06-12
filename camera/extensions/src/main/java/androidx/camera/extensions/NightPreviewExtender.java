@@ -34,12 +34,15 @@ public class NightPreviewExtender extends PreviewExtender {
      * {@link androidx.camera.core.Preview}.
      */
     public static NightPreviewExtender create(PreviewConfig.Builder builder) {
-        try {
-            return new VendorNightPreviewExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No night preview extender found. Falling back to default.");
-            return new DefaultNightPreviewExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorNightPreviewExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No night preview extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultNightPreviewExtender();
     }
 
     /** Empty implementation of night extender which does nothing. */

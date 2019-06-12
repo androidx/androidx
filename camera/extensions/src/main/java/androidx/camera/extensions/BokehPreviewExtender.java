@@ -34,12 +34,15 @@ public class BokehPreviewExtender extends PreviewExtender {
      * {@link androidx.camera.core.Preview}.
      */
     public static BokehPreviewExtender create(PreviewConfig.Builder builder) {
-        try {
-            return new VendorBokehPreviewExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No bokeh preview extender found. Falling back to default.");
-            return new DefaultBokehPreviewExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorBokehPreviewExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No bokeh preview extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultBokehPreviewExtender();
     }
 
     /** Empty implementation of bokeh extender which does nothing. */

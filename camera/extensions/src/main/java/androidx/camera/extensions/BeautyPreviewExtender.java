@@ -34,12 +34,15 @@ public class BeautyPreviewExtender extends PreviewExtender {
      * {@link androidx.camera.core.Preview}.
      */
     public static BeautyPreviewExtender create(PreviewConfig.Builder builder) {
-        try {
-            return new VendorBeautyPreviewExtender(builder);
-        } catch (NoClassDefFoundError e) {
-            Log.d(TAG, "No beauty preview extender found. Falling back to default.");
-            return new DefaultBeautyPreviewExtender();
+        if (ExtensionVersion.isExtensionVersionSupported()) {
+            try {
+                return new VendorBeautyPreviewExtender(builder);
+            } catch (NoClassDefFoundError e) {
+                Log.d(TAG, "No beauty preview extender found. Falling back to default.");
+            }
         }
+
+        return new DefaultBeautyPreviewExtender();
     }
 
     /** Empty implementation of beauty extender which does nothing. */
