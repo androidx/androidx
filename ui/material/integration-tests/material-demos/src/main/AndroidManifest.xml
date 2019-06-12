@@ -69,6 +69,35 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ModalDrawerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Drawer. Modal">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".BottomDrawerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Drawer. Bottom">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".StaticDrawerActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Drawer. Static">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <activity
             android:name=".TextActivity"
@@ -80,7 +109,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FloatingActionButtonActivity"
+        <activity
+            android:name=".FloatingActionButtonActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Floating Action Button">
             <intent-filter>
@@ -89,7 +119,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".AppBarActivity"
+        <activity
+            android:name=".AppBarActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/App Bar">
             <intent-filter>
