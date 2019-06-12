@@ -205,10 +205,8 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
      * @see currentList
      */
     @Deprecated(
-        "Use the two argument variant instead:\n" +
-                "      {@link #onCurrentListChanged(PagedList, PagedList)}\n" +
-                "     \n" +
-                "      "
+        "Use the two argument variant instead.",
+        ReplaceWith("onCurrentListChanged(previousList, currentList)")
     )
     open fun onCurrentListChanged(currentList: PagedList<T>?) {
     }
