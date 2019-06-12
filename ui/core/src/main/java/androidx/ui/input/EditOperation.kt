@@ -131,7 +131,35 @@ data class SetComposingTextEditOp(
 ) : EditOperation {
 
     override fun process(buffer: EditingBuffer) {
-        TODO("Not implemented yet")
+        if (buffer.hasComposition()) {
+            // API doc says, if there is ongoing composing text, replace it with new text.
+            val compositionStart = buffer.compositionStart
+            buffer.replace(buffer.compositionStart, buffer.compositionEnd, text)
+            if (text.isNotEmpty()) {
+                buffer.setComposition(compositionStart, compositionStart + text.length)
+            }
+        } else {
+            // If there is no composing text, insert composing text into cursor position with
+            // removing selected text if any.
+            val selectionStart = buffer.selectionStart
+            buffer.replace(buffer.selectionStart, buffer.selectionEnd, text)
+            if (text.isNotEmpty()) {
+                buffer.setComposition(selectionStart, selectionStart + text.length)
+            }
+        }
+
+        // After replace function is called, the editing buffer places the cursor at the end of the
+        // modified range.
+        val newCursor = buffer.cursor
+
+        // See above API description for the meaning of newCursorPosition.
+        val newCursorInBuffer = if (newCursorPosition > 0) {
+            newCursor + newCursorPosition - 1
+        } else {
+            newCursor + newCursorPosition - text.length
+        }
+
+        buffer.cursor = clamp(newCursorInBuffer, 0, buffer.length)
     }
 }
 /**
