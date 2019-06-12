@@ -42,7 +42,7 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 @RunWith(JUnit4.class)
-public class FullLifecycleObserverTest {
+public class DefaultLifecycleObserverTest {
     private LifecycleOwner mOwner;
     private Lifecycle mLifecycle;
 
@@ -55,8 +55,8 @@ public class FullLifecycleObserverTest {
 
     @Test
     public void eachEvent() {
-        FullLifecycleObserver obj = mock(FullLifecycleObserver.class);
-        FullLifecycleObserverAdapter observer = new FullLifecycleObserverAdapter(obj, null);
+        DefaultLifecycleObserver obj = mock(DefaultLifecycleObserver.class);
+        DefaultLifecycleObserverAdapter observer = new DefaultLifecycleObserverAdapter(obj, null);
         when(mLifecycle.getCurrentState()).thenReturn(CREATED);
 
         observer.onStateChanged(mOwner, ON_CREATE);
@@ -92,7 +92,7 @@ public class FullLifecycleObserverTest {
 
     @Test
     public void fullLifecycleObserverAndLifecycleEventObserver() {
-        class AllObservers implements FullLifecycleObserver, LifecycleEventObserver {
+        class AllObservers implements DefaultLifecycleObserver, LifecycleEventObserver {
 
             @Override
             public void onCreate(LifecycleOwner owner) {
@@ -132,7 +132,7 @@ public class FullLifecycleObserverTest {
         }
 
         AllObservers obj = mock(AllObservers.class);
-        FullLifecycleObserverAdapter observer = new FullLifecycleObserverAdapter(obj, obj);
+        DefaultLifecycleObserverAdapter observer = new DefaultLifecycleObserverAdapter(obj, obj);
         when(mLifecycle.getCurrentState()).thenReturn(CREATED);
 
         observer.onStateChanged(mOwner, ON_CREATE);
@@ -173,7 +173,7 @@ public class FullLifecycleObserverTest {
     }
 
     public void fullLifecycleObserverAndAnnotations() {
-        class AnnotatedFullLifecycleObserver implements FullLifecycleObserver {
+        class AnnotatedFullLifecycleObserver implements DefaultLifecycleObserver {
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {
                 throw new IllegalStateException("Annotations in FullLifecycleObserver "
