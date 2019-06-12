@@ -55,7 +55,6 @@ function doBuild() {
 rm -rf "$oldOutPath" "$newOutPath" "$tempOutPath"
 
 echo building new commit
-echoAndDo git checkout "$newCommit"
 doBuild
 mv "$tempOutPath" "$newOutPath"
 
@@ -66,10 +65,10 @@ if doBuild; then
   echo previous build succeeded
 else
   echo previous build failed
-  git checkout "$newCommit"
+  git checkout -
   exit 1
 fi
-git checkout "$newCommit"
+git checkout -
 mv "$tempOutPath" "$oldOutPath"
 
 echo
