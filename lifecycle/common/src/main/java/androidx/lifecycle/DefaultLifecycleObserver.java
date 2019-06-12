@@ -29,7 +29,7 @@ import androidx.annotation.NonNull;
  * annotations will be ignored.
  */
 @SuppressWarnings("unused")
-public interface DefaultLifecycleObserver extends FullLifecycleObserver {
+public interface DefaultLifecycleObserver extends LifecycleObserver {
 
     /**
      * Notifies that {@code ON_CREATE} event occurred.
@@ -39,7 +39,6 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
-    @Override
     default void onCreate(@NonNull LifecycleOwner owner) {
     }
 
@@ -50,7 +49,6 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
-    @Override
     default void onStart(@NonNull LifecycleOwner owner) {
     }
 
@@ -62,7 +60,6 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
-    @Override
     default void onResume(@NonNull LifecycleOwner owner) {
     }
 
@@ -74,7 +71,6 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
-    @Override
     default void onPause(@NonNull LifecycleOwner owner) {
     }
 
@@ -86,7 +82,6 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
-    @Override
     default void onStop(@NonNull LifecycleOwner owner) {
     }
 
@@ -98,7 +93,6 @@ public interface DefaultLifecycleObserver extends FullLifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
-    @Override
     default void onDestroy(@NonNull LifecycleOwner owner) {
     }
 }

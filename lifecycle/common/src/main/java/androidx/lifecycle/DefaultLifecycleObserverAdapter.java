@@ -18,12 +18,12 @@ package androidx.lifecycle;
 
 import androidx.annotation.NonNull;
 
-class FullLifecycleObserverAdapter implements LifecycleEventObserver {
+class DefaultLifecycleObserverAdapter implements LifecycleEventObserver {
 
-    private final FullLifecycleObserver mFullLifecycleObserver;
+    private final DefaultLifecycleObserver mFullLifecycleObserver;
     private final LifecycleEventObserver mLifecycleEventObserver;
 
-    FullLifecycleObserverAdapter(FullLifecycleObserver fullLifecycleObserver,
+    DefaultLifecycleObserverAdapter(DefaultLifecycleObserver fullLifecycleObserver,
             LifecycleEventObserver lifecycleEventObserver) {
         mFullLifecycleObserver = fullLifecycleObserver;
         mLifecycleEventObserver = lifecycleEventObserver;
