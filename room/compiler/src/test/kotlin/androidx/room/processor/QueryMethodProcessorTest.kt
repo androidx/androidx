@@ -639,9 +639,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(listAdapter.rowAdapter, instanceOf(PojoRowAdapter::class.java))
             val pojoRowAdapter = listAdapter.rowAdapter as PojoRowAdapter
             assertThat(pojoRowAdapter.relationCollectors.size, `is`(1))
-            assertThat(pojoRowAdapter.relationCollectors[0].collectionTypeName, `is`(
+            assertThat(pojoRowAdapter.relationCollectors[0].relationTypeName, `is`(
                 ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
-                    COMMON.USER_TYPE_NAME)
+                    COMMON.USER_TYPE_NAME) as TypeName
             ))
         }.compilesWithoutError()
             .withWarningCount(0)
