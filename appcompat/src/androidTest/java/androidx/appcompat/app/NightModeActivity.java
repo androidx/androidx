@@ -16,11 +16,15 @@
 
 package androidx.appcompat.app;
 
+import android.content.res.Configuration;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 
 public class NightModeActivity extends BaseTestActivity {
     private int mLastNightModeChange = Integer.MIN_VALUE;
+    private Configuration mLastConfigurationChange;
 
     @Override
     protected int getContentViewLayoutResId() {
@@ -30,6 +34,18 @@ public class NightModeActivity extends BaseTestActivity {
     @Override
     public void onNightModeChanged(int mode) {
         mLastNightModeChange = mode;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mLastConfigurationChange = newConfig;
+    }
+
+    Configuration getLastConfigurationChangeAndClear() {
+        final Configuration config = mLastConfigurationChange;
+        mLastConfigurationChange = null;
+        return config;
     }
 
     int getLastNightModeAndReset() {
