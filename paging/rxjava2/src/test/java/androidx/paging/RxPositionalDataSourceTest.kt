@@ -20,6 +20,7 @@ import androidx.paging.ListenablePositionalDataSource.InitialResult
 import androidx.paging.ListenablePositionalDataSource.LoadInitialParams
 import androidx.paging.ListenablePositionalDataSource.LoadRangeParams
 import androidx.paging.ListenablePositionalDataSource.RangeResult
+import androidx.testutils.TestExecutor
 import io.reactivex.Single
 import io.reactivex.disposables.Disposable
 import org.junit.Assert.fail
@@ -106,7 +107,7 @@ class RxPositionalDataSourceTest {
         executor.executeAll()
         val actual = future.get(100, TimeUnit.MILLISECONDS)
 
-        assertEquals(InitialResult<Int>((0..3).toList(), 0, 4), actual)
+        assertEquals(InitialResult((0..3).toList(), 0, 4), actual)
     }
 
     @Test
@@ -145,7 +146,7 @@ class RxPositionalDataSourceTest {
         executor.executeAll()
         val actual = future.get(100, TimeUnit.MILLISECONDS)
 
-        assertEquals(RangeResult<Int>((0..9).toList()), actual)
+        assertEquals(RangeResult((0..9).toList()), actual)
     }
 
     @Test

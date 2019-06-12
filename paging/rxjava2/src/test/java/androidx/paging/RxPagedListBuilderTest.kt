@@ -36,7 +36,7 @@ class RxPagedListBuilderTest {
             override fun create(): DataSource<Int, String> {
                 val currentList = localData.first()
                 localData = localData.drop(1)
-                return ListDataSource<String>(currentList)
+                return ListDataSource(currentList)
             }
         }
     }
@@ -46,9 +46,9 @@ class RxPagedListBuilderTest {
         val factory = testDataSourceSequence(listOf(listOf("a", "b"), listOf("c", "d")))
         val scheduler = TestScheduler()
         val observable = RxPagedListBuilder(factory, 10)
-                .setFetchScheduler(scheduler)
-                .setNotifyScheduler(scheduler)
-                .buildObservable()
+            .setFetchScheduler(scheduler)
+            .setNotifyScheduler(scheduler)
+            .buildObservable()
         val observer = TestObserver<PagedList<String>>()
 
         observable.subscribe(observer)
@@ -75,10 +75,11 @@ class RxPagedListBuilderTest {
         val notifyScheduler = TestScheduler()
         val fetchScheduler = TestScheduler()
         val observable: Observable<PagedList<String>> = RxPagedListBuilder(
-                factory, 10)
-                .setFetchScheduler(fetchScheduler)
-                .setNotifyScheduler(notifyScheduler)
-                .buildObservable()
+            factory, 10
+        )
+            .setFetchScheduler(fetchScheduler)
+            .setNotifyScheduler(notifyScheduler)
+            .buildObservable()
         val observer = TestObserver<PagedList<String>>()
         observable.subscribe(observer)
 
