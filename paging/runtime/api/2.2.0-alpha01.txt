@@ -2,45 +2,52 @@
 package androidx.paging {
 
   public class AsyncPagedListDiffer<T> {
-    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
-    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T!>);
-    method public void addLoadStateListener(androidx.paging.PagedList.LoadStateListener);
-    method public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T!>);
-    method public androidx.paging.PagedList<T!>? getCurrentList();
-    method public T? getItem(int);
+    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter<?> adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
+    ctor public AsyncPagedListDiffer(androidx.recyclerview.widget.ListUpdateCallback listUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T> config);
+    method public void addLoadStateListener(androidx.paging.PagedList.LoadStateListener listener);
+    method public void addPagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
+    method public androidx.paging.PagedList<T>? getCurrentList();
+    method public T? getItem(int index);
     method public int getItemCount();
-    method public void removeLoadStateListListener(androidx.paging.PagedList.LoadStateListener);
-    method public void removePagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T!>);
-    method public void submitList(androidx.paging.PagedList<T!>?);
-    method public void submitList(androidx.paging.PagedList<T!>?, Runnable?);
+    method public void removeLoadStateListListener(androidx.paging.PagedList.LoadStateListener listener);
+    method public void removePagedListListener(androidx.paging.AsyncPagedListDiffer.PagedListListener<T> listener);
+    method public void submitList(androidx.paging.PagedList<T>? pagedList);
+    method public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
+    property public androidx.paging.PagedList<T>? currentList;
+    property public int itemCount;
   }
 
   public static interface AsyncPagedListDiffer.PagedListListener<T> {
-    method public void onCurrentListChanged(androidx.paging.PagedList<T!>?, androidx.paging.PagedList<T!>?);
+    method public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
   }
 
   public final class LivePagedListBuilder<Key, Value> {
-    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key!,Value!>, androidx.paging.PagedList.Config);
-    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key!,Value!>, int);
-    method public androidx.lifecycle.LiveData<androidx.paging.PagedList<Value!>!> build();
-    method public androidx.paging.LivePagedListBuilder<Key!,Value!> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value!>?);
-    method public androidx.paging.LivePagedListBuilder<Key!,Value!> setFetchExecutor(java.util.concurrent.Executor);
-    method public androidx.paging.LivePagedListBuilder<Key!,Value!> setInitialLoadKey(Key?);
+    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
+    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
+    method public androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> build();
+    method public androidx.paging.LivePagedListBuilder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
+    method public androidx.paging.LivePagedListBuilder<Key,Value> setFetchExecutor(java.util.concurrent.Executor fetchExecutor);
+    method public androidx.paging.LivePagedListBuilder<Key,Value> setInitialLoadKey(Key? key);
   }
 
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
-    ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T!>);
-    method public void addLoadStateListener(androidx.paging.PagedList.LoadStateListener!);
-    method public androidx.paging.PagedList<T!>? getCurrentList();
-    method protected T? getItem(int);
+    ctor protected PagedListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
+    ctor protected PagedListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T> config);
+    method public void addLoadStateListener(androidx.paging.PagedList.LoadStateListener listener);
+    method public androidx.paging.PagedList<T>? getCurrentList();
+    method protected T? getItem(int position);
     method public int getItemCount();
-    method @Deprecated public void onCurrentListChanged(androidx.paging.PagedList<T!>?);
-    method public void onCurrentListChanged(androidx.paging.PagedList<T!>?, androidx.paging.PagedList<T!>?);
-    method public void onLoadStateChanged(androidx.paging.PagedList.LoadType, androidx.paging.PagedList.LoadState, Throwable?);
-    method public void removeLoadStateListener(androidx.paging.PagedList.LoadStateListener!);
-    method public void submitList(androidx.paging.PagedList<T!>?);
-    method public void submitList(androidx.paging.PagedList<T!>?, Runnable?);
+    method @Deprecated public void onCurrentListChanged(androidx.paging.PagedList<T>? currentList);
+    method public void onCurrentListChanged(androidx.paging.PagedList<T>? previousList, androidx.paging.PagedList<T>? currentList);
+    method public void onLoadStateChanged(androidx.paging.PagedList.LoadType type, androidx.paging.PagedList.LoadState state, Throwable? error);
+    method public void removeLoadStateListener(androidx.paging.PagedList.LoadStateListener listener);
+    method public void submitList(androidx.paging.PagedList<T>? pagedList);
+    method public void submitList(androidx.paging.PagedList<T>? pagedList, Runnable? commitCallback);
+    property public androidx.paging.PagedList<T>? currentList;
+  }
+
+  public final class PagedStorageDiffHelperKt {
+    ctor public PagedStorageDiffHelperKt();
   }
 
 }
