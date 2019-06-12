@@ -244,9 +244,9 @@ class PagedStorageDiffHelperTest {
             newList: PagedStorage<String>,
             validator: (callback: ListUpdateCallback) -> Unit
         ) {
-            val diffResult = PagedStorageDiffHelper.computeDiff(oldList, newList, DIFF_CALLBACK)
+            val diffResult = oldList.computeDiff(newList, DIFF_CALLBACK)
             val listUpdateCallback = mock(ListUpdateCallback::class.java)
-            PagedStorageDiffHelper.dispatchDiff(listUpdateCallback, oldList, newList, diffResult)
+            oldList.dispatchDiff(listUpdateCallback, newList, diffResult)
 
             validator(listUpdateCallback)
         }
@@ -256,9 +256,8 @@ class PagedStorageDiffHelperTest {
             validator: (positionMapper: (Int) -> Int) -> Unit
         ) {
             validator {
-                PagedStorageDiffHelper.transformAnchorIndex(
-                        PagedStorageDiffHelper.computeDiff(oldList, newList, DIFF_CALLBACK),
-                        oldList,
+                oldList.transformAnchorIndex(
+                        oldList.computeDiff(newList, DIFF_CALLBACK),
                         newList,
                         it)
             }

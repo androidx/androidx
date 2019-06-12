@@ -22,7 +22,25 @@ package androidx.paging {
   }
 
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final androidx.paging.PagedStorage<T> getStorage();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final <K, T> com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedList<T>> create(androidx.paging.DataSource<K,T> dataSource, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, java.util.concurrent.Executor initialLoadExecutor, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.paging.PagedStorage<T> getStorage();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setInitialLoadState(androidx.paging.PagedList.LoadState loadState, Throwable? error);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class PagedList.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <K, T> com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedList<T>> create(androidx.paging.DataSource<K,T> dataSource, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, java.util.concurrent.Executor initialLoadExecutor, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract static class PagedList.LoadStateManager {
+    method public final void dispatchCurrentLoadState(androidx.paging.PagedList.LoadStateListener listener);
+    method public final androidx.paging.PagedList.LoadState getEnd();
+    method public final androidx.paging.PagedList.LoadState getRefresh();
+    method public final androidx.paging.PagedList.LoadState getStart();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract void onStateChanged(androidx.paging.PagedList.LoadType type, androidx.paging.PagedList.LoadState state, Throwable? error);
+    method public final void setState(androidx.paging.PagedList.LoadType type, androidx.paging.PagedList.LoadState state, Throwable? error);
+    property public final androidx.paging.PagedList.LoadState end;
+    property public final androidx.paging.PagedList.LoadState refresh;
+    property public final androidx.paging.PagedList.LoadState start;
   }
 
 
