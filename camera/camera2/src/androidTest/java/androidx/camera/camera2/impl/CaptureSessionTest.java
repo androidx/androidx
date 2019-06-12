@@ -20,15 +20,21 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.Manifest;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
@@ -36,6 +42,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.CaptureSession.State;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
@@ -43,6 +50,7 @@ import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
+import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.testing.CameraUtil;
 import androidx.concurrent.ListenableFuture;
@@ -56,6 +64,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import java.util.Collections;
@@ -309,6 +319,118 @@ public final class CaptureSessionTest {
         Mockito.verify(listener, times(1)).onSurfaceDetached();
     }
 
+    @Test
+    public void cameraEventCallbackInvokedInOrder() throws CameraAccessException {
+        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+
+        InOrder inOrder = inOrder(mTestParameters0.mMockCameraEventCallback);
+
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onPresetSession();
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onEnableSession();
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onRepeating();
+        verify(mTestParameters0.mMockCameraEventCallback, never()).onDisableSession();
+
+        verifyNoMoreInteractions(mTestParameters0.mMockCameraEventCallback);
+
+        captureSession.close();
+        verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onDisableSession();
+
+        verifyNoMoreInteractions(mTestParameters0.mMockCameraEventCallback);
+    }
+
+    @Test
+    public void cameraEventCallback_requestKeysIssuedSuccessfully() throws CameraAccessException {
+        ArgumentCaptor<CameraCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
+                CameraCaptureResult.class);
+
+        CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
+        captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
+
+        // Open the capture session and verify the onEnableSession callback would be invoked
+        // but onDisableSession callback not.
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
+
+        // Verify the request options in onEnableSession.
+        verify(mTestParameters0.mTestCameraEventCallback.mEnableCallback,
+                timeout(3000)).onCaptureCompleted(captureResultCaptor.capture());
+        CameraCaptureResult result1 = captureResultCaptor.getValue();
+        assertThat(result1).isInstanceOf(Camera2CameraCaptureResult.class);
+        CaptureResult captureResult1 = ((Camera2CameraCaptureResult) result1).getCaptureResult();
+        assertThat(captureResult1.getRequest().get(CaptureRequest.CONTROL_EFFECT_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE);
+        // The onDisableSession should not been invoked.
+        verify(mTestParameters0.mTestCameraEventCallback.mDisableCallback,
+                never()).onCaptureCompleted(any(CameraCaptureResult.class));
+
+        reset(mTestParameters0.mTestCameraEventCallback.mEnableCallback);
+        reset(mTestParameters0.mTestCameraEventCallback.mDisableCallback);
+
+        // Close the capture session and verify the onDisableSession callback would be invoked
+        // but onEnableSession callback not.
+        captureSession.close();
+
+        // Verify the request options in onDisableSession.
+        verify(mTestParameters0.mTestCameraEventCallback.mDisableCallback,
+                timeout(3000)).onCaptureCompleted(captureResultCaptor.capture());
+        CameraCaptureResult result2 = captureResultCaptor.getValue();
+        assertThat(result2).isInstanceOf(Camera2CameraCaptureResult.class);
+        CaptureResult captureResult2 = ((Camera2CameraCaptureResult) result2).getCaptureResult();
+        assertThat(captureResult2.getRequest().get(CaptureRequest.CONTROL_EFFECT_MODE)).isEqualTo(
+                CaptureRequest.CONTROL_EFFECT_MODE_SEPIA);
+        // The onEnableSession should not been invoked in close().
+        verify(mTestParameters0.mTestCameraEventCallback.mEnableCallback,
+                never()).onCaptureCompleted(any(CameraCaptureResult.class));
+    }
+
+    /**
+     * A implementation to test {@link CameraEventCallback} on CaptureSession.
+     */
+    private static class TestCameraEventCallback extends CameraEventCallback {
+
+        private final CameraCaptureCallback mEnableCallback = Mockito.mock(
+                CameraCaptureCallback.class);
+        private final CameraCaptureCallback mDisableCallback = Mockito.mock(
+                CameraCaptureCallback.class);
+
+        @Override
+        public CaptureConfig onPresetSession() {
+            return getCaptureConfig(CaptureRequest.CONTROL_EFFECT_MODE,
+                    CaptureRequest.CONTROL_EFFECT_MODE_MONO, null);
+        }
+
+        @Override
+        public CaptureConfig onEnableSession() {
+            return getCaptureConfig(CaptureRequest.CONTROL_EFFECT_MODE,
+                    CaptureRequest.CONTROL_EFFECT_MODE_NEGATIVE, mEnableCallback);
+        }
+
+        @Override
+        public CaptureConfig onRepeating() {
+            return getCaptureConfig(CaptureRequest.CONTROL_EFFECT_MODE,
+                    CaptureRequest.CONTROL_EFFECT_MODE_SOLARIZE, null);
+        }
+
+        @Override
+        public CaptureConfig onDisableSession() {
+            return getCaptureConfig(CaptureRequest.CONTROL_EFFECT_MODE,
+                    CaptureRequest.CONTROL_EFFECT_MODE_SEPIA, mDisableCallback);
+        }
+    }
+
+    private static CaptureConfig getCaptureConfig(CaptureRequest.Key key, int effectValue,
+            CameraCaptureCallback callback) {
+        CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
+        Camera2Config.Builder camera2ConfigurationBuilder =
+                new Camera2Config.Builder();
+        camera2ConfigurationBuilder.setCaptureRequestOption(key, effectValue);
+        captureConfigBuilder.addImplementationOptions(camera2ConfigurationBuilder.build());
+        captureConfigBuilder.addCameraCaptureCallback(callback);
+        return captureConfigBuilder.build();
+    }
+
     /**
      * Collection of parameters required for setting a {@link CaptureSession} and wait for it to
      * produce data.
@@ -341,6 +463,11 @@ public final class CaptureSessionTest {
         private final ImageReader mImageReader;
         private final SessionConfig mSessionConfig;
         private final CaptureConfig mCaptureConfig;
+
+        private final TestCameraEventCallback mTestCameraEventCallback =
+                new TestCameraEventCallback();
+        private final CameraEventCallback mMockCameraEventCallback = Mockito.mock(
+                CameraEventCallback.class);
 
         private final CameraCaptureSession.StateCallback mSessionStateCallback =
                 Mockito.mock(CameraCaptureSession.StateCallback.class);
@@ -380,6 +507,16 @@ public final class CaptureSessionTest {
             builder.addSurface(mDeferrableSurface);
             builder.addSessionStateCallback(mSessionStateCallback);
             builder.addRepeatingCameraCaptureCallback(mSessionCameraCaptureCallback);
+
+            MutableOptionsBundle testCallbackConfig = MutableOptionsBundle.create();
+            testCallbackConfig.insertOption(Camera2Config.CAMERA_EVENT_CALLBACK_OPTION,
+                    new CameraEventCallbacks(mTestCameraEventCallback));
+            builder.addImplementationOptions(testCallbackConfig);
+
+            MutableOptionsBundle mockCameraEventCallbackConfig = MutableOptionsBundle.create();
+            mockCameraEventCallbackConfig.insertOption(Camera2Config.CAMERA_EVENT_CALLBACK_OPTION,
+                    new CameraEventCallbacks(mMockCameraEventCallback));
+            builder.addImplementationOptions(mockCameraEventCallbackConfig);
 
             mSessionConfig = builder.build();
 
