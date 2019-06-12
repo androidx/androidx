@@ -418,6 +418,30 @@ object ProcessorErrors {
         """.trim()
     }
 
+    fun relationJunctionParentAffinityMismatch(
+        parentColumn: String,
+        junctionParentColumn: String,
+        parentAffinity: SQLTypeAffinity?,
+        junctionParentAffinity: SQLTypeAffinity?
+    ): String {
+        return """
+        The affinity of parent column ($parentColumn : $parentAffinity) does not match the type
+        affinity of the junction parent column ($junctionParentColumn : $junctionParentAffinity).
+        """.trim()
+    }
+
+    fun relationJunctionChildAffinityMismatch(
+        childColumn: String,
+        junctionChildColumn: String,
+        childAffinity: SQLTypeAffinity?,
+        junctionChildAffinity: SQLTypeAffinity?
+    ): String {
+        return """
+        The affinity of child column ($childColumn : $childAffinity) does not match the type
+        affinity of the junction child column ($junctionChildColumn : $junctionChildAffinity).
+        """.trim()
+    }
+
     val CANNOT_USE_MORE_THAN_ONE_POJO_FIELD_ANNOTATION = "A field can be annotated with only" +
             " one of the following:" + PojoProcessor.PROCESSED_ANNOTATIONS.joinToString(",") {
         it.java.simpleName
