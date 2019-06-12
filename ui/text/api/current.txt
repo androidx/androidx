@@ -65,7 +65,6 @@ package androidx.ui.engine.text {
 
   public final class Paragraph {
     method public float getBaseline();
-    method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset> getCaretForTextPosition(androidx.ui.engine.text.TextPosition textPosition);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
     method public float getLineHeight(int lineIndex);
@@ -384,7 +383,6 @@ package androidx.ui.painting {
     ctor public TextPainter(androidx.ui.painting.TextSpan? text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection? textDirection, float textScaleFactor, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale, androidx.ui.graphics.Color selectionColor);
     ctor public TextPainter();
     method public androidx.ui.engine.text.ParagraphStyle createParagraphStyle(androidx.ui.engine.text.TextDirection? defaultTextDirection = null);
-    method public kotlin.Pair<androidx.ui.engine.geometry.Offset,androidx.ui.engine.geometry.Offset> getCaretForTextPosition(androidx.ui.engine.text.TextPosition position);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
     method public androidx.ui.engine.window.Locale? getLocale();
