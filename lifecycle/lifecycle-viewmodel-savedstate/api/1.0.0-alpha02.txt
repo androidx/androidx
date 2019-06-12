@@ -12,7 +12,8 @@ package androidx.lifecycle {
     ctor public SavedStateHandle();
     method @MainThread public boolean contains(String);
     method @MainThread public <T> T? get(String);
-    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T!> getLiveData(String?);
+    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T!> getLiveData(String);
+    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T!> getLiveData(String, T!);
     method @MainThread public java.util.Set<java.lang.String!> keys();
     method @MainThread public <T> T? remove(String);
     method @MainThread public <T> void set(String, T?);

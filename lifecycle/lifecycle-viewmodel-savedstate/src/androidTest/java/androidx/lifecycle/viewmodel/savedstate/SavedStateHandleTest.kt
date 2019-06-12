@@ -16,8 +16,10 @@
 
 package androidx.lifecycle.viewmodel.savedstate
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
 import androidx.test.annotation.UiThreadTest
+import androidx.test.espresso.base.MainThread
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -114,11 +116,79 @@ class SavedStateHandleTest {
 
     @Test
     @UiThreadTest
+    fun newLiveData_noDefault() {
+        val handle = SavedStateHandle()
+        val ld: LiveData<String?> = handle.getLiveData("aa")
+        ld.assertNoValue()
+    }
+    @Test
+    @UiThreadTest
+    fun newLiveData_nullInitial() {
+        val handle = SavedStateHandle()
+        val ld: LiveData<String?> = handle.getLiveData("aa", null)
+        ld.assertValue(null)
+    }
+
+    @Test
+    @UiThreadTest
+    fun newliveData_withInitial() {
+        val handle = SavedStateHandle()
+        val ld: LiveData<String?> = handle.getLiveData("aa", "xx")
+        ld.assertValue("xx")
+    }
+
+    @Test
+    @UiThreadTest
+    fun newLiveData_existingValue_withInitial() {
+        val handle = SavedStateHandle()
+        handle["aa"] = "existing"
+        val ld: LiveData<String?> = handle.getLiveData("aa", "xx")
+        ld.assertValue("existing")
+    }
+
+    @Test
+    @UiThreadTest
+    fun newLiveData_existingValue_withNullInitial() {
+        val handle = SavedStateHandle()
+        handle["aa"] = "existing"
+        val ld: LiveData<String?> = handle.getLiveData("aa", null)
+        ld.assertValue("existing")
+    }
+
+    @Test
+    @UiThreadTest
+    fun newLiveData_existingNullValue_withInitial() {
+        val handle = SavedStateHandle()
+        handle["aa"] = null
+        val ld: LiveData<String?> = handle.getLiveData("aa", "xx")
+        ld.assertValue(null)
+    }
+
+    @Test
+    @UiThreadTest
     fun testKeySet() {
         val accessor = SavedStateHandle()
         accessor.set("s", "pb")
         accessor.getLiveData<String>("ld").value = "a"
         assertThat(accessor.keys().size).isEqualTo(2)
         assertThat(accessor.keys()).containsExactly("s", "ld")
+    }
+
+    @MainThread
+    private fun <T : Any?> LiveData<T>.assertValue(expected: T?) {
+        var received = false
+        observeForever {
+            received = true
+            assertThat(it).isEqualTo(expected)
+        }
+        assertThat(received).isTrue()
+    }
+
+    private fun <T> LiveData<T>.assertNoValue() {
+        var received = false
+        observeForever {
+            received = true
+        }
+        assertThat(received).isFalse()
     }
 }
