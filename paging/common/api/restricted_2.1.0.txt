@@ -1,0 +1,13 @@
+// Signature format: 3.0
+package androidx.paging {
+
+  @Deprecated @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class TiledDataSource<T> extends androidx.paging.PositionalDataSource<T> {
+    ctor public TiledDataSource();
+    method @WorkerThread public abstract int countItems();
+    method public void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams, androidx.paging.PositionalDataSource.LoadInitialCallback<T>);
+    method @WorkerThread public abstract java.util.List<T!>? loadRange(int, int);
+    method public void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams, androidx.paging.PositionalDataSource.LoadRangeCallback<T>);
+  }
+
+}
+
