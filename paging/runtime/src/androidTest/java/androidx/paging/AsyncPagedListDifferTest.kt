@@ -40,9 +40,9 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class AsyncPagedListDifferTest {
-    private val mMainThread = TestExecutor()
-    private val mDiffThread = TestExecutor()
-    private val mPageLoadingThread = TestExecutor()
+    private val mainThread = TestExecutor()
+    private val diffThread = TestExecutor()
+    private val pageLoadingThread = TestExecutor()
 
     private fun createDiffer(
         listUpdateCallback: ListUpdateCallback = IGNORE_CALLBACK
@@ -50,12 +50,12 @@ class AsyncPagedListDifferTest {
         val differ = AsyncPagedListDiffer(
             listUpdateCallback,
             AsyncDifferConfig.Builder(STRING_DIFF_CALLBACK)
-                .setBackgroundThreadExecutor(mDiffThread)
+                .setBackgroundThreadExecutor(diffThread)
                 .build()
         )
         // by default, use ArchExecutor
         assertEquals(differ.mainThreadExecutor, ArchTaskExecutor.getMainThreadExecutor())
-        differ.mainThreadExecutor = mMainThread
+        differ.mainThreadExecutor = mainThread
         return differ
     }
 
@@ -67,8 +67,8 @@ class AsyncPagedListDifferTest {
         @Suppress("DEPRECATION")
         return PagedList.Builder(ListDataSource(data), config)
             .setInitialKey(initialKey)
-            .setNotifyExecutor(mMainThread)
-            .setFetchExecutor(mPageLoadingThread)
+            .setNotifyExecutor(mainThread)
+            .setFetchExecutor(pageLoadingThread)
             .build()
     }
 
@@ -275,8 +275,8 @@ class AsyncPagedListDifferTest {
         assertTrue(differ.currentList!!.isImmutable)
 
         // flush diff, which signals nothing, since 1st pagedlist == 2nd pagedlist
-        mDiffThread.executeAll()
-        mMainThread.executeAll()
+        diffThread.executeAll()
+        mainThread.executeAll()
         verifyNoMoreInteractions(callback)
         assertNotNull(differ.currentList)
         assertFalse(differ.currentList!!.isImmutable)
@@ -396,8 +396,8 @@ class AsyncPagedListDifferTest {
         // AsyncPagedListDiffer / calls to PagedList.loadAround
 
         // finish diff, but no further loading
-        mDiffThread.executeAll()
-        mMainThread.executeAll()
+        diffThread.executeAll()
+        mainThread.executeAll()
 
         // 2nd list starts out at size 4
         assertEquals(4, second.size)
@@ -479,17 +479,17 @@ class AsyncPagedListDifferTest {
     private fun drainExceptDiffThread() {
         var executed: Boolean
         do {
-            executed = mPageLoadingThread.executeAll()
-            executed = mMainThread.executeAll() or executed
+            executed = pageLoadingThread.executeAll()
+            executed = mainThread.executeAll() or executed
         } while (executed)
     }
 
     private fun drain() {
         var executed: Boolean
         do {
-            executed = mPageLoadingThread.executeAll()
-            executed = mDiffThread.executeAll() or executed
-            executed = mMainThread.executeAll() or executed
+            executed = pageLoadingThread.executeAll()
+            executed = diffThread.executeAll() or executed
+            executed = mainThread.executeAll() or executed
         } while (executed)
     }
 
