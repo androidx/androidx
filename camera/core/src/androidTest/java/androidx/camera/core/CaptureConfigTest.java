@@ -35,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.List;
 
 @LargeTest
@@ -44,6 +45,8 @@ public class CaptureConfigTest {
             "camerax.test.option_0", Integer.class);
 
     private DeferrableSurface mMockSurface0;
+    private static final Config.Option<FakeMultiValueSet> FAKE_MULTI_VALUE_SET_OPTION =
+            Config.Option.create("option.fakeMultiValueSet.1", FakeMultiValueSet.class);
 
     @Before
     public void setup() {
@@ -161,6 +164,34 @@ public class CaptureConfigTest {
                 .containsExactly(callback0, callback1);
     }
 
+    @Test
+    public void builderAddImplementationMultiValue() {
+        CaptureConfig.Builder builder = new CaptureConfig.Builder();
+
+        Object obj1 = new Object();
+        FakeMultiValueSet fakeMultiValueSet1 = new FakeMultiValueSet();
+        fakeMultiValueSet1.addAll(Arrays.asList(obj1));
+        MutableOptionsBundle fakeConfig1 = MutableOptionsBundle.create();
+        fakeConfig1.insertOption(FAKE_MULTI_VALUE_SET_OPTION, fakeMultiValueSet1);
+        builder.addImplementationOptions(fakeConfig1);
+
+        Object obj2 = new Object();
+        FakeMultiValueSet fakeMultiValueSet2 = new FakeMultiValueSet();
+        fakeMultiValueSet2.addAll(Arrays.asList(obj2));
+        MutableOptionsBundle fakeConfig2 = MutableOptionsBundle.create();
+        fakeConfig2.insertOption(FAKE_MULTI_VALUE_SET_OPTION, fakeMultiValueSet2);
+        builder.addImplementationOptions(fakeConfig2);
+
+        CaptureConfig captureConfig = builder.build();
+
+        FakeMultiValueSet fakeMultiValueSet =
+                captureConfig.getImplementationOptions().retrieveOption(
+                        FAKE_MULTI_VALUE_SET_OPTION);
+
+        assertThat(fakeMultiValueSet).isNotNull();
+        assertThat(fakeMultiValueSet.getAllItems()).containsExactly(obj1, obj2);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void builderAddDuplicateCameraCaptureCallback_throwsException() {
         CaptureConfig.Builder builder = new CaptureConfig.Builder();
@@ -195,4 +226,15 @@ public class CaptureConfigTest {
         configuration.getCameraCaptureCallbacks().add(mock(CameraCaptureCallback.class));
     }
 
+    /**
+     * A fake {@link MultiValueSet}.
+     */
+    static class FakeMultiValueSet extends MultiValueSet<Object> {
+        @Override
+        public MultiValueSet clone() {
+            FakeMultiValueSet multiValueSet = new FakeMultiValueSet();
+            multiValueSet.addAll(getAllItems());
+            return multiValueSet;
+        }
+    }
 }
