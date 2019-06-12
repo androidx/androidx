@@ -1258,6 +1258,10 @@ package androidx.core.net {
     method @Deprecated public static void untagSocket(java.net.Socket!) throws java.net.SocketException;
   }
 
+  public final class UriCompat {
+    method public static String toSafeString(android.net.Uri);
+  }
+
 }
 
 package androidx.core.os {
