@@ -89,17 +89,15 @@ limitations under the License.
 
                 <Button
                     android:id="@+id/negative_button"
-                    style="?attr/dialogButtonStyle"
+                    style="?attr/selectionDialogButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/car_padding_2" />
+                    android:layout_height="wrap_content" />
 
                 <Button
                     android:id="@+id/positive_button"
-                    style="?attr/dialogButtonStyle"
+                    style="?attr/selectionDialogButtonStyle"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/car_padding_2" />
+                    android:layout_height="wrap_content" />
             </LinearLayout>
 
         </LinearLayout>

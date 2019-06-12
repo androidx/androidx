@@ -240,6 +240,7 @@ limitations under the License.
         <item name="dialogListTheme">@style/Theme.Car.List</item>
         <item name="dialogTitleStyle">@style/Widget.Car.Dialog.Title</item>
         <item name="dialogBodyStyle">@style/Widget.Car.Dialog.Body</item>
+        <item name="selectionDialogButtonStyle">@style/Widget.Car.SelectionDialog.Button</item>
     </style>
 
     <!-- Styling for dialogs provided by the car support library that is fixed in a dark-color. -->
