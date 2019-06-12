@@ -136,8 +136,15 @@ dimen car_app_bar_height
 dimen car_app_icon_size
 dimen car_application_icon_size
 dimen car_avatar_icon_size
+color car_body1
+color car_body1_dark
+color car_body1_light
 dimen car_body1_size
+color car_body2
+color car_body2_light
 dimen car_body2_size
+color car_body3_dark
+color car_body3_light
 dimen car_body3_size
 dimen car_body4_size
 dimen car_button_height
@@ -165,6 +172,7 @@ dimen car_dialog_elevation
 dimen car_dialog_header_height
 dimen car_display1_size
 dimen car_display2_size
+color car_display3_light
 dimen car_display3_size
 dimen car_display4_size
 dimen car_double_line_list_item_height
