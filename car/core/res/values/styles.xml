@@ -388,6 +388,11 @@ limitations under the License.
         <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
+    <!-- A style for buttons that is fixed with darker-colored text. -->
+    <style name="Widget.Car.Button.DarkText">
+        <item name="android:textColor">@color/car_primary_text_dark</item>
+    </style>
+
     <!-- The style for borderless buttons. -->
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>

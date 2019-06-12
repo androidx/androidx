@@ -25,6 +25,16 @@
     <public type="color" name="car_car_secondary_text_dark" />
     <public type="color" name="car_car_secondary_text_light" />
 
+    <!-- Deprecated. Mapping to primary and secondary text colors until removal. -->
+    <public type="color" name="car_display3_light" />
+    <public type="color" name="car_body1" />
+    <public type="color" name="car_body1_light" />
+    <public type="color" name="car_body1_dark" />
+    <public type="color" name="car_body2_light" />
+    <public type="color" name="car_body2" />
+    <public type="color" name="car_body3_dark" />
+    <public type="color" name="car_body3_light" />
+
     <!-- Tint colors -->
     <public type="color" name="car_tint_dark" />
     <public type="color" name="car_tint_light" />
