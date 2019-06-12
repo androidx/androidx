@@ -520,29 +520,25 @@ public class WindowInsetsCompat {
     }
 
     /**
+     * Return the source {@link WindowInsets} instance used in this {@link WindowInsetsCompat}.
+     *
+     * @return the wrapped WindowInsets instance
+     */
+    @Nullable
+    @RequiresApi(20)
+    public WindowInsets toWindowInsets() {
+        return (WindowInsets) mInsets;
+    }
+
+    /**
      * Wrap an instance of {@link WindowInsets} into a {@link WindowInsetsCompat}.
      *
      * @param insets source insets to wrap
      * @return the wrapped instance
-     *
-     * @hide
      */
     @NonNull
     @RequiresApi(20)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static WindowInsetsCompat wrap(@NonNull WindowInsets insets) {
+    public static WindowInsetsCompat toWindowInsetsCompat(@NonNull WindowInsets insets) {
         return new WindowInsetsCompat(Objects.requireNonNull(insets));
-    }
-
-    /**
-     * Unwrap the given WindowInsetsCompat and return the source {@link WindowInsets} instance.
-     *
-     * @hide
-     */
-    @Nullable
-    @RequiresApi(20)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static WindowInsets unwrap(@NonNull WindowInsetsCompat insets) {
-        return (WindowInsets) insets.mInsets;
     }
 }

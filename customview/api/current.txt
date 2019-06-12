@@ -56,6 +56,7 @@ package androidx.customview.widget {
     method public void flingCapturedView(int, int, int, int);
     method public int getActivePointerId();
     method public android.view.View? getCapturedView();
+    method @Px public int getDefaultEdgeSize();
     method @Px public int getEdgeSize();
     method public float getMinVelocity();
     method @Px public int getTouchSlop();
@@ -66,6 +67,7 @@ package androidx.customview.widget {
     method public boolean isPointerDown(int);
     method public boolean isViewUnder(android.view.View?, int, int);
     method public void processTouchEvent(android.view.MotionEvent);
+    method public void setEdgeSize(@Px @IntRange(from=0) int);
     method public void setEdgeTrackingEnabled(int);
     method public void setMinVelocity(float);
     method public boolean settleCapturedViewAt(int, int);

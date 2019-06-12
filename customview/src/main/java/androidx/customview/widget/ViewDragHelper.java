@@ -31,7 +31,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 
 import java.util.Arrays;
@@ -471,10 +470,7 @@ public class ViewDragHelper {
      *
      * @see #setEdgeTrackingEnabled(int)
      * @see #getEdgeSize()
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void setEdgeSize(@Px @IntRange(from = 0) int size) {
         mEdgeSize = size;
     }
@@ -486,10 +482,7 @@ public class ViewDragHelper {
      *
      * @see #setEdgeTrackingEnabled(int)
      * @see #getEdgeSize()
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Px
     public int getDefaultEdgeSize() {
         return mDefaultEdgeSize;
