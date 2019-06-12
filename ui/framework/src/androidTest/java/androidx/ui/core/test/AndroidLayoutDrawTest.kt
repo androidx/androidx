@@ -54,7 +54,9 @@ import androidx.ui.core.ContextAmbient
 import androidx.ui.core.Density
 import androidx.ui.core.DensityAmbient
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -327,6 +329,23 @@ class AndroidLayoutDrawTest {
         assertEquals(paddedConstraints.value, secondChildConstraints.value)
     }
 
+    // Tests that calling measure multiple times on the same Measurable causes an exception
+    @Test
+    fun multipleMeasureCall() {
+        val latch = CountDownLatch(1)
+        runOnUiThread {
+            activity.setContent {
+                CraneWrapper {
+                    TwoMeasureLayout(50.ipx, latch) {
+                        AtLeastSize(50.ipx) {
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
+
     @Test
     fun multiChildLayoutTest() {
         val childrenCount = 3
@@ -361,10 +380,10 @@ class AndroidLayoutDrawTest {
                             measurable.measure(childConstraints[index])
                         }
                         assertEquals(headerChildrenCount, measurables[header as () -> Unit].size)
-                        measurables[header as () -> Unit][0].measure(childConstraints[0])
+                        assertSame(measurables[0], measurables[header as () -> Unit][0])
                         assertEquals(footerChildrenCount, measurables[footer as () -> Unit].size)
-                        measurables[footer as () -> Unit][0].measure(childConstraints[1])
-                        measurables[footer as () -> Unit][1].measure(childConstraints[2])
+                        assertSame(measurables[1], measurables[footer as () -> Unit][0])
+                        assertSame(measurables[2], measurables[footer as () -> Unit][1])
                     }
                 }
             }
@@ -789,6 +808,31 @@ fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
             }
         }, children = children
     )
+}
+
+@Composable
+fun TwoMeasureLayout(
+    size: IntPx,
+    latch: CountDownLatch,
+    @Children children: @Composable() () -> Unit
+) {
+    Layout(children = children) { measurables, _ ->
+        val testConstraints = Constraints()
+        measurables.forEach { it.measure(testConstraints) }
+        val childConstraints = Constraints.tightConstraints(size, size)
+        try {
+            val placeables2 = measurables.map { it.measure(childConstraints) }
+            fail("Measuring twice on the same Measurable should throw an exception")
+            layout(size, size) {
+                placeables2.forEach { child ->
+                    child.place(0.ipx, 0.ipx)
+                }
+            }
+        } catch (_: IllegalStateException) {
+            // expected
+            latch.countDown()
+        }
+    }
 }
 
 class DrawCounterListener(private val view: View) :

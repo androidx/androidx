@@ -92,6 +92,8 @@ interface Owner {
      * Returns a position of the owner in its window.
      */
     fun calculatePosition(): PxPosition
+
+    val measureIteration: Long
 }
 
 /**
