@@ -32,6 +32,7 @@ import static androidx.testutils.LifecycleOwnerUtils.waitForRecreation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import android.app.Instrumentation;
 import android.content.res.Configuration;
@@ -308,6 +309,21 @@ public class NightModeTestCase {
                 assertFalse(delegate.getAutoTimeNightModeManager().isListening());
             }
         });
+    }
+
+    @Test
+    public void testOnConfigurationChangeNotCalled() throws Throwable {
+        NightModeActivity activity = mActivityTestRule.getActivity();
+        // Set local night mode to YES
+        setNightModeAndWait(mActivityTestRule, MODE_NIGHT_YES, mSetMode);
+        // Assert that onConfigurationChange was not called on the original activity
+        assertNull(activity.getLastConfigurationChangeAndClear());
+
+        activity = mActivityTestRule.getActivity();
+        // Set local night mode back to NO
+        setNightModeAndWait(mActivityTestRule, MODE_NIGHT_NO, mSetMode);
+        // Assert that onConfigurationChange was not called
+        assertNull(activity.getLastConfigurationChangeAndClear());
     }
 
     @After
