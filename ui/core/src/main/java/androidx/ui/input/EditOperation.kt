@@ -20,9 +20,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import java.util.Objects
 
-private fun clamp(value: Int, min: Int, max: Int) =
-    if (value < min) min else if (value > max) max else value
-
 /**
  * A base class of all EditOperations
  *
@@ -82,7 +79,7 @@ data class CommitTextEditOp(
             newCursor + newCursorPosition - text.length
         }
 
-        buffer.cursor = clamp(newCursorInBuffer, 0, buffer.length)
+        buffer.cursor = newCursorInBuffer.coerceIn(0, buffer.length)
     }
 }
 
@@ -107,7 +104,22 @@ data class SetComposingRegionEditOp(
 ) : EditOperation {
 
     override fun process(buffer: EditingBuffer) {
-        TODO("Not implemented yet")
+        // The API description says, different from SetComposingText, SetComposingRegion must
+        // preserve the ongoing composition text and set new composition.
+        if (buffer.hasComposition()) {
+            buffer.commitComposition()
+        }
+
+        // Sanitize the input: reverse if reversed, clamped into valid range, ignore empty range.
+        val clampedStart = start.coerceIn(0, buffer.length)
+        val clampedEnd = end.coerceIn(0, buffer.length)
+        if (clampedStart == clampedEnd) {
+            // do nothing. empty composition range is not allowed.
+        } else if (clampedStart < clampedEnd) {
+            buffer.setComposition(clampedStart, clampedEnd)
+        } else {
+            buffer.setComposition(clampedEnd, clampedStart)
+        }
     }
 }
 /**
@@ -198,7 +210,14 @@ data class SetSelectionEditOp(
 ) : EditOperation {
 
     override fun process(buffer: EditingBuffer) {
-        TODO("Not implemented yet")
+        // Sanitize the input: reverse if reversed, clamped into valid range.
+        val clampedStart = start.coerceIn(0, buffer.length)
+        val clampedEnd = end.coerceIn(0, buffer.length)
+        if (clampedStart < clampedEnd) {
+            buffer.setSelection(clampedStart, clampedEnd)
+        } else {
+            buffer.setSelection(clampedEnd, clampedStart)
+        }
     }
 }
 /**
@@ -212,7 +231,7 @@ data class SetSelectionEditOp(
 class FinishComposingTextEditOp : EditOperation {
 
     override fun process(buffer: EditingBuffer) {
-        TODO("Not implemented yet")
+        buffer.commitComposition()
     }
 
     // Class with empty arguments default ctor cannot be data class.
