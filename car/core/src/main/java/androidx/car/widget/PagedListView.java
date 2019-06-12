@@ -534,7 +534,7 @@ public class PagedListView extends FrameLayout {
      *
      * @param enabled {@code true} to enable the scroll bar.
      */
-    public void setScrollBarEnabled(boolean enabled) {
+    public final void setScrollBarEnabled(boolean enabled) {
         mScrollBarEnabled = enabled;
         mScrollBarView.setVisibility(mScrollBarEnabled ? VISIBLE : GONE);
     }
@@ -542,7 +542,7 @@ public class PagedListView extends FrameLayout {
     /**
      * Returns {@code true} if the scroll bar is enabled.
      */
-    public boolean isScrollBarEnabled() {
+    public final boolean isScrollBarEnabled() {
         return mScrollBarEnabled;
     }
 
