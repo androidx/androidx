@@ -28,6 +28,8 @@ import androidx.room.parser.SqlParser
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.processor.ProcessorErrors.relationAffinityMismatch
+import androidx.room.processor.ProcessorErrors.relationJunctionChildAffinityMismatch
+import androidx.room.processor.ProcessorErrors.relationJunctionParentAffinityMismatch
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.parameter.QueryParameterAdapter
 import androidx.room.solver.query.result.RowAdapter
@@ -210,19 +212,53 @@ data class RelationCollector(
         ): List<RelationCollector> {
             return relations.map { relation ->
                 // decide on the affinity
-                val context = baseContext.fork(relation.field.element)
+                val context = baseContext.fork(
+                    element = relation.field.element,
+                    forceSuppressedWarnings = setOf(Warning.CURSOR_MISMATCH))
+
+                fun checkAffinity(
+                    first: SQLTypeAffinity?,
+                    second: SQLTypeAffinity?,
+                    onAffinityMismatch: () -> Unit
+                ) = if (first != null && first == second) {
+                    first
+                } else {
+                    onAffinityMismatch()
+                    SQLTypeAffinity.TEXT
+                }
+
                 val parentAffinity = relation.parentField.cursorValueReader?.affinity()
                 val childAffinity = relation.entityField.cursorValueReader?.affinity()
-                val affinity = if (parentAffinity != null && parentAffinity == childAffinity) {
-                    parentAffinity
+                val junctionParentAffinity =
+                    relation.junction?.parentField?.cursorValueReader?.affinity()
+                val junctionChildAffinity =
+                    relation.junction?.entityField?.cursorValueReader?.affinity()
+                val affinity = if (relation.junction != null) {
+                    checkAffinity(childAffinity, junctionChildAffinity) {
+                        context.logger.w(Warning.RELATION_TYPE_MISMATCH, relation.field.element,
+                            relationJunctionChildAffinityMismatch(
+                                childColumn = relation.entityField.columnName,
+                                junctionChildColumn = relation.junction.entityField.columnName,
+                                childAffinity = childAffinity,
+                                junctionChildAffinity = junctionChildAffinity))
+                    }
+                    checkAffinity(parentAffinity, junctionParentAffinity) {
+                        context.logger.w(Warning.RELATION_TYPE_MISMATCH, relation.field.element,
+                            relationJunctionParentAffinityMismatch(
+                                parentColumn = relation.parentField.columnName,
+                                junctionParentColumn = relation.junction.parentField.columnName,
+                                parentAffinity = parentAffinity,
+                                junctionParentAffinity = junctionParentAffinity))
+                    }
                 } else {
-                    context.logger.w(Warning.RELATION_TYPE_MISMATCH, relation.field.element,
+                    checkAffinity(parentAffinity, childAffinity) {
+                        context.logger.w(Warning.RELATION_TYPE_MISMATCH, relation.field.element,
                             relationAffinityMismatch(
-                                    parentColumn = relation.parentField.columnName,
-                                    childColumn = relation.entityField.columnName,
-                                    parentAffinity = parentAffinity,
-                                    childAffinity = childAffinity))
-                    SQLTypeAffinity.TEXT
+                                parentColumn = relation.parentField.columnName,
+                                childColumn = relation.entityField.columnName,
+                                parentAffinity = parentAffinity,
+                                childAffinity = childAffinity))
+                    }
                 }
                 val keyType = keyTypeFor(context, affinity)
                 val collectionTypeName = if (relation.field.typeName is ParameterizedTypeName) {
@@ -318,9 +354,9 @@ data class RelationCollector(
                     if (cursorReader == null) {
                         getDefaultRowAdapter()
                     } else {
-                        context.logger.d("Choosing cursor adapter for the return value since" +
-                                " the query returns only 1 or 2 columns and there is a cursor" +
-                                " adapter for the return type.")
+                        context.logger.d(relation.field.element, "Choosing cursor adapter for" +
+                                " the return value since the query returns only 1 or 2 columns" +
+                                " and there is a cursor adapter for the return type.")
                         SingleColumnRowAdapter(cursorReader)
                     }
                 } else {

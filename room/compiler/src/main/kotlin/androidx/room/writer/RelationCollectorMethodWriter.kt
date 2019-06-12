@@ -148,7 +148,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector)
                     // clause, this column is the rightmost column in the generated SELECT
                     // clause.
                     val junctionParentColumnIndex = relation.projection.size
-                    addStatement("final $T $L = $L; // $L",
+                    addStatement("final $T $L = $L; // _junction.$L",
                         TypeName.INT, itemKeyIndexVar, junctionParentColumnIndex,
                         relation.junction.parentField.columnName)
                 } else {
