@@ -244,7 +244,7 @@ package androidx.paging {
     method public abstract void onRemoved(int position, int count);
   }
 
-  public static class PagedList.Config {
+  public static final class PagedList.Config {
     field public static final int MAX_SIZE_UNBOUNDED = 2147483647; // 0x7fffffff
     field public final boolean enablePlaceholders;
     field public final int initialLoadSizeHint;
