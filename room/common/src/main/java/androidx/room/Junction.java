@@ -62,7 +62,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 public @interface Junction {
     /**
-     * An entity or entity or database view to be used as a junction table when fetching the
+     * An entity or database view to be used as a junction table when fetching the
      * relating entities.
      *
      * @return The entity or database view to be used as a junction table.
