@@ -24,9 +24,9 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -120,7 +120,7 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
 
     abstract fun createViewPagerAdapter(): RecyclerView.Adapter<*>
 
-    val items: ItemsViewModel get() = ViewModelProviders.of(this)[ItemsViewModel::class.java]
+    val items: ItemsViewModel by viewModels()
 }
 
 /** A very simple collection of items. Optimized for simplicity (i.e. not performance). */
