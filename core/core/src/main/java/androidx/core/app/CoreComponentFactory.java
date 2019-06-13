@@ -75,6 +75,7 @@ public class CoreComponentFactory extends AppComponentFactory {
         return checkCompatWrapper(super.instantiateService(cl, className, intent));
     }
 
+    @SuppressWarnings("unchecked")
     static <T> T checkCompatWrapper(T obj) {
         if (obj instanceof CompatWrapped) {
             T wrapper = (T) ((CompatWrapped) obj).getWrapper();

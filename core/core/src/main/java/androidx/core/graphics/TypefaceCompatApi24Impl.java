@@ -61,7 +61,7 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
     private static final Method sCreateFromFamiliesWithDefault;
 
     static {
-        Class fontFamilyClass;
+        Class<?> fontFamilyClass;
         Constructor fontFamilyCtor;
         Method addFontMethod;
         Method createFromFamiliesWithDefaultMethod;

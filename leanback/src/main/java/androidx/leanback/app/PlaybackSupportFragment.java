@@ -165,6 +165,7 @@ public class PlaybackSupportFragment extends Fragment {
     private final BaseOnItemViewClickedListener mOnItemViewClickedListener =
             new BaseOnItemViewClickedListener() {
                 @Override
+                @SuppressWarnings("unchecked")
                 public void onItemClicked(Presenter.ViewHolder itemViewHolder,
                                           Object item,
                                           RowPresenter.ViewHolder rowViewHolder,
@@ -184,6 +185,7 @@ public class PlaybackSupportFragment extends Fragment {
     private final BaseOnItemViewSelectedListener mOnItemViewSelectedListener =
             new BaseOnItemViewSelectedListener() {
                 @Override
+                @SuppressWarnings("unchecked")
                 public void onItemSelected(Presenter.ViewHolder itemViewHolder,
                                            Object item,
                                            RowPresenter.ViewHolder rowViewHolder,

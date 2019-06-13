@@ -45,6 +45,5 @@ androidx {
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "A library that holds common code for testing slices"
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

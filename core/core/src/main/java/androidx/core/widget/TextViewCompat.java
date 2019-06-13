@@ -541,7 +541,7 @@ public final class TextViewCompat {
         // Since in most cases the menu instance processed by this callback is going
         // to be a MenuBuilder, we keep these references to avoid querying for them
         // frequently by reflection in recomputeProcessTextMenuItems.
-        private Class mMenuBuilderClass;
+        private Class<?> mMenuBuilderClass;
         private Method mMenuBuilderRemoveItemAtMethod;
         private boolean mCanUseMenuBuilderReferences;
         private boolean mInitializedMenuBuilderReferences;

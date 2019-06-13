@@ -97,6 +97,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
 
     static class UpdatePlaybackStateHandler extends Handler {
         @Override
+        @SuppressWarnings("unchecked")
         public void handleMessage(Message msg) {
             if (msg.what == MSG_UPDATE_PLAYBACK_STATE) {
                 PlaybackTransportControlGlue glue =
@@ -110,7 +111,8 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
 
     static final Handler sHandler = new UpdatePlaybackStateHandler();
 
-    final WeakReference<PlaybackBaseControlGlue> mGlueWeakReference =  new WeakReference(this);
+    final WeakReference<PlaybackBaseControlGlue> mGlueWeakReference =
+            new WeakReference<>(this);
 
     /**
      * Constructor for the glue.

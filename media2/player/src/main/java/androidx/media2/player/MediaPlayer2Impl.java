@@ -672,7 +672,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     "Illegal null Executor for the EventCallback");
         }
         synchronized (mLock) {
-            mMp2EventCallbackRecord = new Pair(executor, eventCallback);
+            mMp2EventCallbackRecord = new Pair<>(executor, eventCallback);
         }
     }
 
@@ -708,7 +708,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     "Illegal null Executor for the EventCallback");
         }
         synchronized (mLock) {
-            mDrmEventCallbackRecord = new Pair(executor, eventCallback);
+            mDrmEventCallbackRecord = new Pair<>(executor, eventCallback);
         }
     }
 

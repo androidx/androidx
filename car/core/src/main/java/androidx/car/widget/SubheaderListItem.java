@@ -132,6 +132,7 @@ public class SubheaderListItem extends ListItem<SubheaderListItem.ViewHolder> {
      * Applies ViewBinders to adjust view layout params.
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected void onBind(ViewHolder viewHolder) {
         for (ViewBinder binder : mBinders) {
             binder.bind(viewHolder);

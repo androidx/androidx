@@ -369,6 +369,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<Fragment> getFragments() {
         if (mAdded.isEmpty()) {
             return Collections.emptyList();

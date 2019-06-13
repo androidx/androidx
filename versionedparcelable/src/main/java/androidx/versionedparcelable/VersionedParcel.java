@@ -1340,6 +1340,7 @@ public abstract class VersionedParcel {
         return readCollection(new ArrayList<T>());
     }
 
+    @SuppressWarnings("unchecked")
     private <T, S extends Collection<T>> S readCollection(S list) {
         int n = readInt();
         if (n < 0) {
@@ -1440,6 +1441,7 @@ public abstract class VersionedParcel {
 
     /**
      */
+    @SuppressWarnings("unchecked")
     protected <T> T[] readArray(T[] def) {
         int n = readInt();
         if (n < 0) {
@@ -1504,7 +1506,7 @@ public abstract class VersionedParcel {
      * @throws BadParcelableException Throws BadVersionedParcelableException if there
      *                                was an error trying to instantiate the VersionedParcelable.
      */
-    @SuppressWarnings({"unchecked", "TypeParameterUnusedInFormals"})
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     protected <T extends VersionedParcelable> T readVersionedParcelable() {
         String name = readString();
         if (name == null) {
@@ -1603,8 +1605,7 @@ public abstract class VersionedParcel {
             NoSuchMethodException, ClassNotFoundException {
         Method m = mReadCache.get(parcelCls);
         if (m == null) {
-            long start = System.currentTimeMillis();
-            Class cls = Class.forName(parcelCls, true, VersionedParcel.class.getClassLoader());
+            Class<?> cls = Class.forName(parcelCls, true, VersionedParcel.class.getClassLoader());
             m = cls.getDeclaredMethod("read", VersionedParcel.class);
             mReadCache.put(parcelCls, m);
         }
@@ -1615,15 +1616,14 @@ public abstract class VersionedParcel {
             NoSuchMethodException, ClassNotFoundException {
         Method m = mWriteCache.get(baseCls.getName());
         if (m == null) {
-            Class cls = findParcelClass(baseCls);
-            long start = System.currentTimeMillis();
+            Class<?> cls = findParcelClass(baseCls);
             m = cls.getDeclaredMethod("write", baseCls, VersionedParcel.class);
             mWriteCache.put(baseCls.getName(), m);
         }
         return m;
     }
 
-    private Class findParcelClass(Class<? extends VersionedParcelable> cls)
+    private Class findParcelClass(Class<?> cls)
             throws ClassNotFoundException {
         Class ret = mParcelizerCache.get(cls.getName());
         if (ret == null) {

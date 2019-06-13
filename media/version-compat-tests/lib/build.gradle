@@ -28,6 +28,5 @@ dependencies {
 }
 
 androidx {
-    failOnUncheckedWarnings = false
     toolingProject = true
 }

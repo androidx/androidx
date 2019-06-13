@@ -205,6 +205,7 @@ public final class CarMultipleChoiceDialog extends Dialog {
      * Initializes {@link #mAdapter} to display the items in the given array by utilizing
      * {@link CheckBoxListItem}.
      */
+    @SuppressWarnings("unchecked")
     private void initializeWithItems(List<Item> items) {
         List<ListItem> listItems = new ArrayList<>();
 

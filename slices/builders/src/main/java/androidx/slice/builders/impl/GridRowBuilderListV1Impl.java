@@ -144,6 +144,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
         /**
          */
+        @SuppressWarnings("unchecked")
         public void fillFrom(CellBuilder builder) {
             if (builder.getCellDescription() != null) {
                 setContentDescription(builder.getCellDescription());

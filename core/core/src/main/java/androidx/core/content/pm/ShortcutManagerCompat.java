@@ -283,12 +283,12 @@ public class ShortcutManagerCompat {
         getShortcutInfoSaverInstance(context).removeAllShortcuts();
     }
 
-    private static ShortcutInfoCompatSaver getShortcutInfoSaverInstance(Context context) {
+    private static ShortcutInfoCompatSaver<?> getShortcutInfoSaverInstance(Context context) {
         if (sShortcutInfoCompatSaver == null) {
             if (Build.VERSION.SDK_INT >= 23) {
                 try {
                     ClassLoader loader = ShortcutManagerCompat.class.getClassLoader();
-                    Class saver = Class.forName(
+                    Class<?> saver = Class.forName(
                             "androidx.sharetarget.ShortcutInfoCompatSaverImpl", false, loader);
                     Method getInstanceMethod = saver.getMethod("getInstance", Context.class);
                     sShortcutInfoCompatSaver = (ShortcutInfoCompatSaver) getInstanceMethod.invoke(

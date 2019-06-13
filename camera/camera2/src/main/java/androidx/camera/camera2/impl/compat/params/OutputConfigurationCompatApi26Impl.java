@@ -65,6 +65,7 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
         return maxSurfacesCountField.getInt(null);
     }
 
+    @SuppressWarnings("unchecked")
     private static List<Surface> getMutableSurfaceListApi26(OutputConfiguration outputConfiguration)
             throws NoSuchFieldException, IllegalAccessException {
         Field surfacesField = OutputConfiguration.class.getDeclaredField(SURFACES_FIELD);

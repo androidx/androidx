@@ -95,6 +95,7 @@ import java.lang.ref.WeakReference;
  * @deprecated use {@link DetailsSupportFragment}
  */
 @Deprecated
+@SuppressWarnings("unchecked")
 public class DetailsFragment extends BaseFragment {
     static final String TAG = "DetailsFragment";
     static final boolean DEBUG = false;

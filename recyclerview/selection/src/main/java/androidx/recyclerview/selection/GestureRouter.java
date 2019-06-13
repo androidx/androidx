@@ -43,6 +43,7 @@ final class GestureRouter<T extends OnGestureListener & OnDoubleTapListener>
         mDelegates = new ToolHandlerRegistry<>(defaultDelegate);
     }
 
+    @SuppressWarnings("unchecked")
     GestureRouter() {
         this((T) new SimpleOnGestureListener());
     }

@@ -73,7 +73,7 @@ public class MediaParcelUtils {
     @SuppressWarnings("TypeParameterUnusedInFormals")
     @Nullable
     public static <T extends VersionedParcelable> T fromParcelable(@NonNull ParcelImpl p) {
-        return ParcelUtils.<T>fromParcelable(p);
+        return ParcelUtils.fromParcelable(p);
     }
 
     /**
@@ -82,7 +82,7 @@ public class MediaParcelUtils {
      * @param parcelList
      * @return
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     @NonNull
     public static <T extends VersionedParcelable> List<T> fromParcelableList(
             @NonNull List<ParcelImpl> parcelList) {
@@ -110,6 +110,7 @@ public class MediaParcelUtils {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public MediaItem getVersionedParcel() {
             return mItem;
         }

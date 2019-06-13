@@ -106,6 +106,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
             }
         }
 
+        @SuppressWarnings("unchecked")
         void dispatchItemSelection() {
             if (!isSelected()) {
                 return;
@@ -121,7 +122,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
                             ViewHolder.this, getRow());
                 }
             }
-        };
+        }
 
         Presenter getPresenter(boolean primary) {
             ObjectAdapter adapter = primary
@@ -183,6 +184,7 @@ public class PlaybackControlsRowPresenter extends PlaybackRowPresenter {
     private final OnControlClickedListener mOnControlClickedListener =
             new OnControlClickedListener() {
         @Override
+        @SuppressWarnings("unchecked")
         public void onControlClicked(Presenter.ViewHolder itemViewHolder, Object item,
                 ControlBarPresenter.BoundData data) {
             ViewHolder vh = ((BoundData) data).mRowViewHolder;

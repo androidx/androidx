@@ -715,6 +715,7 @@ public final class MediaPlayer extends SessionPlayer {
         }, mExecutor);
     }
 
+    @SuppressWarnings("unchecked")
     private void addPendingFuture(final PendingFuture pendingFuture) {
         synchronized (mPendingFutures) {
             mPendingFutures.add(pendingFuture);
@@ -2924,7 +2925,7 @@ public final class MediaPlayer extends SessionPlayer {
         return (value > maxValue) ? maxValue : value;
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "unchecked"}) /* synthetic access */
     void handleCallComplete(MediaPlayer2 mp, final MediaItem item, int what, int status) {
         PendingCommand expected;
         synchronized (mPendingCommands) {

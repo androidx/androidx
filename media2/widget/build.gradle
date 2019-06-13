@@ -56,6 +56,5 @@ androidx {
     inceptionYear = "2018"
     description = "AndroidX Media2 Widget"
     // TODO: Remove these (b/130838274)
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

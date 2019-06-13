@@ -1555,6 +1555,7 @@ public class MediaController implements AutoCloseable {
          * @see #setConnectionHints(Bundle)
          */
         @NonNull
+        @SuppressWarnings("unchecked")
         public U setSessionToken(@NonNull SessionToken token) {
             if (token == null) {
                 throw new NullPointerException("token shouldn't be null");
@@ -1574,6 +1575,7 @@ public class MediaController implements AutoCloseable {
          * @return The Builder to allow chaining
          */
         @NonNull
+        @SuppressWarnings("unchecked")
         public U setSessionCompatToken(@NonNull MediaSessionCompat.Token compatToken) {
             if (compatToken == null) {
                 throw new NullPointerException("compatToken shouldn't be null");
@@ -1596,6 +1598,7 @@ public class MediaController implements AutoCloseable {
          * @return The Builder to allow chaining
          */
         @NonNull
+        @SuppressWarnings("unchecked")
         public U setConnectionHints(@NonNull Bundle connectionHints) {
             if (connectionHints == null) {
                 throw new NullPointerException("connectionHints shouldn't be null");
@@ -1612,6 +1615,7 @@ public class MediaController implements AutoCloseable {
          * @return The Builder to allow chaining
          */
         @NonNull
+        @SuppressWarnings("unchecked")
         public U setControllerCallback(@NonNull Executor executor, @NonNull C callback) {
             if (executor == null) {
                 throw new NullPointerException("executor shouldn't be null");

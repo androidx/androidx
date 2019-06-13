@@ -39,6 +39,5 @@ androidx {
     mavenGroup = LibraryGroups.SLICE
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

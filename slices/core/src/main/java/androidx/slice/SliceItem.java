@@ -264,6 +264,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @return The pending intent held by this {@link android.app.slice.SliceItem#FORMAT_ACTION}
      * SliceItem
      */
+    @SuppressWarnings("unchecked")
     public PendingIntent getAction() {
         Object action = ((Pair<Object, Slice>) mObj).first;
         if (action instanceof PendingIntent) {
@@ -285,6 +286,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
+    @SuppressWarnings("unchecked")
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public boolean fireActionInternal(@Nullable Context context, @Nullable Intent i)
             throws PendingIntent.CanceledException {
@@ -320,6 +322,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @return The slice held by this {@link android.app.slice.SliceItem#FORMAT_ACTION} or
      * {@link android.app.slice.SliceItem#FORMAT_SLICE} SliceItem
      */
+    @SuppressWarnings("unchecked")
     public Slice getSlice() {
         if (FORMAT_ACTION.equals(getFormat())) {
             return ((Pair<Object, Slice>) mObj).second;
@@ -396,6 +399,7 @@ public final class SliceItem extends CustomVersionedParcelable {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     private void writeObj(Bundle dest, Object obj, String type) {
         switch (type) {
             case FORMAT_IMAGE:
@@ -482,6 +486,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("unchecked")
     public String toString(String indent) {
         StringBuilder sb = new StringBuilder();
         sb.append(indent);

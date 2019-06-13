@@ -117,6 +117,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void onBind(final ItemBridgeAdapter.ViewHolder ibvh) {
             if (mViewHolder.getOnItemViewClickedListener() != null
                     || mActionClickedListener != null) {
@@ -246,6 +247,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             }
         };
 
+        @SuppressWarnings("unchecked")
         void dispatchItemSelection(View view) {
             if (!isSelected()) {
                 return;
@@ -556,9 +558,7 @@ public class FullWidthDetailsOverviewRowPresenter extends RowPresenter {
             @Override
             public boolean onUnhandledKey(KeyEvent event) {
                 if (vh.getOnKeyListener() != null) {
-                    if (vh.getOnKeyListener().onKey(vh.view, event.getKeyCode(), event)) {
-                        return true;
-                    }
+                    return vh.getOnKeyListener().onKey(vh.view, event.getKeyCode(), event);
                 }
                 return false;
             }

@@ -67,7 +67,6 @@ androidx {
     mavenGroup = LibraryGroups.APPCOMPAT
     inceptionYear = "2019"
     description = "The Resources Library is a static library that you can add to your Android application in order to use resource APIs that backport the latest APIs to older versions of the platform. Compatible on devices running API 14 or later."
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
     trackRestrictedAPIs = false
 }

@@ -360,6 +360,7 @@ public class AccessibilityDelegateCompat {
         return success;
     }
 
+    @SuppressWarnings("unchecked")
     private boolean performClickableSpanAction(int clickableSpanId, View host) {
         SparseArray<WeakReference<ClickableSpan>> spans =
                 (SparseArray<WeakReference<ClickableSpan>>)
@@ -390,6 +391,7 @@ public class AccessibilityDelegateCompat {
         return false;
     }
 
+    @SuppressWarnings("unchecked")
     static List<AccessibilityActionCompat> getActionList(View view) {
         List<AccessibilityActionCompat> actions = (List<AccessibilityActionCompat>)
                 view.getTag(R.id.tag_accessibility_actions);

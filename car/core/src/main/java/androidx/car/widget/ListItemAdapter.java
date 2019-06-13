@@ -356,6 +356,7 @@ public class ListItemAdapter extends
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onBindViewHolder(ListItem.ViewHolder holder, int position) {
         if (mBackgroundStyle == BACKGROUND_STYLE_PANEL) {
             ListItemBackgroundResolver.setBackground(
