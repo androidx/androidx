@@ -45,6 +45,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.car.R;
 import androidx.car.app.CarListDialog;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.MarginLayoutParamsCompat;
 
 import java.util.ArrayList;
@@ -184,7 +185,7 @@ public class CarToolbar extends ViewGroup {
             int navigationIconTintResId =
                     a.getResourceId(R.styleable.CarToolbar_navigationIconTint, -1);
             if (navigationIconTintResId != -1) {
-                setNavigationIconTint(context.getColor(navigationIconTintResId));
+                setNavigationIconTint(ContextCompat.getColor(context, navigationIconTintResId));
             }
 
             int titleIconResId = a.getResourceId(R.styleable.CarToolbar_titleIcon, -1);
@@ -802,7 +803,6 @@ public class CarToolbar extends ViewGroup {
      * Sets the icon of the overflow menu button.
      *
      * @param iconResId Resource id of the drawable to use for the overflow menu button.
-     *
      * @attr ref R.styleable#CarToolbar_overflowIcon
      */
     public void setOverflowIcon(@DrawableRes int iconResId) {
@@ -813,7 +813,6 @@ public class CarToolbar extends ViewGroup {
      * Sets the icon of the overflow menu button.
      *
      * @param icon Icon to set.
-     *
      * @attr ref R.styleable#CarToolbar_overflowIcon
      */
     public void setOverflowIcon(@NonNull Drawable icon) {

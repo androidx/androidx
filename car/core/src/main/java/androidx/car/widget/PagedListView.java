@@ -46,6 +46,7 @@ import androidx.car.widget.itemdecorators.BottomOffsetDecoration;
 import androidx.car.widget.itemdecorators.DividerDecoration;
 import androidx.car.widget.itemdecorators.ItemSpacingDecoration;
 import androidx.car.widget.itemdecorators.TopOffsetDecoration;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -296,10 +297,10 @@ public class PagedListView extends FrameLayout {
 
             int listDividerColorRes = a.getResourceId(R.styleable.PagedListView_listDividerColor,
                     R.color.car_list_divider);
+            int listDividerColor = ContextCompat.getColor(context, listDividerColorRes);
 
             mRecyclerView.addItemDecoration(new DividerDecoration(context, dividerStartMargin,
-                    dividerEndMargin, dividerStartId, dividerEndId,
-                    context.getColor(listDividerColorRes)));
+                    dividerEndMargin, dividerStartId, dividerEndId, listDividerColor));
         }
 
         int itemSpacing = a.getDimensionPixelSize(R.styleable.PagedListView_itemSpacing, 0);

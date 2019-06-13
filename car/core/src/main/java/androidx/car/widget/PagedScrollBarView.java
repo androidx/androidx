@@ -34,7 +34,6 @@ import android.widget.TextView;
 import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntRange;
-import androidx.annotation.VisibleForTesting;
 import androidx.car.R;
 import androidx.core.content.ContextCompat;
 
@@ -192,6 +191,7 @@ public class PagedScrollBarView extends ViewGroup {
     public boolean isScrollbarThumbEnabled() {
         return mShowScrollBarThumb;
     }
+
     /**
      * Sets whether or not the scroll bar thumb is visible, the default value is true.
      *
@@ -210,12 +210,11 @@ public class PagedScrollBarView extends ViewGroup {
      * <p>These values can be expressed in arbitrary units, so long as they share the same units.
      * The values should also be positive.
      *
-     * @param range The range of the scrollbar's thumb
-     * @param offset The offset of the scrollbar's thumb
-     * @param extent The extent of the scrollbar's thumb
+     * @param range   The range of the scrollbar's thumb
+     * @param offset  The offset of the scrollbar's thumb
+     * @param extent  The extent of the scrollbar's thumb
      * @param animate Whether or not the thumb should animate from its current position to the
      *                position specified by the given range, offset and extent.
-     *
      * @see View#computeVerticalScrollRange()
      * @see View#computeVerticalScrollOffset()
      * @see View#computeVerticalScrollExtent()
@@ -254,10 +253,9 @@ public class PagedScrollBarView extends ViewGroup {
      *
      * <p>These values can be expressed in arbitrary units, so long as they share the same units.
      *
-     * @param range The range of the scrollbar's thumb
+     * @param range  The range of the scrollbar's thumb
      * @param offset The offset of the scrollbar's thumb
      * @param extent The extent of the scrollbar's thumb
-     *
      * @see #setParameters(int, int, int, boolean)
      */
     void setParametersInLayout(int range, int offset, int extent) {
@@ -316,7 +314,7 @@ public class PagedScrollBarView extends ViewGroup {
      */
     public void setScrollbarThumbColor(@ColorRes int color) {
         GradientDrawable background = (GradientDrawable) mScrollThumb.getBackground();
-        background.setColor(getContext().getColor(color));
+        background.setColor(ContextCompat.getColor(getContext(), color));
     }
 
     /**
@@ -353,7 +351,7 @@ public class PagedScrollBarView extends ViewGroup {
 
         // A seperating margin is needed between up and down button.
         int currentHeight = getPaddingTop() + mUpButton.getMeasuredHeight() + mSeparatingMargin
-                + mDownButton.getMeasuredHeight() +  getPaddingBottom();
+                + mDownButton.getMeasuredHeight() + getPaddingBottom();
 
         // Check if there is enough room to draw buttons
         if (currentHeight > requestedHeight) {
@@ -464,10 +462,11 @@ public class PagedScrollBarView extends ViewGroup {
      * Lays out the given View starting from the given {@code top} value downwards and centered
      * within the given {@code availableWidth}.
      *
-     * @param  view The view to lay out.
-     * @param  top The top value to start laying out from. This value will be the resulting top
-     *             value of the view.
-     * @param  availableWidth The width in which to center the given view.
+     * @param view           The view to lay out.
+     * @param top            The top value to start laying out from. This value will be the
+     *                       resulting top
+     *                       value of the view.
+     * @param availableWidth The width in which to center the given view.
      */
     private void layoutViewCenteredFromTop(View view, int top, int availableWidth) {
         int viewWidth = view.getMeasuredWidth();
@@ -480,10 +479,11 @@ public class PagedScrollBarView extends ViewGroup {
      * Lays out the given View starting from the given {@code bottom} value upwards and centered
      * within the given {@code availableSpace}.
      *
-     * @param  view The view to lay out.
-     * @param  bottom The bottom value to start laying out from. This value will be the resulting
-     *                bottom value of the view.
-     * @param  availableWidth The width in which to center the given view.
+     * @param view           The view to lay out.
+     * @param bottom         The bottom value to start laying out from. This value will be the
+     *                       resulting
+     *                       bottom value of the view.
+     * @param availableWidth The width in which to center the given view.
      */
     private void layoutViewCenteredFromBottom(View view, int bottom, int availableWidth) {
         int viewWidth = view.getMeasuredWidth();
@@ -492,16 +492,11 @@ public class PagedScrollBarView extends ViewGroup {
                 viewLeft + viewWidth, bottom);
     }
 
-    @VisibleForTesting
-    int getScrollbarThumbColor() {
-        return ((GradientDrawable) mScrollThumb.getBackground()).getColor().getDefaultColor();
-    }
-
     /**
      * Calculates and returns how big the scroll bar thumb should be based on the given range and
      * extent.
      *
-     * @param range The total amount of space the scroll bar is allowed to roam over.
+     * @param range  The total amount of space the scroll bar is allowed to roam over.
      * @param extent The amount of space that the scroll bar takes up relative to the range.
      * @return The height of the scroll bar thumb in pixels.
      */
@@ -514,10 +509,10 @@ public class PagedScrollBarView extends ViewGroup {
      * Calculates and returns how much the scroll thumb should be offset from the top of where it
      * has been laid out.
      *
-     * @param  range The total amount of space the scroll bar is allowed to roam over.
-     * @param  offset The amount the scroll bar should be offset, expressed in the same units as
-     *                the given range.
-     * @param  thumbLength The current length of the thumb in pixels.
+     * @param range       The total amount of space the scroll bar is allowed to roam over.
+     * @param offset      The amount the scroll bar should be offset, expressed in the same units as
+     *                    the given range.
+     * @param thumbLength The current length of the thumb in pixels.
      * @return The amount the thumb should be offset from its current to position in pixels.
      */
     private int calculateScrollThumbOffset(int range, int offset, int thumbLength) {
