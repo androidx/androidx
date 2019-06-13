@@ -493,7 +493,7 @@ public class CarAlertDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setTitle(@Nullable CharSequence title) {
+        public Builder setTitle(@NonNull CharSequence title) {
             mTitle = title;
             return this;
         }
@@ -517,7 +517,7 @@ public class CarAlertDialog extends Dialog {
          * @return This {@code Builder} object to allow for chaining of calls.
          */
         @NonNull
-        public Builder setBody(@Nullable CharSequence body) {
+        public Builder setBody(@NonNull CharSequence body) {
             mBody = body;
             return this;
         }
