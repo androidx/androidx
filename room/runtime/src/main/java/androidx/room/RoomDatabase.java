@@ -31,7 +31,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.room.DatabaseConfiguration.CopyFrom;
 import androidx.room.migration.Migration;
 import androidx.room.util.SneakyThrow;
 import androidx.sqlite.db.SimpleSQLiteQuery;
@@ -41,6 +40,7 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -544,8 +544,8 @@ public abstract class RoomDatabase {
          */
         private Set<Integer> mMigrationStartAndEndVersions;
 
-        private @CopyFrom int mCopyFrom = DatabaseConfiguration.COPY_FROM_NONE;
-        private String mCopyFromPath;
+        private String mCopyFromAssetPath;
+        private File mCopyFromFile;
 
         Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
             mContext = context;
@@ -578,17 +578,16 @@ public abstract class RoomDatabase {
          */
         @NonNull
         public Builder<T> createFromAsset(@NonNull String databaseFilePath) {
-            mCopyFrom = DatabaseConfiguration.COPY_FROM_ASSET;
-            mCopyFromPath = databaseFilePath;
+            mCopyFromAssetPath = databaseFilePath;
+            mCopyFromFile = null;
             return this;
         }
 
         /**
-         * Configures Room to create and open the database using a pre-packaged database from the
-         * given file path.
+         * Configures Room to create and open the database using a pre-packaged database file.
          * <p>
          * Room does not open the pre-packaged database, instead it copies it into the internal
-         * app database folder and then opens it. The given path must be accessible and the right
+         * app database folder and then opens it. The given file must be accessible and the right
          * permissions must be granted for Room to copy the file.
          * <p>
          * The pre-packaged database schema will be validated. It might be best to create your
@@ -597,14 +596,14 @@ public abstract class RoomDatabase {
          * <p>
          * This method has no effect if this {@link Builder} is for an in memory database.
          *
-         * @param databaseFilePath The file path of where the database file is located.
+         * @param databaseFile The database file.
          *
          * @return this
          */
         @NonNull
-        public Builder<T> createFromFile(@NonNull String databaseFilePath) {
-            mCopyFrom = DatabaseConfiguration.COPY_FROM_FILE;
-            mCopyFromPath = databaseFilePath;
+        public Builder<T> createFromFile(@NonNull File databaseFile) {
+            mCopyFromAssetPath = null;
+            mCopyFromFile = databaseFile;
             return this;
         }
 
@@ -902,8 +901,9 @@ public abstract class RoomDatabase {
             if (mFactory == null) {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
-            if (mName != null && mCopyFrom != DatabaseConfiguration.COPY_FROM_NONE) {
-                mFactory = new SQLiteCopyOpenHelperFactory(mCopyFrom, mCopyFromPath, mFactory);
+            if (mName != null && (mCopyFromAssetPath != null || mCopyFromFile != null)) {
+                mFactory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
+                        mFactory);
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(
@@ -920,8 +920,8 @@ public abstract class RoomDatabase {
                             mRequireMigration,
                             mAllowDestructiveMigrationOnDowngrade,
                             mMigrationsNotRequiredFrom,
-                            mCopyFrom,
-                            mCopyFromPath);
+                            mCopyFromAssetPath,
+                            mCopyFromFile);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
