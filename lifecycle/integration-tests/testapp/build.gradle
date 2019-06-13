@@ -37,10 +37,8 @@ android {
 }
 
 dependencies {
-    // IJ canont figure out transitive dependencies so need to declare them.
-    implementation(project(":lifecycle:lifecycle-common"))
-    implementation(project(":lifecycle:lifecycle-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(project(":fragment:fragment"))
+    implementation(project(":lifecycle:lifecycle-process"))
     annotationProcessor(project(":lifecycle:lifecycle-compiler"))
 
     androidTestAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))

@@ -26,8 +26,7 @@ plugins {
 
 dependencies {
     implementation(ANDROIDX_TEST_CORE)
-    implementation("androidx.lifecycle:lifecycle-common:2.0.0", libs.exclude_annotations_transitive)
-    implementation(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive)
+    implementation("androidx.lifecycle:lifecycle-runtime:2.0.0")
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(project(":camera:camera-core"))
 }

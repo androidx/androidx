@@ -26,11 +26,6 @@ dependencies {
     implementation(project(":recyclerview"))
     implementation(project(":appcompat"))
     annotationProcessor project(":remotecallback-processor")
-    api(ARCH_LIFECYCLE_EXTENSIONS, libs.exclude_annotations_transitive = {
-        exclude group: 'androidx.annotation'
-        exclude group: 'androidx.fragment'
-        transitive = true
-    })
 }
 
 android {

@@ -55,7 +55,6 @@ dependencies {
     implementation project(':work:work-runtime-ktx')
     implementation (project(':work:work-gcm'))
     implementation(WORK_ARCH_CORE_RUNTIME)
-    implementation(ARCH_LIFECYCLE_EXTENSIONS)
     implementation(ANDROIDX_RECYCLERVIEW)
     implementation(MATERIAL)
 }

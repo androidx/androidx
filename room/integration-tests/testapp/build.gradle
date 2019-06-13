@@ -48,7 +48,7 @@ dependencies {
     implementation(project(":sqlite:sqlite"))
     implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(project(":lifecycle:lifecycle-livedata"))
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     implementation(FINDBUGS)
@@ -57,8 +57,6 @@ dependencies {
     annotationProcessor project(":room:room-compiler")
     androidTestAnnotationProcessor project(":room:room-compiler")
 
-    // IJ's gradle integration just cannot figure this out ...
-    androidTestImplementation(ARCH_LIFECYCLE_EXTENSIONS)
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-guava"))
