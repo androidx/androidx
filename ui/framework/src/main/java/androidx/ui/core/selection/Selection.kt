@@ -45,4 +45,28 @@ data class Selection(
      * does not contain the end of the selection, this should be null.
      */
     val endLayoutCoordinates: LayoutCoordinates?
-)
+) {
+    internal fun merge(other: Selection): Selection {
+        // TODO: combine two selections' contents with styles together.
+        var currentSelection = this.copy()
+        if (other.startLayoutCoordinates != null) {
+            currentSelection = currentSelection.copy(
+                startOffset = other.startOffset,
+                startLayoutCoordinates = other.startLayoutCoordinates
+            )
+        }
+        if (other.endLayoutCoordinates != null) {
+            currentSelection = currentSelection.copy(
+                endOffset = other.endOffset,
+                endLayoutCoordinates = other.endLayoutCoordinates
+            )
+        }
+        return currentSelection
+    }
+}
+
+internal operator fun Selection?.plus(rhs: Selection?): Selection? {
+    if (this == null) return rhs
+    if (rhs == null) return this
+    return merge(rhs)
+}
