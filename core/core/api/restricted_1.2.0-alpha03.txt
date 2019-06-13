@@ -1,0 +1,590 @@
+// Signature format: 3.0
+package android.support.v4.os {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ResultReceiver implements android.os.Parcelable {
+    ctor public ResultReceiver(android.os.Handler!);
+    method public int describeContents();
+    method protected void onReceiveResult(int, android.os.Bundle!);
+    method public void send(int, android.os.Bundle!);
+    method public void writeToParcel(android.os.Parcel!, int);
+    field public static final android.os.Parcelable.Creator<android.support.v4.os.ResultReceiver!>! CREATOR;
+  }
+
+}
+
+package androidx.core.app {
+
+  public class ActivityCompat extends androidx.core.content.ContextCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate! getPermissionCompatDelegate();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface ActivityCompat.RequestPermissionsRequestCodeValidator {
+    method public void validateRequestPermissionsRequestCode(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ComponentActivity extends android.app.Activity implements androidx.core.view.KeyEventDispatcher.Component {
+    ctor public ComponentActivity();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.core.app.ComponentActivity.ExtraData> T! getExtraData(Class<T!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void putExtraData(androidx.core.app.ComponentActivity.ExtraData!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean superDispatchKeyEvent(android.view.KeyEvent!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class ComponentActivity.ExtraData {
+    ctor public ComponentActivity.ExtraData();
+  }
+
+  @RequiresApi(api=28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CoreComponentFactory extends android.app.AppComponentFactory {
+    ctor public CoreComponentFactory();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface CoreComponentFactory.CompatWrapped {
+    method public Object! getWrapper();
+  }
+
+  @IntDef(flag=true, value={androidx.core.app.FrameMetricsAggregator.TOTAL_DURATION, androidx.core.app.FrameMetricsAggregator.INPUT_DURATION, androidx.core.app.FrameMetricsAggregator.LAYOUT_MEASURE_DURATION, androidx.core.app.FrameMetricsAggregator.DRAW_DURATION, androidx.core.app.FrameMetricsAggregator.SYNC_DURATION, androidx.core.app.FrameMetricsAggregator.COMMAND_DURATION, androidx.core.app.FrameMetricsAggregator.SWAP_DURATION, androidx.core.app.FrameMetricsAggregator.DELAY_DURATION, androidx.core.app.FrameMetricsAggregator.ANIMATION_DURATION, androidx.core.app.FrameMetricsAggregator.EVERY_DURATION}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface FrameMetricsAggregator.MetricType {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface NotificationBuilderWithBuilderAccessor {
+    method public android.app.Notification.Builder! getBuilder();
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.BADGE_ICON_NONE, androidx.core.app.NotificationCompat.BADGE_ICON_SMALL, androidx.core.app.NotificationCompat.BADGE_ICON_LARGE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.BadgeIconType {
+  }
+
+  public static class NotificationCompat.Builder {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getBigContentView();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.app.NotificationCompat.BubbleMetadata? getBubbleMetadata();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getColor();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getContentView();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! getHeadsUpContentView();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int getPriority();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public long getWhenIfShowing();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public java.util.ArrayList<androidx.core.app.NotificationCompat.Action!>! mActions;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.Context! mContext;
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.GROUP_ALERT_ALL, androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY, androidx.core.app.NotificationCompat.GROUP_ALERT_CHILDREN}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.GroupAlertBehavior {
+  }
+
+  @IntDef({androidx.core.app.NotificationCompat.VISIBILITY_PUBLIC, androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE, androidx.core.app.NotificationCompat.VISIBILITY_SECRET}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.NotificationVisibility {
+  }
+
+  @IntDef({android.media.AudioManager.STREAM_VOICE_CALL, android.media.AudioManager.STREAM_SYSTEM, android.media.AudioManager.STREAM_RING, android.media.AudioManager.STREAM_MUSIC, android.media.AudioManager.STREAM_ALARM, android.media.AudioManager.STREAM_NOTIFICATION, android.media.AudioManager.STREAM_DTMF, android.media.AudioManager.STREAM_ACCESSIBILITY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface NotificationCompat.StreamType {
+  }
+
+  public abstract static class NotificationCompat.Style {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addCompatExtras(android.os.Bundle!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void apply(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! applyStandardTemplate(boolean, int, boolean);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void buildIntoRemoteViews(android.widget.RemoteViews!, android.widget.RemoteViews!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap! createColoredBitmap(int, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeBigContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeHeadsUpContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected void restoreFromCompatExtras(android.os.Bundle!);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected androidx.core.app.NotificationCompat.Builder! mBuilder;
+  }
+
+  public class Person {
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromAndroidPerson(android.app.Person);
+    method @RequiresApi(22) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromPersistableBundle(android.os.PersistableBundle);
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.app.Person toAndroidPerson();
+    method @RequiresApi(22) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.PersistableBundle toPersistableBundle();
+  }
+
+  public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public RemoteActionCompat();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.app.PendingIntent! mActionIntent;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CharSequence! mContentDescription;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean mEnabled;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.core.graphics.drawable.IconCompat! mIcon;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean mShouldShowIcon;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public CharSequence! mTitle;
+  }
+
+  @IntDef({androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, androidx.core.app.RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RemoteInput.EditChoicesBeforeSending {
+  }
+
+  @IntDef({androidx.core.app.RemoteInput.SOURCE_FREE_FORM_INPUT, androidx.core.app.RemoteInput.SOURCE_CHOICE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface RemoteInput.Source {
+  }
+
+  @IntDef(flag=true, value={androidx.core.app.ServiceCompat.STOP_FOREGROUND_REMOVE, androidx.core.app.ServiceCompat.STOP_FOREGROUND_DETACH}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ServiceCompat.StopForegroundFlags {
+  }
+
+}
+
+package androidx.core.content {
+
+  @IntDef({androidx.core.content.PermissionChecker.PERMISSION_GRANTED, androidx.core.content.PermissionChecker.PERMISSION_DENIED, androidx.core.content.PermissionChecker.PERMISSION_DENIED_APP_OP}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface PermissionChecker.PermissionResult {
+  }
+
+}
+
+package androidx.core.content.pm {
+
+
+
+  public class ShortcutInfoCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.graphics.drawable.IconCompat! getIcon();
+  }
+
+  public static class ShortcutInfoCompat.Builder {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(androidx.core.content.pm.ShortcutInfoCompat);
+    ctor @RequiresApi(25) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public ShortcutInfoCompat.Builder(android.content.Context, android.content.pm.ShortcutInfo);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoCompatSaver<T> {
+    ctor public ShortcutInfoCompatSaver();
+    method @AnyThread public abstract T! addShortcuts(java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>!);
+    method @WorkerThread public java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>! getShortcuts() throws java.lang.Exception;
+    method @AnyThread public abstract T! removeAllShortcuts();
+    method @AnyThread public abstract T! removeShortcuts(java.util.List<java.lang.String!>!);
+  }
+
+
+}
+
+package androidx.core.content.res {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ColorStateListInflaterCompat {
+    method public static android.content.res.ColorStateList createFromXml(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static android.content.res.ColorStateList createFromXmlInner(android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static android.content.res.ColorStateList? inflate(android.content.res.Resources, @XmlRes int, android.content.res.Resources.Theme?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ComplexColorCompat {
+    method @ColorInt public int getColor();
+    method public android.graphics.Shader? getShader();
+    method public static androidx.core.content.res.ComplexColorCompat? inflate(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?);
+    method public boolean isGradient();
+    method public boolean isStateful();
+    method public boolean onStateChanged(int[]!);
+    method public void setColor(@ColorInt int);
+    method public boolean willDraw();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FontResourcesParserCompat {
+    method public static androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry? parse(org.xmlpull.v1.XmlPullParser!, android.content.res.Resources!) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public static java.util.List<java.util.List<byte[]!>!>! readCerts(android.content.res.Resources!, @ArrayRes int);
+    field public static final int FETCH_STRATEGY_ASYNC = 1; // 0x1
+    field public static final int FETCH_STRATEGY_BLOCKING = 0; // 0x0
+    field public static final int INFINITE_TIMEOUT_VALUE = -1; // 0xffffffff
+  }
+
+  public static interface FontResourcesParserCompat.FamilyResourceEntry {
+  }
+
+  @IntDef({androidx.core.content.res.FontResourcesParserCompat.FETCH_STRATEGY_BLOCKING, androidx.core.content.res.FontResourcesParserCompat.FETCH_STRATEGY_ASYNC}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface FontResourcesParserCompat.FetchStrategy {
+  }
+
+  public static final class FontResourcesParserCompat.FontFamilyFilesResourceEntry implements androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry {
+    ctor public FontResourcesParserCompat.FontFamilyFilesResourceEntry(androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry![]);
+    method public androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry![] getEntries();
+  }
+
+  public static final class FontResourcesParserCompat.FontFileResourceEntry {
+    ctor public FontResourcesParserCompat.FontFileResourceEntry(String, int, boolean, String?, int, int);
+    method public String getFileName();
+    method public int getResourceId();
+    method public int getTtcIndex();
+    method public String? getVariationSettings();
+    method public int getWeight();
+    method public boolean isItalic();
+  }
+
+  public static final class FontResourcesParserCompat.ProviderResourceEntry implements androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry {
+    ctor public FontResourcesParserCompat.ProviderResourceEntry(androidx.core.provider.FontRequest, @androidx.core.content.res.FontResourcesParserCompat.FetchStrategy int, int);
+    method @androidx.core.content.res.FontResourcesParserCompat.FetchStrategy public int getFetchStrategy();
+    method public androidx.core.provider.FontRequest getRequest();
+    method public int getTimeout();
+  }
+
+  public final class ResourcesCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface! getFont(android.content.Context, @FontRes int, android.util.TypedValue!, int, androidx.core.content.res.ResourcesCompat.FontCallback?) throws android.content.res.Resources.NotFoundException;
+  }
+
+  public abstract static class ResourcesCompat.FontCallback {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void callbackFailAsync(@androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason int, android.os.Handler?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final void callbackSuccessAsync(android.graphics.Typeface!, android.os.Handler?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypedArrayUtils {
+    method public static int getAttr(android.content.Context, int, int);
+    method public static boolean getBoolean(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int, boolean);
+    method public static android.graphics.drawable.Drawable? getDrawable(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
+    method public static int getInt(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int, int);
+    method public static boolean getNamedBoolean(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, @StyleableRes int, boolean);
+    method @ColorInt public static int getNamedColor(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, @StyleableRes int, @ColorInt int);
+    method public static android.content.res.ColorStateList? getNamedColorStateList(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, android.content.res.Resources.Theme?, String, @StyleableRes int);
+    method public static androidx.core.content.res.ComplexColorCompat! getNamedComplexColor(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, android.content.res.Resources.Theme?, String, @StyleableRes int, @ColorInt int);
+    method public static float getNamedFloat(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, @StyleableRes int, float);
+    method public static int getNamedInt(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, @StyleableRes int, int);
+    method @AnyRes public static int getNamedResourceId(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, @StyleableRes int, @AnyRes int);
+    method public static String? getNamedString(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, @StyleableRes int);
+    method @AnyRes public static int getResourceId(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int, @AnyRes int);
+    method public static String? getString(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
+    method public static CharSequence? getText(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
+    method public static CharSequence![]? getTextArray(android.content.res.TypedArray, @StyleableRes int, @StyleableRes int);
+    method public static boolean hasAttribute(org.xmlpull.v1.XmlPullParser, String);
+    method public static android.content.res.TypedArray obtainAttributes(android.content.res.Resources, android.content.res.Resources.Theme?, android.util.AttributeSet, int[]);
+    method public static android.util.TypedValue? peekNamedValue(android.content.res.TypedArray, org.xmlpull.v1.XmlPullParser, String, int);
+  }
+
+}
+
+package androidx.core.graphics {
+
+  public final class Insets {
+    method @RequiresApi(api=29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.Insets wrap(android.graphics.Insets);
+  }
+
+  public class TypefaceCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromFontInfo(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFamilyXml(android.content.Context, androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry, android.content.res.Resources, int, int, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFontFile(android.content.Context, android.content.res.Resources, int, String!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? findFromCache(android.content.res.Resources, int, int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(26) public class TypefaceCompatApi26Impl {
+    ctor public TypefaceCompatApi26Impl();
+    method protected android.graphics.Typeface? createFromFamiliesWithDefault(Object!);
+    method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
+    method public android.graphics.Typeface? createFromFontInfo(android.content.Context!, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
+    method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
+    method protected java.lang.reflect.Method! obtainAbortCreationMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainAddFontFromAssetManagerMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainAddFontFromBufferMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainCreateFromFamiliesWithDefaultMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected Class<?>! obtainFontFamily() throws java.lang.ClassNotFoundException;
+    method protected java.lang.reflect.Constructor<?>! obtainFontFamilyCtor(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainFreezeMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    field protected final java.lang.reflect.Method! mAbortCreation;
+    field protected final java.lang.reflect.Method! mAddFontFromAssetManager;
+    field protected final java.lang.reflect.Method! mAddFontFromBuffer;
+    field protected final java.lang.reflect.Method! mCreateFromFamiliesWithDefault;
+    field protected final Class<?>! mFontFamily;
+    field protected final java.lang.reflect.Constructor<?>! mFontFamilyCtor;
+    field protected final java.lang.reflect.Method! mFreeze;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(28) public class TypefaceCompatApi28Impl extends androidx.core.graphics.TypefaceCompatApi26Impl {
+    ctor public TypefaceCompatApi28Impl();
+    method public android.graphics.Typeface! createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
+    method public android.graphics.Typeface! createFromFontInfo(android.content.Context!, android.os.CancellationSignal!, androidx.core.provider.FontsContractCompat.FontInfo![], int);
+    method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(29) public class TypefaceCompatApi29Impl {
+    ctor public TypefaceCompatApi29Impl();
+    method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
+    method public android.graphics.Typeface? createFromFontInfo(android.content.Context!, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
+    method protected android.graphics.Typeface! createFromInputStream(android.content.Context!, java.io.InputStream!);
+    method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
+    method protected androidx.core.provider.FontsContractCompat.FontInfo! findBestInfo(androidx.core.provider.FontsContractCompat.FontInfo![]!, int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatUtil {
+    method public static void closeQuietly(java.io.Closeable!);
+    method @RequiresApi(19) public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context!, android.content.res.Resources!, int);
+    method public static boolean copyToFile(java.io.File!, java.io.InputStream!);
+    method public static boolean copyToFile(java.io.File!, android.content.res.Resources!, int);
+    method public static java.io.File? getTempFile(android.content.Context!);
+    method @RequiresApi(19) public static java.nio.ByteBuffer? mmap(android.content.Context!, android.os.CancellationSignal!, android.net.Uri!);
+  }
+
+}
+
+package androidx.core.graphics.drawable {
+
+  public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addToShortcutIntent(android.content.Intent, android.graphics.drawable.Drawable?, android.content.Context);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void checkResource(android.content.Context!);
+    method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.graphics.drawable.Icon);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.res.Resources!, String!, @DrawableRes int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap? getBitmap();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mType;
+  }
+
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface TintAwareDrawable {
+    method public void setTint(@ColorInt int);
+    method public void setTintList(android.content.res.ColorStateList!);
+    method public void setTintMode(android.graphics.PorterDuff.Mode!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface WrappedDrawable {
+    method public android.graphics.drawable.Drawable! getWrappedDrawable();
+    method public void setWrappedDrawable(android.graphics.drawable.Drawable!);
+  }
+
+}
+
+package androidx.core.internal.view {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SupportMenu extends android.view.Menu {
+    method public void setGroupDividerEnabled(boolean);
+    field public static final int CATEGORY_MASK = -65536; // 0xffff0000
+    field public static final int CATEGORY_SHIFT = 16; // 0x10
+    field public static final int FLAG_KEEP_OPEN_ON_SUBMENU_OPENED = 4; // 0x4
+    field public static final int SUPPORTED_MODIFIERS_MASK = 69647; // 0x1100f
+    field public static final int USER_MASK = 65535; // 0xffff
+    field public static final int USER_SHIFT = 0; // 0x0
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SupportMenuItem extends android.view.MenuItem {
+    method public int getAlphabeticModifiers();
+    method public CharSequence! getContentDescription();
+    method public android.content.res.ColorStateList! getIconTintList();
+    method public android.graphics.PorterDuff.Mode! getIconTintMode();
+    method public int getNumericModifiers();
+    method public androidx.core.view.ActionProvider! getSupportActionProvider();
+    method public CharSequence! getTooltipText();
+    method public boolean requiresActionButton();
+    method public boolean requiresOverflow();
+    method public android.view.MenuItem! setAlphabeticShortcut(char, int);
+    method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
+    method public android.view.MenuItem! setIconTintList(android.content.res.ColorStateList!);
+    method public android.view.MenuItem! setIconTintMode(android.graphics.PorterDuff.Mode!);
+    method public android.view.MenuItem! setNumericShortcut(char, int);
+    method public android.view.MenuItem! setShortcut(char, char, int, int);
+    method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
+    method public androidx.core.internal.view.SupportMenuItem! setTooltipText(CharSequence!);
+    field public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
+    field public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
+    field public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
+    field public static final int SHOW_AS_ACTION_NEVER = 0; // 0x0
+    field public static final int SHOW_AS_ACTION_WITH_TEXT = 4; // 0x4
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SupportSubMenu extends androidx.core.internal.view.SupportMenu android.view.SubMenu {
+  }
+
+}
+
+package androidx.core.net {
+
+  @IntDef({androidx.core.net.ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_DISABLED, androidx.core.net.ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_WHITELISTED, androidx.core.net.ConnectivityManagerCompat.RESTRICT_BACKGROUND_STATUS_ENABLED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ConnectivityManagerCompat.RestrictBackgroundStatus {
+  }
+
+}
+
+package androidx.core.provider {
+
+  public final class FontRequest {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String! getIdentifier();
+  }
+
+  public class FontsContractCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface! getFontSync(android.content.Context!, androidx.core.provider.FontRequest!, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean, int, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static android.content.pm.ProviderInfo? getProvider(android.content.pm.PackageManager, androidx.core.provider.FontRequest, android.content.res.Resources?) throws android.content.pm.PackageManager.NameNotFoundException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @RequiresApi(19) public static java.util.Map<android.net.Uri!,java.nio.ByteBuffer!>! prepareFontData(android.content.Context!, androidx.core.provider.FontsContractCompat.FontInfo![]!, android.os.CancellationSignal!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void resetCache();
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String PARCEL_FONT_RESULTS = "font_results";
+  }
+
+  public static class FontsContractCompat.FontFamilyResult {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public FontsContractCompat.FontFamilyResult(int, androidx.core.provider.FontsContractCompat.FontInfo![]?);
+  }
+
+  public static class FontsContractCompat.FontInfo {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public FontsContractCompat.FontInfo(android.net.Uri, @IntRange(from=0) int, @IntRange(from=1, to=1000) int, boolean, int);
+  }
+
+  public static class FontsContractCompat.FontRequestCallback {
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int RESULT_OK = 0; // 0x0
+  }
+
+  @IntDef({androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_PROVIDER_NOT_FOUND, androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_FONT_LOAD_ERROR, androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_FONT_NOT_FOUND, androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_FONT_UNAVAILABLE, androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_MALFORMED_QUERY, androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_WRONG_CERTIFICATES, androidx.core.provider.FontsContractCompat.FontRequestCallback.FAIL_REASON_SECURITY_VIOLATION, androidx.core.provider.FontsContractCompat.FontRequestCallback.RESULT_OK}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface FontsContractCompat.FontRequestCallback.FontRequestFailReason {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class SelfDestructiveThread {
+    ctor public SelfDestructiveThread(String!, int, int);
+    method @VisibleForTesting public int getGeneration();
+    method @VisibleForTesting public boolean isRunning();
+    method public <T> void postAndReply(java.util.concurrent.Callable<T!>!, androidx.core.provider.SelfDestructiveThread.ReplyCallback<T!>!);
+    method public <T> T! postAndWait(java.util.concurrent.Callable<T!>!, int) throws java.lang.InterruptedException;
+  }
+
+  public static interface SelfDestructiveThread.ReplyCallback<T> {
+    method public void onReply(T!);
+  }
+
+}
+
+package androidx.core.text {
+
+  public class PrecomputedTextCompat implements android.text.Spannable {
+    method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.text.PrecomputedText? getPrecomputedText();
+  }
+
+  public static final class PrecomputedTextCompat.Params {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean equalsWithoutTextDirection(androidx.core.text.PrecomputedTextCompat.Params);
+  }
+
+}
+
+package androidx.core.text.util {
+
+  @IntDef(flag=true, value={android.text.util.Linkify.WEB_URLS, android.text.util.Linkify.EMAIL_ADDRESSES, android.text.util.Linkify.PHONE_NUMBERS, android.text.util.Linkify.MAP_ADDRESSES, android.text.util.Linkify.ALL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface LinkifyCompat.LinkifyMask {
+  }
+
+}
+
+package androidx.core.util {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DebugUtils {
+    method public static void buildShortClassTag(Object!, StringBuilder!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LogWriter extends java.io.Writer {
+    ctor public LogWriter(String!);
+    method public void close();
+    method public void flush();
+    method public void write(char[]!, int, int);
+  }
+
+  public final class PatternsCompat {
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final java.util.regex.Pattern! AUTOLINK_EMAIL_ADDRESS;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final java.util.regex.Pattern! AUTOLINK_WEB_URL;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Preconditions {
+    method public static void checkArgument(boolean);
+    method public static void checkArgument(boolean, Object);
+    method public static int checkArgumentInRange(int, int, int, String);
+    method @IntRange(from=0) public static int checkArgumentNonnegative(int, String?);
+    method @IntRange(from=0) public static int checkArgumentNonnegative(int);
+    method public static <T> T checkNotNull(T?);
+    method public static <T> T checkNotNull(T?, Object);
+    method public static void checkState(boolean, String?);
+    method public static void checkState(boolean);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TimeUtils {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, StringBuilder!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, java.io.PrintWriter!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, java.io.PrintWriter!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void formatDuration(long, long, java.io.PrintWriter!);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int HUNDRED_DAY_FIELD_LEN = 19; // 0x13
+  }
+
+}
+
+package androidx.core.view {
+
+  public class AccessibilityDelegateCompat {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public AccessibilityDelegateCompat(android.view.View.AccessibilityDelegate!);
+  }
+
+  public abstract class ActionProvider {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void reset();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSubUiVisibilityListener(androidx.core.view.ActionProvider.SubUiVisibilityListener!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void subUiVisibilityChanged(boolean);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface ActionProvider.SubUiVisibilityListener {
+    method public void onSubUiVisibilityChanged(boolean);
+  }
+
+  public final class DragAndDropPermissionsCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.view.DragAndDropPermissionsCompat? request(android.app.Activity!, android.view.DragEvent!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class KeyEventDispatcher {
+    method public static boolean dispatchBeforeHierarchy(android.view.View, android.view.KeyEvent);
+    method public static boolean dispatchKeyEvent(androidx.core.view.KeyEventDispatcher.Component, android.view.View?, android.view.Window.Callback?, android.view.KeyEvent);
+  }
+
+  public static interface KeyEventDispatcher.Component {
+    method public boolean superDispatchKeyEvent(android.view.KeyEvent!);
+  }
+
+  public final class PointerIconCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Object! getPointerIcon();
+  }
+
+  @IntDef({android.view.View.FOCUS_LEFT, android.view.View.FOCUS_UP, android.view.View.FOCUS_RIGHT, android.view.View.FOCUS_DOWN, android.view.View.FOCUS_FORWARD, android.view.View.FOCUS_BACKWARD}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.FocusDirection {
+  }
+
+  @IntDef({android.view.View.FOCUS_LEFT, android.view.View.FOCUS_UP, android.view.View.FOCUS_RIGHT, android.view.View.FOCUS_DOWN}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.FocusRealDirection {
+  }
+
+  @IntDef({android.view.View.FOCUS_FORWARD, android.view.View.FOCUS_BACKWARD}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.FocusRelativeDirection {
+  }
+
+  @IntDef({androidx.core.view.ViewCompat.TYPE_TOUCH, androidx.core.view.ViewCompat.TYPE_NON_TOUCH}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.NestedScrollType {
+  }
+
+  @IntDef(value={androidx.core.view.ViewCompat.SCROLL_AXIS_NONE, androidx.core.view.ViewCompat.SCROLL_AXIS_HORIZONTAL, androidx.core.view.ViewCompat.SCROLL_AXIS_VERTICAL}, flag=true) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.ScrollAxis {
+  }
+
+  @IntDef(flag=true, value={androidx.core.view.ViewCompat.SCROLL_INDICATOR_TOP, androidx.core.view.ViewCompat.SCROLL_INDICATOR_BOTTOM, androidx.core.view.ViewCompat.SCROLL_INDICATOR_LEFT, androidx.core.view.ViewCompat.SCROLL_INDICATOR_RIGHT, androidx.core.view.ViewCompat.SCROLL_INDICATOR_START, androidx.core.view.ViewCompat.SCROLL_INDICATOR_END}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewCompat.ScrollIndicators {
+  }
+
+}
+
+package androidx.core.view.accessibility {
+
+  public final class AccessibilityClickableSpanCompat extends android.text.style.ClickableSpan {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public AccessibilityClickableSpanCompat(int, androidx.core.view.accessibility.AccessibilityNodeInfoCompat!, int);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String SPAN_ID = "ACCESSIBILITY_CLICKABLE_SPAN_ID";
+  }
+
+  public class AccessibilityNodeInfoCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addSpansToExtras(CharSequence!, android.view.View!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.text.style.ClickableSpan![]! getClickableSpans(CharSequence!);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int mParentVirtualDescendantId;
+  }
+
+  public static class AccessibilityNodeInfoCompat.AccessibilityActionCompat {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public AccessibilityNodeInfoCompat.AccessibilityActionCompat(int, CharSequence!, androidx.core.view.accessibility.AccessibilityViewCommand!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat! createReplacementAction(CharSequence!, androidx.core.view.accessibility.AccessibilityViewCommand!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean perform(android.view.View!, android.os.Bundle!);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected final androidx.core.view.accessibility.AccessibilityViewCommand! mCommand;
+  }
+
+  public abstract static class AccessibilityViewCommand.CommandArguments {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setBundle(android.os.Bundle!);
+  }
+
+}
+
+package androidx.core.widget {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface AutoSizeableTextView {
+    method public int getAutoSizeMaxTextSize();
+    method public int getAutoSizeMinTextSize();
+    method public int getAutoSizeStepGranularity();
+    method public int[]! getAutoSizeTextAvailableSizes();
+    method @androidx.core.widget.TextViewCompat.AutoSizeTextType public int getAutoSizeTextType();
+    method public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
+    method public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
+    method public void setAutoSizeTextTypeWithDefaults(@androidx.core.widget.TextViewCompat.AutoSizeTextType int);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final boolean PLATFORM_SUPPORTS_AUTOSIZE;
+  }
+
+  public class NestedScrollView extends android.widget.FrameLayout implements androidx.core.view.NestedScrollingChild3 androidx.core.view.NestedScrollingParent3 androidx.core.view.ScrollingView {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeHorizontalScrollExtent();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeHorizontalScrollOffset();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeHorizontalScrollRange();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollExtent();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollOffset();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public int computeVerticalScrollRange();
+  }
+
+  public final class TextViewCompat {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.view.ActionMode.Callback wrapCustomSelectionActionModeCallback(android.widget.TextView, android.view.ActionMode.Callback);
+  }
+
+  @IntDef({androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE, androidx.core.widget.TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface TextViewCompat.AutoSizeTextType {
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface TintableImageSourceView {
+    method public android.content.res.ColorStateList? getSupportImageTintList();
+    method public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
+    method public void setSupportImageTintList(android.content.res.ColorStateList?);
+    method public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
+  }
+
+}
+

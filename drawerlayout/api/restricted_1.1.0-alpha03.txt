@@ -1,0 +1,9 @@
+// Signature format: 3.0
+package androidx.drawerlayout.widget {
+
+  public class DrawerLayout extends android.view.ViewGroup {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setChildInsets(Object!, boolean);
+  }
+
+}
+
