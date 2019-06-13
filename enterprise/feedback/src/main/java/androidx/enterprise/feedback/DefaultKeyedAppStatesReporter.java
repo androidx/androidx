@@ -16,7 +16,6 @@
 
 package androidx.enterprise.feedback;
 
-import android.annotation.SuppressLint;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,7 +28,6 @@ import android.os.Bundle;
 import android.os.Message;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -46,16 +44,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link KeyedAppStatesReporter} that only allows a single instance to exist at one time,
- * avoiding repeated instantiations.
+ * A {@link KeyedAppStatesReporter} that binds to device owners, profile owners, and the Play store.
+ *
+ * <p>Each instance maintains bindings, so it's recommended that you maintain a single instance for
+ * your whole app, rather than creating instances as needed.
  */
-public class SingletonKeyedAppStatesReporter extends KeyedAppStatesReporter {
-
-    private static final String LOG_TAG = "KeyedAppStatesReporter";
-
-    @SuppressLint("StaticFieldLeak") // Application Context only.
-    private static volatile SingletonKeyedAppStatesReporter sSingleton;
-
+final class DefaultKeyedAppStatesReporter extends KeyedAppStatesReporter {
     private final Context mContext;
 
     private final Map<String, BufferedServiceConnection> mServiceConnections = new HashMap<>();
@@ -73,66 +67,24 @@ public class SingletonKeyedAppStatesReporter extends KeyedAppStatesReporter {
                 /* maximumPoolSize= */ 1,
                 EXECUTOR_IDLE_ALIVE_TIME_SECS,
                 TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>() /* Not used */);
+                new LinkedBlockingQueue<Runnable>());
     }
 
     /**
-     * Sets executor used to construct the singleton.
+     * Create a reporter using the specified executor.
      *
-     * <p>If required, this method must be called before calling {@link #getInstance(Context)}.
-     *
-     * <p>If this method is not called, the reporter will run on a newly-created thread.
-     * This newly-created thread will be cleaned up and recreated as necessary when idle.
+     * <p>The executor must run all {@link Runnable} instances on the same thread, serially.
      */
-    public static void initialize(@NonNull Context context, @NonNull Executor executor) {
-        if (context == null || executor == null) {
-            throw new NullPointerException();
+    DefaultKeyedAppStatesReporter(@NonNull Context context, @NonNull Executor executor) {
+        if (executor == null) {
+            throw new NullPointerException("Executor can not be null.");
         }
-        synchronized (KeyedAppStatesReporter.class) {
-            if (sSingleton != null) {
-                throw new IllegalStateException(
-                        "initialize can only be called once and must be called before "
-                            + "calling getInstance.");
-            }
-            initializeSingleton(context, executor);
-        }
-    }
-
-    /**
-     * Returns an instance of the reporter.
-     *
-     * <p>Creates and initializes an instance if one doesn't already exist.
-     */
-    @NonNull
-    public static KeyedAppStatesReporter getInstance(@NonNull Context context) {
-        if (context == null || context.getApplicationContext() == null) {
-            throw new NullPointerException();
-        }
-        if (sSingleton == null) {
-            synchronized (KeyedAppStatesReporter.class) {
-                if (sSingleton == null) {
-                    initializeSingleton(context, createExecutorService());
-                }
-            }
-        }
-        return sSingleton;
-    }
-
-    private static void initializeSingleton(@NonNull Context context, @NonNull Executor executor) {
-        sSingleton = new SingletonKeyedAppStatesReporter(context, executor);
-        sSingleton.bind();
-    }
-
-    @VisibleForTesting
-    static void resetSingleton() {
-        synchronized (KeyedAppStatesReporter.class) {
-            sSingleton = null;
-        }
-    }
-
-    private SingletonKeyedAppStatesReporter(Context context, Executor executor) {
         this.mContext = context.getApplicationContext();
         this.mExecutor = executor;
+    }
+
+    DefaultKeyedAppStatesReporter(@NonNull Context context) {
+        this(context, createExecutorService());
     }
 
     @Override

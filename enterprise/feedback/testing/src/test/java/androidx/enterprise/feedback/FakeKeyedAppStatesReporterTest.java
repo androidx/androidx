@@ -58,16 +58,6 @@ public class FakeKeyedAppStatesReporterTest {
     }
 
     @Test
-    public void reset_resetsState() {
-        mReporter.setStatesImmediate(singletonList(KEYED_APP_STATE));
-        mReporter.setStates(singletonList(KEYED_APP_STATE_DIFFERENT_KEY));
-
-        mReporter.reset();
-
-        assertReporterIsEmpty(mReporter);
-    }
-
-    @Test
     public void setStates_single_isRecordedInOnDeviceKeyedAppStates() {
         mReporter.setStates(singletonList(KEYED_APP_STATE));
 

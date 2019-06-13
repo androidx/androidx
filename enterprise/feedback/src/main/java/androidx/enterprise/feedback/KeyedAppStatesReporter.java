@@ -23,12 +23,13 @@ import android.os.Message;
 import androidx.annotation.NonNull;
 
 import java.util.Collection;
+import java.util.concurrent.Executor;
 
 /**
  * A reporter of keyed app states to enable communication between an app and an EMM (enterprise
  * mobility management).
  *
- * For production use {@link SingletonKeyedAppStatesReporter}.
+ * For production, create an instance using {@link #create(Context)}.
  * For testing see the {@code FakeKeyedAppStatesReporter} class in
  * the {@code enterprise-feedback-testing} artifact.
  */
@@ -36,6 +37,29 @@ public abstract class KeyedAppStatesReporter {
 
     // Package-private constructor to restrict subclasses to the same package
     KeyedAppStatesReporter() {}
+
+    /**
+     * Create a reporter that binds to device owners, profile owners, and the Play store.
+     *
+     * <p>Each instance maintains bindings, so it's recommended that you maintain a single
+     * instance for your whole app, rather than creating instances as needed.
+     */
+    public static @NonNull KeyedAppStatesReporter create(@NonNull Context context) {
+        return new DefaultKeyedAppStatesReporter(context);
+    }
+
+    /**
+     * Create a reporter using the specified executor.
+     *
+     * <p>Each instance maintains bindings, so it's recommended that you maintain a single
+     * instance for your whole app, rather than creating instances as needed.
+     *
+     * <p>The executor must run all {@link Runnable} instances on the same thread, serially.
+     */
+    public static @NonNull KeyedAppStatesReporter createWithExecutor(
+            @NonNull Context context, @NonNull Executor executor) {
+        return new DefaultKeyedAppStatesReporter(context, executor);
+    }
 
     static final String PHONESKY_PACKAGE_NAME = "com.android.vending";
 
