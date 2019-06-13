@@ -1,0 +1,2259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ActionRow(Context context, boolean fullActions) {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ActionRow.java"
+            line="69"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public GridContent(SliceItem gridItem, int position) {"
+        errorLine2="                       ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridContent.java"
+            line="70"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridContent.java"
+            line="231"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridContent.java"
+            line="231"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public CellContent(SliceItem cellItem) {"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridContent.java"
+            line="249"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public boolean populate(SliceItem cellItem) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridContent.java"
+            line="256"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SliceItem getContentIntent() {"
+        errorLine2="               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridContent.java"
+            line="315"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public ArrayList&lt;SliceItem> getCellItems() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridContent.java"
+            line="322"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public GridRowView(Context context) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="103"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public GridRowView(Context context, AttributeSet attrs) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="107"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public GridRowView(Context context, AttributeSet attrs) {"
+        errorLine2="                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="107"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceItem(SliceContent slice, boolean isHeader, int rowIndex,"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="173"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            int rowCount, SliceView.OnSliceActionListener observer) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="174"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onClick(View view) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="490"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onTouch(View view, MotionEvent event) {"
+        errorLine2="                           ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="511"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onTouch(View view, MotionEvent event) {"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/GridRowView.java"
+            line="511"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ListContent(Context context, @NonNull Slice slice) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="75"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="131"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="131"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ArrayList&lt;SliceContent> getRowItems(int availableHeight, SliceStyle style,"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="144"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ArrayList&lt;SliceContent> getRowItems(int availableHeight, SliceStyle style,"
+        errorLine2="                                                                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="144"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            SliceViewPolicy policy) {"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="145"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceContent getSeeMoreItem() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="177"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int getRowType(SliceContent content, boolean isHeader,"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="250"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                                 List&lt;SliceAction> actions) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="251"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int getListHeight(List&lt;SliceContent> listItems, SliceStyle style,"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="290"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int getListHeight(List&lt;SliceContent> listItems, SliceStyle style,"
+        errorLine2="                                                                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="290"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            SliceViewPolicy policy) {"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ListContent.java"
+            line="291"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
+            line="74"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void trackInputFocused(ViewGroup parent) {"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
+            line="116"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void trackA11yFocus(ViewGroup parent) {"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
+            line="128"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public MessageView(Context context) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/MessageView.java"
+            line="51"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceItem(SliceContent content, boolean isHeader, int index,"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/MessageView.java"
+            line="73"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            int rowCount, SliceView.OnSliceActionListener observer) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/MessageView.java"
+            line="74"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RemoteInputView(Context context, AttributeSet attrs) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="87"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RemoteInputView(Context context, AttributeSet attrs) {"
+        errorLine2="                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="87"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RemoteInputView inflate(Context context, ViewGroup root) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="162"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RemoteInputView inflate(Context context, ViewGroup root) {"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="162"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static RemoteInputView inflate(Context context, ViewGroup root) {"
+        errorLine2="                                                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="162"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onClick(View v) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="170"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onTouchEvent(MotionEvent event) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="177"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setAction(SliceItem action) {"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="191"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setRemoteInput(RemoteInput[] remoteInputs, RemoteInput remoteInput) {"
+        errorLine2="                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="198"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setRemoteInput(RemoteInput[] remoteInputs, RemoteInput remoteInput) {"
+        errorLine2="                                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="198"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onRequestSendAccessibilityEvent(View child, AccessibilityEvent event) {"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="240"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onRequestSendAccessibilityEvent(View child, AccessibilityEvent event) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="240"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void beforeTextChanged(CharSequence s, int start, int count, int after) {"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="255"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onTextChanged(CharSequence s, int start, int before, int count) {"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="259"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void afterTextChanged(Editable s) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="263"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public RemoteEditText(Context context, AttributeSet attrs) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="305"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public RemoteEditText(Context context, AttributeSet attrs) {"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="305"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void onVisibilityChanged(View changedView, int visibility) {"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="335"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {"
+        errorLine2="                                                                      ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="344"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void getFocusedRect(Rect r) {"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="352"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public boolean onKeyDown(int keyCode, KeyEvent event) {"
+        errorLine2="                                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="359"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public boolean onKeyUp(int keyCode, KeyEvent event) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="368"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
+        errorLine2="               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="377"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="377"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onCommitCompletion(CompletionInfo text) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="401"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void setCustomSelectionActionModeCallback(ActionMode.Callback actionModeCallback) {"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RemoteInputView.java"
+            line="427"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RowContent(SliceItem rowSlice, int position) {"
+        errorLine2="                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowContent.java"
+            line="81"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ArrayList&lt;SliceItem> getEndItems() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowContent.java"
+            line="306"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ArrayList&lt;SliceAction> getToggleItems() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowContent.java"
+            line="313"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowContent.java"
+            line="325"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowContent.java"
+            line="325"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RowStyle(Context context, int resId) {"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowStyle.java"
+            line="42"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Set&lt;SliceItem> mLoadingActions = new HashSet&lt;>();"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="131"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RowView(Context context) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="179"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setStyle(SliceStyle styles) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="201"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="286"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceItem(SliceContent content, boolean isHeader, int index,"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="380"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            int rowCount, SliceView.OnSliceActionListener observer) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="381"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setLoadingActions(Set&lt;SliceItem> actions) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="896"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onClick(View view) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="908"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onItemSelected(AdapterView&lt;?> parent, View view, int position, long id) {"
+        errorLine2="                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="947"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onItemSelected(AdapterView&lt;?> parent, View view, int position, long id) {"
+        errorLine2="                                                      ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="947"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNothingSelected(AdapterView&lt;?> parent) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/RowView.java"
+            line="982"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ShortcutView(Context context) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"
+            line="61"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceContent(ListContent sliceContent) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"
+            line="69"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setLoadingActions(Set&lt;SliceItem> actions) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"
+            line="138"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/ShortcutView.java"
+            line="143"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceActionView(Context context) {"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"
+            line="80"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setAction(@NonNull SliceActionImpl action, EventInfo info,"
+        errorLine2="                                                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"
+            line="90"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            SliceView.OnSliceActionListener listener, int color,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"
+            line="91"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            SliceActionLoadingListener loadingListener) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"
+            line="92"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onClick(View v) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"
+            line="219"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"
+            line="227"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceAdapter(Context context) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="100"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setParents(SliceView parent, TemplateView templateView) {"
+        errorLine2="                           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="108"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setParents(SliceView parent, TemplateView templateView) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="108"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceObserver(SliceView.OnSliceActionListener observer) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="128"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="135"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceItems(List&lt;SliceContent> slices, int color, int mode) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="143"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setStyle(SliceStyle style) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="161"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setPolicy(SliceViewPolicy p) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="169"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setLoadingActions(Set&lt;SliceItem> actions) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="196"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="208"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onSliceActionLoading(SliceItem actionItem, int position) {"
+        errorLine2="                                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="213"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="240"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="240"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onBindViewHolder(SliceViewHolder holder, int position) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="262"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SliceViewHolder(View itemView) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="318"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onClick(View v) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="355"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public boolean onTouch(View v, MotionEvent event) {"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="363"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public boolean onTouch(View v, MotionEvent event) {"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceAdapter.java"
+            line="363"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceView.OnSliceActionListener mObserver;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="43"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceActionView.SliceActionLoadingListener mLoadingListener;"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="52"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceStyle mSliceStyle;"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="53"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceViewPolicy mViewPolicy;"
+        errorLine2="              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="54"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceChildView(Context context, AttributeSet attributeSet) {"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="60"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceChildView(Context context, AttributeSet attributeSet) {"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="60"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceContent(ListContent content) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="72"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceItem(SliceContent slice, boolean isHeader, int rowIndex,"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="89"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            int rowCount, SliceView.OnSliceActionListener observer) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="90"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="97"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceActionListener(SliceView.OnSliceActionListener observer) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="133"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceActionLoadingListener(SliceActionView.SliceActionLoadingListener listener) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="140"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setActionLoading(SliceItem item) {"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="147"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setLoadingActions(Set&lt;SliceItem> loadingActions) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="153"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="165"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setStyle(SliceStyle styles) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="172"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setPolicy(SliceViewPolicy policy) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceChildView.java"
+            line="179"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceItem mSliceItem;"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="65"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceItem mColorItem;"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="66"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceItem mLayoutDirItem;"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="67"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected SliceItem mContentDescr;"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="68"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceContent(Slice slice) {"
+        errorLine2="                        ~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="71"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceContent(SliceItem item, int rowIndex) {"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="78"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="134"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getHeight(SliceStyle style, SliceViewPolicy policy) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceContent.java"
+            line="134"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            @NonNull InputStream input, OnErrorListener listener) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
+            line="110"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            @NonNull InputStream input, OnErrorListener listener) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
+            line="119"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
+            line="130"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener) {"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
+            line="130"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static SliceMetadata from(@NonNull Context context, @NonNull Slice slice) {"
+        errorLine2="                  ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceMetadata.java"
+            line="117"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;SliceAction> getToggles() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceMetadata.java"
+            line="232"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean sendToggleAction(SliceAction toggleAction, boolean toggleValue)"
+        errorLine2="                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceMetadata.java"
+            line="257"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ListContent getListContent() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceMetadata.java"
+            line="502"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceStructure(Slice s) {"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceStructure.java"
+            line="50"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceStructure(SliceItem s) {"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceStructure.java"
+            line="62"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="82"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="82"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RowStyle getRowStyle() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="214"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getRowHeight(RowContent row, SliceViewPolicy policy) {"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="226"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getRowHeight(RowContent row, SliceViewPolicy policy) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="226"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getGridHeight(GridContent grid, SliceViewPolicy policy) {"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="253"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getGridHeight(GridContent grid, SliceViewPolicy policy) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="253"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getListHeight(ListContent list, SliceViewPolicy policy) {"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="281"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getListHeight(ListContent list, SliceViewPolicy policy) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="281"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getListItemsHeight(List&lt;SliceContent> listItems, SliceViewPolicy policy) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="311"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int getListItemsHeight(List&lt;SliceContent> listItems, SliceViewPolicy policy) {"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="311"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ArrayList&lt;SliceContent> getListItemsForNonScrollingList(ListContent list,"
+        errorLine2="                                                                   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="340"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                                                                    SliceViewPolicy policy) {"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceStyle.java"
+            line="342"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="245"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="245"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
+        errorLine2="                                                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="245"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static IconCompat convert(Context context, IconCompat icon, SerializeOptions options) {"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="245"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void checkThrow(String format) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="375"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Bitmap.CompressFormat getFormat() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="426"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SerializeOptions setActionMode(@FormatMode int mode) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="445"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SerializeOptions setImageMode(@FormatMode int mode) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="457"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SerializeOptions setMaxImageWidth(int width) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="469"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SerializeOptions setMaxImageHeight(int height) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="481"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SerializeOptions setImageConversionFormat(Bitmap.CompressFormat format,"
+        errorLine2="               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="494"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SerializeOptions setImageConversionFormat(Bitmap.CompressFormat format,"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="494"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onSliceAction(Uri actionUri, Context context, Intent intent);"
+        errorLine2="                           ~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="515"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onSliceAction(Uri actionUri, Context context, Intent intent);"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="515"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onSliceAction(Uri actionUri, Context context, Intent intent);"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="515"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SliceParseException(String s, Throwable e) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="527"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SliceParseException(String s, Throwable e) {"
+        errorLine2="                                             ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="527"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public SliceParseException(String s) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceUtils.java"
+            line="535"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceView(Context context) {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="188"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceView(Context context, @Nullable AttributeSet attrs) {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="192"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="196"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="202"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="202"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setClickInfo(int[] info) {"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="257"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onClick(View v) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="262"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnClickListener(View.OnClickListener listener) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="288"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnLongClickListener(View.OnLongClickListener listener) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="293"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="299"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="305"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static String modeToString(@SliceMode int mode) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="819"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onVisibilityChanged(View changedView, int visibility) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceView.java"
+            line="860"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setListener(PolicyChangeListener listener) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewPolicy.java"
+            line="64"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Drawable getDrawable(@NonNull Context context, @AttrRes int attr) {"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="136"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static IconCompat createIconFromDrawable(Drawable d) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="147"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static IconCompat createIconFromDrawable(Drawable d) {"
+        errorLine2="                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="147"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            IconCompat icon, boolean isLarge, ViewGroup parent) {"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="162"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            IconCompat icon, boolean isLarge, ViewGroup parent) {"
+        errorLine2="                                              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="162"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static @NonNull Bitmap getCircularBitmap(Bitmap bitmap) {"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="186"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static CharSequence getTimestampString(Context context, long time) {"
+        errorLine2="                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="203"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static CharSequence getTimestampString(Context context, long time) {"
+        errorLine2="                                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="203"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void tintIndeterminateProgressBar(Context context, ProgressBar bar) {"
+        errorLine2="                                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="230"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void tintIndeterminateProgressBar(Context context, ProgressBar bar) {"
+        errorLine2="                                                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceViewUtil.java"
+            line="230"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TemplateView(Context context) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="53"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onForegroundActivated(MotionEvent event) {"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="99"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setPolicy(SliceViewPolicy policy) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="122"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setActionLoading(SliceItem item) {"
+        errorLine2="                                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="129"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setLoadingActions(Set&lt;SliceItem> loadingActions) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="134"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Set&lt;SliceItem> getLoadingActions() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="139"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceActionListener(SliceView.OnSliceActionListener observer) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="150"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceActions(List&lt;SliceAction> actions) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="158"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSliceContent(ListContent sliceContent) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="163"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setStyle(SliceStyle style) {"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/TemplateView.java"
+            line="170"
+            column="26"/>
+    </issue>
+
+</issues>

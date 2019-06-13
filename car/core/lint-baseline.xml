@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2019 The Android Open Source Project
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
-
 <issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
@@ -37,6 +21,1733 @@
             file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
             line="496"
             column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewHolder createViewHolder(View itemView) {"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ActionListItem.java"
+            line="132"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onBind(ActionListItem.ViewHolder viewHolder) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ActionListItem.java"
+            line="156"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnClickListener(View.OnClickListener listener) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ActionListItem.java"
+            line="469"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    List&lt;AlphaJumpBucket> getAlphaJumpBuckets();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpAdapter.java"
+            line="32"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onAlphaJumpLeave(AlphaJumpBucket bucket);"
+        errorLine2="                          ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpAdapter.java"
+            line="44"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    CharSequence getLabel();"
+        errorLine2="    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucket.java"
+            line="36"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AlphaJumpBucketer(Bucket[] buckets) {"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="52"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;AlphaJumpBucket> createBuckets(String[] values) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="59"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;AlphaJumpBucket> createBuckets(String[] values) {"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="59"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;AlphaJumpBucket> createBuckets(Iterable&lt;String> values) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="67"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;AlphaJumpBucket> createBuckets(Iterable&lt;String> values) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="67"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;AlphaJumpBucket> createBuckets(Iterator&lt;String> values) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="75"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;AlphaJumpBucket> createBuckets(Iterator&lt;String> values) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="75"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public CharSequence getLabel() {"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/AlphaJumpBucketer.java"
+            line="146"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/BottomOffsetDecoration.java"
+            line="44"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/BottomOffsetDecoration.java"
+            line="44"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/BottomOffsetDecoration.java"
+            line="44"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RecyclerView.State state) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/BottomOffsetDecoration.java"
+            line="45"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bundle getBundle() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
+            line="89"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setBundle(Bundle bundle) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
+            line="105"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bundle getDelta() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
+            line="113"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void applyDelta(Bundle delta) {"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/navigation/utils/BundleMarshaller.java"
+            line="125"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTitle(CharSequence title) {"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarAlertDialog.java"
+            line="99"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarAlertDialog.java"
+            line="108"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected CarDrawerAdapter(Context context, boolean showDisabledListOnEmpty) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
+            line="103"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final DrawerItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
+            line="199"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final DrawerItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="                                                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
+            line="199"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void onBindViewHolder(DrawerItemViewHolder holder, int position) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
+            line="205"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void populateViewHolder(DrawerItemViewHolder holder, int position);"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerAdapter.java"
+            line="231"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void pushAdapter(CarDrawerAdapter adapter) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerController.java"
+            line="167"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onConfigurationChanged(Configuration newConfig) {"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerController.java"
+            line="266"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
+        errorLine2="                                         ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/CarDrawerController.java"
+            line="290"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTitle(CharSequence title) {"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarListDialog.java"
+            line="88"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarListDialog.java"
+            line="106"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder(Context context) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarListDialog.java"
+            line="321"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setTitle(CharSequence title) {"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarListDialog.java"
+            line="345"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public CarListDialog create() {"
+        errorLine2="               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarListDialog.java"
+            line="493"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onClick(CarMenuItem item);"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarMenuItem.java"
+            line="59"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTitle(CharSequence title) {"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarMultipleChoiceDialog.java"
+            line="88"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarMultipleChoiceDialog.java"
+            line="106"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTitle(CharSequence title) {"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarSingleChoiceDialog.java"
+            line="90"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/CarSingleChoiceDialog.java"
+            line="108"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarToolbar(Context context) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="135"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarToolbar(Context context, AttributeSet attrs) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="139"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarToolbar(Context context, AttributeSet attrs) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="139"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarToolbar(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="143"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarToolbar(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="143"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarToolbar(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="147"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarToolbar(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="147"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CharSequence getTitle() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="575"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="850"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="850"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LayoutParams generateDefaultLayoutParams() {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="855"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="860"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="860"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/CarToolbar.java"
+            line="865"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarUxRestrictions(CarUxRestrictions uxRestrictions) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/uxrestrictions/CarUxRestrictions.java"
+            line="331"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions uxRestrictions) {"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/uxrestrictions/CarUxRestrictions.java"
+            line="348"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean hasSameRestrictionsAs(CarUxRestrictions other) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/uxrestrictions/CarUxRestrictions.java"
+            line="406"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void apply(Context context, CarUxRestrictions carUxRestrictions, TextView tv) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/CarUxRestrictionsUtils.java"
+            line="53"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void apply(Context context, CarUxRestrictions carUxRestrictions, TextView tv) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/CarUxRestrictionsUtils.java"
+            line="53"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void apply(Context context, CarUxRestrictions carUxRestrictions, TextView tv) {"
+        errorLine2="                                                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/CarUxRestrictionsUtils.java"
+            line="53"
+            column="84"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ColumnCalculator getInstance(Context context) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/ColumnCalculator.java"
+            line="59"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ColumnCalculator getInstance(Context context) {"
+        errorLine2="                                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/ColumnCalculator.java"
+            line="59"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColumnCardView(Context context) {"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ColumnCardView.java"
+            line="52"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColumnCardView(Context context, AttributeSet attrs) {"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ColumnCardView.java"
+            line="57"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColumnCardView(Context context, AttributeSet attrs) {"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ColumnCardView.java"
+            line="57"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColumnCardView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ColumnCardView.java"
+            line="62"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColumnCardView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ColumnCardView.java"
+            line="62"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DividerDecoration(Context context, int dividerStartMargin,"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="68"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setVisibilityManager(DividerVisibilityManager dvm) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="91"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="96"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {"
+        errorLine2="                                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="96"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="96"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="179"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="179"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="179"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RecyclerView.State state) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/DividerDecoration.java"
+            line="180"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onUxRestrictionsChanged(CarUxRestrictions restrictionsInfo) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/drawer/DrawerItemViewHolder.java"
+            line="115"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DropShadowScrollListener(View elevationView) {"
+        errorLine2="                                    ~~~~">
+        <location
+            file="src/main/java/androidx/car/util/DropShadowScrollListener.java"
+            line="47"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/DropShadowScrollListener.java"
+            line="54"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int getFirstRowItemCount(RecyclerView recyclerView) {"
+        errorLine2="                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/GridLayoutManagerUtils.java"
+            line="47"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int getSpanIndex(View item) {"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/androidx/car/util/GridLayoutManagerUtils.java"
+            line="64"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean isOnLastRow(View view, RecyclerView parent) {"
+        errorLine2="                                      ~~~~">
+        <location
+            file="src/main/java/androidx/car/util/GridLayoutManagerUtils.java"
+            line="78"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean isOnLastRow(View view, RecyclerView parent) {"
+        errorLine2="                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/GridLayoutManagerUtils.java"
+            line="78"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int getLastItemPositionOnSameRow(View view, RecyclerView parent) {"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/car/util/GridLayoutManagerUtils.java"
+            line="88"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int getLastItemPositionOnSameRow(View view, RecyclerView parent) {"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/util/GridLayoutManagerUtils.java"
+            line="88"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/ItemSpacingDecoration.java"
+            line="43"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/ItemSpacingDecoration.java"
+            line="43"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/ItemSpacingDecoration.java"
+            line="43"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RecyclerView.State state) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/ItemSpacingDecoration.java"
+            line="44"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void onBind(VH viewHolder);"
+        errorLine2="                                   ~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItem.java"
+            line="146"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void addViewBinder(ViewBinder&lt;VH> binder) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItem.java"
+            line="156"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void addViewBinder(ViewBinder&lt;VH> binder, @Nullable ViewBinder&lt;VH> cleanUp) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItem.java"
+            line="187"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean removeViewBinder(ViewBinder&lt;VH> binder) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItem.java"
+            line="201"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void bind(VH viewHolder);"
+        errorLine2="                  ~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItem.java"
+            line="215"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public ViewHolder(View itemView) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItem.java"
+            line="225"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Function&lt;View, ListItem.ViewHolder> function) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItemAdapter.java"
+            line="272"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onAttachedToRecyclerView(RecyclerView recyclerView) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItemAdapter.java"
+            line="296"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ListItem.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItemAdapter.java"
+            line="309"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ListItem.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
+        errorLine2="                                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItemAdapter.java"
+            line="309"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onBindViewHolder(ListItem.ViewHolder holder, int position) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/ListItemAdapter.java"
+            line="359"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void setBackground(View view, int currentPosition, int totalItems) {"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/androidx/car/util/ListItemBackgroundResolver.java"
+            line="50"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo);"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/uxrestrictions/OnUxRestrictionsChangedListener.java"
+            line="29"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedListView(Context context) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="223"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedListView(Context context, AttributeSet attrs) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="227"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedListView(Context context, AttributeSet attrs) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="227"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="231"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="231"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="235"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedListView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="235"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setUpButtonIcon(Drawable icon) {"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="715"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setDownButtonIcon(Drawable icon) {"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="720"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setDividerVisibilityManager(DividerVisibilityManager dvm) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="745"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnScrollListener(OnScrollListener listener) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="898"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Parcelable onSaveInstanceState() {"
+        errorLine2="           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="1273"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onRestoreInstanceState(Parcelable state) {"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="1285"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void dispatchSaveInstanceState(SparseArray&lt;Parcelable> container) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="1299"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void dispatchRestoreInstanceState(SparseArray&lt;Parcelable> container) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="1309"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="1415"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedListView.java"
+            line="1419"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedScrollBarView(Context context) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="85"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedScrollBarView(Context context, AttributeSet attrs) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="90"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedScrollBarView(Context context, AttributeSet attrs) {"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="90"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedScrollBarView(Context context, AttributeSet attrs, int defStyleAttrs) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="94"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PagedScrollBarView(Context context, AttributeSet attrs, int defStyleAttrs) {"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="94"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="99"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="99"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setUpButtonIcon(Drawable icon) {"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="156"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setDownButtonIcon(Drawable icon) {"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="161"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setPaginationListener(PaginationListener listener) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/PagedScrollBarView.java"
+            line="170"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewHolder createViewHolder(View itemView) {"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SeekbarListItem.java"
+            line="127"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnSeekBarChangeListener(SeekBar.OnSeekBarChangeListener listener) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SeekbarListItem.java"
+            line="183"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onBind(ViewHolder viewHolder) {"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SeekbarListItem.java"
+            line="215"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setPrimaryActionIconListener(View.OnClickListener onClickListener) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SeekbarListItem.java"
+            line="465"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSupplementalIconListener(View.OnClickListener listener) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SeekbarListItem.java"
+            line="504"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public ViewHolder(View itemView) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SeekbarListItem.java"
+            line="541"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onUxRestrictionsChanged(CarUxRestrictions restrictionsInfo) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SeekbarListItem.java"
+            line="577"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewHolder createViewHolder(View itemView) {"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SubheaderListItem.java"
+            line="49"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onBind(ViewHolder viewHolder) {"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SubheaderListItem.java"
+            line="135"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public ViewHolder(View itemView) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SubheaderListItem.java"
+            line="179"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onUxRestrictionsChanged(CarUxRestrictions restrictionsInfo) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/SubheaderListItem.java"
+            line="192"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewHolder createViewHolder(View itemView) {"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="157"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onBind(ViewHolder viewHolder) {"
+        errorLine2="                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="194"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnClickListener(View.OnClickListener listener) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="524"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTitle(CharSequence title) {"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="588"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setBody(CharSequence body) {"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="600"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            View.OnClickListener listener) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="646"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSupplementalIcon(Drawable drawable, boolean showDivider,"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="659"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            View.OnClickListener listener) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="660"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            CompoundButton.OnCheckedChangeListener listener) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="680"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public ViewHolder(View itemView) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="734"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onUxRestrictionsChanged(CarUxRestrictions restrictionsInfo) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/TextListItem.java"
+            line="782"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/TopOffsetDecoration.java"
+            line="44"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/TopOffsetDecoration.java"
+            line="44"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/TopOffsetDecoration.java"
+            line="44"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            RecyclerView.State state) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/widget/itemdecorators/TopOffsetDecoration.java"
+            line="45"
+            column="13"/>
     </issue>
 
 </issues>

@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T setStartValue(float startValue) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="379"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T setStartVelocity(float startVelocity) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="403"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T setMaxValue(float max) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="416"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T setMinValue(float min) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="433"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T addEndListener(OnAnimationEndListener listener) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="445"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T addEndListener(OnAnimationEndListener listener) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="445"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void removeEndListener(OnAnimationEndListener listener) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="457"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T addUpdateListener(OnAnimationUpdateListener listener) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="473"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T addUpdateListener(OnAnimationUpdateListener listener) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="473"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void removeUpdateListener(OnAnimationUpdateListener listener) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="492"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public T setMinimumVisibleChange(@FloatRange(from = 0.0, fromInclusive = false)"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="523"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onAnimationEnd(DynamicAnimation animation, boolean canceled, float value,"
+        errorLine2="                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="745"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void onAnimationUpdate(DynamicAnimation animation, float value, float velocity);"
+        errorLine2="                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/DynamicAnimation.java"
+            line="764"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FlingAnimation(FloatValueHolder floatValueHolder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FlingAnimation.java"
+            line="57"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K> FlingAnimation(K object, FloatPropertyCompat&lt;K> property) {"
+        errorLine2="                              ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FlingAnimation.java"
+            line="69"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K> FlingAnimation(K object, FloatPropertyCompat&lt;K> property) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FlingAnimation.java"
+            line="69"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FlingAnimation setFriction("
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FlingAnimation.java"
+            line="82"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FlingAnimation setMinValue(float minValue) {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FlingAnimation.java"
+            line="109"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FlingAnimation setMaxValue(float maxValue) {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FlingAnimation.java"
+            line="122"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FlingAnimation setStartVelocity(float startVelocity) {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FlingAnimation.java"
+            line="149"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FloatPropertyCompat(String name) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"
+            line="42"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> FloatPropertyCompat&lt;T> createFloatPropertyCompat("
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"
+            line="56"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            final FloatProperty&lt;T> property) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"
+            line="57"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract float getValue(T object);"
+        errorLine2="                                   ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"
+            line="77"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void setValue(T object, float value);"
+        errorLine2="                                  ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/FloatPropertyCompat.java"
+            line="85"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringAnimation(FloatValueHolder floatValueHolder) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="79"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringAnimation(FloatValueHolder floatValueHolder, float finalPosition) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="99"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K> SpringAnimation(K object, FloatPropertyCompat&lt;K> property) {"
+        errorLine2="                               ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="113"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K> SpringAnimation(K object, FloatPropertyCompat&lt;K> property) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="113"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K> SpringAnimation(K object, FloatPropertyCompat&lt;K> property,"
+        errorLine2="                               ~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="127"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K> SpringAnimation(K object, FloatPropertyCompat&lt;K> property,"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="127"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringForce getSpring() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="138"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringAnimation setSpring(SpringForce force) {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="150"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringAnimation setSpring(SpringForce force) {"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringAnimation.java"
+            line="150"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringForce setStiffness("
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringForce.java"
+            line="135"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringForce setDampingRatio(@FloatRange(from = 0.0) float dampingRatio) {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringForce.java"
+            line="170"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpringForce setFinalPosition(float finalPosition) {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/dynamicanimation/animation/SpringForce.java"
+            line="195"
+            column="12"/>
+    </issue>
+
+</issues>

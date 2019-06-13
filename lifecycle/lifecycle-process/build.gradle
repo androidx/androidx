@@ -25,12 +25,6 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-}
-
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
 

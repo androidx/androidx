@@ -1,0 +1,807 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SimpleSQLiteQuery(String query, @Nullable Object[] bindArgs) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SimpleSQLiteQuery.java"
+            line="36"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SimpleSQLiteQuery(String query) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SimpleSQLiteQuery.java"
+            line="46"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getSql() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SimpleSQLiteQuery.java"
+            line="51"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void bindTo(SupportSQLiteProgram statement) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SimpleSQLiteQuery.java"
+            line="56"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void bind(SupportSQLiteProgram statement, Object[] bindArgs) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SimpleSQLiteQuery.java"
+            line="71"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void bind(SupportSQLiteProgram statement, Object[] bindArgs) {"
+        errorLine2="                                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SimpleSQLiteQuery.java"
+            line="71"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    SupportSQLiteStatement compileStatement(String sql);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="47"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    SupportSQLiteStatement compileStatement(String sql);"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="47"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void beginTransactionWithListener(SQLiteTransactionListener transactionListener);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="119"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void beginTransactionWithListenerNonExclusive(SQLiteTransactionListener transactionListener);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="145"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(String query);"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="268"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(String query);"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="268"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(String query, Object[] bindArgs);"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="281"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(String query, Object[] bindArgs);"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="281"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(String query, Object[] bindArgs);"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="281"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(SupportSQLiteQuery query);"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="294"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(SupportSQLiteQuery query);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="294"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(SupportSQLiteQuery query, CancellationSignal cancellationSignal);"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="310"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(SupportSQLiteQuery query, CancellationSignal cancellationSignal);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="310"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Cursor query(SupportSQLiteQuery query, CancellationSignal cancellationSignal);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="310"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    long insert(String table, int conflictAlgorithm, ContentValues values) throws SQLException;"
+        errorLine2="                ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="326"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    long insert(String table, int conflictAlgorithm, ContentValues values) throws SQLException;"
+        errorLine2="                                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="326"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    int delete(String table, String whereClause, Object[] whereArgs);"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="341"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    int delete(String table, String whereClause, Object[] whereArgs);"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="341"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    int delete(String table, String whereClause, Object[] whereArgs);"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="341"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    int update(String table, int conflictAlgorithm,"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="360"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ContentValues values, String whereClause, Object[] whereArgs);"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="361"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ContentValues values, String whereClause, Object[] whereArgs);"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="361"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ContentValues values, String whereClause, Object[] whereArgs);"
+        errorLine2="                                                      ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="361"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void execSQL(String sql) throws SQLException;"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="377"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void execSQL(String sql, Object[] bindArgs) throws SQLException;"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="395"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void execSQL(String sql, Object[] bindArgs) throws SQLException;"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="395"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String getPath();"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="424"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void setLocale(Locale locale);"
+        errorLine2="                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="436"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    List&lt;Pair&lt;String, String>> getAttachedDbs();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteDatabase.java"
+            line="590"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String getDatabaseName();"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="46"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    SupportSQLiteDatabase getWritableDatabase();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="80"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    SupportSQLiteDatabase getReadableDatabase();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="100"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onConfigure(SupportSQLiteDatabase db) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="149"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public abstract void onCreate(SupportSQLiteDatabase db);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="159"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public abstract void onUpgrade(SupportSQLiteDatabase db, int oldVersion, int newVersion);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="181"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onDowngrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="200"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onOpen(SupportSQLiteDatabase db) {"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="218"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void onCorruption(SupportSQLiteDatabase db) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="229"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public static Builder builder(Context context) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="330"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public static Builder builder(Context context) {"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="330"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            public Configuration build() {"
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="342"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            public Builder name(@Nullable String name) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="362"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            public Builder callback(@NonNull Callback callback) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="371"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        SupportSQLiteOpenHelper create(Configuration configuration);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="390"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        SupportSQLiteOpenHelper create(Configuration configuration);"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
+            line="390"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void bindString(int index, String value);"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteProgram.java"
+            line="60"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void bindBlob(int index, byte[] value);"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteProgram.java"
+            line="69"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String getSql();"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQuery.java"
+            line="30"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void bindTo(SupportSQLiteProgram statement);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQuery.java"
+            line="37"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static SupportSQLiteQueryBuilder builder(String tableName) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="46"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static SupportSQLiteQueryBuilder builder(String tableName) {"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="46"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder distinct() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="59"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder columns(String[] columns) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="71"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder columns(String[] columns) {"
+        errorLine2="                                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="71"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder selection(String selection, Object[] bindArgs) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="84"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder selection(String selection, Object[] bindArgs) {"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="84"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder selection(String selection, Object[] bindArgs) {"
+        errorLine2="                                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="84"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder groupBy(String groupBy) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="98"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder groupBy(String groupBy) {"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="98"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder having(String having) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="110"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder having(String having) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="110"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder orderBy(String orderBy) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="122"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder orderBy(String orderBy) {"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="122"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder limit(String limit) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="134"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQueryBuilder limit(String limit) {"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="134"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SupportSQLiteQuery create() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteQueryBuilder.java"
+            line="148"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String simpleQueryForString();"
+        errorLine2="    ~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/SupportSQLiteStatement.java"
+            line="71"
+            column="5"/>
+    </issue>
+
+</issues>

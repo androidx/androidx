@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentFrameLayout(Context context) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="136"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentFrameLayout(Context context, AttributeSet attrs) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="140"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentFrameLayout(Context context, AttributeSet attrs) {"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="140"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="144"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentFrameLayout(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="144"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LayoutParams generateDefaultLayoutParams() {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="149"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="154"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="154"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="181"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="181"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(ViewGroup.LayoutParams source) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="194"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(MarginLayoutParams source) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="198"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(FrameLayout.LayoutParams source) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="202"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(LayoutParams source) {"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="208"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public PercentLayoutHelper.PercentLayoutInfo getPercentLayoutInfo() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="215"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void setBaseAttributes(TypedArray a, int widthAttr, int heightAttr) {"
+        errorLine2="                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentFrameLayout.java"
+            line="224"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void fetchWidthAndHeight(ViewGroup.LayoutParams params, TypedArray array,"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="145"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void fetchWidthAndHeight(ViewGroup.LayoutParams params, TypedArray array,"
+        errorLine2="                                                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="145"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static PercentLayoutInfo getPercentLayoutInfo(Context context,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="197"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static PercentLayoutInfo getPercentLayoutInfo(Context context,"
+        errorLine2="                                                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="197"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            AttributeSet attrs) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="198"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void fillLayoutParams(ViewGroup.LayoutParams params, int widthHint,"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="452"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void fillMarginLayoutParams(ViewGroup.MarginLayoutParams params,"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="501"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void fillMarginLayoutParams(View view, ViewGroup.MarginLayoutParams params,"
+        errorLine2="                                           ~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="511"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void fillMarginLayoutParams(View view, ViewGroup.MarginLayoutParams params,"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="511"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void restoreMarginLayoutParams(ViewGroup.MarginLayoutParams params) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="574"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public void restoreLayoutParams(ViewGroup.LayoutParams params) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="591"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        PercentLayoutInfo getPercentLayoutInfo();"
+        errorLine2="        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentLayoutHelper.java"
+            line="620"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentRelativeLayout(Context context) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="133"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentRelativeLayout(Context context, AttributeSet attrs) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="137"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentRelativeLayout(Context context, AttributeSet attrs) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="137"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentRelativeLayout(Context context, AttributeSet attrs, int defStyle) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="141"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PercentRelativeLayout(Context context, AttributeSet attrs, int defStyle) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="141"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LayoutParams generateDefaultLayoutParams() {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="146"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="151"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="151"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="178"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
+        errorLine2="                                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="178"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(ViewGroup.LayoutParams source) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="187"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(MarginLayoutParams source) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="191"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public PercentLayoutHelper.PercentLayoutInfo getPercentLayoutInfo() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="196"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        protected void setBaseAttributes(TypedArray a, int widthAttr, int heightAttr) {"
+        errorLine2="                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/percentlayout/widget/PercentRelativeLayout.java"
+            line="205"
+            column="42"/>
+    </issue>
+
+</issues>

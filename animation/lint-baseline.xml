@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2019 The Android Open Source Project
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
-
 <issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
@@ -173,6 +157,292 @@
             file="src/main/java/androidx/animation/ValueAnimator.java"
             line="391"
             column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AccelerateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/AccelerateInterpolator.java"
+            line="53"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AccelerateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/AccelerateInterpolator.java"
+            line="53"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Animator clone() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/Animator.java"
+            line="390"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AnimatorSet clone() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/AnimatorSet.java"
+            line="1253"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AnticipateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/AnticipateInterpolator.java"
+            line="46"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AnticipateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/AnticipateInterpolator.java"
+            line="46"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AnticipateOvershootInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/AnticipateOvershootInterpolator.java"
+            line="59"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AnticipateOvershootInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/AnticipateOvershootInterpolator.java"
+            line="59"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CycleInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/CycleInterpolator.java"
+            line="37"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CycleInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/CycleInterpolator.java"
+            line="37"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DecelerateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/DecelerateInterpolator.java"
+            line="47"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DecelerateInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/DecelerateInterpolator.java"
+            line="47"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void set(T object, Integer value) {"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/animation/IntProperty.java"
+            line="63"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void set(T object, Integer value) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/IntProperty.java"
+            line="63"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract Keyframe clone();"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/Keyframe.java"
+            line="272"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LinearInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/LinearInterpolator.java"
+            line="33"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LinearInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/LinearInterpolator.java"
+            line="33"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ObjectAnimator clone() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/ObjectAnimator.java"
+            line="1024"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public OvershootInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/OvershootInterpolator.java"
+            line="47"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public OvershootInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/OvershootInterpolator.java"
+            line="47"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PathInterpolator(Path path) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/animation/PathInterpolator.java"
+            line="60"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PathInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/PathInterpolator.java"
+            line="88"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PathInterpolator(Context context, AttributeSet attrs) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/PathInterpolator.java"
+            line="88"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PropertyValuesHolder clone() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/PropertyValuesHolder.java"
+            line="970"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Object getAnimatedValue(String propertyName) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/ValueAnimator.java"
+            line="841"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Object getAnimatedValue(String propertyName) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/animation/ValueAnimator.java"
+            line="841"
+            column="36"/>
     </issue>
 
 </issues>
