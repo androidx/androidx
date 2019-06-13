@@ -100,6 +100,10 @@ public class PreferenceCategory extends PreferenceGroup {
         }
     }
 
+    /**
+     * @deprecated Super class Preference deprecated this API.
+     */
+    @Deprecated
     @Override
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(info);

@@ -195,7 +195,7 @@ package androidx.preference {
     method public void onDependencyChanged(androidx.preference.Preference!, boolean);
     method public void onDetached();
     method protected Object! onGetDefaultValue(android.content.res.TypedArray!, int);
-    method @CallSuper public void onInitializeAccessibilityNodeInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
+    method @Deprecated @CallSuper public void onInitializeAccessibilityNodeInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
     method public void onParentChanged(androidx.preference.Preference!, boolean);
     method protected void onPrepareForRemoval();
     method protected void onRestoreInstanceState(android.os.Parcelable!);
