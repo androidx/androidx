@@ -44,6 +44,10 @@ android {
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.testutils.ActivityRecyclingAndroidJUnitRunner"
+    }
 }
 
 androidx {
