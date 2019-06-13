@@ -245,6 +245,7 @@ public class ListRowPresenter extends RowPresenter {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void onBind(final ItemBridgeAdapter.ViewHolder viewHolder) {
             // Only when having an OnItemClickListener, we will attach the OnClickListener.
             if (mRowViewHolder.getOnItemViewClickedListener() != null) {
@@ -495,6 +496,7 @@ public class ListRowPresenter extends RowPresenter {
     /*
      * Perform operations when a child of horizontal grid view is selected.
      */
+    @SuppressWarnings("unchecked")
     void selectChildView(ViewHolder rowViewHolder, View view, boolean fireEvent) {
         if (view != null) {
             if (rowViewHolder.mSelected) {
@@ -580,6 +582,7 @@ public class ListRowPresenter extends RowPresenter {
      * The method should only be called from onRowViewSelected().
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected void dispatchItemSelectedListener(RowPresenter.ViewHolder holder, boolean selected) {
         ViewHolder vh = (ViewHolder)holder;
         ItemBridgeAdapter.ViewHolder itemViewHolder = (ItemBridgeAdapter.ViewHolder)

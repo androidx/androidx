@@ -79,7 +79,6 @@ androidx {
     inceptionYear = "2018"
     description = "Android WorkManager runtime library"
     url = AndroidXExtension.ARCHITECTURE_URL
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
     trackRestrictedAPIs = false
 }

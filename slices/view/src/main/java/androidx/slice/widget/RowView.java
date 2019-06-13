@@ -475,6 +475,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         updateActionSpinner();
     }
 
+    @SuppressWarnings("unchecked")
     private void updateEndItems() {
         if (mRowContent == null) {
             return;

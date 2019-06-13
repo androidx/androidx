@@ -1994,7 +1994,7 @@ public abstract class Transition implements Cloneable {
         }
 
         WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
-        final ArrayMap<Animator, AnimationInfo> oldAnimators = new ArrayMap(runningAnimators);
+        final ArrayMap<Animator, AnimationInfo> oldAnimators = new ArrayMap<>(runningAnimators);
         runningAnimators.clear();
 
         for (int i = numOldAnims - 1; i >= 0; i--) {

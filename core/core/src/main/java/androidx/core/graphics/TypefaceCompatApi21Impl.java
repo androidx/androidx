@@ -70,7 +70,7 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
         }
         sHasInitBeenCalled = true;
 
-        Class fontFamilyClass;
+        Class<?> fontFamilyClass;
         Constructor fontFamilyCtor;
         Method addFontMethod;
         Method createFromFamiliesWithDefaultMethod;

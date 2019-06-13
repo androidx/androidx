@@ -30,6 +30,7 @@ final class AdaptingCaptureStage implements CaptureStage {
     private final CaptureConfig mCaptureRequestConfiguration;
     private final int mId;
 
+    @SuppressWarnings("unchecked")
     AdaptingCaptureStage(CaptureStageImpl impl) {
         mId = impl.getId();
 

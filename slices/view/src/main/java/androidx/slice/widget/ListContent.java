@@ -144,7 +144,7 @@ public class ListContent extends SliceContent {
     public ArrayList<SliceContent> getRowItems(int availableHeight, SliceStyle style,
             SliceViewPolicy policy) {
         if (policy.getMode() == MODE_SMALL) {
-            return new ArrayList(Arrays.asList(getHeader()));
+            return new ArrayList<>(Arrays.asList(getHeader()));
         } else if (!policy.isScrollable() && availableHeight > 0) {
             return style.getListItemsForNonScrollingList(this, availableHeight, policy);
         }

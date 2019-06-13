@@ -78,6 +78,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     private ListView mListView;
     private boolean mAttachedToWindow;
     private long mLastUpdateTime;
+    @SuppressWarnings("unchecked")
     private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message message) {

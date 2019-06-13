@@ -1275,6 +1275,7 @@ final class FloatingToolbar {
             return remainingMenuItems;
         }
 
+        @SuppressWarnings("unchecked")
         void layoutOverflowPanelItems(List<SupportMenuItem> menuItems) {
             ArrayAdapter<SupportMenuItem> overflowPanelAdapter =
                     (ArrayAdapter<SupportMenuItem>) mOverflowPanel.getAdapter();
@@ -1325,6 +1326,7 @@ final class FloatingToolbar {
         /**
          * Clears out the panels and their container. Resets their calculated sizes.
          */
+        @SuppressWarnings("unchecked")
         void clearPanels() {
             mOverflowPanelSize = null;
             mMainPanelSize = null;

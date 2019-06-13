@@ -51,7 +51,7 @@ public class CallbackHandlerRegistry {
     /**
      * @hide
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public <T extends CallbackReceiver> T getAndResetStub(Class<? extends CallbackReceiver> cls,
             Context context, String authority) {
@@ -195,6 +195,7 @@ public class CallbackHandlerRegistry {
      * Note: This should only be called by generated code, there is no reason to reference this
      * otherwise.
      */
+    @SuppressWarnings("unchecked")
     public static RemoteCallback stubToRemoteCallback(CallbackReceiver receiver,
             Class<? extends CallbackReceiver> cls, Bundle args, String method) {
         if (!(receiver instanceof CallbackBase)) {
@@ -227,7 +228,7 @@ public class CallbackHandlerRegistry {
      */
     public interface CallbackHandler<T extends CallbackReceiver> {
         /**
-         * Executes a callback given a Bundle of aurgements.
+         * Executes a callback given a Bundle of arguments.
          * Note: This should only be called by generated code, there is no reason to reference this
          * otherwise.
          */

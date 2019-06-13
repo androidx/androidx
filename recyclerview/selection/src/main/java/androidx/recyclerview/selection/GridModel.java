@@ -101,6 +101,7 @@ final class GridModel<K> {
 
     private final OnScrollListener mScrollListener;
 
+    @SuppressWarnings("unchecked")
     GridModel(
             GridHost host,
             ItemKeyProvider<K> keyProvider,
@@ -284,6 +285,7 @@ final class GridModel<K> {
      * mSelection, so computeCurrentSelection() should be called before this
      * function.
      */
+    @SuppressWarnings("unchecked")
     private void notifySelectionChanged() {
         for (SelectionObserver listener : mOnSelectionChangedListeners) {
             listener.onSelectionChanged(mSelection);

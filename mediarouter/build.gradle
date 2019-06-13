@@ -43,6 +43,5 @@ androidx {
     mavenGroup = LibraryGroups.MEDIAROUTER
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

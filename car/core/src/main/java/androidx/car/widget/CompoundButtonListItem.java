@@ -166,6 +166,7 @@ public abstract class CompoundButtonListItem<VH extends CompoundButtonListItem.V
      * Hides all views in {@link ViewHolder} then applies ViewBinders to adjust view layout params.
      */
     @Override
+    @SuppressWarnings("unchecked")
     public void onBind(@NonNull VH viewHolder) {
         hideSubViews(viewHolder);
         for (ViewBinder binder : mBinders) {

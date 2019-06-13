@@ -34,6 +34,4 @@ androidx {
     mavenGroup = LibraryGroups.AUTOFILL
     inceptionYear = "2019"
     description = "AndroidX Autofill"
-    failOnUncheckedWarnings = true
-    failOnDeprecationWarnings = true
 }

@@ -41,6 +41,7 @@ import java.io.InputStream;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
+@SuppressWarnings("unchecked")
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class FileDescriptorDataSource extends BaseDataSource {
 

@@ -86,6 +86,7 @@ import java.util.Map;
  * @deprecated use {@link BrowseSupportFragment}
  */
 @Deprecated
+@SuppressWarnings("unchecked")
 public class BrowseFragment extends BaseFragment {
 
     // BUNDLE attribute for saving header show/hide status when backstack is used:

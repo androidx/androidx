@@ -38,6 +38,7 @@ import java.util.logging.Logger;
  *
  * <p>Copied and adapted from Guava.
  */
+@SuppressWarnings("unchecked") // Casts verified
 abstract class AggregateFutureState {
     // Lazily initialized the first time we see an exception; not released until all the input
     // futures & this future completes. Released when the future releases the reference to the
@@ -53,7 +54,6 @@ abstract class AggregateFutureState {
     private static final Logger sLogger = Logger.getLogger(AggregateFutureState.class.getName());
 
     static {
-        @SuppressWarnings("unchecked") // Casts verified
         AtomicHelper helper;
         Throwable thrownReflectionFailure = null;
         try {

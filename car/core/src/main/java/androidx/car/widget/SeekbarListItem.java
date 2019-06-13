@@ -212,6 +212,7 @@ public class SeekbarListItem extends ListItem<SeekbarListItem.ViewHolder> {
      * Hides all views in {@link ViewHolder} then applies ViewBinders to adjust view layout params.
      */
     @Override
+    @SuppressWarnings("unchecked")
     protected void onBind(ViewHolder viewHolder) {
         // Hide all subviews then apply view binders to adjust subviews.
         hideSubViews(viewHolder);

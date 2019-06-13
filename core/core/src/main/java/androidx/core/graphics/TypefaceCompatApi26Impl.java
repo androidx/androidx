@@ -192,8 +192,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     private void abortCreation(Object family) {
         try {
             mAbortCreation.invoke(family);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-        }
+        } catch (IllegalAccessException | InvocationTargetException ignored) { }
     }
 
     @Override
@@ -317,10 +316,12 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         return Class.forName(FONT_FAMILY_CLASS);
     }
 
+    @SuppressWarnings("unchecked")
     protected Constructor obtainFontFamilyCtor(Class fontFamily) throws NoSuchMethodException {
         return fontFamily.getConstructor();
     }
 
+    @SuppressWarnings("unchecked")
     protected Method obtainAddFontFromAssetManagerMethod(Class fontFamily)
             throws NoSuchMethodException {
         return fontFamily.getMethod(ADD_FONT_FROM_ASSET_MANAGER_METHOD,
@@ -328,16 +329,19 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
                 Integer.TYPE, Integer.TYPE, FontVariationAxis[].class);
     }
 
+    @SuppressWarnings("unchecked")
     protected Method obtainAddFontFromBufferMethod(Class fontFamily) throws NoSuchMethodException {
         return fontFamily.getMethod(ADD_FONT_FROM_BUFFER_METHOD,
                 ByteBuffer.class, Integer.TYPE, FontVariationAxis[].class, Integer.TYPE,
                 Integer.TYPE);
     }
 
+    @SuppressWarnings("unchecked")
     protected Method obtainFreezeMethod(Class fontFamily) throws NoSuchMethodException {
         return fontFamily.getMethod(FREEZE_METHOD);
     }
 
+    @SuppressWarnings("unchecked")
     protected Method obtainAbortCreationMethod(Class fontFamily) throws NoSuchMethodException {
         return fontFamily.getMethod(ABORT_CREATION_METHOD);
     }

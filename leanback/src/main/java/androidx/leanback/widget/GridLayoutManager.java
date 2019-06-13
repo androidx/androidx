@@ -1588,6 +1588,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
     /**
      * Get facet from the ViewHolder or the viewType.
      */
+    @SuppressWarnings("unchecked")
     <E> E getFacet(RecyclerView.ViewHolder vh, Class<? extends E> facetClass) {
         E facet = null;
         if (vh instanceof FacetProvider) {
