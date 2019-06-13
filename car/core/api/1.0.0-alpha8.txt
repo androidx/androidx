@@ -12,7 +12,6 @@ package androidx.car.app {
     method public androidx.car.app.CarAlertDialog.Builder setBodyMovementMethod(android.text.method.MovementMethod?);
     method public androidx.car.app.CarAlertDialog.Builder setCancelable(boolean);
     method public androidx.car.app.CarAlertDialog.Builder setHeaderIcon(@DrawableRes int);
-    method public androidx.car.app.CarAlertDialog.Builder setHeaderIcon(android.graphics.drawable.Icon?);
     method public androidx.car.app.CarAlertDialog.Builder setNegativeButton(@StringRes int, android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarAlertDialog.Builder setNegativeButton(CharSequence, android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarAlertDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
@@ -295,7 +294,6 @@ package androidx.car.widget {
     method public androidx.car.widget.CarMenuItem.Builder setChecked(boolean);
     method public androidx.car.widget.CarMenuItem.Builder setDisplayBehavior(androidx.car.widget.CarMenuItem.DisplayBehavior);
     method public androidx.car.widget.CarMenuItem.Builder setEnabled(boolean);
-    method @Deprecated public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Icon);
     method public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Drawable);
     method public androidx.car.widget.CarMenuItem.Builder setIcon(android.content.Context, @DrawableRes int);
     method public androidx.car.widget.CarMenuItem.Builder setOnClickListener(androidx.car.widget.CarMenuItem.OnClickListener);
