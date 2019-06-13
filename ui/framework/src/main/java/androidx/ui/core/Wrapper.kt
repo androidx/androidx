@@ -23,6 +23,9 @@ import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Compose
+import androidx.compose.CompositionContext
+import androidx.compose.CompositionReference
+import androidx.compose.Observe
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.compositionReference
@@ -36,13 +39,31 @@ fun CraneWrapper(@Children children: @Composable() () -> Unit) {
 
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work with
     //             nested AndroidCraneView case
-    val focusManager = FocusManager()
+    val focusManager = +memo { FocusManager() }
 
     <AndroidCraneView ref=rootRef>
-        val reference = +compositionReference()
+        var reference: CompositionReference? = null
+        var cc: CompositionContext? = null
+
+        // This is a temporary solution until we get proper subcomposition APIs in place.
+        // Right now, we want to enforce a sort of "depth-first" ordering of recompositions,
+        // even when they happen across composition contexts. When we do "subcomposition",
+        // like we are doing here, that means for every invalidation of the child context, we
+        // need to invalidate the scope of the parent reference, and wait for it to recompose
+        // the child. The Observe is put in place here to ensure that the scope around the
+        // reference we are using is as small as possible, and, in particular, does not include
+        // the composition of `children()`. This means that we are using the nullability of `cc`
+        // to determine if the CraneWrapper in general is getting recomposed, or if its just
+        // the invalidation scope of the Observe. If it's the latter, we just want to call
+        // `cc.recomposeSync()` which will only recompose the invalidations in the child context,
+        // which means it *will not* call `children()` again if it doesn't have to.
+        Observe {
+            reference = +compositionReference()
+            cc?.recomposeSync()
+        }
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
         val context = rootRef.value?.context ?: composer.composer.context
-        Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
+        cc = Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
             ContextAmbient.Provider(value = context) {
                 DensityAmbient.Provider(value = Density(context)) {
                     FocusManagerAmbient.Provider(value = focusManager) {
