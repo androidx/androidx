@@ -8,12 +8,6 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-}
-
 dependencies {
     api("androidx.core:core:1.1.0-rc01")
     implementation("androidx.collection:collection:1.1.0")

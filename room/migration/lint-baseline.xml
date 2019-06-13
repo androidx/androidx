@@ -1,0 +1,1060 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DatabaseBundle(int version, String identityHash, List&lt;EntityBundle> entities,"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="58"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DatabaseBundle(int version, String identityHash, List&lt;EntityBundle> entities,"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="58"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;DatabaseViewBundle> views, List&lt;String> setupQueries) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="59"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;DatabaseViewBundle> views, List&lt;String> setupQueries) {"
+        errorLine2="                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="59"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getIdentityHash() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="77"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;EntityBundle> getEntities() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="91"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Map&lt;String, EntityBundle> getEntitiesByTableName() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="99"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;DatabaseViewBundle> getViews() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="112"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;String> buildCreateQueries() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="119"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(DatabaseBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseBundle.java"
+            line="133"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DatabaseViewBundle(String viewName, String createSql) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseViewBundle.java"
+            line="37"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DatabaseViewBundle(String viewName, String createSql) {"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseViewBundle.java"
+            line="37"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getViewName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseViewBundle.java"
+            line="45"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getCreateSql() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseViewBundle.java"
+            line="52"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String createView() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseViewBundle.java"
+            line="59"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(DatabaseViewBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/DatabaseViewBundle.java"
+            line="64"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EntityBundle(String tableName, String createSql,"
+        errorLine2="                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="70"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EntityBundle(String tableName, String createSql,"
+        errorLine2="                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="70"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;FieldBundle> fields,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="71"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            PrimaryKeyBundle primaryKey,"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="72"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;IndexBundle> indices,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="73"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;ForeignKeyBundle> foreignKeys) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="74"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getNewTableName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="86"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Map&lt;String, FieldBundle> getFieldsByColumnName() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="96"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getTableName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="109"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getCreateSql() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="116"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;FieldBundle> getFields() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="123"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PrimaryKeyBundle getPrimaryKey() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="130"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;IndexBundle> getIndices() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="137"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;ForeignKeyBundle> getForeignKeys() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="144"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String createTable() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="151"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String createNewTable() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="158"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Collection&lt;String> buildCreateQueries() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="173"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(EntityBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/EntityBundle.java"
+            line="183"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull) {"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="46"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull) {"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="46"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull) {"
+        errorLine2="                                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="46"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="50"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull,"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="50"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FieldBundle(String fieldPath, String columnName, String affinity, boolean nonNull,"
+        errorLine2="                                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="50"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String defaultValue) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="51"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getFieldPath() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="59"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getColumnName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="63"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getAffinity() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="67"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getDefaultValue() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="75"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(FieldBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FieldBundle.java"
+            line="80"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ForeignKeyBundle(String table, String onDelete, String onUpdate,"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="52"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ForeignKeyBundle(String table, String onDelete, String onUpdate,"
+        errorLine2="                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="52"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ForeignKeyBundle(String table, String onDelete, String onUpdate,"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="52"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;String> columns, List&lt;String> referencedColumns) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;String> columns, List&lt;String> referencedColumns) {"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="53"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getTable() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="66"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getOnDelete() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="75"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getOnUpdate() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="84"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;String> getColumns() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="93"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;String> getReferencedColumns() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="102"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(ForeignKeyBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/ForeignKeyBundle.java"
+            line="107"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String tableName,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="55"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String createSql,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="56"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;FieldBundle> fields,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="57"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            PrimaryKeyBundle primaryKey,"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="58"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String ftsVersion,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="59"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            FtsOptionsBundle ftsOptions,"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="60"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;String> contentSyncSqlTriggers) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FtsOptionsBundle getFtsOptions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="72"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Collection&lt;String> buildCreateQueries() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="80"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(EntityBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="88"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;String> getShadowTableNames() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsEntityBundle.java"
+            line="104"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String tokenizer,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="61"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;String> tokenizerArgs,"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="62"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String contentTable,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="63"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String languageIdColumnName,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="64"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String matchInfo,"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="65"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;String> notIndexedColumns,"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="66"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            List&lt;Integer> prefixSizes,"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="67"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String preferredOrder) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="68"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getContentTable() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="82"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(FtsOptionsBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/FtsOptionsBundle.java"
+            line="87"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames,"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="43"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IndexBundle(String name, boolean unique, List&lt;String> columnNames,"
+        errorLine2="                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="43"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String createSql) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="44"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="51"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;String> getColumnNames() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="59"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String create(String tableName) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="67"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String create(String tableName) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="67"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(IndexBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/IndexBundle.java"
+            line="72"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PrimaryKeyBundle(boolean autoGenerate, List&lt;String> columnNames) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/PrimaryKeyBundle.java"
+            line="37"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public List&lt;String> getColumnNames() {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/PrimaryKeyBundle.java"
+            line="42"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(PrimaryKeyBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/PrimaryKeyBundle.java"
+            line="51"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SchemaBundle(int formatVersion, DatabaseBundle database) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/SchemaBundle.java"
+            line="66"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public DatabaseBundle getDatabase() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/SchemaBundle.java"
+            line="76"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static SchemaBundle deserialize(InputStream fis)"
+        errorLine2="                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/SchemaBundle.java"
+            line="84"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static SchemaBundle deserialize(InputStream fis)"
+        errorLine2="                                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/SchemaBundle.java"
+            line="84"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void serialize(SchemaBundle bundle, File file) throws IOException {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/SchemaBundle.java"
+            line="99"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void serialize(SchemaBundle bundle, File file) throws IOException {"
+        errorLine2="                                                      ~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/SchemaBundle.java"
+            line="99"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isSchemaEqual(SchemaBundle other) {"
+        errorLine2="                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/migration/bundle/SchemaBundle.java"
+            line="120"
+            column="34"/>
+    </issue>
+
+</issues>

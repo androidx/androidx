@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2019 The Android Open Source Project
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
-
 <issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
@@ -70,6 +54,2151 @@
             file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
             line="19"
             column="77"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean instanceOfInOwnClassLoader(Object obj, String className) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="30"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean instanceOfInOwnClassLoader(Object obj, String className) {"
+        errorLine2="                                                                 ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="30"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Method dupeMethod(Method method, ClassLoader delegateLoader)"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="48"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Method dupeMethod(Method method, ClassLoader delegateLoader)"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="48"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Method dupeMethod(Method method, ClassLoader delegateLoader)"
+        errorLine2="                                                   ~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="48"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> T castToSuppLibClass(Class&lt;T> clazz, InvocationHandler invocationHandler) {"
+        errorLine2="                      ~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="65"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> T castToSuppLibClass(Class&lt;T> clazz, InvocationHandler invocationHandler) {"
+        errorLine2="                                           ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="65"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T> T castToSuppLibClass(Class&lt;T> clazz, InvocationHandler invocationHandler) {"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="65"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static InvocationHandler createInvocationHandlerFor(final Object delegate) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="78"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static InvocationHandler createInvocationHandlerFor(final Object delegate) {"
+        errorLine2="                                                                     ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="78"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static InvocationHandler[] createInvocationHandlersForArray(final Object[] delegates) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="86"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static InvocationHandler[] createInvocationHandlersForArray(final Object[] delegates) {"
+        errorLine2="                                                                             ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="86"
+            column="78"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Object getDelegateFromInvocationHandler(InvocationHandler invocationHandler) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="101"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Object getDelegateFromInvocationHandler(InvocationHandler invocationHandler) {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="101"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean containsFeature(Collection&lt;String> features, String soughtFeature) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="150"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean containsFeature(Collection&lt;String> features, String soughtFeature) {"
+        errorLine2="                                                                       ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="150"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean containsFeature(String[] features, String soughtFeature) {"
+        errorLine2="                                          ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="156"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean containsFeature(String[] features, String soughtFeature) {"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/util/BoundaryInterfaceReflectionUtil.java"
+            line="156"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String[] getSupportedFeatures();"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/FeatureFlagHolderBoundaryInterface.java"
+            line="24"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public FrameworkServiceWorkerClient(ServiceWorkerClientCompat impl) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/FrameworkServiceWorkerClient.java"
+            line="36"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/FrameworkServiceWorkerClient.java"
+            line="41"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/FrameworkServiceWorkerClient.java"
+            line="41"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewProviderBoundaryInterface createWebView(WebView webview) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="41"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewProviderBoundaryInterface createWebView(WebView webview) {"
+        errorLine2="                                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="41"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="46"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public StaticsBoundaryInterface getStatics() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="51"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getWebViewFeatures() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="56"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="61"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TracingControllerBoundaryInterface getTracingController() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="66"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProxyControllerBoundaryInterface getProxyController() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/IncompatibleApkWebViewProviderFactory.java"
+            line="71"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Object getOrCreatePeer(Callable&lt;Object> creationCallable);"
+        errorLine2="    ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/IsomorphicObjectBoundaryInterface.java"
+            line="38"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Object getOrCreatePeer(Callable&lt;Object> creationCallable);"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/IsomorphicObjectBoundaryInterface.java"
+            line="38"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProxyConfig(List&lt;String[]&gt; proxyRules, List&lt;String> bypassRules) {"
+        errorLine2="                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/ProxyConfig.java"
+            line="78"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProxyConfig(List&lt;String[]&gt; proxyRules, List&lt;String> bypassRules) {"
+        errorLine2="                                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/ProxyConfig.java"
+            line="78"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String[][] proxyRules, String[] bypassRules, Runnable listener, Executor executor);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ProxyControllerBoundaryInterface.java"
+            line="14"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String[][] proxyRules, String[] bypassRules, Runnable listener, Executor executor);"
+        errorLine2="                                   ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ProxyControllerBoundaryInterface.java"
+            line="14"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String[][] proxyRules, String[] bypassRules, Runnable listener, Executor executor);"
+        errorLine2="                                                         ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ProxyControllerBoundaryInterface.java"
+            line="14"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String[][] proxyRules, String[] bypassRules, Runnable listener, Executor executor);"
+        errorLine2="                                                                            ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ProxyControllerBoundaryInterface.java"
+            line="14"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void clearProxyOverride(Runnable listener, Executor executor);"
+        errorLine2="                            ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ProxyControllerBoundaryInterface.java"
+            line="15"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void clearProxyOverride(Runnable listener, Executor executor);"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ProxyControllerBoundaryInterface.java"
+            line="15"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ServiceWorkerClientAdapter(ServiceWorkerClientCompat client) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerClientAdapter.java"
+            line="35"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerClientAdapter.java"
+            line="40"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerClientAdapter.java"
+            line="40"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getSupportedFeatures() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerClientAdapter.java"
+            line="45"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    WebResourceResponse shouldInterceptRequest(WebResourceRequest request);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ServiceWorkerClientBoundaryInterface.java"
+            line="14"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    WebResourceResponse shouldInterceptRequest(WebResourceRequest request);"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ServiceWorkerClientBoundaryInterface.java"
+            line="14"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* ServiceWorkerWebSettings */ InvocationHandler getServiceWorkerWebSettings();"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ServiceWorkerControllerBoundaryInterface.java"
+            line="13"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void setServiceWorkerClient(/* ServiceWorkerClient */ InvocationHandler client);"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/ServiceWorkerControllerBoundaryInterface.java"
+            line="14"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setServiceWorkerClient(ServiceWorkerClientCompat client)  {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/ServiceWorkerControllerImpl.java"
+            line="84"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void initSafeBrowsing(Context context, ValueCallback&lt;Boolean> callback);"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/StaticsBoundaryInterface.java"
+            line="17"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void initSafeBrowsing(Context context, ValueCallback&lt;Boolean> callback);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/StaticsBoundaryInterface.java"
+            line="17"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void setSafeBrowsingWhitelist(List&lt;String> hosts, ValueCallback&lt;Boolean> callback);"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/StaticsBoundaryInterface.java"
+            line="18"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void setSafeBrowsingWhitelist(List&lt;String> hosts, ValueCallback&lt;Boolean> callback);"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/StaticsBoundaryInterface.java"
+            line="18"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    Uri getSafeBrowsingPrivacyPolicyUrl();"
+        errorLine2="    ~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/StaticsBoundaryInterface.java"
+            line="19"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                         List&lt;String> customIncludedCategories, @TracingMode int tracingMode) {"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/TracingConfig.java"
+            line="129"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void start(int predefinedCategories, Collection&lt;String> customIncludedCategories, int mode)"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/TracingControllerBoundaryInterface.java"
+            line="17"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    boolean stop(OutputStream outputStream, Executor executor);"
+        errorLine2="                 ~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/TracingControllerBoundaryInterface.java"
+            line="20"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    boolean stop(OutputStream outputStream, Executor executor);"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/TracingControllerBoundaryInterface.java"
+            line="20"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean stop(OutputStream outputStream, Executor executor) {"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="110"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean stop(OutputStream outputStream, Executor executor) {"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/TracingControllerImpl.java"
+            line="110"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public VisualStateCallbackAdapter(WebViewCompat.VisualStateCallback visualStateCallback) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/VisualStateCallbackAdapter.java"
+            line="30"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getData() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageAdapter.java"
+            line="39"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InvocationHandler[] getPorts() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageAdapter.java"
+            line="44"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getSupportedFeatures() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageAdapter.java"
+            line="56"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessageCompat webMessageCompatFromBoundaryInterface("
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageAdapter.java"
+            line="69"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            WebMessageBoundaryInterface boundaryInterface) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageAdapter.java"
+            line="70"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String getData();"
+        errorLine2="    ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageBoundaryInterface.java"
+            line="13"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* WebMessagePort */ InvocationHandler[] getPorts();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageBoundaryInterface.java"
+            line="15"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onMessage(InvocationHandler port, InvocationHandler message) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageCallbackAdapter.java"
+            line="39"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onMessage(InvocationHandler port, InvocationHandler message) {"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageCallbackAdapter.java"
+            line="39"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getSupportedFeatures() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessageCallbackAdapter.java"
+            line="49"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onMessage(/* WebMessagePort */ InvocationHandler port,"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageCallbackBoundaryInterface.java"
+            line="13"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebMessage */ InvocationHandler message);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessageCallbackBoundaryInterface.java"
+            line="14"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void postMessage(/* WebMessage */ InvocationHandler message);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessagePortBoundaryInterface.java"
+            line="15"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void setWebMessageCallback(/* WebMessageCallback */ InvocationHandler callback);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessagePortBoundaryInterface.java"
+            line="19"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebMessageCallback */ InvocationHandler callback, Handler handler);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessagePortBoundaryInterface.java"
+            line="22"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebMessageCallback */ InvocationHandler callback, Handler handler);"
+        errorLine2="                                                                 ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebMessagePortBoundaryInterface.java"
+            line="22"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract WebMessagePort getFrameworkPort();"
+        errorLine2="                    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebMessagePortCompat.java"
+            line="156"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract InvocationHandler getInvocationHandler();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebMessagePortCompat.java"
+            line="165"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebMessagePortImpl(WebMessagePort frameworksImpl) {"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="45"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebMessagePortImpl(InvocationHandler invocationHandler) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="49"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setWebMessageCallback(Handler handler,"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="128"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebMessagePort getFrameworkPort() {"
+        errorLine2="           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="152"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InvocationHandler getInvocationHandler() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="157"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessagePortCompat[] portsToCompat(WebMessagePort[] ports) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="165"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessagePortCompat[] portsToCompat(WebMessagePort[] ports) {"
+        errorLine2="                                                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="165"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessagePort[] compatToPorts(WebMessagePortCompat[] compatPorts) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="179"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessagePort[] compatToPorts(WebMessagePortCompat[] compatPorts) {"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="179"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessage compatToFrameworkMessage(WebMessageCompat message) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="192"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessage compatToFrameworkMessage(WebMessageCompat message) {"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="192"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessageCompat frameworkMessageToCompat(WebMessage message) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="203"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebMessageCompat frameworkMessageToCompat(WebMessage message) {"
+        errorLine2="                                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebMessagePortImpl.java"
+            line="203"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    CharSequence getDescription();"
+        errorLine2="    ~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebResourceErrorBoundaryInterface.java"
+            line="12"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebResourceRequestAdapter(WebResourceRequestBoundaryInterface boundaryInterface) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebResourceRequestAdapter.java"
+            line="30"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebSettingsAdapter(WebSettingsBoundaryInterface boundaryInterface) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebSettingsAdapter.java"
+            line="29"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onPageCommitVisible(WebView view, String url);"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="17"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onPageCommitVisible(WebView view, String url);"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="17"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onReceivedError(WebView view, WebResourceRequest request,"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="18"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onReceivedError(WebView view, WebResourceRequest request,"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="18"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebResourceError */ InvocationHandler error);"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="19"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            WebView view, WebResourceRequest request, WebResourceResponse errorResponse);"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="21"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            WebView view, WebResourceRequest request, WebResourceResponse errorResponse);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="21"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            WebView view, WebResourceRequest request, WebResourceResponse errorResponse);"
+        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="21"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onSafeBrowsingHit(WebView view, WebResourceRequest request, int threatType,"
+        errorLine2="                           ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="22"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onSafeBrowsingHit(WebView view, WebResourceRequest request, int threatType,"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="22"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* SafeBrowsingResponse */ InvocationHandler callback);"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="23"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request);"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="24"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewClientBoundaryInterface.java"
+            line="24"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final String[] getSupportedFeatures() {"
+        errorLine2="                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/WebViewClientCompat.java"
+            line="77"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebViewFeatureInternal getFeature(@NonNull @WebViewFeature.WebViewSupportFeature"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewFeatureInternal.java"
+            line="383"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Set&lt;String> getWebViewApkFeaturesForTesting() {"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewFeatureInternal.java"
+            line="418"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static UnsupportedOperationException getUnsupportedOperationException() {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewFeatureInternal.java"
+            line="426"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebViewProviderFactory getFactory() {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewGlueCommunicator.java"
+            line="41"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static WebkitToCompatConverter getCompatConverter() {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewGlueCommunicator.java"
+            line="45"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ClassLoader getWebViewClassLoader() {"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewGlueCommunicator.java"
+            line="98"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewProviderAdapter(WebViewProviderBoundaryInterface impl) {"
+        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="45"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            WebViewCompat.VisualStateCallback callback) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="53"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebMessagePortCompat[] createWebMessageChannel() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="62"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void postWebMessage(WebMessageCompat message, Uri targetOrigin) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="74"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void postWebMessage(WebMessageCompat message, Uri targetOrigin) {"
+        errorLine2="                                                         ~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="74"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewClient getWebViewClient() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="83"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebChromeClient getWebChromeClient() {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="90"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewRenderProcess getWebViewRenderProcess() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="97"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewRenderProcessClient getWebViewRenderProcessClient() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="104"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Executor executor, WebViewRenderProcessClient webViewRenderProcessClient) {"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="116"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Executor executor, WebViewRenderProcessClient webViewRenderProcessClient) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderAdapter.java"
+            line="116"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* VisualStateCallback */ InvocationHandler callback);"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="17"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* WebMessagePort */ InvocationHandler[] createWebMessageChannel();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="18"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void postMessageToMainFrame(/* WebMessage */ InvocationHandler message, Uri targetOrigin);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="19"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void postMessageToMainFrame(/* WebMessage */ InvocationHandler message, Uri targetOrigin);"
+        errorLine2="                                                                            ~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="19"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    WebViewClient getWebViewClient();"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="20"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    WebChromeClient getWebChromeClient();"
+        errorLine2="    ~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="21"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* WebViewRenderer */ InvocationHandler getWebViewRenderer();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="22"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* WebViewRendererClient */ InvocationHandler getWebViewRendererClient();"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="23"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebViewRendererClient */ InvocationHandler webViewRendererClient);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderBoundaryInterface.java"
+            line="25"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    WebViewProviderBoundaryInterface createWebView(WebView webview);"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="40"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    WebViewProviderBoundaryInterface createWebView(WebView webview);"
+        errorLine2="                                                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="40"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="46"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    StaticsBoundaryInterface getStatics();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="52"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String[] getWebViewFeatures();"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="57"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    ServiceWorkerControllerBoundaryInterface getServiceWorkerController();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="62"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    TracingControllerBoundaryInterface getTracingController();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="67"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    ProxyControllerBoundaryInterface getProxyController();"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactory.java"
+            line="72"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewProviderFactoryAdapter(WebViewProviderFactoryBoundaryInterface impl) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="38"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewProviderBoundaryInterface createWebView(WebView webview) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="48"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewProviderBoundaryInterface createWebView(WebView webview) {"
+        errorLine2="                                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="48"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="59"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public StaticsBoundaryInterface getStatics() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="69"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getWebViewFeatures() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="78"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="87"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TracingControllerBoundaryInterface getTracingController() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="97"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ProxyControllerBoundaryInterface getProxyController() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewProviderFactoryAdapter.java"
+            line="107"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryWebViewChromium */ InvocationHandler createWebView(WebView webview);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="14"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryWebViewChromium */ InvocationHandler createWebView(WebView webview);"
+        errorLine2="                                                                        ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="14"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibWebkitToCompatConverter */ InvocationHandler getWebkitToCompatConverter();"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="15"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* StaticsAdapter */ InvocationHandler getStatics();"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="16"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    String[] getSupportedFeatures();"
+        errorLine2="    ~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="17"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryServiceWorkerController */ InvocationHandler getServiceWorkerController();"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="18"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryTracingController */ InvocationHandler getTracingController();"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="19"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryProxyController */ InvocationHandler getProxyController();"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewProviderFactoryBoundaryInterface.java"
+            line="20"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebViewRenderProcessImpl(WebViewRendererBoundaryInterface boundaryInterface) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewRenderProcessImpl.java"
+            line="37"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            InvocationHandler invocationHandler) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebViewRenderProcessImpl.java"
+            line="45"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onRendererUnresponsive(WebView view, /* WebViewRenderer */ InvocationHandler renderer);"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewRendererClientBoundaryInterface.java"
+            line="15"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onRendererUnresponsive(WebView view, /* WebViewRenderer */ InvocationHandler renderer);"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewRendererClientBoundaryInterface.java"
+            line="15"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onRendererResponsive(WebView view, /* WebViewRenderer */ InvocationHandler renderer);"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewRendererClientBoundaryInterface.java"
+            line="16"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onRendererResponsive(WebView view, /* WebViewRenderer */ InvocationHandler renderer);"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebViewRendererClientBoundaryInterface.java"
+            line="16"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebkitToCompatConverter(WebkitToCompatConverterBoundaryInterface impl) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="45"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebSettingsAdapter convertSettings(WebSettings webSettings) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="54"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebSettingsAdapter convertSettings(WebSettings webSettings) {"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="54"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebResourceRequestAdapter convertWebResourceRequest(WebResourceRequest request) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="63"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public WebResourceRequestAdapter convertWebResourceRequest(WebResourceRequest request) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="63"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InvocationHandler convertServiceWorkerSettings("
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="74"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ServiceWorkerWebSettings settings) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="75"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ServiceWorkerWebSettings convertServiceWorkerSettings("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="85"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* SupportLibServiceWorkerSettings */ InvocationHandler serviceWorkerSettings) {"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/webkit/internal/WebkitToCompatConverter.java"
+            line="86"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryWebSettings */ InvocationHandler convertSettings(WebSettings webSettings);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="23"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryWebSettings */ InvocationHandler convertSettings(WebSettings webSettings);"
+        errorLine2="                                                                      ~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="23"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibraryWebResourceRequest */ InvocationHandler convertWebResourceRequest("
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="24"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            WebResourceRequest request);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="25"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibServiceWorkerSettings */ InvocationHandler convertServiceWorkerSettings("
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="44"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* ServiceWorkerWebSettings */ Object serviceWorkerWebSettings);"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="45"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* ServiceWorkerWebSettings */ Object convertServiceWorkerSettings("
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="46"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* SupportLibServiceWorkerSettings */ InvocationHandler serviceWorkerSettings);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="47"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibWebResourceError */ InvocationHandler convertWebResourceError("
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="50"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebResourceError */ Object webResourceError);"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="51"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* WebResourceError */ Object convertWebResourceError("
+        errorLine2="                           ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="52"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* SupportLibWebResourceError */ InvocationHandler webResourceError);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="53"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibSafeBrowsingResponse */ InvocationHandler convertSafeBrowsingResponse("
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="56"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* SafeBrowsingResponse */ Object safeBrowsingResponse);"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="57"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SafeBrowsingResponse */ Object convertSafeBrowsingResponse("
+        errorLine2="                               ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="58"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* SupportLibSafeBrowsingResponse */ InvocationHandler safeBrowsingResponse);"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="59"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* SupportLibWebMessagePort */ InvocationHandler convertWebMessagePort("
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="62"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* WebMessagePort */ Object webMessagePort);"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="63"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    /* WebMessagePort */ Object convertWebMessagePort("
+        errorLine2="                         ~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="64"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            /* SupportLibWebMessagePort */ InvocationHandler webMessagePort);"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="../../../external/webview_support_interfaces/src/org/chromium/support_lib_boundary/WebkitToCompatConverterBoundaryInterface.java"
+            line="65"
+            column="44"/>
     </issue>
 
 </issues>

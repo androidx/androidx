@@ -26,12 +26,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-}
-
 dependencies {
     api(project(":navigation:navigation-common"))
     api(project(":activity:activity"))

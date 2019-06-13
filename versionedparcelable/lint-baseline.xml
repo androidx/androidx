@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2019 The Android Open Source Project
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
-
 <issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
@@ -26,6 +10,1326 @@
             file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
             line="275"
             column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ParcelImpl(VersionedParcelable parcel) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelImpl.java"
+            line="34"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected ParcelImpl(Parcel in) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelImpl.java"
+            line="38"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T extends VersionedParcelable> T getVersionedParcel() {"
+        errorLine2="                                           ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelImpl.java"
+            line="45"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelImpl.java"
+            line="55"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Parcelable toParcelable(VersionedParcelable obj) {"
+        errorLine2="                  ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="47"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Parcelable toParcelable(VersionedParcelable obj) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="47"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T extends VersionedParcelable> T fromParcelable(Parcelable p) {"
+        errorLine2="                                                  ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="57"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T extends VersionedParcelable> T fromParcelable(Parcelable p) {"
+        errorLine2="                                                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="57"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void toOutputStream(VersionedParcelable obj, OutputStream output) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="69"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void toOutputStream(VersionedParcelable obj, OutputStream output) {"
+        errorLine2="                                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="69"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T extends VersionedParcelable> T fromInputStream(InputStream input) {"
+        errorLine2="                                                  ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="81"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static &lt;T extends VersionedParcelable> T fromInputStream(InputStream input) {"
+        errorLine2="                                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="81"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Bundle bundle, String key) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="143"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Bundle bundle, String key) {"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/ParcelUtils.java"
+            line="143"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public VersionedParcel(ArrayMap&lt;String, Method> readCache,"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="84"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ArrayMap&lt;String, Method> writeCache,"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="85"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ArrayMap&lt;String, Class> parcelizerCache) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="86"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract VersionedParcel createSubParcel();"
+        errorLine2="                       ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="107"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeByteArray(byte[] b);"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="114"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeByteArray(byte[] b, int offset, int len);"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="123"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeCharSequence(CharSequence charSequence);"
+        errorLine2="                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="128"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeString(String val);"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="158"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeStrongBinder(IBinder val);"
+        errorLine2="                                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="164"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeParcelable(Parcelable p);"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="173"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeStrongInterface(IInterface val);"
+        errorLine2="                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="185"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void writeBundle(Bundle val);"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="191"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract String readString();"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="218"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract IBinder readStrongBinder();"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="223"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract byte[] readByteArray();"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="228"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract CharSequence readCharSequence();"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="233"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract &lt;T extends Parcelable> T readParcelable();"
+        errorLine2="                                              ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="238"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract Bundle readBundle();"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="245"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeStrongInterface(IInterface val, int fieldId) {"
+        errorLine2="                                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="275"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeBundle(Bundle val, int fieldId) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="284"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeByteArray(byte[] b, int fieldId) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="303"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeByteArray(byte[] b, int offset, int len, int fieldId) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="315"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeCharSequence(CharSequence val, int fieldId) {"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="324"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeString(String val, int fieldId) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="369"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeStrongBinder(IBinder val, int fieldId) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="378"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeParcelable(Parcelable p, int fieldId) {"
+        errorLine2="                                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="390"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String readString(String def, int fieldId) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="450"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String readString(String def, int fieldId) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="450"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder readStrongBinder(IBinder def, int fieldId) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="460"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder readStrongBinder(IBinder def, int fieldId) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="460"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public byte[] readByteArray(byte[] def, int fieldId) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="471"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public byte[] readByteArray(byte[] def, int fieldId) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="471"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T extends Parcelable> T readParcelable(T def, int fieldId) {"
+        errorLine2="                                  ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="480"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T extends Parcelable> T readParcelable(T def, int fieldId) {"
+        errorLine2="                                                   ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="480"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bundle readBundle(Bundle def, int fieldId) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="492"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bundle readBundle(Bundle def, int fieldId) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="492"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeSize(Size val, int fieldId) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="513"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeSizeF(SizeF val, int fieldId) {"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="527"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeSparseBooleanArray(SparseBooleanArray val, int fieldId) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="538"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeBooleanArray(boolean[] val, int fieldId) {"
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="556"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void writeBooleanArray(boolean[] val) {"
+        errorLine2="                                     ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="563"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean[] readBooleanArray(boolean[] def, int fieldId) {"
+        errorLine2="           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="577"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean[] readBooleanArray(boolean[] def, int fieldId) {"
+        errorLine2="                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="577"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean[] readBooleanArray() {"
+        errorLine2="              ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="586"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeCharArray(char[] val, int fieldId) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="600"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CharSequence readCharSequence(CharSequence def, int fieldId) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="615"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CharSequence readCharSequence(CharSequence def, int fieldId) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="615"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public char[] readCharArray(char[] def, int fieldId) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="624"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public char[] readCharArray(char[] def, int fieldId) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="624"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeIntArray(int[] val, int fieldId) {"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="641"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void writeIntArray(int[] val) {"
+        errorLine2="                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="648"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int[] readIntArray(int[] def, int fieldId) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="662"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int[] readIntArray(int[] def, int fieldId) {"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="662"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected int[] readIntArray() {"
+        errorLine2="              ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="671"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeLongArray(long[] val, int fieldId) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="685"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void writeLongArray(long[] val) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="692"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public long[] readLongArray(long[] def, int fieldId) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="706"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public long[] readLongArray(long[] def, int fieldId) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="706"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected long[] readLongArray() {"
+        errorLine2="              ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="715"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeFloatArray(float[] val, int fieldId) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="729"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void writeFloatArray(float[] val) {"
+        errorLine2="                                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="736"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public float[] readFloatArray(float[] def, int fieldId) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="750"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public float[] readFloatArray(float[] def, int fieldId) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="750"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected float[] readFloatArray() {"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="759"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeDoubleArray(double[] val, int fieldId) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="773"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void writeDoubleArray(double[] val) {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="780"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public double[] readDoubleArray(double[] def, int fieldId) {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="794"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public double[] readDoubleArray(double[] def, int fieldId) {"
+        errorLine2="                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="794"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected double[] readDoubleArray() {"
+        errorLine2="              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="803"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> void writeSet(Set&lt;T> val, int fieldId) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="825"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> void writeList(List&lt;T> val, int fieldId) {"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="839"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K, V> void writeMap(Map&lt;K, V> val, int fieldId) {"
+        errorLine2="                                ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="853"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> void writeArray(T[] val, int fieldId) {"
+        errorLine2="                               ~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="940"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;T> void writeArray(T[] val) {"
+        errorLine2="                                  ~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="947"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeVersionedParcelable(VersionedParcelable p, int fieldId) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1020"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void writeVersionedParcelable(VersionedParcelable p) {"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1027"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeSerializable(Serializable s, int fieldId) {"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1056"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeException(Exception e, int fieldId) {"
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1106"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Exception readException(Exception def, int fieldId) {"
+        errorLine2="           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1169"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Exception readException(Exception def, int fieldId) {"
+        errorLine2="                                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1169"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Size readSize(Size def, int fieldId) {"
+        errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1255"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Size readSize(Size def, int fieldId) {"
+        errorLine2="                         ~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1255"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SizeF readSizeF(SizeF def, int fieldId) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1271"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SizeF readSizeF(SizeF def, int fieldId) {"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1271"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SparseBooleanArray readSparseBooleanArray(SparseBooleanArray def, int fieldId) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1288"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SparseBooleanArray readSparseBooleanArray(SparseBooleanArray def, int fieldId) {"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1288"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> Set&lt;T> readSet(Set&lt;T> def, int fieldId) {"
+        errorLine2="               ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1317"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> Set&lt;T> readSet(Set&lt;T> def, int fieldId) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1317"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> List&lt;T> readList(List&lt;T> def, int fieldId) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1336"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> List&lt;T> readList(List&lt;T> def, int fieldId) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1336"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K, V> Map&lt;K, V> readMap(Map&lt;K, V> def, int fieldId) {"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1400"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;K, V> Map&lt;K, V> readMap(Map&lt;K, V> def, int fieldId) {"
+        errorLine2="                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1400"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> T[] readArray(T[] def, int fieldId) {"
+        errorLine2="               ~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1434"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T> T[] readArray(T[] def, int fieldId) {"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1434"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;T> T[] readArray(T[] def) {"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1443"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;T> T[] readArray(T[] def) {"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1443"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T extends VersionedParcelable> T readVersionedParcelable(T def, int fieldId) {"
+        errorLine2="                                           ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1492"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public &lt;T extends VersionedParcelable> T readVersionedParcelable(T def, int fieldId) {"
+        errorLine2="                                                                     ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1492"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;T extends VersionedParcelable> T readVersionedParcelable() {"
+        errorLine2="                                              ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1508"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Serializable readSerializable() {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1522"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;T extends VersionedParcelable> T readFromParcel("
+        errorLine2="                                              ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1562"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String parcelCls, VersionedParcel versionedParcel) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1563"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String parcelCls, VersionedParcel versionedParcel) {"
+        errorLine2="                              ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1563"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected &lt;T extends VersionedParcelable> void writeToParcel(T val,"
+        errorLine2="                                                                 ~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1583"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            VersionedParcel versionedParcel) {"
+        errorLine2="            ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1584"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public ParcelException(Throwable source) {"
+        errorLine2="                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
+            line="1641"
+            column="32"/>
     </issue>
 
 </issues>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Uri getUri(String path, Context context) {"
+        errorLine2="                  ~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="117"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Uri getUri(String path, Context context) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="117"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Uri getUri(String path, Context context) {"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="117"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Uri onMapIntentToUri(Intent intent) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="132"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Slice onBindSlice(Uri sliceUri) {"
+        errorLine2="           ~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="137"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Slice onBindSlice(Uri sliceUri) {"
+        errorLine2="                             ~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="137"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ArrayList&lt;String> sGroceryList = new ArrayList&lt;>();"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
+            line="558"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onReceive(final Context context, Intent i) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
+            line="43"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onReceive(final Context context, Intent i) {"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/test/SliceBroadcastReceiver.java"
+            line="43"
+            column="50"/>
+    </issue>
+
+</issues>

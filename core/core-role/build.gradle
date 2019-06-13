@@ -8,12 +8,6 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-}
-
 dependencies {
     annotationProcessor(NULLAWAY)
 

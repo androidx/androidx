@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Entry&lt;K, V> get(K k) {"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
+            line="40"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Entry&lt;K, V> get(K k) {"
+        errorLine2="                              ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
+            line="40"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V putIfAbsent(@NonNull K key, @NonNull V v) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
+            line="45"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V remove(@NonNull K key) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
+            line="55"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean contains(K key) {"
+        errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
+            line="65"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Map.Entry&lt;K, V> ceil(K k) {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
+            line="74"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Map.Entry&lt;K, V> ceil(K k) {"
+        errorLine2="                                ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
+            line="74"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    O apply(I input);"
+        errorLine2="    ~">
+        <location
+            file="src/main/java/androidx/arch/core/util/Function.java"
+            line="32"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    O apply(I input);"
+        errorLine2="            ~">
+        <location
+            file="src/main/java/androidx/arch/core/util/Function.java"
+            line="32"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Entry&lt;K, V> get(K k) {"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="45"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Entry&lt;K, V> get(K k) {"
+        errorLine2="                              ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="45"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V putIfAbsent(@NonNull K key, @NonNull V v) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="65"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Entry&lt;K, V> put(@NonNull K key, @NonNull V v) {"
+        errorLine2="              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="74"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public V remove(@NonNull K key) {"
+        errorLine2="           ~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="97"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Iterator&lt;Map.Entry&lt;K, V>> descendingIterator() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="149"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IteratorWithAdditions iteratorWithAdditions() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="158"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Map.Entry&lt;K, V> eldest() {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="168"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Map.Entry&lt;K, V> newest() {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
+            line="175"
+            column="12"/>
+    </issue>
+
+</issues>

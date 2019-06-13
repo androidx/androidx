@@ -156,11 +156,16 @@ function ensureLocalPropertiesUpdated() {
   fi
 }
 
+# ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED environment variable prevents Studio from showing IDE
+# inspection warnings for nullability issues, if the context is deprecated
+# This environment variable is consumed by InteroperabilityDetector.kt
+
 function runStudioLinux() {
   studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
   echo "$studioPath &"
   env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
+      ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
       "${studioPath}" "${projectDir}" &
 }
 
@@ -169,6 +174,7 @@ function runStudioMac() {
   echo "open ${appPath}"
   env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
+      ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
       open -a "${appPath}" "${projectDir}"
 }
 

@@ -26,12 +26,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-}
-
 dependencies {
     api(project(":fragment:fragment"))
     api(project(":navigation:navigation-runtime"))

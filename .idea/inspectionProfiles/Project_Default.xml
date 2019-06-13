@@ -1,9 +1,13 @@
 <component name="InspectionProjectProfileManager">
   <profile version="1.0">
     <option name="myName" value="Project Default" />
+    <inspection_tool class="AndroidLintKotlinPropertyAccess" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="AndroidLintLambdaLast" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="AndroidLintNoHardKeywords" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="AndroidLintSyntheticAccessor" enabled="true" level="WARNING" enabled_by_default="true">
       <scope name="Compose" level="WARNING" enabled="false" />
     </inspection_tool>
+    <inspection_tool class="AndroidLintUnknownNullness" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
     <inspection_tool class="FunctionName" enabled="true" level="WEAK WARNING" enabled_by_default="true">
       <scope name="Compose" level="WEAK WARNING" enabled="true">
         <option name="namePattern" value="[A-Za-z\d]+" />

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpeedBumpView(Context context) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="37"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpeedBumpView(Context context, AttributeSet attrs) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="41"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpeedBumpView(Context context, AttributeSet attrs) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="41"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpeedBumpView(Context context, AttributeSet attrs, int defStyleAttrs) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="45"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpeedBumpView(Context context, AttributeSet attrs, int defStyleAttrs) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="45"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpeedBumpView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="49"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SpeedBumpView(Context context, AttributeSet attrs, int defStyleAttrs, int defStyleRes) {"
+        errorLine2="                                          ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="49"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
+        errorLine2="                        ~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="71"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
+        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="71"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean dispatchTouchEvent(MotionEvent ev) {"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/moderator/SpeedBumpView.java"
+            line="82"
+            column="39"/>
+    </issue>
+
+</issues>
