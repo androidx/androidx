@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
+import androidx.benchmark.WarningState.WARNING_PREFIX
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertTrue
 import org.junit.rules.RuleChain
@@ -71,8 +72,22 @@ import org.junit.runners.model.Statement
  * Every test in the Class using this @Rule must contain a single benchmark.
  */
 class BenchmarkRule : TestRule {
+    constructor() {
+        this.enableReport = true
+    }
+
+    internal constructor(enableReport: Boolean) {
+        this.enableReport = enableReport
+    }
+
     internal // synthetic access
     val internalState = BenchmarkState()
+
+    /**
+     * Used to disable reporting, for correctness tests that shouldn't report values
+     * (and would trigger warnings if they did, e.g. debuggable=true)
+     */
+    private val enableReport: Boolean
 
     /**
      * Object used for benchmarking in Java.
@@ -173,16 +188,18 @@ class BenchmarkRule : TestRule {
 
         base.evaluate()
 
-        val fullTestName = WarningState.WARNING_PREFIX +
-                description.testClass.simpleName + "." + invokeMethodName
-        internalState.sendStatus(fullTestName)
+        if (enableReport) {
+            val fullTestName =
+                WARNING_PREFIX + description.testClass.simpleName + "." + invokeMethodName
+            internalState.sendStatus(fullTestName)
 
-        ResultWriter.appendReport(
-            internalState.getReport(
-                testName = WarningState.WARNING_PREFIX + invokeMethodName,
-                className = description.className
+            ResultWriter.appendReport(
+                internalState.getReport(
+                    testName = WARNING_PREFIX + invokeMethodName,
+                    className = description.className
+                )
             )
-        )
+        }
     }
 
     internal companion object {

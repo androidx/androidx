@@ -14,41 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.benchmark
 
-import android.app.Activity
-import androidx.test.core.app.ActivityScenario
+import androidx.benchmark.BenchmarkRule
+import androidx.benchmark.measureRepeated
 import androidx.test.filters.LargeTest
-import org.junit.Assert.assertFalse
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(JUnit4::class)
-class ActivityScenarioBenchmark {
+@RunWith(Parameterized::class)
+class ParameterizedBenchmark(@Suppress("unused") private val input: Int) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters
+        fun data(): Collection<Array<Int>> = List(2) { arrayOf(it) }
+    }
+
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    private lateinit var activityScenario: ActivityScenario<Activity>
-
-    @Before
-    fun setup() {
-        activityScenario = ActivityScenario.launch(Activity::class.java)
-    }
-
     @Test
-    fun activityScenario() {
-        activityScenario.onActivity {
-            // isolation activity *not* on top
-            assertFalse(IsolationActivity.singleton.get()!!.resumed)
-
-            var i = 0
-            benchmarkRule.measureRepeated {
-                i++
-            }
-        }
-    }
+    fun noop() = benchmarkRule.measureRepeated {}
 }
