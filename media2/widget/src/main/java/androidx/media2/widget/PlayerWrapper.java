@@ -16,8 +16,12 @@
 
 package androidx.media2.widget;
 
+import android.view.Surface;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.concurrent.ListenableFuture;
+import androidx.media2.common.BaseResult;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -35,13 +39,13 @@ import java.util.concurrent.Executor;
  * Wrapper for MediaController and SessionPlayer
  */
 class PlayerWrapper {
-    private final MediaController mController;
-    private final SessionPlayer mPlayer;
+    final MediaController mController;
+    final SessionPlayer mPlayer;
 
     private final Executor mCallbackExecutor;
 
-    private final MediaController.ControllerCallback mControllerCallback;
-    private final SessionPlayer.PlayerCallback mPlayerCallback;
+    private final MediaControllerCallback mControllerCallback;
+    private final SessionPlayerCallback mPlayerCallback;
 
     private boolean mCallbackAttached;
 
@@ -290,6 +294,16 @@ class PlayerWrapper {
         mAllowedCommands = getAllowedCommands();
         MediaItem item = getCurrentMediaItem();
         mMediaMetadata = item == null ? null : item.getMetadata();
+        if (mController != null) {
+            mControllerCallback.onPlayerStateChanged(mController, mSavedPlayerState);
+            mControllerCallback.onCurrentMediaItemChanged(mController, item);
+            mControllerCallback.onAllowedCommandsChanged(mController, mAllowedCommands);
+        } else if (mPlayer != null) {
+            mPlayerCallback.onPlayerStateChanged(mPlayer, mSavedPlayerState);
+            mPlayerCallback.onCurrentMediaItemChanged(mPlayer, item);
+            mPlayerCallback.mWrapperCallback.onAllowedCommandsChanged(PlayerWrapper.this,
+                    mAllowedCommands);
+        }
     }
 
     @NonNull
@@ -318,6 +332,15 @@ class PlayerWrapper {
             return mController.getSelectedTrack(trackType);
         } else if (mPlayer != null) {
             return mPlayer.getSelectedTrackInternal(trackType);
+        }
+        return null;
+    }
+
+    ListenableFuture<? extends BaseResult> setSurface(Surface surface) {
+        if (mController != null) {
+            return mController.setSurface(surface);
+        } else if (mPlayer != null) {
+            return mPlayer.setSurfaceInternal(surface);
         }
         return null;
     }
@@ -404,7 +427,7 @@ class PlayerWrapper {
     }
 
     private class SessionPlayerCallback extends SessionPlayer.PlayerCallback {
-        private final PlayerCallback mWrapperCallback;
+        final PlayerCallback mWrapperCallback;
 
         SessionPlayerCallback(@NonNull PlayerCallback callback) {
             mWrapperCallback = callback;
@@ -430,7 +453,7 @@ class PlayerWrapper {
         @Override
         public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
                 @NonNull MediaItem item) {
-            mMediaMetadata = item.getMetadata();
+            mMediaMetadata = item == null ? null : item.getMetadata();
             mWrapperCallback.onCurrentMediaItemChanged(PlayerWrapper.this, item);
         }
 
