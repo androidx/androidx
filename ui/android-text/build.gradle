@@ -53,7 +53,7 @@ dependencies {
 
 androidx {
     name = "AndroidX Text"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2018"
