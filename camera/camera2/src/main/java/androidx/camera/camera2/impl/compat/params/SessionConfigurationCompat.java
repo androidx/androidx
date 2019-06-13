@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.impl.compat.params;
 
-import android.annotation.TargetApi;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
@@ -44,7 +43,7 @@ import java.util.concurrent.Executor;
 /**
  * Helper for accessing features in SessionConfiguration in a backwards compatible fashion.
  */
-@TargetApi(21)
+@RequiresApi(21)
 public final class SessionConfigurationCompat {
 
     /**

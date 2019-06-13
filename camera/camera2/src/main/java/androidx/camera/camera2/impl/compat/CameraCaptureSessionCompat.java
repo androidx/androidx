@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.impl.compat;
 
-import android.annotation.TargetApi;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -37,7 +36,7 @@ import java.util.concurrent.Executor;
 /**
  * Helper for accessing features in {@link CameraCaptureSession} in a backwards compatible fashion.
  */
-@TargetApi(21)
+@RequiresApi(21)
 public final class CameraCaptureSessionCompat {
 
     private static final CameraCaptureSessionCompatImpl IMPL = chooseImplementation();

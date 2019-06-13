@@ -17,7 +17,6 @@
 package androidx.camera.camera2.impl.compat.params;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.hardware.camera2.params.InputConfiguration;
 import android.os.Build;
 
@@ -31,7 +30,7 @@ import java.util.Objects;
 /**
  * Helper for accessing features in InputConfiguration in a backwards compatible fashion.
  */
-@TargetApi(21)
+@RequiresApi(21)
 public final class InputConfigurationCompat {
 
     private final InputConfigurationCompatImpl mImpl;
