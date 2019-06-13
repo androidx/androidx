@@ -21,7 +21,8 @@ import android.view.Surface;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.ListenableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collection;

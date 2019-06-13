@@ -36,7 +36,6 @@ import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 
-import androidx.concurrent.ListenableFuture;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.DataSourceCallback;
@@ -52,6 +51,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;

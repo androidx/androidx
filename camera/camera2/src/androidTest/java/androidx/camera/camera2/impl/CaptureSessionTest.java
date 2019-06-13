@@ -53,10 +53,11 @@ import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.testing.CameraUtil;
-import androidx.concurrent.ListenableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.AssumptionViolatedException;

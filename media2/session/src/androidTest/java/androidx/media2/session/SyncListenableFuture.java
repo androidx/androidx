@@ -18,9 +18,10 @@ package androidx.media2.session;
 
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
-import androidx.concurrent.ListenableFuture;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
