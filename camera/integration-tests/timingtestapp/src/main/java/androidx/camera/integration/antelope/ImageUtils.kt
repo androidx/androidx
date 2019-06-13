@@ -18,7 +18,6 @@
 
 package androidx.camera.integration.antelope
 
-import android.annotation.TargetApi
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.ImageFormat
@@ -28,6 +27,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.exifinterface.media.ExifInterface
@@ -252,7 +252,7 @@ fun deleteTestPhotos(activity: MainActivity) {
  *
  * Note: this does not currently work.
  */
-@TargetApi(24)
+@RequiresApi(24)
 fun isHDRPlus(bytes: ByteArray?): Boolean {
     if (24 <= Build.VERSION.SDK_INT) {
         val bytestream = ByteArrayInputStream(bytes)

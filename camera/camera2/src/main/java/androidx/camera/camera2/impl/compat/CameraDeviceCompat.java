@@ -16,13 +16,13 @@
 
 package androidx.camera.camera2.impl.compat;
 
-import android.annotation.TargetApi;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.impl.compat.params.SessionConfigurationCompat;
@@ -32,7 +32,7 @@ import java.util.concurrent.Executor;
 /**
  * Helper for accessing features in {@link CameraDevice} in a backwards compatible fashion.
  */
-@TargetApi(21)
+@RequiresApi(21)
 public final class CameraDeviceCompat {
 
     /**

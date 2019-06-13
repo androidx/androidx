@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.impl.compat.params;
 
-import android.annotation.TargetApi;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.os.Build;
@@ -34,7 +33,7 @@ import java.util.List;
 /**
  * Helper for accessing features in OutputConfiguration in a backwards compatible fashion.
  */
-@TargetApi(21)
+@RequiresApi(21)
 public final class OutputConfigurationCompat {
 
     /**
