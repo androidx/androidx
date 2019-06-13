@@ -77,6 +77,34 @@ internal class EditingBuffer(
     var compositionEnd = NOWHERE
         private set
 
+    /**
+     * Helper function that returns true if the editing buffer has composition text
+     */
+    fun hasComposition(): Boolean = compositionStart != NOWHERE
+
+    /**
+     * Helper accessor for cursor offset
+     */
+    var cursor: Int
+        /**
+         * Return the cursor offset.
+         *
+         * Since selection and cursor cannot exist at the same time, return -1 if there is a
+         * selection.
+         */
+        get() = if (selectionStart == selectionEnd) selectionEnd else -1
+        /**
+         * Set the cursor offset.
+         *
+         * Since selection and cursor cannot exist at the same time, cancel selection if there is.
+         */
+        set(cursor) = setSelection(cursor, cursor)
+
+    /**
+     * [] operator for the character at the index.
+     */
+    operator fun get(index: Int): Char = gapBuffer[index]
+
     init {
         val start = initialSelection.start
         val end = initialSelection.end
@@ -195,9 +223,18 @@ internal class EditingBuffer(
     }
 
     /**
-     * Clears ongoing composition range if there
+     * Removes the ongoing composition text and reset the composition range.
      */
-    fun clearComposition() {
+    fun cancelComposition() {
+        replace(compositionStart, compositionEnd, "")
+        compositionStart = NOWHERE
+        compositionEnd = NOWHERE
+    }
+
+    /**
+     * Commits the ongoing composition text and reset the composition range.
+     */
+    fun commitComposition() {
         compositionStart = NOWHERE
         compositionEnd = NOWHERE
     }
