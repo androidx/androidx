@@ -113,7 +113,7 @@ public @interface Relation {
      *
      * @return The entity or view to fetch from. By default, inherited from the return type.
      */
-    Class entity() default Object.class;
+    Class<?> entity() default Object.class;
 
     /**
      * Reference column in the parent Pojo.
