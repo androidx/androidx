@@ -21,7 +21,7 @@ import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.paging.integration.testapp.R;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -42,7 +42,7 @@ public class RoomPagedListActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room_recycler_view);
-        final CustomerViewModel viewModel = ViewModelProviders.of(this)
+        final CustomerViewModel viewModel = new ViewModelProvider(this)
                 .get(CustomerViewModel.class);
 
         mRecyclerView = findViewById(R.id.recyclerview);

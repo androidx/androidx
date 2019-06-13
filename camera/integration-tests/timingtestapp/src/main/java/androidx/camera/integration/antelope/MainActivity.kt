@@ -33,14 +33,14 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.camera.integration.antelope.cameracontrollers.camera2Abort
 import androidx.camera.integration.antelope.cameracontrollers.cameraXAbort
 import androidx.camera.integration.antelope.cameracontrollers.closeAllCameras
 import androidx.core.app.ActivityCompat
-import androidx.test.espresso.idling.CountingIdlingResource
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.test.espresso.idling.CountingIdlingResource
 import kotlinx.android.synthetic.main.activity_main.button_abort
 import kotlinx.android.synthetic.main.activity_main.button_multi
 import kotlinx.android.synthetic.main.activity_main.button_single
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        camViewModel = ViewModelProviders.of(this).get(CamViewModel::class.java)
+        camViewModel = ViewModelProvider(this).get(CamViewModel::class.java)
         cameraParams = camViewModel.getCameraParams()
         deviceInfo = DeviceInfo()
 

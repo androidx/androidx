@@ -28,7 +28,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener;
 
@@ -131,7 +131,7 @@ abstract class BaseSwipeRefreshLayoutActivity extends FragmentActivity
         super.onCreate(bundle);
         setContentView(getLayoutId());
 
-        mViewModel = ViewModelProviders.of(this).get(MyViewModel.class);
+        mViewModel = new ViewModelProvider(this).get(MyViewModel.class);
         mViewModel.refreshDone.observe(this, event -> {
             if (event.getContentIfNotHandled() != null) {
                 mSwipeRefreshWidget.setRefreshing(false);

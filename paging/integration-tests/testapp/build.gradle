@@ -34,7 +34,6 @@ dependencies {
     implementation(ARCH_CORE_RUNTIME)
     implementation(ARCH_ROOM_RUNTIME)
     implementation(ARCH_ROOM_RXJAVA)
-    implementation(ARCH_LIFECYCLE_EXTENSIONS)
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
@@ -44,6 +43,7 @@ dependencies {
 
     implementation(MULTIDEX)
     implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
-    implementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    implementation(project(":fragment:fragment-ktx"))
+    implementation(project(":appcompat"))
     implementation(KOTLIN_STDLIB)
 }

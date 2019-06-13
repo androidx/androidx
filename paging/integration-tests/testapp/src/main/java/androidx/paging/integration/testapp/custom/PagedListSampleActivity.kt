@@ -18,9 +18,9 @@ package androidx.paging.integration.testapp.custom
 
 import android.os.Bundle
 import android.widget.Button
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.paging.PagedList
 import androidx.paging.PagedListAdapter
 import androidx.paging.integration.testapp.R
@@ -34,8 +34,7 @@ class PagedListSampleActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recycler_view)
-        val viewModel = ViewModelProviders.of(this)
-            .get(PagedListItemViewModel::class.java)
+        val viewModel by viewModels<PagedListItemViewModel>()
 
         val adapter = PagedListItemAdapter()
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerview)
