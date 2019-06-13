@@ -19,7 +19,8 @@ package androidx.camera.core.impl.utils.futures;
 
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.util.Function;
-import androidx.concurrent.ListenableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;

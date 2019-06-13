@@ -43,7 +43,6 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
-import androidx.concurrent.ListenableFuture;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer.PlayerResult;
 import androidx.media2.common.UriMediaItem;
@@ -56,6 +55,8 @@ import androidx.test.filters.Suppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.json.JSONArray;
 import org.json.JSONException;

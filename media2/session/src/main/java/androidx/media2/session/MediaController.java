@@ -43,7 +43,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.concurrent.ListenableFuture;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
@@ -61,6 +60,8 @@ import androidx.media2.session.MediaSession.CommandButton;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

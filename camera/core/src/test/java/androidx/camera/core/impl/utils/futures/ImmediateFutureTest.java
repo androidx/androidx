@@ -24,8 +24,9 @@ import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.concurrent.ListenableFuture;
 import androidx.test.filters.SmallTest;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

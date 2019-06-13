@@ -28,8 +28,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.browser.R;
-import androidx.concurrent.ListenableFuture;
 import androidx.core.content.res.ResourcesCompat;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;

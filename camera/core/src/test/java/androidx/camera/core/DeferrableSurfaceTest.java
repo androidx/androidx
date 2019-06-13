@@ -25,8 +25,9 @@ import android.os.Build;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
-import androidx.concurrent.ListenableFuture;
 import androidx.test.filters.SmallTest;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -44,9 +44,10 @@ import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.concurrent.ListenableFuture;
-import androidx.concurrent.callback.CallbackToFutureAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collections;
