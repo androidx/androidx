@@ -68,7 +68,7 @@ public class NavDestination {
     @Target({TYPE})
     @SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112185120
     public @interface ClassType {
-        Class value();
+        Class<?> value();
     }
 
     static class DeepLinkMatch implements Comparable<DeepLinkMatch> {
