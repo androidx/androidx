@@ -19,15 +19,18 @@ package androidx.fragment.app
 import android.animation.LayoutTransition
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Insets
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
@@ -90,6 +93,34 @@ class FragmentContainerViewTest {
         assertWithMessage("Fragment View should be a FragmentContainerView")
             .that(fragment.view)
             .isInstanceOf(FragmentContainerView::class.java)
+    }
+
+    @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
+    @Test
+    fun windowInsetsDispatchToChildren() {
+        val context = activityRule.activity.applicationContext
+
+        val parentView = FragmentContainerView(context)
+        val childView = FragmentContainerView(context)
+
+        parentView.fitsSystemWindows = true
+
+        val sentInsets = WindowInsets.Builder()
+            .setSystemWindowInsets(Insets.of(4, 3, 2, 1))
+            .build()
+
+        var dispatchedToChild = false
+        childView.setOnApplyWindowInsetsListener { _, insets ->
+            // Ensure insets received by child are not consumed at all by the parent
+            assertThat(insets.systemWindowInsets).isEqualTo(sentInsets.systemWindowInsets)
+            dispatchedToChild = true
+            insets
+        }
+
+        parentView.addView(childView)
+        parentView.dispatchApplyWindowInsets(sentInsets)
+
+        assertThat(dispatchedToChild).isTrue()
     }
 
     @Test
