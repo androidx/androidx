@@ -34,11 +34,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private var currentData: PagedList<Value>
     private var currentFuture: ListenableFuture<PagedList<Value>>? = null
 
-    private val callback = object : DataSource.InvalidatedCallback {
-        override fun onInvalidated() {
-            invalidate(true)
-        }
-    }
+    private val callback = { invalidate(true) }
 
     private val refreshRetryCallback = Runnable { invalidate(true) }
 

@@ -427,6 +427,18 @@ class PositionalDataSourceTest {
         assertTrue(orig.isInvalid)
     }
 
+    @Test
+    fun addRemoveInvalidateFunction() {
+        val datasource = ListDataSource(listOf(0, 1, 2))
+        val noopCallback = { }
+        datasource.addInvalidatedCallback(noopCallback)
+        assert(datasource.onInvalidatedCallbacks.size == 1)
+        datasource.removeInvalidatedCallback { }
+        assert(datasource.onInvalidatedCallbacks.size == 1)
+        datasource.removeInvalidatedCallback(noopCallback)
+        assert(datasource.onInvalidatedCallbacks.size == 0)
+    }
+
     companion object {
         private val ERROR = Exception()
     }

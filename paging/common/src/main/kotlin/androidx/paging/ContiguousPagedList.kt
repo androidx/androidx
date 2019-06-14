@@ -229,8 +229,8 @@ open class ContiguousPagedList<K : Any, V : Any>(
         triggerBoundaryCallback(LoadType.REFRESH, initialResult.data)
     }
 
-    override fun dispatchCurrentLoadState(listener: LoadStateListener) =
-        pager.loadStateManager.dispatchCurrentLoadState(listener)
+    override fun dispatchCurrentLoadState(callback: LoadStateListener) =
+        pager.loadStateManager.dispatchCurrentLoadState(callback)
 
     override fun setInitialLoadState(loadState: LoadState, error: Throwable?) =
         pager.loadStateManager.setState(LoadType.REFRESH, loadState, error)

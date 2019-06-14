@@ -69,40 +69,35 @@ class PagedListSampleActivity : AppCompatActivity() {
             adapter.currentList?.retry()
         }
 
-        adapter.addLoadStateListener(object : PagedList.LoadStateListener {
-            override fun onLoadStateChanged(
-                type: PagedList.LoadType,
-                state: PagedList.LoadState,
-                error: Throwable?
-            ) {
-                val button = when (type) {
-                    PagedList.LoadType.REFRESH -> buttonRefresh
-                    PagedList.LoadType.START -> buttonStart
-                    PagedList.LoadType.END -> buttonEnd
+        adapter.addLoadStateListener { type: PagedList.LoadType, state: PagedList.LoadState,
+                                       _: Throwable? ->
+            val button = when (type) {
+                PagedList.LoadType.REFRESH -> buttonRefresh
+                PagedList.LoadType.START -> buttonStart
+                PagedList.LoadType.END -> buttonEnd
+            }
+            when (state) {
+                PagedList.LoadState.IDLE -> {
+                    button.text = "Idle"
+                    button.isEnabled = type == PagedList.LoadType.REFRESH
                 }
-                when (state) {
-                    PagedList.LoadState.IDLE -> {
-                        button.text = "Idle"
-                        button.isEnabled = type == PagedList.LoadType.REFRESH
-                    }
-                    PagedList.LoadState.LOADING -> {
-                        button.text = "Loading"
-                        button.isEnabled = false
-                    }
-                    PagedList.LoadState.DONE -> {
-                        button.text = "Done"
-                        button.isEnabled = false
-                    }
-                    PagedList.LoadState.ERROR -> {
-                        button.text = "Error"
-                        button.isEnabled = false
-                    }
-                    PagedList.LoadState.RETRYABLE_ERROR -> {
-                        button.text = "Error"
-                        button.isEnabled = true
-                    }
+                PagedList.LoadState.LOADING -> {
+                    button.text = "Loading"
+                    button.isEnabled = false
+                }
+                PagedList.LoadState.DONE -> {
+                    button.text = "Done"
+                    button.isEnabled = false
+                }
+                PagedList.LoadState.ERROR -> {
+                    button.text = "Error"
+                    button.isEnabled = false
+                }
+                PagedList.LoadState.RETRYABLE_ERROR -> {
+                    button.text = "Error"
+                    button.isEnabled = true
                 }
             }
-        })
+        }
     }
 }
