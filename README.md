@@ -24,33 +24,38 @@ We **are not** currently accepting new modules.
 
 1. Install `repo` (Repo is a tool that makes it easier to work with Git in the context of Android. For more information about Repo, see the [Repo Command Reference](https://source.android.com/setup/develop/repo))
 
-
+```bash
     mkdir ~/bin
     PATH=~/bin:$PATH
     curl https://storage.googleapis.com/git-repo-downloads/repo > ~/bin/repo
     chmod a+x ~/bin/repo
+```
 
 2. Configure Git with your real name and email address.
 
-
+```bash
     git config --global user.name "Your Name"
     git config --global user.email "you@example.com"
+```
 
 3. Create a directory for your checkout (it can be any name)
 
-
+```bash
     mkdir androidx-master-dev
     cd androidx-master-dev
+```
 
 4. Use `repo` command to initialize the repository.
 
-
+```bash
     repo init -u https://android.googlesource.com/platform/manifest -b androidx-master-dev
+```
 
 5. Now your repository is set to pull only what you need for building and running AndroidX libraries. Download the code (and grab a coffee while we pull down 6GB):
 
-
+```bash
     repo sync -j8 -c
+```
 
 You will use this command to sync your checkout in the future - it’s similar to `git fetch`
 
