@@ -115,17 +115,6 @@ function checkLicenseAgreement() {
   fi
 }
 
-# Temporary fix. Remove this after fixing b/135183535
-function updateJvmHeapSize() {
-  echo "Setting jvm heap size"
-  if [ "$osName}" == "mac" ]; then
-    sed -i 's/-Xmx.*/-Xmx8g' "$(findStudioMacAppPath)/Contents/bin/studio.vmoptions"
-  else
-    sed -i 's/-Xmx.*/-Xmx8g/' "${studioUnzippedPath}/android-studio/bin/studio64.vmoptions"
-    sed -i 's/-Xmx.*/-Xmx4g/' "${studioUnzippedPath}/android-studio/bin/studio.vmoptions"
-  fi
-}
-
 function updateStudio() {
   # skip if already up-to-date
   if stat "${studioUnzippedPath}" >/dev/null 2>/dev/null; then
@@ -213,7 +202,6 @@ function runStudioMac() {
 }
 
 function runStudio() {
-  updateJvmHeapSize
   if [ "${osName}" == "mac" ]; then
     runStudioMac
   else
