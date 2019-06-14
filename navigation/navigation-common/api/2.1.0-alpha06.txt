@@ -62,7 +62,7 @@ package androidx.navigation {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface NavDestination.ClassType {
-    method public abstract Class value();
+    method public abstract Class<?> value();
   }
 
   public interface NavDirections {
