@@ -569,7 +569,7 @@ public abstract class RoomDatabase {
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
-         * This method is not valid if this {@link Builder} is for an in memory database.
+         * This method is not supported for an in memory database {@link Builder}.
          *
          * @param databaseFilePath The file path within the 'assets/' directory of where the
          *                         database file is located.
@@ -593,7 +593,7 @@ public abstract class RoomDatabase {
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
-         * This method is not valid if this {@link Builder} is for an in memory database.
+         * This method is not supported for an in memory database {@link Builder}.
          *
          * @param databaseFile The database file.
          *
