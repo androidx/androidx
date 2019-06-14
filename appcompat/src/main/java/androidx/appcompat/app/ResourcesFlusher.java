@@ -33,7 +33,7 @@ class ResourcesFlusher {
     private static Field sDrawableCacheField;
     private static boolean sDrawableCacheFieldFetched;
 
-    private static Class sThemedResourceCacheClazz;
+    private static Class<?> sThemedResourceCacheClazz;
     private static boolean sThemedResourceCacheClazzFetched;
 
     private static Field sThemedResourceCache_mUnthemedEntriesField;

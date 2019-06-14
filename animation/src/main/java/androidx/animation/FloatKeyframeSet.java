@@ -106,7 +106,7 @@ class FloatKeyframeSet extends KeyframeSet<Float> implements Keyframes.FloatKeyf
     }
 
     @Override
-    public Class getType() {
+    public Class<Float> getType() {
         return Float.class;
     }
 }

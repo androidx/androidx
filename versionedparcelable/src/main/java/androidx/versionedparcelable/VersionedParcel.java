@@ -1037,7 +1037,7 @@ public abstract class VersionedParcel {
     }
 
     private void writeVersionedParcelableCreator(VersionedParcelable p) {
-        Class name = null;
+        Class<?> name;
         try {
             name = findParcelClass(p.getClass());
         } catch (ClassNotFoundException e) {
@@ -1612,7 +1612,7 @@ public abstract class VersionedParcel {
         return m;
     }
 
-    private Method getWriteMethod(Class baseCls) throws IllegalAccessException,
+    private Method getWriteMethod(Class<?> baseCls) throws IllegalAccessException,
             NoSuchMethodException, ClassNotFoundException {
         Method m = mWriteCache.get(baseCls.getName());
         if (m == null) {
@@ -1623,9 +1623,9 @@ public abstract class VersionedParcel {
         return m;
     }
 
-    private Class findParcelClass(Class<?> cls)
+    private Class<?> findParcelClass(Class<?> cls)
             throws ClassNotFoundException {
-        Class ret = mParcelizerCache.get(cls.getName());
+        Class<?> ret = mParcelizerCache.get(cls.getName());
         if (ret == null) {
             String pkg = cls.getPackage().getName();
             String c = String.format("%s.%sParcelizer", pkg, cls.getSimpleName());

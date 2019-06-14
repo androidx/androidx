@@ -527,7 +527,7 @@ public class Loader<D> {
         if (data == null) {
             sb.append("null");
         } else {
-            Class cls = data.getClass();
+            Class<?> cls = data.getClass();
             sb.append(cls.getSimpleName());
             sb.append("{");
             sb.append(Integer.toHexString(System.identityHashCode(cls)));
@@ -540,7 +540,7 @@ public class Loader<D> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(64);
-        Class cls = getClass();
+        Class<?> cls = getClass();
         sb.append(cls.getSimpleName());
         sb.append("{");
         sb.append(Integer.toHexString(System.identityHashCode(cls)));

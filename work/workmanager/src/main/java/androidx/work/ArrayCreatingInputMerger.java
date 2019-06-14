@@ -59,7 +59,7 @@ public final class ArrayCreatingInputMerger extends InputMerger {
             for (Map.Entry<String, Object> entry : input.getKeyValueMap().entrySet()) {
                 String key = entry.getKey();
                 Object value = entry.getValue();
-                Class valueClass = value.getClass();
+                Class<?> valueClass = value.getClass();
                 Object mergedValue;
 
                 Object existingValue = mergedValues.get(key);
@@ -74,7 +74,7 @@ public final class ArrayCreatingInputMerger extends InputMerger {
                     }
                 } else {
                     // We've encountered this key before.
-                    Class existingValueClass = existingValue.getClass();
+                    Class<?> existingValueClass = existingValue.getClass();
 
                     if (existingValueClass.equals(valueClass)) {
                         // The classes match; we can merge.

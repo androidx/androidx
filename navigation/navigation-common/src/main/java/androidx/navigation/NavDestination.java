@@ -108,7 +108,7 @@ public class NavDestination {
         }
     }
 
-    private static final HashMap<String, Class> sClasses = new HashMap<>();
+    private static final HashMap<String, Class<?>> sClasses = new HashMap<>();
 
     /**
      * Parse the class associated with this destination from a raw name, generally extracted
@@ -136,7 +136,7 @@ public class NavDestination {
         if (name.charAt(0) == '.') {
             name = context.getPackageName() + name;
         }
-        Class clazz = sClasses.get(name);
+        Class<?> clazz = sClasses.get(name);
         if (clazz == null) {
             try {
                 clazz = Class.forName(name, true, context.getClassLoader());
@@ -149,7 +149,7 @@ public class NavDestination {
             throw new IllegalArgumentException(name + " must be a subclass of "
                     + expectedClassType);
         }
-        return clazz;
+        return (Class<? extends C>) clazz;
     }
 
     /**
