@@ -150,21 +150,16 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
             val expectedTrailing = ITEMS.size - start - count
             assertEquals(ITEMS.size, actual.size)
-            assertEquals(
-                (ITEMS.size - start - expectedTrailing),
-                actual.storageCount
-            )
             assertEquals(start, actual.leadingNullCount)
             assertEquals(expectedTrailing, actual.trailingNullCount)
         } else {
             assertEquals(ITEMS.subList(start, start + count), actual)
 
             assertEquals(count, actual.size)
-            assertEquals(actual.size, actual.storageCount)
             assertEquals(0, actual.leadingNullCount)
             assertEquals(0, actual.trailingNullCount)
         }
-        assertEquals(count, actual.loadedCount)
+        assertEquals(count, actual.storageCount)
     }
 
     private fun verifyRange(start: Int, count: Int, actual: PagedList<Item>) {

@@ -1035,7 +1035,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * @see size
      */
     open val loadedCount
-        get() = storage.loadedCount
+        get() = storage.storageCount
 
     /**
      * Returns whether the list is immutable.
@@ -1212,10 +1212,10 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     private fun dispatchBoundaryCallbacks(begin: Boolean, end: Boolean) {
         // safe to deref boundaryCallback here, since we only defer if boundaryCallback present
         if (begin) {
-            boundaryCallback!!.onItemAtFrontLoaded(storage.firstLoadedItem!!)
+            boundaryCallback!!.onItemAtFrontLoaded(storage.firstLoadedItem)
         }
         if (end) {
-            boundaryCallback!!.onItemAtEndLoaded(storage.lastLoadedItem!!)
+            boundaryCallback!!.onItemAtEndLoaded(storage.lastLoadedItem)
         }
     }
 
