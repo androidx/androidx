@@ -569,17 +569,16 @@ public abstract class RoomDatabase {
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
-         * This method has no effect if this {@link Builder} is for an in memory database.
+         * This method is not valid if this {@link Builder} is for an in memory database.
          *
          * @param databaseFilePath The file path within the 'assets/' directory of where the
          *                         database file is located.
          *
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> createFromAsset(@NonNull String databaseFilePath) {
             mCopyFromAssetPath = databaseFilePath;
-            mCopyFromFile = null;
             return this;
         }
 
@@ -594,15 +593,14 @@ public abstract class RoomDatabase {
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
-         * This method has no effect if this {@link Builder} is for an in memory database.
+         * This method is not valid if this {@link Builder} is for an in memory database.
          *
          * @param databaseFile The database file.
          *
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> createFromFile(@NonNull File databaseFile) {
-            mCopyFromAssetPath = null;
             mCopyFromFile = databaseFile;
             return this;
         }
@@ -612,7 +610,7 @@ public abstract class RoomDatabase {
          * {@link FrameworkSQLiteOpenHelperFactory}.
          *
          * @param factory The factory to use to access the database.
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> openHelperFactory(@Nullable SupportSQLiteOpenHelper.Factory factory) {
@@ -637,7 +635,7 @@ public abstract class RoomDatabase {
          *
          * @param migrations The migration object that can modify the database and to the necessary
          *                   changes.
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> addMigrations(@NonNull Migration... migrations) {
@@ -663,7 +661,7 @@ public abstract class RoomDatabase {
          * <p>
          * You may want to turn this check off for testing.
          *
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> allowMainThreadQueries() {
@@ -684,7 +682,7 @@ public abstract class RoomDatabase {
          * The default value is {@link JournalMode#AUTOMATIC}.
          *
          * @param journalMode The journal mode.
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> setJournalMode(@NonNull JournalMode journalMode) {
@@ -707,7 +705,7 @@ public abstract class RoomDatabase {
          * <p>
          * The input {@code Executor} cannot run tasks on the UI thread.
          **
-         * @return this
+         * @return This {@link Builder} instance.
          *
          * @see #setTransactionExecutor(Executor)
          */
@@ -734,7 +732,7 @@ public abstract class RoomDatabase {
          * <p>
          * The input {@code Executor} cannot run tasks on the UI thread.
          *
-         * @return this
+         * @return This {@link Builder} instance.
          *
          * @see #setQueryExecutor(Executor)
          */
@@ -755,7 +753,7 @@ public abstract class RoomDatabase {
          * This does not work for in-memory databases. This does not work between database instances
          * targeting different database files.
          *
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> enableMultiInstanceInvalidation() {
@@ -783,7 +781,7 @@ public abstract class RoomDatabase {
          * To let Room fallback to destructive migration only during a schema downgrade then use
          * {@link #fallbackToDestructiveMigrationOnDowngrade()}.
          *
-         * @return this
+         * @return This {@link Builder} instance.
          *
          * @see #fallbackToDestructiveMigrationOnDowngrade()
          */
@@ -798,7 +796,7 @@ public abstract class RoomDatabase {
          * Allows Room to destructively recreate database tables if {@link Migration}s are not
          * available when downgrading to old schema versions.
          *
-         * @return this
+         * @return This {@link Builder} instance.
          *
          * @see Builder#fallbackToDestructiveMigration()
          */
@@ -828,7 +826,7 @@ public abstract class RoomDatabase {
          *
          * @param startVersions The set of schema versions from which Room should use a destructive
          *                      migration.
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> fallbackToDestructiveMigrationFrom(int... startVersions) {
@@ -845,7 +843,7 @@ public abstract class RoomDatabase {
          * Adds a {@link Callback} to this database.
          *
          * @param callback The callback.
-         * @return this
+         * @return This {@link Builder} instance.
          */
         @NonNull
         public Builder<T> addCallback(@NonNull Callback callback) {
@@ -901,7 +899,17 @@ public abstract class RoomDatabase {
             if (mFactory == null) {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
-            if (mName != null && (mCopyFromAssetPath != null || mCopyFromFile != null)) {
+
+            if (mCopyFromAssetPath != null || mCopyFromFile != null) {
+                if (mName == null) {
+                    throw new IllegalArgumentException("Cannot create from asset or file for an "
+                            + "in-memory database.");
+                }
+                if (mCopyFromAssetPath != null && mCopyFromFile != null) {
+                    throw new IllegalArgumentException("Both createFromAsset() and "
+                            + "createFromFile() was called on this Builder but the database can "
+                            + "only be created using one of the two configurations.");
+                }
                 mFactory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
                         mFactory);
             }
