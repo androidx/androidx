@@ -657,11 +657,16 @@ package androidx.ui.core {
     ctor public TextRange(int start, int end);
     method public int component1();
     method public int component2();
+    method public boolean contains(androidx.ui.core.TextRange other);
+    method public boolean contains(int offset);
     method public androidx.ui.core.TextRange copy(int start, int end);
     method public boolean getCollapsed();
     method public int getEnd();
+    method public int getLength();
     method public int getStart();
+    method public boolean intersects(androidx.ui.core.TextRange other);
     property public final boolean collapsed;
+    property public final int length;
   }
 
   public final class TextRangeKt {
