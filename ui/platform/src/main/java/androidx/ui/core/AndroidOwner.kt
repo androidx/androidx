@@ -184,8 +184,9 @@ class AndroidCraneView constructor(context: Context)
         // If the repaint boundary has this layoutNode as a child, the repaint boundary
         // position and size may have changed, so set it up for resetting its bounds after the
         // layout pass completes.
-        if (repaintBoundaryNode != null &&
-            layoutNode.parentLayoutNode == repaintBoundaryNode.parentLayoutNode) {
+        if (repaintBoundaryNode == null) {
+            invalidate() // The main view needs to be redrawn
+        } else if (layoutNode.parentLayoutNode == repaintBoundaryNode.parentLayoutNode) {
             var boundary: RepaintBoundaryNode? = repaintBoundaryNode
             val parentLayoutNode = repaintBoundaryNode.parentLayoutNode
             while (boundary != null && boundary.parentLayoutNode == parentLayoutNode) {

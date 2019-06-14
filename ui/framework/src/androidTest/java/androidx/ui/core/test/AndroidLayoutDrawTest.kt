@@ -199,6 +199,34 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = blue, innerColor = white, offset = 10, size = 10)
     }
 
+    // When there is no repaint boundary around a moving child, the child move
+    // should be reflected in the repainted bitmap
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun recomposeMove() {
+        val white = Color(0xFFFFFFFF.toInt())
+        val blue = Color(0xFF000080.toInt())
+        val model = SquareModel(outerColor = blue, innerColor = white)
+        var offset = OffsetModel(10.ipx)
+        composeMovingSquares(model, offset)
+        validateSquareColors(outerColor = blue, innerColor = white, size = 10)
+
+        drawLatch = CountDownLatch(1)
+        runOnUiThread {
+            // there isn't going to be a normal draw because we are just moving the repaint
+            // boundary, but we should have a draw cycle
+            findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
+                ViewTreeObserver.OnDrawListener {
+                override fun onDraw() {
+                    drawLatch.countDown()
+                }
+            })
+            offset.offset = 20.ipx
+        }
+
+        validateSquareColors(outerColor = blue, innerColor = white, offset = 10, size = 10)
+    }
+
     // Tests that recomposition works with models used within Layout components
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -717,6 +745,30 @@ class AndroidLayoutDrawTest {
                                     paint.color = model.innerColor
                                     canvas.drawRect(parentSize.toRect(), paint)
                                 }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun composeMovingSquares(model: SquareModel, offset: OffsetModel) {
+        runOnUiThread {
+            activity.setContent {
+                CraneWrapper {
+                    Draw { canvas, parentSize ->
+                        val paint = Paint()
+                        paint.color = model.outerColor
+                        canvas.drawRect(parentSize.toRect(), paint)
+                    }
+                    Position(size = model.size * 3, offset = offset) {
+                        AtLeastSize(size = model.size) {
+                            Draw { canvas, parentSize ->
+                                drawLatch.countDown()
+                                val paint = Paint()
+                                paint.color = model.innerColor
+                                canvas.drawRect(parentSize.toRect(), paint)
                             }
                         }
                     }
