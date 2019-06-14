@@ -15,12 +15,9 @@
  */
 package androidx.ui.core
 
-import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-
-internal val ParentDataAmbient = Ambient.of<Any?>(key = "parent data")
 
 /**
  * Provide data that can be read from the [Measurable] children.
@@ -57,5 +54,9 @@ internal val ParentDataAmbient = Ambient.of<Any?>(key = "parent data")
  */
 @Composable
 fun ParentData(data: Any, @Children children: @Composable() () -> Unit) {
-    ParentDataAmbient.Provider(value = data, children = children)
+    <DataNode key=ParentDataKey value=data>
+        <children/>
+    </DataNode>
 }
+
+internal val ParentDataKey = DataNodeKey<Any>("Compose:ParentData")
