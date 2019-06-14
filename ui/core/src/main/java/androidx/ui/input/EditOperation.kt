@@ -223,7 +223,38 @@ data class DeleteSurroundingTextInCodePointsEditOp(
     val afterLength: Int
 ) : EditOperation {
     override fun process(buffer: EditingBuffer) {
-        TODO("Not implemented yet")
+        // Convert code point length into Java character length. Then call the common logic of the
+        // DeleteSurroundingTextEditOp
+        var beforeLenInChars = 0
+        for (i in 0 until beforeLength) {
+            beforeLenInChars++
+            if (buffer.selectionStart > beforeLenInChars) {
+                val lead = buffer[buffer.selectionStart - beforeLenInChars - 1]
+                val trail = buffer[buffer.selectionStart - beforeLenInChars]
+
+                if (Character.isSurrogatePair(lead, trail)) {
+                    beforeLenInChars++
+                }
+            }
+            if (beforeLenInChars == buffer.selectionStart) break
+        }
+
+        var afterLenInChars = 0
+        for (i in 0 until afterLength) {
+            afterLenInChars++
+            if (buffer.selectionEnd + afterLenInChars < buffer.length) {
+                val lead = buffer[buffer.selectionEnd + afterLenInChars - 1]
+                val trail = buffer[buffer.selectionEnd + afterLenInChars]
+
+                if (Character.isSurrogatePair(lead, trail)) {
+                    afterLenInChars++
+                }
+            }
+            if (buffer.selectionEnd + afterLenInChars == buffer.length) break
+        }
+
+        buffer.delete(buffer.selectionEnd, buffer.selectionEnd + afterLenInChars)
+        buffer.delete(buffer.selectionStart - beforeLenInChars, buffer.selectionStart)
     }
 }
 /**
