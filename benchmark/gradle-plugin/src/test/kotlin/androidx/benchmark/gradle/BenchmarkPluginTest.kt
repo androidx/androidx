@@ -109,6 +109,7 @@ class BenchmarkPluginTest {
         val output = gradleRunner.withArguments("tasks").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
+        assertTrue { output.output.contains("benchmarkReport - ") }
     }
 
     @Test
@@ -143,6 +144,7 @@ class BenchmarkPluginTest {
         val output = gradleRunner.withArguments("tasks").build()
         assertTrue { output.output.contains("lockClocks - ") }
         assertTrue { output.output.contains("unlockClocks - ") }
+        assertTrue { output.output.contains("benchmarkReport - ") }
     }
 
     @Test
@@ -206,5 +208,40 @@ class BenchmarkPluginTest {
         assertFailsWith(UnexpectedBuildFailure::class) {
             gradleRunner.withArguments("-m", "connectedAndroidTest").build()
         }
+    }
+
+    @Test
+    fun applyPluginBeforeAndroid() {
+        buildFile.writeText(
+            """
+            plugins {
+                id('androidx.benchmark')
+                id('com.android.library')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
+            }
+        """.trimIndent()
+        )
+
+        val output = gradleRunner.withArguments("tasks").build()
+        assertTrue { output.output.contains("lockClocks - ") }
+        assertTrue { output.output.contains("unlockClocks - ") }
+        assertTrue { output.output.contains("benchmarkReport - ") }
     }
 }
