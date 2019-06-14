@@ -144,7 +144,8 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         }
 
         @Override
-        public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
+        public void onCapabilitiesChanged(
+                @NonNull Network network, @NonNull NetworkCapabilities capabilities) {
             // The Network parameter is unreliable when a VPN app is running - use active network.
             Logger.get().debug(
                     TAG,
@@ -153,7 +154,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         }
 
         @Override
-        public void onLost(Network network) {
+        public void onLost(@NonNull Network network) {
             Logger.get().debug(TAG, "Network connection lost");
             setState(getActiveNetworkState());
         }
