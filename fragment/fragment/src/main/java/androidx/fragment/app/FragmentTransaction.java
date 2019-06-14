@@ -158,7 +158,7 @@ public abstract class FragmentTransaction {
     }
 
     void doAddOp(int containerViewId, Fragment fragment, @Nullable String tag, int opcmd) {
-        final Class fragmentClass = fragment.getClass();
+        final Class<?> fragmentClass = fragment.getClass();
         final int modifiers = fragmentClass.getModifiers();
         if (fragmentClass.isAnonymousClass() || !Modifier.isPublic(modifiers)
                 || (fragmentClass.isMemberClass() && !Modifier.isStatic(modifiers))) {

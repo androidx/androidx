@@ -38,10 +38,10 @@ class ClassesInfoCache {
     private static final int CALL_TYPE_PROVIDER = 1;
     private static final int CALL_TYPE_PROVIDER_WITH_EVENT = 2;
 
-    private final Map<Class, CallbackInfo> mCallbackMap = new HashMap<>();
-    private final Map<Class, Boolean> mHasLifecycleMethods = new HashMap<>();
+    private final Map<Class<?>, CallbackInfo> mCallbackMap = new HashMap<>();
+    private final Map<Class<?>, Boolean> mHasLifecycleMethods = new HashMap<>();
 
-    boolean hasLifecycleMethods(Class klass) {
+    boolean hasLifecycleMethods(Class<?> klass) {
         Boolean hasLifecycleMethods = mHasLifecycleMethods.get(klass);
         if (hasLifecycleMethods != null) {
             return hasLifecycleMethods;
@@ -65,7 +65,7 @@ class ClassesInfoCache {
         return false;
     }
 
-    private Method[] getDeclaredMethods(Class klass) {
+    private Method[] getDeclaredMethods(Class<?> klass) {
         try {
             return klass.getDeclaredMethods();
         } catch (NoClassDefFoundError e) {
@@ -77,7 +77,7 @@ class ClassesInfoCache {
         }
     }
 
-    CallbackInfo getInfo(Class klass) {
+    CallbackInfo getInfo(Class<?> klass) {
         CallbackInfo existing = mCallbackMap.get(klass);
         if (existing != null) {
             return existing;
@@ -87,7 +87,7 @@ class ClassesInfoCache {
     }
 
     private void verifyAndPutHandler(Map<MethodReference, Lifecycle.Event> handlers,
-            MethodReference newHandler, Lifecycle.Event newEvent, Class klass) {
+            MethodReference newHandler, Lifecycle.Event newEvent, Class<?> klass) {
         Lifecycle.Event event = handlers.get(newHandler);
         if (event != null && newEvent != event) {
             Method method = newHandler.mMethod;
@@ -101,8 +101,8 @@ class ClassesInfoCache {
         }
     }
 
-    private CallbackInfo createInfo(Class klass, @Nullable Method[] declaredMethods) {
-        Class superclass = klass.getSuperclass();
+    private CallbackInfo createInfo(Class<?> klass, @Nullable Method[] declaredMethods) {
+        Class<?> superclass = klass.getSuperclass();
         Map<MethodReference, Lifecycle.Event> handlerToEvent = new HashMap<>();
         if (superclass != null) {
             CallbackInfo superInfo = getInfo(superclass);
@@ -111,8 +111,8 @@ class ClassesInfoCache {
             }
         }
 
-        Class[] interfaces = klass.getInterfaces();
-        for (Class intrfc : interfaces) {
+        Class<?>[] interfaces = klass.getInterfaces();
+        for (Class<?> intrfc : interfaces) {
             for (Map.Entry<MethodReference, Lifecycle.Event> entry : getInfo(
                     intrfc).mHandlerToEvent.entrySet()) {
                 verifyAndPutHandler(handlerToEvent, entry.getKey(), entry.getValue(), klass);

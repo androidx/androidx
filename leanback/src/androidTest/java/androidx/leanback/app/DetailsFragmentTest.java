@@ -275,7 +275,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    private void navigateBetweenRowsAndVideoUsingRequestFocusInternal(Class cls)
+    private void navigateBetweenRowsAndVideoUsingRequestFocusInternal(Class<?> cls)
             throws Throwable {
         SingleFragmentTestActivity activity = launchAndWaitActivity(cls,
                 new Options().uiVisibility(
@@ -339,7 +339,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         navigateBetweenRowsAndVideoUsingRequestFocusInternal(DetailsFragmentWithVideo2.class);
     }
 
-    private void navigateBetweenRowsAndVideoUsingDPADInternal(Class cls) throws Throwable {
+    private void navigateBetweenRowsAndVideoUsingDPADInternal(Class<?> cls) throws Throwable {
         SingleFragmentTestActivity activity = launchAndWaitActivity(cls,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);
@@ -410,7 +410,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
         }
     }
 
-    private void fragmentOnStartWithVideoInternal(Class cls) throws Throwable {
+    private void fragmentOnStartWithVideoInternal(Class<?> cls) throws Throwable {
         final SingleFragmentTestActivity activity = launchAndWaitActivity(cls,
                 new Options().uiVisibility(
                         View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_FULLSCREEN), 0);

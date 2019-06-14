@@ -60,7 +60,7 @@ import java.util.Map;
  */
 public class AppCompatViewInflater {
 
-    private static final Class<?>[] sConstructorSignature = new Class[]{
+    private static final Class<?>[] sConstructorSignature = new Class<?>[]{
             Context.class, AttributeSet.class};
     private static final int[] sOnClickAttrs = new int[]{android.R.attr.onClick};
 

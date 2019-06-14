@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
 public class SpannableBuilderTest {
 
     private TextWatcher mWatcher;
-    private Class mClass;
+    private Class<?> mClass;
 
     @Before
     public void setup() {

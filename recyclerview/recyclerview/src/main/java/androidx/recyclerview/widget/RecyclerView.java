@@ -362,7 +362,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     static final String TRACE_CREATE_VIEW_TAG = "RV CreateView";
     private static final Class<?>[] LAYOUT_MANAGER_CONSTRUCTOR_SIGNATURE =
-            new Class[]{Context.class, AttributeSet.class, int.class, int.class};
+            new Class<?>[]{Context.class, AttributeSet.class, int.class, int.class};
 
     private final RecyclerViewDataObserver mObserver = new RecyclerViewDataObserver();
 

@@ -50,8 +50,8 @@ public class ActivityFullLifecycleTest {
     private final Class<? extends Activity> activityClass;
 
     @Parameterized.Parameters
-    public static Class[] params() {
-        return new Class[]{CollectingSupportActivity.class,
+    public static Class<?>[] params() {
+        return new Class<?>[]{CollectingSupportActivity.class,
                 FrameworkLifecycleRegistryActivity.class};
     }
 

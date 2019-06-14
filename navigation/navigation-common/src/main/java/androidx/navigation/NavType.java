@@ -159,14 +159,14 @@ public abstract class NavType<T> {
 
                 if (type.endsWith("[]")) {
                     className = className.substring(0, className.length() - 2);
-                    Class clazz = Class.forName(className);
+                    Class<?> clazz = Class.forName(className);
                     if (Parcelable.class.isAssignableFrom(clazz)) {
                         return new ParcelableArrayType(clazz);
                     } else if (Serializable.class.isAssignableFrom(clazz)) {
                         return new SerializableArrayType(clazz);
                     }
                 } else {
-                    Class clazz = Class.forName(className);
+                    Class<?> clazz = Class.forName(className);
                     if (Parcelable.class.isAssignableFrom(clazz)) {
                         return new ParcelableType(clazz);
                     } else if (Enum.class.isAssignableFrom(clazz)) {

@@ -46,8 +46,9 @@ import org.junit.Test;
  */
 public abstract class AppCompatBaseImageViewTest<T extends ImageView>
         extends AppCompatBaseViewTest<BaseTestActivity, T> {
-    public AppCompatBaseImageViewTest(Class clazz) {
-        super(clazz);
+    @SuppressWarnings("unchecked")
+    public AppCompatBaseImageViewTest(Class<? extends BaseTestActivity> clazz) {
+        super((Class<BaseTestActivity>) clazz);
     }
 
     private void verifyImageSourceIsColoredAs(String description, @NonNull ImageView imageView,
