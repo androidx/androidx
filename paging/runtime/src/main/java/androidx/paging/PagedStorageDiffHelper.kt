@@ -30,19 +30,16 @@ import androidx.recyclerview.widget.ListUpdateCallback
  *
  * To only inform DiffUtil about single loaded page in this case, by pruning all other nulls from
  * consideration.
- *
- * @see PagedStorage.computeLeadingNulls
- * @see PagedStorage.computeTrailingNulls
  */
 internal fun <T : Any> PagedStorage<T>.computeDiff(
     newList: PagedStorage<T>,
     diffCallback: DiffUtil.ItemCallback<T>
 ): DiffUtil.DiffResult {
-    val oldOffset = computeLeadingNulls()
-    val newOffset = newList.computeLeadingNulls()
+    val oldOffset = leadingNullCount
+    val newOffset = newList.leadingNullCount
 
-    val oldSize = size - oldOffset - computeTrailingNulls()
-    val newSize = newList.size - newOffset - newList.computeTrailingNulls()
+    val oldSize = size - oldOffset - trailingNullCount
+    val newSize = newList.size - newOffset - newList.trailingNullCount
 
     return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
         override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
@@ -121,10 +118,10 @@ internal fun <T : Any> PagedStorage<T>.dispatchDiff(
     newList: PagedStorage<T>,
     diffResult: DiffUtil.DiffResult
 ) {
-    val trailingOld = computeTrailingNulls()
-    val trailingNew = newList.computeTrailingNulls()
-    val leadingOld = computeLeadingNulls()
-    val leadingNew = newList.computeLeadingNulls()
+    val trailingOld = trailingNullCount
+    val trailingNew = newList.trailingNullCount
+    val leadingOld = leadingNullCount
+    val leadingNew = newList.leadingNullCount
 
     if (trailingOld == 0 &&
         trailingNew == 0 &&
@@ -168,13 +165,13 @@ internal fun PagedStorage<*>.transformAnchorIndex(
     newList: PagedStorage<*>,
     oldPosition: Int
 ): Int {
-    val oldOffset = computeLeadingNulls()
+    val oldOffset = leadingNullCount
 
     // diffResult's indices starting after nulls, need to transform to diffutil indices
     // (see also dispatchDiff(), which adds this offset when dispatching)
     val diffIndex = oldPosition - oldOffset
 
-    val oldSize = size - oldOffset - computeTrailingNulls()
+    val oldSize = size - oldOffset - trailingNullCount
 
     // if our anchor is non-null, use it or close item's position in new list
     if (diffIndex in 0 until oldSize) {
