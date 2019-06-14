@@ -440,7 +440,7 @@ class AndroidLayoutDrawTest {
         var measureCalls = 0
         var layoutCalls = 0
 
-        val layoutLatch = CountDownLatch(2)
+        val layoutLatch = CountDownLatch(1)
         runOnUiThread {
             activity.compose {
                 Draw { canvas, parentSize ->
