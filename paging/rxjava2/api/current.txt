@@ -1,10 +1,6 @@
 // Signature format: 3.0
 package androidx.paging {
 
-  public final class RxDataSourceUtilKt {
-    ctor public RxDataSourceUtilKt();
-  }
-
   public final class RxPagedListBuilder<Key, Value> {
     ctor public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
     ctor public RxPagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
