@@ -81,6 +81,54 @@ inline fun View.doOnPreDraw(crossinline action: (view: View) -> Unit): OneShotPr
 }
 
 /**
+ * Performs the given action when this view is attached to a window. If the view is already
+ * attached to a window the action will be performed immediately, otherwise the
+ * action will be performed after the view is next attached.
+ *
+ * The action will only be invoked once, and any listeners will then be removed.
+ *
+ * @see doOnDetach
+ */
+inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
+    if (ViewCompat.isAttachedToWindow(this)) {
+        action(this)
+    } else {
+        addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {
+                removeOnAttachStateChangeListener(this)
+                action(view)
+            }
+
+            override fun onViewDetachedFromWindow(view: View) {}
+        })
+    }
+}
+
+/**
+ * Performs the given action when this view is detached from a window. If the view is not
+ * attached to a window the action will be performed immediately, otherwise the
+ * action will be performed after the view is detached from its current window.
+ *
+ * The action will only be invoked once, and any listeners will then be removed.
+ *
+ * @see doOnAttach
+ */
+inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
+    if (!ViewCompat.isAttachedToWindow(this)) {
+        action(this)
+    } else {
+        addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(view: View) {}
+
+            override fun onViewDetachedFromWindow(view: View) {
+                removeOnAttachStateChangeListener(this)
+                action(view)
+            }
+        })
+    }
+}
+
+/**
  * Updates this view's relative padding. This version of the method allows using named parameters
  * to just set one or more axes.
  *
