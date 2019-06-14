@@ -201,4 +201,17 @@ limitations under the License.
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.3" />
 
+    <Button
+        android:id="@+id/capture_quality"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:translationZ="1dp"
+        android:background="@android:drawable/btn_default"
+        android:textSize="11dp"
+        android:visibility="gone"
+        android:layout_marginTop="12dp"
+        app:layout_constraintStart_toStartOf="@id/torch_toggle"
+        app:layout_constraintTop_toBottomOf="@id/torch_toggle"
+         />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
