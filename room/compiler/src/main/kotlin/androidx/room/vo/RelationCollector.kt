@@ -57,10 +57,11 @@ data class RelationCollector(
     val affinity: SQLTypeAffinity,
     val mapTypeName: ParameterizedTypeName,
     val keyTypeName: TypeName,
-    val collectionTypeName: ParameterizedTypeName,
+    val relationTypeName: TypeName,
     val queryWriter: QueryWriter,
     val rowAdapter: RowAdapter,
-    val loadAllQuery: ParsedQuery
+    val loadAllQuery: ParsedQuery,
+    val relationTypeIsCollection: Boolean
 ) {
     // variable name of map containing keys to relation collections, set when writing the code
     // generator in writeInitCode
@@ -85,15 +86,19 @@ data class RelationCollector(
         }?.indexVar
         scope.builder().apply {
             readKey(cursorVarName, indexVar, scope) { tmpVar ->
-                val tmpCollectionVar = scope.getTmpVar(
+                if (relationTypeIsCollection) {
+                    val tmpCollectionVar = scope.getTmpVar(
                         "_tmp${relation.field.name.stripNonJava().capitalize()}Collection")
-                addStatement("$T $L = $L.get($L)", collectionTypeName, tmpCollectionVar,
+                    addStatement("$T $L = $L.get($L)", relationTypeName, tmpCollectionVar,
                         varName, tmpVar)
-                beginControlFlow("if ($L == null)", tmpCollectionVar).apply {
-                    addStatement("$L = new $T()", tmpCollectionVar, collectionTypeName)
-                    addStatement("$L.put($L, $L)", varName, tmpVar, tmpCollectionVar)
+                    beginControlFlow("if ($L == null)", tmpCollectionVar).apply {
+                        addStatement("$L = new $T()", tmpCollectionVar, relationTypeName)
+                        addStatement("$L.put($L, $L)", varName, tmpVar, tmpCollectionVar)
+                    }
+                    endControlFlow()
+                } else {
+                    addStatement("$L.put($L, null)", varName, tmpVar)
                 }
-                endControlFlow()
             }
         }
     }
@@ -107,19 +112,22 @@ data class RelationCollector(
         val indexVar = fieldsWithIndices.firstOrNull {
             it.field === relation.parentField
         }?.indexVar
-        val tmpCollectionVar = scope.getTmpVar(
-                "_tmp${relation.field.name.stripNonJava().capitalize()}Collection")
+        val tmpvarNameSuffix = if (relationTypeIsCollection) "Collection" else ""
+        val tmpRelationVar = scope.getTmpVar(
+                "_tmp${relation.field.name.stripNonJava().capitalize()}$tmpvarNameSuffix")
         scope.builder().apply {
-            addStatement("$T $L = null", collectionTypeName, tmpCollectionVar)
+            addStatement("$T $L = null", relationTypeName, tmpRelationVar)
             readKey(cursorVarName, indexVar, scope) { tmpVar ->
-                addStatement("$L = $L.get($L)", tmpCollectionVar, varName, tmpVar)
+                addStatement("$L = $L.get($L)", tmpRelationVar, varName, tmpVar)
             }
-            beginControlFlow("if ($L == null)", tmpCollectionVar).apply {
-                addStatement("$L = new $T()", tmpCollectionVar, collectionTypeName)
+            if (relationTypeIsCollection) {
+                beginControlFlow("if ($L == null)", tmpRelationVar).apply {
+                    addStatement("$L = new $T()", tmpRelationVar, relationTypeName)
+                }
+                endControlFlow()
             }
-            endControlFlow()
         }
-        return tmpCollectionVar to relation.field
+        return tmpRelationVar to relation.field
     }
 
     fun writeCollectionCode(scope: CodeGenScope) {
@@ -261,22 +269,23 @@ data class RelationCollector(
                     }
                 }
                 val keyType = keyTypeFor(context, affinity)
-                val collectionTypeName = if (relation.field.typeName is ParameterizedTypeName) {
-                    val paramType = relation.field.typeName as ParameterizedTypeName
-                    if (paramType.rawType == CommonTypeNames.LIST) {
-                        ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
+                val (relationTypeName, isRelationCollection) =
+                    if (relation.field.typeName is ParameterizedTypeName) {
+                        val paramType = relation.field.typeName as ParameterizedTypeName
+                        val paramTypeName = if (paramType.rawType == CommonTypeNames.LIST) {
+                            ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
                                 relation.pojoTypeName)
-                    } else if (paramType.rawType == CommonTypeNames.SET) {
-                        ParameterizedTypeName.get(ClassName.get(HashSet::class.java),
+                        } else if (paramType.rawType == CommonTypeNames.SET) {
+                            ParameterizedTypeName.get(ClassName.get(HashSet::class.java),
                                 relation.pojoTypeName)
+                        } else {
+                            ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
+                                relation.pojoTypeName)
+                        }
+                        paramTypeName to true
                     } else {
-                        ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
-                                relation.pojoTypeName)
+                        relation.pojoTypeName to false
                     }
-                } else {
-                    ParameterizedTypeName.get(ClassName.get(ArrayList::class.java),
-                            relation.pojoTypeName)
-                }
 
                 val canUseLongSparseArray = context.processingEnv.elementUtils
                         .getTypeElement(CollectionTypeNames.LONG_SPARSE_ARRAY.toString()) != null
@@ -285,15 +294,15 @@ data class RelationCollector(
                 val tmpMapType = when {
                     canUseLongSparseArray && affinity == SQLTypeAffinity.INTEGER -> {
                         ParameterizedTypeName.get(CollectionTypeNames.LONG_SPARSE_ARRAY,
-                                collectionTypeName)
+                                relationTypeName)
                     }
                     canUseArrayMap -> {
                         ParameterizedTypeName.get(CollectionTypeNames.ARRAY_MAP,
-                                keyType, collectionTypeName)
+                                keyType, relationTypeName)
                     }
                     else -> {
                         ParameterizedTypeName.get(ClassName.get(java.util.HashMap::class.java),
-                                keyType, collectionTypeName)
+                                keyType, relationTypeName)
                     }
                 }
 
@@ -373,10 +382,11 @@ data class RelationCollector(
                             affinity = affinity,
                             mapTypeName = tmpMapType,
                             keyTypeName = keyType,
-                            collectionTypeName = collectionTypeName,
+                            relationTypeName = relationTypeName,
                             queryWriter = queryWriter,
                             rowAdapter = rowAdapter,
-                            loadAllQuery = parsedQuery
+                            loadAllQuery = parsedQuery,
+                            relationTypeIsCollection = isRelationCollection
                     )
                 }
             }.filterNotNull()

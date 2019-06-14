@@ -48,8 +48,10 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  * <p>
- * The type of the field annotated with {@code Relation} must be a {@link java.util.List} or
- * {@link java.util.Set}. By default, the {@link Entity} type is inferred from the return type.
+ * For a one-to-many or many-to-many relationship, the type of the field annotated with
+ * {@code Relation} must be a {@link java.util.List} or {@link java.util.Set}.
+ * <p>
+ * By default, the {@link Entity} type is inferred from the return type.
  * If you would like to return a different object, you can specify the {@link #entity()} property
  * in the annotation.
  * <pre>

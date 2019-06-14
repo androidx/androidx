@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import androidx.room.integration.testapp.vo.EmbeddedUserAndAllPets;
 import androidx.room.integration.testapp.vo.House;
 import androidx.room.integration.testapp.vo.Pet;
+import androidx.room.integration.testapp.vo.PetAndOwner;
 import androidx.room.integration.testapp.vo.PetWithToyIds;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
@@ -282,5 +283,16 @@ public class PojoWithRelationTest extends TestDatabaseTest {
             assertThat(usersAndPets.get(i).user, is(userAndPetsViaJunctions.get(i).user));
             assertThat(usersAndPets.get(i).pets, is(userAndPetsViaJunctions.get(i).pets));
         }
+    }
+
+    @Test
+    public void nonCollectionRelation() {
+        createData();
+
+        List<PetAndOwner> petAndOwners = mPetDao.allPetsWithOwners();
+        assertThat(petAndOwners.size(), is(3));
+        assertThat(petAndOwners.get(0).getUser().getId(), is(1));
+        assertThat(petAndOwners.get(1).getUser().getId(), is(1));
+        assertThat(petAndOwners.get(2).getUser().getId(), is(2));
     }
 }

@@ -171,15 +171,22 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector)
                             indexVar = itemKeyIndexVar,
                             scope = scope
                     ) { keyVar ->
-                        val collectionVar = scope.getTmpVar("_tmpCollection")
-                        addStatement("$T $L = $N.get($L)", collector.collectionTypeName,
-                                collectionVar, param, keyVar)
-                        beginControlFlow("if ($L != null)", collectionVar).apply {
+                        if (collector.relationTypeIsCollection) {
+                            val relationVar = scope.getTmpVar("_tmpRelation")
+                            addStatement("$T $L = $N.get($L)", collector.relationTypeName,
+                                relationVar, param, keyVar)
+                            beginControlFlow("if ($L != null)", relationVar)
                             addStatement("final $T $L", relation.pojoTypeName, tmpVarName)
                             collector.rowAdapter.convert(tmpVarName, cursorVar, scope)
-                            addStatement("$L.add($L)", collectionVar, tmpVarName)
+                            addStatement("$L.add($L)", relationVar, tmpVarName)
+                            endControlFlow()
+                        } else {
+                            beginControlFlow("if ($N.containsKey($L))", param, keyVar)
+                            addStatement("final $T $L", relation.pojoTypeName, tmpVarName)
+                            collector.rowAdapter.convert(tmpVarName, cursorVar, scope)
+                            addStatement("$N.put($L, $L)", param, keyVar, tmpVarName)
+                            endControlFlow()
                         }
-                        endControlFlow()
                     }
                 }
                 endControlFlow()
