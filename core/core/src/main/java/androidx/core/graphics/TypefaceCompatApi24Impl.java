@@ -55,14 +55,14 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
     private static final String ADD_FONT_WEIGHT_STYLE_METHOD = "addFontWeightStyle";
     private static final String CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD =
             "createFromFamiliesWithDefault";
-    private static final Class sFontFamily;
-    private static final Constructor sFontFamilyCtor;
+    private static final Class<?> sFontFamily;
+    private static final Constructor<?> sFontFamilyCtor;
     private static final Method sAddFontWeightStyle;
     private static final Method sCreateFromFamiliesWithDefault;
 
     static {
         Class<?> fontFamilyClass;
-        Constructor fontFamilyCtor;
+        Constructor<?> fontFamilyCtor;
         Method addFontMethod;
         Method createFromFamiliesWithDefaultMethod;
         try {
