@@ -21,21 +21,69 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 import androidx.core.util.Preconditions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 @RequiresApi(21)
 class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCompatImpl {
 
     final CameraManager mCameraManager;
+    final Object mObject;
+
+    CameraManagerCompatBaseImpl(@NonNull Context context, @Nullable Object cameraManagerParams) {
+        mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        mObject = cameraManagerParams;
+    }
 
     CameraManagerCompatBaseImpl(@NonNull Context context) {
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        mObject = new CameraManagerCompatParamsApi21();
+    }
+
+    @Override
+    public void registerAvailabilityCallback(@NonNull Executor executor,
+            @NonNull CameraManager.AvailabilityCallback callback) {
+        if (executor == null) {
+            throw new IllegalArgumentException("executor was null");
+        }
+
+        CameraManagerCompat.AvailabilityCallbackExecutorWrapper wrapper = null;
+        if (callback != null) {
+            CameraManagerCompatParamsApi21 params = (CameraManagerCompatParamsApi21) mObject;
+            synchronized (params.mWrapperMap) {
+                wrapper = params.mWrapperMap.get(callback);
+                if (wrapper == null) {
+                    wrapper = new CameraManagerCompat.AvailabilityCallbackExecutorWrapper(executor,
+                            callback);
+                    params.mWrapperMap.put(callback, wrapper);
+                }
+            }
+        }
+
+        mCameraManager.registerAvailabilityCallback(wrapper, MainThreadAsyncHandler.getInstance());
+    }
+
+    @Override
+    public void unregisterAvailabilityCallback(
+            @NonNull CameraManager.AvailabilityCallback callback) {
+        CameraManagerCompat.AvailabilityCallbackExecutorWrapper wrapper = null;
+        if (callback != null) {
+            CameraManagerCompatParamsApi21 params = (CameraManagerCompatParamsApi21) mObject;
+            synchronized (params.mWrapperMap) {
+                wrapper = params.mWrapperMap.remove(callback);
+            }
+        }
+
+        mCameraManager.unregisterAvailabilityCallback(wrapper);
     }
 
     @RequiresPermission(android.Manifest.permission.CAMERA)
@@ -56,6 +104,13 @@ class CameraManagerCompatBaseImpl implements CameraManagerCompat.CameraManagerCo
     @Override
     public CameraManager getCameraManager() {
         return mCameraManager;
+    }
+
+    static final class CameraManagerCompatParamsApi21 {
+        @GuardedBy("mWrapperMap")
+        final Map<CameraManager.AvailabilityCallback,
+                CameraManagerCompat.AvailabilityCallbackExecutorWrapper>
+                mWrapperMap = new HashMap<>();
     }
 }
 
