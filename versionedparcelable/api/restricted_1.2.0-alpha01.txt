@@ -24,7 +24,7 @@ package androidx.versionedparcelable {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class VersionedParcel {
-    ctor public VersionedParcel(androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.Class!>!);
+    ctor public VersionedParcel(androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>!, androidx.collection.ArrayMap<java.lang.String!,java.lang.Class<?>!>!);
     method protected abstract void closeField();
     method protected abstract androidx.versionedparcelable.VersionedParcel! createSubParcel();
     method protected static Throwable getRootCause(Throwable);
@@ -131,7 +131,7 @@ package androidx.versionedparcelable {
     method protected <T extends androidx.versionedparcelable.VersionedParcelable> void writeToParcel(T!, androidx.versionedparcelable.VersionedParcel!);
     method public void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!, int);
     method protected void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!);
-    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.Class!>! mParcelizerCache;
+    field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.Class<?>!>! mParcelizerCache;
     field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>! mReadCache;
     field protected final androidx.collection.ArrayMap<java.lang.String!,java.lang.reflect.Method!>! mWriteCache;
   }
@@ -143,7 +143,7 @@ package androidx.versionedparcelable {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface VersionedParcelize {
     method public abstract boolean allowSerialization() default false;
     method public abstract int[] deprecatedIds() default {};
-    method public abstract Class factory() default void.class;
+    method public abstract Class<?> factory() default void.class;
     method public abstract boolean ignoreParcelables() default false;
     method public abstract boolean isCustom() default false;
     method public abstract String jetifyAs() default "";

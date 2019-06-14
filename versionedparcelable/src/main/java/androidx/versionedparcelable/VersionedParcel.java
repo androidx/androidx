@@ -79,11 +79,11 @@ public abstract class VersionedParcel {
 
     protected final ArrayMap<String, Method> mReadCache;
     protected final ArrayMap<String, Method> mWriteCache;
-    protected final ArrayMap<String, Class> mParcelizerCache;
+    protected final ArrayMap<String, Class<?>> mParcelizerCache;
 
     public VersionedParcel(ArrayMap<String, Method> readCache,
             ArrayMap<String, Method> writeCache,
-            ArrayMap<String, Class> parcelizerCache) {
+            ArrayMap<String, Class<?>> parcelizerCache) {
         mReadCache = readCache;
         mWriteCache = writeCache;
         mParcelizerCache = parcelizerCache;
