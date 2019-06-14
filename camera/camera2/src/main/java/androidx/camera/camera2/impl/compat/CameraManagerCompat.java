@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.impl.compat;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
@@ -48,6 +49,49 @@ public final class CameraManagerCompat {
         }
 
         return new CameraManagerCompat(new CameraManagerCompatBaseImpl(context));
+    }
+
+    /**
+     * Register a callback to be notified about camera device availability.
+     *
+     * <p>The behavior of this method matches that of {@link
+     * CameraManager#registerAvailabilityCallback(CameraManager.AvailabilityCallback, Handler)},
+     * except that it uses {@link Executor} as an argument instead of {@link Handler}.
+     *
+     * <p>When registering an availability callback with
+     * {@link #registerAvailabilityCallback(Executor, CameraManager.AvailabilityCallback)}, it
+     * should always be unregistered by calling
+     * {@link #unregisterAvailabilityCallback(CameraManager.AvailabilityCallback)} on <b>the same
+     * instance</b> of {@link CameraManagerCompat}. Unregistering through a difference instance
+     * or directly through {@link CameraManager} may fail to unregister the callback with the
+     * camera service.
+     *
+     * @param executor The executor which will be used to invoke the callback.
+     * @param callback the new callback to send camera availability notices to
+     * @throws IllegalArgumentException if the executor is {@code null}.
+     */
+    @SuppressLint("LambdaLast") // Maybe remove after https://issuetracker.google.com/135275901
+    public void registerAvailabilityCallback(
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull CameraManager.AvailabilityCallback callback) {
+        mImpl.registerAvailabilityCallback(executor, callback);
+    }
+
+    /**
+     * Remove a previously-added callback; the callback will no longer receive connection and
+     * disconnection callbacks.
+     *
+     * <p>All callbacks registered through an instance of {@link CameraManagerCompat} should be
+     * unregistered through <b>the same instance</b>, otherwise the callback may fail to
+     * unregister with the camera service.
+     *
+     * <p>Removing a callback that isn't registered has no effect.</p>
+     *
+     * @param callback The callback to remove from the notification list
+     */
+    public void unregisterAvailabilityCallback(
+            @NonNull CameraManager.AvailabilityCallback callback) {
+        mImpl.unregisterAvailabilityCallback(callback);
     }
 
     /**
@@ -92,9 +136,16 @@ public final class CameraManagerCompat {
     }
 
     interface CameraManagerCompatImpl {
+
+        void registerAvailabilityCallback(
+                @NonNull /* @CallbackExecutor */ Executor executor,
+                @NonNull CameraManager.AvailabilityCallback callback);
+
+        void unregisterAvailabilityCallback(@NonNull CameraManager.AvailabilityCallback callback);
+
         @RequiresPermission(android.Manifest.permission.CAMERA)
         void openCamera(@NonNull String cameraId,
-                @NonNull /*@CallbackExecutor*/ Executor executor,
+                @NonNull /* @CallbackExecutor */ Executor executor,
                 @NonNull CameraDevice.StateCallback callback)
                 throws CameraAccessException;
 
@@ -102,5 +153,46 @@ public final class CameraManagerCompat {
         CameraManager getCameraManager();
     }
 
+    static final class AvailabilityCallbackExecutorWrapper extends
+            CameraManager.AvailabilityCallback {
+
+        private final Executor mExecutor;
+        final CameraManager.AvailabilityCallback mWrappedCallback;
+
+        AvailabilityCallbackExecutorWrapper(@NonNull Executor executor,
+                @NonNull CameraManager.AvailabilityCallback wrappedCallback) {
+            mExecutor = executor;
+            mWrappedCallback = wrappedCallback;
+        }
+
+        @RequiresApi(29)
+        public void onCameraAccessPrioritiesChanged() {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mWrappedCallback.onCameraAccessPrioritiesChanged();
+                }
+            });
+        }
+
+        public void onCameraAvailable(@NonNull final String cameraId) {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mWrappedCallback.onCameraAvailable(cameraId);
+                }
+            });
+        }
+
+
+        public void onCameraUnavailable(@NonNull final String cameraId) {
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    mWrappedCallback.onCameraUnavailable(cameraId);
+                }
+            });
+        }
+    }
 }
 
