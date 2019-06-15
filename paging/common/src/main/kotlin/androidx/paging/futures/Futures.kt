@@ -115,13 +115,18 @@ fun <V> ListenableFuture<out V>.addCallback(callback: FutureCallback<in V>, exec
 fun <I, O> ListenableFuture<out I>.transform(
     function: Function<in I, out O>,
     executor: Executor
+) = transform({ function.apply(it) }, executor)
+
+internal inline fun <I, O> ListenableFuture<out I>.transform(
+    crossinline function: (input: I) -> O,
+    executor: Executor
 ): ListenableFuture<O> {
     val out = ResolvableFuture.create<O>()
 
     // Add success/error callback.
     addCallback(object : FutureCallback<I> {
         override fun onSuccess(value: I) {
-            out.set(function.apply(value))
+            out.set(function(value))
         }
 
         override fun onError(throwable: Throwable) {

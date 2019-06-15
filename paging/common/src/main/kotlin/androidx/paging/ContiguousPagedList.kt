@@ -188,7 +188,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         this.lastLoad = lastLoad
         pager = Pager(
             config,
-            dataSource,
+            PagedSourceWrapper(dataSource), // TODO: Fix non-final in constructor.
             mainThreadExecutor,
             backgroundThreadExecutor,
             this,
