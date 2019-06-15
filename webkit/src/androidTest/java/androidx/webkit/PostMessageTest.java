@@ -181,20 +181,17 @@ public class PostMessageTest {
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
         final int messageCount = 3;
         final BlockingQueue<String> queue = new ArrayBlockingQueue<>(messageCount);
-        WebkitUtils.onMainThread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < messageCount; i++) {
-                    channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE + i));
-                }
-                channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
-                    @Override
-                    public void onMessage(@NonNull WebMessagePortCompat port,
-                            WebMessageCompat message) {
-                        queue.add(message.getData());
-                    }
-                });
+        WebkitUtils.onMainThread(() -> {
+            for (int i = 0; i < messageCount; i++) {
+                channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE + i));
             }
+            channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
+                @Override
+                public void onMessage(@NonNull WebMessagePortCompat port,
+                        WebMessageCompat message) {
+                    queue.add(message.getData());
+                }
+            });
         });
         // Wait for all the responses to arrive.
         for (int i = 0; i < messageCount; i++) {
@@ -224,18 +221,15 @@ public class PostMessageTest {
         WebMessageCompat message =
                 new WebMessageCompat(WEBVIEW_MESSAGE, new WebMessagePortCompat[]{channel[1]});
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
-        WebkitUtils.onMainThreadSync(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    channel[0].close();
-                    channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
-                } catch (IllegalStateException ex) {
-                    // expect to receive an exception
-                    return;
-                }
-                Assert.fail("A closed port cannot be used to transfer messages");
+        WebkitUtils.onMainThreadSync(() -> {
+            try {
+                channel[0].close();
+                channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
+            } catch (IllegalStateException ex) {
+                // expect to receive an exception
+                return;
             }
+            Assert.fail("A closed port cannot be used to transfer messages");
         });
     }
 
@@ -275,17 +269,14 @@ public class PostMessageTest {
         WebMessageCompat message =
                 new WebMessageCompat(WEBVIEW_MESSAGE, new WebMessagePortCompat[]{channel[1]});
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
-        WebkitUtils.onMainThreadSync(new Runnable() {
-            @Override
-            public void run() {
-                channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
-                    @Override
-                    public void onMessage(@NonNull WebMessagePortCompat port,
-                            WebMessageCompat message) {
-                        message.getPorts()[0].postMessage(new WebMessageCompat(hello));
-                    }
-                });
-            }
+        WebkitUtils.onMainThreadSync(() -> {
+            channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
+                @Override
+                public void onMessage(@NonNull WebMessagePortCompat port,
+                        WebMessageCompat message) {
+                    message.getPorts()[0].postMessage(new WebMessageCompat(hello));
+                }
+            });
         });
         waitForTitle(hello);
     }
@@ -316,18 +307,15 @@ public class PostMessageTest {
         messageHandlerThread.start();
         final Handler messageHandler = new Handler(messageHandlerThread.getLooper());
 
-        WebkitUtils.onMainThreadSync(new Runnable() {
-            @Override
-            public void run() {
-                channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
-                channel[0].setWebMessageCallback(messageHandler, new WebMessageCallbackCompat() {
-                    @Override
-                    public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
-                        messageHandlerThreadFuture.set(
-                                messageHandlerThread.getLooper().isCurrentThread());
-                    }
-                });
-            }
+        WebkitUtils.onMainThreadSync(() -> {
+            channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
+            channel[0].setWebMessageCallback(messageHandler, new WebMessageCallbackCompat() {
+                @Override
+                public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
+                    messageHandlerThreadFuture.set(
+                            messageHandlerThread.getLooper().isCurrentThread());
+                }
+            });
         });
         // Wait for all the responses to arrive and assert correct thread.
         Assert.assertTrue(WebkitUtils.waitForFuture(messageHandlerThreadFuture));
@@ -354,17 +342,14 @@ public class PostMessageTest {
         final int messageCount = 1;
         final ResolvableFuture<Boolean> messageMainLooperFuture = ResolvableFuture.create();
 
-        WebkitUtils.onMainThread(new Runnable() {
-            @Override
-            public void run() {
-                channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
-                channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
-                    @Override
-                    public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
-                        messageMainLooperFuture.set(Looper.getMainLooper().isCurrentThread());
-                    }
-                });
-            }
+        WebkitUtils.onMainThread(() -> {
+            channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
+            channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
+                @Override
+                public void onMessage(WebMessagePortCompat port, WebMessageCompat message) {
+                    messageMainLooperFuture.set(Looper.getMainLooper().isCurrentThread());
+                }
+            });
         });
         // Wait for all the responses to arrive and assert correct thread.
         Assert.assertTrue(WebkitUtils.waitForFuture(messageMainLooperFuture));
