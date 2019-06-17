@@ -42,6 +42,7 @@ import java.util.concurrent.Executor;
  *
  * @param <W> The actual {@link ListenableWorker} subtype being built.
  */
+@SuppressWarnings("rawtypes")
 public class TestListenableWorkerBuilder<W extends ListenableWorker> {
 
     private Context mContext;
@@ -294,9 +295,9 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
                         getWorkerFactory()
                 );
 
-        WorkerFactory defaultFactory = WorkerFactory.getDefaultWorkerFactory();
+        WorkerFactory workerFactory = parameters.getWorkerFactory();
         ListenableWorker worker =
-                defaultFactory.createWorkerWithDefaultFallback(
+                workerFactory.createWorkerWithDefaultFallback(
                         getApplicationContext(),
                         getWorkerName(),
                         parameters);
