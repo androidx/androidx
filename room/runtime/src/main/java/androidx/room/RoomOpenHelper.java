@@ -75,8 +75,8 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         if (!isEmptyDatabase) {
             // A 0 version pre-populated database goes through the create path because the
             // framework's SQLiteOpenHelper thinks the database was just created from scratch. If we
-            // find the database not to be empty, then it is a pre-populated or external database,
-            // we must validate it to see if its suitable for usage.
+            // find the database not to be empty, then it is a pre-populated, we must validate it to
+            // see if its suitable for usage.
             // TODO: Use better error message indicating pre-packaged DB issue instead of migration.
             mDelegate.validateMigration(db);
         }
@@ -149,8 +149,8 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
                         + " simply fix this by increasing the version number.");
             }
         } else {
-            // No room_master_table, this might an an external DB or pre-populated DB, we must
-            // validate to see if its suitable for usage.
+            // No room_master_table, this might an a pre-populated DB, we must validate to see if
+            // its suitable for usage.
             // TODO: Use better error message indicating pre-packaged DB issue instead of migration
             mDelegate.validateMigration(db);
             mDelegate.onPostMigrate(db);

@@ -16,10 +16,6 @@
 
 package androidx.room;
 
-import static androidx.room.DatabaseConfiguration.COPY_FROM_ASSET;
-import static androidx.room.DatabaseConfiguration.COPY_FROM_FILE;
-import static androidx.room.DatabaseConfiguration.COPY_FROM_NONE;
-
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -27,7 +23,6 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.room.DatabaseConfiguration.CopyFrom;
 import androidx.room.util.DBUtil;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
@@ -47,10 +42,10 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
 
     @NonNull
     private final Context mContext;
-    @CopyFrom
-    private final int mCopyFrom;
-    @NonNull
-    private final String mCopyFromFilePath;
+    @Nullable
+    private final String mCopyFromAssetPath;
+    @Nullable
+    private final File mCopyFromFile;
     private final int mDatabaseVersion;
     @NonNull
     private final SupportSQLiteOpenHelper mDelegate;
@@ -61,13 +56,13 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
 
     SQLiteCopyOpenHelper(
             @NonNull Context context,
-            @CopyFrom int copyFrom,
-            @NonNull String copyFromFilePath,
+            @Nullable String copyFromAssetPath,
+            @Nullable File copyFromFile,
             int databaseVersion,
             @NonNull SupportSQLiteOpenHelper supportSQLiteOpenHelper) {
         mContext = context;
-        mCopyFromFilePath = copyFromFilePath;
-        mCopyFrom = copyFrom;
+        mCopyFromAssetPath = copyFromAssetPath;
+        mCopyFromFile = copyFromFile;
         mDatabaseVersion = databaseVersion;
         mDelegate = supportSQLiteOpenHelper;
     }
@@ -165,17 +160,12 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         }
 
         InputStream input;
-        switch (mCopyFrom) {
-            case COPY_FROM_NONE:
-                return;
-            case COPY_FROM_ASSET:
-                input = mContext.getAssets().open(mCopyFromFilePath);
-                break;
-            case COPY_FROM_FILE:
-                input = new FileInputStream(mCopyFromFilePath);
-                break;
-            default:
-                throw new IllegalStateException("Unknown CopyFrom: " + mCopyFrom);
+        if (mCopyFromAssetPath != null) {
+            input = mContext.getAssets().open(mCopyFromAssetPath);
+        } else if (mCopyFromFile != null) {
+            input = new FileInputStream(mCopyFromFile);
+        } else {
+            throw new IllegalStateException("copyFromAssetPath and copyFromFile = null!");
         }
         OutputStream output = new FileOutputStream(destinationFile);
         copy(input, output);

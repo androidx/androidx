@@ -18,12 +18,12 @@ package androidx.room;
 
 import android.content.Context;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
+import java.io.File;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -33,27 +33,6 @@ import java.util.concurrent.Executor;
  */
 @SuppressWarnings("WeakerAccess")
 public class DatabaseConfiguration {
-
-    /**
-     * Copy indicator for when Room is initially opening the database.
-     */
-    @IntDef({COPY_FROM_NONE, COPY_FROM_ASSET, COPY_FROM_FILE})
-    public @interface CopyFrom {}
-
-    /**
-     * No database will be copied.
-     */
-    public static final int COPY_FROM_NONE = 0;
-
-    /**
-     * Pre-packaged database should be copied from the application assets folder.
-     */
-    public static final int COPY_FROM_ASSET = 1;
-
-    /**
-     * Pre-packaged database should be copied from an external file.
-     */
-    public static final int COPY_FROM_FILE = 2;
 
     /**
      * The factory to use to access the database.
@@ -126,15 +105,16 @@ public class DatabaseConfiguration {
     private final Set<Integer> mMigrationNotRequiredFrom;
 
     /**
-     * Whether Room should copy or not a pre-packaged database when it is first created.
-     */
-    public final @CopyFrom int copyFrom;
-
-    /**
-     * The path to a pre-packaged database to copy from.
+     * The assets path to a pre-packaged database to copy from.
      */
     @Nullable
-    public final String copyFromPath;
+    public final String copyFromAssetPath;
+
+    /**
+     * The pre-packaged database file to copy from.
+     */
+    @Nullable
+    public final File copyFromFile;
 
 
     /**
@@ -142,7 +122,7 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, int, String)}
+     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -172,7 +152,7 @@ public class DatabaseConfiguration {
             @Nullable Set<Integer> migrationNotRequiredFrom) {
         this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, queryExecutor, false,
-                requireMigration, false, migrationNotRequiredFrom, COPY_FROM_NONE, null);
+                requireMigration, false, migrationNotRequiredFrom, null, null);
     }
 
     /**
@@ -180,7 +160,7 @@ public class DatabaseConfiguration {
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
-     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, int, String)}
+     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -217,7 +197,7 @@ public class DatabaseConfiguration {
         this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
-                migrationNotRequiredFrom, COPY_FROM_NONE, null);
+                migrationNotRequiredFrom, null, null);
     }
 
     /**
@@ -238,10 +218,8 @@ public class DatabaseConfiguration {
      *                                             migration is supplied during a downgrade.
      * @param migrationNotRequiredFrom The collection of schema versions from which migrations
      *                                 aren't required.
-     * @param copyFrom If Room should copy a pre-packaged database on initial create. If set to
-     *                 anything other than COPY_FROM_NONE, then path to copy from should be set into
-     *                 the {@code copyFromPath} parameter.
-     * @param copyFromPath Path to the pre-packaged database.
+     * @param copyFromAssetPath The assets path to the pre-packaged database.
+     * @param copyFromFile The pre-packaged database file.
      *
      * @hide
      */
@@ -258,8 +236,8 @@ public class DatabaseConfiguration {
             boolean requireMigration,
             boolean allowDestructiveMigrationOnDowngrade,
             @Nullable Set<Integer> migrationNotRequiredFrom,
-            @CopyFrom int copyFrom,
-            @Nullable String copyFromPath) {
+            @Nullable String copyFromAssetPath,
+            @Nullable File copyFromFile) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
@@ -273,8 +251,8 @@ public class DatabaseConfiguration {
         this.requireMigration = requireMigration;
         this.allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade;
         this.mMigrationNotRequiredFrom = migrationNotRequiredFrom;
-        this.copyFrom = copyFrom;
-        this.copyFromPath = copyFromPath;
+        this.copyFromAssetPath = copyFromAssetPath;
+        this.copyFromFile = copyFromFile;
     }
 
     /**
