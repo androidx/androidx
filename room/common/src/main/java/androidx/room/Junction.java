@@ -67,7 +67,7 @@ public @interface Junction {
      *
      * @return The entity or database view to be used as a junction table.
      */
-    Class value();
+    Class<?> value();
 
     /**
      * The junction column that will be used to match against the {@link Relation#parentColumn()}.

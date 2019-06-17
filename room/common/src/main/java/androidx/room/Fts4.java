@@ -137,7 +137,7 @@ public @interface Fts4 {
      * @see <a href="https://www.sqlite.org/fts3.html#_external_content_fts4_tables_">External
      * Content FTS4 Tables</a>
      */
-    Class contentEntity() default Object.class;
+    Class<?> contentEntity() default Object.class;
 
     /**
      * The column name to be used as 'languageid'.
