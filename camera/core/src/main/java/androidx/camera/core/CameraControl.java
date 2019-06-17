@@ -16,14 +16,16 @@
 
 package androidx.camera.core;
 
+import android.annotation.SuppressLint;
 import android.graphics.Rect;
-import android.os.Handler;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * The CameraControl Interface.
@@ -54,14 +56,15 @@ public interface CameraControl {
      *
      * @param focus    rectangle with dimensions in sensor coordinate frame for focus
      * @param metering rectangle with dimensions in sensor coordinate frame for metering
-     * @param listener listener for when focus has completed
-     * @param handler  the handler where the listener will execute.
+     * @param executor the executor which will be used to call the listener.
+     * @param listener listener for when focus has completed.
      */
+    @SuppressLint("LambdaLast") // Remove after https://issuetracker.google.com/135275901
     void focus(
-            Rect focus,
-            Rect metering,
-            @Nullable OnFocusListener listener,
-            @Nullable Handler handler);
+            @NonNull Rect focus,
+            @NonNull Rect metering,
+            @NonNull Executor executor,
+            @NonNull OnFocusListener listener);
 
     /**
      * Adjusts the camera output according to the properties in some local regions.
@@ -72,7 +75,7 @@ public interface CameraControl {
      * @param focus    rectangle with dimensions in sensor coordinate frame for focus
      * @param metering rectangle with dimensions in sensor coordinate frame for metering
      */
-    void focus(Rect focus, Rect metering);
+    void focus(@NonNull Rect focus, @NonNull Rect metering);
 
     /** Returns the current flash mode. */
     FlashMode getFlashMode();
@@ -108,8 +111,6 @@ public interface CameraControl {
 
     /**
      * Performs capture requests.
-     *
-     * @param captureConfigs
      */
     void submitCaptureRequests(List<CaptureConfig> captureConfigs);
 
@@ -119,8 +120,8 @@ public interface CameraControl {
         }
 
         @Override
-        public void focus(Rect focus, Rect metering, @Nullable OnFocusListener listener,
-                @Nullable Handler handler) {
+        public void focus(Rect focus, Rect metering, @Nullable Executor executor,
+                @Nullable OnFocusListener listener) {
         }
 
         @Override
