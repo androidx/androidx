@@ -16,10 +16,10 @@
 
 package androidx.paging
 
+import androidx.annotation.VisibleForTesting
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
 import androidx.paging.PagedList.LoadState
-import androidx.paging.PagedList.LoadStateListener
 import androidx.paging.PagedList.LoadStateManager
 import androidx.paging.PagedList.LoadType
 import androidx.recyclerview.widget.AdapterListUpdateCallback
@@ -28,6 +28,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import java.util.concurrent.CopyOnWriteArrayList
+
+typealias OnCurrentListChanged<T> =
+            (previousList: PagedList<T>?, currentList: PagedList<T>?) -> Unit
 
 /**
  * Helper object for mapping a [androidx.paging.PagedList] into a
@@ -126,7 +129,8 @@ open class AsyncPagedListDiffer<T : Any> {
 
     internal var mainThreadExecutor = ArchTaskExecutor.getMainThreadExecutor()
 
-    private val listeners = CopyOnWriteArrayList<PagedListListener<T>>()
+    @VisibleForTesting
+    internal val listeners = CopyOnWriteArrayList<PagedListListener<T>>()
     private var isContiguous: Boolean = false
     private var pagedList: PagedList<T>? = null
     private var snapshot: PagedList<T>? = null
@@ -137,21 +141,17 @@ open class AsyncPagedListDiffer<T : Any> {
     @Suppress("MemberVisibilityCanBePrivate") // synthetic access
     internal var maxScheduledGeneration: Int = 0
 
-    internal val loadStateManager: LoadStateManager = object : LoadStateManager() {
+    private val loadStateManager: LoadStateManager = object : LoadStateManager() {
         override fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?) {
             // Don't need to post - PagedList will already have done that
-            loadStateListeners.forEach { it.onLoadStateChanged(type, state, error) }
+            loadStateListeners.forEach { it(type, state, error) }
         }
     }
 
-    @Suppress("MemberVisibilityCanBePrivate") // synthetic access
-    internal var loadStateListener: LoadStateListener = object : LoadStateListener {
-        override fun onLoadStateChanged(type: LoadType, state: LoadState, error: Throwable?) {
-            loadStateManager.onStateChanged(type, state, error)
-        }
-    }
+    private val loadStateListener = loadStateManager::onStateChanged
 
-    internal val loadStateListeners: MutableList<LoadStateListener> = CopyOnWriteArrayList()
+    internal val loadStateListeners: MutableList<LoadStateListener> =
+        CopyOnWriteArrayList()
 
     private val pagedListCallback = object : PagedList.Callback() {
         override fun onInserted(position: Int, count: Int) =
@@ -200,6 +200,19 @@ open class AsyncPagedListDiffer<T : Any> {
          * @param currentList The new current list, may be null.
          */
         fun onCurrentListChanged(previousList: PagedList<T>?, currentList: PagedList<T>?)
+    }
+
+    /**
+     * Wrapper for [OnCurrentListChanged] for when the current [PagedList] is updated.
+     *
+     * @param T Type of items in [PagedList]
+     */
+    private class OnCurrentListChangedWrappper<T : Any>(
+        val callback: OnCurrentListChanged<T>
+    ) : PagedListListener<T> {
+        override fun onCurrentListChanged(previousList: PagedList<T>?, currentList: PagedList<T>?) {
+            callback(previousList, currentList)
+        }
     }
 
     /**
@@ -427,6 +440,19 @@ open class AsyncPagedListDiffer<T : Any> {
     }
 
     /**
+     * Add a [OnCurrentListChanged] callback to receive updates when the current [PagedList]
+     * changes.
+     *
+     * @param callback [OnCurrentListChanged] callback to receive updates.
+     *
+     * @see currentList
+     * @see removePagedListListener
+     */
+    fun addPagedListListener(callback: OnCurrentListChanged<T>) {
+        listeners.add(OnCurrentListChangedWrappper(callback))
+    }
+
+    /**
      * Remove a previously registered [PagedListListener].
      *
      * @param listener Previously registered listener.
@@ -439,14 +465,26 @@ open class AsyncPagedListDiffer<T : Any> {
     }
 
     /**
-     * Add a LoadStateListener to observe the loading state of the current PagedList.
+     * Remove a previously registered [OnCurrentListChanged] callback.
+     *
+     * @param callback Previously registered callback.
+     *
+     * @see currentList
+     * @see addPagedListListener
+     */
+    fun removePagedListListener(callback: OnCurrentListChanged<T>) {
+        listeners.removeAll { it is OnCurrentListChangedWrappper<T> && it.callback === callback }
+    }
+
+    /**
+     * Add a [LoadStateListener] to observe the loading state of the current [PagedList].
      *
      * As new PagedLists are submitted and displayed, the listener will be notified to reflect
      * current REFRESH, START, and END states.
      *
-     * @param listener Listener to receive updates.
+     * @param listener [LoadStateListener] to receive updates.
      *
-     * @see removeLoadStateListListener
+     * @see removeLoadStateListener
      */
     open fun addLoadStateListener(listener: LoadStateListener) {
         val pagedList = this.pagedList
@@ -459,14 +497,14 @@ open class AsyncPagedListDiffer<T : Any> {
     }
 
     /**
-     * Remove a previously registered [PagedListListener].
+     * Remove a previously registered [LoadStateListener].
      *
      * @param listener Previously registered listener.
      *
      * @see currentList
      * @see addPagedListListener
      */
-    open fun removeLoadStateListListener(listener: LoadStateListener) {
+    open fun removeLoadStateListener(listener: LoadStateListener) {
         loadStateListeners.remove(listener)
         pagedList?.removeWeakLoadStateListener(listener)
     }

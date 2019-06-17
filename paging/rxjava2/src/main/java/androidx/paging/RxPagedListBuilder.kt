@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.paging.DataSource.InvalidatedCallback
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -116,11 +117,11 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      *
      * If not set, defaults to the UI thread.
      *
-     * The built observable/flowable will be observed on this scheduler, so that the thread
+     * The built [Observable] / [Flowable] will be observed on this scheduler, so that the thread
      * receiving PagedLists will also receive the internal updates to the PagedList.
      *
      * @param scheduler Scheduler that receives PagedList updates, and where [PagedList.Callback]
-     *                  calls are dispatched. Generally, this is the UI/main thread.
+     * calls are dispatched. Generally, this is the UI/main thread.
      * @return this
      */
     fun setNotifyScheduler(scheduler: Scheduler) = apply {
@@ -137,10 +138,10 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      *
      * If not set, defaults to the Arch components I/O thread pool.
      *
-     * The built observable/flowable will be subscribed on this scheduler.
+     * The built [Observable] / [Flowable] will be subscribed on this scheduler.
      *
-     * @param scheduler Scheduler used to fetch from DataSources, generally a background
-     * thread pool for e.g. I/O or network loading.
+     * @param scheduler [Scheduler] used to fetch from DataSources, generally a background thread
+     * pool for e.g. I/O or network loading.
      * @return this
      */
     fun setFetchScheduler(scheduler: Scheduler) = apply {
@@ -154,11 +155,10 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
     /**
      * Constructs a `Observable<PagedList>`.
      *
-     * The returned Observable will already be observed on the
-     * [notify scheduler][.setNotifyScheduler], and subscribed on the
-     * [fetch scheduler][.setFetchScheduler].
+     * The returned Observable will already be observed on the [notifyScheduler], and subscribed on
+     * the [fetchScheduler].
      *
-     * @return The Observable of PagedLists
+     * @return The [Observable] of PagedLists
      */
     fun buildObservable(): Observable<PagedList<Value>> {
         if (!::notifyExecutor.isInitialized) {
@@ -193,7 +193,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
      * The returned Observable will already be observed on the [notifyScheduler], and subscribed on
      * the [fetchScheduler].
      *
-     * @param backpressureStrategy BackpressureStrategy for the Flowable to use.
+     * @param backpressureStrategy BackpressureStrategy for the [Flowable] to use.
      * @return The [Flowable] of PagedLists
      */
     fun buildFlowable(backpressureStrategy: BackpressureStrategy): Flowable<PagedList<Value>> {
@@ -207,12 +207,16 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
         private val dataSourceFactory: DataSource.Factory<Key, Value>,
         private val notifyExecutor: Executor,
         private val fetchExecutor: Executor
-    ) : ObservableOnSubscribe<PagedList<Value>>, DataSource.InvalidatedCallback, Cancellable,
-        Runnable {
-
+    ) : ObservableOnSubscribe<PagedList<Value>>, InvalidatedCallback, Cancellable, Runnable {
         private lateinit var list: PagedList<Value>
         private var dataSource: DataSource<Key, Value>? = null
         private lateinit var emitter: ObservableEmitter<PagedList<Value>>
+
+        override fun onInvalidated() {
+            if (!emitter.isDisposed) {
+                fetchExecutor.execute(this)
+            }
+        }
 
         override fun subscribe(emitter: ObservableEmitter<PagedList<Value>>) {
             this.emitter = emitter
@@ -229,12 +233,6 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
         override fun run() {
             // fetch data, run on fetchExecutor
             emitter.onNext(createPagedList())
-        }
-
-        override fun onInvalidated() {
-            if (!emitter.isDisposed) {
-                fetchExecutor.execute(this)
-            }
         }
 
         // for getLastKey cast, and Builder.build()

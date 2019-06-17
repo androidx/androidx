@@ -18,12 +18,15 @@ package androidx.paging
 
 import androidx.annotation.AnyThread
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
+
+typealias OnInvalidated = () -> Unit
 
 /**
  * Base class for loading pages of snapshot data into a [PagedList].
@@ -99,7 +102,8 @@ abstract class DataSource<Key : Any, Value : Any>
 // Since we currently rely on implementation details of two implementations, prevent external
 // subclassing, except through exposed subclasses.
 internal constructor(internal val type: KeyType) {
-    private val onInvalidatedCallbacks = CopyOnWriteArrayList<InvalidatedCallback>()
+    @VisibleForTesting
+    internal val onInvalidatedCallbacks = CopyOnWriteArrayList<InvalidatedCallback>()
 
     private val _invalid = AtomicBoolean(false)
     /**
@@ -269,6 +273,14 @@ internal constructor(internal val type: KeyType) {
     }
 
     /**
+     * Wrapper for [OnInvalidated] which holds a reference to allow removal by referential equality
+     * of Kotlin functions within [removeInvalidatedCallback].
+     */
+    private class OnInvalidatedWrapper(val callback: OnInvalidated) : InvalidatedCallback {
+        override fun onInvalidated() = callback()
+    }
+
+    /**
      * Add a callback to invoke when the DataSource is first invalidated.
      *
      * Once invalidated, a data source will not become valid again.
@@ -285,6 +297,24 @@ internal constructor(internal val type: KeyType) {
     }
 
     /**
+     * Add a callback to invoke when the DataSource is first invalidated.
+     *
+     * Once invalidated, a data source will not become valid again.
+     *
+     * A data source will only invoke its callbacks once - the first time [invalidate] is called, on
+     * that thread.
+     *
+     * This is a redundant override of [addInvalidatedCallback], which accepts Kotlin functions.
+     *
+     * @param onInvalidatedCallback The callback, will be invoked on thread that invalidates the
+     * [DataSource].
+     */
+    @AnyThread
+    fun addInvalidatedCallback(onInvalidatedCallback: OnInvalidated) {
+        onInvalidatedCallbacks.add(OnInvalidatedWrapper(onInvalidatedCallback))
+    }
+
+    /**
      * Remove a previously added invalidate callback.
      *
      * @param onInvalidatedCallback The previously added callback.
@@ -292,6 +322,20 @@ internal constructor(internal val type: KeyType) {
     @AnyThread
     open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         onInvalidatedCallbacks.remove(onInvalidatedCallback)
+    }
+
+    /**
+     * Remove a previously added invalidate callback.
+     *
+     * This is a redundant override of [removeInvalidatedCallback], which accepts Kotlin functions.
+     *
+     * @param onInvalidatedCallback The previously added callback.
+     */
+    @AnyThread
+    fun removeInvalidatedCallback(onInvalidatedCallback: OnInvalidated) {
+        onInvalidatedCallbacks.removeAll {
+            it is OnInvalidatedWrapper && it.callback === onInvalidatedCallback
+        }
     }
 
     /**

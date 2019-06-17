@@ -476,6 +476,18 @@ class AsyncPagedListDifferTest {
         verifyNoMoreInteractions(callback)
     }
 
+    @Test
+    fun addRemovePagedListCallback() {
+        val differ = createDiffer()
+        val noopCallback = { _: PagedList<String>?, _: PagedList<String>? -> }
+        differ.addPagedListListener(noopCallback)
+        assert(differ.listeners.size == 1)
+        differ.removePagedListListener { _: PagedList<String>?, _: PagedList<String>? -> }
+        assert(differ.listeners.size == 1)
+        differ.removePagedListListener(noopCallback)
+        assert(differ.listeners.size == 0)
+    }
+
     private fun drainExceptDiffThread() {
         var executed: Boolean
         do {

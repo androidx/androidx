@@ -32,7 +32,7 @@ package androidx.paging {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract static class PagedList.LoadStateManager {
-    method public final void dispatchCurrentLoadState(androidx.paging.PagedList.LoadStateListener listener);
+    method public final void dispatchCurrentLoadState(kotlin.jvm.functions.Function3<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,? super java.lang.Throwable,kotlin.Unit> callback);
     method public final androidx.paging.PagedList.LoadState getEnd();
     method public final androidx.paging.PagedList.LoadState getRefresh();
     method public final androidx.paging.PagedList.LoadState getStart();
