@@ -24,8 +24,10 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.concurrent.Delayed;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -51,7 +53,7 @@ abstract class ImmediateFuture<V> implements ListenableFuture<V> {
     }
 
     @Override
-    public void addListener(Runnable listener, Executor executor) {
+    public void addListener(@NonNull Runnable listener, @NonNull Executor executor) {
         Preconditions.checkNotNull(listener);
         Preconditions.checkNotNull(executor);
 
@@ -87,7 +89,7 @@ abstract class ImmediateFuture<V> implements ListenableFuture<V> {
 
     @Override
     @Nullable
-    public V get(long timeout, TimeUnit unit) throws ExecutionException {
+    public V get(long timeout, @NonNull TimeUnit unit) throws ExecutionException {
         Preconditions.checkNotNull(unit);
         return get();
     }
@@ -118,9 +120,9 @@ abstract class ImmediateFuture<V> implements ListenableFuture<V> {
         }
     }
 
-    static final class ImmediateFailedFuture<V> extends ImmediateFuture<V> {
+    static class ImmediateFailedFuture<V> extends ImmediateFuture<V> {
 
-        @Nullable
+        @NonNull
         private final Throwable mCause;
 
         ImmediateFailedFuture(@NonNull Throwable cause) {
@@ -134,9 +136,28 @@ abstract class ImmediateFuture<V> implements ListenableFuture<V> {
         }
 
         @Override
+        @NonNull
         public String toString() {
             // Behaviour analogous to AbstractResolvableFuture#toString().
             return super.toString() + "[status=FAILURE, cause=[" + mCause + "]]";
+        }
+    }
+
+    static final class ImmediateFailedScheduledFuture<V> extends ImmediateFailedFuture<V> implements
+            ScheduledFuture<V> {
+
+        ImmediateFailedScheduledFuture(@NonNull Throwable cause) {
+            super(cause);
+        }
+
+        @Override
+        public long getDelay(@NonNull TimeUnit timeUnit) {
+            return 0;
+        }
+
+        @Override
+        public int compareTo(@NonNull Delayed delayed) {
+            return -1;
         }
     }
 }
