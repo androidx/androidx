@@ -50,7 +50,7 @@ public abstract class AppCompatInflaterPassTest<A extends BaseTestActivity> {
     @Rule
     public final ActivityTestRule<A> mActivityTestRule;
 
-    public AppCompatInflaterPassTest(Class clazz) {
+    public AppCompatInflaterPassTest(Class<A> clazz) {
         mActivityTestRule = new ActivityTestRule<A>(clazz);
     }
 

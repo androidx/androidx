@@ -1034,7 +1034,7 @@ public class SlidingPaneLayout extends ViewGroup {
             if (!mDisplayListReflectionLoaded) {
                 try {
                     mGetDisplayList = View.class.getDeclaredMethod("getDisplayList",
-                            (Class[]) null);
+                            (Class<?>[]) null);
                 } catch (NoSuchMethodException e) {
                     Log.e(TAG, "Couldn't fetch getDisplayList method; dimming won't work right.",
                             e);

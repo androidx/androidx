@@ -664,7 +664,7 @@ public abstract class BaseViewPagerTest<T extends Activity> {
     /**
      * Returns the class of the pager strip.
      */
-    protected abstract Class getStripClass();
+    protected abstract Class<? extends View> getStripClass();
 
     /**
      * Checks assertions that are specific to the pager strip implementation (interactive or

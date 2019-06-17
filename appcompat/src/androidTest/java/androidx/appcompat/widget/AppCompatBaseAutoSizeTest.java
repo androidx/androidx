@@ -68,7 +68,7 @@ public abstract class AppCompatBaseAutoSizeTest<A extends BaseTestActivity,
     protected Instrumentation mInstrumentation;
     protected ViewGroup mContainer;
 
-    public AppCompatBaseAutoSizeTest(Class clazz) {
+    public AppCompatBaseAutoSizeTest(Class<A> clazz) {
         mActivityTestRule = new ActivityTestRule<A>(clazz);
     }
 

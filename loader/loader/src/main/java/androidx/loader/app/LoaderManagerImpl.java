@@ -202,7 +202,7 @@ class LoaderManagerImpl extends LoaderManager {
             sb.append(" #");
             sb.append(mId);
             sb.append(" : ");
-            Class cls = mLoader.getClass();
+            Class<?> cls = mLoader.getClass();
             sb.append(cls.getSimpleName());
             sb.append("{");
             sb.append(Integer.toHexString(System.identityHashCode(cls)));

@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @SuppressLint("TypeParameterUnusedInFormals")
 public class NavigatorProvider {
-    private static final HashMap<Class, String> sAnnotationNames = new HashMap<>();
+    private static final HashMap<Class<?>, String> sAnnotationNames = new HashMap<>();
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean validateName(String name) {

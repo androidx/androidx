@@ -67,7 +67,7 @@ public class PropertyValuesHolder implements Cloneable {
      * The type of values supplied. This information is used both in deriving the setter/getter
      * functions and in deriving the type of TypeEvaluator.
      */
-    Class mValueType;
+    Class<?> mValueType;
 
     /**
      * The set of keyframes (time/value pairs) that define this animation.
@@ -86,20 +86,20 @@ public class PropertyValuesHolder implements Cloneable {
     // of primitive types (Float vs. float). But most likely, the setter/getter functions
     // will take primitive types instead.
     // So we supply an ordered array of other types to try before giving up.
-    private static final Class[] FLOAT_VARIANTS = {float.class, Float.class, double.class,
+    private static final Class<?>[] FLOAT_VARIANTS = {float.class, Float.class, double.class,
             int.class, Double.class, Integer.class};
-    private static final Class[] INTEGER_VARIANTS = {int.class, Integer.class, float.class,
+    private static final Class<?>[] INTEGER_VARIANTS = {int.class, Integer.class, float.class,
             double.class, Float.class, Double.class};
-    private static final Class[] DOUBLE_VARIANTS = {double.class, Double.class, float.class,
+    private static final Class<?>[] DOUBLE_VARIANTS = {double.class, Double.class, float.class,
             int.class, Float.class, Integer.class};
 
     // These maps hold all property entries for a particular class. This map
     // is used to speed up property/setter/getter lookups for a given class/property
     // combination. No need to use reflection on the combination more than once.
-    static final HashMap<Class, HashMap<String, Method>> sSetterPropertyMap =
-            new HashMap<Class, HashMap<String, Method>>();
-    private static final HashMap<Class, HashMap<String, Method>> sGetterPropertyMap =
-            new HashMap<Class, HashMap<String, Method>>();
+    static final HashMap<Class<?>, HashMap<String, Method>> sSetterPropertyMap =
+            new HashMap<>();
+    private static final HashMap<Class<?>, HashMap<String, Method>> sGetterPropertyMap =
+            new HashMap<>();
 
     // Used to pass single value to varargs parameter in setter invocation
     final Object[] mTmpValueArray = new Object[1];
@@ -723,11 +723,11 @@ public class PropertyValuesHolder implements Cloneable {
      * value types used on the setter.
      * @return Method the method associated with mPropertyName.
      */
-    private Method getPropertyFunction(Class targetClass, String prefix, Class valueType) {
+    private Method getPropertyFunction(Class<?> targetClass, String prefix, Class<?> valueType) {
         // TODO: faster implementation...
         Method returnVal = null;
         String methodName = getMethodName(prefix, mPropertyName);
-        Class[] args = null;
+        Class<?>[] args = null;
         if (valueType == null) {
             try {
                 returnVal = targetClass.getMethod(methodName, args);
@@ -735,8 +735,8 @@ public class PropertyValuesHolder implements Cloneable {
                 // Swallow the error, log it later
             }
         } else {
-            args = new Class[1];
-            Class[] typeVariants;
+            args = new Class<?>[1];
+            Class<?>[] typeVariants;
             if (valueType.equals(Float.class)) {
                 typeVariants = FLOAT_VARIANTS;
             } else if (valueType.equals(Integer.class)) {
@@ -744,10 +744,10 @@ public class PropertyValuesHolder implements Cloneable {
             } else if (valueType.equals(Double.class)) {
                 typeVariants = DOUBLE_VARIANTS;
             } else {
-                typeVariants = new Class[1];
+                typeVariants = new Class<?>[1];
                 typeVariants[0] = valueType;
             }
-            for (Class typeVariant : typeVariants) {
+            for (Class<?> typeVariant : typeVariants) {
                 args[0] = typeVariant;
                 try {
                     returnVal = targetClass.getMethod(methodName, args);
@@ -783,9 +783,9 @@ public class PropertyValuesHolder implements Cloneable {
      * @param valueType The type of parameter passed into the method (null for getter).
      * @return Method the method associated with mPropertyName.
      */
-    private Method setupSetterOrGetter(Class targetClass,
-            HashMap<Class, HashMap<String, Method>> propertyMapMap,
-            String prefix, Class valueType) {
+    private Method setupSetterOrGetter(Class<?> targetClass,
+            HashMap<Class<?>, HashMap<String, Method>> propertyMapMap,
+            String prefix, Class<?> valueType) {
         Method setterOrGetter = null;
         synchronized (propertyMapMap) {
             // Have to lock property map prior to reading it, to guard against
@@ -815,7 +815,7 @@ public class PropertyValuesHolder implements Cloneable {
      * Utility function to get the setter from targetClass
      * @param targetClass The Class on which the requested method should exist.
      */
-    void setupSetter(Class targetClass) {
+    void setupSetter(Class<?> targetClass) {
         Class<?> propertyType = mConverter == null ? mValueType : mConverter.getTargetType();
         mSetter = setupSetterOrGetter(targetClass, sSetterPropertyMap, "set", propertyType);
     }
@@ -823,7 +823,7 @@ public class PropertyValuesHolder implements Cloneable {
     /**
      * Utility function to get the getter from targetClass
      */
-    private void setupGetter(Class targetClass) {
+    private void setupGetter(Class<?> targetClass) {
         mGetter = setupSetterOrGetter(targetClass, sGetterPropertyMap, "get", null);
     }
 
@@ -863,7 +863,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
         // We can't just say 'else' here because the catch statement sets mProperty to null.
         if (mProperty == null) {
-            Class targetClass = target.getClass();
+            Class<?> targetClass = target.getClass();
             if (mSetter == null) {
                 setupSetter(targetClass);
             }
@@ -919,7 +919,7 @@ public class PropertyValuesHolder implements Cloneable {
         } else {
             try {
                 if (mGetter == null) {
-                    Class targetClass = target.getClass();
+                    Class<?> targetClass = target.getClass();
                     setupGetter(targetClass);
                     if (mGetter == null) {
                         // Already logged the error - just return to avoid NPE
@@ -1102,7 +1102,7 @@ public class PropertyValuesHolder implements Cloneable {
         return mAnimatedValue;
     }
 
-    Class getValueType() {
+    Class<?> getValueType() {
         return mValueType;
     }
 
@@ -1387,7 +1387,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
-        void setupSetter(Class targetClass) {
+        void setupSetter(Class<?> targetClass) {
             synchronized (sSetterPropertyMap) {
                 // Have to lock property map prior to reading it, to guard against
                 // another thread putting something in there after we've checked it
@@ -1405,7 +1405,7 @@ public class PropertyValuesHolder implements Cloneable {
                     calculateValue(0f);
                     float[] values = (float[]) getAnimatedValue();
                     int numParams = values.length;
-                    Class[] parameterTypes = new Class[values.length];
+                    Class<?>[] parameterTypes = new Class<?>[values.length];
                     for (int i = 0; i < numParams; i++) {
                         parameterTypes[i] = float.class;
                     }
@@ -1486,7 +1486,7 @@ public class PropertyValuesHolder implements Cloneable {
         }
 
         @Override
-        void setupSetter(Class targetClass) {
+        void setupSetter(Class<?> targetClass) {
             synchronized (sSetterPropertyMap) {
                 // Have to lock property map prior to reading it, to guard against
                 // another thread putting something in there after we've checked it
@@ -1504,7 +1504,7 @@ public class PropertyValuesHolder implements Cloneable {
                     calculateValue(0f);
                     int[] values = (int[]) getAnimatedValue();
                     int numParams = values.length;
-                    Class[] parameterTypes = new Class[values.length];
+                    Class<?>[] parameterTypes = new Class<?>[values.length];
                     for (int i = 0; i < numParams; i++) {
                         parameterTypes[i] = int.class;
                     }

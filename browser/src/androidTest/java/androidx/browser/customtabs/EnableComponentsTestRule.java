@@ -35,16 +35,16 @@ import java.util.List;
  * each test and not let components for one test interfere with another.
  */
 public class EnableComponentsTestRule extends TestWatcher {
-    private final List<Class> mComponents;
+    private final List<Class<?>> mComponents;
 
     /**
      * Creates this TestRule which will enable the given components and disable them after the
      * tests.
      */
-    public EnableComponentsTestRule(Class ... components) {
+    public EnableComponentsTestRule(Class<?>... components) {
         // TODO(peconn): Figure out some generic bounds that allows a list of Classes that are
         // either Services or Actvities.
-        mComponents = new ArrayList(Arrays.asList(components));
+        mComponents = new ArrayList<>(Arrays.asList(components));
     }
 
     @Override
@@ -60,25 +60,25 @@ public class EnableComponentsTestRule extends TestWatcher {
     /**
      * Manually disables an already enabled component.
      */
-    public void manuallyDisable(Class clazz) {
+    public void manuallyDisable(Class<?> clazz) {
         setComponentEnabled(clazz, false);
     }
 
     /**
      * Manually enables a component. Will be disabled when test finishes.
      */
-    public void manuallyEnable(Class clazz) {
+    public void manuallyEnable(Class<?> clazz) {
         setComponentEnabled(clazz, true);
         mComponents.add(clazz);
     }
 
     private void setEnabled(boolean enabled) {
-        for (Class component : mComponents) {
+        for (Class<?> component : mComponents) {
             setComponentEnabled(component, enabled);
         }
     }
 
-    private static void setComponentEnabled(Class clazz, boolean enabled) {
+    private static void setComponentEnabled(Class<?> clazz, boolean enabled) {
         Context context = ApplicationProvider.getApplicationContext();
         PackageManager pm = context.getPackageManager();
         ComponentName name = new ComponentName(context, clazz);

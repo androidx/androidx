@@ -61,7 +61,7 @@ import java.util.Collection;
 @SmallTest
 public class MediaItemTest {
     private final MediaItemFactory mItemFactory;
-    private final Class mItemBuilderClass;
+    private final Class<?> mItemBuilderClass;
     private Context mContext;
     private MediaItem mTestItem;
 
@@ -143,7 +143,7 @@ public class MediaItemTest {
                 {sFileMediaItemFactory, FileMediaItem.Builder.class}});
     }
 
-    public MediaItemTest(MediaItemFactory factory, Class builderClass) {
+    public MediaItemTest(MediaItemFactory factory, Class<?> builderClass) {
         mItemFactory = factory;
         mItemBuilderClass = builderClass;
     }
