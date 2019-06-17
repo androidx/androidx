@@ -84,6 +84,7 @@
             android:exported="true" />
         <activity
             android:name=".ForceDarkActivity"
+            android:theme="@style/AppDayNightTheme"
             android:exported="true" />
         <activity
             android:name=".MultiProcessEnabledActivity"

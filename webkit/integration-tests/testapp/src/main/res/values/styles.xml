@@ -27,4 +27,8 @@
         <item name="colorSwitchThumbNormal">@color/colorInctiveSwitchThumb</item>
         <item name="android:colorForeground">@color/colorInctiveSwitchTrack</item>
     </style>
+    <style name="AppDayNightTheme" parent="Theme.AppCompat.DayNight">
+        <item name="android:forceDarkAllowed">true</item>
+        <item name="android:isLightTheme">true</item>
+    </style>
 </resources>

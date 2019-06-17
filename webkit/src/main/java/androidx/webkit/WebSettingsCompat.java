@@ -358,7 +358,9 @@ public class WebSettingsCompat {
             @ForceDark int forceDarkMode) {
         WebViewFeatureInternal webViewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
-        if (webViewFeature.isSupportedByWebView()) {
+        if (webViewFeature.isSupportedByFramework()) {
+            settings.setForceDark(forceDarkMode);
+        } else if (webViewFeature.isSupportedByWebView()) {
             getAdapter(settings).setForceDark(forceDarkMode);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -381,7 +383,6 @@ public class WebSettingsCompat {
      * TODO(amalova): unhide
      * @hide
      */
-    // TODO(amalova): add support with the framework APIs when AndroidX compiles against the Q SDK
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
@@ -389,7 +390,9 @@ public class WebSettingsCompat {
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
         WebViewFeatureInternal webViewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
-        if (webViewFeature.isSupportedByWebView()) {
+        if (webViewFeature.isSupportedByFramework()) {
+            return settings.getForceDark();
+        } else if (webViewFeature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
