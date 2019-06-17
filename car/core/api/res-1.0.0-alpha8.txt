@@ -146,6 +146,7 @@ dimen car_body2_size
 color car_body3_dark
 color car_body3_light
 dimen car_body3_size
+color car_body4_light
 dimen car_body4_size
 dimen car_button_height
 dimen car_button_min_width
@@ -223,6 +224,7 @@ dimen car_single_line_list_item_height
 dimen car_status_bar_height
 dimen car_status_bar_icon_size
 dimen car_sub_header_height
+color car_subtext1_light
 dimen car_subtext1_size
 dimen car_subtext2_size
 dimen car_subtext3_size

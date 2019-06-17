@@ -34,6 +34,8 @@
     <public type="color" name="car_body2" />
     <public type="color" name="car_body3_dark" />
     <public type="color" name="car_body3_light" />
+    <public type="color" name="car_body4_light" />
+    <public type="color" name="car_subtext1_light" />
 
     <!-- Tint colors -->
     <public type="color" name="car_tint_dark" />
