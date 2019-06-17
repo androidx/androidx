@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.navigation.NavDestination.ClassType#value():
+    Method androidx.navigation.NavDestination.ClassType.value has changed return type from Class to Class<?>
