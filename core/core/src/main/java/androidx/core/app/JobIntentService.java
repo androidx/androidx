@@ -496,7 +496,7 @@ public abstract class JobIntentService extends Service {
      * enqueued for the same class.
      * @param work The Intent of work to enqueue.
      */
-    public static void enqueueWork(@NonNull Context context, @NonNull Class cls, int jobId,
+    public static void enqueueWork(@NonNull Context context, @NonNull Class<?> cls, int jobId,
             @NonNull Intent work) {
         enqueueWork(context, new ComponentName(context, cls), jobId, work);
     }

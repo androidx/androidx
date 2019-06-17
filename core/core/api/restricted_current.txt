@@ -251,19 +251,19 @@ package androidx.core.graphics {
     method public android.graphics.Typeface? createFromFontFamilyFilesResourceEntry(android.content.Context!, androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry!, android.content.res.Resources!, int);
     method public android.graphics.Typeface? createFromFontInfo(android.content.Context!, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
     method public android.graphics.Typeface? createFromResourcesFontFile(android.content.Context!, android.content.res.Resources!, int, String!, int);
-    method protected java.lang.reflect.Method! obtainAbortCreationMethod(Class!) throws java.lang.NoSuchMethodException;
-    method protected java.lang.reflect.Method! obtainAddFontFromAssetManagerMethod(Class!) throws java.lang.NoSuchMethodException;
-    method protected java.lang.reflect.Method! obtainAddFontFromBufferMethod(Class!) throws java.lang.NoSuchMethodException;
-    method protected java.lang.reflect.Method! obtainCreateFromFamiliesWithDefaultMethod(Class!) throws java.lang.NoSuchMethodException;
-    method protected Class! obtainFontFamily() throws java.lang.ClassNotFoundException;
-    method protected java.lang.reflect.Constructor! obtainFontFamilyCtor(Class!) throws java.lang.NoSuchMethodException;
-    method protected java.lang.reflect.Method! obtainFreezeMethod(Class!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainAbortCreationMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainAddFontFromAssetManagerMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainAddFontFromBufferMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainCreateFromFamiliesWithDefaultMethod(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected Class<?>! obtainFontFamily() throws java.lang.ClassNotFoundException;
+    method protected java.lang.reflect.Constructor<?>! obtainFontFamilyCtor(Class<?>!) throws java.lang.NoSuchMethodException;
+    method protected java.lang.reflect.Method! obtainFreezeMethod(Class<?>!) throws java.lang.NoSuchMethodException;
     field protected final java.lang.reflect.Method! mAbortCreation;
     field protected final java.lang.reflect.Method! mAddFontFromAssetManager;
     field protected final java.lang.reflect.Method! mAddFontFromBuffer;
     field protected final java.lang.reflect.Method! mCreateFromFamiliesWithDefault;
-    field protected final Class! mFontFamily;
-    field protected final java.lang.reflect.Constructor! mFontFamilyCtor;
+    field protected final Class<?>! mFontFamily;
+    field protected final java.lang.reflect.Constructor<?>! mFontFamilyCtor;
     field protected final java.lang.reflect.Method! mFreeze;
   }
 

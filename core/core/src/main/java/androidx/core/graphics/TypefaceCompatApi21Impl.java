@@ -58,8 +58,8 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
     private static final String ADD_FONT_WEIGHT_STYLE_METHOD = "addFontWeightStyle";
     private static final String CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD =
             "createFromFamiliesWithDefault";
-    private static Class sFontFamily;
-    private static Constructor sFontFamilyCtor;
+    private static Class<?> sFontFamily;
+    private static Constructor<?> sFontFamilyCtor;
     private static Method sAddFontWeightStyle;
     private static Method sCreateFromFamiliesWithDefault;
     private static boolean sHasInitBeenCalled = false;
@@ -71,7 +71,7 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
         sHasInitBeenCalled = true;
 
         Class<?> fontFamilyClass;
-        Constructor fontFamilyCtor;
+        Constructor<?> fontFamilyCtor;
         Method addFontMethod;
         Method createFromFamiliesWithDefaultMethod;
         try {
