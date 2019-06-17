@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
-import androidx.ui.engine.geometry.Rect
+import androidx.ui.painting.TextPainter
 
 /**
  * The enum class allows user to decide the selection mode.
@@ -31,25 +31,30 @@ enum class SelectionMode {
      */
     Vertical {
         override fun isSelected(
-            box: Rect,
+            textPainter: TextPainter,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
+            val top = 0.px
+            val bottom = textPainter.height.px
+            val left = 0.px
+            val right = textPainter.width.px
+
             // When the end of the selection is above the top of the widget, the widget is outside
             // of the selection range.
-            if (end.y < box.top.px) return false
+            if (end.y < top) return false
 
             // When the end of the selection is on the left of the widget, and not below the bottom
             // of widget, the widget is outside of the selection range.
-            if (end.x < box.left.px && end.y <= box.bottom.px) return false
+            if (end.x < left && end.y < bottom) return false
 
             // When the start of the selection is below the bottom of the widget, the widget is
             // outside of the selection range.
-            if (start.y > box.bottom.px) return false
+            if (start.y >= bottom) return false
 
             // When the start of the selection is on the right of the widget, and not above the top
             // of the widget, the widget is outside of the selection range.
-            if (start.x > box.right.px && start.y >= box.top.px) return false
+            if (start.x >= right && start.y >= top) return false
 
             return true
         }
@@ -62,32 +67,37 @@ enum class SelectionMode {
      */
     Horizontal {
         override fun isSelected(
-            box: Rect,
+            textPainter: TextPainter,
             start: PxPosition,
             end: PxPosition
         ): Boolean {
+            val top = 0.px
+            val bottom = textPainter.height.px
+            val left = 0.px
+            val right = textPainter.width.px
+
             // When the end of the selection is on the left of the widget, the widget is outside of
             // the selection range.
-            if (end.x < box.left.px) return false
+            if (end.x < left) return false
 
             // When the end of the selection is on the top of the widget, and the not on the right
             // of the widget, the widget is outside of the selection range.
-            if (end.y < box.top.px && end.x <= box.right.px) return false
+            if (end.y < top && end.x < right) return false
 
             // When the start of the selection is on the right of the widget, the widget is outside
             // of the selection range.
-            if (start.x > box.right.px) return false
+            if (start.x >= right) return false
 
             // When the start of the selection is below the widget, and not on the left of the
             // widget, the widget is outside of the selection range.
-            if (start.y > box.bottom.px && start.x >= box.left.px) return false
+            if (start.y >= bottom && start.x >= left) return false
 
             return true
         }
     };
 
     internal abstract fun isSelected(
-        box: Rect,
+        textPainter: TextPainter,
         start: PxPosition,
         end: PxPosition
     ): Boolean

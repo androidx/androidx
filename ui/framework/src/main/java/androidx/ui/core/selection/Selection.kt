@@ -24,15 +24,15 @@ import androidx.ui.engine.geometry.Rect
  */
 data class Selection(
     /**
-     * The bounding box of the character at the start offset as Rect. The bounding box includes the
-     * top, bottom, left, and right of the character. Note: It is temporary to use Rect.
+     * A box around the character at the start offset as Rect. This box' height is the line height,
+     * and the width is the advance. Note: It is temporary to use Rect.
      */
     // TODO(qqd): After solving the problem of getting the coordinates of a character, figure out
     // what should the startOffset and endOffset should be.
     val startOffset: Rect,
     /**
-     * The bounding box of the character at the end offset as Rect. The bounding box includes the
-     * top, bottom, left, and right of the character. Note: It is temporary to use Rect.
+     * A box around the character at the end offset as Rect. This box' height is the line height,
+     * and the width is the advance. Note: It is temporary to use Rect.
      */
     val endOffset: Rect,
     /**
