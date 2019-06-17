@@ -16,6 +16,8 @@
 
 package androidx.camera.camera2.impl.compat;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -36,6 +38,7 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.Implementation;
@@ -103,6 +106,72 @@ public final class CameraManagerCompatTest {
         verify(mInteractionCallback, times(1)).getCameraIdList();
     }
 
+    @Test
+    @Config(maxSdk = 27)
+    public void registerAvailabilityCallback_callsHandlerMethod() {
+        CameraManagerCompat manager = CameraManagerCompat.from(mContext);
+        manager.registerAvailabilityCallback(mock(Executor.class),
+                mock(CameraManager.AvailabilityCallback.class));
+
+        verify(mInteractionCallback, times(1)).registerAvailabilityCallback(
+                any(CameraManager.AvailabilityCallback.class), any(Handler.class));
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    public void registerAvailabilityCallback_callsExecutorMethod() {
+        CameraManagerCompat manager = CameraManagerCompat.from(mContext);
+        manager.registerAvailabilityCallback(mock(Executor.class),
+                mock(CameraManager.AvailabilityCallback.class));
+
+        verify(mInteractionCallback, times(1)).registerAvailabilityCallback(any(Executor.class),
+                any(CameraManager.AvailabilityCallback.class));
+    }
+
+    @Test
+    @Config(maxSdk = 27) // API 28 and above does not wrap the callback
+    public void unregisterAvailabilityCallback_unregistersCorrectCallback() {
+        // Capture the wrapper callback to check that the same wrapper is what is unregistered.
+        CameraManager.AvailabilityCallback originalCallback = mock(
+                CameraManager.AvailabilityCallback.class);
+        CameraManagerCompat manager = CameraManagerCompat.from(mContext);
+
+        // Register the callback
+        manager.registerAvailabilityCallback(mock(Executor.class), originalCallback);
+
+        // Unregister the callback
+        manager.unregisterAvailabilityCallback(originalCallback);
+
+        ArgumentCaptor<CameraManager.AvailabilityCallback> registerCaptor = ArgumentCaptor.forClass(
+                CameraManager.AvailabilityCallback.class);
+        ArgumentCaptor<CameraManager.AvailabilityCallback> unregisterCaptor =
+                ArgumentCaptor.forClass(CameraManager.AvailabilityCallback.class);
+
+
+        verify(mInteractionCallback).registerAvailabilityCallback(registerCaptor.capture(),
+                any(Handler.class));
+        verify(mInteractionCallback).unregisterAvailabilityCallback(unregisterCaptor.capture());
+
+        assertThat(registerCaptor.getValue()).isSameInstanceAs(unregisterCaptor.getValue());
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    public void unregisterAvailabilityCallback_unregistersCorrectCallback_afterApi27() {
+        CameraManagerCompat manager = CameraManagerCompat.from(mContext);
+        CameraManager.AvailabilityCallback originalCallback = mock(
+                CameraManager.AvailabilityCallback.class);
+
+        manager.unregisterAvailabilityCallback(originalCallback);
+
+        ArgumentCaptor<CameraManager.AvailabilityCallback> unregisterCaptor =
+                ArgumentCaptor.forClass(CameraManager.AvailabilityCallback.class);
+
+        verify(mInteractionCallback).unregisterAvailabilityCallback(unregisterCaptor.capture());
+
+        assertThat(unregisterCaptor.getValue()).isSameInstanceAs(originalCallback);
+    }
+
     /**
      * A Shadow of {@link CameraManager} which forwards invocations to callbacks to record
      * interactions.
@@ -147,6 +216,31 @@ public final class CameraManagerCompatTest {
             }
         }
 
+        @Implementation
+        protected void registerAvailabilityCallback(
+                @NonNull /* @CallbackExecutor */ Executor executor,
+                @NonNull CameraManager.AvailabilityCallback callback) {
+            for (Callback cb : mCallbacks) {
+                cb.registerAvailabilityCallback(executor, callback);
+            }
+        }
+
+        @Implementation
+        protected void registerAvailabilityCallback(
+                @NonNull CameraManager.AvailabilityCallback callback, @Nullable Handler handler) {
+            for (Callback cb : mCallbacks) {
+                cb.registerAvailabilityCallback(callback, handler);
+            }
+        }
+
+        @Implementation
+        protected void unregisterAvailabilityCallback(
+                @NonNull CameraManager.AvailabilityCallback callback) {
+            for (Callback cb : mCallbacks) {
+                cb.unregisterAvailabilityCallback(callback);
+            }
+        }
+
         interface Callback {
             @NonNull
             String[] getCameraIdList();
@@ -157,6 +251,15 @@ public final class CameraManagerCompatTest {
             void openCamera(@NonNull String cameraId,
                     @NonNull Executor executor,
                     @NonNull CameraDevice.StateCallback callback);
+
+            void registerAvailabilityCallback(@NonNull /* @CallbackExecutor */ Executor executor,
+                    @NonNull CameraManager.AvailabilityCallback callback);
+
+            void registerAvailabilityCallback(@NonNull CameraManager.AvailabilityCallback callback,
+                    @Nullable Handler handler);
+
+            void unregisterAvailabilityCallback(
+                    @NonNull CameraManager.AvailabilityCallback callback);
         }
     }
 }

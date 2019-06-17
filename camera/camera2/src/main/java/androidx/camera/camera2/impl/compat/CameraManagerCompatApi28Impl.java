@@ -19,6 +19,7 @@ package androidx.camera.camera2.impl.compat;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -30,7 +31,24 @@ import java.util.concurrent.Executor;
 class CameraManagerCompatApi28Impl extends CameraManagerCompatBaseImpl {
 
     CameraManagerCompatApi28Impl(@NonNull Context context) {
-        super(context);
+        // No extra params needed for this API level
+        super(context, /*cameraManagerParams=*/ null);
+    }
+
+    @Override
+    public void registerAvailabilityCallback(@NonNull Executor executor,
+            @NonNull CameraManager.AvailabilityCallback callback) {
+
+        // Pass through directly to the executor API that exists on this API level.
+        mCameraManager.registerAvailabilityCallback(executor, callback);
+    }
+
+    @Override
+    public void unregisterAvailabilityCallback(
+            @NonNull CameraManager.AvailabilityCallback callback) {
+
+        // Pass through directly to override behavior defined by API 21
+        mCameraManager.unregisterAvailabilityCallback(callback);
     }
 
     @RequiresPermission(android.Manifest.permission.CAMERA)
