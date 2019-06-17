@@ -381,7 +381,7 @@ final class CameraXModule {
 
     // TODO(b/124269166): Rethink how we can handle permissions here.
     @SuppressLint("MissingPermission")
-    public void setCameraByLensFacing(@Nullable LensFacing lensFacing) {
+    public void setCameraLensFacing(@Nullable LensFacing lensFacing) {
         // Setting same lens facing is a no-op, so check for that first
         if (mCameraLensFacing != lensFacing) {
             // If we're not bound to a lifecycle, just update the camera that will be opened when we
@@ -422,19 +422,19 @@ final class CameraXModule {
         }
 
         if (mCameraLensFacing == null) {
-            setCameraByLensFacing(availableCameraLensFacing.iterator().next());
+            setCameraLensFacing(availableCameraLensFacing.iterator().next());
             return;
         }
 
         if (mCameraLensFacing == LensFacing.BACK
                 && availableCameraLensFacing.contains(LensFacing.FRONT)) {
-            setCameraByLensFacing(LensFacing.FRONT);
+            setCameraLensFacing(LensFacing.FRONT);
             return;
         }
 
         if (mCameraLensFacing == LensFacing.FRONT
                 && availableCameraLensFacing.contains(LensFacing.BACK)) {
-            setCameraByLensFacing(LensFacing.BACK);
+            setCameraLensFacing(LensFacing.BACK);
             return;
         }
     }
