@@ -1,5 +1,19 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.room.ColumnInfo#defaultValue():
+    Added method androidx.room.ColumnInfo.defaultValue()
 AddedAbstractMethod: androidx.room.Relation#associateBy():
     Added method androidx.room.Relation.associateBy()
-AddedAbstractMethod: androidx.room.ColumnInfo#defaultValue():
-    Added method androidx.room.ColumnInfo#defaultValue()
+
+
+ChangedType: androidx.room.Database#entities():
+    Method androidx.room.Database.entities has changed return type from Class[] to Class<?>[]
+ChangedType: androidx.room.Database#views():
+    Method androidx.room.Database.views has changed return type from Class[] to Class<?>[]
+ChangedType: androidx.room.ForeignKey#entity():
+    Method androidx.room.ForeignKey.entity has changed return type from Class to Class<?>
+ChangedType: androidx.room.Fts4#contentEntity():
+    Method androidx.room.Fts4.contentEntity has changed return type from Class to Class<?>
+ChangedType: androidx.room.RawQuery#observedEntities():
+    Method androidx.room.RawQuery.observedEntities has changed return type from Class[] to Class<?>[]
+ChangedType: androidx.room.Relation#entity():
+    Method androidx.room.Relation.entity has changed return type from Class to Class<?>

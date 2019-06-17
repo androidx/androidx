@@ -157,5 +157,5 @@ public @interface RawQuery {
      *
      * @return List of entities that should invalidate the query if changed.
      */
-    Class[] observedEntities() default {};
+    Class<?>[] observedEntities() default {};
 }

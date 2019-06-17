@@ -53,7 +53,7 @@ public @interface ForeignKey {
      *
      * @return The parent Entity.
      */
-    Class entity();
+    Class<?> entity();
 
     /**
      * The list of column names in the parent {@link Entity}.

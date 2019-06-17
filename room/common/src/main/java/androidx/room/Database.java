@@ -68,7 +68,7 @@ public @interface Database {
      *
      * @return The list of entities in the database.
      */
-    Class[] entities();
+    Class<?>[] entities();
 
     /**
      * The list of database views included in the database. Each class turns into a view in the
@@ -76,7 +76,7 @@ public @interface Database {
      *
      * @return The list of database views.
      */
-    Class[] views() default {};
+    Class<?>[] views() default {};
 
     /**
      * The database version.
