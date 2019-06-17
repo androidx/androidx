@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2019 The Android Open Source Project
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
-
 <issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
@@ -26,6 +10,259 @@
             file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
             line="941"
             column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Drawable mutate() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="331"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ConstantState getConstantState() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="349"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void draw(Canvas canvas) {"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="359"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="453"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ColorFilter getColorFilter() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="464"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTintList(ColorStateList tint) {"
+        errorLine2="                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="497"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setTintMode(Mode tintMode) {"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="512"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean onStateChange(int[] stateSet) {"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="538"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="679"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
+        errorLine2="                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="679"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
+        errorLine2="                                                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="679"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="680"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="680"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="694"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="694"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="694"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="705"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                                       ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="705"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="705"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
+        errorLine2="                                                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="705"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onBoundsChange(Rect bounds) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="917"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void scheduleSelf(Runnable what, long when) {"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="941"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void unscheduleSelf(Runnable what) {"
+        errorLine2="                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
+            line="958"
+            column="32"/>
     </issue>
 
 </issues>

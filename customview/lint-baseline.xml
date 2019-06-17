@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/customview/view/AbsSavedState.java"
+            line="86"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
+            line="156"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {"
+        errorLine2="                                                                        ~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
+            line="156"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
+            line="661"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {"
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
+            line="661"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
+        errorLine2="                                                  ~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
+            line="756"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
+            line="756"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract void getVisibleVirtualViews(List&lt;Integer> virtualViewIds);"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
+            line="1084"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void obtainBounds(T data, Rect outBounds);"
+        errorLine2="                          ~">
+        <location
+            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
+            line="443"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        void obtainBounds(T data, Rect outBounds);"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
+            line="443"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        V get(T collection, int index);"
+        errorLine2="        ~">
+        <location
+            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
+            line="450"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        V get(T collection, int index);"
+        errorLine2="              ~">
+        <location
+            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
+            line="450"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        int size(T collection);"
+        errorLine2="                 ~">
+        <location
+            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
+            line="451"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewDragHelper create(@NonNull ViewGroup forParent, @NonNull Callback cb) {"
+        errorLine2="                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ViewDragHelper.java"
+            line="356"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ViewDragHelper create(@NonNull ViewGroup forParent, float sensitivity,"
+        errorLine2="                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/customview/widget/ViewDragHelper.java"
+            line="369"
+            column="19"/>
+    </issue>
+
+</issues>

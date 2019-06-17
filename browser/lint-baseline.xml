@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Copyright 2019 The Android Open Source Project
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-  -->
-
 <issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
 
     <issue
@@ -30,6 +14,1788 @@
             file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
             line="66"
             column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public BrowserActionsFallbackMenuView(Context context, AttributeSet attrs) {"
+        errorLine2="                                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsFallbackMenuView.java"
+            line="37"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public BrowserActionsFallbackMenuView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsFallbackMenuView.java"
+            line="37"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder(Context context, Uri uri) {"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="201"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder(Context context, Uri uri) {"
+        errorLine2="                                        ~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="201"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setUrlType(@BrowserActionsUrlType int type) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="213"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setCustomItems(ArrayList&lt;BrowserActionItem> items) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="224"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setCustomItems(ArrayList&lt;BrowserActionItem> items) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="224"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setCustomItems(BrowserActionItem... items) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="250"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setCustomItems(BrowserActionItem... items) {"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="250"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setOnItemSelectedAction(PendingIntent onItemSelectedPendingIntent) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="258"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setOnItemSelectedAction(PendingIntent onItemSelectedPendingIntent) {"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="258"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public BrowserActionsIntent build() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="281"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void openBrowserAction(Context context, Uri uri) {"
+        errorLine2="                                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="302"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void openBrowserAction(Context context, Uri uri) {"
+        errorLine2="                                                          ~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="302"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void openBrowserAction(Context context, Uri uri, int type,"
+        errorLine2="                                         ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="317"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void openBrowserAction(Context context, Uri uri, int type,"
+        errorLine2="                                                          ~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="317"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ArrayList&lt;BrowserActionItem> items, PendingIntent pendingIntent) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="318"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            ArrayList&lt;BrowserActionItem> items, PendingIntent pendingIntent) {"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="318"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void launchIntent(Context context, Intent intent) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="336"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void launchIntent(Context context, Intent intent) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="336"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;BrowserActionItem> parseBrowserActionItems(ArrayList&lt;Bundle> bundles) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="421"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static List&lt;BrowserActionItem> parseBrowserActionItems(ArrayList&lt;Bundle> bundles) {"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/browseractions/BrowserActionsIntent.java"
+            line="421"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNavigationEvent(int navigationEvent, Bundle extras) {}"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="76"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void extraCallback(String callbackName, Bundle args) {}"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="92"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void extraCallback(String callbackName, Bundle args) {}"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="92"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onMessageChannelReady(Bundle extras) {}"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="102"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onPostMessage(String message, Bundle extras) {}"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="113"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onPostMessage(String message, Bundle extras) {}"
+        errorLine2="                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="113"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onRelationshipValidationResult(@Relation int relation, Uri requestedOrigin,"
+        errorLine2="                                                                       ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="126"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            boolean result, Bundle extras) {}"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsCallback.java"
+            line="127"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean bindCustomTabsService(Context context,"
+        errorLine2="                                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="71"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String packageName, CustomTabsServiceConnection connection) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="72"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String packageName, CustomTabsServiceConnection connection) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="72"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static String getPackageName(Context context, @Nullable List&lt;String> packages) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="83"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static String getPackageName(Context context, @Nullable List&lt;String> packages) {"
+        errorLine2="                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="83"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean connectAndInitialize(Context context, String packageName) {"
+        errorLine2="                                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="139"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean connectAndInitialize(Context context, String packageName) {"
+        errorLine2="                                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="139"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CustomTabsSession newSession(final CustomTabsCallback callback) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="198"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CustomTabsSession newSession(final CustomTabsCallback callback) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="198"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public @Nullable CustomTabsSession newSession(final CustomTabsCallback callback, int id) {"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="219"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static CustomTabsSession.PendingSession newPendingSession("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="231"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context, final CustomTabsCallback callback, int id) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="232"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Context context, final CustomTabsCallback callback, int id) {"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="232"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bundle extraCommand(String commandName, Bundle args) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="255"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bundle extraCommand(String commandName, Bundle args) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="255"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bundle extraCommand(String commandName, Bundle args) {"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="255"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CustomTabsSession attachSession(CustomTabsSession.PendingSession session) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="337"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CustomTabsSession attachSession(CustomTabsSession.PendingSession session) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsClient.java"
+            line="337"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void launchUrl(Context context, Uri url) {"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsIntent.java"
+            line="329"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void launchUrl(Context context, Uri url) {"
+        errorLine2="                                           ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsIntent.java"
+            line="329"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                PendingIntent pendingIntent) throws IllegalStateException {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsIntent.java"
+            line="537"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Intent setAlwaysUseBrowserUI(Intent intent) {"
+        errorLine2="                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsIntent.java"
+            line="757"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Intent setAlwaysUseBrowserUI(Intent intent) {"
+        errorLine2="                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsIntent.java"
+            line="757"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean shouldAlwaysUseBrowserUI(Intent intent) {"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsIntent.java"
+            line="771"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="249"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="249"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean cleanUpSession(CustomTabsSessionToken sessionToken) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="262"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract boolean newSession(CustomTabsSessionToken sessionToken);"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="297"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract boolean mayLaunchUrl(CustomTabsSessionToken sessionToken, Uri url,"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="316"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract boolean mayLaunchUrl(CustomTabsSessionToken sessionToken, Uri url,"
+        errorLine2="                                                                                 ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="316"
+            column="82"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Bundle extras, List&lt;Bundle> otherLikelyBundles);"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="317"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Bundle extras, List&lt;Bundle> otherLikelyBundles);"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="317"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract Bundle extraCommand(String commandName, Bundle args);"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="333"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract Bundle extraCommand(String commandName, Bundle args);"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="333"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract Bundle extraCommand(String commandName, Bundle args);"
+        errorLine2="                                                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="333"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract boolean updateVisuals(CustomTabsSessionToken sessionToken, Bundle bundle);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="344"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract boolean updateVisuals(CustomTabsSessionToken sessionToken, Bundle bundle);"
+        errorLine2="                                                                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="344"
+            column="83"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected abstract boolean requestPostMessageChannel(CustomTabsSessionToken sessionToken,"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="357"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Uri postMessageOrigin);"
+        errorLine2="            ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="358"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            CustomTabsSessionToken sessionToken, String message, Bundle extras);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="375"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            CustomTabsSessionToken sessionToken, String message, Bundle extras);"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="375"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            CustomTabsSessionToken sessionToken, String message, Bundle extras);"
+        errorLine2="                                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="375"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            CustomTabsSessionToken sessionToken, @Relation int relation, Uri origin, Bundle extras);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="393"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            CustomTabsSessionToken sessionToken, @Relation int relation, Uri origin, Bundle extras);"
+        errorLine2="                                                                         ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="393"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            CustomTabsSessionToken sessionToken, @Relation int relation, Uri origin, Bundle extras);"
+        errorLine2="                                                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsService.java"
+            line="393"
+            column="86"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void onServiceConnected(ComponentName name, IBinder service) {"
+        errorLine2="                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsServiceConnection.java"
+            line="48"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void onServiceConnected(ComponentName name, IBinder service) {"
+        errorLine2="                                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsServiceConnection.java"
+            line="48"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client);"
+        errorLine2="                                                      ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsServiceConnection.java"
+            line="61"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public abstract void onCustomTabsServiceConnected(ComponentName name, CustomTabsClient client);"
+        errorLine2="                                                                          ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsServiceConnection.java"
+            line="61"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean mayLaunchUrl(Uri url, Bundle extras, List&lt;Bundle> otherLikelyBundles) {"
+        errorLine2="                                ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSession.java"
+            line="101"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean mayLaunchUrl(Uri url, Bundle extras, List&lt;Bundle> otherLikelyBundles) {"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSession.java"
+            line="101"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean mayLaunchUrl(Uri url, Bundle extras, List&lt;Bundle> otherLikelyBundles) {"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSession.java"
+            line="101"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean requestPostMessageChannel(Uri postMessageOrigin) {"
+        errorLine2="                                             ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSession.java"
+            line="193"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int postMessage(String message, Bundle extras) {"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSession.java"
+            line="217"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public int postMessage(String message, Bundle extras) {"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSession.java"
+            line="217"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static CustomTabsSessionToken getSessionTokenFromIntent(Intent intent) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSessionToken.java"
+            line="85"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static CustomTabsSessionToken getSessionTokenFromIntent(Intent intent) {"
+        errorLine2="                                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSessionToken.java"
+            line="85"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public CustomTabsCallback getCallback() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSessionToken.java"
+            line="206"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean isAssociatedWith(CustomTabsSession session) {"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/CustomTabsSessionToken.java"
+            line="213"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    boolean onPostMessage(String message, Bundle extras);"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageBackend.java"
+            line="43"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    boolean onPostMessage(String message, Bundle extras);"
+        errorLine2="                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageBackend.java"
+            line="43"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    boolean onNotifyMessageChannelReady(Bundle extras);"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageBackend.java"
+            line="50"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    void onDisconnectChannel(Context appContext);"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageBackend.java"
+            line="56"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageService.java"
+            line="47"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageService.java"
+            line="47"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public PostMessageServiceConnection(CustomTabsSessionToken session) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="50"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setPackageName(String packageName) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="61"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean bindSessionToPostMessageService(Context context, String packageName) {"
+        errorLine2="                                                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="73"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean bindSessionToPostMessageService(Context context, String packageName) {"
+        errorLine2="                                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="73"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean bindSessionToPostMessageService(Context appContext) {"
+        errorLine2="                                                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="91"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void unbindFromContext(Context context) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="103"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void onServiceConnected(ComponentName name, IBinder service) {"
+        errorLine2="                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="111"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void onServiceConnected(ComponentName name, IBinder service) {"
+        errorLine2="                                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="111"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final void onServiceDisconnected(ComponentName name) {"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="117"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final boolean onNotifyMessageChannelReady(Bundle extras) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="127"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final boolean notifyMessageChannelReady(Bundle extras) {"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="138"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final boolean onPostMessage(String message, Bundle extras) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="170"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final boolean onPostMessage(String message, Bundle extras) {"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="170"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final boolean postMessage(String message, Bundle extras) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="183"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final boolean postMessage(String message, Bundle extras) {"
+        errorLine2="                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="183"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onDisconnectChannel(Context appContext) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="200"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void cleanup(Context context) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/PostMessageServiceConnection.java"
+            line="223"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityBuilder(Context context, Uri uri) {"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="58"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityBuilder(Context context, Uri uri) {"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="58"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityBuilder setStatusBarColor(int color) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="66"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityBuilder setAdditionalTrustedOrigins(List&lt;String> origins) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="83"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityBuilder setAdditionalTrustedOrigins(List&lt;String> origins) {"
+        errorLine2="                                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="83"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityBuilder setSplashScreenParams(Bundle splashScreenParams) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="104"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityBuilder setSplashScreenParams(Bundle splashScreenParams) {"
+        errorLine2="                                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="104"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void launchActivity(CustomTabsSession session) {"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="115"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Uri getUrl() {"
+        errorLine2="           ~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityBuilder.java"
+            line="143"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean areNotificationsEnabled(String channelName) {"
+        errorLine2="                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="217"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean notifyNotificationWithChannel(String platformTag, int platformId,"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="241"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Notification notification, String channelName) {"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="242"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Notification notification, String channelName) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="242"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void cancelNotification(String platformTag, int platformId) {"
+        errorLine2="                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="268"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Parcelable[] getActiveNotifications() {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="280"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final IBinder onBind(Intent intent) {"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="324"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final IBinder onBind(Intent intent) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="324"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final boolean onUnbind(Intent intent) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="329"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static final void setVerifiedProvider(final Context context, @Nullable String provider) {"
+        errorLine2="                                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="349"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static final void setVerifiedProviderSynchronouslyForTesting(Context context,"
+        errorLine2="                                                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityService.java"
+            line="371"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Set&lt;String> getVerifiedPackages(Context context, String origin) {"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="155"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Set&lt;String> getVerifiedPackages(Context context, String origin) {"
+        errorLine2="                                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="155"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static Set&lt;String> getVerifiedPackages(Context context, String origin) {"
+        errorLine2="                                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="155"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public TrustedWebActivityServiceConnectionManager(Context context) {"
+        errorLine2="                                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="184"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean execute(final Uri scope, String origin, final ExecutionCallback callback) {"
+        errorLine2="                                 ~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="246"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean execute(final Uri scope, String origin, final ExecutionCallback callback) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="246"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean execute(final Uri scope, String origin, final ExecutionCallback callback) {"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="246"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean serviceExistsForScope(Uri scope, String origin) {"
+        errorLine2="                                         ~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="309"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean serviceExistsForScope(Uri scope, String origin) {"
+        errorLine2="                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="309"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void registerClient(Context context, String origin, String clientPackage) {"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="392"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void registerClient(Context context, String origin, String clientPackage) {"
+        errorLine2="                                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="392"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void registerClient(Context context, String origin, String clientPackage) {"
+        errorLine2="                                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceConnectionManager.java"
+            line="392"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean areNotificationsEnabled(String channelName) throws RemoteException {"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceWrapper.java"
+            line="77"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean notify(String platformTag, int platformId, Notification notification,"
+        errorLine2="                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceWrapper.java"
+            line="93"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean notify(String platformTag, int platformId, Notification notification,"
+        errorLine2="                                                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceWrapper.java"
+            line="93"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String channel) throws RemoteException, SecurityException {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceWrapper.java"
+            line="94"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void cancel(String platformTag, int platformId)"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceWrapper.java"
+            line="107"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Parcelable[] getActiveNotifications()"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceWrapper.java"
+            line="125"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public ComponentName getComponentName() {"
+        errorLine2="           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/trusted/TrustedWebActivityServiceWrapper.java"
+            line="159"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void launchBrowserSiteSettings(Context context, CustomTabsSession session,"
+        errorLine2="                                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="191"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void launchBrowserSiteSettings(Context context, CustomTabsSession session,"
+        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="191"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            Uri uri) {"
+        errorLine2="            ~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="192"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean splashScreensAreSupported(Context context, String packageName,"
+        errorLine2="                                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="218"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean splashScreensAreSupported(Context context, String packageName,"
+        errorLine2="                                                                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="218"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            @SplashScreenVersion String version) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="219"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean transferSplashImage(Context context, File file,"
+        errorLine2="                                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="245"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static boolean transferSplashImage(Context context, File file,"
+        errorLine2="                                                               ~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="245"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String fileProviderAuthority, String packageName, CustomTabsSession session) {"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="246"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String fileProviderAuthority, String packageName, CustomTabsSession session) {"
+        errorLine2="                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="246"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            String fileProviderAuthority, String packageName, CustomTabsSession session) {"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/browser/customtabs/TrustedWebUtils.java"
+            line="246"
+            column="63"/>
     </issue>
 
 </issues>

@@ -27,10 +27,6 @@ plugins {
 }
 
 android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-
     buildTypes.all {
         consumerProguardFiles 'proguard-rules.pro'
     }

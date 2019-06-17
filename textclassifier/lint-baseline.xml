@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ConversationAction createFromBundle(Bundle bundle) {"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/ConversationAction.java"
+            line="217"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public float getConfidenceScore(@EntityType String entity) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassification.java"
+            line="145"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setText(@Nullable CharSequence text) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassification.java"
+            line="371"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setEntityType("
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassification.java"
+            line="385"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public static Request createFromBundle(@NonNull Bundle bundle) {"
+        errorLine2="                      ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassification.java"
+            line="681"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setWidgetVersion(@Nullable String widgetVersion) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassificationContext.java"
+            line="113"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static TextClassificationManager of(@NonNull Context context) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassificationManager.java"
+            line="61"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Collection&lt;String> resolveTypes("
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassifier.java"
+            line="300"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            public Builder setIncludedTypes(@Nullable Collection&lt;String> includedTypes) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassifier.java"
+            line="442"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            public Builder setExcludedTypes(@Nullable Collection&lt;String> excludedTypes) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassifier.java"
+            line="450"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            public Builder setHints(@Nullable Collection&lt;String> hints) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassifier.java"
+            line="462"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            public Builder includeTypesFromTextClassifier(boolean includeTypesFromTextClassifier) {"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextClassifier.java"
+            line="471"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="                @EntityType String entityType) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextLinks.java"
+            line="287"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        TextLinkSpan createSpan(@NonNull TextLinkSpanData textLinkSpanData);"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextLinks.java"
+            line="549"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public float getConfidenceScore(@EntityType String entity) {"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/TextSelection.java"
+            line="107"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ToolbarController getInstance(TextView textView) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
+            line="86"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static ToolbarController getInstance(TextView textView) {"
+        errorLine2="                                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
+            line="86"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void show(List&lt;RemoteActionCompat> actions, int start, int end) {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/textclassifier/widget/ToolbarController.java"
+            line="119"
+            column="22"/>
+    </issue>
+
+</issues>

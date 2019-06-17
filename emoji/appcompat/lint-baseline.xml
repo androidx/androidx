@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatButton(Context context) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
+            line="38"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
+            line="43"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs) {"
+        errorLine2="                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
+            line="43"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
+            line="48"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
+            line="48"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setFilters(InputFilter[] filters) {"
+        errorLine2="                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
+            line="61"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatEditText(Context context) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
+            line="46"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
+            line="51"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
+            line="51"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
+            line="56"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
+            line="56"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
+            line="80"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public InputConnection onCreateInputConnection(EditorInfo outAttrs) {"
+        errorLine2="                                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
+            line="80"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatTextView(Context context) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
+            line="39"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
+            line="44"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
+            line="44"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
+            line="49"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {"
+        errorLine2="                                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
+            line="49"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setFilters(InputFilter[] filters) {"
+        errorLine2="                           ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
+            line="62"
+            column="28"/>
+    </issue>
+
+</issues>

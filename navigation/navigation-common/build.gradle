@@ -26,12 +26,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-}
-
 dependencies {
     api("androidx.core:core:1.0.1")
     implementation(ANDROIDX_COLLECTION)

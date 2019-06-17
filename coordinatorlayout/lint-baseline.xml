@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setOnHierarchyChangeListener(OnHierarchyChangeListener onHierarchyChangeListener) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="252"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean verifyDrawable(Drawable who) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="342"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public final WindowInsetsCompat getLastWindowInsets() {"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="394"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
+        errorLine2="                                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="523"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
+        errorLine2="                                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="541"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onMeasureChild(View child, int parentWidthMeasureSpec, int widthUsed,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="752"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onDraw(Canvas c) {"
+        errorLine2="                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="916"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1242"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean drawChild(Canvas canvas, View child, long drawingTime) {"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1242"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1724"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public LayoutParams generateLayoutParams(AttributeSet attrs) {"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1724"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1729"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1729"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected LayoutParams generateDefaultLayoutParams() {"
+        errorLine2="              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1739"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1744"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1749"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1749"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1754"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1754"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1779"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes) {"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1779"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes, int type) {"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1784"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedScrollAccepted(View child, View target, int nestedScrollAxes, int type) {"
+        errorLine2="                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1784"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onStopNestedScroll(View target) {"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1805"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onStopNestedScroll(View target, int type) {"
+        errorLine2="                                   ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1810"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1832"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed,"
+        errorLine2="                               ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1839"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1893"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1893"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int  type) {"
+        errorLine2="                                  ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1898"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int  type) {"
+        errorLine2="                                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1898"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onNestedFling(View target, float velocityX, float velocityY, boolean consumed) {"
+        errorLine2="                                 ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1940"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean onNestedPreFling(View target, float velocityX, float velocityY) {"
+        errorLine2="                                    ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="1969"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Behavior(Context context, AttributeSet attrs) {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2080"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Behavior(Context context, AttributeSet attrs) {"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2080"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(LayoutParams p) {"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2885"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(MarginLayoutParams p) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2889"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public LayoutParams(ViewGroup.LayoutParams p) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="2893"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected void onRestoreInstanceState(Parcelable state) {"
+        errorLine2="                                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3215"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    protected Parcelable onSaveInstanceState() {"
+        errorLine2="              ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3242"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {"
+        errorLine2="                                                 ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3265"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public boolean requestChildRectangleOnScreen(View child, Rect rectangle, boolean immediate) {"
+        errorLine2="                                                             ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/CoordinatorLayout.java"
+            line="3265"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {"
+        errorLine2="                                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"
+            line="76"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {"
+        errorLine2="                                                           ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"
+            line="76"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void getDescendantRect(ViewGroup parent, View descendant, Rect out) {"
+        errorLine2="                                                                            ~~~~">
+        <location
+            file="src/main/java/androidx/coordinatorlayout/widget/ViewGroupUtils.java"
+            line="76"
+            column="77"/>
+    </issue>
+
+</issues>

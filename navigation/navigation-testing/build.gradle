@@ -32,9 +32,6 @@ android {
             testCoverageEnabled = false // Breaks Kotlin compiler.
         }
     }
-    lintOptions {
-        fatal("UnknownNullness")
-    }
 }
 
 dependencies {

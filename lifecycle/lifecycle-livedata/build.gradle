@@ -25,12 +25,6 @@ plugins {
     id("com.android.library")
 }
 
-android {
-    lintOptions {
-        fatal("UnknownNullness")
-    }
-}
-
 dependencies {
     implementation(project(":arch:core-common"))
     api(project(":arch:core-runtime"))

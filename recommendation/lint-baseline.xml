@@ -1,0 +1,763 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getIdTag() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="369"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getTitle() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="378"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getText() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="387"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getSourceName() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="396"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Bitmap getContentImage() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="405"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getBackgroundImageUri() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="426"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setGroup(String groupTag) {"
+        errorLine2="                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="450"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getGroup() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="459"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void setSortKey(String sortKey) {"
+        errorLine2="                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="473"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getSortKey() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="482"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IntentData getContentIntent() {"
+        errorLine2="           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="559"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public IntentData getDismissIntent() {"
+        errorLine2="           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="570"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getContentTypes() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="582"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getPrimaryContentType() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="596"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getGenres() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="609"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getPricingType() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="622"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getPricingValue() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="633"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getMaturityRating() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="667"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setIdTag(String idTag) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="750"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setIdTag(String idTag) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="750"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setTitle(String title) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="761"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setTitle(String title) {"
+        errorLine2="                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="761"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setText(@Nullable String description) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="772"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setSourceName(@Nullable String source) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="786"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setContentImage(Bitmap image) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="797"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setContentImage(Bitmap image) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="797"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setBadgeIcon(@DrawableRes int iconResourceId) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="812"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setBackgroundImageUri(@Nullable String imageUri) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="824"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setColor(@ColorInt int color) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="836"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setGroup(@Nullable String groupTag) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="853"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setSortKey(@Nullable String sortKey) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="869"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setProgress(int max, int progress) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="881"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setAutoDismiss(boolean autoDismiss) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="900"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setContentIntentData(@IntentType int intentType, Intent intent,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="923"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setContentIntentData(@IntentType int intentType, Intent intent,"
+        errorLine2="                                                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="923"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setDismissIntentData(@IntentType int intentType, @Nullable Intent intent,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="959"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setContentTypes(String[] types) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="988"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setContentTypes(String[] types) {"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="988"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setGenres(String[] genres) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1001"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setGenres(String[] genres) {"
+        errorLine2="                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1001"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setPricingInformation(@ContentPricing String priceType,"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1016"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setPricingInformation(@ContentPricing String priceType,"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1016"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setStatus(@ContentStatus int contentStatus) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1031"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setMaturityRating(@ContentMaturity String maturityRating) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1043"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setMaturityRating(@ContentMaturity String maturityRating) {"
+        errorLine2="                                                          ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1043"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setRunningTime(long length) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1053"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public ContentRecommendation build() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1065"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Notification getNotificationObject(Context context) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1081"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Notification getNotificationObject(Context context) {"
+        errorLine2="                                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
+            line="1081"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender(Notification notif) {"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="83"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Notification.Builder extend(Notification.Builder builder) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="103"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Notification.Builder extend(Notification.Builder builder) {"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="103"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setContentTypes(String[] types) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="140"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setContentTypes(String[] types) {"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="140"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getContentTypes() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="154"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getPrimaryContentType() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="165"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setGenres(String[] genres) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="181"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setGenres(String[] genres) {"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="181"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String[] getGenres() {"
+        errorLine2="           ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="193"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setPricingInformation("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="208"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            @ContentRecommendation.ContentPricing String priceType, String priceValue) {"
+        errorLine2="                                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="209"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            @ContentRecommendation.ContentPricing String priceType, String priceValue) {"
+        errorLine2="                                                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="209"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getPricingType() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="222"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getPricingValue() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="235"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setStatus("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="250"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setMaturityRating("
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="276"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            @ContentRecommendation.ContentMaturity String maturityRating) {"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="277"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public String getMaturityRating() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="289"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public RecommendationExtender setRunningTime(long length) {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/recommendation/app/RecommendationExtender.java"
+            line="298"
+            column="12"/>
+    </issue>
+
+</issues>

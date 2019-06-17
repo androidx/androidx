@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static FloatBuffer createFloatBuffer(float[] coords) {"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglRectBlt.java"
+            line="59"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static FloatBuffer createFloatBuffer(float[] coords) {"
+        errorLine2="                                                ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglRectBlt.java"
+            line="59"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EglRectBlt(Texture2dProgram program, int texWidth, int texHeight) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglRectBlt.java"
+            line="75"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void loadTexture(int texId, Bitmap bitmap) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglRectBlt.java"
+            line="109"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void copyRect(int textureId, float[] texMatrix, Rect texRect) {"
+        errorLine2="                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglRectBlt.java"
+            line="116"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void copyRect(int textureId, float[] texMatrix, Rect texRect) {"
+        errorLine2="                                                           ~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglRectBlt.java"
+            line="116"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public EglWindowSurface(Surface surface) {"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglWindowSurface.java"
+            line="54"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public Surface getSurface() {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/EglWindowSurface.java"
+            line="191"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void onFrameAvailable(SurfaceTexture surfaceTexture) {"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifEncoder.java"
+            line="396"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setRotation(int rotation) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="206"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setGridEnabled(boolean gridEnabled) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="221"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setQuality(int quality) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="233"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setMaxImages(int maxImages) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="252"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setPrimaryIndex(int primaryIndex) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="267"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public Builder setHandler(@Nullable Handler handler) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="283"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public HeifWriter build() throws IOException {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="295"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void loadTexture(int texId, Bitmap bitmap) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="204"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void draw(float[] mvpMatrix, FloatBuffer vertexBuffer, int firstVertex,"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="225"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public void draw(float[] mvpMatrix, FloatBuffer vertexBuffer, int firstVertex,"
+        errorLine2="                                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="225"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            float[] texMatrix, FloatBuffer texBuffer, int textureId, int texStride) {"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="227"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="            float[] texMatrix, FloatBuffer texBuffer, int textureId, int texStride) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="227"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int createProgram(String vertexSource, String fragmentSource) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="280"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int createProgram(String vertexSource, String fragmentSource) {"
+        errorLine2="                                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="280"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static int loadShader(int shaderType, String source) {"
+        errorLine2="                                                 ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="316"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void checkLocation(int location, String label) {"
+        errorLine2="                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="338"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public static void checkGlError(String op) {"
+        errorLine2="                                    ~~~~~~">
+        <location
+            file="src/main/java/androidx/heifwriter/Texture2dProgram.java"
+            line="347"
+            column="37"/>
+    </issue>
+
+</issues>
