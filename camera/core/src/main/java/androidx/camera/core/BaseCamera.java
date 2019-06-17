@@ -28,7 +28,7 @@ import java.util.Collection;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface BaseCamera extends UseCase.StateChangeListener,
-        CameraControl.ControlUpdateListener {
+        CameraControlInternal.ControlUpdateListener {
     /**
      * Open the camera asynchronously.
      *
@@ -65,8 +65,8 @@ public interface BaseCamera extends UseCase.StateChangeListener,
      */
     void removeOnlineUseCase(Collection<UseCase> useCases);
 
-    /** Returns the global CameraControl attached to this camera. */
-    CameraControl getCameraControl();
+    /** Returns the global CameraControlInternal attached to this camera. */
+    CameraControlInternal getCameraControlInternal();
 
     /** Returns an interface to retrieve characteristics of the camera. */
     CameraInfo getCameraInfo() throws CameraInfoUnavailableException;

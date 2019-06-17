@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -99,7 +100,7 @@ public class ErrorHandlerTest {
         }
 
         @Override
-        public void onError(ErrorCode errorCode, String message) {
+        public void onError(@NonNull ErrorCode errorCode, @NonNull String message) {
             mCount.getAndIncrement();
             mLatch.countDown();
         }
