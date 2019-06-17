@@ -19,7 +19,6 @@ import android.content.Context
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.engine.text.TextPosition
 import androidx.ui.graphics.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
@@ -37,10 +36,8 @@ import androidx.compose.state
 import androidx.compose.memo
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
-import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionRegistrarAmbient
-import androidx.ui.core.selection.TextSelectionHandler
-import androidx.ui.engine.text.TextAffinity
+import androidx.ui.core.selection.TextSelectionHandlerImpl
 import androidx.ui.painting.TextPainter
 
 private val DefaultTextAlign: TextAlign = TextAlign.Start
@@ -206,54 +203,12 @@ internal fun Text(
         })
 
         +onCommit(textPainter) {
-            val id = registrar.subscribe(object : TextSelectionHandler {
-                // Get selection for the start and end coordinates pair.
-                override fun getSelection(
-                    selectionCoordinates: Pair<PxPosition, PxPosition>,
-                    containerLayoutCoordinates: LayoutCoordinates
-                ): Selection? {
-                    val relativePosition = containerLayoutCoordinates.childToLocal(
-                        layoutCoordinates.value!!, PxPosition.Origin
-                    )
-                    val startPx = selectionCoordinates.first - relativePosition
-                    val endPx = selectionCoordinates.second - relativePosition
-
-                    val startOffset = Offset(startPx.x.value, startPx.y.value)
-                    val endOffset = Offset(endPx.x.value, endPx.y.value)
-
-                    var selectionStart = textPainter.getPositionForOffset(startOffset)
-                    var selectionEnd = textPainter.getPositionForOffset(endOffset)
-
-                    if (selectionStart.offset == selectionEnd.offset) {
-                        val wordBoundary = textPainter.getWordBoundary(selectionStart)
-                        selectionStart =
-                            TextPosition(wordBoundary.start, selectionStart.affinity)
-                        selectionEnd = TextPosition(wordBoundary.end, selectionEnd.affinity)
-                    } else {
-                        // Currently on Android, selection end is the offset after last character.
-                        // But when dragging happens, current Crane Text Selection end is the offset
-                        // of the last character. Thus before calling drawing selection background,
-                        // make the selection end matches Android behaviour.
-                        selectionEnd = TextPosition(selectionEnd.offset + 1, TextAffinity.upstream)
-                    }
-
-                    internalSelection.value =
-                        TextSelection(selectionStart.offset, selectionEnd.offset)
-
-                    // In Crane Text Selection, the selection end should be the last character, thus
-                    // make the selection end matches Crane behaviour.
-                    selectionEnd = TextPosition(selectionEnd.offset - 1, TextAffinity.upstream)
-
-                    return Selection(
-                        startOffset =
-                        textPainter.getBoundingBoxForTextPosition(selectionStart),
-                        endOffset =
-                        textPainter.getBoundingBoxForTextPosition(selectionEnd),
-                        startLayoutCoordinates = layoutCoordinates.value!!,
-                        endLayoutCoordinates = layoutCoordinates.value!!
-                    )
-                }
-            })
+            val id = registrar.subscribe(
+                TextSelectionHandlerImpl(
+                    textPainter = textPainter,
+                    layoutCoordinates = layoutCoordinates.value,
+                    onSelectionChange = { internalSelection.value = it })
+            )
             onDispose {
                 registrar.unsubscribe(id)
             }
