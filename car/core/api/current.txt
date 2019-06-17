@@ -484,7 +484,7 @@ package androidx.car.widget {
     method public boolean isAlphaJumpShown();
     method public boolean isAtEnd();
     method public boolean isAtStart();
-    method public boolean isScrollBarEnabled();
+    method public final boolean isScrollBarEnabled();
     method public boolean isScrollbarThumbEnabled();
     method public void onLayout(boolean, int, int, int, int);
     method public void onRestoreInstanceState(android.os.Parcelable!);
@@ -510,7 +510,7 @@ package androidx.car.widget {
     method public void setMaxPages(int);
     method @Deprecated public void setOnScrollListener(androidx.car.widget.PagedListView.OnScrollListener!);
     method public void setScrollBarContainerWidth(int);
-    method public void setScrollBarEnabled(boolean);
+    method public final void setScrollBarEnabled(boolean);
     method public void setScrollBarTopMargin(int);
     method public void setScrollbarThumbEnabled(boolean);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable!);
