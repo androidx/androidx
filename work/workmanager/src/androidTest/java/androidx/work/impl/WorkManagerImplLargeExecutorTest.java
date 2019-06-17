@@ -194,7 +194,7 @@ public class WorkManagerImplLargeExecutorTest {
         }
 
         @Override
-        public void schedule(WorkSpec... workSpecs) {
+        public void schedule(@NonNull WorkSpec... workSpecs) {
             synchronized (sLock) {
                 for (WorkSpec workSpec : workSpecs) {
                     assertThat(mScheduledWorkSpecIds.contains(workSpec.id), is(false));
