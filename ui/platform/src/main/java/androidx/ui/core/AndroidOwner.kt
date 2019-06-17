@@ -199,23 +199,23 @@ class AndroidCraneView constructor(context: Context)
             layout.needsRemeasure = true
         }
 
-        relayoutNodes += layout
-
-        if (layout == root) {
-            requestLayout()
+        val parent = layout.parentLayoutNode
+        if (parent == null) {
+            requestRelayout(layout)
         } else {
-            Choreographer.getInstance().postFrameCallback {
-                measureAndLayout()
-            }
+            requestRelayout(parent)
         }
     }
 
     fun requestRelayout(layoutNode: LayoutNode) {
-        if (relayoutNodes.isEmpty()) {
+        if (layoutNode == root) {
+            requestLayout()
+        } else if (relayoutNodes.isEmpty()) {
             Choreographer.getInstance().postFrameCallback {
                 measureAndLayout()
             }
         }
+        layoutNode.needsRelayout = true
         relayoutNodes += layoutNode
     }
 
@@ -250,22 +250,23 @@ class AndroidCraneView constructor(context: Context)
             val frame = currentFrame()
             frame.observeReads(frameReadObserver) {
                 relayoutNodes.sortedBy { it.depth }.forEach { layoutNode ->
-                        if (relayoutNodes.contains(layoutNode)) {
-                            if (layoutNode.needsRemeasure) {
-                                val parent = layoutNode.parentLayoutNode
-                                if (parent != null) {
-                                    // This should call measure and layout on the child
-                                    parent.layout?.callLayout()
-                                } else {
-                                    layoutNode.layout?.callMeasure(layoutNode.constraints)
-                                    layoutNode.layout?.callLayout()
-                                }
-                            } else {
-                                layoutNode.layout?.callLayout()
+                    if (layoutNode.needsRemeasure) {
+                        val parent = layoutNode.parentLayoutNode
+                        if (parent != null) {
+                            // This should call measure and layout on the child
+                            val parentLayout = parent.layout
+                            if (parentLayout != null) {
+                                parent.needsRelayout = true
+                                parentLayout.callLayout()
                             }
+                        } else {
+                            layoutNode.layout?.callMeasure(layoutNode.constraints)
+                            layoutNode.layout?.callLayout()
                         }
+                    } else if (layoutNode.needsRelayout) {
+                        layoutNode.layout?.callLayout()
                     }
-
+                }
                 repaintBoundaryChanges.sortedBy { it.depth }.forEach { node ->
                     var bounds = calculateChildrenBoundingBox(node)
                     node.layoutX = bounds.left
@@ -350,9 +351,8 @@ class AndroidCraneView constructor(context: Context)
                 targetHeight.min, targetHeight.max
             )
 
-            if (this.constraints != constraints) {
-                this.constraints = constraints
-            }
+            this.constraints = constraints
+
             // commit the current frame
             val frame = currentFrame()
             measureIteration++
@@ -389,8 +389,11 @@ class AndroidCraneView constructor(context: Context)
             root.startLayout()
             frame.observeReads(frameReadObserver) {
                 root.visitChildren { child ->
-                    child.layoutNode?.moveTo(0.ipx, 0.ipx)
-                    child.layoutNode?.layout?.callLayout()
+                    val layoutNode = child.layoutNode
+                    if (layoutNode != null) {
+                        layoutNode.moveTo(0.ipx, 0.ipx)
+                        layoutNode.layout?.callLayout()
+                    }
                 }
             }
             root.moveTo(0.ipx, 0.ipx)

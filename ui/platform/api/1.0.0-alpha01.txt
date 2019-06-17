@@ -111,6 +111,7 @@ package androidx.ui.core {
     method public androidx.ui.core.IntPx getHeight();
     method public androidx.ui.core.MeasurableLayout? getLayout();
     method public androidx.ui.core.LayoutNode getLayoutNode();
+    method public boolean getNeedsRelayout();
     method public boolean getNeedsRemeasure();
     method public Object? getParentData();
     method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
@@ -124,6 +125,7 @@ package androidx.ui.core {
     method public void setAffectsParentSize(boolean p);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setLayout(androidx.ui.core.MeasurableLayout? p);
+    method public void setNeedsRelayout$lintWithKotlin(boolean p);
     method public void setNeedsRemeasure$lintWithKotlin(boolean p);
     method public void setParentData(Object? p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
@@ -137,6 +139,7 @@ package androidx.ui.core {
     property public final androidx.ui.core.IntPx height;
     property public final androidx.ui.core.MeasurableLayout? layout;
     property public androidx.ui.core.LayoutNode layoutNode;
+    property public final boolean needsRelayout;
     property public final boolean needsRemeasure;
     property public final Object? parentData;
     property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
