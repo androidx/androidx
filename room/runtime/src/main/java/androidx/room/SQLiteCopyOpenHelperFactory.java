@@ -17,8 +17,10 @@
 package androidx.room;
 
 import androidx.annotation.NonNull;
-import androidx.room.DatabaseConfiguration.CopyFrom;
+import androidx.annotation.Nullable;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
+
+import java.io.File;
 
 /**
  * Implementation of {@link SupportSQLiteOpenHelper.Factory} that creates
@@ -26,19 +28,19 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
  */
 class SQLiteCopyOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
 
-    @CopyFrom
-    private final int mCopyFrom;
-    @NonNull
-    private final String mCopyFromFilePath;
+    @Nullable
+    private final String mCopyFromAssetPath;
+    @Nullable
+    private final File mCopyFromFile;
     @NonNull
     private final SupportSQLiteOpenHelper.Factory mDelegate;
 
     SQLiteCopyOpenHelperFactory(
-            @CopyFrom int copyFrom,
-            @NonNull String copyFromFilePath,
+            @Nullable String copyFromAssetPath,
+            @Nullable File copyFromFile,
             @NonNull SupportSQLiteOpenHelper.Factory factory) {
-        mCopyFrom = copyFrom;
-        mCopyFromFilePath = copyFromFilePath;
+        mCopyFromAssetPath = copyFromAssetPath;
+        mCopyFromFile = copyFromFile;
         mDelegate = factory;
     }
 
@@ -46,8 +48,8 @@ class SQLiteCopyOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
     public SupportSQLiteOpenHelper create(SupportSQLiteOpenHelper.Configuration configuration) {
         return new SQLiteCopyOpenHelper(
                 configuration.context,
-                mCopyFrom,
-                mCopyFromFilePath,
+                mCopyFromAssetPath,
+                mCopyFromFile,
                 configuration.callback.version,
                 mDelegate.create(configuration));
     }

@@ -308,7 +308,7 @@ public class PrepackageTest {
 
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products_external.db")
-                .createFromFile(dataDbFile.getAbsolutePath())
+                .createFromFile(dataDbFile)
                 .build();
 
         ProductDao dao = database.getProductDao();
@@ -328,7 +328,7 @@ public class PrepackageTest {
 
         ProductsDatabase database_v1 = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products_external.db")
-                .createFromFile(dataDbFile.getAbsolutePath())
+                .createFromFile(dataDbFile)
                 .build();
         dao = database_v1.getProductDao();
         assertThat(dao.countProducts(), is(2));
@@ -340,7 +340,7 @@ public class PrepackageTest {
 
         ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
                 context, ProductsDatabase_v2.class, "products_external.db")
-                .createFromFile(dataDbFile.getAbsolutePath())
+                .createFromFile(dataDbFile)
                 .fallbackToDestructiveMigration()
                 .build();
         dao = database_v2.getProductDao();
@@ -348,7 +348,7 @@ public class PrepackageTest {
     }
 
     @Test
-    public void openExternalDatabase() throws IOException {
+    public void openDataDirDatabase() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
 
         File dataDbFile = new File(ContextCompat.getDataDir(context), "products.db");
@@ -366,7 +366,7 @@ public class PrepackageTest {
     }
 
     @Test
-    public void openExternalDatabase_badSchema() throws IOException {
+    public void openDataDirDatabase_badSchema() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
 
         File dataDbFile = new File(ContextCompat.getDataDir(context), "products.db");
@@ -391,7 +391,7 @@ public class PrepackageTest {
     }
 
     @Test
-    public void openExternalDatabase_versionZero() throws IOException {
+    public void openDataDirDatabase_versionZero() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
 
         File dataDbFile = new File(ContextCompat.getDataDir(context), "products.db");
@@ -409,7 +409,7 @@ public class PrepackageTest {
     }
 
     @Test
-    public void openExternalDatabase_versionZero_badSchema() throws IOException {
+    public void openDataDirDatabase_versionZero_badSchema() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
 
         File dataDbFile = new File(ContextCompat.getDataDir(context), "products.db");
