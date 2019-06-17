@@ -445,4 +445,11 @@ class RecordingInputConnectionTest {
         assertEquals(SetSelectionEditOp(0, 12), editOps[3])
         assertEquals(CommitTextEditOp("", 1), editOps[4])
     }
+
+    @Test
+    fun closeConnection() {
+        // Everything is internal and there is nothing to expect.
+        // Just make sure it is not crashed by calling method.
+        ic.closeConnection()
+    }
 }

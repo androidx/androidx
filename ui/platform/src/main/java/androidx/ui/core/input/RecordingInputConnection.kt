@@ -93,7 +93,8 @@ internal class RecordingInputConnection(
 
     override fun closeConnection() {
         if (DEBUG) { Log.d(TAG, "closeConnection()") }
-        TODO("not implemented")
+        editOps.clear()
+        batchDepth = 0
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////
