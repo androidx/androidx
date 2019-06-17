@@ -62,6 +62,7 @@ internal class ComplexLayoutState(
     internal val onPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
     internal var onChildPositioned: List<(LayoutCoordinates) -> Unit> = emptyList()
     internal var needsRelayout = true
+    private var measureIteration = 0L
 
     override fun callMeasure(constraints: Constraints) { measure(constraints) }
     override fun callLayout() {
@@ -70,6 +71,12 @@ internal class ComplexLayoutState(
     }
 
     fun measure(constraints: Constraints): Placeable {
+        val iteration = layoutNode.owner?.measureIteration ?: 0L
+        if (measureIteration == iteration) {
+            throw IllegalStateException("measure() may not be called multiple times " +
+                    "on the same Measurable")
+        }
+        measureIteration = iteration
         if (layoutNode.constraints == constraints && !layoutNode.needsRemeasure) {
             layoutNode.resize(layoutNode.width, layoutNode.height)
             return this // we're already measured to this size, don't do anything

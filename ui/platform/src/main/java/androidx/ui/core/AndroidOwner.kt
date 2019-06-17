@@ -81,6 +81,9 @@ class AndroidCraneView constructor(context: Context)
     // Used for tracking which nodes a frame read is applied to
     internal var currentNode: ComponentNode? = null
 
+    override var measureIteration: Long = 1L
+        private set
+
     private val frameReadObserver: FrameReadObserver = { readValue ->
         if (Looper.getMainLooper() != Looper.myLooper()) {
             throw IllegalStateException("Frame reads are expected only on the main thread")
@@ -243,6 +246,7 @@ class AndroidCraneView constructor(context: Context)
     private fun measureAndLayout() {
         Trace.beginSection("Compose:measureAndLayout")
         try {
+            measureIteration++
             val frame = currentFrame()
             frame.observeReads(frameReadObserver) {
                 relayoutNodes.sortedBy { it.depth }.forEach { layoutNode ->
@@ -351,6 +355,7 @@ class AndroidCraneView constructor(context: Context)
             }
             // commit the current frame
             val frame = currentFrame()
+            measureIteration++
             frame.observeReads(frameReadObserver) {
                 callMeasure(constraints)
             }

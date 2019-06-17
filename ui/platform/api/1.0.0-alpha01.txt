@@ -8,6 +8,7 @@ package androidx.ui.core {
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getCommitUnsubscribe();
     method public androidx.ui.core.Constraints getConstraints();
+    method public long getMeasureIteration();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
     method public androidx.ui.core.LayoutNode getRoot();
     method public void onAttach(androidx.ui.core.ComponentNode node);
@@ -27,6 +28,7 @@ package androidx.ui.core {
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? commitUnsubscribe;
     property public final androidx.ui.core.Constraints constraints;
+    property public long measureIteration;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? ref;
     property public final androidx.ui.core.LayoutNode root;
   }
@@ -151,6 +153,7 @@ package androidx.ui.core {
 
   public interface Owner {
     method public androidx.ui.core.PxPosition calculatePosition();
+    method public long getMeasureIteration();
     method public void onAttach(androidx.ui.core.ComponentNode node);
     method public void onDetach(androidx.ui.core.ComponentNode node);
     method public void onEndLayout(androidx.ui.core.LayoutNode layoutNode);
@@ -161,6 +164,7 @@ package androidx.ui.core {
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
+    property public abstract long measureIteration;
   }
 
   public final class PointerInputNode extends androidx.ui.core.SingleChildComponentNode {
