@@ -97,7 +97,7 @@ public class MainFragment extends Fragment {
             String cameraDirectionString = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
             if (cameraDirectionString != null) {
                 LensFacing lensFacing = LensFacing.valueOf(cameraDirectionString.toUpperCase());
-                mCameraView.setCameraByLensFacing(lensFacing);
+                mCameraView.setCameraLensFacing(lensFacing);
             }
 
             String captureModeString = bundle.getString(INTENT_EXTRA_CAPTURE_MODE);
@@ -141,7 +141,7 @@ public class MainFragment extends Fragment {
                     new CompoundButton.OnCheckedChangeListener() {
                         @Override
                         public void onCheckedChanged(CompoundButton b, boolean checked) {
-                            mCameraView.setCameraByLensFacing(
+                            mCameraView.setCameraLensFacing(
                                     checked ? LensFacing.FRONT : LensFacing.BACK);
                         }
                     });
