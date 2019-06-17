@@ -217,6 +217,86 @@ public class PrepackageTest {
     }
 
     @Test
+    public void createFromAsset_copyOnDestructiveMigration() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        ProductDao dao;
+
+        ProductsDatabase database_v1 = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromAsset("databases/products_v1.db")
+                .build();
+        dao = database_v1.getProductDao();
+        assertThat(dao.countProducts(), is(2));
+
+        database_v1.close();
+
+        ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
+                context, ProductsDatabase_v2.class, "products.db")
+                .createFromAsset("databases/products_v2.db")
+                .fallbackToDestructiveMigration()
+                .build();
+        dao = database_v2.getProductDao();
+        assertThat(dao.countProducts(), is(3));
+    }
+
+    @Test
+    public void createFromAsset_copyOnDestructiveMigration_noRecursion() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        ProductDao dao;
+
+        ProductsDatabase database_v1 = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromAsset("databases/products_v1.db")
+                .build();
+        dao = database_v1.getProductDao();
+        assertThat(dao.countProducts(), is(2));
+
+        database_v1.close();
+
+        ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
+                context, ProductsDatabase_v2.class, "products.db")
+                .createFromAsset("databases/products_v1.db")
+                .fallbackToDestructiveMigration()
+                .build();
+        dao = database_v2.getProductDao();
+        assertThat(dao.countProducts(), is(0));
+    }
+
+    @Test
+    public void createFromAsset_copyOnDestructiveMigration_migrationProvided() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        ProductDao dao;
+
+        ProductsDatabase database_v1 = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromAsset("databases/products_v1.db")
+                .build();
+        dao = database_v1.getProductDao();
+        assertThat(dao.countProducts(), is(2));
+
+        database_v1.close();
+
+        ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
+                context, ProductsDatabase_v2.class, "products.db")
+                .createFromAsset("databases/products_v1.db")
+                .addMigrations(new Migration(1, 2) {
+                    @Override
+                    public void migrate(@NonNull SupportSQLiteDatabase database) {
+                        database.execSQL(
+                                "INSERT INTO Products (id, name) VALUES (null, 'Mofongo')");
+                    }
+                })
+                .fallbackToDestructiveMigration()
+                .build();
+        dao = database_v2.getProductDao();
+        assertThat(dao.countProducts(), is(3));
+        assertThat(dao.getProductById(3).name, is("Mofongo"));
+    }
+
+    @Test
     public void createFromFile() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase("products_external.db");
@@ -233,6 +313,38 @@ public class PrepackageTest {
 
         ProductDao dao = database.getProductDao();
         assertThat(dao.countProducts(), is(2));
+    }
+
+    @Test
+    public void createFromFile_copyOnDestructiveMigration_fileNotFound() throws IOException {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products_external.db");
+        ProductDao dao;
+
+        File dataDbFile = new File(ContextCompat.getDataDir(context), "products_external.db");
+        context.deleteDatabase(dataDbFile.getAbsolutePath());
+        InputStream toCopyInput = context.getAssets().open("databases/products_v1.db");
+        copyAsset(toCopyInput, dataDbFile);
+
+        ProductsDatabase database_v1 = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products_external.db")
+                .createFromFile(dataDbFile.getAbsolutePath())
+                .build();
+        dao = database_v1.getProductDao();
+        assertThat(dao.countProducts(), is(2));
+
+        database_v1.close();
+
+        context.deleteDatabase(dataDbFile.getAbsolutePath());
+        assertThat(dataDbFile.exists(), is(false));
+
+        ProductsDatabase_v2 database_v2 = Room.databaseBuilder(
+                context, ProductsDatabase_v2.class, "products_external.db")
+                .createFromFile(dataDbFile.getAbsolutePath())
+                .fallbackToDestructiveMigration()
+                .build();
+        dao = database_v2.getProductDao();
+        assertThat(dao.countProducts(), is(0));
     }
 
     @Test

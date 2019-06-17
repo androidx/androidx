@@ -158,6 +158,10 @@ public abstract class RoomDatabase {
     @CallSuper
     public void init(@NonNull DatabaseConfiguration configuration) {
         mOpenHelper = createOpenHelper(configuration);
+        if (mOpenHelper instanceof SQLiteCopyOpenHelper) {
+            SQLiteCopyOpenHelper copyOpenHelper = (SQLiteCopyOpenHelper) mOpenHelper;
+            copyOpenHelper.setDatabaseConfiguration(configuration);
+        }
         boolean wal = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             wal = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING;
@@ -773,7 +777,9 @@ public abstract class RoomDatabase {
          * You can call this method to change this behavior to re-create the database instead of
          * crashing.
          * <p>
-         * Note that this will delete all of the data in the database tables managed by Room.
+         * If the database was create from an asset or a file then Room will try to use the same
+         * file to re-create the database, otherwise this will delete all of the data in the
+         * database tables managed by Room.
          * <p>
          * To let Room fallback to destructive migration only during a schema downgrade then use
          * {@link #fallbackToDestructiveMigrationOnDowngrade()}.
