@@ -118,15 +118,12 @@ public class WebSettingsCompatForceDarkTest {
     }
 
     private void setWebViewSize(final int width, final int height) {
-        WebkitUtils.onMainThreadSync(new Runnable() {
-            @Override
-            public void run() {
-                WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
-                ViewGroup.LayoutParams params = webView.getLayoutParams();
-                params.height = height;
-                params.width = width;
-                webView.setLayoutParams(params);
-            }
+        WebkitUtils.onMainThreadSync(() -> {
+            WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
+            ViewGroup.LayoutParams params = webView.getLayoutParams();
+            params.height = height;
+            params.width = width;
+            webView.setLayoutParams(params);
         });
     }
 
