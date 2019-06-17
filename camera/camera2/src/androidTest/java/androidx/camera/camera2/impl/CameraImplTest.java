@@ -19,6 +19,9 @@ package androidx.camera.camera2.impl;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.graphics.ImageFormat;
@@ -32,9 +35,13 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.core.CameraCaptureCallback;
+import androidx.camera.core.CameraCaptureCallbacks;
+import androidx.camera.core.CameraCaptureResult;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
@@ -44,6 +51,9 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -51,6 +61,8 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,6 +74,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Contains tests for {@link androidx.camera.camera2.impl.Camera} internal implementation.
  */
+@RunWith(AndroidJUnit4.class)
 public class CameraImplTest {
     private static final CameraX.LensFacing DEFAULT_LENS_FACING = CameraX.LensFacing.BACK;
     static CameraFactory sCameraFactory;
@@ -142,7 +155,6 @@ public class CameraImplTest {
             public void onError(@NonNull CameraDevice camera, int error) {
             }
         };
-
     }
 
     @After
@@ -184,7 +196,6 @@ public class CameraImplTest {
     private void waitHandlerIdle() {
         final CountDownLatch latchForWaitIdle = new CountDownLatch(1);
 
-
         // If the posted runnable runs, it means the previous runnnables are already executed.
         mMessageQueue.addIdleHandler(new MessageQueue.IdleHandler() {
             @Override
@@ -222,6 +233,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void addOnline_OneUseCase() {
         blockHandler();
 
@@ -240,6 +252,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void addOnline_SameUseCases() {
         blockHandler();
 
@@ -256,6 +269,7 @@ public class CameraImplTest {
 
 
     @Test
+    @MediumTest
     public void addOnline_alreadyOnline() {
         blockHandler();
 
@@ -285,6 +299,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void addOnline_twoUseCases() {
         blockHandler();
 
@@ -308,6 +323,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void addOnline_fromPendingOffline() {
         blockHandler();
 
@@ -337,6 +353,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void removeOnline_notOnline() {
         blockHandler();
 
@@ -353,6 +370,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void removeOnline_fromPendingOnline() {
         blockHandler();
 
@@ -370,6 +388,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void removeOnline_fromOnlineUseCases() {
         blockHandler();
 
@@ -405,6 +424,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void removeOnline_twoSameUseCase() {
         blockHandler();
 
@@ -432,6 +452,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void onlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount() {
         blockHandler();
 
@@ -460,6 +481,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @MediumTest
     public void onlineUseCase_changeSurface_onUseCaseReset_correctAttachCount() {
         blockHandler();
 
@@ -487,6 +509,7 @@ public class CameraImplTest {
     }
 
     @Test
+    @LargeTest
     public void onlineUseCase_changeSurface_onUseCaseActive_correctAttachCount() {
         blockHandler();
 
@@ -516,6 +539,7 @@ public class CameraImplTest {
 
 
     @Test
+    @MediumTest
     public void offlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount() {
         blockHandler();
 
@@ -551,6 +575,97 @@ public class CameraImplTest {
         assertThat(surface2.getAttachedCount()).isEqualTo(1);
 
         mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
+    }
+
+    @Test
+    @LargeTest
+    public void pendingSingleRequestRunSucessfully_whenAnotherUseCaseOnline()
+            throws InterruptedException {
+
+        final Semaphore semaphoreForCapture = new Semaphore(0);
+        // Block camera thread to queue all the camera operations.
+        blockHandler();
+
+        UseCase useCase1 = createUseCase();
+        mCamera.addOnlineUseCase(Arrays.asList(useCase1));
+
+        CameraCaptureCallback captureCallback = Mockito.mock(CameraCaptureCallback.class);
+        CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
+        captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        captureConfigBuilder.addSurface(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
+        captureConfigBuilder.addCameraCaptureCallback(CameraCaptureCallbacks.createComboCallback(
+                captureCallback,
+                new CameraCaptureCallback() {
+                    @Override
+                    public void onCaptureCompleted(
+                            @NonNull CameraCaptureResult cameraCaptureResult) {
+                        semaphoreForCapture.release();
+                    }
+                }));
+
+        mCamera.getCameraControl().submitCaptureRequests(
+                Arrays.asList(captureConfigBuilder.build()));
+
+        UseCase useCase2 = createUseCase();
+        mCamera.addOnlineUseCase(Arrays.asList(useCase2));
+
+        // Unblock camera handler to make camera operation run quickly .
+        // To make the single request not able to run in 1st capture session.  and verify if it can
+        // be carried over to the new capture session and run successfully.
+        unblockHandler();
+
+        semaphoreForCapture.tryAcquire(3000, TimeUnit.MILLISECONDS);
+
+        // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
+        verify(captureCallback, timeout(3000).times(1))
+                .onCaptureCompleted(any(CameraCaptureResult.class));
+    }
+
+    @Test
+    @LargeTest
+    public void pendingSingleRequestSkipped_whenTheUseCaseIsRemoved()
+            throws InterruptedException {
+
+        final Semaphore semaphoreForCapture = new Semaphore(0);
+        // Block camera thread to queue all the camera operations.
+        blockHandler();
+
+        UseCase useCase1 = createUseCase();
+        UseCase useCase2 = createUseCase();
+
+        mCamera.addOnlineUseCase(Arrays.asList(useCase1, useCase2));
+
+        CameraCaptureCallback captureCallback = Mockito.mock(CameraCaptureCallback.class);
+        CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
+        captureConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        captureConfigBuilder.addSurface(useCase1.getSessionConfig(mCameraId).getSurfaces().get(0));
+        captureConfigBuilder.addCameraCaptureCallback(CameraCaptureCallbacks.createComboCallback(
+                captureCallback,
+                new CameraCaptureCallback() {
+                    @Override
+                    public void onCaptureCompleted(
+                            @NonNull CameraCaptureResult cameraCaptureResult) {
+                        semaphoreForCapture.release();
+                    }
+
+                }));
+
+        mCamera.getCameraControl().submitCaptureRequests(
+                Arrays.asList(captureConfigBuilder.build()));
+        mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
+
+        // Unblock camera handle to make camera operation run quickly .
+        // To make the single request not able to run in 1st capture session.  and verify if it can
+        // be carried to the new capture session and run successfully.
+        unblockHandler();
+        waitHandlerIdle();
+
+        // TODO: b/133710422 should provide a way to detect if request is cancelled.
+        Thread.sleep(1000);
+
+        // CameraCaptureCallback.onCaptureCompleted() is not called and there is no crash.
+        verify(captureCallback, timeout(3000).times(0))
+                .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {

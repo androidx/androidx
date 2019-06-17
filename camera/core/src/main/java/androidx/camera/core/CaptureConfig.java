@@ -16,16 +16,14 @@
 
 package androidx.camera.core;
 
-import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.view.Surface;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.Config.Option;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -70,13 +68,13 @@ public final class CaptureConfig {
      *
      * <p>In practice, the {@link CaptureConfig.Builder} will be used to construct a CaptureConfig.
      *
-     * @param surfaces                 The set of {@link Surface} where data will be put into.
-     * @param implementationOptions    The generic parameters to be passed to the {@link BaseCamera}
-     *                                 class.
-     * @param templateType             The template for parameters of the CaptureRequest. This
-     *                                 must match the
-     *                                 constants defined by {@link CameraDevice}.
-     * @param cameraCaptureCallbacks   All camera capture callbacks.
+     * @param surfaces               The set of {@link Surface} where data will be put into.
+     * @param implementationOptions  The generic parameters to be passed to the {@link BaseCamera}
+     *                               class.
+     * @param templateType           The template for parameters of the CaptureRequest. This
+     *                               must match the
+     *                               constants defined by {@link CameraDevice}.
+     * @param cameraCaptureCallbacks All camera capture callbacks.
      */
     CaptureConfig(
             List<DeferrableSurface> surfaces,
@@ -125,54 +123,6 @@ public final class CaptureConfig {
     }
 
     /**
-     * Return the builder of a {@link CaptureRequest} which can be issued.
-     *
-     * <p>Returns {@code null} if a valid {@link CaptureRequest} can not be constructed.
-     */
-    @Nullable
-    public CaptureRequest.Builder buildCaptureRequest(@Nullable CameraDevice device)
-            throws CameraAccessException {
-        if (device == null) {
-            return null;
-        }
-        CaptureRequest.Builder builder = device.createCaptureRequest(mTemplateType);
-
-        List<Surface> surfaceList = DeferrableSurfaces.surfaceList(mSurfaces);
-
-        if (surfaceList.isEmpty()) {
-            return null;
-        }
-
-        for (Surface surface : surfaceList) {
-            builder.addTarget(surface);
-        }
-
-        builder.setTag(mTag);
-
-        return builder;
-    }
-
-    /**
-     * TODO(b/132664086): To replace this old implementation by Camera2CaptureRequestBuilder once
-     *  aosp/955625 was submitted.
-     *
-     * Return the builder of a {@link CaptureRequest} which include capture request parameters and
-     * desired template type, but no target surfaces and tag.
-     *
-     * <p>Returns {@code null} if a valid {@link CaptureRequest} can not be constructed.
-     */
-    @Nullable
-    public CaptureRequest.Builder buildCaptureRequestNoTarget(@Nullable CameraDevice device)
-            throws CameraAccessException {
-        if (device == null) {
-            return null;
-        }
-        CaptureRequest.Builder builder = device.createCaptureRequest(mTemplateType);
-
-        return builder;
-    }
-
-    /**
      * Interface for unpacking a configuration into a CaptureConfig.Builder
      *
      * @hide
@@ -182,7 +132,8 @@ public final class CaptureConfig {
 
         /**
          * Apply the options from the config onto the builder
-         * @param config the set of options to apply
+         *
+         * @param config  the set of options to apply
          * @param builder the builder on which to apply the options
          */
         void unpack(UseCaseConfig<?> config, CaptureConfig.Builder builder);
@@ -255,6 +206,7 @@ public final class CaptureConfig {
 
         /**
          * Adds a {@link CameraCaptureSession.StateCallback} callback.
+         *
          * @throws IllegalArgumentException if the callback already exists in the configuration.
          */
         public void addCameraCaptureCallback(CameraCaptureCallback cameraCaptureCallback) {
@@ -266,6 +218,7 @@ public final class CaptureConfig {
 
         /**
          * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
+         *
          * @throws IllegalArgumentException if any callback already exists in the configuration.
          */
         public void addAllCameraCaptureCallbacks(
@@ -291,6 +244,7 @@ public final class CaptureConfig {
         }
 
         /** Gets the surfaces attached to the request. */
+        @NonNull
         public Set<DeferrableSurface> getSurfaces() {
             return mSurfaces;
         }
@@ -302,9 +256,9 @@ public final class CaptureConfig {
         /** Add a set of implementation specific options to the request. */
         @SuppressWarnings("unchecked")
         public void addImplementationOptions(Config config) {
-            for (Option<?> option : config.listOptions()) {
+            for (Config.Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
-                        Option<Object> objectOpt = (Option<Object>) option;
+                        Config.Option<Object> objectOpt = (Config.Option<Object>) option;
 
                 Object existValue = mImplementationOptions.retrieveOption(objectOpt, null);
                 Object newValue = config.retrieveOption(objectOpt);
