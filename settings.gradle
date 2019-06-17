@@ -280,7 +280,9 @@ includeProject(":support-media-compat-test-service-previous", "media/version-com
 includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
 
 includeProject(":support-media2-test-client", "media2/session/version-compat-tests/current/client")
+includeProject(":support-media2-test-client-previous", "media2/session/version-compat-tests/previous/client")
 includeProject(":support-media2-test-service", "media2/session/version-compat-tests/current/service")
+includeProject(":support-media2-test-service-previous", "media2/session/version-compat-tests/previous/service")
 includeProject(":support-media2-test-common", "media2/session/version-compat-tests/common")
 
 /////////////////////////////
