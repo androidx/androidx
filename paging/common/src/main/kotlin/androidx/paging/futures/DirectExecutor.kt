@@ -30,6 +30,4 @@ import java.util.concurrent.Executor
  * }
  *```
  */
-internal object DirectExecutor : Executor {
-    override fun execute(runnable: Runnable) = runnable.run()
-}
+internal val DirectExecutor = Executor { runnable: Runnable -> runnable.run() }

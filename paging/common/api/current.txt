@@ -328,6 +328,10 @@ package androidx.paging {
 
 package androidx.paging.futures {
 
+  public final class DirectExecutorKt {
+    ctor public DirectExecutorKt();
+  }
+
   public final class Futures {
     ctor public Futures();
   }
