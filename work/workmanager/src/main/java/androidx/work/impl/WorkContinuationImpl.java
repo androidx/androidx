@@ -150,7 +150,7 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @Override
-    public @NonNull WorkContinuation then(List<OneTimeWorkRequest> work) {
+    public @NonNull WorkContinuation then(@NonNull List<OneTimeWorkRequest> work) {
         // TODO (rahulrav@) We need to decide if we want to allow chaining of continuations after
         // an initial call to enqueue()
         return new WorkContinuationImpl(mWorkManagerImpl,
