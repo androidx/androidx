@@ -41,6 +41,7 @@ import androidx.camera.core.Config.Option;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
 import androidx.camera.core.ImmediateSurface;
+import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -53,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
@@ -92,6 +94,9 @@ final class CaptureSession {
     /** The configuration for the currently issued capture requests. */
     @Nullable
     volatile SessionConfig mSessionConfig;
+    /** The capture options from CameraEventCallback.onRepeating(). **/
+    @Nullable
+    volatile Config mCameraEventOnRepeatingOptions;
     /** The list of surfaces used to configure the current capture session. */
     List<Surface> mConfiguredSurfaces = Collections.emptyList();
     /** The list of DeferrableSurface used to notify surface detach events */
@@ -305,6 +310,7 @@ final class CaptureSession {
                 case OPENING:
                     mState = State.CLOSED;
                     mSessionConfig = null;
+                    mCameraEventOnRepeatingOptions = null;
                     break;
                 case CLOSED:
                 case RELEASING:
@@ -453,18 +459,20 @@ final class CaptureSession {
                 return;
             }
 
+            // The override priority for implementation options
+            // P1 CameraEventCallback onRepeating options
+            // P2 SessionConfig options
+            applyImplementationOptionToCaptureBuilder(
+                    builder, captureConfig.getImplementationOptions());
+
             CameraEventCallbacks eventCallbacks = new Camera2Config(
                     mSessionConfig.getImplementationOptions()).getCameraEventCallback(
                     CameraEventCallbacks.createEmptyCallback());
-            List<CaptureConfig> repeatingRequestList =
-                    eventCallbacks.createComboCallback().onRepeating();
-            for (CaptureConfig config : repeatingRequestList) {
-                applyImplementationOptionToCaptureBuilder(builder,
-                        config.getImplementationOptions());
+            mCameraEventOnRepeatingOptions = mergeOptions(
+                    eventCallbacks.createComboCallback().onRepeating());
+            if (mCameraEventOnRepeatingOptions != null) {
+                applyImplementationOptionToCaptureBuilder(builder, mCameraEventOnRepeatingOptions);
             }
-
-            applyImplementationOptionToCaptureBuilder(
-                    builder, captureConfig.getImplementationOptions());
 
             CameraCaptureSession.CaptureCallback comboCaptureCallback =
                     createCamera2CaptureCallback(
@@ -479,8 +487,8 @@ final class CaptureSession {
         }
     }
 
-    private void applyImplementationOptionToCaptureBuilder(
-            CaptureRequest.Builder builder, Config config) {
+    private void applyImplementationOptionToCaptureBuilder(CaptureRequest.Builder builder,
+            Config config) {
         Camera2Config camera2Config = new Camera2Config(config);
         for (Option<?> option : camera2Config.getCaptureRequestOptions()) {
             /* Although type is erased below, it is safe to pass it to CaptureRequest.Builder
@@ -523,8 +531,19 @@ final class CaptureSession {
                 CaptureRequest.Builder builder =
                         captureConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
 
-                applyImplementationOptionToCaptureBuilder(builder,
-                        mSessionConfig.getRepeatingCaptureConfig().getImplementationOptions());
+                // The override priority for implementation options
+                // P1 Single capture options
+                // P2 CameraEventCallback onRepeating options
+                // P3 SessionConfig options
+                if (mSessionConfig != null) {
+                    applyImplementationOptionToCaptureBuilder(builder,
+                            mSessionConfig.getRepeatingCaptureConfig().getImplementationOptions());
+                }
+
+                if (mCameraEventOnRepeatingOptions != null) {
+                    applyImplementationOptionToCaptureBuilder(builder,
+                            mCameraEventOnRepeatingOptions);
+                }
 
                 applyImplementationOptionToCaptureBuilder(
                         builder, captureConfig.getImplementationOptions());
@@ -558,6 +577,41 @@ final class CaptureSession {
         }
         Collections.addAll(camera2Callbacks, additionalCallbacks);
         return Camera2CaptureCallbacks.createComboCallback(camera2Callbacks);
+    }
+
+    /**
+     * Merges the implementation options from the input {@link CaptureConfig} list.
+     *
+     * <p>It will retain the first option if a conflict is detected.
+     *
+     * @param captureConfigList CaptureConfig list to be merged.
+     * @return merged options.
+     */
+    @NonNull
+    private static Config mergeOptions(List<CaptureConfig> captureConfigList) {
+        MutableOptionsBundle options = MutableOptionsBundle.create();
+        for (CaptureConfig captureConfig : captureConfigList) {
+            Config newOptions = captureConfig.getImplementationOptions();
+            for (Config.Option<?> option : newOptions.listOptions()) {
+                @SuppressWarnings("unchecked") // Options/values are being copied directly
+                        Config.Option<Object> objectOpt = (Config.Option<Object>) option;
+                Object newValue = newOptions.retrieveOption(objectOpt, null);
+                if (options.containsOption(option)) {
+                    Object oldValue = options.retrieveOption(objectOpt, null);
+                    if (!Objects.equals(oldValue, newValue)) {
+                        Log.d(TAG, "Detect conflicting option "
+                                + objectOpt.getId()
+                                + " : "
+                                + newValue
+                                + " != "
+                                + oldValue);
+                    }
+                } else {
+                    options.insertOption(objectOpt, newValue);
+                }
+            }
+        }
+        return options;
     }
 
     enum State {
