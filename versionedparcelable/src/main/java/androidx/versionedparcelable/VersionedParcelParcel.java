@@ -50,13 +50,13 @@ class VersionedParcelParcel extends VersionedParcel {
     VersionedParcelParcel(Parcel p) {
         this(p, p.dataPosition(), p.dataSize(), "", new ArrayMap<String, Method>(),
                 new ArrayMap<String, Method>(),
-                new ArrayMap<String, Class>());
+                new ArrayMap<String, Class<?>>());
     }
 
     private VersionedParcelParcel(Parcel p, int offset, int end, String prefix,
             ArrayMap<String, Method> readCache,
             ArrayMap<String, Method> writeCache,
-            ArrayMap<String, Class> parcelizerCache) {
+            ArrayMap<String, Class<?>> parcelizerCache) {
         super(readCache, writeCache, parcelizerCache);
         mParcel = p;
         mOffset = offset;

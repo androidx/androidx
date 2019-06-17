@@ -74,13 +74,13 @@ class VersionedParcelStream extends VersionedParcel {
 
     public VersionedParcelStream(InputStream input, OutputStream output) {
         this(input, output, new ArrayMap<String, Method>(), new ArrayMap<String, Method>(),
-                new ArrayMap<String, Class>());
+                new ArrayMap<String, Class<?>>());
     }
 
     private VersionedParcelStream(InputStream input, OutputStream output,
             ArrayMap<String, Method> readCache,
             ArrayMap<String, Method> writeCache,
-            ArrayMap<String, Class> parcelizerCache) {
+            ArrayMap<String, Class<?>> parcelizerCache) {
         super(readCache, writeCache, parcelizerCache);
         mMasterInput = input != null ? new DataInputStream(new FilterInputStream(input) {
             @Override
