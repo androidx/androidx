@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 
 import androidx.camera.camera2.Camera2Config;
@@ -86,5 +87,30 @@ public final class Camera2SessionOptionUnpackerTest {
         assertThat(
                 new Camera2Config(sessionConfig.getImplementationOptions()).getCameraEventCallback(
                         null)).isEqualTo(cameraEventCallbacks);
+    }
+
+    @Test
+    public void unpackerExtractsOptions() {
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+
+        // Add 2 options to ensure that multiple options can be unpacked.
+        new Camera2Config.Extender(imageCaptureConfigBuilder)
+                .setCaptureRequestOption(
+                        CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO)
+                .setCaptureRequestOption(
+                        CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
+
+        SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
+        mUnpacker.unpack(imageCaptureConfigBuilder.build(), sessionBuilder);
+        SessionConfig sessionConfig = sessionBuilder.build();
+
+        Camera2Config config = new Camera2Config(sessionConfig.getImplementationOptions());
+
+        assertThat(config.getCaptureRequestOption(
+                CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF))
+                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
+        assertThat(config.getCaptureRequestOption(
+                CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF))
+                .isEqualTo(CaptureRequest.FLASH_MODE_TORCH);
     }
 }

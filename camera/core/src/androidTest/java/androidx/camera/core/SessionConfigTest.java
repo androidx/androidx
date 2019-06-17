@@ -25,6 +25,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
 import androidx.camera.core.Config.Option;
+import androidx.camera.testing.fakes.FakeMultiValueSet;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -288,6 +289,31 @@ public class SessionConfigTest {
 
         assertThat(config.retrieveOption(OPTION)).isEqualTo(1);
         assertThat(config.retrieveOption(OPTION_1)).isEqualTo("test");
+    }
+
+    @Test
+    public void combineTwoSessionsMultiValueSetValid() {
+        Option option = Option.create("multiValueSet", FakeMultiValueSet.class);
+
+        SessionConfig.Builder builder0 = new SessionConfig.Builder();
+        MutableOptionsBundle options0 = MutableOptionsBundle.create();
+        FakeMultiValueSet multiValueSet0 = new FakeMultiValueSet();
+        options0.insertOption(option, multiValueSet0);
+        builder0.addImplementationOptions(options0);
+        SessionConfig config0 = builder0.build();
+
+        SessionConfig.Builder builder1 = new SessionConfig.Builder();
+        MutableOptionsBundle options1 = MutableOptionsBundle.create();
+        FakeMultiValueSet multiValueSet1 = new FakeMultiValueSet();
+        options1.insertOption(option, multiValueSet1);
+        builder1.addImplementationOptions(options1);
+        SessionConfig config1 = builder1.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        validatingBuilder.add(config0);
+        validatingBuilder.add(config1);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
     }
 
     @Test
