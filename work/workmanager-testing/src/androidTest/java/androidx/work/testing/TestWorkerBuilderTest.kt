@@ -23,8 +23,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.work.ListenableWorker.Result
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
+import androidx.work.await
 import androidx.work.testing.workers.TestListenableWorker
 import androidx.work.testing.workers.TestWorker
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
@@ -33,6 +37,11 @@ import org.hamcrest.Matchers.notNullValue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -129,5 +138,22 @@ class TestWorkerBuilderTest {
         val worker = TestWorkerBuilder<TestWorker>(context, singleThreadedExecutor).build()
         val result = worker.doWork()
         assertThat(result, `is`(Result.success()))
+    }
+
+    @Test
+    fun testWorkerBuilder_usesWorkerFactory() {
+        val workerFactory = mock(WorkerFactory::class.java)
+        val worker = TestListenableWorkerBuilder<TestWorker>(context)
+            .setWorkerFactory(workerFactory)
+            .build()
+
+        runBlocking {
+            val result = worker.startWork().await()
+            verify(workerFactory, times(1))
+                .createWorker(
+                    any(Context::class.java), anyString(), any(WorkerParameters::class.java)
+                )
+            assertThat(result, `is`(Result.success()))
+        }
     }
 }
