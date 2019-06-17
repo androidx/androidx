@@ -171,7 +171,7 @@ data class SetComposingTextEditOp(
             newCursor + newCursorPosition - text.length
         }
 
-        buffer.cursor = clamp(newCursorInBuffer, 0, buffer.length)
+        buffer.cursor = newCursorInBuffer.coerceIn(0, buffer.length)
     }
 }
 /**
