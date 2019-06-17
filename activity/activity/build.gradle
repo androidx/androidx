@@ -9,13 +9,6 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
-    }
-}
-
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0-rc01") {
