@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="androidx.ads.identifier.testapp">
+
+    <application
+        android:allowBackup="false"
+        android:label="@string/app_name"
+        tools:ignore="GoogleAppIndexingWarning,MissingApplicationIcon">
+        <activity
+            android:name=".AdsIdentifierActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

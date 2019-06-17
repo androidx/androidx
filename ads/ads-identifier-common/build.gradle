@@ -27,22 +27,12 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.core:core:1.1.0-rc01")
-    implementation(AUTO_VALUE_ANNOTATIONS)
-    annotationProcessor(AUTO_VALUE)
-    api(GUAVA_LISTENABLE_FUTURE)
-    implementation(project(":concurrent:concurrent-futures"))
 
-    implementation(project(":ads-identifier-common"))
-
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
-    androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(ANDROIDX_TEST_CORE)
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+    testImplementation(TRUTH)
+    testImplementation(MOCKITO_CORE)
 }
 
 android {
@@ -52,10 +42,10 @@ android {
 }
 
 androidx {
-    name = "AndroidX Ads Identifier"
+    name = "AndroidX Ads Identifier Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.ADS_IDENTIFIER
     mavenGroup = LibraryGroups.ADS
     inceptionYear = "2019"
-    description = "AndroidX Ads Identifier"
+    description = "AndroidX Ads Identifier Common"
 }
