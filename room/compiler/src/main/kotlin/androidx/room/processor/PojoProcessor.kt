@@ -35,7 +35,6 @@ import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.kotlin.descriptor
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
 import androidx.room.processor.autovalue.AutoValuePojoProcessorDelegate
 import androidx.room.processor.cache.Cache
@@ -464,23 +463,23 @@ class PojoProcessor private constructor(
             return null
         }
         val declared = MoreTypes.asDeclared(asMember)
-        if (!declared.isCollection()) {
-            context.logger.e(relationElement, ProcessorErrors.RELATION_NOT_COLLECTION)
+        val asType = if (declared.isCollection()) {
+            declared.typeArguments.first().extendsBoundOrSelf()
+        } else {
+            asMember
+        }
+        if (asType.kind == TypeKind.ERROR) {
+            context.logger.e(asType.asTypeElement(), ProcessorErrors.CANNOT_FIND_TYPE)
             return null
         }
-        val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
-        if (typeArg.kind == TypeKind.ERROR) {
-            context.logger.e(typeArg.asTypeElement(), CANNOT_FIND_TYPE)
-            return null
-        }
-        val typeArgElement = typeArg.asTypeElement()
+        val typeElement = asType.asTypeElement()
         val entityClassInput = annotation.getAsTypeMirror("entity")
 
         // do we need to decide on the entity?
         val inferEntity = (entityClassInput == null ||
                 MoreTypes.isTypeOf(Any::class.java, entityClassInput))
         val entityElement = if (inferEntity) {
-            typeArgElement
+            typeElement
         } else {
             entityClassInput!!.asTypeElement()
         }
@@ -587,7 +586,7 @@ class PojoProcessor private constructor(
 
         val projection = if (annotation.value.projection.isEmpty()) {
             // we need to infer the projection from inputs.
-            createRelationshipProjection(inferEntity, typeArg, entity, entityField, typeArgElement)
+            createRelationshipProjection(inferEntity, asType, entity, entityField, typeElement)
         } else {
             // make sure projection makes sense
             validateRelationshipProjection(annotation.value.projection, entity, relationElement)
@@ -596,7 +595,7 @@ class PojoProcessor private constructor(
         // if types don't match, row adapter prints a warning
         return androidx.room.vo.Relation(
                 entity = entity,
-                pojoType = typeArg,
+                pojoType = asType,
                 field = field,
                 parentField = parentField,
                 entityField = entityField,

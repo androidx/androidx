@@ -22,7 +22,6 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
-import androidx.room.processor.ProcessorErrors.RELATION_NOT_COLLECTION
 import androidx.room.processor.ProcessorErrors.junctionColumnWithoutIndex
 import androidx.room.processor.ProcessorErrors.relationCannotFindEntityField
 import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionEntityField
@@ -356,7 +355,7 @@ class PojoProcessorTest {
                 public User user;
                 """, COMMON.USER
         ) { _ ->
-        }.failsToCompile().withErrorContaining(RELATION_NOT_COLLECTION)
+        }.compilesWithoutError()
     }
 
     @Test
