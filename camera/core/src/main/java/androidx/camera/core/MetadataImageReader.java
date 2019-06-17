@@ -19,16 +19,16 @@ package androidx.camera.core;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.util.Log;
+import android.util.LongSparseArray;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * An {@link ImageReaderProxy} which matches the incoming {@link android.media.Image} with its
@@ -80,11 +80,11 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
 
     /** ImageInfos haven't been matched with Image. */
     @GuardedBy("mLock")
-    private final Map<Long, ImageInfo> mPendingImageInfos = new HashMap<>();
+    private final LongSparseArray<ImageInfo> mPendingImageInfos = new LongSparseArray<>();
 
     /** Images haven't been matched with ImageInfo. */
     @GuardedBy("mLock")
-    private final Map<Long, ImageProxy> mPendingImages = new HashMap<>();
+    private final LongSparseArray<ImageProxy> mPendingImages = new LongSparseArray<>();
 
     @GuardedBy("mLock")
     private int mImageProxiesIndex;
@@ -103,7 +103,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param width     Width of the ImageReader
      * @param height    Height of the ImageReader
      * @param format    Image format
-     * @param maxImages Maximum Image number the ImageReader can hold
+     * @param maxImages Maximum Image number the ImageReader can hold.
      * @param handler   Handler for executing {@link ImageReaderProxy.OnImageAvailableListener}
      */
     MetadataImageReader(int width, int height, int format, int maxImages,
@@ -120,7 +120,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param imageReaderProxy The existed ImageReaderProxy to be set underlying this
      *                         MetadataImageReader.
      * @param handler          Handler for executing
-     * {@link ImageReaderProxy.OnImageAvailableListener}
+     *                         {@link ImageReaderProxy.OnImageAvailableListener}
      */
     MetadataImageReader(ImageReaderProxy imageReaderProxy, @Nullable Handler handler) {
         mImageReaderProxy = imageReaderProxy;
@@ -312,19 +312,28 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                 return;
             }
 
-            ImageProxy image = null;
-            try {
-                image = imageReader.acquireNextImage();
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "Failed to acquire latest image.", e);
-            } finally {
-                if (image != null) {
-                    // Add the incoming Image to pending list and do the matching logic.
-                    mPendingImages.put(image.getTimestamp(), image);
-
-                    matchImages();
+            // Acquire all currently pending images in order to prevent backing up of the queue.
+            // However don't use acquireLatestImage() to make sure that all images are matched.
+            int numAcquired = 0;
+            ImageProxy image;
+            do {
+                image = null;
+                try {
+                    image = imageReader.acquireNextImage();
+                } catch (IllegalStateException e) {
+                    Log.d(TAG, "Failed to acquire next image.", e);
+                } finally {
+                    if (image != null) {
+                        numAcquired++;
+                        // Add the incoming Image to pending list and do the matching logic.
+                        mPendingImages.put(image.getTimestamp(), image);
+                        matchImages();
+                    }
                 }
-            }
+                // Only acquire maxImages number of images in case the producer pushing images into
+                // the queue is faster than the rater at which images are acquired to prevent
+                // acquiring images indefinitely.
+            } while (image != null && numAcquired < imageReader.getMaxImages());
         }
     }
 
@@ -344,28 +353,67 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         }
     }
 
+    // Remove the stale {@link ImageProxy} and {@link ImageInfo} from the pending queue if there are
+    // any missing which can happen if the camera is momentarily shut off.
+    // The ImageProxy and ImageInfo timestamps are assumed to be monotonically increasing. This
+    // means any ImageProxy or ImageInfo which has a timestamp older (smaller in value) than the
+    // oldest timestamp in the other queue will never get matched, so they should be removed.
+    //
+    // This should only be called at the end of matchImages(). The assumption is that there are no
+    // matching timestamps.
+    private void removeStaleData() {
+        synchronized (mLock) {
+            // No stale data to remove
+            if (mPendingImages.size() == 0 || mPendingImageInfos.size() == 0) {
+                return;
+            }
+
+            Long minImageProxyTimestamp = mPendingImages.keyAt(0);
+            Long minImageInfoTimestamp = mPendingImageInfos.keyAt(0);
+
+            // If timestamps are equal then matchImages did not correctly match up the ImageInfo
+            // and ImageProxy
+            Preconditions.checkArgument(!minImageInfoTimestamp.equals(minImageProxyTimestamp));
+
+            if (minImageInfoTimestamp > minImageProxyTimestamp) {
+                for (int i = mPendingImages.size() - 1; i >= 0; i--) {
+                    if (mPendingImages.keyAt(i) < minImageInfoTimestamp) {
+                        ImageProxy imageProxy = mPendingImages.valueAt(i);
+                        imageProxy.close();
+                        mPendingImages.removeAt(i);
+                    }
+                }
+            } else {
+                for (int i = mPendingImageInfos.size() - 1; i >= 0; i--) {
+                    if (mPendingImageInfos.keyAt(i) < minImageProxyTimestamp) {
+                        mPendingImageInfos.removeAt(i);
+                    }
+                }
+            }
+
+        }
+    }
+
     // Match incoming Image from the ImageReader with the corresponding ImageInfo.
     private void matchImages() {
         synchronized (mLock) {
-            List<Long> toRemove = new ArrayList<>();
-            for (Map.Entry<Long, ImageInfo> entry : mPendingImageInfos.entrySet()) {
-                ImageInfo imageInfo = entry.getValue();
+            // Iterate in reverse order so that ImageInfo can be removed in place
+            for (int i = mPendingImageInfos.size() - 1; i >= 0; i--) {
+                ImageInfo imageInfo = mPendingImageInfos.valueAt(i);
                 long timestamp = imageInfo.getTimestamp();
 
-                if (mPendingImages.containsKey(timestamp)) {
-                    ImageProxy image = mPendingImages.get(timestamp);
+                ImageProxy image = mPendingImages.get(timestamp);
+
+                if (image != null) {
                     mPendingImages.remove(timestamp);
-                    Long key = entry.getKey();
-                    toRemove.add(key);
+                    mPendingImageInfos.removeAt(i);
                     // Got a match. Add the ImageProxy to matched list and invoke
                     // onImageAvailableListener.
                     enqueueImageProxy(new SettableImageProxy(image, imageInfo));
                 }
             }
 
-            for (Long key : toRemove) {
-                mPendingImageInfos.remove(key);
-            }
+            removeStaleData();
         }
     }
 }

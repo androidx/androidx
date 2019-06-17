@@ -24,8 +24,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.camera.testing.fakes.FakeCaptureStage;
-import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.camera.testing.fakes.FakeImageProxy;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.filters.SmallTest;
 
@@ -76,7 +74,7 @@ public final class ProcessingImageReaderTest {
     private final CaptureStage mCaptureStage1 = new FakeCaptureStage(CAPTURE_ID_1, null);
     private final CaptureStage mCaptureStage2 = new FakeCaptureStage(CAPTURE_ID_2, null);
     private final CaptureStage mCaptureStage3 = new FakeCaptureStage(CAPTURE_ID_3, null);
-    private final FakeImageReaderProxy mImageReaderProxy = new FakeImageReaderProxy();
+    private final FakeImageReaderProxy mImageReaderProxy = new FakeImageReaderProxy(8);
     private CaptureBundle mCaptureBundle;
     private Handler mMainHandler;
 
@@ -146,26 +144,17 @@ public final class ProcessingImageReaderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void imageReaderSizeIsSmallerThanCaptureBundle() {
-        ImageReaderProxy imageReaderProxy = new FakeImageReaderProxy();
-
         // Creates a ProcessingImageReader with maximum Image number smaller than CaptureBundle
         // size.
-        ((FakeImageReaderProxy) imageReaderProxy).setMaxImages(1);
+        ImageReaderProxy imageReaderProxy = new FakeImageReaderProxy(1);
 
         // Expects to throw exception when creating ProcessingImageReader.
         new ProcessingImageReader(imageReaderProxy, mMainHandler,
                 mCaptureBundle, NOOP_PROCESSOR);
     }
 
-    private void triggerImageAvailable(int captureId, long timestamp) {
-        FakeImageProxy image = new FakeImageProxy();
-        FakeImageInfo imageInfo = new FakeImageInfo();
-        imageInfo.setTag(captureId);
-        imageInfo.setTimestamp(timestamp);
-        image.setImageInfo(imageInfo);
-        image.setTimestamp(timestamp);
-        mImageReaderProxy.setImageProxy(image);
-        mImageReaderProxy.triggerImageAvailable();
+    private void triggerImageAvailable(int captureId, long timestamp) throws InterruptedException {
+        mImageReaderProxy.triggerImageAvailable(captureId, timestamp);
     }
 
 }
