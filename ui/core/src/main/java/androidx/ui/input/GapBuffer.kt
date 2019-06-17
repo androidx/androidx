@@ -54,6 +54,17 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
     private fun gapLength(): Int = gapEnd - gapStart
 
     /**
+     * [] operator for the character at the index.
+     */
+    operator fun get(index: Int): Char {
+        if (index < gapStart) {
+            return buffer[index]
+        } else {
+            return buffer[index - gapStart + gapEnd]
+        }
+    }
+
+    /**
      * Check if the gap has a requested size, and allocate new buffer if there is enough space.
      */
     private fun makeSureAvailableSpace(requestSize: Int) {
@@ -263,6 +274,21 @@ internal class PartialGapBuffer(var text: String) {
         }
 
         buffer.replace(bufferStart, bufferEnd, buf)
+    }
+
+    /**
+     * [] operator for the character at the index.
+     */
+    operator fun get(index: Int): Char {
+        val buffer = buffer ?: return text[index]
+        if (index < bufStart) {
+            return text[index]
+        }
+        val gapBufLength = buffer.length()
+        if (index < gapBufLength + bufStart) {
+            return buffer[index - bufStart]
+        }
+        return text[index - (gapBufLength - bufEnd + bufStart)]
     }
 
     override fun toString(): String {
