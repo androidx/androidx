@@ -56,7 +56,7 @@ public class TypefaceCompatApi28Impl extends TypefaceCompatApi26Impl {
     }
 
     @Override
-    protected Method obtainCreateFromFamiliesWithDefaultMethod(Class fontFamily)
+    protected Method obtainCreateFromFamiliesWithDefaultMethod(Class<?> fontFamily)
             throws NoSuchMethodException {
         Object familyArray = Array.newInstance(fontFamily, 1);
         Method m =  Typeface.class.getDeclaredMethod(CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD,
