@@ -37,10 +37,8 @@ import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.Config;
-import androidx.camera.core.Config.Option;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
-import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -52,10 +50,12 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -97,13 +97,17 @@ final class CaptureSession {
     /** The capture options from CameraEventCallback.onRepeating(). **/
     @Nullable
     volatile Config mCameraEventOnRepeatingOptions;
-    /** The list of surfaces used to configure the current capture session. */
-    List<Surface> mConfiguredSurfaces = Collections.emptyList();
+    /**
+     * The map of DeferrableSurface to Surface. It is both for restoring the surfaces used to
+     * configure the current capture session and for getting the configured surface from a
+     * DeferrableSurface.
+     */
+    private Map<DeferrableSurface, Surface> mConfiguredSurfaceMap = new HashMap<>();
+
+
     /** The list of DeferrableSurface used to notify surface detach events */
     @GuardedBy("mConfiguredDeferrableSurfaces")
     List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
-    /** The list of DeferrableSurface used for repeating request */
-    private List<DeferrableSurface> mConfiguredRepeatingSurfaces = Collections.emptyList();
     /** Tracks the current state of the session. */
     @GuardedBy("mStateLock")
     State mState = State.UNINITIALIZED;
@@ -162,8 +166,7 @@ final class CaptureSession {
                 case OPENED:
                     mSessionConfig = sessionConfig;
 
-                    if (!mConfiguredSurfaces.containsAll(
-                            DeferrableSurfaces.surfaceList(sessionConfig.getSurfaces()))) {
+                    if (!mConfiguredSurfaceMap.keySet().containsAll(sessionConfig.getSurfaces())) {
                         Log.e(TAG, "Does not have the proper configured lists");
                         return;
                     }
@@ -207,23 +210,25 @@ final class CaptureSession {
 
                     mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
 
-                    mConfiguredSurfaces =
-                            new ArrayList<>(
-                                    DeferrableSurfaces.surfaceSet(
-                                            mConfiguredDeferrableSurfaces));
-                    if (mConfiguredSurfaces.isEmpty()) {
+                    List<Surface> configuredSurfaces = new ArrayList<>(
+                            DeferrableSurfaces.surfaceList(mConfiguredDeferrableSurfaces));
+                    if (configuredSurfaces.isEmpty()) {
                         Log.e(TAG, "Unable to open capture session with no surfaces. ");
                         return;
                     }
 
-                    // TODO(b/132664086): Remove this workaround after aosp/955625 has been
-                    //  submitted.
-                    Set<Surface> repeatingSurfaces = DeferrableSurfaces.surfaceSet(
-                            sessionConfig.getRepeatingCaptureConfig().getSurfaces());
-                    mConfiguredRepeatingSurfaces = new ArrayList<>();
-                    for (Surface s : repeatingSurfaces) {
-                        mConfiguredRepeatingSurfaces.add(new ImmediateSurface(s));
+                    // Establishes the mapping of DeferrableSurface to Surface. Capture request will
+                    // use this mapping to get the Surface from DeferrableSurface.
+                    mConfiguredSurfaceMap.clear();
+                    for (int i = 0; i < configuredSurfaces.size(); i++) {
+                        mConfiguredSurfaceMap.put(mConfiguredDeferrableSurfaces.get(i),
+                                configuredSurfaces.get(i));
                     }
+
+                    // Some DeferrableSurfaces might actually point to the same Surface. And we need
+                    // to pass the unique Surface list to createCaptureSession.
+                    List<Surface> uniqueConfiguredSurface = new ArrayList<>(
+                            new HashSet<>(configuredSurfaces));
 
                     notifySurfaceAttached();
                     mState = State.OPENING;
@@ -241,32 +246,43 @@ final class CaptureSession {
                     List<CaptureConfig> presetList =
                             eventCallbacks.createComboCallback().onPresetSession();
 
-                    // Generate the CaptureRequest builder from repeating request since Android
-                    // recommend use the same template type as the initial capture request. The
-                    // tag and output targets would be ignored by default.
-                    CaptureRequest.Builder builder =
-                            sessionConfig.getRepeatingCaptureConfig().buildCaptureRequestNoTarget(
-                                    cameraDevice);
-
                     if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P
-                            && builder != null && !presetList.isEmpty()) {
+                            && !presetList.isEmpty()) {
+
+                        // Generate the CaptureRequest builder from repeating request since Android
+                        // recommend use the same template type as the initial capture request. The
+                        // tag and output targets would be ignored by default.
+                        CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(
+                                sessionConfig.getRepeatingCaptureConfig());
+
                         for (CaptureConfig config : presetList) {
-                            applyImplementationOptionToCaptureBuilder(builder,
+                            captureConfigBuilder.addImplementationOptions(
                                     config.getImplementationOptions());
                         }
 
-                        List<OutputConfiguration> outputConfigList = new LinkedList<>();
-                        for (Surface surface : mConfiguredSurfaces) {
-                            outputConfigList.add(new OutputConfiguration(surface));
-                        }
+                        CaptureRequest captureRequest =
+                                Camera2CaptureRequestBuilder.buildWithoutTarget(
+                                        captureConfigBuilder.build(),
+                                        cameraDevice);
 
-                        SessionConfiguration sessionParameterConfiguration =
-                                new SessionConfiguration(SessionConfiguration.SESSION_REGULAR,
-                                        outputConfigList, getExecutor(), comboCallback);
-                        sessionParameterConfiguration.setSessionParameters(builder.build());
-                        cameraDevice.createCaptureSession(sessionParameterConfiguration);
+                        if (captureRequest != null) {
+                            List<OutputConfiguration> outputConfigList = new LinkedList<>();
+                            for (Surface surface : uniqueConfiguredSurface) {
+                                outputConfigList.add(new OutputConfiguration(surface));
+                            }
+
+                            SessionConfiguration sessionParameterConfiguration =
+                                    new SessionConfiguration(SessionConfiguration.SESSION_REGULAR,
+                                            outputConfigList, getExecutor(), comboCallback);
+                            sessionParameterConfiguration.setSessionParameters(captureRequest);
+                            cameraDevice.createCaptureSession(sessionParameterConfiguration);
+                        } else {
+                            cameraDevice.createCaptureSession(uniqueConfiguredSurface,
+                                    comboCallback,
+                                    mHandler);
+                        }
                     } else {
-                        cameraDevice.createCaptureSession(mConfiguredSurfaces, comboCallback,
+                        cameraDevice.createCaptureSession(uniqueConfiguredSurface, comboCallback,
                                 mHandler);
                     }
                     break;
@@ -452,26 +468,28 @@ final class CaptureSession {
 
         try {
             Log.d(TAG, "Issuing request for session.");
-            CaptureRequest.Builder builder =
-                    captureConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
-            if (builder == null) {
-                Log.d(TAG, "Skipping issuing empty request for session.");
-                return;
-            }
 
             // The override priority for implementation options
             // P1 CameraEventCallback onRepeating options
             // P2 SessionConfig options
-            applyImplementationOptionToCaptureBuilder(
-                    builder, captureConfig.getImplementationOptions());
+            CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(captureConfig);
 
             CameraEventCallbacks eventCallbacks = new Camera2Config(
                     mSessionConfig.getImplementationOptions()).getCameraEventCallback(
                     CameraEventCallbacks.createEmptyCallback());
+
             mCameraEventOnRepeatingOptions = mergeOptions(
                     eventCallbacks.createComboCallback().onRepeating());
             if (mCameraEventOnRepeatingOptions != null) {
-                applyImplementationOptionToCaptureBuilder(builder, mCameraEventOnRepeatingOptions);
+                captureConfigBuilder.addImplementationOptions(mCameraEventOnRepeatingOptions);
+            }
+
+            CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
+                    captureConfigBuilder.build(), mCameraCaptureSession.getDevice(),
+                    mConfiguredSurfaceMap);
+            if (captureRequest == null) {
+                Log.d(TAG, "Skipping issuing empty request for session.");
+                return;
             }
 
             CameraCaptureSession.CaptureCallback comboCaptureCallback =
@@ -480,36 +498,10 @@ final class CaptureSession {
                             mCaptureCallback);
 
             mCameraCaptureSession.setRepeatingRequest(
-                    builder.build(), comboCaptureCallback, mHandler);
+                    captureRequest, comboCaptureCallback, mHandler);
         } catch (CameraAccessException e) {
             Log.e(TAG, "Unable to access camera: " + e.getMessage());
             Thread.dumpStack();
-        }
-    }
-
-    private void applyImplementationOptionToCaptureBuilder(CaptureRequest.Builder builder,
-            Config config) {
-        Camera2Config camera2Config = new Camera2Config(config);
-        for (Option<?> option : camera2Config.getCaptureRequestOptions()) {
-            /* Although type is erased below, it is safe to pass it to CaptureRequest.Builder
-            because
-            these option are created via Camera2Config.Extender.setCaptureRequestOption
-            (CaptureRequest.Key<ValueT> key, ValueT value) and hence the type compatibility of
-            key and
-            value are ensured by the compiler. */
-            @SuppressWarnings("unchecked")
-            Option<Object> typeErasedOption = (Option<Object>) option;
-            @SuppressWarnings("unchecked")
-            CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
-
-            // TODO(b/129997028): Error of setting unavailable CaptureRequest.Key may need to
-            //  send back out to the developer
-            try {
-                // Ignores keys that don't exist
-                builder.set(key, camera2Config.retrieveOption(typeErasedOption));
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "CaptureRequest.Key is not supported: " + key);
-            }
         }
     }
 
@@ -528,27 +520,34 @@ final class CaptureSession {
                     continue;
                 }
 
-                CaptureRequest.Builder builder =
-                        captureConfig.buildCaptureRequest(mCameraCaptureSession.getDevice());
+                CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(
+                        captureConfig);
 
                 // The override priority for implementation options
                 // P1 Single capture options
                 // P2 CameraEventCallback onRepeating options
                 // P3 SessionConfig options
                 if (mSessionConfig != null) {
-                    applyImplementationOptionToCaptureBuilder(builder,
+                    captureConfigBuilder.addImplementationOptions(
                             mSessionConfig.getRepeatingCaptureConfig().getImplementationOptions());
                 }
 
                 if (mCameraEventOnRepeatingOptions != null) {
-                    applyImplementationOptionToCaptureBuilder(builder,
-                            mCameraEventOnRepeatingOptions);
+                    captureConfigBuilder.addImplementationOptions(mCameraEventOnRepeatingOptions);
                 }
 
-                applyImplementationOptionToCaptureBuilder(
-                        builder, captureConfig.getImplementationOptions());
+                // Need to override again since single capture options has highest priority.
+                captureConfigBuilder.addImplementationOptions(
+                        captureConfig.getImplementationOptions());
 
-                CaptureRequest captureRequest = builder.build();
+                CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
+                        captureConfigBuilder.build(),
+                        mCameraCaptureSession.getDevice(), mConfiguredSurfaceMap);
+                if (captureRequest == null) {
+                    Log.d(TAG, "Skipping issuing request without surface.");
+                    return;
+                }
+
                 List<CameraCaptureSession.CaptureCallback> cameraCallbacks = new ArrayList<>();
                 for (CameraCaptureCallback callback : captureConfig.getCameraCaptureCallbacks()) {
                     CaptureCallbackConverter.toCaptureCallback(callback, cameraCallbacks);
@@ -563,8 +562,9 @@ final class CaptureSession {
         } catch (CameraAccessException e) {
             Log.e(TAG, "Unable to access camera: " + e.getMessage());
             Thread.dumpStack();
+        } finally {
+            mCaptureConfigs.clear();
         }
-        mCaptureConfigs.clear();
     }
 
     private CameraCaptureSession.CaptureCallback createCamera2CaptureCallback(
@@ -699,7 +699,7 @@ final class CaptureSession {
                         session.close();
                         break;
                 }
-                Log.d(TAG, "CameraCaptureSession.onConfigured()");
+                Log.d(TAG, "CameraCaptureSession.onConfigured() mState=" + mState);
             }
         }
 
@@ -772,8 +772,9 @@ final class CaptureSession {
         for (CaptureConfig c : list) {
             CaptureConfig.Builder builder = CaptureConfig.Builder.from(c);
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            for (DeferrableSurface s : mConfiguredRepeatingSurfaces) {
-                builder.addSurface(s);
+            for (DeferrableSurface deferrableSurface :
+                    mSessionConfig.getRepeatingCaptureConfig().getSurfaces()) {
+                builder.addSurface(deferrableSurface);
             }
             ret.add(builder.build());
         }

@@ -869,7 +869,8 @@ public class ImageCapture extends UseCase {
             builder.addImplementationOptions(mCaptureConfig.getImplementationOptions());
             builder.addAllCameraCaptureCallbacks(
                     mSessionConfigBuilder.getSingleCameraCaptureCallbacks());
-            builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
+
+            builder.addSurface(mDeferrableSurface);
 
             builder.addImplementationOptions(
                     captureStage.getCaptureConfig().getImplementationOptions());
