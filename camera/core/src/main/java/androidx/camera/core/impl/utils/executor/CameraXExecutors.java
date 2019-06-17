@@ -62,6 +62,14 @@ public final class CameraXExecutors {
     }
 
     /**
+     * Returns whether the executor is a sequential executor as returned by
+     * {@link #newSequentialExecutor(Executor)}.
+     */
+    public static boolean isSequentialExecutor(@NonNull Executor executor) {
+        return executor instanceof SequentialExecutor;
+    }
+
+    /**
      * Returns an executor which posts to the thread's current {@link Looper}.
      *
      * @return An executor which posts to the thread's current looper.

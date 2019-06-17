@@ -30,6 +30,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -46,10 +47,12 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.core.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -122,9 +125,11 @@ final class Camera implements BaseCamera {
         mCameraManager = cameraManager;
         mCameraId = cameraId;
         mHandler = handler;
+        ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(mHandler);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mState.set(State.INITIALIZED);
-        mCameraControl = new Camera2CameraControl(this, handler);
+        mCameraControl = new Camera2CameraControl(this, executorScheduler, executorScheduler);
+        mCaptureSession = new CaptureSession(mHandler);
     }
 
     /**
@@ -217,18 +222,18 @@ final class Camera implements BaseCamera {
                 builder.addSessionStateCallback(new CameraCaptureSession.StateCallback() {
 
                     @Override
-                    public void onConfigured(CameraCaptureSession session) {
+                    public void onConfigured(@NonNull CameraCaptureSession session) {
                         session.close();
                     }
 
                     @Override
-                    public void onConfigureFailed(CameraCaptureSession session) {
+                    public void onConfigureFailed(@NonNull CameraCaptureSession session) {
                         closeCameraResource();
                         surfaceReleaseRunner.run();
                     }
 
                     @Override
-                    public void onClosed(CameraCaptureSession session) {
+                    public void onClosed(@NonNull CameraCaptureSession session) {
                         closeCameraResource();
                         surfaceReleaseRunner.run();
                     }

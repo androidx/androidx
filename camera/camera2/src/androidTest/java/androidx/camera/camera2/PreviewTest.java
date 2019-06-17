@@ -47,6 +47,7 @@ import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
@@ -65,6 +66,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -149,7 +151,7 @@ public final class PreviewTest {
         ArgumentCaptor<Rect> rectArgumentCaptor1 = ArgumentCaptor.forClass(Rect.class);
         ArgumentCaptor<Rect> rectArgumentCaptor2 = ArgumentCaptor.forClass(Rect.class);
         verify(cameraControl).focus(rectArgumentCaptor1.capture(), rectArgumentCaptor2.capture(),
-                any(OnFocusListener.class), any(Handler.class));
+                any(Executor.class), any(OnFocusListener.class));
         assertThat(rectArgumentCaptor1.getValue()).isEqualTo(rect);
         assertThat(rectArgumentCaptor2.getValue()).isEqualTo(rect);
     }
@@ -498,7 +500,8 @@ public final class PreviewTest {
 
                     }
                 },
-                new Handler());
+                CameraXExecutors.mainThreadExecutor(),
+                CameraXExecutors.mainThreadExecutor());
     }
 
     private static final class SurfaceTextureCallable implements Callable<SurfaceTexture> {
