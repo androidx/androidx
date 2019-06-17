@@ -43,7 +43,7 @@ dependencies {
     testImplementation(ARCH_CORE_TESTING)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation(ARCH_LIFECYCLE_EXTENSIONS)
+    testImplementation(ARCH_LIFECYCLE_LIVEDATA_CORE)
     testImplementation(KOTLIN_STDLIB)
     testImplementation(TRUTH)
 
