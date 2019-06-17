@@ -16,6 +16,7 @@
 
 package androidx.ui.core.pointerinput
 
+import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputNode
@@ -23,6 +24,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.positionRelativeToAncestor
 import androidx.ui.core.positionRelativeToRoot
 import androidx.ui.core.isAttached
+import androidx.ui.core.visitLayoutChildren
 
 /**
  * Organizes pointers and the [PointerInputNode]s that they hit into a hierarchy such that
@@ -110,7 +112,8 @@ internal class HitPathTracker {
 // TODO(shepshapard): This really should be private. Currently some tests inspect the node's
 // directly which is unnecessary and bad practice.
 internal class Node(
-    val pointerInputNode: PointerInputNode? = null
+    val pointerInputNode: PointerInputNode? = null,
+    val layoutNode: LayoutNode? = null
 ) {
     val pointerIds: MutableSet<Int> = mutableSetOf()
     val children: MutableSet<Node> = mutableSetOf()
@@ -186,19 +189,28 @@ internal class Node(
     fun refreshOffsets() {
         if (pointerInputNode == null) {
             children.forEach { child ->
-                child.offset = child.pointerInputNode?.layoutNode?.positionRelativeToRoot()
+                child.offset = findLastLayoutNode(child)?.positionRelativeToRoot()
                     ?: PxPosition.Origin
             }
         } else {
             children.forEach { child ->
-                val layoutNode = child.pointerInputNode?.layoutNode
-                child.offset = layoutNode?.positionRelativeToAncestor(pointerInputNode.layoutNode!!)
+                val layoutNode = findLastLayoutNode(child)
+                val myLayoutNode = findLastLayoutNode(this)
+                child.offset = layoutNode?.positionRelativeToAncestor(myLayoutNode!!)
                     ?: PxPosition.Origin
             }
         }
         children.forEach { child ->
             child.refreshOffsets()
         }
+    }
+
+    private fun findLastLayoutNode(node: Node): LayoutNode? {
+        var layoutNode: LayoutNode? = null
+        node.pointerInputNode?.visitLayoutChildren { child ->
+            layoutNode = child
+        }
+        return layoutNode
     }
 
     override fun toString(): String {

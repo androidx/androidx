@@ -18,18 +18,16 @@ package androidx.ui.core.pointerinput
 
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.ConsumedData
-import androidx.ui.core.DrawNode
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
-import androidx.ui.core.RepaintBoundaryNode
-import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
+import androidx.ui.core.findLastLayoutChild
 
 /**
  * The core element that receives [PointerInputEvent]s and process them in Compose UI.
@@ -100,7 +98,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         // TODO(shepshapard): This visitChildren use is ugly since once we successfully hit a child
         // we have to continue to loop through the rest of the children event though we don't
         // actually need to.  Figure out a better call here.
-        visitChildren(true) { child ->
+        visitChildrenReverse { child ->
             if (!hitChildPointerInputNode) {
                 when (child) {
                     is PointerInputNode -> {
@@ -130,45 +128,35 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         offset: PxPosition,
         hitPointerInputNodes: MutableList<PointerInputNode>
     ): Boolean {
-        val pointerInputNodes = mutableSetOf(this)
-        var child: ComponentNode? = child
-        var nodeHit = false
-        while (child != null) {
-            child = when (child) {
-                is PointerInputNode -> {
-                    pointerInputNodes.add(child)
-                    child.child
-                }
-                is LayoutNode -> {
-                    val offsetX = offset.x.value
-                    val offsetY = offset.y.value
-                    val childX = child.x.value
-                    val childY = child.y.value
-                    if (offsetX >= childX &&
-                        offsetX < childX + child.width.value &&
-                        offsetY >= childY &&
-                        offsetY < childY + child.height.value
-                    ) {
-                        nodeHit = true
-                        hitPointerInputNodes.addAll(pointerInputNodes)
-                    }
-                    val newOffset =
-                        PxPosition(offset.x - child.x, offset.y - child.y)
-                    child.hitTestOnDescendants(newOffset, hitPointerInputNodes)
-                    null
-                }
-                is SemanticsComponentNode -> {
-                    child.child
-                }
-                is DrawNode -> {
-                    child.child
-                }
-                is RepaintBoundaryNode -> {
-                    child.child
-                }
-            }
+        val hitLayoutNode = findLastLayoutChild { child ->
+            val offsetX = offset.x.value
+            val offsetY = offset.y.value
+            val childX = child.x.value
+            val childY = child.y.value
+            (offsetX >= childX &&
+                offsetX < childX + child.width.value &&
+                offsetY >= childY &&
+                offsetY < childY + child.height.value
+            )
         }
-        return nodeHit
+
+        if (hitLayoutNode != null) {
+            val insertPoint = hitPointerInputNodes.size
+            // walk up the hierarchy, looking for PointerInputNodes
+            val end = parent
+            var parent = hitLayoutNode.parent
+            while (parent != null && parent != end) {
+                if (parent is PointerInputNode) {
+                    hitPointerInputNodes.add(insertPoint, parent)
+                }
+                parent = parent.parent
+            }
+
+            val newOffset =
+                PxPosition(offset.x - hitLayoutNode.x, offset.y - hitLayoutNode.y)
+            hitLayoutNode.hitTestOnDescendants(newOffset, hitPointerInputNodes)
+        }
+        return hitLayoutNode != null
     }
 }
 

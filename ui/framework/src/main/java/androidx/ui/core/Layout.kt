@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Compose
@@ -42,7 +41,17 @@ internal class ComplexLayoutState(
     internal val density: Density
 ) : Measurable, Placeable(), MeasurableLayout {
     override val parentData: Any?
-        get() = layoutNode.parentData
+        get() {
+            var node = layoutNode.parent
+            val parentLayoutNode = layoutNode.parentLayoutNode
+            while (node != null && node !== parentLayoutNode) {
+                if (node is DataNode<*> && node.key === ParentDataKey) {
+                    return node.value
+                }
+                node = node.parent
+            }
+            return null
+        }
 
     internal var block: ComplexLayoutReceiver.() -> Unit = {}
     internal var positioningBlock: PositioningBlockReceiver.() -> Unit = {}
@@ -59,8 +68,6 @@ internal class ComplexLayoutState(
     internal val childrenMeasurables: List<Measurable> get() =
         ComplexLayoutStateMeasurablesList(layoutNode.childrenLayouts().map { it as Measurable })
 
-    internal val onPositioned = mutableListOf<(LayoutCoordinates) -> Unit>()
-    internal var onChildPositioned: List<(LayoutCoordinates) -> Unit> = emptyList()
     private var measureIteration = 0L
 
     override fun callMeasure(constraints: Constraints) { measure(constraints) }
@@ -113,11 +120,9 @@ internal class ComplexLayoutState(
         // b) when the child of the Layout is positioned - `onChildPositioned`
         // To create LayoutNodeCoordinates only once here we will call callbacks from
         // both `onPositioned` and 'onChildPositioned'.
-        if (onPositioned.isNotEmpty() || onChildPositioned.isNotEmpty()) {
-            val coordinates = LayoutNodeCoordinates(layoutNode)
-            onPositioned.forEach { it.invoke(coordinates) }
-            onChildPositioned.forEach { it.invoke(coordinates) }
-        }
+        val coordinates = LayoutNodeCoordinates(layoutNode)
+        walkOnPosition(layoutNode, coordinates)
+        walkOnChildPositioned(layoutNode, coordinates)
     }
 
     internal fun resize(width: IntPx, height: IntPx) {
@@ -133,6 +138,33 @@ internal class ComplexLayoutState(
     override fun place(x: IntPx, y: IntPx) {
         moveTo(x, y)
         placeChildren()
+    }
+
+    companion object {
+        @Suppress("UNCHECKED_CAST")
+        private fun walkOnPosition(node: ComponentNode, coordinates: LayoutCoordinates) {
+            node.visitChildren { child ->
+                if (child !is LayoutNode) {
+                    if (child is DataNode<*> && child.key === OnPositionedKey) {
+                        val method = child.value as (LayoutCoordinates) -> Unit
+                        method(coordinates)
+                    }
+                    walkOnPosition(child, coordinates)
+                }
+            }
+        }
+
+        @Suppress("UNCHECKED_CAST")
+        private fun walkOnChildPositioned(layoutNode: LayoutNode, coordinates: LayoutCoordinates) {
+            var node = layoutNode.parent
+            while (node != null && node !is LayoutNode) {
+                if (node is DataNode<*> && node.key === OnChildPositionedKey) {
+                    val method = node.value as (LayoutCoordinates) -> Unit
+                    method(coordinates)
+                }
+                node = node.parent
+            }
+        }
     }
 }
 
@@ -210,22 +242,13 @@ fun ComplexLayout(
     val density = +ambientDensity()
     val layoutState = +memo { ComplexLayoutState(density = density) }
     layoutState.block = block
-    layoutState.onChildPositioned = +ambient(OnChildPositionedAmbient)
 
     +onPreCommit {
         layoutState.layoutNode.requestRemeasure()
     }
 
-    val parentData = +ambient(ParentDataAmbient)
-
-    <LayoutNode ref = layoutState.layoutNodeRef layout = layoutState parentData = parentData>
-        OnChildPositionedAmbient.Provider(value = emptyList<(LayoutCoordinates) -> Unit>()) {
-            OnPositionedAmbient.Provider(value = layoutState.onPositioned) {
-                ParentDataAmbient.Provider(value = null) {
-                    children()
-                }
-            }
-        }
+    <LayoutNode ref = layoutState.layoutNodeRef layout = layoutState>
+        children()
     </LayoutNode>
     ComplexLayoutReceiver(layoutState).runBlock(block)
 }
@@ -494,11 +517,9 @@ fun WithConstraints(@Children children: @Composable() (Constraints) -> Unit) {
         children={})
 }
 
-internal val OnPositionedAmbient =
-    Ambient.of<MutableList<(LayoutCoordinates) -> Unit>>()
-
-internal val OnChildPositionedAmbient =
-    Ambient.of<List<(LayoutCoordinates) -> Unit>> { emptyList()}
+private val OnPositionedKey = DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnPositioned")
+private val OnChildPositionedKey =
+    DataNodeKey<(LayoutCoordinates) -> Unit>("Compose:OnChildPositioned")
 
 /**
  * [onPositioned] callback will be called with the final LayoutCoordinates of the parent
@@ -519,13 +540,7 @@ internal val OnChildPositionedAmbient =
 fun OnPositioned(
     onPositioned: (coordinates: LayoutCoordinates) -> Unit
 ) {
-    val coordinatesCallbacks = +ambient(OnPositionedAmbient)
-    +onPreCommit(onPositioned) {
-        coordinatesCallbacks.add(onPositioned)
-        onDispose {
-            coordinatesCallbacks.remove(onPositioned)
-        }
-    }
+    <DataNode key=OnPositionedKey value=onPositioned/>
 }
 
 /**
@@ -547,7 +562,7 @@ fun OnChildPositioned(
     onPositioned: (coordinates: LayoutCoordinates) -> Unit,
     @Children children: @Composable() () -> Unit
 ) {
-    val callbacks = (+ambient(OnChildPositionedAmbient)).toMutableList()
-    callbacks.add(onPositioned)
-    OnChildPositionedAmbient.Provider(value = callbacks, children = children)
+    <DataNode key=OnChildPositionedKey value=onPositioned>
+        <children/>
+    </DataNode>
 }

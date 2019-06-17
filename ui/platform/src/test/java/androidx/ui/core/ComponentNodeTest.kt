@@ -21,7 +21,6 @@ import com.nhaarman.mockitokotlin2.mock
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -102,7 +101,7 @@ class ComponentNodeTest {
         assertEquals(child2, node[2])
         assertEquals(child3, node[3])
 
-        node.emitMove(from = 0, count = 2, to = 2)
+        node.emitMove(from = 0, count = 2, to = 3)
         assertEquals(4, node.count)
         assertEquals(child2, node[0])
         assertEquals(child3, node[1])
@@ -190,13 +189,6 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun drawNodeGet() {
-        thrown.expect(IllegalArgumentException::class.java)
-        val node = DrawNode()
-        node[0]
-    }
-
-    @Test
     fun drawNodeAdd() {
         val node = DrawNode()
         val child = DrawNode()
@@ -206,21 +198,7 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun drawNodeMove() {
-        thrown.expect(UnsupportedOperationException::class.java)
-        val node = DrawNode()
-        node.emitMove(from = 0, to = 0, count = 0)
-    }
-
-    @Test
-    fun drawNodeRemove() {
-        thrown.expect(IllegalArgumentException::class.java)
-        val node = DrawNode()
-        node.emitRemoveAt(index = 0, count = 0)
-    }
-
-    @Test
-    fun singleChildAdd() {
+    fun childAdd() {
         val node = PointerInputNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
@@ -235,7 +213,7 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun singleChildcounts() {
+    fun childCount() {
         val node = PointerInputNode()
         assertEquals(0, node.count)
         node.emitInsertAt(0, PointerInputNode())
@@ -243,7 +221,7 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun singleChildeGet() {
+    fun childGet() {
         val node = PointerInputNode()
         val child = PointerInputNode()
         node.emitInsertAt(0, child)
@@ -251,15 +229,15 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun singleChildMove() {
-        thrown.expect(UnsupportedOperationException::class.java)
-        val node = PointerInputNode()
-        node.emitInsertAt(0, PointerInputNode())
-        node.emitMove(from = 0, to = 0, count = 0)
+    fun noMove() {
+        val (layout, child1, child2) = createSimpleLayout()
+        layout.emitMove(0, 0, 1)
+        assertEquals(child1, layout[0])
+        assertEquals(child2, layout[1])
     }
 
     @Test
-    fun singleChildRemove() {
+    fun childRemove() {
         val node = PointerInputNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
@@ -297,7 +275,9 @@ class ComponentNodeTest {
 
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
-        assertEquals(childLayoutNode, childLayoutNode.layoutNode)
+        val layoutNodeChildren = findLayoutNodeChildren(layoutNode)
+        assertEquals(1, layoutNodeChildren.size)
+        assertEquals(childLayoutNode, layoutNodeChildren[0])
 
         layoutNode.emitRemoveAt(index = 0, count = 1)
         assertNull(childLayoutNode.parentLayoutNode)
@@ -312,7 +292,11 @@ class ComponentNodeTest {
 
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, singleChildNode.parentLayoutNode)
-        assertNull(singleChildNode.layoutNode)
+        val layoutNodeChildren = findLayoutNodeChildren(layoutNode)
+        assertEquals(0, layoutNodeChildren.size)
+
+        val childLayoutNodes = findLayoutNodeChildren(singleChildNode)
+        assertEquals(0, childLayoutNodes.size)
 
         layoutNode.emitRemoveAt(index = 0, count = 1)
         assertNull(singleChildNode.parentLayoutNode)
@@ -331,12 +315,20 @@ class ComponentNodeTest {
 
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
-        assertEquals(childLayoutNode, intermediate.layoutNode)
-        assertEquals(childLayoutNode, childLayoutNode.layoutNode)
+
+        val layoutNodeChildren = findLayoutNodeChildren(layoutNode)
+        assertEquals(1, layoutNodeChildren.size)
+        assertEquals(childLayoutNode, layoutNodeChildren[0])
+
+        val intermediateLayoutNodeChildren = findLayoutNodeChildren(intermediate)
+        assertEquals(1, intermediateLayoutNodeChildren.size)
+        assertEquals(childLayoutNode, intermediateLayoutNodeChildren[0])
 
         intermediate.emitRemoveAt(index = 0, count = 1)
         assertNull(childLayoutNode.parentLayoutNode)
-        assertNull(intermediate.layoutNode)
+
+        val intermediateLayoutNodeChildren2 = findLayoutNodeChildren(intermediate)
+        assertEquals(0, intermediateLayoutNodeChildren2.size)
     }
 
     // Test visitChildren() for LayoutNode and a SingleChildNode
@@ -424,7 +416,7 @@ class ComponentNodeTest {
         assertEquals(child4, children[2])
         assertEquals(child2, children[3])
 
-        layout.emitMove(from = 1, to = 2, count = 2)
+        layout.emitMove(from = 1, to = 3, count = 2)
 
         children.clear()
         layout.visitChildren { children.add(it) }
@@ -626,82 +618,41 @@ class ComponentNodeTest {
         assertEquals(PxPosition(20.px, -2.px), actual)
     }
 
-    // SingleChildComponentNode shouldn't allow adding more than two children during composition
-    @Test
-    fun testAddTwoMax() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
-        pointerInputNode.emitInsertAt(0, DrawNode())
-        thrown.expect(IllegalStateException::class.java)
-        pointerInputNode.emitInsertAt(0, DrawNode())
-    }
-
-    // SingleChildComponentNode shouldn't allow adding beyond the current child
+    // ComponentNode shouldn't allow adding beyond the count
     @Test
     fun testAddBeyondCurrent() {
         val pointerInputNode = PointerInputNode()
-        thrown.expect(IllegalArgumentException::class.java)
+        thrown.expect(IndexOutOfBoundsException::class.java)
         pointerInputNode.emitInsertAt(1, DrawNode())
     }
 
-    // SingleChildComponentNode shouldn't allow adding below 0
+    // ComponentNode shouldn't allow adding below 0
     @Test
     fun testAddBelowZero() {
         val pointerInputNode = PointerInputNode()
-        thrown.expect(IllegalArgumentException::class.java)
+        thrown.expect(IndexOutOfBoundsException::class.java)
         pointerInputNode.emitInsertAt(-1, DrawNode())
     }
 
-    // SingleChildComponentNode should allow adding at 1, but cannot use it
-    @Test
-    fun testAddAtOne() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
-        pointerInputNode.emitInsertAt(1, DrawNode())
-        thrown.expect(IllegalStateException::class.java)
-        pointerInputNode.count
-    }
-
-    // SingleChildComponentNode should allow two temporarily, removing one
-    @Test
-    fun testOnlyOne() {
-        val pointerInputNode = PointerInputNode()
-        val owner = mock(Owner::class.java)
-        pointerInputNode.attach(owner)
-        val d1 = DrawNode()
-        val d2 = DrawNode()
-        pointerInputNode.emitInsertAt(0, d1)
-        pointerInputNode.emitInsertAt(1, d2)
-        pointerInputNode.emitRemoveAt(1, 1)
-        assertTrue(d1.isAttached())
-        assertFalse(d2.isAttached())
-        assertSame(d1, pointerInputNode[0])
-        pointerInputNode.emitInsertAt(1, d2)
-        pointerInputNode.emitRemoveAt(0, 1)
-        assertSame(d2, pointerInputNode[0])
-        assertFalse(d1.isAttached())
-        assertTrue(d2.isAttached())
-    }
-
-    // SingleChildComponentNode should error when removing at index < 0
+    // ComponentNode should error when removing at index < 0
     @Test
     fun testRemoveNegativeIndex() {
         val pointerInputNode = PointerInputNode()
         pointerInputNode.emitInsertAt(0, DrawNode())
-        thrown.expect(IllegalArgumentException::class.java)
+        thrown.expect(IndexOutOfBoundsException::class.java)
         pointerInputNode.emitRemoveAt(-1, 1)
     }
 
-    // SingleChildComponentNode should error when removing at index < 0
+    // ComponentNode should error when removing at index > count
     @Test
     fun testRemoveBeyondIndex() {
         val pointerInputNode = PointerInputNode()
         pointerInputNode.emitInsertAt(0, DrawNode())
-        thrown.expect(IllegalArgumentException::class.java)
+        thrown.expect(IndexOutOfBoundsException::class.java)
         pointerInputNode.emitRemoveAt(1, 1)
     }
 
-    // SingleChildComponentNode should error when removing at count < 0
+    // ComponentNode should error when removing at count < 0
     @Test
     fun testRemoveNegativeCount() {
         val pointerInputNode = PointerInputNode()
@@ -710,33 +661,24 @@ class ComponentNodeTest {
         pointerInputNode.emitRemoveAt(0, -1)
     }
 
-    // SingleChildComponentNode should error when removing at count > entry count
+    // ComponentNode should error when removing at count > entry count
     @Test
     fun testRemoveTooMany() {
         val pointerInputNode = PointerInputNode()
         pointerInputNode.emitInsertAt(0, DrawNode())
-        thrown.expect(IllegalArgumentException::class.java)
+        thrown.expect(IndexOutOfBoundsException::class.java)
         pointerInputNode.emitRemoveAt(0, 2)
     }
 
-    // SingleChildComponentNode should error when there aren't enough items
+    // ComponentNode should error when there aren't enough items
     @Test
     fun testRemoveTooMany2() {
         val pointerInputNode = PointerInputNode()
-        thrown.expect(IllegalArgumentException::class.java)
+        thrown.expect(IndexOutOfBoundsException::class.java)
         pointerInputNode.emitRemoveAt(0, 1)
     }
 
-    // SingleChildComponentNode should error when removing at count == 0
-    @Test
-    fun testRemoveTooFew() {
-        val pointerInputNode = PointerInputNode()
-        pointerInputNode.emitInsertAt(0, DrawNode())
-        thrown.expect(IllegalArgumentException::class.java)
-        pointerInputNode.emitRemoveAt(0, 0)
-    }
-
-    // SingleChildComponentNode should allow removing two items
+    // ComponentNode should allow removing two items
     @Test
     fun testRemoveTwoItems() {
         val pointerInputNode = PointerInputNode()
@@ -759,4 +701,12 @@ class ComponentNodeTest {
         mock {
             on { calculatePosition() } doReturn position
         }
+
+    private fun findLayoutNodeChildren(node: ComponentNode): List<LayoutNode> {
+        val layoutNodes = mutableListOf<LayoutNode>()
+        node.visitLayoutChildren { child ->
+            layoutNodes += child
+        }
+        return layoutNodes
+    }
 }
