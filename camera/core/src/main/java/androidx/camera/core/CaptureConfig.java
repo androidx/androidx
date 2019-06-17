@@ -300,6 +300,7 @@ public final class CaptureConfig {
         }
 
         /** Add a set of implementation specific options to the request. */
+        @SuppressWarnings("unchecked")
         public void addImplementationOptions(Config config) {
             for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly

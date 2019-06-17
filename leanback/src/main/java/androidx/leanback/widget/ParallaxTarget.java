@@ -125,6 +125,7 @@ public abstract class ParallaxTarget {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void directUpdate(Number value) {
             mProperty.set((T) mObject, (V) value);
         }

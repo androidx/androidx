@@ -329,7 +329,7 @@ public final class DrawableCompat {
      *
      * @see #wrap(Drawable)
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
     public static <T extends Drawable> T unwrap(@NonNull Drawable drawable) {
         if (drawable instanceof WrappedDrawable) {
             return (T) ((WrappedDrawable) drawable).getWrappedDrawable();

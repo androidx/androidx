@@ -2636,6 +2636,7 @@ public class AccessibilityNodeInfoCompat {
         return spans;
     }
 
+    @SuppressWarnings("unchecked")
     private SparseArray<WeakReference<ClickableSpan>> getSpansFromViewTags(View host) {
         return (SparseArray<WeakReference<ClickableSpan>>) host.getTag(
                 R.id.tag_accessibility_clickable_spans);

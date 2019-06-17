@@ -67,6 +67,7 @@ public class ComponentActivity extends Activity
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @SuppressWarnings("unchecked")
     public <T extends ExtraData> T getExtraData(Class<T> extraDataClass) {
         return (T) mExtraDataMap.get(extraDataClass);
     }

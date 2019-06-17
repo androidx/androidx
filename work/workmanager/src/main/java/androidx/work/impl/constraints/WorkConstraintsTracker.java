@@ -46,7 +46,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
     private static final String TAG = Logger.tagWithPrefix("WorkConstraintsTracker");
 
     @Nullable private final WorkConstraintsCallback mCallback;
-    private final ConstraintController[] mConstraintControllers;
+    private final ConstraintController<?>[] mConstraintControllers;
 
     // We need to keep hold a lock here for the cases where there is 1 WCT tracking a list of
     // WorkSpecs. Changes in constraints are notified on the main thread. Enqueues / Cancellations
@@ -95,6 +95,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
      *
      * @param workSpecs A list of {@link WorkSpec}s to monitor constraints for
      */
+    @SuppressWarnings("unchecked")
     public void replace(@NonNull List<WorkSpec> workSpecs) {
         synchronized (mLock) {
             for (ConstraintController controller : mConstraintControllers) {

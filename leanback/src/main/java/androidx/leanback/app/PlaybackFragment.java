@@ -107,6 +107,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * @deprecated use {@link PlaybackSupportFragment}
  */
 @Deprecated
+@SuppressWarnings("unchecked")
 public class PlaybackFragment extends Fragment {
     static final String BUNDLE_CONTROL_VISIBLE_ON_CREATEVIEW = "controlvisible_oncreateview";
 

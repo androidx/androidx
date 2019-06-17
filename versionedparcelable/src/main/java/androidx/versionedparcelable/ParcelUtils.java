@@ -148,7 +148,7 @@ public class ParcelUtils {
             ArrayList<Parcelable> parcelableArrayList =
                     innerBundle.getParcelableArrayList(INNER_BUNDLE_KEY);
             for (Parcelable parcelable : parcelableArrayList) {
-                resultList.add((T) fromParcelable(parcelable));
+                resultList.add(fromParcelable(parcelable));
             }
             return resultList;
         } catch (RuntimeException e) {

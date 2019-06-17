@@ -43,6 +43,5 @@ android {
 }
 
 androidx {
-    failOnUncheckedWarnings = false
     toolingProject = true
 }

@@ -184,6 +184,7 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
             mActionViewHolders = new ArrayList<Presenter.ViewHolder>();
             getMediaItemDetailsView().setOnClickListener(new View.OnClickListener(){
                 @Override
+                @SuppressWarnings("unchecked")
                 public void onClick(View view) {
                     if (getOnItemViewClickedListener() != null) {
                         getOnItemViewClickedListener().onItemClicked(null, null,
@@ -256,6 +257,7 @@ public abstract class AbstractMediaItemPresenter extends RowPresenter {
                 });
                 actionViewHolder.view.setOnClickListener(
                         new View.OnClickListener() {
+                            @SuppressWarnings("unchecked")
                             @Override
                             public void onClick(View view) {
                                 if (getOnItemViewClickedListener() != null) {

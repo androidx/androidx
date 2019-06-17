@@ -90,7 +90,7 @@ public abstract class StorageStrategy<K> {
      * (like {@link android.net.Uri}).
      */
     public static <K extends Parcelable> StorageStrategy<K> createParcelableStorage(Class<K> type) {
-        return new ParcelableStorageStrategy(type);
+        return new ParcelableStorageStrategy<>(type);
     }
 
     /**

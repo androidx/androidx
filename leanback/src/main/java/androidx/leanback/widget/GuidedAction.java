@@ -107,7 +107,10 @@ public class GuidedAction extends Action {
      * Base builder class to build a {@link GuidedAction} object.  When subclass GuidedAction, you
      * can override this BuilderBase class, implements your build() method which should call
      * {@link #applyValues(GuidedAction)}.  When using GuidedAction directly, use {@link Builder}.
+     *
+     * @param <B> the type of BuilderBase
      */
+    @SuppressWarnings("unchecked")
     public abstract static class BuilderBase<B extends BuilderBase> {
         private Context mContext;
         private long mId;

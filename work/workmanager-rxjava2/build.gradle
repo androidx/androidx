@@ -42,6 +42,5 @@ androidx {
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
     url = AndroidXExtension.ARCHITECTURE_URL
-    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }

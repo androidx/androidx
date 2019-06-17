@@ -487,6 +487,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onClick(View view) {
         Pair<SliceItem, EventInfo> tagItem = (Pair<SliceItem, EventInfo>) view.getTag();
         final SliceItem sliceItem = tagItem.first;

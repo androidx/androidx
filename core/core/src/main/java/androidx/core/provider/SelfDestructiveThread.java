@@ -166,7 +166,7 @@ public class SelfDestructiveThread {
         final ReentrantLock lock = new ReentrantLock();
         final Condition cond = lock.newCondition();
 
-        final AtomicReference<T> holder = new AtomicReference();
+        final AtomicReference<T> holder = new AtomicReference<>();
         final AtomicBoolean running = new AtomicBoolean(true);
         post(new Runnable() {
             @Override

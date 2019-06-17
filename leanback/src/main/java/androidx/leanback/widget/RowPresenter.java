@@ -494,6 +494,7 @@ public abstract class RowPresenter extends Presenter {
      * A Subclass of RowPresenter having child items should override this method and dispatch
      * events with item information.
      */
+    @SuppressWarnings("unchecked")
     protected void dispatchItemSelectedListener(ViewHolder vh, boolean selected) {
         if (selected) {
             if (vh.mOnItemViewSelectedListener != null) {

@@ -32,7 +32,7 @@ public class NonOverlappingLinearLayout extends LinearLayout {
 
     boolean mFocusableViewAvailableFixEnabled = false;
     boolean mDeferFocusableViewAvailableInLayout;
-    final ArrayList<ArrayList<View>> mSortedAvailableViews = new ArrayList();
+    final ArrayList<ArrayList<View>> mSortedAvailableViews = new ArrayList<>();
 
 
     public NonOverlappingLinearLayout(Context context) {
@@ -70,7 +70,7 @@ public class NonOverlappingLinearLayout extends LinearLayout {
                     mSortedAvailableViews.remove(mSortedAvailableViews.size() - 1);
                 }
                 while (mSortedAvailableViews.size() < getChildCount()) {
-                    mSortedAvailableViews.add(new ArrayList());
+                    mSortedAvailableViews.add(new ArrayList<>());
                 }
             }
             super.onLayout(changed, l, t, r, b);

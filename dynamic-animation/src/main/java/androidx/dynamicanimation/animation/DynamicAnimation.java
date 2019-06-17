@@ -376,6 +376,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @param startValue start value for the animation
      * @return the Animation whose start value is being set
      */
+    @SuppressWarnings("unchecked")
     public T setStartValue(float startValue) {
         mValue = startValue;
         mStartValueIsSet = true;
@@ -400,6 +401,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @param startVelocity start velocity of the animation
      * @return the Animation whose start velocity is being set
      */
+    @SuppressWarnings("unchecked")
     public T setStartVelocity(float startVelocity) {
         mVelocity = startVelocity;
         return (T) this;
@@ -413,6 +415,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @param max maximum value of the property to be animated
      * @return the Animation whose max value is being set
      */
+    @SuppressWarnings("unchecked")
     public T setMaxValue(float max) {
         // This max value should be checked and handled in the subclass animations, instead of
         // assuming the end of the animations when the max/min value is hit in the base class.
@@ -430,6 +433,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @param min minimum value of the property to be animated
      * @return the Animation whose min value is being set
      */
+    @SuppressWarnings("unchecked")
     public T setMinValue(float min) {
         mMinValue = min;
         return (T) this;
@@ -442,6 +446,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @param listener the listener to be added
      * @return the animation to which the listener is added
      */
+    @SuppressWarnings("unchecked")
     public T addEndListener(OnAnimationEndListener listener) {
         if (!mEndListeners.contains(listener)) {
             mEndListeners.add(listener);
@@ -470,6 +475,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @throws UnsupportedOperationException if the update listener is added after the animation has
      *                                       started
      */
+    @SuppressWarnings("unchecked")
     public T addUpdateListener(OnAnimationUpdateListener listener) {
         if (isRunning()) {
             // Require update listener to be added before the animation, such as when we start
@@ -520,6 +526,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
      * @return the animation whose min visible change is being set
      * @throws IllegalArgumentException if the given threshold is not positive
      */
+    @SuppressWarnings("unchecked")
     public T setMinimumVisibleChange(@FloatRange(from = 0.0, fromInclusive = false)
             float minimumVisibleChange) {
         if (minimumVisibleChange <= 0) {
@@ -689,6 +696,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     /**
      * Updates the property value through the corresponding setter.
      */
+    @SuppressWarnings("unchecked")
     void setPropertyValue(float value) {
         mProperty.setValue(mTarget, value);
         for (int i = 0; i < mUpdateListeners.size(); i++) {
@@ -709,6 +717,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     /**
      * Obtain the property value through the corresponding getter.
      */
+    @SuppressWarnings("unchecked")
     private float getPropertyValue() {
         return mProperty.getValue(mTarget);
     }

@@ -102,7 +102,7 @@ public abstract class PlaybackGlue {
      */
     public void addPlayerCallback(PlayerCallback playerCallback) {
         if (mPlayerCallbacks == null) {
-            mPlayerCallbacks = new ArrayList();
+            mPlayerCallbacks = new ArrayList<>();
         }
         mPlayerCallbacks.add(playerCallback);
     }
@@ -124,7 +124,7 @@ public abstract class PlaybackGlue {
         if (mPlayerCallbacks == null) {
             return null;
         }
-        return new ArrayList(mPlayerCallbacks);
+        return new ArrayList<>(mPlayerCallbacks);
     }
 
     /**

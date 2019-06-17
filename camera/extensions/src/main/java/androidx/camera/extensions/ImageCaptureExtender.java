@@ -176,7 +176,7 @@ abstract class ImageCaptureExtender {
             if (mActive.get()) {
                 List<CaptureStageImpl> captureStages = mImpl.getCaptureStages();
                 if (captureStages != null && !captureStages.isEmpty()) {
-                    ArrayList<CaptureStage> ret = new ArrayList();
+                    ArrayList<CaptureStage> ret = new ArrayList<>();
                     for (CaptureStageImpl s : captureStages) {
                         ret.add(new AdaptingCaptureStage(s));
                     }
