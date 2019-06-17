@@ -160,7 +160,8 @@ public final class PaintCompat {
     public static boolean setBlendModeColorFilter(@NonNull Paint paint, @ColorInt int color,
                                                      @Nullable BlendModeCompat blendModeCompat) {
         if (Build.VERSION.SDK_INT >= 29) {
-            BlendMode blendMode = obtainBlendModeFromCompat(blendModeCompat);
+            BlendMode blendMode = blendModeCompat != null
+                    ? obtainBlendModeFromCompat(blendModeCompat) : null;
             if (blendMode != null) {
                 paint.setColorFilter(new BlendModeColorFilter(color, blendMode));
             } else {
@@ -196,7 +197,7 @@ public final class PaintCompat {
             case SRC_OVER:
                 return BlendMode.SRC_OVER;
             case DST_OVER:
-                return BlendMode.SRC_OVER;
+                return BlendMode.DST_OVER;
             case SRC_IN:
                 return BlendMode.SRC_IN;
             case DST_IN:
