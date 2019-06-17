@@ -52,9 +52,9 @@ public class ProxyOverrideActivity extends AppCompatActivity {
 
         // Initialize proxy server
         // Skip this step if you already have a proxy url
-        mProxy = new Proxy(0, () -> mRequestCountTextView.setText(getResources().getString(
-                    R.string.proxy_override_requests_served, mProxy.getRequestCount()))
-        );
+        mProxy = new Proxy(0, () -> runOnUiThread(() -> mRequestCountTextView.setText(
+                getResources().getString(R.string.proxy_override_requests_served,
+                        mProxy.getRequestCount()))));
         mProxy.start();
 
         // Initialize views
