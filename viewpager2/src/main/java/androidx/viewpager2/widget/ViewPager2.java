@@ -1075,56 +1075,25 @@ public final class ViewPager2 extends ViewGroup {
         mRecyclerView.removeItemDecoration(decor);
     }
 
-    private abstract class AccessibilityProvider {
+    private interface AccessibilityProvider {
         void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
-                @NonNull RecyclerView recyclerView) {
-        }
-
-        boolean handlesGetAccessibilityClassName() {
-            return false;
-        }
-
-        String onGetAccessibilityClassName() {
-            throw new IllegalStateException("Not implemented.");
-        }
-
-        void onRestorePendingState() {
-        }
-
-        void onAttachAdapter(@Nullable Adapter<?> newAdapter) {
-        }
-
-        void onDetachAdapter(@Nullable Adapter<?> oldAdapter) {
-        }
-
-        void onSetOrientation() {
-        }
-
-        void onSetNewCurrentItem() {
-        }
-
-        void onSetUserInputEnabled() {
-        }
-
-        void onSetLayoutDirection() {
-        }
-
-        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        }
-
-        boolean handlesPerformAccessibilityAction(int action, Bundle arguments) {
-            return false;
-        }
-
-        boolean onPerformAccessibilityAction(int action, Bundle arguments) {
-            throw new IllegalStateException("Not implemented.");
-        }
-
-        void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
-        }
+                @NonNull RecyclerView recyclerView);
+        boolean handlesGetAccessibilityClassName();
+        String onGetAccessibilityClassName();
+        void onRestorePendingState();
+        void onAttachAdapter(@Nullable Adapter<?> newAdapter);
+        void onDetachAdapter(@Nullable Adapter<?> oldAdapter);
+        void onSetOrientation();
+        void onSetNewCurrentItem();
+        void onSetUserInputEnabled();
+        void onSetLayoutDirection();
+        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info);
+        boolean handlesPerformAccessibilityAction(int action, Bundle arguments);
+        boolean onPerformAccessibilityAction(int action, Bundle arguments);
+        void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event);
     }
 
-    class PageAwareAccessibilityProvider extends AccessibilityProvider {
+    class PageAwareAccessibilityProvider implements AccessibilityProvider {
         private final AccessibilityViewCommand mActionPageForward =
                 new AccessibilityViewCommand() {
                     @Override
