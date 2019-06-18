@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.arch.core.util.Function
 import androidx.paging.futures.DirectExecutor
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
@@ -494,18 +493,18 @@ class ItemKeyedDataSourceTest {
 
     @Test
     fun testListConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->
-        dataSource.mapByPage(Function { page -> page.map { DecoratedItem(it) } })
+        dataSource.mapByPage { page -> page.map { DecoratedItem(it) } }
     }
 
     @Test
     fun testItemConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->
-        dataSource.map(Function { DecoratedItem(it) })
+        dataSource.map { DecoratedItem(it) }
     }
 
     @Test
     fun testInvalidateToWrapper() {
         val orig = ItemDataSource()
-        val wrapper = orig.map<DecoratedItem>(Function { DecoratedItem(it) })
+        val wrapper = orig.map { DecoratedItem(it) }
 
         orig.invalidate()
         assertTrue(wrapper.isInvalid)
@@ -514,7 +513,7 @@ class ItemKeyedDataSourceTest {
     @Test
     fun testInvalidateFromWrapper() {
         val orig = ItemDataSource()
-        val wrapper = orig.map<DecoratedItem>(Function { DecoratedItem(it) })
+        val wrapper = orig.map { DecoratedItem(it) }
 
         wrapper.invalidate()
         assertTrue(orig.isInvalid)

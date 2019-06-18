@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.arch.core.util.Function
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
 import org.junit.Assert.assertEquals
@@ -459,18 +458,18 @@ class PageKeyedDataSourceTest {
 
     @Test
     fun testListConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->
-        dataSource.mapByPage(Function { page -> page.map { it.toString() } })
+        dataSource.mapByPage { page -> page.map { it.toString() } }
     }
 
     @Test
     fun testItemConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->
-        dataSource.map(Function { it.toString() })
+        dataSource.map { it.toString() }
     }
 
     @Test
     fun testInvalidateToWrapper() {
         val orig = ItemDataSource()
-        val wrapper = orig.map<String>(Function { it.toString() })
+        val wrapper = orig.map { it.toString() }
 
         orig.invalidate()
         assertTrue(wrapper.isInvalid)
@@ -479,7 +478,7 @@ class PageKeyedDataSourceTest {
     @Test
     fun testInvalidateFromWrapper() {
         val orig = ItemDataSource()
-        val wrapper = orig.map<String>(Function { it.toString() })
+        val wrapper = orig.map { it.toString() }
 
         wrapper.invalidate()
         assertTrue(orig.isInvalid)

@@ -315,8 +315,16 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> :
         function: Function<List<Value>, List<ToValue>>
     ): PageKeyedDataSource<Key, ToValue> = WrapperPageKeyedDataSource(this, function)
 
+    final override fun <ToValue : Any> mapByPage(
+        function: (List<Value>) -> List<ToValue>
+    ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { function(it) })
+
     final override fun <ToValue : Any> map(
         function: Function<Value, ToValue>
     ): PageKeyedDataSource<Key, ToValue> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
+
+    final override fun <ToValue : Any> map(
+        function: (Value) -> ToValue
+    ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })
 }
