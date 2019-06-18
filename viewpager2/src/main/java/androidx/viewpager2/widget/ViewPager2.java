@@ -202,7 +202,10 @@ public final class ViewPager2 extends ViewGroup {
         final OnPageChangeCallback currentItemUpdater = new OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
-                mCurrentItem = position;
+                if (mCurrentItem != position) {
+                    mCurrentItem = position;
+                    mAccessibilityProvider.onSetNewCurrentItem();
+                }
             }
         };
 
@@ -1245,17 +1248,6 @@ public final class ViewPager2 extends ViewGroup {
                     updatePageAccessibilityActions();
                 }
             };
-
-            final OnPageChangeCallback accessibilityUpdater = new OnPageChangeCallback() {
-                @Override
-                public void onPageSelected(int position) {
-                    if (mCurrentItem != position) {
-                        updatePageAccessibilityActions();
-                    }
-                }
-            };
-
-            pageChangeEventDispatcher.addOnPageChangeCallback(accessibilityUpdater);
 
             if (ViewCompat.getImportantForAccessibility(ViewPager2.this)
                     == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
