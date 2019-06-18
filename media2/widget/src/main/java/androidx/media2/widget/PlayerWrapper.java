@@ -356,6 +356,7 @@ class PlayerWrapper {
         @Override
         public void onConnected(@NonNull MediaController controller,
                 @NonNull SessionCommandGroup allowedCommands) {
+            mWrapperCallback.onConnected(PlayerWrapper.this);
             onAllowedCommandsChanged(controller, allowedCommands);
             onCurrentMediaItemChanged(controller, controller.getCurrentMediaItem());
         }
@@ -493,6 +494,8 @@ class PlayerWrapper {
     }
 
     abstract static class PlayerCallback {
+        void onConnected(@NonNull PlayerWrapper player) {
+        }
         void onAllowedCommandsChanged(@NonNull PlayerWrapper player,
                 @NonNull SessionCommandGroup commands) {
         }
