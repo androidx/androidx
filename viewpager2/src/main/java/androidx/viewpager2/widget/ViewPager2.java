@@ -122,9 +122,6 @@ public final class ViewPager2 extends ViewGroup {
      */
     public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1;
 
-    /** Feature flag while stabilizing enhanced a11y */
-    static boolean sFeatureEnhancedA11yEnabled = false;
-
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
     private final Rect mTmpChildRect = new Rect();
@@ -168,9 +165,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     private void initialize(Context context, AttributeSet attrs) {
-        mAccessibilityProvider = sFeatureEnhancedA11yEnabled
-                ? new PageAwareAccessibilityProvider()
-                : new BasicAccessibilityProvider();
+        mAccessibilityProvider = new PageAwareAccessibilityProvider();
 
         mRecyclerView = new RecyclerViewImpl(context);
         mRecyclerView.setId(ViewCompat.generateViewId());
