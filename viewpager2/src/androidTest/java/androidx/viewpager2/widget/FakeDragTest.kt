@@ -17,10 +17,16 @@
 package androidx.viewpager2.widget
 
 import android.graphics.Path
+import android.os.Build
 import android.view.ViewConfiguration
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
+import androidx.core.view.ViewCompat
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
 import androidx.testutils.LocaleTestUtils
@@ -286,6 +292,50 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         val touchSlop = vc.scaledTouchSlop
         startManualDragDuringFakeDrag(1.8f, 700, 1) {
             PageSwiperManual(test.viewPager).swipeForward(touchSlop * 5f, quadInterpolator)
+        }
+    }
+
+    /*
+     * Fake drag, interrupted by an a11y action after 0.1 page has been fake-dragged
+     *
+     * > Starting fake drag
+     * onPageScrollStateChanged(1)
+     * onPageScrolled(0, 0.013, 13)
+     * onPageScrolled(0, 0.026, 26)
+     * ...
+     * onPageScrolled(0, 0.090, 90)
+     * onPageScrolled(0, 0.103, 103)
+     * > Perform a11y action
+     * onPageScrollStateChanged(2)
+     * onPageSelected(1)
+     * onPageScrolled(0, 0.283, 282)
+     * onPageScrolled(0, 0.434, 432)
+     * ...
+     * onPageScrolled(0, 0.996, 992)
+     * onPageScrolled(1, 0.0, 0)
+     * onPageScrollStateChanged(0)
+     */
+    @Test
+    fun test_performA11yActionDuringFakeDrag() {
+        startManualDragDuringFakeDrag(.4f, 500) {
+            activityTestRule.runOnUiThread {
+                ViewCompat.performAccessibilityAction(test.viewPager, getNextPageAction(), null)
+            }
+        }
+    }
+
+    private fun getNextPageAction(): Int {
+        val useEnhancedA11y = Build.VERSION.SDK_INT >= 21 && ViewPager2.sFeatureEnhancedA11yEnabled
+        val isHorizontal = test.viewPager.isHorizontal
+
+        return if (useEnhancedA11y && isHorizontal && test.viewPager.isRtl) {
+            ACTION_PAGE_LEFT.id
+        } else if (useEnhancedA11y && isHorizontal) {
+            ACTION_PAGE_RIGHT.id
+        } else if (useEnhancedA11y) {
+            ACTION_PAGE_DOWN.id
+        } else {
+            ACTION_SCROLL_FORWARD
         }
     }
 
