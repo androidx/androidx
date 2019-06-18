@@ -193,7 +193,15 @@ data class DeleteSurroundingTextEditOp(
     val afterLength: Int
 ) : EditOperation {
     override fun process(buffer: EditingBuffer) {
-        TODO("Not implemented yet")
+        buffer.delete(
+            buffer.selectionEnd,
+            Math.min(buffer.selectionEnd + afterLength, buffer.length)
+        )
+
+        buffer.delete(
+            Math.max(0, buffer.selectionStart - beforeLength),
+            buffer.selectionStart
+        )
     }
 }
 /**

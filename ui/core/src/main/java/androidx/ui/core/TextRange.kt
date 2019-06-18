@@ -36,4 +36,24 @@ data class TextRange(val start: Int, val end: Int) {
      * Returns true if the range is collapsed
      */
     val collapsed: Boolean get() = start == end
+
+    /**
+     * Returns the length of the range.
+     */
+    val length: Int get() = end - start
+
+    /**
+     * Returns true if the given range has intersection with this range
+     */
+    fun intersects(other: TextRange): Boolean = start < other.end && other.start < end
+
+    /**
+     * Returns true if this range covers including equals with the given range.
+     */
+    fun contains(other: TextRange): Boolean = start <= other.start && other.end <= end
+
+    /**
+     * Returns true if the given offset is a part of this range.
+     */
+    fun contains(offset: Int): Boolean = start <= offset && offset < end
 }
