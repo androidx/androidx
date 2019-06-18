@@ -68,8 +68,8 @@ public class CustomTabsClient {
      *                    #onCustomTabsServiceConnected(ComponentName, CustomTabsClient)}
      * @return Whether the binding was successful.
      */
-    public static boolean bindCustomTabsService(Context context,
-            String packageName, CustomTabsServiceConnection connection) {
+    public static boolean bindCustomTabsService(@NonNull Context context,
+            @Nullable String packageName, @NonNull CustomTabsServiceConnection connection) {
         connection.setApplicationContext(context.getApplicationContext());
         Intent intent = new Intent(CustomTabsService.ACTION_CUSTOM_TABS_CONNECTION);
         if (!TextUtils.isEmpty(packageName)) intent.setPackage(packageName);
@@ -80,7 +80,8 @@ public class CustomTabsClient {
     /**
      * Returns the preferred package to use for Custom Tabs, preferring the default VIEW handler.
      */
-    public static String getPackageName(Context context, @Nullable List<String> packages) {
+    public static @Nullable String getPackageName(@NonNull Context context,
+            @Nullable List<String> packages) {
         return getPackageName(context, packages, false);
     }
 
@@ -136,7 +137,8 @@ public class CustomTabsClient {
      * @param packageName Package name of the target implementation.
      * @return Whether the binding was successful.
      */
-    public static boolean connectAndInitialize(Context context, String packageName) {
+    public static boolean connectAndInitialize(@NonNull Context context,
+            @NonNull String packageName) {
         if (packageName == null) return false;
         final Context applicationContext = context.getApplicationContext();
         CustomTabsServiceConnection connection = new CustomTabsServiceConnection() {
@@ -192,10 +194,9 @@ public class CustomTabsClient {
      *                 session. Can be null. All the callbacks will be received on the UI thread.
      * @return The session object that was created as a result of the transaction. The client can
      *         use this to relay session specific calls.
-     *         Null on error.
-     * TODO(peconn): Mark as @Nullable, prompting API change.
+     *         Null if the service failed to respond (threw a RemoteException).
      */
-    public CustomTabsSession newSession(final CustomTabsCallback callback) {
+    public @Nullable CustomTabsSession newSession(@Nullable final CustomTabsCallback callback) {
         return newSessionInternal(callback, null);
     }
 
@@ -207,16 +208,16 @@ public class CustomTabsClient {
      * session-intent-Custom Tab association.
      * @param callback The callback through which the client will receive updates about the created
      *                 session. Can be null. All the callbacks will be received on the UI thread.
-     * @param id The session id. If the session with the specified id already exists,
-     *           updates callback.
+     * @param id The session id. If the session with the specified id already exists for the given
+     *           client application, the new callback is supplied to that session and further
+     *           attempts to launch URLs using that session will update the existing Custom Tab
+     *           instead of launching a new one.
      * @return The session object that was created as a result of the transaction. The client can
      *         use this to relay session specific calls.
-     *         Null on error.
-     *
-     * @hide
+     *         Null if the service failed to respond (threw a RemoteException).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public @Nullable CustomTabsSession newSession(final CustomTabsCallback callback, int id) {
+    public @Nullable CustomTabsSession newSession(@Nullable final CustomTabsCallback callback,
+            int id) {
         return newSessionInternal(callback, createSessionId(mApplicationContext, id));
     }
 
@@ -252,7 +253,7 @@ public class CustomTabsClient {
      * Can be used as a channel between the Custom Tabs client and the provider to do something that
      * is not part of the API yet.
      */
-    public Bundle extraCommand(String commandName, Bundle args) {
+    public @Nullable Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args) {
         try {
             return mService.extraCommand(commandName, args);
         } catch (RemoteException e) {
