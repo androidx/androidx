@@ -369,6 +369,21 @@ public class BiometricPromptDemo extends FragmentActivity {
     }
 
     /**
+     * Callback when the checkbox is clicked.
+     * @param view
+     */
+    public void onCheckboxClicked(View view) {
+        final boolean checked = ((CheckBox) view).isChecked();
+
+        switch (view.getId()) {
+            case R.id.checkbox_use_crypto:
+                findViewById(R.id.button_enable_biometric_with_crypto)
+                        .setVisibility(checked ? View.VISIBLE : View.GONE);
+                break;
+        }
+    }
+
+    /**
      * @return The currently selected configuration.
      */
     private int getMode() {

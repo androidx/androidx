@@ -174,8 +174,7 @@ public class BiometricFragment extends Fragment {
      * Cancel the authentication.
      */
     protected void cancel() {
-        // TODO(b/128747871): Change to == Q
-        if (Build.VERSION.SDK_INT >= 29 && isDeviceCredentialAllowed()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && isDeviceCredentialAllowed()) {
             if (!mStartRespectingCancel) {
                 Log.w(TAG, "Ignoring fast cancel signal");
                 return;
@@ -234,14 +233,14 @@ public class BiometricFragment extends Fragment {
                         mClientExecutor, mNegativeButtonListener);
             }
 
-            if (Build.VERSION.SDK_INT >= 29) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 builder.setConfirmationRequired(
                         mBundle.getBoolean((BiometricPrompt.KEY_REQUIRE_CONFIRMATION), true));
                 builder.setDeviceCredentialAllowed(
                         mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL));
             }
 
-            if (Build.VERSION.SDK_INT >= 29) { // TODO(b/128747871): Change to == Q
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 if (mBundle.getBoolean(BiometricPrompt.KEY_ALLOW_DEVICE_CREDENTIAL, false)) {
                     mStartRespectingCancel = false;
                     mHandler.postDelayed(new Runnable() {

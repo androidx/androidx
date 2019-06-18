@@ -443,7 +443,7 @@ public class BiometricPrompt implements BiometricConstants {
                         mFingerprintHelperFragment.cancel(
                                 FingerprintHelperFragment.USER_CANCELED_FROM_NONE);
                     }
-                } else if (Build.VERSION.SDK_INT >= 29) { // TODO: Change to == Q
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                     // TODO(b/123378871): Change == to >= if this bug is not resolved in R.
                     // Ignore the first onPause if setDeviceCredentialAllowed is true, since
                     // the Q implementation launches ConfirmDeviceCredentialActivity which is an
