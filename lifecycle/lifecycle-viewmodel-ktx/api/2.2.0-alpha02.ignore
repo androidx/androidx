@@ -1,5 +1,3 @@
 // Baseline format: 1.0
 ChangedType: androidx.lifecycle.ViewModelProviderKt#get(androidx.lifecycle.ViewModelProvider):
-    Method androidx.lifecycle.ViewModelProviderKt.get has changed return type from VM to VM
-
-
+    Method androidx.lifecycle.ViewModelProviderKt.get has changed return type from java.lang.VM to VM

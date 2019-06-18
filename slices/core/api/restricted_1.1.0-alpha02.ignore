@@ -23,5 +23,3 @@ RemovedMethod: androidx.slice.core.SliceQuery#stream(androidx.slice.Slice):
     Removed method androidx.slice.core.SliceQuery.stream(androidx.slice.Slice)
 RemovedMethod: androidx.slice.core.SliceQuery#stream(androidx.slice.SliceItem):
     Removed method androidx.slice.core.SliceQuery.stream(androidx.slice.SliceItem)
-
-
