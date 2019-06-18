@@ -49,19 +49,29 @@ class GcmTaskConverterTest {
 
     @Test
     fun testOneTimeRequest_noInitialDelay() {
+        val now = System.currentTimeMillis()
+        `when`(mTaskConverter.now()).thenReturn(now)
+
         val request = OneTimeWorkRequestBuilder<TestWorker>().build()
         val task = mTaskConverter.convert(request.workSpec)
+
+        val expected = request.workSpec.calculateNextRunTime()
+        val offset = offset(expected, now)
+
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, 0L)
-        assertEquals(task.windowEnd, 0L + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        assertEquals(task.windowStart, offset)
+        assertEquals(task.windowEnd, offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
     }
 
     @Test
     fun testOneTimeRequest_noInitialDelay_withConstraintNetworkConnected() {
+        val now = System.currentTimeMillis()
+        `when`(mTaskConverter.now()).thenReturn(now)
+
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.METERED)
             .setRequiresCharging(true)
@@ -72,17 +82,23 @@ class GcmTaskConverterTest {
             .build()
 
         val task = mTaskConverter.convert(request.workSpec)
+        val expected = request.workSpec.calculateNextRunTime()
+        val offset = offset(expected, now)
+
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_CONNECTED)
         assertEquals(task.requiresCharging, true)
-        assertEquals(task.windowStart, 0L)
-        assertEquals(task.windowEnd, 0L + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        assertEquals(task.windowStart, offset)
+        assertEquals(task.windowEnd, offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
     }
 
     @Test
     fun testOneTimeRequest_noInitialDelay_withConstraintNetworkUnMetered() {
+        val now = System.currentTimeMillis()
+        `when`(mTaskConverter.now()).thenReturn(now)
+
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.UNMETERED)
             .build()
@@ -92,13 +108,16 @@ class GcmTaskConverterTest {
             .build()
 
         val task = mTaskConverter.convert(request.workSpec)
+        val expected = request.workSpec.calculateNextRunTime()
+        val offset = offset(expected, now)
+
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_UNMETERED)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, 0L)
-        assertEquals(task.windowEnd, 0L + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        assertEquals(task.windowStart, offset)
+        assertEquals(task.windowEnd, offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
     }
 
     @Test
