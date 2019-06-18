@@ -33,6 +33,7 @@ import androidx.car.R;
 import androidx.car.util.CarUxRestrictionsHelper;
 import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.car.widget.PagedListView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -104,7 +105,7 @@ public abstract class CarDrawerAdapter extends RecyclerView.Adapter<DrawerItemVi
         mShowDisabledListOnEmpty = showDisabledListOnEmpty;
 
         mEmptyListDrawable = context.getDrawable(R.drawable.ic_list_view_disable);
-        mEmptyListDrawable.setColorFilter(context.getColor(R.color.car_tint),
+        mEmptyListDrawable.setColorFilter(ContextCompat.getColor(context, R.color.car_tint),
                 PorterDuff.Mode.SRC_IN);
 
         TypedValue outValue = new TypedValue();

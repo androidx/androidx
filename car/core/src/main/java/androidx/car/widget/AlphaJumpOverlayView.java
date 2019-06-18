@@ -27,6 +27,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.car.R;
+import androidx.core.content.ContextCompat;
 import androidx.gridlayout.widget.GridLayout;
 
 import java.util.List;
@@ -55,7 +56,7 @@ public class AlphaJumpOverlayView extends GridLayout {
                 R.attr.alphaJumpPickerBackground, typedValue, true);
         setBackgroundColor(hasAttribute
                 ? typedValue.data
-                : context.getColor(R.color.car_card_dark));
+                : ContextCompat.getColor(context, R.color.car_card_dark));
 
         setColumnCount(res.getInteger(R.integer.car_alpha_jump_button_columns));
 
