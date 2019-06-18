@@ -22,10 +22,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.app.Activity;
 import android.app.Instrumentation;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.OnLifecycleEvent;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -72,9 +72,10 @@ public class LifecycleOwnerUtils {
                     latch.countDown();
                     return;
                 }
-                owner.getLifecycle().addObserver(new LifecycleObserver() {
-                    @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
-                    public void onStateChanged(LifecycleOwner provider) {
+                owner.getLifecycle().addObserver(new LifecycleEventObserver() {
+                    @Override
+                    public void onStateChanged(@NonNull LifecycleOwner provider,
+                            @NonNull Lifecycle.Event event) {
                         if (provider.getLifecycle().getCurrentState() == state) {
                             latch.countDown();
                             provider.getLifecycle().removeObserver(this);
