@@ -124,7 +124,7 @@ public class ForceStopRunnableTest {
         String worker = "Worker";
         WorkSpec workSpec = new WorkSpec(id, worker);
 
-        when(mWorkSpecDao.getEnqueuedWork()).thenReturn(Collections.singletonList(workSpec));
+        when(mWorkSpecDao.getRunningWork()).thenReturn(Collections.singletonList(workSpec));
         when(mWorkSpecDao.getEligibleWorkForScheduling(anyInt())).thenReturn(
                 Collections.singletonList(workSpec));
 
