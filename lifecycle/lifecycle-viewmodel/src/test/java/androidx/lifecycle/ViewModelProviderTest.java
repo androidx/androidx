@@ -85,6 +85,44 @@ public class ViewModelProviderTest {
     }
 
     @Test
+    public void testDefaultFactory() {
+        final ViewModelStore store = new ViewModelStore();
+        ViewModelStoreOwner owner = new ViewModelStoreOwner() {
+            @NonNull
+            @Override
+            public ViewModelStore getViewModelStore() {
+                return store;
+            }
+        };
+        ViewModelProvider provider = new ViewModelProvider(owner);
+        ViewModel1 viewModel = provider.get(ViewModel1.class);
+        assertThat(viewModel, is(provider.get(ViewModel1.class)));
+    }
+
+    @Test
+    public void testCustomDefaultFactory() {
+        final ViewModelStore store = new ViewModelStore();
+        final CountingFactory factory = new CountingFactory();
+        ViewModelStoreOwner owner = new ViewModelStoreOwner() {
+            @NonNull
+            @Override
+            public ViewModelStore getViewModelStore() {
+                return store;
+            }
+
+            @NonNull
+            @Override
+            public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+                return factory;
+            }
+        };
+        ViewModelProvider provider = new ViewModelProvider(owner);
+        ViewModel1 viewModel = provider.get(ViewModel1.class);
+        assertThat(viewModel, is(provider.get(ViewModel1.class)));
+        assertThat(factory.mCalled, is(1));
+    }
+
+    @Test
     public void testKeyedFactory() {
         final ViewModelStore store = new ViewModelStore();
         ViewModelStoreOwner owner = new ViewModelStoreOwner() {
@@ -117,5 +155,16 @@ public class ViewModelProviderTest {
     }
 
     public static class ViewModel2 extends ViewModel {
+    }
+
+    public static class CountingFactory extends NewInstanceFactory {
+        int mCalled = 0;
+
+        @Override
+        @NonNull
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            mCalled++;
+            return super.create(modelClass);
+        }
     }
 }
