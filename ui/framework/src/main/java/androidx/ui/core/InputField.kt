@@ -15,12 +15,12 @@
  */
 package androidx.ui.core
 
-import androidx.ui.core.input.TextInputClient
-import androidx.ui.input.EditorState
-import androidx.ui.graphics.Color
-import androidx.ui.painting.TextStyle
-import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.Composable
+import androidx.ui.core.input.TextInputClient
+import androidx.ui.graphics.Color
+import androidx.ui.input.EditorState
+import androidx.ui.painting.TextStyle
 
 /**
  * Data class holding text display attributes used for editors.
@@ -46,19 +46,19 @@ data class EditorStyle(
 )
 
 /**
- * A default implementation of EditableText
+ * A default implementation of InputField
  *
- * To make EditableText work with platoform input service, you must keep the editor state and update
+ * To make InputField work with platoform input service, you must keep the editor state and update
  * in [onValueChagne] callback.
  *
  * Example:
  *     var state = +state { EditorState() }
- *     EditableText(
+ *     InputField(
  *         value = state.value,
  *         onValueChange = { state.value = it })
  */
 @Composable
-fun EditableText(
+fun InputField(
     /** Initial editor state value */
     value: EditorState,
 
@@ -74,14 +74,14 @@ fun EditableText(
     /** Called when the InputMethod forwarded a key event */
     onKeyEventForwarded: (Any) -> Unit = {} // TODO(nona): Define argument type
 ) {
-    val text = value.text
-    val composition = value.composition
     TextInputClient(
         editorState = value,
         onEditorStateChange = onValueChange,
         onEditorActionPerformed = onEditorActionPerformed,
         onKeyEventForwarded = onKeyEventForwarded
     ) {
+        val text = value.text
+        val composition = value.composition
         Text {
             Span(style = editorStyle.textStyle) {
                 // TODO(nona): Implement selection highlight

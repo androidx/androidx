@@ -326,10 +326,6 @@ package androidx.ui.core {
 
 package androidx.ui.core.input {
 
-  public final class EditableUtilKt {
-    ctor public EditableUtilKt();
-  }
-
   public final class RecordingInputConnectionKt {
     ctor public RecordingInputConnectionKt();
   }

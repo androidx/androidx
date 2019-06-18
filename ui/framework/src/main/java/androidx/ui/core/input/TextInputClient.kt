@@ -16,13 +16,15 @@
 
 package androidx.ui.core.input
 
-import androidx.ui.core.TextInputServiceAmbient
-import androidx.ui.input.EditorState
+import androidx.compose.composer
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
-import androidx.compose.composer
+import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.TextInputServiceAmbient
+import androidx.ui.input.EditProcessor
+import androidx.ui.input.EditorState
 
 /**
  * A composable for communicating system input method.
@@ -30,10 +32,10 @@ import androidx.compose.unaryPlus
 @Composable
 fun TextInputClient(
     /** Initial state of the editor */
-    editorState: EditorState = EditorState(),
+    editorState: EditorState,
 
     /** Called when the InputMethodService update the editor state */
-    onEditorStateChange: (EditorState) -> Unit = {},
+    onEditorStateChange: (EditorState) -> Unit,
 
     /** Clled when the InputMethod requested an editor action */
     onEditorActionPerformed: (Any) -> Unit = {}, // TODO(nona): Define argument type
@@ -45,10 +47,15 @@ fun TextInputClient(
 ) {
     val textInputService = +ambient(TextInputServiceAmbient)
 
+    val proc = +memo { EditProcessor() }
+    proc.onNewState(editorState)
+
     Focusable(onFocus = {
         textInputService?.startInput(
             initState = editorState,
-            onUpdateEditorState = onEditorStateChange,
+            onEditCommand = {
+                onEditorStateChange(proc.onEditCommands(it))
+            },
             onEditorActionPerformed = onEditorActionPerformed,
             onKeyEventForwarded = onKeyEventForwarded
         )
