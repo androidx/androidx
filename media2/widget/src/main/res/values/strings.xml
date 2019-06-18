@@ -129,4 +129,7 @@
     <!-- Content description of the full screen button.
          If a user clicks the button, the widget goes into full-screen mode. -->
     <string name="mcv2_full_screen_button_desc">Full screen</string>
+    <!-- TODO: cleanup these video quality strings from all the branches. -->
+    <string translatable="false" name="mcv2_video_quality_button_desc">Video Quality Selection</string>
+    <string translatable="false" name="MediaControlView_video_quality_auto_text">Auto</string>
 </resources>
