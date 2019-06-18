@@ -29,7 +29,8 @@ class DeletionMethodProcessor(
 
     fun process(): DeletionMethod {
         val delegate = ShortcutMethodProcessor(context, containing, executableElement)
-        delegate.extractAnnotation(Delete::class, ProcessorErrors.MISSING_DELETE_ANNOTATION)
+        val annotation = delegate
+            .extractAnnotation(Delete::class, ProcessorErrors.MISSING_DELETE_ANNOTATION)
 
         val returnType = delegate.extractReturnType()
 
@@ -42,7 +43,9 @@ class DeletionMethodProcessor(
         )
 
         val (entities, params) = delegate.extractParams(
-                missingParamError = ProcessorErrors.DELETION_MISSING_PARAMS
+            targetEntityType = annotation?.getAsTypeMirror("entity"),
+            missingParamError = ProcessorErrors.DELETION_MISSING_PARAMS,
+            onValidatePartialEntity = { _, _ -> }
         )
 
         return DeletionMethod(

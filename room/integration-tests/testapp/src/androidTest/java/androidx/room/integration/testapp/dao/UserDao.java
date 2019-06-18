@@ -31,10 +31,12 @@ import androidx.room.Update;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Day;
+import androidx.room.integration.testapp.vo.IdUsername;
 import androidx.room.integration.testapp.vo.NameAndLastName;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndFriends;
 import androidx.room.integration.testapp.vo.UserSummary;
+import androidx.room.integration.testapp.vo.Username;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -97,6 +99,9 @@ public abstract class UserDao {
     @Delete
     public abstract int delete(User user);
 
+    @Delete(entity = User.class)
+    public abstract int deleteViaUsername(Username username);
+
     @Delete
     public abstract int deleteAll(User[] users);
 
@@ -105,6 +110,9 @@ public abstract class UserDao {
 
     @Update
     public abstract int update(User user);
+
+    @Update(entity = User.class)
+    public abstract int updateUsername(IdUsername username);
 
     @Update
     public abstract Completable updateCompletable(User user);

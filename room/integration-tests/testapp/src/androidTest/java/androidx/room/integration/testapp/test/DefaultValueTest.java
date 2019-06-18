@@ -27,6 +27,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Dao;
 import androidx.room.Database;
 import androidx.room.Entity;
+import androidx.room.Insert;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
@@ -45,6 +46,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class DefaultValueTest {
 
@@ -89,32 +91,58 @@ public class DefaultValueTest {
         public Date timestamp;
     }
 
+    public static class NameAndId {
+        public long id;
+        public String name;
+
+        public NameAndId(long id, String name) {
+            this.id = id;
+            this.name = name;
+        }
+    }
+
     @Dao
     public interface SampleDao {
         @Query("INSERT INTO Sample (name) VALUES (:name)")
         long insert(String name);
+
+        @Insert(entity = Sample.class)
+        void insertName(NameAndId nameAndId);
 
         @Query("SELECT * FROM Sample WHERE id = :id")
         Sample byId(long id);
     }
 
     @Database(entities = {Sample.class}, version = 1, exportSchema = false)
-    public abstract static class SampleDatabase extends RoomDatabase {
+    public abstract static class DefaultValueDatabase extends RoomDatabase {
         public abstract SampleDao dao();
     }
 
-    private SampleDatabase openDatabase() {
+    private DefaultValueDatabase openDatabase() {
         final Context context = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        return Room.inMemoryDatabaseBuilder(context, SampleDatabase.class).build();
+        return Room.inMemoryDatabaseBuilder(context, DefaultValueDatabase.class).build();
     }
 
     @Test
-    @MediumTest
     public void defaultValues() {
-        final SampleDatabase db = openDatabase();
+        final DefaultValueDatabase db = openDatabase();
         final long id = db.dao().insert("A");
         final long now = System.currentTimeMillis();
         final Sample sample = db.dao().byId(id);
+        assertThat(sample.name, is(equalTo("A")));
+        assertThat(sample.description, is(equalTo("No description")));
+        assertThat(sample.available, is(true));
+        assertThat(sample.serial, is(0));
+        assertThat((double) sample.timestamp.getTime(), is(closeTo(now, 3000)));
+    }
+
+    @Test
+    public void defaultValues_partialEntity() {
+        final DefaultValueDatabase db = openDatabase();
+        final NameAndId nameAndId = new NameAndId(1, "A");
+        db.dao().insertName(nameAndId);
+        final long now = System.currentTimeMillis();
+        final Sample sample = db.dao().byId(1);
         assertThat(sample.name, is(equalTo("A")));
         assertThat(sample.description, is(equalTo("No description")));
         assertThat(sample.available, is(true));
