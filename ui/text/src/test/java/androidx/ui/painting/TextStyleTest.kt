@@ -50,7 +50,7 @@ class TextStyleTest {
         assertThat(textStyle.fontStyle).isNull()
         assertThat(textStyle.letterSpacing).isNull()
         assertThat(textStyle.wordSpacing).isNull()
-        assertThat(textStyle.height).isNull()
+        assertThat(textStyle.lineHeight).isNull()
         assertThat(textStyle.locale).isNull()
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
@@ -124,9 +124,9 @@ class TextStyleTest {
     fun `constructor with customized height`() {
         val height = 123.0f
 
-        val textStyle = TextStyle(height = height)
+        val textStyle = TextStyle(lineHeight = height)
 
-        assertThat(textStyle.height).isEqualTo(height)
+        assertThat(textStyle.lineHeight).isEqualTo(height)
     }
 
     @Test
@@ -418,24 +418,24 @@ class TextStyleTest {
     @Test
     fun `merge with other's height is null should use this' height`() {
         val height = 123.0f
-        val textStyle = TextStyle(height = height)
+        val textStyle = TextStyle(lineHeight = height)
         val otherTextStyle = TextStyle()
 
         val newTextStyle = textStyle.merge(otherTextStyle)
 
-        assertThat(newTextStyle.height).isEqualTo(height)
+        assertThat(newTextStyle.lineHeight).isEqualTo(height)
     }
 
     @Test
     fun `merge with other's height is set should use other's height`() {
         val height = 123.0f
         val otherHeight = 200.0f
-        val textStyle = TextStyle(height = height)
-        val otherTextStyle = TextStyle(height = otherHeight)
+        val textStyle = TextStyle(lineHeight = height)
+        val otherTextStyle = TextStyle(lineHeight = otherHeight)
 
         val newTextStyle = textStyle.merge(otherTextStyle)
 
-        assertThat(newTextStyle.height).isEqualTo(otherHeight)
+        assertThat(newTextStyle.lineHeight).isEqualTo(otherHeight)
     }
 
     @Test
@@ -1155,13 +1155,13 @@ class TextStyleTest {
             fontSize = 4.0f,
             wordSpacing = 1.0f,
             letterSpacing = letterSpacing1,
-            height = 123.0f
+            lineHeight = 123.0f
         )
         val textStyle2 = TextStyle(
             fontSize = 7.0f,
             wordSpacing = 2.0f,
             letterSpacing = letterSpacing2,
-            height = 20.0f
+            lineHeight = 20.0f
         )
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
@@ -1223,13 +1223,13 @@ class TextStyleTest {
             fontSize = 4.0f,
             wordSpacing = wordSpacing1,
             letterSpacing = 2.2f,
-            height = 123.0f
+            lineHeight = 123.0f
         )
         val textStyle2 = TextStyle(
             fontSize = 7.0f,
             wordSpacing = wordSpacing2,
             letterSpacing = 3.0f,
-            height = 20.0f
+            lineHeight = 20.0f
         )
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
@@ -1358,44 +1358,44 @@ class TextStyleTest {
     fun `lerp height with a is Null and t is smaller than half`() {
         val height = 88.0f
         val t = 0.2f
-        val textStyle = TextStyle(height = height)
+        val textStyle = TextStyle(lineHeight = height)
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
-        assertThat(newTextStyle?.height).isNull()
+        assertThat(newTextStyle?.lineHeight).isNull()
     }
 
     @Test
     fun `lerp height with a is Null and t is larger than half`() {
         val height = 88.0f
         val t = 0.8f
-        val textStyle = TextStyle(height = height)
+        val textStyle = TextStyle(lineHeight = height)
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
-        assertThat(newTextStyle?.height).isEqualTo(height)
+        assertThat(newTextStyle?.lineHeight).isEqualTo(height)
     }
 
     @Test
     fun `lerp height with b is Null and t is smaller than half`() {
         val height = 88.0f
         val t = 0.2f
-        val textStyle = TextStyle(height = height)
+        val textStyle = TextStyle(lineHeight = height)
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
-        assertThat(newTextStyle?.height).isEqualTo(height)
+        assertThat(newTextStyle?.lineHeight).isEqualTo(height)
     }
 
     @Test
     fun `lerp height with b is Null and t is larger than half`() {
         val height = 88.0f
         val t = 0.8f
-        val textStyle = TextStyle(height = height)
+        val textStyle = TextStyle(lineHeight = height)
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
-        assertThat(newTextStyle?.height).isNull()
+        assertThat(newTextStyle?.lineHeight).isNull()
     }
 
     @Test
@@ -1403,13 +1403,13 @@ class TextStyleTest {
         val height1 = 88.0f
         val height2 = 128.0f
         val t = 0.8f
-        val textStyle1 = TextStyle(height = height1)
-        val textStyle2 = TextStyle(height = height2)
+        val textStyle1 = TextStyle(lineHeight = height1)
+        val textStyle2 = TextStyle(lineHeight = height2)
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
         // a + (b - a) * t = 88.0 + (128.0 - 88.0) * 0.8 = 120.0
-        assertThat(newTextStyle?.height).isEqualTo(120.0f)
+        assertThat(newTextStyle?.lineHeight).isEqualTo(120.0f)
     }
 
     @Test
@@ -1684,7 +1684,7 @@ class TextStyleTest {
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
             color = color,
-            height = height,
+            lineHeight = height,
             fontSynthesis = fontSynthesis,
             fontFeatureSettings = fontFeatureSettings,
             baselineShift = baselineShift
@@ -1693,7 +1693,7 @@ class TextStyleTest {
         assertThat(textStyle.fontFamily).isNull()
         assertThat(textStyle.fontSize).isEqualTo(fontSize)
         assertThat(textStyle.fontWeight).isEqualTo(FontWeight.w800)
-        assertThat(textStyle.height).isEqualTo(height)
+        assertThat(textStyle.lineHeight).isEqualTo(height)
         assertThat(textStyle.color).isEqualTo(color)
         assertThat(textStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings)
 
@@ -1704,7 +1704,7 @@ class TextStyleTest {
                 color = color,
                 fontWeight = FontWeight.w800,
                 fontSize = fontSize,
-                height = height,
+                lineHeight = height,
                 fontSynthesis = fontSynthesis,
                 fontFeatureSettings = fontFeatureSettings,
                 baselineShift = baselineShift
@@ -1722,14 +1722,14 @@ class TextStyleTest {
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
             color = color,
-            height = height,
+            lineHeight = height,
             fontSynthesis = fontSynthesis
         )
 
         assertThat(textStyle.fontFamily).isNull()
         assertThat(textStyle.fontSize).isEqualTo(fontSize)
         assertThat(textStyle.fontWeight).isEqualTo(FontWeight.w800)
-        assertThat(textStyle.height).isEqualTo(height)
+        assertThat(textStyle.lineHeight).isEqualTo(height)
         assertThat(textStyle.color).isEqualTo(color)
 
         val paragraphStyle = textStyle.getParagraphStyle(textAlign = TextAlign.Center)
@@ -1819,7 +1819,7 @@ class TextStyleTest {
             wordSpacing = 2.0f,
             baselineShift = BaselineShift.Subscript,
             textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
-            height = height,
+            lineHeight = height,
             locale = Locale("en", "US"),
             background = bgColor,
             decoration = TextDecoration.Underline,
@@ -1862,7 +1862,7 @@ class TextStyleTest {
             .copy(textGeometricTransform = TextGeometricTransform())))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(height = 20.0f)))
+        assertThat(textStyle.compareTo(textStyle.copy(lineHeight = 20.0f)))
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle.copy(locale = Locale("ja", "JP"))))
@@ -1888,7 +1888,7 @@ class TextStyleTest {
             wordSpacing = 2.0f,
             baselineShift = BaselineShift.Superscript,
             textGeometricTransform = TextGeometricTransform(null, null),
-            height = height,
+            lineHeight = height,
             locale = Locale("en", "US"),
             decoration = TextDecoration.Underline,
             debugLabel = "foo",

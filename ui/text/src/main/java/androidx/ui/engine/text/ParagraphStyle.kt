@@ -101,7 +101,7 @@ data class ParagraphStyle constructor(
             fontFamily = fontFamily,
             fontSize = fontSize,
             locale = locale,
-            height = lineHeight,
+            lineHeight = lineHeight,
             fontSynthesis = fontSynthesis
         )
     }
