@@ -20,6 +20,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
 import androidx.work.ListenableWorker.Result
 import androidx.work.OneTimeWorkRequestBuilder
@@ -47,7 +48,6 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
 class TestWorkerBuilderTest {
 
     private lateinit var context: Context
@@ -60,6 +60,7 @@ class TestWorkerBuilderTest {
     }
 
     @Test
+    @SmallTest
     @Throws(InterruptedException::class, ExecutionException::class)
     fun testListenableWorkerBuilder_buildsWorker() {
         val request = OneTimeWorkRequestBuilder<TestWorker>().build()
@@ -69,6 +70,7 @@ class TestWorkerBuilderTest {
     }
 
     @Test
+    @SmallTest
     fun testWorkerBuilder_buildsWorker() {
         val request = OneTimeWorkRequestBuilder<TestWorker>().build()
         val worker = TestWorkerBuilder.from(context, request, executor).build()
@@ -77,12 +79,14 @@ class TestWorkerBuilderTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
+    @SmallTest
     fun testWorkerBuilder_invalidWorker() {
         val request = OneTimeWorkRequestBuilder<TestListenableWorker>().build()
         TestWorkerBuilder.from(context, request, executor).build()
     }
 
     @Test
+    @SmallTest
     fun testBuilder() {
         val request = OneTimeWorkRequestBuilder<TestWorker>()
             .addTag("test")
@@ -105,6 +109,7 @@ class TestWorkerBuilderTest {
     }
 
     @Test
+    @SmallTest
     fun testWorkerBuilder_usesSingleThreadedExecutor() {
         val request = OneTimeWorkRequestBuilder<TestWorker>().build()
         val singleThreadedExecutor = Executors.newSingleThreadExecutor()
@@ -114,6 +119,7 @@ class TestWorkerBuilderTest {
     }
 
     @Test
+    @SmallTest
     fun testWorkerBuilder_returnsExpectedType() {
         val listenableWorker: TestListenableWorker =
             TestListenableWorkerBuilder.from(context, TestListenableWorker::class.java).build()
@@ -126,6 +132,7 @@ class TestWorkerBuilderTest {
     }
 
     @Test
+    @SmallTest
     fun testListenableWorkerBuilder_usesExtension() {
         val worker = TestListenableWorkerBuilder<TestWorker>(context).build()
         val result = worker.doWork()
@@ -133,6 +140,7 @@ class TestWorkerBuilderTest {
     }
 
     @Test
+    @SmallTest
     fun testWorkerBuilder_usesExtension() {
         val singleThreadedExecutor = Executors.newSingleThreadExecutor()
         val worker = TestWorkerBuilder<TestWorker>(context, singleThreadedExecutor).build()
@@ -141,6 +149,7 @@ class TestWorkerBuilderTest {
     }
 
     @Test
+    @MediumTest
     fun testWorkerBuilder_usesWorkerFactory() {
         val workerFactory = mock(WorkerFactory::class.java)
         val worker = TestListenableWorkerBuilder<TestWorker>(context)
