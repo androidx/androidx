@@ -78,6 +78,11 @@ class BenchmarkPlugin : Plugin<Project> {
                     "androidx.benchmark.output.enable",
                     "true"
                 )
+
+                extension.defaultConfig.testInstrumentationRunnerArgument(
+                    "no-isolated-storage",
+                    "1"
+                )
             }
         }
 
