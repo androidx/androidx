@@ -50,7 +50,7 @@ public @interface Update {
     /**
      * The target entity of the update method.
      * <p>
-     * When this is declared, the delete method parameters are interpreted as partial entities when
+     * When this is declared, the update method parameters are interpreted as partial entities when
      * the type of the parameter differs from the target. The POJO class that represents the entity
      * must contain a subset of the fields of the target entity along with its primary keys.
      * <p>

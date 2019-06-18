@@ -58,7 +58,7 @@ public @interface Insert {
     /**
      * The target entity of the insert method.
      * <p>
-     * When this is declared, the delete method parameters are interpreted as partial entities when
+     * When this is declared, the insert method parameters are interpreted as partial entities when
      * the type of the parameter differs from the target. The POJO class that represents the entity
      * must contain all of the non-null fields without default values of the target entity.
      * <p>
