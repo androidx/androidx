@@ -35,6 +35,39 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity android:name=".SwipeToDismiss"
+            android:configChanges="orientation|screenSize"
+            android:label="Animation/Swipe To Dismiss">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".SpringBackScrolling"
+            android:configChanges="orientation|screenSize"
+            android:label="Animation/Spring Back Scrolling">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".FancyScrolling"
+            android:configChanges="orientation|screenSize"
+            android:label="Animation/Animated Scrolling">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".AnimatableSeekBar"
+            android:configChanges="orientation|screenSize"
+            android:label="Animation/Animatable Seek Bar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
 
         <activity android:name=".StateBasedRippleAnimation"
                   android:configChanges="orientation|screenSize"

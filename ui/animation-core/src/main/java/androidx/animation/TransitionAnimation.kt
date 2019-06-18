@@ -95,7 +95,7 @@ class TransitionAnimation<T> : Choreographer.FrameCallback {
         fromState = AnimationState(currentState, toState.name)
         toState = newState
         if (DEBUG) {
-            Log.w("LTD", "Animating to new state: ${toState.name}")
+            Log.w("TransAnim", "Animating to new state: ${toState.name}")
         }
     }
 

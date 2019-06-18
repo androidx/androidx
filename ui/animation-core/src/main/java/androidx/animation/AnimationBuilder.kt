@@ -186,17 +186,16 @@ class TweenBuilder<T> : DurationBasedAnimationBuilder<T>() {
         Tween(duration.toLong(), delay.toLong(), easing)
 }
 
-open class PhysicsBuilder<T> : AnimationBuilder<T>() {
-
-    /**
-     * Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
-     */
-    var dampingRatio = DampingRatioNoBouncy
-
-    /**
-     * Stiffness of the spring. Defaults to [StiffnessVeryLow]
-     */
-    var stiffness = StiffnessVeryLow
+/**
+ * PhysicsBuilder takes in the configuration of a spring as its constructor parameters.
+ *
+ * @param dampingRatio Damping ratio of the spring. Defaults to [DampingRatioNoBouncy]
+ * @param stiffness Stiffness of the spring. Defaults to [StiffnessVeryLow]
+ */
+open class PhysicsBuilder<T>(
+    var dampingRatio: Float = DampingRatioNoBouncy,
+    var stiffness: Float = StiffnessVeryLow
+) : AnimationBuilder<T>() {
 
     override fun build(): Animation<T> =
         Physics(dampingRatio, stiffness)
