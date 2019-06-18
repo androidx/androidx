@@ -27,7 +27,8 @@ import java.lang.annotation.Target;
  * The implementation of the method will insert its parameters into the database.
  * <p>
  * All of the parameters of the Insert method must either be classes annotated with {@link Entity}
- * or collections/array of it.
+ * or collections/array of it. However if the target entity is specified via {@link #entity()} then
+ * the parameters can be of arbitrary POJO types that will be interpreted as partial entities.
  * <p>
  * Example:
  * <pre>
@@ -35,10 +36,15 @@ import java.lang.annotation.Target;
  * public interface MyDao {
  *     {@literal @}Insert(onConflict = OnConflictStrategy.REPLACE)
  *     public void insertUsers(User... users);
+ *
  *     {@literal @}Insert
  *     public void insertBoth(User user1, User user2);
+ *
  *     {@literal @}Insert
  *     public void insertWithFriends(User user, List&lt;User&gt; friends);
+ *
+ *     {@literal @}Insert(entity = User.class)
+ *     public void insertUsername(Username username);
  * }
  * </pre>
  *
@@ -48,6 +54,25 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface Insert {
+
+    /**
+     * The target entity of the insert method.
+     * <p>
+     * When this is declared, the delete method parameters are interpreted as partial entities when
+     * the type of the parameter differs from the target. The POJO class that represents the entity
+     * must contain all of the non-null fields without default values of the target entity.
+     * <p>
+     * If the target entity contains a {@link PrimaryKey} that is auto generated, then the POJO
+     * class doesn't need an equal primary key field, otherwise primary keys must also be present
+     * in the POJO.
+     * <p>
+     * By default the target entity is interpreted by the method parameters.
+     *
+     * @return the target entity of the insert method or none if the method should use the
+     *         parameter type entities.
+     */
+    Class<?> entity() default Object.class;
+
     /**
      * What to do if a conflict happens.
      * <p>

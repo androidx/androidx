@@ -23,7 +23,7 @@ import javax.lang.model.element.ExecutableElement
 class UpdateMethod(
     element: ExecutableElement,
     name: String,
-    entities: Map<String, Entity>,
+    entities: Map<String, ShortcutEntity>,
     parameters: List<ShortcutQueryParameter>,
     methodBinder: DeleteOrUpdateMethodBinder?,
     @OnConflictStrategy val onConflictStrategy: Int

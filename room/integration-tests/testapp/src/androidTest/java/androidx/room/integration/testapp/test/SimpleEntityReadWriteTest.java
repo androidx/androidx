@@ -42,12 +42,14 @@ import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.dao.UserPetDao;
 import androidx.room.integration.testapp.vo.BlobEntity;
 import androidx.room.integration.testapp.vo.Day;
+import androidx.room.integration.testapp.vo.IdUsername;
 import androidx.room.integration.testapp.vo.NameAndLastName;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.Product;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
 import androidx.room.integration.testapp.vo.UserSummary;
+import androidx.room.integration.testapp.vo.Username;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -213,6 +215,16 @@ public class SimpleEntityReadWriteTest {
     }
 
     @Test
+    public void updateUsingPartialEntity() {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        user.setName("i am an updated name");
+        IdUsername name = new IdUsername(3, "i am an updated name");
+        assertThat(mUserDao.updateUsername(name), is(1));
+        assertThat(mUserDao.load(user.getId()), equalTo(user));
+    }
+
+    @Test
     public void updateNonExisting() {
         User user = TestUtil.createUser(3);
         mUserDao.insert(user);
@@ -254,6 +266,16 @@ public class SimpleEntityReadWriteTest {
         mUserDao.insert(user);
         assertThat(mUserDao.delete(user), is(1));
         assertThat(mUserDao.delete(user), is(0));
+        assertThat(mUserDao.load(3), is(nullValue()));
+    }
+
+    @Test
+    public void deleteUsingPartialEntity() {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        Username name = new Username(user.getName());
+        assertThat(mUserDao.deleteViaUsername(name), is(1));
+        assertThat(mUserDao.deleteViaUsername(name), is(0));
         assertThat(mUserDao.load(3), is(nullValue()));
     }
 

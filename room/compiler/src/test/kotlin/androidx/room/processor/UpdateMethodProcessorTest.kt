@@ -25,6 +25,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import toJFO
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 
@@ -62,5 +63,27 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
                 abstract public void foo(User user);
                 """) { _, _ ->
         }.failsToCompile().withErrorContaining(ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
+    }
+
+    @Test
+    fun targetEntityMissingPrimaryKey() {
+        val usernameJfo = """
+            package foo.bar;
+            import androidx.room.*;
+
+            public class Username {
+                String name;
+            }
+        """.toJFO("foo.bar.Username")
+        singleShortcutMethod(
+            """
+                @Update(entity = User.class)
+                abstract public int foo(Username username);
+                """,
+            additionalJFOs = listOf(usernameJfo)) { _, _ ->
+        }.failsToCompile().withErrorContaining(
+            ProcessorErrors.missingPrimaryKeysInPartialEntityForUpdate(
+                partialEntityName = "foo.bar.Username",
+                primaryKeyNames = listOf("uid")))
     }
 }
