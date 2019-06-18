@@ -29,9 +29,9 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
+    kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
-    api project(":compose-runtime")
+    api project(":compose:compose-runtime")
     api project(":ui-core")
     api project(':ui-framework')
     api project(':ui-layout')
