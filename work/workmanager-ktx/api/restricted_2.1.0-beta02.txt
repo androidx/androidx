@@ -1,0 +1,14 @@
+// Signature format: 3.0
+package androidx.work {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public enum DirectExecutor implements java.util.concurrent.Executor {
+    method public void execute(Runnable command);
+    enum_constant public static final androidx.work.DirectExecutor INSTANCE;
+  }
+
+  public final class ListenableFutureKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static suspend inline <R> Object! await(com.google.common.util.concurrent.ListenableFuture<R>, kotlin.coroutines.Continuation<? super R> p);
+  }
+
+}
+
