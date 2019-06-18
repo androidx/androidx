@@ -24,7 +24,7 @@ import androidx.ui.lerp
  * @param multiplier shift the baseline by multiplier * (baseline - ascent)
  * TODO(Migration/haoyuchang): support baseline shift given by pixel and other multiplier reference
  */
-data class BaselineShift constructor(
+/*inline*/ data class BaselineShift constructor(
     val multiplier: Float
 ) {
     companion object {
