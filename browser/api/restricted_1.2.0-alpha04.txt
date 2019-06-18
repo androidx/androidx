@@ -1,0 +1,70 @@
+// Signature format: 3.0
+package androidx.browser.browseractions {
+
+  @Deprecated public class BrowserActionItem {
+    ctor @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public BrowserActionItem(String, android.app.PendingIntent, android.net.Uri);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BrowserActionsFallbackMenuView extends android.widget.LinearLayout {
+    ctor public BrowserActionsFallbackMenuView(android.content.Context!, android.util.AttributeSet!);
+  }
+
+  @Deprecated public class BrowserActionsIntent {
+  }
+
+  @Deprecated @IntDef({androidx.browser.browseractions.BrowserActionsIntent.ITEM_INVALID_ITEM, androidx.browser.browseractions.BrowserActionsIntent.ITEM_OPEN_IN_NEW_TAB, androidx.browser.browseractions.BrowserActionsIntent.ITEM_OPEN_IN_INCOGNITO, androidx.browser.browseractions.BrowserActionsIntent.ITEM_DOWNLOAD, androidx.browser.browseractions.BrowserActionsIntent.ITEM_COPY, androidx.browser.browseractions.BrowserActionsIntent.ITEM_SHARE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BrowserActionsIntent.BrowserActionsItemId {
+  }
+
+  @Deprecated @IntDef({androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_NONE, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_IMAGE, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_VIDEO, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_AUDIO, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_FILE, androidx.browser.browseractions.BrowserActionsIntent.URL_TYPE_PLUGIN}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface BrowserActionsIntent.BrowserActionsUrlType {
+  }
+
+
+}
+
+package androidx.browser.customtabs {
+
+  public class CustomTabsCallback {
+  }
+
+  public class CustomTabsClient {
+  }
+
+  public final class CustomTabsIntent {
+  }
+
+  public static final class CustomTabsIntent.Builder {
+  }
+
+
+  public abstract class CustomTabsService extends android.app.Service {
+  }
+
+
+  public final class CustomTabsSession {
+  }
+
+
+  public class CustomTabsSessionToken {
+  }
+
+
+  public abstract class PostMessageServiceConnection implements androidx.browser.customtabs.PostMessageBackend android.content.ServiceConnection {
+  }
+
+  public class TrustedWebUtils {
+  }
+
+
+
+}
+
+package androidx.browser.trusted {
+
+
+
+
+
+
+
+}
+
