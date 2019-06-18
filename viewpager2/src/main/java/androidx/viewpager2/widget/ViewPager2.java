@@ -90,6 +90,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     /** @hide */
+    @SuppressWarnings("WeakerAccess")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef({OFFSCREEN_PAGE_LIMIT_DEFAULT})
@@ -271,6 +272,7 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override
     protected Parcelable onSaveInstanceState() {
