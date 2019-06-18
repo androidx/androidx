@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+CallbackName: androidx.room.InvalidationTracker.Observer:
+    Class should be named Callback
+
+
+RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    Callback methods should be named register/unregister; was addCallback

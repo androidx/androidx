@@ -1,0 +1,29 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.ui.baseui.DeterminateProgressIndicatorKt#DeterminateProgressIndicator(float, kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Method DeterminateProgressIndicatorKt.DeterminateProgressIndicator appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.baseui.shape.corner.CornerSizeKt#CornerSize(float):
+    Method CornerSizeKt.CornerSize appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+KotlinOperator: androidx.ui.material.borders.BorderRadius#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadius#minus(androidx.ui.material.borders.BorderRadiusGeometry):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadius#plus(androidx.ui.material.borders.BorderRadius):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadius#rem(float):
+    Method can be invoked as a binary operator from Kotlin: `rem` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadius#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadius#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadiusGeometry#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadiusGeometry#rem(float):
+    Method can be invoked as a binary operator from Kotlin: `rem` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadiusGeometry#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.BorderRadiusGeometry#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.material.borders.ShapeBorder#plus(androidx.ui.material.borders.ShapeBorder):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)

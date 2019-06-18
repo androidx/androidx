@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+CallbackMethodName: androidx.media2.common.DataSourceCallback:
+    Callback method names must follow the on<Something> style: readAt
+
+
+IntentName: androidx.media2.common.MediaMetadata#METADATA_KEY_EXTRAS:
+    Intent extra constant name must be EXTRA_FOO: METADATA_KEY_EXTRAS

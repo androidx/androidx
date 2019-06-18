@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
+    Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS

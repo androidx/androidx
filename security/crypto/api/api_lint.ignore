@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+ContextFirst: androidx.security.crypto.EncryptedFile.Builder#Builder(java.io.File, android.content.Context, String, androidx.security.crypto.EncryptedFile.FileEncryptionScheme) parameter #1:
+    Context is distinct, so it must be the first argument (method `Builder`)
+ContextFirst: androidx.security.crypto.EncryptedSharedPreferences#create(String, String, android.content.Context, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) parameter #2:
+    Context is distinct, so it must be the first argument (method `create`)
+
+
+KotlinOperator: androidx.security.crypto.EncryptedSharedPreferences#contains(String):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+RegistrationName: androidx.security.crypto.EncryptedSharedPreferences#registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener):
+    Listener methods should be named add/remove; was registerOnSharedPreferenceChangeListener
+RegistrationName: androidx.security.crypto.EncryptedSharedPreferences#unregisterOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener):
+    Listener methods should be named add/remove; was unregisterOnSharedPreferenceChangeListener

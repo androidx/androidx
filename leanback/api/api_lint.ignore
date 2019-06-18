@@ -1,0 +1,93 @@
+// Baseline format: 1.0
+ActionValue: androidx.leanback.app.GuidedStepFragment#EXTRA_UI_STYLE:
+    Inconsistent extra value; expected `androidx.leanback.app.extra.UI_STYLE`, was `uiStyle`
+ActionValue: androidx.leanback.app.GuidedStepSupportFragment#EXTRA_UI_STYLE:
+    Inconsistent extra value; expected `androidx.leanback.app.extra.UI_STYLE`, was `uiStyle`
+
+
+AutoBoxing: androidx.leanback.widget.Parallax.FloatProperty#get(androidx.leanback.widget.Parallax):
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.leanback.widget.Parallax.FloatProperty#set(androidx.leanback.widget.Parallax, Float) parameter #1:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.leanback.widget.Parallax.IntProperty#get(androidx.leanback.widget.Parallax):
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.leanback.widget.Parallax.IntProperty#set(androidx.leanback.widget.Parallax, Integer) parameter #1:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.leanback.widget.ParallaxTarget#directUpdate(Number) parameter #0:
+    Must avoid boxed primitives (`java.lang.Number`)
+AutoBoxing: androidx.leanback.widget.ParallaxTarget.DirectPropertyTarget#directUpdate(Number) parameter #0:
+    Must avoid boxed primitives (`java.lang.Number`)
+
+
+CallbackMethodName: androidx.leanback.widget.DiffCallback:
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.leanback.widget.GuidedActionDiffCallback:
+    Callback method names must follow the on<Something> style: getInstance
+CallbackMethodName: androidx.leanback.widget.SearchBar.SearchBarPermissionListener:
+    Listener method names must follow the on<Something> style: requestAudioPermission
+
+
+CallbackName: androidx.leanback.widget.ObjectAdapter.DataObserver:
+    Class should be named DataCallback
+
+
+ConcreteCollection: androidx.leanback.widget.ItemBridgeAdapter#getPresenterMapper():
+    Return type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.leanback.widget.ItemBridgeAdapter#setPresenterMapper(java.util.ArrayList<androidx.leanback.widget.Presenter>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
+ContextFirst: androidx.leanback.widget.GuidedAction.BuilderBase#iconResourceId(int, android.content.Context) parameter #1:
+    Context is distinct, so it must be the first argument (method `iconResourceId`)
+ContextFirst: androidx.leanback.widget.PlaybackControlsRow.ThumbsAction#ThumbsAction(int, android.content.Context, int, int) parameter #1:
+    Context is distinct, so it must be the first argument (method `ThumbsAction`)
+
+
+FractionFloat: androidx.leanback.widget.Parallax.FloatProperty#atFraction(float):
+    Fractions must use floats, was `androidx.leanback.widget.Parallax.PropertyMarkerValue` in `atFraction`
+FractionFloat: androidx.leanback.widget.Parallax.IntProperty#atFraction(float):
+    Fractions must use floats, was `androidx.leanback.widget.Parallax.PropertyMarkerValue` in `atFraction`
+
+
+KotlinOperator: androidx.leanback.widget.ArrayObjectAdapter#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.CursorObjectAdapter#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.ObjectAdapter#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.Parallax.FloatProperty#get(androidx.leanback.widget.Parallax):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.Parallax.FloatProperty#set(androidx.leanback.widget.Parallax, Float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.Parallax.IntProperty#get(androidx.leanback.widget.Parallax):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.Parallax.IntProperty#set(androidx.leanback.widget.Parallax, Integer):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.SparseArrayObjectAdapter#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.leanback.widget.SparseArrayObjectAdapter#set(int, Object):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+ListenerInterface: androidx.leanback.app.BrowseSupportFragment.BrowseTransitionListener:
+    Listeners should be an interface, or otherwise renamed Callback: BrowseTransitionListener
+ListenerInterface: androidx.leanback.widget.DetailsOverviewRow.Listener:
+    Listeners should be an interface, or otherwise renamed Callback: Listener
+ListenerInterface: androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.Listener:
+    Listeners should be an interface, or otherwise renamed Callback: Listener
+ListenerInterface: androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder.DetailsOverviewRowListener:
+    Listeners should be an interface, or otherwise renamed Callback: DetailsOverviewRowListener
+ListenerInterface: androidx.leanback.widget.ItemBridgeAdapter.AdapterListener:
+    Listeners should be an interface, or otherwise renamed Callback: AdapterListener
+ListenerInterface: androidx.leanback.widget.OnChildViewHolderSelectedListener:
+    Listeners should be an interface, or otherwise renamed Callback: OnChildViewHolderSelectedListener
+
+
+RegistrationName: androidx.leanback.media.PlaybackGlue#addPlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback):
+    Callback methods should be named register/unregister; was addPlayerCallback
+RegistrationName: androidx.leanback.media.PlaybackGlue#removePlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback):
+    Callback methods should be named register/unregister; was removePlayerCallback
+
+
+SingletonConstructor: androidx.leanback.widget.GuidedActionDiffCallback#GuidedActionDiffCallback():
+    Singleton classes should use `getInstance()` methods: `GuidedActionDiffCallback`

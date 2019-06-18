@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+CallbackMethodName: androidx.activity.OnBackPressedCallback:
+    Callback method names must follow the on<Something> style: setEnabled
+
+
+ForbiddenSuperClass: androidx.activity.ComponentActivity:
+    ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
+
+
+RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
+    Callback methods should be named register/unregister; was addCallback

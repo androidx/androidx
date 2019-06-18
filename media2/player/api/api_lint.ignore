@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+AutoBoxing: androidx.media2.player.PlaybackParams#getAudioFallbackMode():
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.media2.player.PlaybackParams#getPitch():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.media2.player.PlaybackParams#getSpeed():
+    Must avoid boxed primitives (`java.lang.Float`)
+
+
+GenericException: androidx.media2.player.MediaPlayer#close():
+    Methods must not throw generic exceptions (`java.lang.Exception`)

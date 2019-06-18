@@ -1,0 +1,191 @@
+// Baseline format: 1.0
+AcronymName: androidx.core.database.sqlite.SQLiteCursorCompat:
+    Acronyms should not be capitalized in class names: was `SQLiteCursorCompat`, should this be `SqLiteCursorCompat`?
+AcronymName: androidx.core.graphics.ColorUtils#blendARGB(int, int, float):
+    Acronyms should not be capitalized in method names: was `blendARGB`, should this be `blendArgb`?
+AcronymName: androidx.core.graphics.ColorUtils#blendHSL(float[], float[], float, float[]):
+    Acronyms should not be capitalized in method names: was `blendHSL`, should this be `blendHsl`?
+AcronymName: androidx.core.graphics.ColorUtils#blendLAB(double[], double[], double, double[]):
+    Acronyms should not be capitalized in method names: was `blendLAB`, should this be `blendLab`?
+AcronymName: androidx.core.graphics.ColorUtils#colorToHSL(int, float[]):
+    Acronyms should not be capitalized in method names: was `colorToHSL`, should this be `colorToHsl`?
+AcronymName: androidx.core.graphics.ColorUtils#colorToLAB(int, double[]):
+    Acronyms should not be capitalized in method names: was `colorToLAB`, should this be `colorToLab`?
+AcronymName: androidx.core.graphics.ColorUtils#colorToXYZ(int, double[]):
+    Acronyms should not be capitalized in method names: was `colorToXYZ`, should this be `colorToXyz`?
+AcronymName: androidx.core.text.ICUCompat:
+    Acronyms should not be capitalized in class names: was `ICUCompat`, should this be `IcuCompat`?
+AcronymName: androidx.core.view.accessibility.AccessibilityViewCommand.MoveHtmlArguments#getHTMLElement():
+    Acronyms should not be capitalized in method names: was `getHTMLElement`, should this be `getHtmlElement`?
+
+
+ActionValue: androidx.core.app.ActivityOptionsCompat#EXTRA_USAGE_TIME_REPORT:
+    Inconsistent extra value; expected `androidx.core.app.extra.USAGE_TIME_REPORT`, was `android.activity.usage_time`
+ActionValue: androidx.core.app.ActivityOptionsCompat#EXTRA_USAGE_TIME_REPORT_PACKAGES:
+    Inconsistent extra value; expected `androidx.core.app.extra.USAGE_TIME_REPORT_PACKAGES`, was `android.usage_time_packages`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_AUDIO_CONTENTS_URI:
+    Inconsistent extra value; expected `androidx.core.app.extra.AUDIO_CONTENTS_URI`, was `android.audioContents`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_BACKGROUND_IMAGE_URI:
+    Inconsistent extra value; expected `androidx.core.app.extra.BACKGROUND_IMAGE_URI`, was `android.backgroundImageUri`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_BIG_TEXT:
+    Inconsistent extra value; expected `androidx.core.app.extra.BIG_TEXT`, was `android.bigText`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_COMPACT_ACTIONS:
+    Inconsistent extra value; expected `androidx.core.app.extra.COMPACT_ACTIONS`, was `android.compactActions`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_CONVERSATION_TITLE:
+    Inconsistent extra value; expected `androidx.core.app.extra.CONVERSATION_TITLE`, was `android.conversationTitle`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_HIDDEN_CONVERSATION_TITLE:
+    Inconsistent extra value; expected `androidx.core.app.extra.HIDDEN_CONVERSATION_TITLE`, was `android.hiddenConversationTitle`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_INFO_TEXT:
+    Inconsistent extra value; expected `androidx.core.app.extra.INFO_TEXT`, was `android.infoText`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_IS_GROUP_CONVERSATION:
+    Inconsistent extra value; expected `androidx.core.app.extra.IS_GROUP_CONVERSATION`, was `android.isGroupConversation`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_LARGE_ICON:
+    Inconsistent extra value; expected `androidx.core.app.extra.LARGE_ICON`, was `android.largeIcon`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_LARGE_ICON_BIG:
+    Inconsistent extra value; expected `androidx.core.app.extra.LARGE_ICON_BIG`, was `android.largeIcon.big`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_MEDIA_SESSION:
+    Inconsistent extra value; expected `androidx.core.app.extra.MEDIA_SESSION`, was `android.mediaSession`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_MESSAGES:
+    Inconsistent extra value; expected `androidx.core.app.extra.MESSAGES`, was `android.messages`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_MESSAGING_STYLE_USER:
+    Inconsistent extra value; expected `androidx.core.app.extra.MESSAGING_STYLE_USER`, was `android.messagingStyleUser`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_PEOPLE:
+    Inconsistent extra value; expected `androidx.core.app.extra.PEOPLE`, was `android.people`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_PICTURE:
+    Inconsistent extra value; expected `androidx.core.app.extra.PICTURE`, was `android.picture`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_PROGRESS:
+    Inconsistent extra value; expected `androidx.core.app.extra.PROGRESS`, was `android.progress`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_PROGRESS_INDETERMINATE:
+    Inconsistent extra value; expected `androidx.core.app.extra.PROGRESS_INDETERMINATE`, was `android.progressIndeterminate`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_PROGRESS_MAX:
+    Inconsistent extra value; expected `androidx.core.app.extra.PROGRESS_MAX`, was `android.progressMax`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_REMOTE_INPUT_HISTORY:
+    Inconsistent extra value; expected `androidx.core.app.extra.REMOTE_INPUT_HISTORY`, was `android.remoteInputHistory`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_SELF_DISPLAY_NAME:
+    Inconsistent extra value; expected `androidx.core.app.extra.SELF_DISPLAY_NAME`, was `android.selfDisplayName`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_SHOW_CHRONOMETER:
+    Inconsistent extra value; expected `androidx.core.app.extra.SHOW_CHRONOMETER`, was `android.showChronometer`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_SHOW_WHEN:
+    Inconsistent extra value; expected `androidx.core.app.extra.SHOW_WHEN`, was `android.showWhen`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_SMALL_ICON:
+    Inconsistent extra value; expected `androidx.core.app.extra.SMALL_ICON`, was `android.icon`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_SUB_TEXT:
+    Inconsistent extra value; expected `androidx.core.app.extra.SUB_TEXT`, was `android.subText`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_SUMMARY_TEXT:
+    Inconsistent extra value; expected `androidx.core.app.extra.SUMMARY_TEXT`, was `android.summaryText`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_TEMPLATE:
+    Inconsistent extra value; expected `androidx.core.app.extra.TEMPLATE`, was `android.template`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_TEXT:
+    Inconsistent extra value; expected `androidx.core.app.extra.TEXT`, was `android.text`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_TEXT_LINES:
+    Inconsistent extra value; expected `androidx.core.app.extra.TEXT_LINES`, was `android.textLines`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_TITLE:
+    Inconsistent extra value; expected `androidx.core.app.extra.TITLE`, was `android.title`
+ActionValue: androidx.core.app.NotificationCompat#EXTRA_TITLE_BIG:
+    Inconsistent extra value; expected `androidx.core.app.extra.TITLE_BIG`, was `android.title.big`
+ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_ACTION_EXTRAS:
+    Inconsistent extra value; expected `androidx.core.app.extra.ACTION_EXTRAS`, was `android.support.actionExtras`
+ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_GROUP_KEY:
+    Inconsistent extra value; expected `androidx.core.app.extra.GROUP_KEY`, was `android.support.groupKey`
+ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_GROUP_SUMMARY:
+    Inconsistent extra value; expected `androidx.core.app.extra.GROUP_SUMMARY`, was `android.support.isGroupSummary`
+ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_LOCAL_ONLY:
+    Inconsistent extra value; expected `androidx.core.app.extra.LOCAL_ONLY`, was `android.support.localOnly`
+ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_REMOTE_INPUTS:
+    Inconsistent extra value; expected `androidx.core.app.extra.REMOTE_INPUTS`, was `android.support.remoteInputs`
+ActionValue: androidx.core.app.NotificationCompatExtras#EXTRA_SORT_KEY:
+    Inconsistent extra value; expected `androidx.core.app.extra.SORT_KEY`, was `android.support.sortKey`
+ActionValue: androidx.core.app.NotificationManagerCompat#ACTION_BIND_SIDE_CHANNEL:
+    Inconsistent action value; expected `androidx.core.app.action.BIND_SIDE_CHANNEL`, was `android.support.BIND_NOTIFICATION_SIDE_CHANNEL`
+ActionValue: androidx.core.app.NotificationManagerCompat#EXTRA_USE_SIDE_CHANNEL:
+    Inconsistent extra value; expected `androidx.core.app.extra.USE_SIDE_CHANNEL`, was `android.support.useSideChannel`
+ActionValue: androidx.core.app.RemoteInput#EXTRA_RESULTS_DATA:
+    Inconsistent extra value; expected `androidx.core.app.extra.RESULTS_DATA`, was `android.remoteinput.resultsData`
+ActionValue: androidx.core.app.ShareCompat#EXTRA_CALLING_ACTIVITY:
+    Inconsistent extra value; expected `androidx.core.app.extra.CALLING_ACTIVITY`, was `androidx.core.app.EXTRA_CALLING_ACTIVITY`
+ActionValue: androidx.core.app.ShareCompat#EXTRA_CALLING_ACTIVITY_INTEROP:
+    Inconsistent extra value; expected `androidx.core.app.extra.CALLING_ACTIVITY_INTEROP`, was `android.support.v4.app.EXTRA_CALLING_ACTIVITY`
+ActionValue: androidx.core.app.ShareCompat#EXTRA_CALLING_PACKAGE:
+    Inconsistent extra value; expected `androidx.core.app.extra.CALLING_PACKAGE`, was `androidx.core.app.EXTRA_CALLING_PACKAGE`
+ActionValue: androidx.core.app.ShareCompat#EXTRA_CALLING_PACKAGE_INTEROP:
+    Inconsistent extra value; expected `androidx.core.app.extra.CALLING_PACKAGE_INTEROP`, was `android.support.v4.app.EXTRA_CALLING_PACKAGE`
+ActionValue: androidx.core.content.IntentCompat#EXTRA_HTML_TEXT:
+    Inconsistent extra value; expected `androidx.core.content.extra.HTML_TEXT`, was `android.intent.extra.HTML_TEXT`
+ActionValue: androidx.core.content.IntentCompat#EXTRA_START_PLAYBACK:
+    Inconsistent extra value; expected `androidx.core.content.extra.START_PLAYBACK`, was `android.intent.extra.START_PLAYBACK`
+ActionValue: androidx.core.content.pm.ShortcutManagerCompat#EXTRA_SHORTCUT_ID:
+    Inconsistent extra value; expected `androidx.core.content.pm.extra.SHORTCUT_ID`, was `android.intent.extra.shortcut.ID`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_COLUMN_INT:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_COLUMN_INT`, was `android.view.accessibility.action.ARGUMENT_COLUMN_INT`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_EXTEND_SELECTION_BOOLEAN`, was `ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_HTML_ELEMENT_STRING:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_HTML_ELEMENT_STRING`, was `ACTION_ARGUMENT_HTML_ELEMENT_STRING`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_MOVEMENT_GRANULARITY_INT`, was `ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVE_WINDOW_X:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_MOVE_WINDOW_X`, was `ACTION_ARGUMENT_MOVE_WINDOW_X`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVE_WINDOW_Y:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_MOVE_WINDOW_Y`, was `ACTION_ARGUMENT_MOVE_WINDOW_Y`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_PROGRESS_VALUE:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_PROGRESS_VALUE`, was `android.view.accessibility.action.ARGUMENT_PROGRESS_VALUE`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_ROW_INT:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_ROW_INT`, was `android.view.accessibility.action.ARGUMENT_ROW_INT`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_END_INT:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_SELECTION_END_INT`, was `ACTION_ARGUMENT_SELECTION_END_INT`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_START_INT:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_SELECTION_START_INT`, was `ACTION_ARGUMENT_SELECTION_START_INT`
+ActionValue: androidx.core.view.accessibility.AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE:
+    Inconsistent action value; expected `androidx.core.view.accessibility.action.ARGUMENT_SET_TEXT_CHARSEQUENCE`, was `ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE`
+
+
+BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
+BannedThrow: androidx.core.widget.TextViewCompat#setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
+
+
+ContextFirst: androidx.core.view.LayoutInflaterFactory#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
+    Context is distinct, so it must be the first argument (method `onCreateView`)
+ContextFirst: androidx.core.view.ViewConfigurationCompat#getScaledHorizontalScrollFactor(android.view.ViewConfiguration, android.content.Context) parameter #1:
+    Context is distinct, so it must be the first argument (method `getScaledHorizontalScrollFactor`)
+ContextFirst: androidx.core.view.ViewConfigurationCompat#getScaledVerticalScrollFactor(android.view.ViewConfiguration, android.content.Context) parameter #1:
+    Context is distinct, so it must be the first argument (method `getScaledVerticalScrollFactor`)
+ContextFirst: androidx.core.view.ViewConfigurationCompat#shouldShowMenuShortcutsWhenKeyboardPresent(android.view.ViewConfiguration, android.content.Context) parameter #1:
+    Context is distinct, so it must be the first argument (method `shouldShowMenuShortcutsWhenKeyboardPresent`)
+
+
+KotlinOperator: androidx.core.os.LocaleListCompat#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+ListenerInterface: androidx.core.view.OneShotPreDrawListener:
+    Listeners should be an interface, or otherwise renamed Callback: OneShotPreDrawListener
+
+
+NoClone: androidx.core.app.NotificationCompat.Action.WearableExtender#clone():
+    Provide an explicit copy constructor instead of implementing `clone()`
+NoClone: androidx.core.app.NotificationCompat.WearableExtender#clone():
+    Provide an explicit copy constructor instead of implementing `clone()`
+
+
+PairedRegistration: androidx.core.view.OneShotPreDrawListener#removeListener():
+    Found removeListener but not addListener in androidx.core.view.OneShotPreDrawListener
+
+
+ServiceName: androidx.core.app.NotificationCompat#CATEGORY_SERVICE:
+    Inconsistent service value; expected `CATEGORY`, was `service`
+
+
+VisiblySynchronized: androidx.core.os.CancellationSignal#cancel():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.cancel()
+VisiblySynchronized: androidx.core.os.CancellationSignal#getCancellationSignalObject():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.getCancellationSignalObject()
+VisiblySynchronized: androidx.core.os.CancellationSignal#isCanceled():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.isCanceled()
+VisiblySynchronized: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.core.os.CancellationSignal.setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener)
+VisiblySynchronized: androidx.core.widget.ContentLoadingProgressBar#hide():
+    Internal locks must not be exposed: method androidx.core.widget.ContentLoadingProgressBar.hide()
+VisiblySynchronized: androidx.core.widget.ContentLoadingProgressBar#show():
+    Internal locks must not be exposed: method androidx.core.widget.ContentLoadingProgressBar.show()

@@ -1,0 +1,73 @@
+// Baseline format: 1.0
+AcronymName: androidx.browser.customtabs.CustomTabsIntent#setAlwaysUseBrowserUI(android.content.Intent):
+    Acronyms should not be capitalized in method names: was `setAlwaysUseBrowserUI`, should this be `setAlwaysUseBrowserUi`?
+AcronymName: androidx.browser.customtabs.CustomTabsIntent#shouldAlwaysUseBrowserUI(android.content.Intent):
+    Acronyms should not be capitalized in method names: was `shouldAlwaysUseBrowserUI`, should this be `shouldAlwaysUseBrowserUi`?
+
+
+ActionValue: androidx.browser.browseractions.BrowserActionsIntent#ACTION_BROWSER_ACTIONS_OPEN:
+    Inconsistent action value; expected `androidx.browser.browseractions.action.BROWSER_ACTIONS_OPEN`, was `androidx.browser.browseractions.browser_action_open`
+ActionValue: androidx.browser.browseractions.BrowserActionsIntent#EXTRA_APP_ID:
+    Inconsistent extra value; expected `androidx.browser.browseractions.extra.APP_ID`, was `androidx.browser.browseractions.APP_ID`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ACTION_BUTTON_BUNDLE:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.ACTION_BUTTON_BUNDLE`, was `android.support.customtabs.extra.ACTION_BUTTON_BUNDLE`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_CLOSE_BUTTON_ICON:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.CLOSE_BUTTON_ICON`, was `android.support.customtabs.extra.CLOSE_BUTTON_ICON`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_DEFAULT_SHARE_MENU_ITEM:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.DEFAULT_SHARE_MENU_ITEM`, was `android.support.customtabs.extra.SHARE_MENU_ITEM`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_INSTANT_APPS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.ENABLE_INSTANT_APPS`, was `android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_URLBAR_HIDING:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.ENABLE_URLBAR_HIDING`, was `android.support.customtabs.extra.ENABLE_URLBAR_HIDING`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_EXIT_ANIMATION_BUNDLE:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.EXIT_ANIMATION_BUNDLE`, was `android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_MENU_ITEMS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.MENU_ITEMS`, was `android.support.customtabs.extra.MENU_ITEMS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS_CLICKED_ID:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS_CLICKED_ID`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS_CLICKED_ID`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS_PENDINGINTENT:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS_PENDINGINTENT`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS_PENDINGINTENT`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_REMOTEVIEWS_VIEW_IDS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.REMOTEVIEWS_VIEW_IDS`, was `android.support.customtabs.extra.EXTRA_REMOTEVIEWS_VIEW_IDS`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SECONDARY_TOOLBAR_COLOR:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.SECONDARY_TOOLBAR_COLOR`, was `android.support.customtabs.extra.SECONDARY_TOOLBAR_COLOR`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_SESSION:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.SESSION`, was `android.support.customtabs.extra.SESSION`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TINT_ACTION_BUTTON:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TINT_ACTION_BUTTON`, was `android.support.customtabs.extra.TINT_ACTION_BUTTON`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TITLE_VISIBILITY_STATE:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TITLE_VISIBILITY_STATE`, was `android.support.customtabs.extra.TITLE_VISIBILITY`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TOOLBAR_COLOR:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TOOLBAR_COLOR`, was `android.support.customtabs.extra.TOOLBAR_COLOR`
+ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_TOOLBAR_ITEMS:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.TOOLBAR_ITEMS`, was `android.support.customtabs.extra.TOOLBAR_ITEMS`
+ActionValue: androidx.browser.customtabs.CustomTabsService#ACTION_CUSTOM_TABS_CONNECTION:
+    Inconsistent action value; expected `androidx.browser.customtabs.action.CUSTOM_TABS_CONNECTION`, was `android.support.customtabs.action.CustomTabsService`
+ActionValue: androidx.browser.customtabs.TrustedWebUtils#EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY:
+    Inconsistent extra value; expected `androidx.browser.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`, was `android.support.customtabs.extra.LAUNCH_AS_TRUSTED_WEB_ACTIVITY`
+
+
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#navigationBarColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#secondaryToolbarColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.browser.customtabs.CustomTabColorSchemeParams#toolbarColor:
+    Must avoid boxed primitives (`java.lang.Integer`)
+
+
+CallbackMethodName: androidx.browser.customtabs.CustomTabsCallback:
+    Callback method names must follow the on<Something> style: extraCallback
+
+
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#openBrowserAction(android.content.Context, android.net.Uri, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>, android.app.PendingIntent) parameter #3:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#parseBrowserActionItems(java.util.ArrayList<android.os.Bundle>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent.Builder#setCustomItems(java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
+IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
+    Intent action constant name must be ACTION_FOO: KEY_ACTION

@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+CallbackMethodName: androidx.remotecallback.RemoteCallback:
+    Callback method names must follow the on<Something> style: getType
+
+
+ContextFirst: androidx.remotecallback.RemoteCallback#create(Class<T>, android.content.Context) parameter #1:
+    Context is distinct, so it must be the first argument (method `create`)
+
+
+ContextNameSuffix: androidx.remotecallback.AppWidgetProviderWithCallbacks:
+    Inconsistent class name; should be `<Foo>Receiver`, was `AppWidgetProviderWithCallbacks`
+ContextNameSuffix: androidx.remotecallback.BroadcastReceiverWithCallbacks:
+    Inconsistent class name; should be `<Foo>Receiver`, was `BroadcastReceiverWithCallbacks`
+ContextNameSuffix: androidx.remotecallback.ContentProviderWithCallbacks:
+    Inconsistent class name; should be `<Foo>Provider`, was `ContentProviderWithCallbacks`
+
+
+SingularCallback: androidx.remotecallback.AppWidgetProviderWithCallbacks:
+    Callback class names should be singular: AppWidgetProviderWithCallbacks
+SingularCallback: androidx.remotecallback.BroadcastReceiverWithCallbacks:
+    Callback class names should be singular: BroadcastReceiverWithCallbacks
+SingularCallback: androidx.remotecallback.ContentProviderWithCallbacks:
+    Callback class names should be singular: ContentProviderWithCallbacks

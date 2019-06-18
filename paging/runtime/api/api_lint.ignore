@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.paging.AsyncPagedListDiffer#getItem(int):
+    Method AsyncPagedListDiffer.getItem appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.AsyncPagedListDiffer#submitList(androidx.paging.PagedList<T>, Runnable):
+    Method AsyncPagedListDiffer.submitList appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

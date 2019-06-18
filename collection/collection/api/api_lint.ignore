@@ -1,0 +1,55 @@
+// Baseline format: 1.0
+KotlinOperator: androidx.collection.ArraySet#contains(Object):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.CircularArray#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.CircularIntArray#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.LongSparseArray#get(long):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.LongSparseArray#get(long, E):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.LruCache#get(K):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.SimpleArrayMap#get(Object):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.SparseArrayCompat#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.collection.SparseArrayCompat#get(int, E):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+NoClone: androidx.collection.LongSparseArray#clone():
+    Provide an explicit copy constructor instead of implementing `clone()`
+NoClone: androidx.collection.SparseArrayCompat#clone():
+    Provide an explicit copy constructor instead of implementing `clone()`
+
+
+VisiblySynchronized: androidx.collection.LruCache#createCount():
+    Internal locks must not be exposed: method androidx.collection.LruCache.createCount()
+VisiblySynchronized: androidx.collection.LruCache#evictionCount():
+    Internal locks must not be exposed: method androidx.collection.LruCache.evictionCount()
+VisiblySynchronized: androidx.collection.LruCache#get(K):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.get(K)
+VisiblySynchronized: androidx.collection.LruCache#hitCount():
+    Internal locks must not be exposed: method androidx.collection.LruCache.hitCount()
+VisiblySynchronized: androidx.collection.LruCache#maxSize():
+    Internal locks must not be exposed: method androidx.collection.LruCache.maxSize()
+VisiblySynchronized: androidx.collection.LruCache#missCount():
+    Internal locks must not be exposed: method androidx.collection.LruCache.missCount()
+VisiblySynchronized: androidx.collection.LruCache#put(K, V):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.put(K,V)
+VisiblySynchronized: androidx.collection.LruCache#putCount():
+    Internal locks must not be exposed: method androidx.collection.LruCache.putCount()
+VisiblySynchronized: androidx.collection.LruCache#remove(K):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.remove(K)
+VisiblySynchronized: androidx.collection.LruCache#resize(int):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.resize(int)
+VisiblySynchronized: androidx.collection.LruCache#size():
+    Internal locks must not be exposed: method androidx.collection.LruCache.size()
+VisiblySynchronized: androidx.collection.LruCache#snapshot():
+    Internal locks must not be exposed: method androidx.collection.LruCache.snapshot()
+VisiblySynchronized: androidx.collection.LruCache#toString():
+    Internal locks must not be exposed: method androidx.collection.LruCache.toString()
+VisiblySynchronized: androidx.collection.LruCache#trimToSize(int):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.collection.LruCache.trimToSize(int)

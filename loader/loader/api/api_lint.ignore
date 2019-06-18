@@ -1,0 +1,37 @@
+// Baseline format: 1.0
+CallbackName: androidx.loader.content.Loader.ForceLoadContentObserver:
+    Class should be named ForceLoadContentCallback
+
+
+NoClone: androidx.loader.app.LoaderManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.app.LoaderManager.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.loader.content.AsyncTaskLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.AsyncTaskLoader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.loader.content.CursorLoader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.CursorLoader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.loader.content.Loader#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.loader.content.Loader.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+
+
+RegistrationName: androidx.loader.content.Loader#registerListener(int, androidx.loader.content.Loader.OnLoadCompleteListener<D>):
+    Listener methods should be named add/remove; was registerListener
+RegistrationName: androidx.loader.content.Loader#registerOnLoadCanceledListener(androidx.loader.content.Loader.OnLoadCanceledListener<D>):
+    Listener methods should be named add/remove; was registerOnLoadCanceledListener
+RegistrationName: androidx.loader.content.Loader#unregisterListener(androidx.loader.content.Loader.OnLoadCompleteListener<D>):
+    Listener methods should be named add/remove; was unregisterListener
+RegistrationName: androidx.loader.content.Loader#unregisterOnLoadCanceledListener(androidx.loader.content.Loader.OnLoadCanceledListener<D>):
+    Listener methods should be named add/remove; was unregisterOnLoadCanceledListener
+
+
+SingletonConstructor: androidx.loader.app.LoaderManager#LoaderManager():
+    Singleton classes should use `getInstance()` methods: `LoaderManager`
+
+
+SingularCallback: androidx.loader.app.LoaderManager.LoaderCallbacks:
+    Callback class names should be singular: LoaderCallbacks
+
+
+VisiblySynchronized: androidx.loader.content.CursorLoader#cancelLoadInBackground():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.loader.content.CursorLoader.cancelLoadInBackground()
+VisiblySynchronized: androidx.loader.content.CursorLoader#loadInBackground():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.loader.content.CursorLoader.loadInBackground()

@@ -1,0 +1,69 @@
+// Baseline format: 1.0
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_END_SESSION:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.END_SESSION`, was `android.media.intent.action.END_SESSION`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_ENQUEUE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.ENQUEUE`, was `android.media.intent.action.ENQUEUE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_GET_SESSION_STATUS:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.GET_SESSION_STATUS`, was `android.media.intent.action.GET_SESSION_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_GET_STATUS:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.GET_STATUS`, was `android.media.intent.action.GET_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_PAUSE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.PAUSE`, was `android.media.intent.action.PAUSE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_PLAY:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.PLAY`, was `android.media.intent.action.PLAY`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_REMOVE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.REMOVE`, was `android.media.intent.action.REMOVE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_RESUME:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.RESUME`, was `android.media.intent.action.RESUME`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_SEEK:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.SEEK`, was `android.media.intent.action.SEEK`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_SEND_MESSAGE:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.SEND_MESSAGE`, was `android.media.intent.action.SEND_MESSAGE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_START_SESSION:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.START_SESSION`, was `android.media.intent.action.START_SESSION`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#ACTION_STOP:
+    Inconsistent action value; expected `androidx.mediarouter.media.action.STOP`, was `android.media.intent.action.STOP`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ERROR_CODE:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ERROR_CODE`, was `android.media.intent.extra.ERROR_CODE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_CONTENT_POSITION:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_CONTENT_POSITION`, was `android.media.intent.extra.ITEM_POSITION`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_HTTP_HEADERS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_HTTP_HEADERS`, was `android.media.intent.extra.HTTP_HEADERS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_ID:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_ID`, was `android.media.intent.extra.ITEM_ID`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_METADATA:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_METADATA`, was `android.media.intent.extra.ITEM_METADATA`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_STATUS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_STATUS`, was `android.media.intent.extra.ITEM_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_ITEM_STATUS_UPDATE_RECEIVER:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.ITEM_STATUS_UPDATE_RECEIVER`, was `android.media.intent.extra.ITEM_STATUS_UPDATE_RECEIVER`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_MESSAGE:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.MESSAGE`, was `android.media.intent.extra.MESSAGE`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_MESSAGE_RECEIVER:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.MESSAGE_RECEIVER`, was `android.media.intent.extra.MESSAGE_RECEIVER`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_SESSION_ID:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.SESSION_ID`, was `android.media.intent.extra.SESSION_ID`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_SESSION_STATUS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.SESSION_STATUS`, was `android.media.intent.extra.SESSION_STATUS`
+ActionValue: androidx.mediarouter.media.MediaControlIntent#EXTRA_SESSION_STATUS_UPDATE_RECEIVER:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.SESSION_STATUS_UPDATE_RECEIVER`, was `android.media.intent.extra.SESSION_STATUS_UPDATE_RECEIVER`
+ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_RESPONSE_HEADERS:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.HTTP_RESPONSE_HEADERS`, was `android.media.status.extra.HTTP_RESPONSE_HEADERS`
+ActionValue: androidx.mediarouter.media.MediaItemStatus#EXTRA_HTTP_STATUS_CODE:
+    Inconsistent extra value; expected `androidx.mediarouter.media.extra.HTTP_STATUS_CODE`, was `android.media.status.extra.HTTP_STATUS_CODE`
+
+
+InterfaceConstant: androidx.mediarouter.media.MediaRouteProviderService#SERVICE_INTERFACE:
+    Inconsistent interface constant; expected 'MediaRouteProviderService'`
+
+
+KotlinOperator: androidx.mediarouter.media.MediaRouteSelector#contains(androidx.mediarouter.media.MediaRouteSelector):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.mediarouter.media.MediaRouter#addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.mediarouter.media.MediaRouter#removeCallback(androidx.mediarouter.media.MediaRouter.Callback):
+    Callback methods should be named register/unregister; was removeCallback

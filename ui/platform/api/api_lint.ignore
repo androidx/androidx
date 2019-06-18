@@ -1,0 +1,27 @@
+// Baseline format: 1.0
+AutoBoxing: androidx.ui.core.semantics.SemanticsConfiguration#getScrollExtentMax():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.core.semantics.SemanticsConfiguration#getScrollExtentMin():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.core.semantics.SemanticsConfiguration#getScrollPosition():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.core.semantics.SemanticsConfiguration#setScrollExtentMax(Float) parameter #0:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.core.semantics.SemanticsConfiguration#setScrollExtentMin(Float) parameter #0:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.core.semantics.SemanticsConfiguration#setScrollPosition(Float) parameter #0:
+    Must avoid boxed primitives (`java.lang.Float`)
+
+
+DocumentExceptions: androidx.ui.core.AndroidCraneView#onAttach(androidx.ui.core.ComponentNode):
+    Method AndroidCraneView.onAttach appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.core.ComponentNodesKt#childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition):
+    Method ComponentNodesKt.childToLocal appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
+    Don't expose your implementation details: `SemanticsTreeNodeImpl` ends with `Impl`
+
+
+KotlinOperator: androidx.ui.core.ComponentNode#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)

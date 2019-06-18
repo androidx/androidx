@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+CallbackMethodName: androidx.customview.widget.ViewDragHelper.Callback:
+    Callback method names must follow the on<Something> style: getOrderedChildIndex
+
+
+ParcelConstructor: androidx.customview.view.AbsSavedState#AbsSavedState(android.os.Parcel):
+    Parcelable inflation is exposed through CREATOR, not raw constructors, in androidx.customview.view.AbsSavedState
+
+
+ParcelNotFinal: androidx.customview.view.AbsSavedState:
+    Parcelable classes must be final: androidx.customview.view.AbsSavedState is not final
