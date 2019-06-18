@@ -17,10 +17,9 @@
 package androidx.fragment.app
 
 import android.os.Bundle
-import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle.State.CREATED
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.SavedStateRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -67,9 +66,8 @@ class FragmentSavedStateRegistryTest {
         initializeSavedState()
         val recreated = activityRule.recreate()
         activityRule.runOnUiThread {
-            recreated.fragment().lifecycle.addObserver(object : LifecycleObserver {
-                @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-                fun onResume() {
+            recreated.fragment().lifecycle.addObserver(object : DefaultLifecycleObserver {
+                override fun onResume(owner: LifecycleOwner) {
                     checkDefaultSavedState(recreated.fragment().savedStateRegistry)
                 }
             })
