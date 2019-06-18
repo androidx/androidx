@@ -38,6 +38,7 @@ import androidx.car.util.CarUxRestrictionsHelper;
 import androidx.car.util.ListItemBackgroundResolver;
 import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.lang.annotation.Retention;
@@ -301,7 +302,7 @@ public class ListItemAdapter extends
 
         TypedArray a = mContext.getTheme().obtainStyledAttributes(R.styleable.ListItem);
         mListItemBackgroundColor = a.getColor(R.styleable.ListItem_listItemBackgroundColor,
-                mContext.getColor(R.color.car_card));
+                ContextCompat.getColor(mContext, R.color.car_card));
         a.recycle();
     }
 
