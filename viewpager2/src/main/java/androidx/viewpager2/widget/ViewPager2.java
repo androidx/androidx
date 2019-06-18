@@ -209,7 +209,7 @@ public final class ViewPager2 extends ViewGroup {
         pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
         // Allow a11y to register its listeners just after currentItemUpdater (so it has the
         // right data). TODO: replace ordering comments with a test.
-        mAccessibilityProvider.onInitialize(pageChangeEventDispatcher, mRecyclerView);
+        mAccessibilityProvider.onInitialize(mRecyclerView);
         pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
         // Add mPageTransformerAdapter after mExternalPageChangeCallbacks, because page transform
@@ -1076,8 +1076,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     private interface AccessibilityProvider {
-        void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
-                @NonNull RecyclerView recyclerView);
+        void onInitialize(@NonNull RecyclerView recyclerView);
         boolean handlesGetAccessibilityClassName();
         String onGetAccessibilityClassName();
         void onRestorePendingState();
@@ -1119,8 +1118,7 @@ public final class ViewPager2 extends ViewGroup {
         private RecyclerView.AdapterDataObserver mAdapterDataObserver;
 
         @Override
-        public void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
-                @NonNull RecyclerView recyclerView) {
+        public void onInitialize(@NonNull RecyclerView recyclerView) {
             ViewCompat.setImportantForAccessibility(recyclerView,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
