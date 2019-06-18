@@ -301,13 +301,13 @@ public interface WorkSpecDao {
     List<WorkSpec> getScheduledWork();
 
     /**
-     * @return The List of {@link WorkSpec}s that are unfinished and scheduled.
+     * @return The List of {@link WorkSpec}s that are running.
      */
     @Query("SELECT * FROM workspec WHERE "
             // Unfinished work
-            + "state=" + WorkTypeConverters.StateIds.ENQUEUED
+            + "state=" + WorkTypeConverters.StateIds.RUNNING
     )
-    List<WorkSpec> getEnqueuedWork();
+    List<WorkSpec> getRunningWork();
 
     /**
      * Immediately prunes eligible work from the database meeting the following criteria:

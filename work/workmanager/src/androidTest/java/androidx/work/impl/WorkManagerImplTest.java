@@ -93,6 +93,7 @@ import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
+import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.Preferences;
 import androidx.work.impl.utils.RepeatRule;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
@@ -1461,7 +1462,7 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
-    public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
+    public void testForceStopRunnable_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
@@ -1471,12 +1472,11 @@ public class WorkManagerImplTest {
 
         assertThat(workSpecDao.getState(work.getStringId()), is(RUNNING));
 
-        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
-        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        WorkDatabase.generateCleanupCallback().onOpen(db);
+        ForceStopRunnable runnable = new ForceStopRunnable(mContext, mWorkManagerImpl);
+        runnable.run();
 
-        assertThat(workSpecDao.getState(work.getStringId()), is(ENQUEUED));
-        assertThat(work.getWorkSpec().scheduleRequestedAt, is(SCHEDULE_NOT_REQUESTED_YET));
+        assertThat(workSpecDao.getWorkSpec(work.getStringId()).scheduleRequestedAt,
+                is(not(SCHEDULE_NOT_REQUESTED_YET)));
     }
 
     @Test
