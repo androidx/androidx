@@ -993,13 +993,13 @@ class ParagraphAndroidTest {
             fontFamily = fontFamily,
             fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.bold,
-            fontSynthesis = FontSynthesis.none
+            fontSynthesis = FontSynthesis.None
         )
         val expectedTypeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
             fontStyle = FontStyle.Italic,
             fontWeight = FontWeight.bold,
-            fontSynthesis = FontSynthesis.none
+            fontSynthesis = FontSynthesis.None
         )
         val expectedStart = 0
         val expectedEnd = "abc".length
@@ -1078,7 +1078,7 @@ class ParagraphAndroidTest {
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.bold),
             fontStyle = eq(FontStyle.Normal),
-            fontSynthesis = eq(FontSynthesis.all)
+            fontSynthesis = eq(FontSynthesis.All)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -1102,7 +1102,7 @@ class ParagraphAndroidTest {
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.normal),
             fontStyle = eq(FontStyle.Italic),
-            fontSynthesis = eq(FontSynthesis.all)
+            fontSynthesis = eq(FontSynthesis.All)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -1127,7 +1127,7 @@ class ParagraphAndroidTest {
             fontFamily = eq(fontFamily),
             fontWeight = eq(FontWeight.normal),
             fontStyle = eq(FontStyle.Normal),
-            fontSynthesis = eq(FontSynthesis.all)
+            fontSynthesis = eq(FontSynthesis.All)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -1150,7 +1150,7 @@ class ParagraphAndroidTest {
             fontFamily = eq(fontFamily),
             fontWeight = eq(FontWeight.normal),
             fontStyle = eq(FontStyle.Normal),
-            fontSynthesis = eq(FontSynthesis.all)
+            fontSynthesis = eq(FontSynthesis.All)
         )
         val typeface = paragraph.textPaint.typeface
         assertThat(typeface.isBold, equalTo(false))

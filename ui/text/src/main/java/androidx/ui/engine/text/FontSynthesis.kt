@@ -18,8 +18,8 @@ package androidx.ui.engine.text
 /**
  *  Whether to synthesize custom fonts. Can be used with custom font families. Work the same way as
  *  [CSS font-synthesis](https://www.w3.org/TR/css-fonts-4/#font-synthesis) property. For example,
- *  When weight synthesis is turned on using [FontSynthesis.weight], and if custom font family does
- *  not include a requested weight, the system will try to fake bold the given font. It is possible
+ *  When Weight synthesis is turned on using [FontSynthesis.Weight], and if custom font family does
+ *  not include a requested Weight, the system will try to fake bold the given font. It is possible
  *  to make a regular font fake italic, but not vice versa. Similarly it is possible to fake bold
  *  a font during rendering, but not fake thinner.
  **/
@@ -27,26 +27,26 @@ enum class FontSynthesis {
     /**
      * Turns off font synthesis.
      */
-    none,
+    None,
 
     /**
      * Synthesize weight
      */
-    weight,
+    Weight,
 
     /**
      * Synthesize style
      */
-    style,
+    Style,
 
     /**
      * Synthesize weight and style
      */
-    all;
+    All;
 
     internal val isWeightOn: Boolean
-        get() = this == all || this == weight
+        get() = this == All || this == Weight
 
     internal val isStyleOn: Boolean
-        get() = this == all || this == style
+        get() = this == All || this == Style
 }

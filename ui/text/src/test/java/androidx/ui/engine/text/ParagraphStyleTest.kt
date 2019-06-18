@@ -65,7 +65,7 @@ class ParagraphStyleTest {
         val lineHeight = 2.0f
         val ellipsis = true
         val locale = Locale("en")
-        val fontSynthesis = FontSynthesis.style
+        val fontSynthesis = FontSynthesis.Style
 
         val paragraphStyle = ParagraphStyle(
             textAlign = textAlign,
@@ -133,7 +133,7 @@ class ParagraphStyleTest {
         val lineHeight = 2.0f
         val ellipsis = false
         val locale = Locale("en")
-        val fontSynthesis = FontSynthesis.style
+        val fontSynthesis = FontSynthesis.Style
 
         val paragraphStyle = ParagraphStyle(
             textAlign = textAlign,

@@ -23,10 +23,10 @@ package androidx.ui.engine.text {
   }
 
   public enum FontSynthesis {
-    enum_constant public static final androidx.ui.engine.text.FontSynthesis all;
-    enum_constant public static final androidx.ui.engine.text.FontSynthesis none;
-    enum_constant public static final androidx.ui.engine.text.FontSynthesis style;
-    enum_constant public static final androidx.ui.engine.text.FontSynthesis weight;
+    enum_constant public static final androidx.ui.engine.text.FontSynthesis All;
+    enum_constant public static final androidx.ui.engine.text.FontSynthesis None;
+    enum_constant public static final androidx.ui.engine.text.FontSynthesis Style;
+    enum_constant public static final androidx.ui.engine.text.FontSynthesis Weight;
   }
 
   public final class FontWeight implements java.lang.Comparable<androidx.ui.engine.text.FontWeight> {

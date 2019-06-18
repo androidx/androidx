@@ -154,7 +154,7 @@ internal class ParagraphAndroid constructor(
                 fontFamily = paragraphStyle.fontFamily,
                 fontWeight = paragraphStyle.fontWeight ?: FontWeight.normal,
                 fontStyle = paragraphStyle.fontStyle ?: FontStyle.Normal,
-                fontSynthesis = paragraphStyle.fontSynthesis ?: FontSynthesis.all
+                fontSynthesis = paragraphStyle.fontSynthesis ?: FontSynthesis.All
 
             )
         }
@@ -439,7 +439,7 @@ internal class ParagraphAndroid constructor(
                     fontFamily = style.fontFamily,
                     fontWeight = style.fontWeight ?: FontWeight.normal,
                     fontStyle = style.fontStyle ?: FontStyle.Normal,
-                    fontSynthesis = style.fontSynthesis ?: FontSynthesis.all
+                    fontSynthesis = style.fontSynthesis ?: FontSynthesis.All
                 )
                 spannableString.setSpan(
                     TypefaceSpan(typeface),
