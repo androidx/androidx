@@ -615,6 +615,22 @@ public class VideoView extends SelectiveLayout {
 
     class PlayerCallback extends PlayerWrapper.PlayerCallback {
         @Override
+        void onConnected(@NonNull PlayerWrapper player) {
+            if (DEBUG) {
+                Log.d(TAG, "onConnected()");
+            }
+            if (player != mPlayer) {
+                if (DEBUG) {
+                    Log.w(TAG, "onConnected() is ignored. player is already gone.");
+                }
+                return;
+            }
+            if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
+                Log.w(TAG, "failed to assign surface");
+            }
+        }
+
+        @Override
         void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull MediaItem item,
                 @NonNull VideoSize videoSize) {
             if (DEBUG) {
