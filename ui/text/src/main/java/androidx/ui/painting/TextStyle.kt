@@ -58,7 +58,7 @@ private const val _defaultFontSize: Float = 14.0f
  * @param wordSpacing The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word). Only works on Android Q and above.
  * @param baselineShift This parameter specifies how much the baseline is shifted from the current position.
  * @param textGeometricTransform The geometric transformation applied the text.
- * @param height The height of this text span, as a multiple of the font size.
+ * @param lineHeight The line height for this text, as a multiple of the font size.
  * @param locale The locale used to select region-specific glyphs.
  * @param background The background color for the text.
  * @param decoration The decorations to paint near the text (e.g., an underline).
@@ -80,7 +80,7 @@ data class TextStyle(
     val wordSpacing: Float? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
-    val height: Float? = null,
+    val lineHeight: Float? = null,
     val locale: Locale? = null,
     val background: Color? = null,
     val decoration: TextDecoration? = null,
@@ -127,7 +127,7 @@ data class TextStyle(
             wordSpacing = other.wordSpacing ?: this.wordSpacing,
             baselineShift = other.baselineShift ?: this.baselineShift,
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
-            height = other.height ?: this.height,
+            lineHeight = other.lineHeight ?: this.lineHeight,
             locale = other.locale ?: this.locale,
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
@@ -233,7 +233,7 @@ data class TextStyle(
                     b.textGeometricTransform ?: TextGeometricTransform.None,
                     t
                 ),
-                height = lerpFloat(a.height, b.height, t),
+                lineHeight = lerpFloat(a.lineHeight, b.lineHeight, t),
                 locale = lerpDiscrete(a.locale, b.locale, t),
                 background = lerpDiscrete(a.background, b.background, t),
                 decoration = lerpDiscrete(a.decoration, b.decoration, t),
@@ -270,7 +270,7 @@ data class TextStyle(
             baselineShift = baselineShift,
             textGeometricTransform = textGeometricTransform,
             textAlign = textAlign,
-            height = height,
+            lineHeight = lineHeight,
             locale = locale,
             background = background,
             shadow = shadow
@@ -303,7 +303,7 @@ data class TextStyle(
             maxLines = maxLines,
             fontFamily = fontFamily,
             fontSize = (fontSize ?: _defaultFontSize) * textScaleFactor,
-            lineHeight = height,
+            lineHeight = lineHeight,
             ellipsis = ellipsis,
             locale = locale,
             fontSynthesis = fontSynthesis
@@ -332,7 +332,7 @@ data class TextStyle(
             wordSpacing != other.wordSpacing ||
             baselineShift != other.baselineShift ||
             textGeometricTransform != other.textGeometricTransform ||
-            height != other.height ||
+            lineHeight != other.lineHeight ||
             locale != other.locale ||
             background != other.background
         ) {
