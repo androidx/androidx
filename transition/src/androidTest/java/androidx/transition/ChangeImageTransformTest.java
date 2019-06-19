@@ -23,7 +23,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
@@ -95,6 +94,13 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
         transformImage(ImageView.ScaleType.FIT_START, ImageView.ScaleType.CENTER);
         verifyMatrixMatches(fitStartMatrix(), mStartMatrix);
         verifyMatrixMatches(centerMatrix(), mEndMatrix);
+    }
+
+    @Test
+    public void testNoChange() throws Throwable {
+        transformImage(ImageView.ScaleType.CENTER, ImageView.ScaleType.CENTER);
+        assertNull(mStartMatrix);
+        assertNull(mEndMatrix);
     }
 
     @Test
@@ -288,21 +294,20 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
             final boolean withChangingSize,
             final boolean noMatrixChangeExpected) throws Throwable {
         final ImageView imageView = enterImageViewScene(startScale, customImage, applyPadding);
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TransitionManager.beginDelayedTransition(mRoot, mChangeImageTransform);
-                if (withChangingSize) {
-                    imageView.getLayoutParams().height /= 2;
-                    imageView.requestLayout();
-                }
-                imageView.setScaleType(endScale);
+        rule.runOnUiThread(() -> {
+            TransitionManager.beginDelayedTransition(mRoot, mChangeImageTransform);
+            if (withChangingSize) {
+                imageView.getLayoutParams().height /= 2;
+                imageView.requestLayout();
             }
+            imageView.setScaleType(endScale);
         });
-        waitForStart();
-        verify(mListener, (noMatrixChangeExpected) ? times(1) : never())
-                .onTransitionEnd(any(Transition.class));
-        waitForEnd();
+        if (noMatrixChangeExpected) {
+            verify(mListener, never()).onTransitionStart(any(Transition.class));
+        } else {
+            waitForStart();
+            waitForEnd();
+        }
     }
 
     private ImageView enterImageViewScene(final ImageView.ScaleType scaleType,
