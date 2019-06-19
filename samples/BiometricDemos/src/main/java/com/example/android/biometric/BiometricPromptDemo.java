@@ -16,7 +16,6 @@
 
 package com.example.android.biometric;
 
-import android.hardware.biometrics.BiometricManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +33,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.FragmentActivity;
 
@@ -178,35 +178,30 @@ public class BiometricPromptDemo extends FragmentActivity {
         }
         buttonAuthenticate.setOnClickListener(v -> startAuthentication());
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            mConfirmationRequiredCheckbox.setEnabled(false);
-            mConfirmationRequiredCheckbox.setChecked(false);
-        }
-        if (Build.VERSION.SDK_INT >= 29) {
-            canAuthenticate.setOnClickListener(v -> {
-                BiometricManager bm = getApplicationContext().getSystemService(
-                        BiometricManager.class);
-                String message;
-                switch (bm.canAuthenticate()) {
-                    case BiometricManager.BIOMETRIC_SUCCESS:
-                        message = BIOMETRIC_SUCCESS_MESSAGE;
-                        break;
-                    case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                        message = BIOMETRIC_ERROR_HW_UNAVAILABLE_MESSAGE;
-                        break;
-                    case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                        message = BIOMETRIC_ERROR_NONE_ENROLLED_MESSAGE;
-                        break;
-                    default:
-                        message = BIOMETRIC_ERROR_UNKNOWN;
-                }
-                Toast.makeText(getApplicationContext(), "canAuthenticate : " + message,
-                        Toast.LENGTH_SHORT).show();
-            });
-        } else {
+        canAuthenticate.setOnClickListener(v -> {
+            BiometricManager bm = BiometricManager.from(getApplicationContext());
+            String message;
+            switch (bm.canAuthenticate()) {
+                case BiometricManager.BIOMETRIC_SUCCESS:
+                    message = BIOMETRIC_SUCCESS_MESSAGE;
+                    break;
+                case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
+                    message = BIOMETRIC_ERROR_HW_UNAVAILABLE_MESSAGE;
+                    break;
+                case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
+                    message = BIOMETRIC_ERROR_NONE_ENROLLED_MESSAGE;
+                    break;
+                default:
+                    message = BIOMETRIC_ERROR_UNKNOWN;
+            }
+            Toast.makeText(getApplicationContext(), "canAuthenticate : " + message,
+                    Toast.LENGTH_SHORT).show();
+        });
+
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             mDeviceCredentialAllowedCheckbox.setEnabled(false);
             mDeviceCredentialAllowedCheckbox.setChecked(false);
-            canAuthenticate.setVisibility(View.GONE);
         }
 
     }
@@ -231,7 +226,7 @@ public class BiometricPromptDemo extends FragmentActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_COUNTER, mCounter);
     }
@@ -264,7 +259,7 @@ public class BiometricPromptDemo extends FragmentActivity {
                                 + mCounter)
                 .setConfirmationRequired(mConfirmationRequiredCheckbox.isChecked());
 
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             if (mDeviceCredentialAllowedCheckbox.isChecked()) {
                 builder.setDeviceCredentialAllowed(true);
             } else {
