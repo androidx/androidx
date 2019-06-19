@@ -55,5 +55,3 @@ RemovedMethod: androidx.slice.builders.TemplateSliceBuilder#selectImpl(android.n
     Removed method androidx.slice.builders.TemplateSliceBuilder.selectImpl(android.net.Uri)
 RemovedMethod: androidx.slice.builders.impl.GridRowBuilderListV1Impl#GridRowBuilderListV1Impl(androidx.slice.builders.impl.ListBuilderV1Impl, androidx.slice.builders.GridRowBuilder):
     Removed constructor androidx.slice.builders.impl.GridRowBuilderListV1Impl(androidx.slice.builders.impl.ListBuilderV1Impl,androidx.slice.builders.GridRowBuilder)
-
-
