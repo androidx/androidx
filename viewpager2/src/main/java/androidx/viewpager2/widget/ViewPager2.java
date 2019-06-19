@@ -52,7 +52,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -90,6 +89,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     /** @hide */
+    @SuppressWarnings("WeakerAccess")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef({OFFSCREEN_PAGE_LIMIT_DEFAULT})
@@ -120,9 +120,6 @@ public final class ViewPager2 extends ViewGroup {
      * @see #setOffscreenPageLimit(int)
      */
     public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1;
-
-    /** Feature flag while stabilizing enhanced a11y */
-    static boolean sFeatureEnhancedA11yEnabled = false;
 
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
@@ -167,9 +164,7 @@ public final class ViewPager2 extends ViewGroup {
     }
 
     private void initialize(Context context, AttributeSet attrs) {
-        mAccessibilityProvider = sFeatureEnhancedA11yEnabled
-                ? new PageAwareAccessibilityProvider()
-                : new BasicAccessibilityProvider();
+        mAccessibilityProvider = new PageAwareAccessibilityProvider();
 
         mRecyclerView = new RecyclerViewImpl(context);
         mRecyclerView.setId(ViewCompat.generateViewId());
@@ -214,7 +209,7 @@ public final class ViewPager2 extends ViewGroup {
         pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
         // Allow a11y to register its listeners just after currentItemUpdater (so it has the
         // right data). TODO: replace ordering comments with a test.
-        mAccessibilityProvider.onInitialize(pageChangeEventDispatcher, mRecyclerView);
+        mAccessibilityProvider.onInitialize(mRecyclerView);
         pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
         // Add mPageTransformerAdapter after mExternalPageChangeCallbacks, because page transform
@@ -252,10 +247,7 @@ public final class ViewPager2 extends ViewGroup {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        if (mAccessibilityProvider.handlesGetAccessibilityClassName()) {
-            return mAccessibilityProvider.onGetAccessibilityClassName();
-        }
-        return super.getAccessibilityClassName();
+        return mAccessibilityProvider.onGetAccessibilityClassName();
     }
 
     private void setOrientation(Context context, AttributeSet attrs) {
@@ -271,6 +263,7 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Nullable
     @Override
     protected Parcelable onSaveInstanceState() {
@@ -283,7 +276,7 @@ public final class ViewPager2 extends ViewGroup {
         if (mPendingAdapterState != null) {
             ss.mAdapterState = mPendingAdapterState;
         } else {
-            Adapter adapter = mRecyclerView.getAdapter();
+            Adapter<?> adapter = mRecyclerView.getAdapter();
             if (adapter instanceof StatefulAdapter) {
                 ss.mAdapterState = ((StatefulAdapter) adapter).saveState();
             }
@@ -310,7 +303,7 @@ public final class ViewPager2 extends ViewGroup {
             // No state to restore, or state is already restored
             return;
         }
-        Adapter adapter = getAdapter();
+        Adapter<?> adapter = getAdapter();
         if (adapter == null) {
             return;
         }
@@ -423,13 +416,14 @@ public final class ViewPager2 extends ViewGroup {
      * @see androidx.viewpager2.adapter.FragmentStateAdapter
      * @see RecyclerView#setAdapter(Adapter)
      */
-    public void setAdapter(@Nullable Adapter adapter) {
+    public void setAdapter(@Nullable @SuppressWarnings("rawtypes") Adapter adapter) {
         mAccessibilityProvider.onDetachAdapter(mRecyclerView.getAdapter());
         mRecyclerView.setAdapter(adapter);
         restorePendingState();
         mAccessibilityProvider.onAttachAdapter(adapter);
     }
 
+    @SuppressWarnings("rawtypes")
     public @Nullable Adapter getAdapter() {
         return mRecyclerView.getAdapter();
     }
@@ -535,7 +529,7 @@ public final class ViewPager2 extends ViewGroup {
             throw new IllegalStateException("Cannot change current item when ViewPager2 is fake "
                     + "dragging");
         }
-        Adapter adapter = getAdapter();
+        Adapter<?> adapter = getAdapter();
         if (adapter == null) {
             // Update the pending current item if we're still waiting for the adapter
             if (mPendingCurrentItem != NO_POSITION) {
@@ -846,6 +840,7 @@ public final class ViewPager2 extends ViewGroup {
         mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
+    @RequiresApi(16)
     @Override
     public boolean performAccessibilityAction(int action, Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
@@ -861,14 +856,6 @@ public final class ViewPager2 extends ViewGroup {
     private class RecyclerViewImpl extends RecyclerView {
         RecyclerViewImpl(@NonNull Context context) {
             super(context);
-        }
-
-        @Override
-        public CharSequence getAccessibilityClassName() {
-            if (mAccessibilityProvider.handlesRvGetAccessibilityClassName()) {
-                return mAccessibilityProvider.onRvGetAccessibilityClassName();
-            }
-            return super.getAccessibilityClassName();
         }
 
         @Override
@@ -894,22 +881,6 @@ public final class ViewPager2 extends ViewGroup {
     private class LinearLayoutManagerImpl extends LinearLayoutManager {
         LinearLayoutManagerImpl(Context context) {
             super(context);
-        }
-
-        @Override
-        public boolean performAccessibilityAction(@NonNull RecyclerView.Recycler recycler,
-                @NonNull RecyclerView.State state, int action, @Nullable Bundle args) {
-            if (mAccessibilityProvider.handlesLmPerformAccessibilityAction(action)) {
-                return mAccessibilityProvider.onLmPerformAccessibilityAction(action);
-            }
-            return super.performAccessibilityAction(recycler, state, action, args);
-        }
-
-        @Override
-        public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
-                @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
-            super.onInitializeAccessibilityNodeInfo(recycler, state, info);
-            mAccessibilityProvider.onLmInitializeAccessibilityNodeInfo(info);
         }
 
         @Override
@@ -1102,115 +1073,23 @@ public final class ViewPager2 extends ViewGroup {
         mRecyclerView.removeItemDecoration(decor);
     }
 
-    private abstract class AccessibilityProvider {
-        void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
-                @NonNull RecyclerView recyclerView) {
-        }
-
-        boolean handlesGetAccessibilityClassName() {
-            return false;
-        }
-
-        String onGetAccessibilityClassName() {
-            throw new IllegalStateException("Not implemented.");
-        }
-
-        void onRestorePendingState() {
-        }
-
-        void onAttachAdapter(@Nullable Adapter newAdapter) {
-        }
-
-        void onDetachAdapter(@Nullable Adapter oldAdapter) {
-        }
-
-        void onSetOrientation() {
-        }
-
-        void onSetNewCurrentItem() {
-        }
-
-        void onSetUserInputEnabled() {
-        }
-
-        void onSetLayoutDirection() {
-        }
-
-        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info) {
-        }
-
-        boolean handlesPerformAccessibilityAction(int action, Bundle arguments) {
-            return false;
-        }
-
-        boolean onPerformAccessibilityAction(int action, Bundle arguments) {
-            throw new IllegalStateException("Not implemented.");
-        }
-
-        void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
-        }
-
-        boolean handlesLmPerformAccessibilityAction(int action) {
-            return false;
-        }
-
-        boolean onLmPerformAccessibilityAction(int action) {
-            throw new IllegalStateException("Not implemented.");
-        }
-
-        void onLmInitializeAccessibilityNodeInfo(@NonNull AccessibilityNodeInfoCompat info) {
-        }
-
-        boolean handlesRvGetAccessibilityClassName() {
-            return false;
-        }
-
-        CharSequence onRvGetAccessibilityClassName() {
-            throw new IllegalStateException("Not implemented.");
-        }
+    private interface AccessibilityProvider {
+        void onInitialize(@NonNull RecyclerView recyclerView);
+        String onGetAccessibilityClassName();
+        void onRestorePendingState();
+        void onAttachAdapter(@Nullable Adapter<?> newAdapter);
+        void onDetachAdapter(@Nullable Adapter<?> oldAdapter);
+        void onSetOrientation();
+        void onSetNewCurrentItem();
+        void onSetUserInputEnabled();
+        void onSetLayoutDirection();
+        void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfo info);
+        boolean handlesPerformAccessibilityAction(int action, Bundle arguments);
+        boolean onPerformAccessibilityAction(int action, Bundle arguments);
+        void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event);
     }
 
-    class BasicAccessibilityProvider extends AccessibilityProvider {
-        @Override
-        public boolean handlesLmPerformAccessibilityAction(int action) {
-            return (action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
-                    || action == AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD)
-                    && !isUserInputEnabled();
-        }
-
-        @Override
-        public boolean onLmPerformAccessibilityAction(int action) {
-            if (!handlesLmPerformAccessibilityAction(action)) {
-                throw new IllegalStateException();
-            }
-            return false;
-        }
-
-        @Override
-        public void onLmInitializeAccessibilityNodeInfo(
-                @NonNull AccessibilityNodeInfoCompat info) {
-            if (!isUserInputEnabled()) {
-                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_BACKWARD);
-                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_FORWARD);
-                info.setScrollable(false);
-            }
-        }
-
-        @Override
-        public boolean handlesRvGetAccessibilityClassName() {
-            return true;
-        }
-
-        @Override
-        public CharSequence onRvGetAccessibilityClassName() {
-            if (!handlesRvGetAccessibilityClassName()) {
-                throw new IllegalStateException();
-            }
-            return "androidx.viewpager.widget.ViewPager";
-        }
-    }
-
-    class PageAwareAccessibilityProvider extends AccessibilityProvider {
+    class PageAwareAccessibilityProvider implements AccessibilityProvider {
         private final AccessibilityViewCommand mActionPageForward =
                 new AccessibilityViewCommand() {
                     @Override
@@ -1236,8 +1115,7 @@ public final class ViewPager2 extends ViewGroup {
         private RecyclerView.AdapterDataObserver mAdapterDataObserver;
 
         @Override
-        public void onInitialize(@NonNull CompositeOnPageChangeCallback pageChangeEventDispatcher,
-                @NonNull RecyclerView recyclerView) {
+        public void onInitialize(@NonNull RecyclerView recyclerView) {
             ViewCompat.setImportantForAccessibility(recyclerView,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
@@ -1257,15 +1135,7 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
-        public boolean handlesGetAccessibilityClassName() {
-            return true;
-        }
-
-        @Override
         public String onGetAccessibilityClassName() {
-            if (!handlesGetAccessibilityClassName()) {
-                throw new IllegalStateException();
-            }
             return "androidx.viewpager.widget.ViewPager";
         }
 
@@ -1275,7 +1145,7 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
-        public void onAttachAdapter(@Nullable Adapter newAdapter) {
+        public void onAttachAdapter(@Nullable Adapter<?> newAdapter) {
             updatePageAccessibilityActions();
             if (newAdapter != null) {
                 newAdapter.registerAdapterDataObserver(mAdapterDataObserver);
@@ -1283,7 +1153,7 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
-        public void onDetachAdapter(@Nullable Adapter oldAdapter) {
+        public void onDetachAdapter(@Nullable Adapter<?> oldAdapter) {
             if (oldAdapter != null) {
                 oldAdapter.unregisterAdapterDataObserver(mAdapterDataObserver);
             }
@@ -1416,7 +1286,7 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         private void addScrollActions(AccessibilityNodeInfo info) {
-            final Adapter adapter = getAdapter();
+            final Adapter<?> adapter = getAdapter();
             if (adapter == null) {
                 return;
             }
