@@ -69,26 +69,26 @@ class StackChildren {
  * drawn in the order they are specified in the body of the [Stack].
  *
  * [Stack] children can be:
- * - [StackChildren.aligned], which are aligned in the box of the [Stack]. These are also the
- * children that define the size of the [Stack] box: this will be the maximum between the
- * minimum constraints and the size of the largest child.
- * - [StackChildren.positioned], which are positioned in the box defined as above, according to
+ * - [aligned], which are aligned in the box of the [Stack]. These are also the children that
+ * define the size of the [Stack] box: this will be the maximum between the minimum
+ * constraints and the size of the largest child.
+ * - [positioned], which are positioned in the box defined as above, according to
  * their specified insets. When the positioning of these is ambiguous in one direction (the
  * component has [null] left and right or top and bottom insets), the positioning in this direction
  * will be resolved according to the [Stack]'s defaultAlignment argument.
  *
  * Example usage:
- *     Stack { children ->
- *         children.aligned(Alignment.Center) {
+ *     Stack {
+ *         aligned(Alignment.Center) {
  *             SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 300.dp, height = 300.dp)
  *         }
- *         children.aligned(Alignment.TopLeft) {
+ *         aligned(Alignment.TopLeft) {
  *             SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 150.dp, height = 150.dp)
  *         }
- *         children.aligned(Alignment.BottomRight) {
+ *         aligned(Alignment.BottomRight) {
  *             SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 150.dp, height = 150.dp)
  *         }
- *         children.positioned(null, 20.dp, null, 20.dp) {
+ *         positioned(null, 20.dp, null, 20.dp) {
  *             SizedRectangle(color = Color(0xFFFFA500.toInt()), width = 80.dp)
  *             SizedRectangle(color = Color(0xFFA52A2A.toInt()), width = 20.dp)
  *         }
