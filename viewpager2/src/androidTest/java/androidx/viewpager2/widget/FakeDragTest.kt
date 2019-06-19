@@ -54,6 +54,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors.newSingleThreadExecutor
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
+import kotlin.math.min
 import kotlin.math.roundToInt
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING as DRAGGING
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE as IDLE
@@ -360,7 +361,11 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             // test assertions
             test.assertBasicState(expectedFinalPageWithOffset)
             recorder.apply {
-                scrollEvents.assertValueSanity(0, pageCount - 1, test.viewPager.pageSize)
+                scrollEvents.assertValueSanity(
+                    initialPage,
+                    min(pageCount - 1, expectedFinalPageWithOffset + 1 /* for peeking */),
+                    test.viewPager.pageSize
+                )
                 assertFirstEvents(DRAGGING)
                 assertLastEvents(expectedFinalPageWithOffset)
                 assertPageSelectedEvents(initialPage, expectedFinalPageWithOffset)
@@ -432,7 +437,8 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             // test assertions
             test.assertBasicState(expectedFinalPage)
             recorder.apply {
-                scrollEvents.assertValueSanity(0, pageCount - 1, test.viewPager.pageSize)
+                scrollEvents.assertValueSanity(initialPage, expectedFinalPage,
+                    test.viewPager.pageSize)
                 assertFirstEvents(SETTLING)
                 assertLastEvents(expectedFinalPage)
                 assertPageSelectedEvents(initialPage, settleTarget, expectedFinalPage)
@@ -512,7 +518,8 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             // test assertions
             test.assertBasicState(expectedFinalPage)
             recorder.apply {
-                scrollEvents.assertValueSanity(0, pageCount - 1, test.viewPager.pageSize)
+                scrollEvents.assertValueSanity(initialPage, expectedFinalPage + referencePageOffset,
+                    test.viewPager.pageSize)
                 assertFirstEvents(DRAGGING)
                 assertLastEvents(expectedFinalPage)
                 assertPageSelectedEvents(initialPage, expectedFinalPage)
@@ -657,7 +664,8 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         otherPage: Int,
         pageSize: Int
     ) = forEach {
-        assertThat(it.position, isBetweenInInMinMax(initialPage, otherPage))
+        assertThat(it.position + it.positionOffset,
+            isBetweenInInMinMax(initialPage.toFloat(), otherPage.toFloat()))
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))
         assertThat((it.positionOffset * pageSize).roundToInt(), equalTo(it.positionOffsetPixels))
     }
