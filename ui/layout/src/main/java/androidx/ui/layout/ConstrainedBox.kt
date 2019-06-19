@@ -16,13 +16,15 @@
 
 package androidx.ui.layout
 
-import androidx.ui.core.Constraints
-import androidx.ui.core.IntPx
-import androidx.ui.core.Layout
-import androidx.ui.core.enforce
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.Constraints
+import androidx.ui.core.ComplexLayout
+import androidx.ui.core.IntPx
+import androidx.ui.core.coerceIn
+import androidx.ui.core.enforce
+import androidx.ui.core.ipx
 
 /**
  * Widget that enforces additional [Constraints] to its only child. The ConstrainedBox will
@@ -38,15 +40,37 @@ fun ConstrainedBox(
     constraints: DpConstraints,
     @Children children: @Composable() () -> Unit
 ) {
-    Layout(layoutBlock = { measurables, incomingConstraints ->
-        val measurable = measurables.firstOrNull()
-        val childConstraints = Constraints(constraints).enforce(incomingConstraints)
-        val placeable = measurable?.measure(childConstraints)
+    ComplexLayout(children) {
+        layout { measurables, incomingConstraints ->
+            val measurable = measurables.firstOrNull()
+            val childConstraints = Constraints(constraints).enforce(incomingConstraints)
+            val placeable = measurable?.measure(childConstraints)
 
-        val layoutWidth = placeable?.width ?: childConstraints.minWidth
-        val layoutHeight = placeable?.height ?: childConstraints.minHeight
-        layout(layoutWidth, layoutHeight) {
-            placeable?.place(IntPx.Zero, IntPx.Zero)
+            val layoutWidth = placeable?.width ?: childConstraints.minWidth
+            val layoutHeight = placeable?.height ?: childConstraints.minHeight
+            layoutResult(layoutWidth, layoutHeight) {
+                placeable?.place(IntPx.Zero, IntPx.Zero)
+            }
         }
-    }, children = children)
+
+        minIntrinsicWidth { measurables, h ->
+            val width = measurables.firstOrNull()?.minIntrinsicWidth(h) ?: 0.ipx
+            width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
+        }
+
+        maxIntrinsicWidth { measurables, h ->
+            val width = measurables.firstOrNull()?.maxIntrinsicWidth(h) ?: 0.ipx
+            width.coerceIn(constraints.minWidth.toIntPx(), constraints.maxWidth.toIntPx())
+        }
+
+        minIntrinsicHeight { measurables, w ->
+            val height = measurables.firstOrNull()?.minIntrinsicHeight(w) ?: 0.ipx
+            height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
+        }
+
+        maxIntrinsicHeight { measurables, w ->
+            val height = measurables.firstOrNull()?.maxIntrinsicHeight(w) ?: 0.ipx
+            height.coerceIn(constraints.minHeight.toIntPx(), constraints.maxHeight.toIntPx())
+        }
+    }
 }
