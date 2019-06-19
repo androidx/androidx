@@ -18,33 +18,37 @@ package androidx.ui.engine.text
 import androidx.ui.lerp
 import kotlin.math.roundToInt
 
-// The thickness of the glyphs used to draw the text
-// TODO(Migration/siyamed): Check if index can be removed or converted into a function since the
-// same thing can be calculated using weight
-class FontWeight private constructor(val index: Int, internal val weight: Int) :
-    Comparable<FontWeight> {
+/**
+ * The thickness of the glyphs used to draw the text.
+ */
+/* inline */ data class FontWeight private constructor(
+    /**
+     * Can be in the range of [1,1000]
+     */
+    internal val weight: Int
+) : Comparable<FontWeight> {
 
     // TODO(Migration/siyamed): This is weird since it should actually be possible to create a font
     // weight that is not one of the items here. This decision changes the lerp behavior.
     companion object {
         // Thin, the least thick
-        val w100 = FontWeight(0, 100)
+        val w100 = FontWeight(100)
         // Extra-light
-        val w200 = FontWeight(1, 200)
+        val w200 = FontWeight(200)
         // Light
-        val w300 = FontWeight(2, 300)
+        val w300 = FontWeight(300)
         // Normal / regular / plain
-        val w400 = FontWeight(3, 400)
+        val w400 = FontWeight(400)
         // Medium
-        val w500 = FontWeight(4, 500)
+        val w500 = FontWeight(500)
         // Semi-bold
-        val w600 = FontWeight(5, 600)
+        val w600 = FontWeight(600)
         // Bold
-        val w700 = FontWeight(6, 700)
+        val w700 = FontWeight(700)
         // Extra-bold
-        val w800 = FontWeight(7, 800)
+        val w800 = FontWeight(800)
         // Black, the most thick
-        val w900 = FontWeight(8, 900)
+        val w900 = FontWeight(900)
         // The default font weight.
         val normal = w400
         // A commonly used font weight that is heavier than normal.
@@ -82,6 +86,8 @@ class FontWeight private constructor(val index: Int, internal val weight: Int) :
             ).roundToInt().coerceIn(0, 8)]
         }
     }
+
+    private val index: Int get() = weight / 100 - 1
 
     override fun compareTo(other: FontWeight): Int {
         return weight.compareTo(other.weight)
