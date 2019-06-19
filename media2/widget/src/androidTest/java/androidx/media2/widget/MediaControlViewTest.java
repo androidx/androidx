@@ -147,7 +147,7 @@ public class MediaControlViewTest {
                 }
             }
         });
-        waitToPrepare(mFileSchemeMediaItem);
+        setAndPrepare(mFileSchemeMediaItem);
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.pause), isCompletelyDisplayed())).perform(click());
         assertTrue(latchForPlayingState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -172,7 +172,7 @@ public class MediaControlViewTest {
                 }
             }
         });
-        waitToPrepare(mFileSchemeMediaItem);
+        setAndPrepare(mFileSchemeMediaItem);
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.ffwd), isCompletelyDisplayed())).perform(click());
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -213,7 +213,7 @@ public class MediaControlViewTest {
                 return (actual < expected + delta) && (actual > expected - delta);
             }
         });
-        waitToPrepare(mFileSchemeMediaItem);
+        setAndPrepare(mFileSchemeMediaItem);
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.rew), isCompletelyDisplayed())).perform(click());
         assertTrue(latchForRew.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -255,7 +255,7 @@ public class MediaControlViewTest {
                 latch.countDown();
             }
         });
-        waitToPrepare(uriMediaItem);
+        setAndPrepare(uriMediaItem);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(withId(R.id.subtitle)).check(matches(not(isDisplayed())));
     }
@@ -311,7 +311,7 @@ public class MediaControlViewTest {
         });
         // MediaPlayer needs a surface to be set in order to produce subtitle tracks
         mPlayer.setSurfaceInternal(mActivity.getSurfaceHolder().getSurface());
-        waitToPrepare(mediaItem);
+        setAndPrepare(mediaItem);
         assertTrue(latchForTrackUpdate.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         onView(withId(R.id.subtitle)).check(matches(isClickable()));
@@ -453,8 +453,8 @@ public class MediaControlViewTest {
         mPlayer.registerPlayerCallback(mMainHandlerExecutor, callback);
     }
 
-    private void waitToPrepare(MediaItem item) throws Exception {
+    private void setAndPrepare(MediaItem item) {
         mPlayer.setMediaItem(item);
-        mPlayer.prepare().get();
+        mPlayer.prepare();
     }
 }
