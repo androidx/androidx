@@ -78,7 +78,7 @@ fun TextDemo() {
                 TextDemoWordSpacing()
                 TagLine(tag = "baselineShift")
                 TextDemoBaselineShift()
-                TagLine(tag = "height")
+                TagLine(tag = "lineHeight")
                 TextDemoHeight()
                 TagLine(tag = "background")
                 TextDemoBackground()
@@ -329,7 +329,7 @@ fun TextDemoHeight() {
                 text = "$displayText\n$displayText   ",
                 style = TextStyle(
                     fontSize = fontSize8,
-                    height = 2.0f
+                    lineHeight = 2.0f
                 )
             )
         }

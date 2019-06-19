@@ -43,7 +43,7 @@ import androidx.ui.painting.Shadow
  * @param textBaseline The common baseline that should be aligned between this text span and its
  *  parent text span, or, for the root text spans, with the line box.
  * @param baselineShift This parameter specifies how much the baseline is shifted from the current position.
- * @param height The height of this text span, as a multiple of the font size.
+ * @param lineHeight The line height for this text, as a multiple of the font size.
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param locale The locale used to select region-specific glyphs.
  * @param background The background color for the text.
@@ -67,7 +67,7 @@ data class TextStyle constructor(
     val wordSpacing: Float? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
-    val height: Float? = null,
+    val lineHeight: Float? = null,
     val locale: Locale? = null,
     val background: Color? = null,
     val fontSynthesis: FontSynthesis? = null,
