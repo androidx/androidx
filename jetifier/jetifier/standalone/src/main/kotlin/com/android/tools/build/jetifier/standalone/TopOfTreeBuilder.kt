@@ -87,7 +87,7 @@ class TopOfTreeBuilder {
         val artifactDir = Paths.get(DIR_PREFIX, groupAsPath, pomDep.artifactId, pomDep.version!!)
         val newLibFilePath = Paths.get(artifactDir.toString(), "$baseFileName.$packaging")
         val newPomFilePath = Paths.get(artifactDir.toString(), "$baseFileName.pom")
-        val newSourcesFilePath = Paths.get(artifactDir.toString(), "$baseFileName-sources.zip")
+        val newSourcesFilePath = Paths.get(artifactDir.toString(), "$baseFileName-sources.jar")
 
         val newArtifactFile = ArchiveFile(newLibFilePath, artifactFile.data)
         val newPomFile = ArchiveFile(newPomFilePath, pomFile.data)
