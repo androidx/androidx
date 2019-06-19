@@ -17,7 +17,11 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
+import androidx.compose.Composable
+import androidx.compose.composer
 import androidx.ui.core.Constraints
+import androidx.ui.core.ComplexLayout
+import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
@@ -30,9 +34,9 @@ import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
+import androidx.ui.layout.AspectRatio
+import androidx.ui.layout.Center
 import androidx.ui.layout.Container
-import androidx.compose.Composable
-import androidx.compose.composer
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -143,5 +147,111 @@ class AlignTest : LayoutTest() {
         assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.BottomLeft.align(size))
         assertEquals(IntPxPosition(1.ipx, 2.ipx), Alignment.BottomCenter.align(size))
         assertEquals(IntPxPosition(2.ipx, 2.ipx), Alignment.BottomRight.align(size))
+    }
+
+    @Test
+    fun testAlign_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        val layoutLatch = CountDownLatch(1)
+        show {
+            Center {
+                val alignedChild = @Composable {
+                    Align(alignment = Alignment.TopLeft) {
+                        AspectRatio(2f) { }
+                    }
+                }
+                ComplexLayout(children = alignedChild) {
+                    layout { measurables, _ ->
+                        val alignMeasurable = measurables.first()
+                        // Min width.
+                        assertEquals(
+                            25.dp.toIntPx() * 2,
+                            alignMeasurable.minIntrinsicWidth(25.dp.toIntPx())
+                        )
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.minIntrinsicWidth(IntPx.Infinity)
+                        )
+                        // Min height.
+                        assertEquals(
+                            50.dp.toIntPx() / 2,
+                            alignMeasurable.minIntrinsicHeight(50.dp.toIntPx())
+                        )
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.minIntrinsicHeight(IntPx.Infinity)
+                        )
+                        // Max width.
+                        assertEquals(
+                            25.dp.toIntPx() * 2,
+                            alignMeasurable.maxIntrinsicWidth(25.dp.toIntPx())
+                        )
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.maxIntrinsicWidth(IntPx.Infinity)
+                        )
+                        // Max height.
+                        assertEquals(
+                            50.dp.toIntPx() / 2,
+                            alignMeasurable.maxIntrinsicHeight(50.dp.toIntPx())
+                        )
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.maxIntrinsicHeight(IntPx.Infinity)
+                        )
+                        layoutLatch.countDown()
+                    }
+                    minIntrinsicWidth { _, _ -> 0.ipx }
+                    maxIntrinsicWidth { _, _ -> 0.ipx }
+                    minIntrinsicHeight { _, _ -> 0.ipx }
+                    maxIntrinsicHeight { _, _ -> 0.ipx }
+                }
+            }
+        }
+        layoutLatch.await(1, TimeUnit.SECONDS)
+        Unit
+    }
+
+    @Test
+    fun testAlign_hasCorrectIntrinsicMeasurements_whenNoChildren() = withDensity(density) {
+        val layoutLatch = CountDownLatch(1)
+        show {
+            Center {
+                val alignedChild = @Composable {
+                    Align(alignment = Alignment.TopLeft) { }
+                }
+                ComplexLayout(children = alignedChild) {
+                    layout { measurables, _ ->
+                        val alignMeasurable = measurables.first()
+                        // Min width.
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.minIntrinsicWidth(25.dp.toIntPx())
+                        )
+                        // Min height.
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.minIntrinsicHeight(25.dp.toIntPx())
+                        )
+                        // Max width.
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.maxIntrinsicWidth(25.dp.toIntPx())
+                        )
+                        // Max height.
+                        assertEquals(
+                            0.dp.toIntPx(),
+                            alignMeasurable.maxIntrinsicHeight(25.dp.toIntPx())
+                        )
+                        layoutLatch.countDown()
+                    }
+                    minIntrinsicWidth { _, _ -> 0.ipx }
+                    maxIntrinsicWidth { _, _ -> 0.ipx }
+                    minIntrinsicHeight { _, _ -> 0.ipx }
+                    maxIntrinsicHeight { _, _ -> 0.ipx }
+                }
+            }
+        }
+        layoutLatch.await(1, TimeUnit.SECONDS)
+        Unit
     }
 }
