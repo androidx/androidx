@@ -335,7 +335,7 @@ public final class CaptureSessionTest {
 
         // From CaptureConfig option
         assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_AF_MODE)).isEqualTo(
-                CaptureRequest.CONTROL_AF_MODE_EDOF);
+                CaptureRequest.CONTROL_AF_MODE_OFF);
 
         // From CameraEventCallbacks option
         assertThat(captureResult.getRequest().get(CaptureRequest.FLASH_MODE)).isEqualTo(
@@ -629,7 +629,7 @@ public final class CaptureSessionTest {
             // ==================================================================================
             // Priority | Component        | AF_MODE       | FLASH_MODE         | AE_MODE
             // ----------------------------------------------------------------------------------
-            // P1 | CaptureConfig          | AF_MODE_EDOF  |
+            // P1 | CaptureConfig          | AF_MODE_OFF  |                     |
             // ----------------------------------------------------------------------------------
             // P2 | CameraEventCallbacks   | AF_MODE_MACRO | FLASH_MODE_TORCH   |
             // ----------------------------------------------------------------------------------
@@ -680,7 +680,7 @@ public final class CaptureSessionTest {
             // Add capture request options for CaptureConfig
             captureConfigBuilder.addImplementationOptions(new Camera2Config.Builder()
                     .setCaptureRequestOption(
-                            CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_EDOF)
+                            CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_OFF)
                     .build());
 
             mCaptureConfig = captureConfigBuilder.build();
