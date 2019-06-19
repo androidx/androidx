@@ -238,14 +238,18 @@ fun supportingArtifacts(
         )
         .execute()
 
-    for (component in sourcesQueryResult.resolvedComponents) {
-        val sourcesArtifacts = component.getArtifacts(SourcesArtifact::class.java)
-        for (sourcesArtifact in sourcesArtifacts) {
-            val sourcesFile = sourcesArtifact as? ResolvedArtifactResult
-            if (sourcesFile != null) {
-                supportingArtifacts.add(sourcesFile)
+    if (sourcesQueryResult.resolvedComponents.size > 0) {
+        for (component in sourcesQueryResult.resolvedComponents) {
+            val sourcesArtifacts = component.getArtifacts(SourcesArtifact::class.java)
+            for (sourcesArtifact in sourcesArtifacts) {
+                val sourcesFile = sourcesArtifact as? ResolvedArtifactResult
+                if (sourcesFile != null) {
+                    supportingArtifacts.add(sourcesFile)
+                }
             }
         }
+    } else {
+        project.logger.warn("No sources found for $artifact")
     }
     return supportingArtifacts
 }
