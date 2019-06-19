@@ -140,15 +140,13 @@ public final class UseCaseCombinationTest {
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
+                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
                 mImageAnalysis.setAnalyzer(mImageAnalyzer);
-
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
+                mLifecycle.startAndResume();
             }
         });
-
-        CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
-        mLifecycle.startAndResume();
 
         // Wait for 10 frames to be analyzed.
         mSemaphore.acquire(10);
@@ -169,15 +167,13 @@ public final class UseCaseCombinationTest {
         mMainThreadHandler.post(new Runnable() {
             @Override
             public void run() {
+                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis, mImageCapture);
                 mImageAnalysis.setAnalyzer(mImageAnalyzer);
-
                 mAnalysisResult.observe(mLifecycle,
                         createCountIncrementingObserver());
+                mLifecycle.startAndResume();
             }
         });
-
-        CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis, mImageCapture);
-        mLifecycle.startAndResume();
 
         // Wait for 10 frames to be analyzed.
         mSemaphore.acquire(10);
