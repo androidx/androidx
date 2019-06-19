@@ -21,6 +21,7 @@ import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -42,8 +43,9 @@ public final class PreviewConfig
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     static final Option<ImageInfoProcessor> IMAGE_INFO_PROCESSOR = Option.create(
-            "camerax.core.preview.imageinfoprocessor", ImageInfoProcessor.class);
-
+            "camerax.core.preview.imageInfoProcessor", ImageInfoProcessor.class);
+    static final Option<CaptureProcessor> OPTION_PREVIEW_CAPTURE_PROCESSOR =
+            Option.create("camerax.core.preview.captureProcessor", CaptureProcessor.class);
     private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
@@ -411,6 +413,32 @@ public final class PreviewConfig
         return retrieveOption(IMAGE_INFO_PROCESSOR);
     }
 
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public CaptureProcessor getCaptureProcessor(@Nullable CaptureProcessor valueIfMissing) {
+        return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link CaptureProcessor}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public CaptureProcessor getCaptureProcessor() {
+        return retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR);
+    }
+
     // End of the default implementation of Config
     // *********************************************************************************************
 
@@ -660,8 +688,23 @@ public final class PreviewConfig
 
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public Builder setImageInfoProcessor(ImageInfoProcessor processor) {
+        @NonNull
+        public Builder setImageInfoProcessor(@Nullable ImageInfoProcessor processor) {
             getMutableConfig().insertOption(IMAGE_INFO_PROCESSOR, processor);
+            return this;
+        }
+
+        /**
+         * Sets the {@link CaptureProcessor}.
+         *
+         * @param captureProcessor The requested capture processor for extension.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setCaptureProcessor(@Nullable CaptureProcessor captureProcessor) {
+            getMutableConfig().insertOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, captureProcessor);
             return this;
         }
     }

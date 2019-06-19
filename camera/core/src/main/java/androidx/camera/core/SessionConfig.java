@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
@@ -201,6 +202,13 @@ public final class SessionConfig {
          */
         public void setTemplateType(int templateType) {
             mCaptureConfigBuilder.setTemplateType(templateType);
+        }
+
+        /**
+         * Set the tag of the SessionConfig. For tracking the source.
+         */
+        public void setTag(Object tag) {
+            mCaptureConfigBuilder.setTag(tag);
         }
 
         /**
@@ -385,6 +393,11 @@ public final class SessionConfig {
                 mValid = false;
             }
 
+            Object tag = sessionConfig.getRepeatingCaptureConfig().getTag();
+            if (tag != null) {
+                mCaptureConfigBuilder.setTag(tag);
+            }
+
             // Check device state callbacks
             mDeviceStateCallbacks.addAll(sessionConfig.getDeviceStateCallbacks());
 
@@ -451,6 +464,7 @@ public final class SessionConfig {
          * Builds an instance of a SessionConfig that has all the combined parameters of the
          * SessionConfig that have been added to the ValidatingBuilder.
          */
+        @NonNull
         public SessionConfig build() {
             if (!mValid) {
                 throw new IllegalArgumentException("Unsupported session configuration combination");

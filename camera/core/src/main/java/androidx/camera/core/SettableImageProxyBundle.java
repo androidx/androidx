@@ -102,8 +102,8 @@ final class SettableImageProxyBundle implements ImageProxyBundle {
             // corresponding Future. Otherwise, throws exception.
             CallbackToFutureAdapter.Completer<ImageProxy> completer = mCompleters.get(captureId);
             if (completer != null) {
-                completer.set(imageProxy);
                 mOwnedImageProxies.add(imageProxy);
+                completer.set(imageProxy);
             } else {
                 throw new IllegalArgumentException(
                         "ImageProxyBundle does not contain this id: " + captureId);

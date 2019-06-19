@@ -4910,17 +4910,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Preview(PreviewConfig config) {"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/Preview.java"
-            line="101"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void focus(Rect focus, Rect metering) {"
         errorLine2="                      ~~~~">
         <location
