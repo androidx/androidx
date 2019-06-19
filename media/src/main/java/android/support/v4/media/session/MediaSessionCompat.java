@@ -520,7 +520,9 @@ public class MediaSessionCompat {
      *            component name.
      * @param sessionInfo A bundle for additional information about this session,
      *                    or {@link Bundle#EMPTY} if none. Controllers can get this information
-     *                    by calling {@link MediaControllerCompat#getSessionInfo()}.
+     *                    by calling {@link MediaControllerCompat#getSessionInfo()}. An
+     *                    {@link IllegalArgumentException} will be thrown if this contains any
+     *                    non-framework Parcelable objects.
      */
     public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
             @Nullable ComponentName mbrComponent, @Nullable PendingIntent mbrIntent,
@@ -556,6 +558,11 @@ public class MediaSessionCompat {
             mediaButtonIntent.setComponent(mbrComponent);
             mbrIntent = PendingIntent.getBroadcast(context,
                     0/* requestCode, ignored */, mediaButtonIntent, 0/* flags */);
+        }
+
+        if (doesBundleHaveCustomParcelable(sessionInfo)) {
+            throw new IllegalArgumentException("sessionInfo shouldn't contain any custom "
+                    + "parcelables");
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -1018,6 +1025,39 @@ public class MediaSessionCompat {
             impl = new MediaSessionImplApi21(mediaSession);
         }
         return new MediaSessionCompat(context, impl);
+    }
+
+
+    /**
+     * Returns whether the given bundle includes non-framework Parcelables.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    public static boolean doesBundleHaveCustomParcelable(@Nullable Bundle bundle) {
+        if (bundle == null) {
+            return false;
+        }
+
+        // Try writing the bundle to parcel, and read it with framework classloader.
+        Parcel parcel = null;
+        try {
+            parcel = Parcel.obtain();
+            parcel.writeBundle(bundle);
+            parcel.setDataPosition(0);
+            Bundle out = parcel.readBundle(null);
+
+            // Calling Bundle#isEmpty() will trigger Bundle#unparcel().
+            out.isEmpty();
+        } catch (BadParcelableException e) {
+            Log.d(TAG, "Custom parcelable in sessionInfo.", e);
+            return true;
+        } finally {
+            if (parcel != null) {
+                parcel.recycle();
+            }
+        }
+        return false;
     }
 
     /**
