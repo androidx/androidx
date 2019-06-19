@@ -68,7 +68,7 @@ internal open class TypefaceAdapter constructor(
         fontFamily: FontFamily? = null,
         fontWeight: FontWeight = FontWeight.normal,
         fontStyle: FontStyle = FontStyle.Normal,
-        fontSynthesis: FontSynthesis = FontSynthesis.all
+        fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
         val cacheKey = CacheKey(fontFamily, fontWeight, fontStyle, fontSynthesis)
         val cachedTypeface = typefaceCache.get(cacheKey)
@@ -167,7 +167,7 @@ internal open class TypefaceAdapter constructor(
         fontWeight: FontWeight = FontWeight.normal,
         fontFamily: FontFamily,
         context: Context,
-        fontSynthesis: FontSynthesis = FontSynthesis.all
+        fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
         // TODO(Migration/siyamed): add genericFontFamily : String? = null for fallback
         // TODO(Migration/siyamed): add support for multiple font families
@@ -196,7 +196,7 @@ internal open class TypefaceAdapter constructor(
 
         val loadedFontIsSameAsRequest = fontWeight == font.weight && fontStyle == font.style
         // if synthesis is not requested or there is an exact match we don't need synthesis
-        if (fontSynthesis == FontSynthesis.none || loadedFontIsSameAsRequest) {
+        if (fontSynthesis == FontSynthesis.None || loadedFontIsSameAsRequest) {
             return typeface
         }
 
