@@ -27,6 +27,7 @@ import android.os.Process;
 import android.os.SystemClock;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -76,8 +77,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 .setId(TAG)
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            MediaSession.ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull MediaSession.ControllerInfo controller) {
                         if (Process.myUid() == controller.getUid()) {
                             return super.onConnect(session, controller);
                         }

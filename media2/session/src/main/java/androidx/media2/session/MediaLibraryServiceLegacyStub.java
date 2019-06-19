@@ -403,23 +403,25 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
-            // No-op. BrowserCompat doesn't understand Controller features.
-        }
-
-        @Override
-        final void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
-            // No-op. BrowserCompat doesn't understand Controller features.
-        }
-
-        @Override
-        final void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+        final void setCustomLayout(int seq, @NonNull List<CommandButton> layout)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+        final void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info)
+                throws RemoteException {
+            // No-op. BrowserCompat doesn't understand Controller features.
+        }
+
+        @Override
+        final void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
+                throws RemoteException {
+            // No-op. BrowserCompat doesn't understand Controller features.
+        }
+
+        @Override
+        final void sendCustomCommand(int seq, @NonNull SessionCommand command, Bundle args)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
@@ -437,7 +439,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+        final void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
@@ -455,8 +457,9 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
-                int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
+        final void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist,
+                MediaMetadata metadata, int currentIdx, int previousIdx, int nextIdx)
+                throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
@@ -533,15 +536,15 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams params) throws RemoteException {
             Bundle extras = params != null ? params.getExtras() : null;
             notifyChildrenChanged(mRemoteUserInfo, parentId, extras);
         }
 
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             // In MediaLibrarySession/MediaBrowser, we have two different APIs for getting size of
             // search result (and also starting search) and getting result.
             // However, MediaBrowserService/MediaBrowserCompat only have one search API for getting
@@ -646,8 +649,8 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams libraryParams)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams libraryParams) throws RemoteException {
             // This will trigger {@link MediaLibraryServiceLegacyStub#onLoadChildren}.
             if (libraryParams == null || libraryParams.getExtras() == null) {
                 mService.notifyChildrenChanged(parentId);
@@ -657,8 +660,8 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             // Shouldn't be called. If it's called, it's bug.
             // This method in the base class is introduced to internally send return of
             // {@link MediaLibrarySessionCallback#onSearchResultChanged}. However, for

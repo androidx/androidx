@@ -43,7 +43,7 @@ public final class MediaTimestamp {
     /**
      * An unknown media timestamp value
      */
-    public static final @NonNull MediaTimestamp TIMESTAMP_UNKNOWN =
+    public static @NonNull final MediaTimestamp TIMESTAMP_UNKNOWN =
             new MediaTimestamp(-1, -1, 0.0f);
 
     /**

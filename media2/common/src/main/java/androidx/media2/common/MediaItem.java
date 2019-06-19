@@ -177,7 +177,8 @@ public class MediaItem extends CustomVersionedParcelable {
      *
      * @return metadata from the session
      */
-    public @Nullable MediaMetadata getMetadata() {
+    @Nullable
+    public MediaMetadata getMetadata() {
         synchronized (mLock) {
             return mMetadata;
         }
@@ -209,7 +210,8 @@ public class MediaItem extends CustomVersionedParcelable {
      */
     // TODO: Remove
     @RestrictTo(LIBRARY_GROUP)
-    public @Nullable String getMediaId() {
+    @Nullable
+    public String getMediaId() {
         synchronized (mLock) {
             return mMetadata != null
                     ? mMetadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID) : null;

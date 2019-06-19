@@ -33,6 +33,7 @@ import androidx.media2.session.SessionCommandGroup;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -317,14 +318,14 @@ class PlayerWrapper {
         return new VideoSize(0, 0);
     }
 
-    @Nullable
+    @NonNull
     List<TrackInfo> getTrackInfo() {
         if (mController != null) {
             return mController.getTrackInfo();
         } else if (mPlayer != null) {
             return mPlayer.getTrackInfoInternal();
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @Nullable

@@ -36,7 +36,6 @@ import static org.junit.Assert.assertTrue;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -195,7 +194,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         registerCallback(new SessionPlayer.PlayerCallback() {
             @Override
             public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
-                    @Nullable MediaItem item) {
+                    @NonNull MediaItem item) {
                 assertNotNull(item);
                 assertNotNull(item.getMetadata());
                 assertEquals(title, metadata.getString(MediaMetadata.METADATA_KEY_TITLE));
@@ -323,7 +322,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         registerCallback(new SessionPlayer.PlayerCallback() {
             @Override
             public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
-                    @Nullable MediaItem item) {
+                    @NonNull MediaItem item) {
                 assertSame(mediaItem, item);
                 latch.countDown();
             }

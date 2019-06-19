@@ -62,9 +62,9 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     private static final String TAG = "MediaBrowserLegacyTest";
 
     @Override
-    MediaController onCreateController(final @NonNull SessionToken token,
-            final @Nullable Bundle connectionHints,
-            final @Nullable TestBrowserCallback callback) throws InterruptedException {
+    MediaController onCreateController(@NonNull final SessionToken token,
+            @Nullable final Bundle connectionHints,
+            @Nullable final TestBrowserCallback callback) throws InterruptedException {
         final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {
             @Override
@@ -136,14 +136,14 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         MediaBrowser browser = createBrowser(false, null, new MediaBrowser.BrowserCallback() {
             @Override
-            public void onConnected(MediaController controller,
-                    SessionCommandGroup allowedCommands) {
+            public void onConnected(@NonNull MediaController controller,
+                    @NonNull SessionCommandGroup allowedCommands) {
                 fail("shouldn't allow connection");
                 super.onConnected(controller, allowedCommands);
             }
 
             @Override
-            public void onDisconnected(MediaController controller) {
+            public void onDisconnected(@NonNull MediaController controller) {
                 super.onDisconnected(controller);
                 latch.countDown();
             }

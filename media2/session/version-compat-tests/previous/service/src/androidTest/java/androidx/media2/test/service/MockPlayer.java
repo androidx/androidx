@@ -52,8 +52,10 @@ public class MockPlayer extends SessionPlayer {
     public long mCurrentPosition;
     public long mBufferedPosition;
     public float mPlaybackSpeed = 1.0f;
-    public @PlayerState int mLastPlayerState;
-    public @BuffState int mLastBufferingState;
+    @PlayerState
+    public int mLastPlayerState;
+    @BuffState
+    public int mLastBufferingState;
     public long mDuration;
     public List<TrackInfo> mTrackInfos;
 
@@ -62,8 +64,10 @@ public class MockPlayer extends SessionPlayer {
     public MediaItem mCurrentMediaItem;
     public MediaItem mItem;
     public int mIndex = -1;
-    public @RepeatMode int mRepeatMode = -1;
-    public @ShuffleMode int mShuffleMode = -1;
+    @RepeatMode
+    public int mRepeatMode = -1;
+    @ShuffleMode
+    public int mShuffleMode = -1;
     public VideoSize mVideoSize = new VideoSize(0, 0);
     public Surface mSurface;
 
@@ -576,7 +580,7 @@ public class MockPlayer extends SessionPlayer {
         return mVideoSize;
     }
 
-    public void notifyVideoSizeChanged(final @NonNull VideoSize videoSize) {
+    public void notifyVideoSizeChanged(@NonNull final VideoSize videoSize) {
         final MediaItem dummyItem = new MediaItem.Builder().build();
 
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
@@ -602,8 +606,8 @@ public class MockPlayer extends SessionPlayer {
         return mSurface != null;
     }
 
-    public void notifySubtitleData(final @NonNull MediaItem item, final @NonNull TrackInfo track,
-            final @NonNull SubtitleData data) {
+    public void notifySubtitleData(@NonNull final MediaItem item, @NonNull final TrackInfo track,
+            @NonNull final SubtitleData data) {
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
             final PlayerCallback callback = pair.first;

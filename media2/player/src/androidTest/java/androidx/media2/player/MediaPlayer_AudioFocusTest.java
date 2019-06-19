@@ -49,6 +49,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.player.test.R;
@@ -180,7 +181,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
 
         mPlayer.registerPlayerCallback(sHandlerExecutor, new SessionPlayer.PlayerCallback() {
             @Override
-            public void onPlayerStateChanged(SessionPlayer mPlayer, int playerState) {
+            public void onPlayerStateChanged(@NonNull SessionPlayer mPlayer, int playerState) {
                     switch (playerState) {
                         case SessionPlayer.PLAYER_STATE_PLAYING:
                             latchForPlaying.countDown();
@@ -214,7 +215,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
         initPlayer(attr);
         mPlayer.registerPlayerCallback(sHandlerExecutor, new SessionPlayer.PlayerCallback() {
             @Override
-            public void onPlayerStateChanged(SessionPlayer player, int playerState) {
+            public void onPlayerStateChanged(@NonNull SessionPlayer player, int playerState) {
                 if (playerState == SessionPlayer.PLAYER_STATE_PLAYING) {
                     latchForPlaying.countDown();
                 }

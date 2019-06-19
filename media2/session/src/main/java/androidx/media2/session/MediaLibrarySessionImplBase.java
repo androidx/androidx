@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.common.MediaItem;
@@ -63,6 +64,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
+    @NonNull
     public MediaLibrarySession getInstance() {
         return (MediaLibrarySession) super.getInstance();
     }
@@ -78,6 +80,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
+    @NonNull
     public List<ControllerInfo> getConnectedControllers() {
         List<ControllerInfo> list = super.getConnectedControllers();
         MediaLibraryServiceLegacyStub legacyStub = getLegacyBrowserService();
@@ -89,7 +92,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
-    public boolean isConnected(ControllerInfo controller) {
+    public boolean isConnected(@NonNull ControllerInfo controller) {
         if (super.isConnected(controller)) {
             return true;
         }
@@ -99,7 +102,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
-    public void notifyChildrenChanged(final String parentId, final int itemCount,
+    public void notifyChildrenChanged(@NonNull final String parentId, final int itemCount,
             final LibraryParams params) {
         dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
             @Override
@@ -112,8 +115,8 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
-    public void notifyChildrenChanged(final ControllerInfo controller, final String parentId,
-            final int itemCount, final LibraryParams params) {
+    public void notifyChildrenChanged(@NonNull final ControllerInfo controller,
+            @NonNull final String parentId, final int itemCount, final LibraryParams params) {
         dispatchRemoteControllerTaskWithoutReturn(controller, new RemoteControllerTask() {
             @Override
             public void run(ControllerCb callback, int seq) throws RemoteException {
@@ -131,8 +134,8 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
-    public void notifySearchResultChanged(ControllerInfo controller, final String query,
-            final int itemCount, final LibraryParams params) {
+    public void notifySearchResultChanged(@NonNull ControllerInfo controller,
+            @NonNull final String query, final int itemCount, final LibraryParams params) {
         dispatchRemoteControllerTaskWithoutReturn(controller, new RemoteControllerTask() {
             @Override
             public void run(ControllerCb callback, int seq) throws RemoteException {
@@ -212,7 +215,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
      * @param params
      */
     @Override
-    public LibraryResult onGetLibraryRootOnExecutor(ControllerInfo controller,
+    public LibraryResult onGetLibraryRootOnExecutor(@NonNull ControllerInfo controller,
             final LibraryParams params) {
         LibraryResult result = getCallback().onGetLibraryRoot(getInstance(), controller, params);
         return ensureNonNullResultWithValidItem(result);
@@ -225,21 +228,23 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
      * @param mediaId
      */
     @Override
-    public LibraryResult onGetItemOnExecutor(ControllerInfo controller, final String mediaId) {
+    public LibraryResult onGetItemOnExecutor(@NonNull ControllerInfo controller,
+            @NonNull final String mediaId) {
         LibraryResult result = getCallback().onGetItem(getInstance(), controller, mediaId);
         return ensureNonNullResultWithValidItem(result);
     }
 
     @Override
-    public LibraryResult onGetChildrenOnExecutor(ControllerInfo controller, final String parentId,
-            final int page, final int pageSize, final LibraryParams params) {
+    public LibraryResult onGetChildrenOnExecutor(@NonNull ControllerInfo controller,
+            @NonNull final String parentId, final int page, final int pageSize,
+            final LibraryParams params) {
         LibraryResult result = getCallback().onGetChildren(getInstance(),
                 controller, parentId, page, pageSize, params);
         return ensureNonNullResultWithValidList(result, pageSize);
     }
 
     @Override
-    public int onSubscribeOnExecutor(ControllerInfo controller, String parentId,
+    public int onSubscribeOnExecutor(@NonNull ControllerInfo controller, @NonNull String parentId,
             LibraryParams params) {
         synchronized (mLock) {
             Set<String> subscription = mSubscriptions.get(controller.getControllerCb());
@@ -263,7 +268,8 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
-    public int onUnsubscribeOnExecutor(ControllerInfo controller, String parentId) {
+    public int onUnsubscribeOnExecutor(@NonNull ControllerInfo controller,
+            @NonNull String parentId) {
         int resultCode = getCallback().onUnsubscribe(getInstance(), controller, parentId);
         synchronized (mLock) {
             mSubscriptions.remove(controller.getControllerCb());
@@ -272,20 +278,22 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements
     }
 
     @Override
-    public int onSearchOnExecutor(ControllerInfo controller, String query, LibraryParams params) {
+    public int onSearchOnExecutor(@NonNull ControllerInfo controller, @NonNull String query,
+            LibraryParams params) {
         return getCallback().onSearch(getInstance(), controller, query, params);
     }
 
     @Override
-    public LibraryResult onGetSearchResultOnExecutor(ControllerInfo controller, final String query,
-            final int page, final int pageSize, final LibraryParams params) {
+    public LibraryResult onGetSearchResultOnExecutor(@NonNull ControllerInfo controller,
+            @NonNull final String query, final int page, final int pageSize,
+            final LibraryParams params) {
         LibraryResult result = getCallback().onGetSearchResult(getInstance(),
                 controller, query, page, pageSize, params);
         return ensureNonNullResultWithValidList(result, pageSize);
     }
 
     @Override
-    void dispatchRemoteControllerTaskWithoutReturn(RemoteControllerTask task) {
+    void dispatchRemoteControllerTaskWithoutReturn(@NonNull RemoteControllerTask task) {
         super.dispatchRemoteControllerTaskWithoutReturn(task);
         MediaLibraryServiceLegacyStub legacyStub = getLegacyBrowserService();
         if (legacyStub != null) {

@@ -188,8 +188,8 @@ abstract class MediaSessionTestBase {
         getTestControllerCallbackInterface(controller).setRunnableForOnCustomCommand(runnable);
     }
 
-    MediaController onCreateController(final @NonNull MediaSessionCompat.Token token,
-            final @NonNull TestBrowserCallback callback) throws InterruptedException {
+    MediaController onCreateController(@NonNull final MediaSessionCompat.Token token,
+            @NonNull final TestBrowserCallback callback) throws InterruptedException {
         final AtomicReference<MediaController> controller = new AtomicReference<>();
 
         sHandler.postAndSync(new Runnable() {
@@ -207,8 +207,8 @@ abstract class MediaSessionTestBase {
         return controller.get();
     }
 
-    MediaController onCreateController(final @NonNull SessionToken token,
-            final @Nullable Bundle connectionHints, final @NonNull TestBrowserCallback callback)
+    MediaController onCreateController(@NonNull final SessionToken token,
+            @Nullable final Bundle connectionHints, @NonNull final TestBrowserCallback callback)
             throws InterruptedException {
         final AtomicReference<MediaController> controller = new AtomicReference<>();
         sHandler.postAndSync(new Runnable() {

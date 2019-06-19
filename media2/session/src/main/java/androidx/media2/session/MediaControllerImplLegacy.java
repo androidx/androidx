@@ -78,6 +78,7 @@ import androidx.media2.session.MediaSession.CommandButton;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
 import java.util.List;
 
 // TODO: Find better way to return listenable future.
@@ -238,7 +239,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @Nullable SessionToken getConnectedToken() {
+    @Nullable
+    public SessionToken getConnectedToken() {
         synchronized (mLock) {
             return mConnected ? mToken : null;
         }
@@ -449,7 +451,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @Nullable PendingIntent getSessionActivity() {
+    @Nullable
+    public PendingIntent getSessionActivity() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -511,7 +514,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @BuffState int getBufferingState() {
+    @BuffState
+    public int getBufferingState() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -535,7 +539,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @Nullable PlaybackInfo getPlaybackInfo() {
+    @Nullable
+    public PlaybackInfo getPlaybackInfo() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -599,7 +604,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @Nullable List<MediaItem> getPlaylist() {
+    @Nullable
+    public List<MediaItem> getPlaylist() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -616,7 +622,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> setMediaItem(String mediaId) {
+    public ListenableFuture<SessionResult> setMediaItem(@NonNull String mediaId) {
         return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
@@ -627,7 +633,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @Nullable MediaMetadata getPlaylistMetadata() {
+    @Nullable
+    public MediaMetadata getPlaylistMetadata() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -651,7 +658,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> removePlaylistItem(@NonNull int index) {
+    public ListenableFuture<SessionResult> removePlaylistItem(int index) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -733,7 +740,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> skipToPlaylistItem(@NonNull int index) {
+    public ListenableFuture<SessionResult> skipToPlaylistItem(int index) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -747,7 +754,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @RepeatMode int getRepeatMode() {
+    @RepeatMode
+    public int getRepeatMode() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -772,7 +780,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @ShuffleMode int getShuffleMode() {
+    @ShuffleMode
+    public int getShuffleMode() {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
@@ -797,7 +806,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @NonNull VideoSize getVideoSize() {
+    @NonNull
+    public VideoSize getVideoSize() {
         Log.w(TAG, "Session doesn't support getting VideoSize");
         return new VideoSize(0, 0);
     }
@@ -809,10 +819,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    @Nullable
+    @NonNull
     public List<TrackInfo> getTrackInfo() {
         Log.w(TAG, "Session doesn't support getting TrackInfo");
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
@@ -849,12 +859,14 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public @NonNull Context getContext() {
+    @NonNull
+    public Context getContext() {
         return mContext;
     }
 
     @Override
-    public @Nullable MediaBrowserCompat getBrowserCompat() {
+    @Nullable
+    public MediaBrowserCompat getBrowserCompat() {
         synchronized (mLock) {
             return mBrowserCompat;
         }

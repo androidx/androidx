@@ -1125,12 +1125,12 @@ public class MediaController implements AutoCloseable {
      * The types of tracks supported may vary based on player implementation.
      * If it is not connected yet, it returns null.
      *
-     * @return List of tracks. The total number of tracks is the size of the list.
-     *
+     * @return List of tracks. The total number of tracks is the size of the list. If empty,
+     *         the implementation should return a empty list instead of {@code null}.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Nullable
+    @NonNull
     public List<TrackInfo> getTrackInfo() {
         return isConnected() ? getImpl().getTrackInfo() : null;
     }
@@ -1369,20 +1369,24 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> setVolumeTo(int value, @VolumeFlags int flags);
         ListenableFuture<SessionResult> adjustVolume(@VolumeDirection int direction,
                 @VolumeFlags int flags);
-        @Nullable PendingIntent getSessionActivity();
+        @Nullable
+        PendingIntent getSessionActivity();
         int getPlayerState();
         long getDuration();
         long getCurrentPosition();
         float getPlaybackSpeed();
         ListenableFuture<SessionResult> setPlaybackSpeed(float speed);
-        @SessionPlayer.BuffState int getBufferingState();
+        @SessionPlayer.BuffState
+        int getBufferingState();
         long getBufferedPosition();
-        @Nullable PlaybackInfo getPlaybackInfo();
+        @Nullable
+        PlaybackInfo getPlaybackInfo();
         ListenableFuture<SessionResult> setRating(@NonNull String mediaId,
                 @NonNull Rating rating);
         ListenableFuture<SessionResult> sendCustomCommand(@NonNull SessionCommand command,
                 @Nullable Bundle args);
-        @Nullable List<MediaItem> getPlaylist();
+        @Nullable
+        List<MediaItem> getPlaylist();
         ListenableFuture<SessionResult> setPlaylist(@NonNull List<String> list,
                 @Nullable MediaMetadata metadata);
         ListenableFuture<SessionResult> setMediaItem(@NonNull String mediaId);
@@ -1390,7 +1394,7 @@ public class MediaController implements AutoCloseable {
                 @Nullable MediaMetadata metadata);
         @Nullable MediaMetadata getPlaylistMetadata();
         ListenableFuture<SessionResult> addPlaylistItem(int index, @NonNull String mediaId);
-        ListenableFuture<SessionResult> removePlaylistItem(@NonNull int index);
+        ListenableFuture<SessionResult> removePlaylistItem(int index);
         ListenableFuture<SessionResult> replacePlaylistItem(int index,
                 @NonNull String mediaId);
         MediaItem getCurrentMediaItem();
@@ -1399,22 +1403,30 @@ public class MediaController implements AutoCloseable {
         int getNextMediaItemIndex();
         ListenableFuture<SessionResult> skipToPreviousItem();
         ListenableFuture<SessionResult> skipToNextItem();
-        ListenableFuture<SessionResult> skipToPlaylistItem(@NonNull int index);
-        @RepeatMode int getRepeatMode();
+        ListenableFuture<SessionResult> skipToPlaylistItem(int index);
+        @RepeatMode
+        int getRepeatMode();
         ListenableFuture<SessionResult> setRepeatMode(@RepeatMode int repeatMode);
-        @ShuffleMode int getShuffleMode();
+        @ShuffleMode
+        int getShuffleMode();
         ListenableFuture<SessionResult> setShuffleMode(@ShuffleMode int shuffleMode);
-        @NonNull VideoSize getVideoSize();
+        @NonNull
+        VideoSize getVideoSize();
         ListenableFuture<SessionResult> setSurface(@Nullable Surface surface);
-        @NonNull List<TrackInfo> getTrackInfo();
+        @Nullable
+        List<TrackInfo> getTrackInfo();
         ListenableFuture<SessionResult> selectTrack(TrackInfo trackInfo);
         ListenableFuture<SessionResult> deselectTrack(TrackInfo trackInfo);
-        @Nullable TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType);
-        @Nullable SessionCommandGroup getAllowedCommands();
+        @Nullable
+        TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType);
+        @Nullable
+        SessionCommandGroup getAllowedCommands();
 
         // Internally used methods
-        @NonNull Context getContext();
-        @Nullable MediaBrowserCompat getBrowserCompat();
+        @NonNull
+        Context getContext();
+        @Nullable
+        MediaBrowserCompat getBrowserCompat();
     }
 
 

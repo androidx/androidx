@@ -86,8 +86,8 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     private static final String TAG = "MediaBrowserCallbackTest";
 
     @Override
-    MediaController onCreateController(final @NonNull SessionToken token,
-            final @Nullable Bundle connectionHints, final @Nullable TestBrowserCallback callback)
+    MediaController onCreateController(@NonNull final SessionToken token,
+            @Nullable final Bundle connectionHints, @Nullable final TestBrowserCallback callback)
             throws InterruptedException {
         assertNotNull("Test bug", token);
         final AtomicReference<MediaController> controller = new AtomicReference<>();

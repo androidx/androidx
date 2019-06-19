@@ -228,7 +228,8 @@ public class MediaSession implements AutoCloseable {
      *
      * @return player.
      */
-    public @NonNull SessionPlayer getPlayer() {
+    @NonNull
+    public SessionPlayer getPlayer() {
         return mImpl.getPlayer();
     }
 
@@ -237,26 +238,31 @@ public class MediaSession implements AutoCloseable {
      *
      * @return
      */
-    public @NonNull String getId() {
+    @NonNull
+    public String getId() {
         return mImpl.getId();
     }
 
     /**
      * Returns the {@link SessionToken} for creating {@link MediaController}.
      */
-    public @NonNull SessionToken getToken() {
+    @NonNull
+    public SessionToken getToken() {
         return mImpl.getToken();
     }
 
-    @NonNull Context getContext() {
+    @NonNull
+    Context getContext() {
         return mImpl.getContext();
     }
 
-    @NonNull Executor getCallbackExecutor() {
+    @NonNull
+    Executor getCallbackExecutor() {
         return mImpl.getCallbackExecutor();
     }
 
-    @NonNull SessionCallback getCallback() {
+    @NonNull
+    SessionCallback getCallback() {
         return mImpl.getCallback();
     }
 
@@ -265,7 +271,8 @@ public class MediaSession implements AutoCloseable {
      *
      * @return list of {@link ControllerInfo}
      */
-    public @NonNull List<ControllerInfo> getConnectedControllers() {
+    @NonNull
+    public List<ControllerInfo> getConnectedControllers() {
         return mImpl.getConnectedControllers();
     }
 
@@ -297,7 +304,8 @@ public class MediaSession implements AutoCloseable {
      * @param controller controller to specify layout.
      * @param layout ordered list of layout.
      */
-    public @NonNull ListenableFuture<SessionResult> setCustomLayout(
+    @NonNull
+    public ListenableFuture<SessionResult> setCustomLayout(
             @NonNull ControllerInfo controller, @NonNull List<CommandButton> layout) {
         if (controller == null) {
             throw new NullPointerException("controller shouldn't be null");
@@ -361,7 +369,8 @@ public class MediaSession implements AutoCloseable {
      * @param args optional argument
      * @see #broadcastCustomCommand(SessionCommand, Bundle)
      */
-    public @NonNull ListenableFuture<SessionResult> sendCustomCommand(
+    @NonNull
+    public ListenableFuture<SessionResult> sendCustomCommand(
             @NonNull ControllerInfo controller, @NonNull SessionCommand command,
             @Nullable Bundle args) {
         if (controller == null) {
@@ -434,7 +443,8 @@ public class MediaSession implements AutoCloseable {
          * @return allowed commands. Can be {@code null} to reject connection.
          * @see #onPostConnect(MediaSession, ControllerInfo)
          */
-        public @Nullable SessionCommandGroup onConnect(@NonNull MediaSession session,
+        @Nullable
+        public SessionCommandGroup onConnect(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
             SessionCommandGroup commands = new SessionCommandGroup.Builder()
                     .addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_1)
@@ -502,7 +512,8 @@ public class MediaSession implements AutoCloseable {
          * @see SessionCommand#COMMAND_CODE_VOLUME_SET_VOLUME
          * @see SessionCommand#COMMAND_CODE_VOLUME_ADJUST_VOLUME
          */
-        public @ResultCode int onCommandRequest(@NonNull MediaSession session,
+        @ResultCode
+        public int onCommandRequest(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull SessionCommand command) {
             return RESULT_SUCCESS;
         }
@@ -546,7 +557,8 @@ public class MediaSession implements AutoCloseable {
          * @return translated media item for player with the mediaId. Can be {@code null} to ignore.
          * @see MediaMetadata#METADATA_KEY_MEDIA_ID
          */
-        public @Nullable MediaItem onCreateMediaItem(@NonNull MediaSession session,
+        @Nullable
+        public MediaItem onCreateMediaItem(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId) {
             return null;
         }
@@ -566,7 +578,8 @@ public class MediaSession implements AutoCloseable {
          * @param rating new rating from the controller
          * @see SessionCommand#COMMAND_CODE_SESSION_SET_RATING
          */
-        public @ResultCode int onSetRating(@NonNull MediaSession session,
+        @ResultCode
+        public int onSetRating(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
                 @NonNull Rating rating) {
             return RESULT_ERROR_NOT_SUPPORTED;
@@ -589,7 +602,8 @@ public class MediaSession implements AutoCloseable {
          *         {@code null} is returned.
          * @see SessionCommand#COMMAND_CODE_CUSTOM
          */
-        public @NonNull SessionResult onCustomCommand(@NonNull MediaSession session,
+        @NonNull
+        public SessionResult onCustomCommand(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull SessionCommand customCommand,
                 @Nullable Bundle args) {
             return new SessionResult(RESULT_ERROR_NOT_SUPPORTED, null);
@@ -747,7 +761,8 @@ public class MediaSession implements AutoCloseable {
          * @param controller controller information
          * @see SessionCommand#COMMAND_CODE_SESSION_FAST_FORWARD
          */
-        public @ResultCode int onFastForward(@NonNull MediaSession session,
+        @ResultCode
+        public int onFastForward(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
             return RESULT_ERROR_NOT_SUPPORTED;
         }
@@ -761,8 +776,8 @@ public class MediaSession implements AutoCloseable {
          * @param controller controller information
          * @see SessionCommand#COMMAND_CODE_SESSION_REWIND
          */
-        public @ResultCode int onRewind(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller) {
+        @ResultCode
+        public int onRewind(@NonNull MediaSession session, @NonNull ControllerInfo controller) {
             return RESULT_ERROR_NOT_SUPPORTED;
         }
 
@@ -776,7 +791,8 @@ public class MediaSession implements AutoCloseable {
          * @param controller controller information
          * @see SessionCommand#COMMAND_CODE_SESSION_SKIP_FORWARD
          */
-        public @ResultCode int onSkipForward(@NonNull MediaSession session,
+        @ResultCode
+        public int onSkipForward(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
             return RESULT_ERROR_NOT_SUPPORTED;
         }
@@ -791,7 +807,8 @@ public class MediaSession implements AutoCloseable {
          * @param controller controller information
          * @see SessionCommand#COMMAND_CODE_SESSION_SKIP_BACKWARD
          */
-        public @ResultCode int onSkipBackward(@NonNull MediaSession session,
+        @ResultCode
+        public int onSkipBackward(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
             return RESULT_ERROR_NOT_SUPPORTED;
         }
@@ -834,12 +851,14 @@ public class MediaSession implements AutoCloseable {
         }
 
         @Override
-        public @NonNull Builder setSessionActivity(@Nullable PendingIntent pi) {
+        @NonNull
+        public Builder setSessionActivity(@Nullable PendingIntent pi) {
             return super.setSessionActivity(pi);
         }
 
         @Override
-        public @NonNull Builder setId(@NonNull String id) {
+        @NonNull
+        public Builder setId(@NonNull String id) {
             return super.setId(id);
         }
 
@@ -850,14 +869,15 @@ public class MediaSession implements AutoCloseable {
             return super.setSessionCallback(executor, callback);
         }
 
-        @NonNull
         @Override
+        @NonNull
         public Builder setExtras(@NonNull Bundle extras) {
             return super.setExtras(extras);
         }
 
         @Override
-        public @NonNull MediaSession build() {
+        @NonNull
+        public MediaSession build() {
             if (mCallbackExecutor == null) {
                 mCallbackExecutor = ContextCompat.getMainExecutor(mContext);
             }
@@ -902,7 +922,8 @@ public class MediaSession implements AutoCloseable {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public @NonNull RemoteUserInfo getRemoteUserInfo() {
+        @NonNull
+        public RemoteUserInfo getRemoteUserInfo() {
             return mRemoteUserInfo;
         }
 
@@ -911,7 +932,8 @@ public class MediaSession implements AutoCloseable {
          *         {@link androidx.media.MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER} if
          *         the package name cannot be obtained.
          */
-        public @NonNull String getPackageName() {
+        @NonNull
+        public String getPackageName() {
             return mRemoteUserInfo.getPackageName();
         }
 
@@ -1013,7 +1035,8 @@ public class MediaSession implements AutoCloseable {
          *
          * @return command or {@code null}
          */
-        public @Nullable SessionCommand getCommand() {
+        @Nullable
+        public SessionCommand getCommand() {
             return mCommand;
         }
 
@@ -1033,7 +1056,8 @@ public class MediaSession implements AutoCloseable {
          *
          * @return custom display name. Can be {@code null} or empty.
          */
-        public @Nullable CharSequence getDisplayName() {
+        @Nullable
+        public CharSequence getDisplayName() {
             return mDisplayName;
         }
 
@@ -1042,7 +1066,8 @@ public class MediaSession implements AutoCloseable {
          *
          * @return
          */
-        public @Nullable Bundle getExtras() {
+        @Nullable
+        public Bundle getExtras() {
             return mExtras;
         }
 
@@ -1071,7 +1096,8 @@ public class MediaSession implements AutoCloseable {
              *
              * @param command session command
              */
-            public @NonNull Builder setCommand(@Nullable SessionCommand command) {
+            @NonNull
+            public Builder setCommand(@Nullable SessionCommand command) {
                 mCommand = command;
                 return this;
             }
@@ -1085,7 +1111,8 @@ public class MediaSession implements AutoCloseable {
              *
              * @param resId resource id of the button
              */
-            public @NonNull Builder setIconResId(int resId) {
+            @NonNull
+            public Builder setIconResId(int resId) {
                 mIconResId = resId;
                 return this;
             }
@@ -1095,7 +1122,8 @@ public class MediaSession implements AutoCloseable {
              *
              * @param displayName display name of the button
              */
-            public @NonNull Builder setDisplayName(@Nullable CharSequence displayName) {
+            @NonNull
+            public Builder setDisplayName(@Nullable CharSequence displayName) {
                 mDisplayName = displayName;
                 return this;
             }
@@ -1107,7 +1135,8 @@ public class MediaSession implements AutoCloseable {
              * @param enabled {@code true} if the button is enabled and ready.
              *          {@code false} otherwise.
              */
-            public @NonNull Builder setEnabled(boolean enabled) {
+            @NonNull
+            public Builder setEnabled(boolean enabled) {
                 mEnabled = enabled;
                 return this;
             }
@@ -1117,7 +1146,8 @@ public class MediaSession implements AutoCloseable {
              *
              * @param extras extras information of the button
              */
-            public @NonNull Builder setExtras(@Nullable Bundle extras) {
+            @NonNull
+            public Builder setExtras(@Nullable Bundle extras) {
                 mExtras = extras;
                 return this;
             }
@@ -1127,7 +1157,8 @@ public class MediaSession implements AutoCloseable {
              *
              * @return a new {@link CommandButton}
              */
-            public @NonNull CommandButton build() {
+            @NonNull
+            public CommandButton build() {
                 return new CommandButton(mCommand, mIconResId, mDisplayName, mExtras, mEnabled);
             }
         }
@@ -1192,11 +1223,16 @@ public class MediaSession implements AutoCloseable {
         void updatePlayer(@NonNull SessionPlayer player,
                 @Nullable SessionPlayer playlistAgent);
         void updatePlayer(@NonNull SessionPlayer player);
-        @NonNull SessionPlayer getPlayer();
-        @NonNull String getId();
-        @NonNull Uri getUri();
-        @NonNull SessionToken getToken();
-        @NonNull List<ControllerInfo> getConnectedControllers();
+        @NonNull
+        SessionPlayer getPlayer();
+        @NonNull
+        String getId();
+        @NonNull
+        Uri getUri();
+        @NonNull
+        SessionToken getToken();
+        @NonNull
+        List<ControllerInfo> getConnectedControllers();
         boolean isConnected(@NonNull ControllerInfo controller);
 
         ListenableFuture<SessionResult> setCustomLayout(@NonNull ControllerInfo controller,
@@ -1271,7 +1307,8 @@ public class MediaSession implements AutoCloseable {
          * @param pi The intent to launch to show UI for this session.
          */
         @SuppressWarnings("unchecked")
-        @NonNull U setSessionActivity(@Nullable PendingIntent pi) {
+        @NonNull
+        U setSessionActivity(@Nullable PendingIntent pi) {
             mSessionActivity = pi;
             return (U) this;
         }
@@ -1289,7 +1326,8 @@ public class MediaSession implements AutoCloseable {
         // apps from creating multiple sessions without any clear reasons. If they create two
         // sessions with the same ID in a process, then an IllegalStateException will be thrown.
         @SuppressWarnings("unchecked")
-        @NonNull U setId(@NonNull String id) {
+        @NonNull
+        U setId(@NonNull String id) {
             if (id == null) {
                 throw new NullPointerException("id shouldn't be null");
             }
@@ -1305,7 +1343,8 @@ public class MediaSession implements AutoCloseable {
          * @return
          */
         @SuppressWarnings("unchecked")
-        @NonNull U setSessionCallback(@NonNull Executor executor, @NonNull C callback) {
+        @NonNull
+        U setSessionCallback(@NonNull Executor executor, @NonNull C callback) {
             if (executor == null) {
                 throw new NullPointerException("executor shouldn't be null");
             }

@@ -91,8 +91,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 .setId(TAG)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         if (Process.myUid() == controller.getUid()) {
                             return super.onConnect(session, controller);
                         }
@@ -168,7 +168,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlaybackInfoChanged(MediaController controller, PlaybackInfo info) {
+            public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                    @NonNull PlaybackInfo info) {
                 Assert.assertEquals(PlaybackInfo.PLAYBACK_TYPE_REMOTE, info.getPlaybackType());
                 assertEquals(attrs, info.getAudioAttributes());
                 assertEquals(volumeControlType, info.getPlaybackType());
@@ -481,8 +482,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 .setId("testOnDisconnectCallback")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
-                    public void onDisconnected(MediaSession session,
-                            ControllerInfo controller) {
+                    public void onDisconnected(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         assertEquals(Process.myUid(), controller.getUid());
                         latch.countDown();
                     }
@@ -507,8 +508,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 .setId("testSetCustomLayout")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         if (mContext.getPackageName().equals(controller.getPackageName())) {
                             mTestControllerInfo = controller;
                             return super.onConnect(session, controller);
@@ -521,7 +522,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
             final ControllerCallback callback = new ControllerCallback() {
                 @Override
                 public int onSetCustomLayout(
-                        MediaController controller, List<CommandButton> layout) {
+                        @NonNull MediaController controller, @NonNull List<CommandButton> layout) {
                     assertEquals(customLayout.size(), layout.size());
                     for (int i = 0; i < layout.size(); i++) {
                         assertEquals(customLayout.get(i).getCommand(), layout.get(i).getCommand());
@@ -552,8 +553,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onAllowedCommandsChanged(MediaController controller,
-                    SessionCommandGroup commandsOut) {
+            public void onAllowedCommandsChanged(@NonNull MediaController controller,
+                    @NonNull SessionCommandGroup commandsOut) {
                 assertEquals(commands, commandsOut);
                 latch.countDown();
             }
@@ -579,8 +580,9 @@ public class MediaSessionTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(2);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public SessionResult onCustomCommand(MediaController controller,
-                    SessionCommand command, Bundle args) {
+            @NonNull
+            public SessionResult onCustomCommand(@NonNull MediaController controller,
+                    @NonNull SessionCommand command, Bundle args) {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
@@ -609,8 +611,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCommand testCommand = new SessionCommand("test", null);
         final SessionCallback testSessionCallback = new SessionCallback() {
-            @Nullable
             @Override
+            @Nullable
             public SessionCommandGroup onConnect(@NonNull MediaSession session,
                     @NonNull ControllerInfo controller) {
                 session.sendCustomCommand(controller, testCommand, null);
@@ -618,8 +620,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
             }
         };
         final ControllerCallback testControllerCallback = new ControllerCallback() {
-            @NonNull
             @Override
+            @NonNull
             public SessionResult onCustomCommand(@NonNull MediaController controller,
                     @NonNull SessionCommand command, @Nullable Bundle args) {
                 if (TextUtils.equals(testCommand.getCustomAction(), command.getCustomAction())) {
@@ -646,15 +648,14 @@ public class MediaSessionTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCommand testCommand = new SessionCommand("test", null);
         final SessionCallback testSessionCallback = new SessionCallback() {
-            @Nullable
             @Override
+            @Nullable
             public SessionCommandGroup onConnect(@NonNull MediaSession session,
                     @NonNull ControllerInfo controller) {
                 SessionCommandGroup gr = super.onConnect(session, controller);
                 return gr;
             }
 
-            @Nullable
             @Override
             public void onPostConnect(@NonNull MediaSession session,
                     @NonNull ControllerInfo controller) {
@@ -662,8 +663,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
             }
         };
         final ControllerCallback testControllerCallback = new ControllerCallback() {
-            @NonNull
             @Override
+            @NonNull
             public SessionResult onCustomCommand(@NonNull MediaController controller,
                     @NonNull SessionCommand command, @Nullable Bundle args) {
                 if (TextUtils.equals(testCommand.getCustomAction(), command.getCustomAction())) {
@@ -694,8 +695,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
 
     public class MockOnConnectCallback extends SessionCallback {
         @Override
-        public SessionCommandGroup onConnect(MediaSession session,
-                ControllerInfo controllerInfo) {
+        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                @NonNull ControllerInfo controllerInfo) {
             if (Process.myUid() != controllerInfo.getUid()) {
                 return null;
             }
@@ -711,8 +712,8 @@ public class MediaSessionTest extends MediaSessionTestBase {
         public final ArrayList<SessionCommand> commands = new ArrayList<>();
 
         @Override
-        public int onCommandRequest(MediaSession session, ControllerInfo controllerInfo,
-                SessionCommand command) {
+        public int onCommandRequest(@NonNull MediaSession session,
+                @NonNull ControllerInfo controllerInfo, @NonNull SessionCommand command) {
             assertEquals(mContext.getPackageName(), controllerInfo.getPackageName());
             assertEquals(Process.myUid(), controllerInfo.getUid());
             assertFalse(controllerInfo.isTrusted());

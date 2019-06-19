@@ -622,7 +622,8 @@ public final class MediaPlayer extends SessionPlayer {
 
     private final Object mStateLock = new Object();
     @GuardedBy("mStateLock")
-    private @PlayerState int mState;
+    @PlayerState
+    private int mState;
     @GuardedBy("mStateLock")
     private Map<MediaItem, Integer> mMediaItemToBuffState = new HashMap<>();
     @GuardedBy("mStateLock")
@@ -896,8 +897,8 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setAudioAttributes(
             @NonNull final AudioAttributesCompat attr) {
         if (attr == null) {
@@ -1068,8 +1069,8 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setPlaylist(
             @NonNull final List<MediaItem> playlist, @Nullable final MediaMetadata metadata) {
         if (playlist == null) {
@@ -1137,8 +1138,8 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> addPlaylistItem(
             final int index, @NonNull final MediaItem item) {
         if (item == null) {
@@ -1263,8 +1264,8 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> replacePlaylistItem(
             final int index, @NonNull final MediaItem item) {
         if (item == null) {
@@ -1442,8 +1443,8 @@ public final class MediaPlayer extends SessionPlayer {
         return pendingFuture;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> updatePlaylistMetadata(
             @Nullable final MediaMetadata metadata) {
         synchronized (mStateLock) {
@@ -2355,8 +2356,8 @@ public final class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @NonNull
     @Override
+    @NonNull
     public List<SessionPlayer.TrackInfo> getTrackInfoInternal() {
         List<TrackInfo> list = getTrackInfo();
         List<SessionPlayer.TrackInfo> trackList = new ArrayList<>();
@@ -2371,9 +2372,10 @@ public final class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @NonNull
     @Override
-    public ListenableFuture<PlayerResult> selectTrackInternal(SessionPlayer.TrackInfo info) {
+    @NonNull
+    public ListenableFuture<PlayerResult> selectTrackInternal(
+            @NonNull SessionPlayer.TrackInfo info) {
         return selectTrack(createTrackInfo(info));
     }
 
@@ -2382,9 +2384,10 @@ public final class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @NonNull
     @Override
-    public ListenableFuture<PlayerResult> deselectTrackInternal(SessionPlayer.TrackInfo info) {
+    @NonNull
+    public ListenableFuture<PlayerResult> deselectTrackInternal(
+            @NonNull SessionPlayer.TrackInfo info) {
         return deselectTrack(createTrackInfo(info));
     }
 
@@ -2393,8 +2396,8 @@ public final class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @Nullable
     @Override
+    @Nullable
     public SessionPlayer.TrackInfo getSelectedTrackInternal(int trackType) {
         return createTrackInfoInternal(getSelectedTrack(trackType));
     }
@@ -3196,8 +3199,8 @@ public final class MediaPlayer extends SessionPlayer {
         }
 
         @Override
-        public void onSubtitleData(@NonNull MediaPlayer2 mp, final @NonNull MediaItem item,
-                final int trackIdx, final @NonNull SubtitleData data) {
+        public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull final MediaItem item,
+                final int trackIdx, @NonNull final SubtitleData data) {
             notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(SessionPlayer.PlayerCallback callback) {
