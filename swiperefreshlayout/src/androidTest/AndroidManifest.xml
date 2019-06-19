@@ -22,6 +22,7 @@
         android:theme="@style/TestActivityTheme">
         <activity android:name="androidx.swiperefreshlayout.widget.CircularProgressDrawableActivity"/>
         <activity android:name="androidx.swiperefreshlayout.widget.SwipeRefreshLayoutActivity"/>
+        <activity android:name="androidx.swiperefreshlayout.widget.SwipeRefreshLayoutInRecyclerViewActivity"/>
     </application>
 
 </manifest>
