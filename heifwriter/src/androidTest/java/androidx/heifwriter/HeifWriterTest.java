@@ -465,6 +465,7 @@ public class HeifWriterTest {
         }
     }
 
+    private static byte[] mYuvData;
     private void doTest(final TestConfig config) throws Exception {
         final int width = config.mWidth;
         final int height = config.mHeight;
@@ -494,7 +495,9 @@ public class HeifWriterTest {
             heifWriter.start();
 
             if (config.mInputMode == INPUT_MODE_BUFFER) {
-                byte[] data = new byte[width * height * 3 / 2];
+                if (mYuvData == null || mYuvData.length != width * height * 3 / 2) {
+                    mYuvData = new byte[width * height * 3 / 2];
+                }
 
                 if (config.mInputPath != null) {
                     inputStream = new FileInputStream(config.mInputPath);
@@ -508,12 +511,12 @@ public class HeifWriterTest {
 
                 for (int i = 0; i < actualNumImages; i++) {
                     if (DEBUG) Log.d(TAG, "fillYuvBuffer: " + i);
-                    fillYuvBuffer(i, data, width, height, inputStream);
+                    fillYuvBuffer(i, mYuvData, width, height, inputStream);
                     if (DUMP_YUV_INPUT) {
                         Log.d(TAG, "@@@ dumping input YUV");
-                        outputStream.write(data);
+                        outputStream.write(mYuvData);
                     }
-                    heifWriter.addYuvBuffer(ImageFormat.YUV_420_888, data);
+                    heifWriter.addYuvBuffer(ImageFormat.YUV_420_888, mYuvData);
                 }
             } else if (config.mInputMode == INPUT_MODE_SURFACE) {
                 // The input surface is a surface texture using single buffer mode, draws will be
@@ -698,6 +701,8 @@ public class HeifWriterTest {
             Rect r = getColorBlockRect(primary, width, height);
             assertTrue("Color block doesn't match", approxEquals(COLOR_BLOCK,
                     Color.valueOf(bitmap.getPixel(r.centerX(), height - r.centerY()))));
+
+            bitmap.recycle();
         }
     }
 }
