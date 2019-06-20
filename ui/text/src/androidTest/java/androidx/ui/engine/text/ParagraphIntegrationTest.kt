@@ -1205,6 +1205,7 @@ class ParagraphIntegrationTest {
         assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
     }
 
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     fun textStyle_setWordSpacingOnWholeText() {
         if (!BuildCompat.isAtLeastQ()) return
@@ -1231,6 +1232,7 @@ class ParagraphIntegrationTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     fun textStyle_setWordSpacingOnPartText() {
         if (!BuildCompat.isAtLeastQ()) return
@@ -1257,6 +1259,7 @@ class ParagraphIntegrationTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = 29)
     @Test
     fun textStyle_setWordSpacingTwice_lastOneOverwrite() {
         if (!BuildCompat.isAtLeastQ()) return

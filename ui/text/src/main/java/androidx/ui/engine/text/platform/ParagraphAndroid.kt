@@ -468,7 +468,7 @@ internal class ParagraphAndroid constructor(
                 )
             }
 
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (Build.VERSION.SDK_INT >= 29) {
                 style.wordSpacing?.let {
                     spannableString.setSpan(
                         WordSpacingSpan(it),
