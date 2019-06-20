@@ -52,6 +52,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -861,6 +862,14 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
+        public CharSequence getAccessibilityClassName() {
+            if (mAccessibilityProvider.handlesRvGetAccessibilityClassName()) {
+                return mAccessibilityProvider.onRvGetAccessibilityClassName();
+            }
+            return super.getAccessibilityClassName();
+        }
+
+        @Override
         public void onInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(event);
             event.setFromIndex(mCurrentItem);
@@ -883,6 +892,22 @@ public final class ViewPager2 extends ViewGroup {
     private class LinearLayoutManagerImpl extends LinearLayoutManager {
         LinearLayoutManagerImpl(Context context) {
             super(context);
+        }
+
+        @Override
+        public boolean performAccessibilityAction(@NonNull RecyclerView.Recycler recycler,
+                @NonNull RecyclerView.State state, int action, @Nullable Bundle args) {
+            if (mAccessibilityProvider.handlesLmPerformAccessibilityAction(action)) {
+                return mAccessibilityProvider.onLmPerformAccessibilityAction(action);
+            }
+            return super.performAccessibilityAction(recycler, state, action, args);
+        }
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+                @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+            super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+            mAccessibilityProvider.onLmInitializeAccessibilityNodeInfo(info);
         }
 
         @Override
@@ -1121,6 +1146,65 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
+        }
+
+        boolean handlesLmPerformAccessibilityAction(int action) {
+            return false;
+        }
+
+        boolean onLmPerformAccessibilityAction(int action) {
+            throw new IllegalStateException("Not implemented.");
+        }
+
+        void onLmInitializeAccessibilityNodeInfo(@NonNull AccessibilityNodeInfoCompat info) {
+        }
+
+        boolean handlesRvGetAccessibilityClassName() {
+            return false;
+        }
+
+        CharSequence onRvGetAccessibilityClassName() {
+            throw new IllegalStateException("Not implemented.");
+        }
+    }
+
+    class BasicAccessibilityProvider extends AccessibilityProvider {
+        @Override
+        public boolean handlesLmPerformAccessibilityAction(int action) {
+            return (action == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
+                    || action == AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD)
+                    && !isUserInputEnabled();
+        }
+
+        @Override
+        public boolean onLmPerformAccessibilityAction(int action) {
+            if (!handlesLmPerformAccessibilityAction(action)) {
+                throw new IllegalStateException();
+            }
+            return false;
+        }
+
+        @Override
+        public void onLmInitializeAccessibilityNodeInfo(
+                @NonNull AccessibilityNodeInfoCompat info) {
+            if (!isUserInputEnabled()) {
+                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_BACKWARD);
+                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_FORWARD);
+                info.setScrollable(false);
+            }
+        }
+
+        @Override
+        public boolean handlesRvGetAccessibilityClassName() {
+            return true;
+        }
+
+        @Override
+        public CharSequence onRvGetAccessibilityClassName() {
+            if (!handlesRvGetAccessibilityClassName()) {
+                throw new IllegalStateException();
+            }
+            return "androidx.viewpager.widget.ViewPager";
         }
     }
 
