@@ -29,7 +29,7 @@ plugins {
 
 dependencies {
     api project(":ui-core")
-    api project(":compose-runtime")
+    api project(":compose:compose-runtime")
     api(KOTLIN_COMPOSE_STDLIB)
     api(KOTLIN_COMPOSE_COROUTINES)
     api(KOTLIN_COMPOSE_REFLECT)

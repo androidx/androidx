@@ -29,12 +29,12 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
+    kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
     api project(":ui-android-text")
     api project(":ui-core")
     api "androidx.collection:collection:1.0.0"
-    api project(":compose-runtime")
+    api project(":compose:compose-runtime")
     api(KOTLIN_COMPOSE_STDLIB)
 
     // TODO: Non-Kotlin dependency, move to Android-specific code
