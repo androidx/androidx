@@ -46,6 +46,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.heifwriter.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -68,6 +69,7 @@ import java.util.Arrays;
  * Test {@link HeifWriter}.
  */
 @RunWith(AndroidJUnit4.class)
+@FlakyTest
 public class HeifWriterTest {
     private static final String TAG = HeifWriterTest.class.getSimpleName();
 

@@ -41,6 +41,7 @@ import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -252,6 +253,7 @@ public class SwipeDismissFrameLayoutTest {
      }*/
 
     @Test
+    @FlakyTest
     public void testArcSwipeDoesNotTriggerDismiss() throws Throwable {
         // GIVEN a freshly setup SwipeDismissFrameLayout with vertically scrollable content
         setUpSwipeDismissWithVerticalRecyclerView();

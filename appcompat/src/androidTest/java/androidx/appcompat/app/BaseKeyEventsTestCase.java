@@ -40,6 +40,7 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.core.view.MenuItemCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -160,6 +161,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
 
     @Test
     @MediumTest
+    @FlakyTest
     public void testBackPressWithEmptyMenuFinishesActivity() throws InterruptedException {
         repopulateWithEmptyMenu();
 
