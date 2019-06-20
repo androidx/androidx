@@ -46,7 +46,7 @@ import androidx.lifecycle.ViewModelStore;
  * <li>Call {@link NavHostController#setLifecycleOwner(LifecycleOwner)} to associate the
  * NavController with a specific Lifecycle.</li>
  * <li>Call {@link NavHostController#setViewModelStore(ViewModelStore)} to enable usage of
- * {@link NavController#getViewModelStore(int)} and navigation graph scoped ViewModels.</li>
+ * {@link NavController#getViewModelStoreOwner(int)} and navigation graph scoped ViewModels.</li>
  * </ul>
  */
 public interface NavHost {

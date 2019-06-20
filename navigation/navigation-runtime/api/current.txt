@@ -46,7 +46,8 @@ package androidx.navigation {
     method public androidx.navigation.NavGraph getGraph();
     method public androidx.navigation.NavInflater getNavInflater();
     method public androidx.navigation.NavigatorProvider getNavigatorProvider();
-    method public androidx.lifecycle.ViewModelStore getViewModelStore(@IdRes int);
+    method @Deprecated public androidx.lifecycle.ViewModelStore getViewModelStore(@IdRes int);
+    method public androidx.lifecycle.ViewModelStoreOwner getViewModelStoreOwner(@IdRes int);
     method public boolean handleDeepLink(android.content.Intent?);
     method public void navigate(@IdRes int);
     method public void navigate(@IdRes int, android.os.Bundle?);
