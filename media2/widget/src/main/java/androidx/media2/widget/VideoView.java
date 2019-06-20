@@ -619,12 +619,7 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onConnected()");
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onConnected() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             if (!mCurrentView.assignSurfaceToPlayerWrapper(mPlayer)) {
                 Log.w(TAG, "failed to assign surface");
             }
@@ -636,12 +631,7 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onVideoSizeChanged(): size: " + videoSize);
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onVideoSizeChanged() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             if (mVideoTrackCount == 0 && videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
                 if (isMediaPrepared()) {
                     List<TrackInfo> trackInfos = player.getTrackInfo();
@@ -667,12 +657,7 @@ public class VideoView extends SelectiveLayout {
                         + (data.getStartTimeUs() / 1000 - player.getCurrentPosition())
                         + "ms, getDurationUs(): " + data.getDurationUs());
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onSubtitleData() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             if (!track.equals(mSelectedSubtitleTrackInfo)) {
                 return;
             }
@@ -687,12 +672,7 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onPlayerStateChanged(): selected track: " + state);
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onPlayerStateChanged() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             if (state == SessionPlayer.PLAYER_STATE_ERROR) {
                 // TODO: Show error state (b/123498635)
             }
@@ -703,12 +683,7 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onCurrentMediaItemChanged(): MediaItem: " + item);
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onCurrentMediaItemChanged() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             updateMusicView(item);
         }
 
@@ -718,12 +693,7 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onTrackInfoChanged(): tracks: " + trackInfos);
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onTrackInfoChanged() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             updateTracks(player, trackInfos);
             updateMusicView(player.getCurrentMediaItem());
         }
@@ -733,12 +703,7 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onTrackSelected(): selected track: " + trackInfo);
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onTrackSelected() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
             if (subtitleTrack != null) {
                 mSubtitleController.selectTrack(subtitleTrack);
@@ -750,16 +715,27 @@ public class VideoView extends SelectiveLayout {
             if (DEBUG) {
                 Log.d(TAG, "onTrackDeselected(): deselected track: " + trackInfo);
             }
-            if (player != mPlayer) {
-                if (DEBUG) {
-                    Log.w(TAG, "onTrackDeselected() is ignored. player is already gone.");
-                }
-                return;
-            }
+            if (shouldIgnoreCallback(player)) return;
             SubtitleTrack subtitleTrack = mSubtitleTracks.get(trackInfo);
             if (subtitleTrack != null) {
                 mSubtitleController.selectTrack(null);
             }
+        }
+
+        private boolean shouldIgnoreCallback(@NonNull PlayerWrapper player) {
+            if (player != mPlayer) {
+                if (DEBUG) {
+                    try {
+                        final String methodName =
+                                new Throwable().getStackTrace()[1].getMethodName();
+                        Log.w(TAG, methodName + " should be ignored. player is already gone.");
+                    } catch (IndexOutOfBoundsException e) {
+                        Log.w(TAG, "A PlayerCallback should be ignored. player is already gone.");
+                    }
+                }
+                return true;
+            }
+            return false;
         }
     }
 
