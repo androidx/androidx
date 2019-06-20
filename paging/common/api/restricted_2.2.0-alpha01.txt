@@ -9,7 +9,7 @@ package androidx.paging {
 
 
 
-  public abstract class ListenableItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
+  public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final Key getKeyInternal$lintWithKotlin(Value item);
   }
 
