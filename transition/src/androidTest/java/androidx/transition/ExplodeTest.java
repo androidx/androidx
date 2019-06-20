@@ -16,17 +16,12 @@
 
 package androidx.transition;
 
-import static androidx.transition.AtLeastOnceWithin.atLeastOnceWithin;
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
 
-import static org.junit.Assert.assertEquals;
-import static org.mockito.AdditionalMatchers.and;
-import static org.mockito.AdditionalMatchers.geq;
-import static org.mockito.AdditionalMatchers.gt;
-import static org.mockito.AdditionalMatchers.leq;
-import static org.mockito.AdditionalMatchers.lt;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
-
+import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.View;
@@ -36,16 +31,22 @@ import android.widget.LinearLayout;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
 
 @LargeTest
 public class ExplodeTest extends BaseTransitionTest {
 
-    private View mRedSquare;
-    private View mGreenSquare;
-    private View mBlueSquare;
-    private View mYellowSquare;
+    private TranslationView mRedSquare;
+    private TranslationView mGreenSquare;
+    private TranslationView mBlueSquare;
+    private TranslationView mYellowSquare;
 
     @Override
     Transition createTransition() {
@@ -53,150 +54,181 @@ public class ExplodeTest extends BaseTransitionTest {
     }
 
     @Before
-    public void prepareViews() {
-        mRedSquare = spy(new View(rule.getActivity()));
-        mGreenSquare = spy(new View(rule.getActivity()));
-        mBlueSquare = spy(new View(rule.getActivity()));
-        mYellowSquare = spy(new View(rule.getActivity()));
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
-            @Override
-            public void run() {
-                final FrameLayout frame = new FrameLayout(rule.getActivity());
-                mRedSquare.setBackgroundColor(Color.RED);
-                frame.addView(mRedSquare,
-                        new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.TOP));
-                mGreenSquare.setBackgroundColor(Color.GREEN);
-                frame.addView(mGreenSquare,
-                        new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.TOP));
-                mBlueSquare.setBackgroundColor(Color.BLUE);
-                frame.addView(mBlueSquare,
-                        new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.BOTTOM));
-                mYellowSquare.setBackgroundColor(Color.YELLOW);
-                frame.addView(mYellowSquare,
-                        new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.BOTTOM));
-                mRoot.addView(frame,
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.MATCH_PARENT);
-            }
+    public void prepareViews() throws Throwable {
+        final Context context = rule.getActivity();
+        mRedSquare = new TranslationView(context);
+        mGreenSquare = new TranslationView(context);
+        mBlueSquare = new TranslationView(context);
+        mYellowSquare = new TranslationView(context);
+        rule.runOnUiThread(() -> {
+            final FrameLayout frame = new FrameLayout(rule.getActivity());
+            mRedSquare.setBackgroundColor(Color.RED);
+            frame.addView(mRedSquare,
+                    new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.TOP));
+            mGreenSquare.setBackgroundColor(Color.GREEN);
+            frame.addView(mGreenSquare,
+                    new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.TOP));
+            mBlueSquare.setBackgroundColor(Color.BLUE);
+            frame.addView(mBlueSquare,
+                    new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.BOTTOM));
+            mYellowSquare.setBackgroundColor(Color.YELLOW);
+            frame.addView(mYellowSquare,
+                    new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.BOTTOM));
+            mRoot.addView(frame,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT);
         });
     }
 
     @Test
     public void testExplode() throws Throwable {
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TransitionManager.beginDelayedTransition(mRoot, mTransition);
-                mRedSquare.setVisibility(View.INVISIBLE);
-                mGreenSquare.setVisibility(View.INVISIBLE);
-                mBlueSquare.setVisibility(View.INVISIBLE);
-                mYellowSquare.setVisibility(View.INVISIBLE);
-            }
+        rule.runOnUiThread(() -> {
+            TransitionManager.beginDelayedTransition(mRoot, mTransition);
+            mRedSquare.setVisibility(View.INVISIBLE);
+            mGreenSquare.setVisibility(View.INVISIBLE);
+            mBlueSquare.setVisibility(View.INVISIBLE);
+            mYellowSquare.setVisibility(View.INVISIBLE);
         });
+
         waitForStart();
-        assertEquals(View.VISIBLE, mRedSquare.getVisibility());
-        assertEquals(View.VISIBLE, mGreenSquare.getVisibility());
-        assertEquals(View.VISIBLE, mBlueSquare.getVisibility());
-        assertEquals(View.VISIBLE, mYellowSquare.getVisibility());
-
-        verifyMovement(mRedSquare, Gravity.LEFT | Gravity.TOP, true);
-        verifyMovement(mGreenSquare, Gravity.RIGHT | Gravity.TOP, true);
-        verifyMovement(mBlueSquare, Gravity.RIGHT | Gravity.BOTTOM, true);
-        verifyMovement(mYellowSquare, Gravity.LEFT | Gravity.BOTTOM, true);
+        assertThat(mRedSquare, hasVisibility(View.VISIBLE));
+        assertThat(mGreenSquare, hasVisibility(View.VISIBLE));
+        assertThat(mBlueSquare, hasVisibility(View.VISIBLE));
+        assertThat(mYellowSquare, hasVisibility(View.VISIBLE));
         waitForEnd();
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        verifyNoTranslation(mRedSquare);
-        verifyNoTranslation(mGreenSquare);
-        verifyNoTranslation(mBlueSquare);
-        verifyNoTranslation(mYellowSquare);
-        assertEquals(View.INVISIBLE, mRedSquare.getVisibility());
-        assertEquals(View.INVISIBLE, mGreenSquare.getVisibility());
-        assertEquals(View.INVISIBLE, mBlueSquare.getVisibility());
-        assertEquals(View.INVISIBLE, mYellowSquare.getVisibility());
+        assertThat(mRedSquare.getHistoricalTranslationX(), is(decreasing()));
+        assertThat(mRedSquare.getHistoricalTranslationY(), is(decreasing()));
+
+        assertThat(mGreenSquare.getHistoricalTranslationX(), is(increasing()));
+        assertThat(mGreenSquare.getHistoricalTranslationY(), is(decreasing()));
+
+        assertThat(mBlueSquare.getHistoricalTranslationX(), is(increasing()));
+        assertThat(mBlueSquare.getHistoricalTranslationY(), is(increasing()));
+
+        assertThat(mYellowSquare.getHistoricalTranslationX(), is(decreasing()));
+        assertThat(mYellowSquare.getHistoricalTranslationY(), is(increasing()));
+
+        assertThat(mRedSquare, allOf(hasVisibility(View.INVISIBLE), hasNoTranslations()));
+        assertThat(mGreenSquare, allOf(hasVisibility(View.INVISIBLE), hasNoTranslations()));
+        assertThat(mBlueSquare, allOf(hasVisibility(View.INVISIBLE), hasNoTranslations()));
+        assertThat(mYellowSquare, allOf(hasVisibility(View.INVISIBLE), hasNoTranslations()));
     }
 
     @Test
     public void testImplode() throws Throwable {
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mRedSquare.setVisibility(View.INVISIBLE);
-                mGreenSquare.setVisibility(View.INVISIBLE);
-                mBlueSquare.setVisibility(View.INVISIBLE);
-                mYellowSquare.setVisibility(View.INVISIBLE);
-            }
+        rule.runOnUiThread(() -> {
+            mRedSquare.setVisibility(View.INVISIBLE);
+            mGreenSquare.setVisibility(View.INVISIBLE);
+            mBlueSquare.setVisibility(View.INVISIBLE);
+            mYellowSquare.setVisibility(View.INVISIBLE);
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-
-        rule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TransitionManager.beginDelayedTransition(mRoot, mTransition);
-                mRedSquare.setVisibility(View.VISIBLE);
-                mGreenSquare.setVisibility(View.VISIBLE);
-                mBlueSquare.setVisibility(View.VISIBLE);
-                mYellowSquare.setVisibility(View.VISIBLE);
-            }
+        rule.runOnUiThread(() -> {
+            TransitionManager.beginDelayedTransition(mRoot, mTransition);
+            mRedSquare.setVisibility(View.VISIBLE);
+            mGreenSquare.setVisibility(View.VISIBLE);
+            mBlueSquare.setVisibility(View.VISIBLE);
+            mYellowSquare.setVisibility(View.VISIBLE);
         });
+
         waitForStart();
-
-        assertEquals(View.VISIBLE, mRedSquare.getVisibility());
-        assertEquals(View.VISIBLE, mGreenSquare.getVisibility());
-        assertEquals(View.VISIBLE, mBlueSquare.getVisibility());
-        assertEquals(View.VISIBLE, mYellowSquare.getVisibility());
-
-        verifyMovement(mRedSquare, Gravity.LEFT | Gravity.TOP, false);
-        verifyMovement(mGreenSquare, Gravity.RIGHT | Gravity.TOP, false);
-        verifyMovement(mBlueSquare, Gravity.RIGHT | Gravity.BOTTOM, false);
-        verifyMovement(mYellowSquare, Gravity.LEFT | Gravity.BOTTOM, false);
+        assertThat(mRedSquare, hasVisibility(View.VISIBLE));
+        assertThat(mGreenSquare, hasVisibility(View.VISIBLE));
+        assertThat(mBlueSquare, hasVisibility(View.VISIBLE));
+        assertThat(mYellowSquare, hasVisibility(View.VISIBLE));
         waitForEnd();
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        verifyNoTranslation(mRedSquare);
-        verifyNoTranslation(mGreenSquare);
-        verifyNoTranslation(mBlueSquare);
-        verifyNoTranslation(mYellowSquare);
-        assertEquals(View.VISIBLE, mRedSquare.getVisibility());
-        assertEquals(View.VISIBLE, mGreenSquare.getVisibility());
-        assertEquals(View.VISIBLE, mBlueSquare.getVisibility());
-        assertEquals(View.VISIBLE, mYellowSquare.getVisibility());
+        assertThat(mRedSquare.getHistoricalTranslationX(), is(increasing()));
+        assertThat(mRedSquare.getHistoricalTranslationY(), is(increasing()));
+
+        assertThat(mGreenSquare.getHistoricalTranslationX(), is(decreasing()));
+        assertThat(mGreenSquare.getHistoricalTranslationY(), is(increasing()));
+
+        assertThat(mBlueSquare.getHistoricalTranslationX(), is(decreasing()));
+        assertThat(mBlueSquare.getHistoricalTranslationY(), is(decreasing()));
+
+        assertThat(mYellowSquare.getHistoricalTranslationX(), is(increasing()));
+        assertThat(mYellowSquare.getHistoricalTranslationY(), is(decreasing()));
+
+        assertThat(mRedSquare, allOf(hasVisibility(View.VISIBLE), hasNoTranslations()));
+        assertThat(mGreenSquare, allOf(hasVisibility(View.VISIBLE), hasNoTranslations()));
+        assertThat(mBlueSquare, allOf(hasVisibility(View.VISIBLE), hasNoTranslations()));
+        assertThat(mYellowSquare, allOf(hasVisibility(View.VISIBLE), hasNoTranslations()));
     }
 
-    private void verifyMovement(View v, int direction, boolean movingOut) {
-        final float startX = v.getTranslationX();
-        final float startY = v.getTranslationY();
-        if ((direction & Gravity.LEFT) == Gravity.LEFT) {
-            if (movingOut) {
-                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(lt(0f), lt(startX)));
-            } else {
-                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(leq(0f), gt(startX)));
-            }
-        } else if ((direction & Gravity.RIGHT) == Gravity.RIGHT) {
-            if (movingOut) {
-                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(gt(0f), gt(startX)));
-            } else {
-                verify(v, atLeastOnceWithin(1000)).setTranslationX(and(geq(0f), lt(startX)));
-            }
-        }
-        if ((direction & Gravity.TOP) == Gravity.TOP) {
-            if (movingOut) {
-                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(lt(0f), lt(startY)));
-            } else {
-                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(leq(0f), gt(startY)));
-            }
-        } else if ((direction & Gravity.BOTTOM) == Gravity.BOTTOM) {
-            if (movingOut) {
-                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(gt(0f), gt(startY)));
-            } else {
-                verify(v, atLeastOnceWithin(1000)).setTranslationY(and(geq(0f), lt(startY)));
-            }
-        }
+    @Test
+    public void precondition() {
+        assertThat(Arrays.asList(1f, 2f, 3f), is(increasing()));
+        assertThat(Arrays.asList(3f, 2f, 1f), is(decreasing()));
+        assertThat(Arrays.asList(1f, 9f, 3f), is(not(increasing())));
+        assertThat(Arrays.asList(1f, 9f, 3f), is(not(decreasing())));
     }
 
-    private void verifyNoTranslation(View view) {
-        assertEquals(0f, view.getTranslationX(), 0.0f);
-        assertEquals(0f, view.getTranslationY(), 0.0f);
+    private Matcher<View> hasVisibility(final int visibility) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("has visibility " + visibility);
+            }
+
+            @Override
+            protected boolean matchesSafely(View item) {
+                return item.getVisibility() == visibility;
+            }
+        };
+    }
+
+    private Matcher<View> hasNoTranslations() {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("has no translationX or Y");
+            }
+
+            @Override
+            protected boolean matchesSafely(View item) {
+                return item.getTranslationX() == 0f && item.getTranslationY() == 0f;
+            }
+        };
+    }
+
+    private ListOrderingMatcher increasing() {
+        return new ListOrderingMatcher(false);
+    }
+
+    private ListOrderingMatcher decreasing() {
+        return new ListOrderingMatcher(true);
+    }
+
+    private static class ListOrderingMatcher extends TypeSafeMatcher<List<Float>> {
+
+        private final boolean mDesc;
+
+        ListOrderingMatcher(boolean desc) {
+            mDesc = desc;
+        }
+
+        @Override
+        public void describeTo(Description description) {
+            description.appendText("List is ordered");
+        }
+
+        @Override
+        protected boolean matchesSafely(List<Float> item) {
+            for (int i = 0, max = item.size() - 1; i < max; i++) {
+                if (mDesc) {
+                    if (item.get(i) < item.get(i + 1)) {
+                        return false;
+                    }
+                } else {
+                    if (item.get(i) > item.get(i + 1)) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 
 }
