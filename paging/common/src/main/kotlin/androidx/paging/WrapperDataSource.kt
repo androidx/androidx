@@ -62,7 +62,7 @@ internal open class WrapperDataSource<Key : Any, ValueFrom : Any, ValueTo : Any>
             synchronized(keyMap) {
                 for (i in dest.indices) {
                     keyMap[dest[i]] =
-                        (this.source as ListenableItemKeyedDataSource).getKey(source[i])
+                        (this.source as ItemKeyedDataSource).getKey(source[i])
                 }
             }
         }
