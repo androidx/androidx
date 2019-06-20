@@ -242,13 +242,13 @@ interface Canvas {
      */
     fun scale(sx: Float, sy: Float = sx)
 
-    /** Add a rotation to the current transform. The argument is in radians clockwise. */
-    fun rotate(radians: Float)
+    /** Add a rotation to the current transform. The argument is in degrees clockwise. */
+    fun rotate(degrees: Float)
 
     /**
      * Add an axis-aligned skew to the current transform, with the first argument
-     * being the horizontal skew in radians clockwise around the origin, and the
-     * second argument being the vertical skew in radians clockwise around the
+     * being the horizontal skew in degrees clockwise around the origin, and the
+     * second argument being the vertical skew in degrees clockwise around the
      * origin.
      */
     fun skew(sx: Float, sy: Float)
@@ -358,8 +358,8 @@ interface Canvas {
 
     /**
      * Draw an arc scaled to fit inside the given rectangle. It starts from
-     * startAngle radians around the oval up to startAngle + sweepAngle
-     * radians around the oval, with zero radians being the point on
+     * startAngle degrees around the oval up to startAngle + sweepAngle
+     * degrees around the oval, with zero degrees being the point on
      * the right hand side of the oval that crosses the horizontal line
      * that intersects the center of the rectangle and with positive
      * angles going clockwise around the oval. If useCenter is true, the arc is

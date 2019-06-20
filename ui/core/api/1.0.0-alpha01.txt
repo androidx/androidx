@@ -1440,7 +1440,7 @@ package androidx.ui.painting {
     method public void drawVertices(androidx.ui.Vertices vertices, androidx.ui.painting.BlendMode blendMode, androidx.ui.painting.Paint paint);
     method public android.graphics.Canvas getNativeCanvas();
     method public void restore();
-    method public void rotate(float radians);
+    method public void rotate(float degrees);
     method public void save();
     method public void saveLayer(androidx.ui.engine.geometry.Rect? bounds, androidx.ui.painting.Paint paint);
     method public void scale(float sx, float sy = sx);
