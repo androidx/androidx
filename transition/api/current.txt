@@ -127,18 +127,18 @@ package androidx.transition {
     method public androidx.transition.Transition addTarget(android.view.View);
     method public androidx.transition.Transition addTarget(@IdRes int);
     method public androidx.transition.Transition addTarget(String);
-    method public androidx.transition.Transition addTarget(Class);
+    method public androidx.transition.Transition addTarget(Class<?>);
     method public abstract void captureEndValues(androidx.transition.TransitionValues);
     method public abstract void captureStartValues(androidx.transition.TransitionValues);
     method public androidx.transition.Transition! clone();
     method public android.animation.Animator? createAnimator(android.view.ViewGroup, androidx.transition.TransitionValues?, androidx.transition.TransitionValues?);
     method public androidx.transition.Transition excludeChildren(android.view.View, boolean);
     method public androidx.transition.Transition excludeChildren(@IdRes int, boolean);
-    method public androidx.transition.Transition excludeChildren(Class, boolean);
+    method public androidx.transition.Transition excludeChildren(Class<?>, boolean);
     method public androidx.transition.Transition excludeTarget(android.view.View, boolean);
     method public androidx.transition.Transition excludeTarget(@IdRes int, boolean);
     method public androidx.transition.Transition excludeTarget(String, boolean);
-    method public androidx.transition.Transition excludeTarget(Class, boolean);
+    method public androidx.transition.Transition excludeTarget(Class<?>, boolean);
     method public long getDuration();
     method public android.graphics.Rect? getEpicenter();
     method public androidx.transition.Transition.EpicenterCallback? getEpicenterCallback();
@@ -149,7 +149,7 @@ package androidx.transition {
     method public long getStartDelay();
     method public java.util.List<java.lang.Integer!> getTargetIds();
     method public java.util.List<java.lang.String!>? getTargetNames();
-    method public java.util.List<java.lang.Class!>? getTargetTypes();
+    method public java.util.List<java.lang.Class<?>!>? getTargetTypes();
     method public java.util.List<android.view.View!> getTargets();
     method public String![]? getTransitionProperties();
     method public androidx.transition.TransitionValues? getTransitionValues(android.view.View, boolean);
@@ -158,7 +158,7 @@ package androidx.transition {
     method public androidx.transition.Transition removeTarget(android.view.View);
     method public androidx.transition.Transition removeTarget(@IdRes int);
     method public androidx.transition.Transition removeTarget(String);
-    method public androidx.transition.Transition removeTarget(Class);
+    method public androidx.transition.Transition removeTarget(Class<?>);
     method public androidx.transition.Transition setDuration(long);
     method public void setEpicenterCallback(androidx.transition.Transition.EpicenterCallback?);
     method public androidx.transition.Transition setInterpolator(android.animation.TimeInterpolator?);
@@ -226,7 +226,7 @@ package androidx.transition {
     method public androidx.transition.TransitionSet addTarget(android.view.View);
     method public androidx.transition.TransitionSet addTarget(@IdRes int);
     method public androidx.transition.TransitionSet addTarget(String);
-    method public androidx.transition.TransitionSet addTarget(Class);
+    method public androidx.transition.TransitionSet addTarget(Class<?>);
     method public androidx.transition.TransitionSet addTransition(androidx.transition.Transition);
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
@@ -236,7 +236,7 @@ package androidx.transition {
     method public androidx.transition.TransitionSet removeListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.TransitionSet removeTarget(@IdRes int);
     method public androidx.transition.TransitionSet removeTarget(android.view.View);
-    method public androidx.transition.TransitionSet removeTarget(Class);
+    method public androidx.transition.TransitionSet removeTarget(Class<?>);
     method public androidx.transition.TransitionSet removeTarget(String);
     method public androidx.transition.TransitionSet removeTransition(androidx.transition.Transition);
     method public androidx.transition.TransitionSet setDuration(long);

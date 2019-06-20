@@ -186,14 +186,14 @@ public abstract class Transition implements Cloneable {
     ArrayList<Integer> mTargetIds = new ArrayList<>();
     ArrayList<View> mTargets = new ArrayList<>();
     private ArrayList<String> mTargetNames = null;
-    private ArrayList<Class> mTargetTypes = null;
+    private ArrayList<Class<?>> mTargetTypes = null;
     private ArrayList<Integer> mTargetIdExcludes = null;
     private ArrayList<View> mTargetExcludes = null;
-    private ArrayList<Class> mTargetTypeExcludes = null;
+    private ArrayList<Class<?>> mTargetTypeExcludes = null;
     private ArrayList<String> mTargetNameExcludes = null;
     private ArrayList<Integer> mTargetIdChildExcludes = null;
     private ArrayList<View> mTargetChildExcludes = null;
-    private ArrayList<Class> mTargetTypeChildExcludes = null;
+    private ArrayList<Class<?>> mTargetTypeChildExcludes = null;
     private TransitionValuesMaps mStartValues = new TransitionValuesMaps();
     private TransitionValuesMaps mEndValues = new TransitionValuesMaps();
     TransitionSet mParent = null;
@@ -823,7 +823,7 @@ public abstract class Transition implements Cloneable {
         if (mTargetTypeExcludes != null) {
             int numTypes = mTargetTypeExcludes.size();
             for (int i = 0; i < numTypes; ++i) {
-                Class type = mTargetTypeExcludes.get(i);
+                Class<?> type = mTargetTypeExcludes.get(i);
                 if (type.isInstance(target)) {
                     return false;
                 }
@@ -1075,7 +1075,7 @@ public abstract class Transition implements Cloneable {
      * @see #excludeChildren(Class, boolean)
      */
     @NonNull
-    public Transition addTarget(@NonNull Class targetType) {
+    public Transition addTarget(@NonNull Class<?> targetType) {
         if (mTargetTypes == null) {
             mTargetTypes = new ArrayList<>();
         }
@@ -1146,7 +1146,7 @@ public abstract class Transition implements Cloneable {
      * <code>transitionSet.addTransitions(new Fade()).removeTarget(someType);</code>
      */
     @NonNull
-    public Transition removeTarget(@NonNull Class target) {
+    public Transition removeTarget(@NonNull Class<?> target) {
         if (mTargetTypes != null) {
             mTargetTypes.remove(target);
         }
@@ -1353,7 +1353,7 @@ public abstract class Transition implements Cloneable {
      * @see #excludeTarget(View, boolean)
      */
     @NonNull
-    public Transition excludeTarget(@NonNull Class type, boolean exclude) {
+    public Transition excludeTarget(@NonNull Class<?> type, boolean exclude) {
         mTargetTypeExcludes = excludeType(mTargetTypeExcludes, type, exclude);
         return this;
     }
@@ -1380,7 +1380,7 @@ public abstract class Transition implements Cloneable {
      * @see #excludeChildren(View, boolean)
      */
     @NonNull
-    public Transition excludeChildren(@NonNull Class type, boolean exclude) {
+    public Transition excludeChildren(@NonNull Class<?> type, boolean exclude) {
         mTargetTypeChildExcludes = excludeType(mTargetTypeChildExcludes, type, exclude);
         return this;
     }
@@ -1389,7 +1389,8 @@ public abstract class Transition implements Cloneable {
      * Utility method to manage the boilerplate code that is the same whether we
      * are excluding targets or their children.
      */
-    private ArrayList<Class> excludeType(ArrayList<Class> list, Class type, boolean exclude) {
+    private ArrayList<Class<?>> excludeType(ArrayList<Class<?>> list, Class<?> type,
+            boolean exclude) {
         if (type != null) {
             if (exclude) {
                 list = ArrayListManager.add(list, type);
@@ -1454,7 +1455,7 @@ public abstract class Transition implements Cloneable {
      * @return the list of target Types
      */
     @Nullable
-    public List<Class> getTargetTypes() {
+    public List<Class<?>> getTargetTypes() {
         return mTargetTypes;
     }
 

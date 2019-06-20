@@ -164,7 +164,7 @@ public class TransitionTest extends BaseTest {
         Transition transition = new EmptyTransition();
         assertThat(transition.addTarget(Button.class), is(sameInstance(transition)));
         assertThat(transition.addTarget(ImageView.class), is(sameInstance(transition)));
-        List<Class> targetTypes = transition.getTargetTypes();
+        List<Class<?>> targetTypes = transition.getTargetTypes();
         assertNotNull(targetTypes);
         assertThat(targetTypes.size(), is(2));
         assertThat(targetTypes, hasItem(Button.class));
