@@ -16,8 +16,11 @@
 
 package androidx.paging
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.arch.core.util.Function
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.paging.DataSource.KeyType.ITEM_KEYED
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
@@ -36,34 +39,73 @@ import com.google.common.util.concurrent.ListenableFuture
  *
  * @param Key Type of data used to query Value types out of the DataSource.
  * @param Value Type of items being loaded by the DataSource.
- *
- * @see ListenableItemKeyedDataSource
  */
-abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
-    ListenableItemKeyedDataSource<Key, Value>() {
+abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Value>(ITEM_KEYED) {
 
     /**
      * Holder object for inputs to [loadInitial].
      *
-     * @param Key Type of data used to query Value types out of the DataSource.
+     * @param Key Type of data used to query [Value] types out of the [DataSource].
+     * @property requestedInitialKey Load items around this key, or at the beginning of the data set
+     * if `null` is passed.
+     *
+     * Note that this key is generally a hint, and may be ignored if you want to always load from
+     * the beginning.
+     * @property requestedLoadSize Requested number of items to load.
+     *
+     * Note that this may be larger than available data.
+     * @property placeholdersEnabled Defines whether placeholders are enabled, and whether the
+     * loaded total count will be ignored.
      */
     open class LoadInitialParams<Key : Any>(
-        requestedInitialKey: Key?,
-        requestedLoadSize: Int,
-        placeholdersEnabled: Boolean
-    ) : ListenableItemKeyedDataSource.LoadInitialParams<Key>(
-        requestedInitialKey,
-        requestedLoadSize,
-        placeholdersEnabled
+        @JvmField
+        val requestedInitialKey: Key?,
+        @JvmField
+        val requestedLoadSize: Int,
+        @JvmField
+        val placeholdersEnabled: Boolean
     )
 
     /**
      * Holder object for inputs to [loadBefore] and [loadAfter].
      *
-     * @param Key Type of data used to query Value types out of the [DataSource].
+     * @param Key Type of data used to query [Value] types out of the [DataSource].
+     * @property key Load items before/after this key.
+     *
+     * Returned data must begin directly adjacent to this position.
+     * @property requestedLoadSize Requested number of items to load.
+     *
+     * Returned page can be of this size, but it may be altered if that is easier, e.g. a network
+     * data source where the backend defines page size.
      */
-    open class LoadParams<Key : Any>(key: Key, requestedLoadSize: Int) :
-        ListenableItemKeyedDataSource.LoadParams<Key>(key, requestedLoadSize)
+    open class LoadParams<Key : Any>(@JvmField val key: Key, @JvmField val requestedLoadSize: Int)
+
+    /**
+     * Type produced by [loadInitial] to represent initially loaded data.
+     *
+     * @param V The type of the data loaded.
+     */
+    internal class InitialResult<V : Any> : BaseResult<V> {
+        constructor(data: List<V>, position: Int, totalCount: Int) : super(
+            data,
+            null,
+            null,
+            position,
+            totalCount - data.size - position,
+            position,
+            true
+        )
+
+        constructor(data: List<V>) : super(data, null, null, 0, 0, 0, false)
+    }
+
+    /**
+     * Type produced by [loadBefore] and [loadAfter] to represent a page of loaded data.
+     *
+     * @param V The type of the data loaded.
+     */
+    internal class Result<V : Any>(data: List<V>) :
+        DataSource.BaseResult<V>(data, null, null, 0, 0, 0, false)
 
     /**
      * Callback for [loadInitial]
@@ -151,8 +193,31 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
         }
     }
 
-    final override fun loadInitial(
-        params: ListenableItemKeyedDataSource.LoadInitialParams<Key>
+    @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
+    internal final override fun load(params: Params<Key>): ListenableFuture<out BaseResult<Value>> {
+        when (params.type) {
+            LoadType.INITIAL -> {
+                val initParams = LoadInitialParams(
+                    params.key,
+                    params.initialLoadSize,
+                    params.placeholdersEnabled
+                )
+                return loadInitial(initParams)
+            }
+            LoadType.START -> {
+                val loadParams = LoadParams(params.key!!, params.pageSize)
+                return loadBefore(loadParams)
+            }
+            LoadType.END -> {
+                val loadParams = LoadParams(params.key!!, params.pageSize)
+                return loadAfter(loadParams)
+            }
+        }
+    }
+
+    @VisibleForTesting
+    internal fun loadInitial(
+        params: LoadInitialParams<Key>
     ): ListenableFuture<InitialResult<Value>> {
         val future = ResolvableFuture.create<InitialResult<Value>>()
         executor.execute {
@@ -181,6 +246,26 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
         return future
     }
 
+    @VisibleForTesting
+    internal fun loadBefore(params: LoadParams<Key>): ListenableFuture<Result<Value>> {
+        val future = ResolvableFuture.create<Result<Value>>()
+        executor.execute {
+            val loadParams = LoadParams(params.key, params.requestedLoadSize)
+            loadBefore(loadParams, getFutureAsCallback(future))
+        }
+        return future
+    }
+
+    @VisibleForTesting
+    internal fun loadAfter(params: LoadParams<Key>): ListenableFuture<Result<Value>> {
+        val future = ResolvableFuture.create<Result<Value>>()
+        executor.execute {
+            val loadParams = LoadParams(params.key, params.requestedLoadSize)
+            loadAfter(loadParams, getFutureAsCallback(future))
+        }
+        return future
+    }
+
     private fun getFutureAsCallback(future: ResolvableFuture<Result<Value>>): LoadCallback<Value> {
         return object : LoadCallback<Value>() {
             override fun onResult(data: List<Value>) {
@@ -191,28 +276,6 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
                 future.setException(error)
             }
         }
-    }
-
-    final override fun loadBefore(
-        params: ListenableItemKeyedDataSource.LoadParams<Key>
-    ): ListenableFuture<Result<Value>> {
-        val future = ResolvableFuture.create<Result<Value>>()
-        executor.execute {
-            val loadParams = LoadParams(params.key, params.requestedLoadSize)
-            loadBefore(loadParams, getFutureAsCallback(future))
-        }
-        return future
-    }
-
-    final override fun loadAfter(
-        params: ListenableItemKeyedDataSource.LoadParams<Key>
-    ): ListenableFuture<Result<Value>> {
-        val future = ResolvableFuture.create<Result<Value>>()
-        executor.execute {
-            val loadParams = LoadParams(params.key, params.requestedLoadSize)
-            loadAfter(loadParams, getFutureAsCallback(future))
-        }
-        return future
     }
 
     /**
@@ -293,7 +356,13 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> :
      * @param item Item to get the key from.
      * @return Key associated with given item.
      */
-    abstract override fun getKey(item: Value): Key
+    abstract fun getKey(item: Value): Key
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    final override fun getKeyInternal(item: Value): Key = getKey(item)
 
     final override fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
