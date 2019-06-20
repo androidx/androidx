@@ -122,7 +122,7 @@ class PagerTest {
 
     private fun createPager(consumer: MockConsumer, start: Int = 0, end: Int = 10) = Pager(
         PagedList.Config(2, 2, true, 10, PagedList.Config.MAX_SIZE_UNBOUNDED),
-        ImmediateListDataSource(data),
+        PagedSourceWrapper(ImmediateListDataSource(data)),
         DirectExecutor,
         DirectExecutor,
         consumer,
