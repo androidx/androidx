@@ -22,8 +22,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * A convenience annotation which can be used in a Pojo to automatically fetch relation entities.
- * When the Pojo is returned from a query, all of its relations are also fetched by Room.
+ * A convenience annotation which can be used in a POJO to automatically fetch relation entities.
+ * When the POJO is returned from a query, all of its relations are also fetched by Room.
  *
  * <pre>
  * {@literal @}Entity
@@ -76,7 +76,7 @@ import java.lang.annotation.Target;
  * }
  * </pre>
  * <p>
- * In the example above, {@code SongNameAndId} is a regular Pojo but all of fields are fetched
+ * In the example above, {@code SongNameAndId} is a regular POJO but all of fields are fetched
  * from the {@code entity} defined in the {@code @Relation} annotation (<i>Song</i>).
  * {@code SongNameAndId} could also define its own relations all of which would also be fetched
  * automatically.
@@ -99,10 +99,12 @@ import java.lang.annotation.Target;
  * If the relationship is defined by an associative table (also know as junction table) then you can
  * use {@link #associateBy()} to specify it. This is useful for fetching many-to-many relations.
  * <p>
- * Note that {@code @Relation} annotation can be used only in Pojo classes, an {@link Entity} class
+ * Note that {@code @Relation} annotation can be used only in POJO classes, an {@link Entity} class
  * cannot have relations. This is a design decision to avoid common pitfalls in {@link Entity}
- * setups. You can read more about it in the main Room documentation. When loading data, you can
- * simply work around this limitation by creating Pojo classes that extend the {@link Entity}.
+ * setups. You can read more about it in the main
+ * <href="https://developer.android.com/training/data-storage/room/referencing-data#understand-no-object-references">
+ * Room documentation</>. When loading data, you can simply work around this limitation by creating
+ * POJO classes that extend the {@link Entity}.
  *
  * @see Junction
  */
@@ -118,7 +120,7 @@ public @interface Relation {
     Class<?> entity() default Object.class;
 
     /**
-     * Reference column in the parent Pojo.
+     * Reference column in the parent POJO.
      * <p>
      * In a one-to-one or one-to-many relation, this value will be matched against the column
      * defined in {@link #entityColumn()}. In a many-to-many using {@link #associateBy()} then

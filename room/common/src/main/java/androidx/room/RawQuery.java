@@ -27,12 +27,15 @@ import java.lang.annotation.Target;
  * <pre>
  * {@literal @}Dao
  * interface RawDao {
- *     {@literal @}RawQuery
- *     User getUserViaQuery(SupportSQLiteQuery query);
+ *   {@literal @}RawQuery
+ *   Song getSongViaQuery(SupportSQLiteQuery query);
  * }
- * SimpleSQLiteQuery query = new SimpleSQLiteQuery("SELECT * FROM User WHERE id = ? LIMIT 1",
- *         new Object[]{userId});
- * User user2 = rawDao.getUserViaQuery(query);
+ *
+ * // Usage of RawDao
+ * SimpleSQLiteQuery query = new SimpleSQLiteQuery(
+ *     "SELECT * FROM Song WHERE id = ? LIMIT 1",
+ *     new Object[]{ songId});
+ * Song song = rawDao.getSongViaQuery(query);
  * </pre>
  * <p>
  * Room will generate the code based on the return type of the function and failure to
@@ -61,77 +64,82 @@ import java.lang.annotation.Target;
  * <pre>
  * {@literal @}Dao
  * interface RawDao {
- *     {@literal @}RawQuery(observedEntities = User.class)
- *     LiveData&lt;List&lt;User>> getUsers(SupportSQLiteQuery query);
+ *   {@literal @}RawQuery(observedEntities = Song.class)
+ *   LiveData&lt;List&lt;Song&gt;&gt; getSongs(SupportSQLiteQuery query);
  * }
- * LiveData&lt;List&lt;User>> liveUsers = rawDao.getUsers(
- *     new SimpleSQLiteQuery("SELECT * FROM User ORDER BY name DESC"));
+ *
+ * // Usage of RawDao
+ * LiveData&lt;List&lt;Song&gt;&gt; liveSongs = rawDao.getSongs(
+ *     new SimpleSQLiteQuery("SELECT * FROM song ORDER BY name DESC"));
  * </pre>
- * <b>Returning Pojos:</b>
+ * <b>Returning POJOs:</b>
  * <p>
  * RawQueries can also return plain old java objects, similar to {@link Query} methods.
  * <pre>
- * public class NameAndLastName {
- *     public final String name;
- *     public final String lastName;
+ * public class NameAndReleaseYear {
+ *   final String name;
+ *   {@literal @}ColumnInfo(name = "release_year")
+ *   final int year;
  *
- *     public NameAndLastName(String name, String lastName) {
- *         this.name = name;
- *         this.lastName = lastName;
- *     }
+ *   public NameAndReleaseYear(String name, int year) {
+ *     this.name = name;
+ *     this.year = year;
+ *   }
  * }
  *
  * {@literal @}Dao
  * interface RawDao {
- *     {@literal @}RawQuery
- *     NameAndLastName getNameAndLastName(SupportSQLiteQuery query);
+ *   {@literal @}RawQuery
+ *   NameAndReleaseYear getNameAndReleaseYear(SupportSQLiteQuery query);
  * }
- * NameAndLastName result = rawDao.getNameAndLastName(
- *      new SimpleSQLiteQuery("SELECT * FROM User WHERE id = ?", new Object[]{userId}))
- * // or
- * NameAndLastName result = rawDao.getNameAndLastName(
- *      new SimpleSQLiteQuery("SELECT name, lastName FROM User WHERE id = ?",
- *          new Object[]{userId})))
+ *
+ * // Usage of RawDao
+ * NameAndReleaseYear result = rawDao.getNameAndReleaseYear(
+ *     new SimpleSQLiteQuery("SELECT * FROM song WHERE id = ?", new Object[]{songId}))
  * </pre>
  * <p>
- * <b>Pojos with Embedded Fields:</b>
+ * <b>POJOs with Embedded Fields:</b>
  * <p>
- * {@code RawQuery} methods can return pojos that include {@link Embedded} fields as well.
+ * {@code RawQuery} methods can return POJOs that include {@link Embedded} fields as well.
  * <pre>
- * public class UserAndPet {
- *     {@literal @}Embedded
- *     public User user;
- *     {@literal @}Embedded
- *     public Pet pet;
+ * public class SongAndArtist {
+ *   {@literal @}Embedded
+ *   public Song song;
+ *   {@literal @}Embedded
+ *   public Artist artist;
  * }
  *
  * {@literal @}Dao
  * interface RawDao {
- *     {@literal @}RawQuery
- *     UserAndPet getUserAndPet(SupportSQLiteQuery query);
+ *   {@literal @}RawQuery
+ *   SongAndArtist getSongAndArtist(SupportSQLiteQuery query);
  * }
- * UserAndPet received = rawDao.getUserAndPet(
- *         new SimpleSQLiteQuery("SELECT * FROM User, Pet WHERE User.id = Pet.userId LIMIT 1"))
+ *
+ * // Usage of RawDao
+ * SongAndArtist result = rawDao.getSongAndArtist(
+ *     new SimpleSQLiteQuery("SELECT * FROM Song, Artist WHERE Song.artistId = Artist.id LIMIT 1"))
  * </pre>
  *
  * <b>Relations:</b>
  * <p>
  * {@code RawQuery} return types can also be objects with {@link Relation Relations}.
  * <pre>
- * public class UserAndAllPets {
+ * public class AlbumAndSongs {
  *     {@literal @}Embedded
- *     public User user;
- *     {@literal @}Relation(parentColumn = "id", entityColumn = "userId")
- *     public List&lt;Pet> pets;
+ *     public Album album;
+ *     {@literal @}Relation(parentColumn = "id", entityColumn = "albumId")
+ *     public List&lt;Song&gt; pets;
  * }
  *
  * {@literal @}Dao
  * interface RawDao {
- *     {@literal @}RawQuery
- *     List&lt;UserAndAllPets> getUsersAndAllPets(SupportSQLiteQuery query);
+ *   {@literal @}RawQuery
+ *   List&lt;AlbumAndSongs&gt; getAlbumAndSongs(SupportSQLiteQuery query);
  * }
- * List&lt;UserAndAllPets> result = rawDao.getUsersAndAllPets(
- *      new SimpleSQLiteQuery("SELECT * FROM users"));
+ *
+ * // Usage of RawDao
+ * List&lt;AlbumAndSongs&gt; result = rawDao.getAlbumAndSongs(
+ *     new SimpleSQLiteQuery("SELECT * FROM album"));
  * </pre>
  */
 @Target(ElementType.METHOD)
@@ -148,11 +156,11 @@ public @interface RawQuery {
      * <pre>
      * {@literal @}Dao
      * interface RawDao {
-     *     {@literal @}RawQuery(observedEntities = User.class)
-     *     LiveData&lt;List&lt;User>> getUsers(String query);
+     *   {@literal @}RawQuery(observedEntities = Song.class)
+     *   LiveData&lt;List&lt;User&gt;&gt; getUsers(String query);
      * }
-     * LiveData&lt;List&lt;User>> liveUsers = rawDao.getUsers("select * from User ORDER BY name
-     * DESC");
+     * LiveData&lt;List&lt;Song&gt;&gt; liveSongs = rawDao.getUsers(
+     *     "SELECT * FROM song ORDER BY name DESC");
      * </pre>
      *
      * @return List of entities that should invalidate the query if changed.
