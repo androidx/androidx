@@ -50,8 +50,8 @@ package androidx.preference {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.preference.PreferenceScreen! inflateFromResource(android.content.Context!, int, androidx.preference.PreferenceScreen!);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceRecyclerViewAccessibilityDelegate extends androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate {
-    ctor public PreferenceRecyclerViewAccessibilityDelegate(androidx.recyclerview.widget.RecyclerView!);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class PreferenceRecyclerViewAccessibilityDelegate extends androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate {
+    ctor @Deprecated public PreferenceRecyclerViewAccessibilityDelegate(androidx.recyclerview.widget.RecyclerView!);
   }
 
   public final class PreferenceScreen extends androidx.preference.PreferenceGroup {
