@@ -1214,7 +1214,6 @@ public class MediaControlView extends ViewGroup {
     private final OnClickListener mFullScreenListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            if (mPlayer == null) return;
             if (mOnFullScreenListener == null) {
                 return;
             }
