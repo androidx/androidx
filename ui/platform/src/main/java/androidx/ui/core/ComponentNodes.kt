@@ -882,6 +882,11 @@ fun ComponentNode.findLastLayoutChild(block: (LayoutNode) -> Boolean): LayoutNod
 }
 
 /**
+ * Returns `true` if this ComponentNode has no descendant [LayoutNode]s.
+ */
+fun ComponentNode.hasNoLayoutDescendants() = findLastLayoutChild { true } == null
+
+/**
  * Finds the union of all bounding boxes of LayoutNode children, relative to the containing
  * [LayoutNode].
  *
