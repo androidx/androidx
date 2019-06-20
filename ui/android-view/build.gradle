@@ -29,10 +29,10 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
+    kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
     api project(":ui-core")
-    api project(":compose-runtime")
+    api project(":compose:compose-runtime")
     api project(":ui-android-view-non-ir")
     api(KOTLIN_COMPOSE_STDLIB)
     api(KOTLIN_COMPOSE_COROUTINES)

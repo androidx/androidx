@@ -12,12 +12,12 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
+    kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_COMPOSE_STDLIB)
-    api project(":compose-runtime")
+    api project(":compose:compose-runtime")
 
     implementation project(':ui-animation')
     implementation project(':ui-framework')

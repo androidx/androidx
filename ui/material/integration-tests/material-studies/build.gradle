@@ -27,12 +27,12 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose-plugin-cli-gradle", configuration: "pluginForGradle")
+    kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
     implementation "androidx.annotation:annotation:1.0.0"
     implementation "androidx.activity:activity:1.0.0-alpha01"
     implementation(KOTLIN_COMPOSE_STDLIB)
-    implementation(project(":compose-runtime"))
+    implementation(project(":compose:compose-runtime"))
     implementation project(':ui-material')
     implementation project(":ui-framework")
     implementation project(":ui-layout")

@@ -20,11 +20,11 @@ def includeProject(name, filePath) {
 }
 
 
-includeProject(":compose-runtime", "../compose/runtime")
-includeProject(":compose-plugin-cli", "../compose/plugins/cli")
-includeProject(":compose-plugin-cli-tests", "../compose/plugins/cli-tests")
-includeProject(":compose-plugin-ide", "../compose/plugins/ide")
-includeProject(":compose-plugin-cli-gradle", "../compose/plugins/cli/gradle")
+includeProject(":compose:compose-runtime", "../compose/compose-runtime")
+includeProject(":compose:compose-compiler-hosted", "../compose/compose-compiler-hosted")
+includeProject(":compose:compose-compiler-hosted:integration-tests", "../compose/compose-compiler-hosted/integration-tests")
+includeProject(":compose:compose-compiler", "../compose/compose-compiler")
+includeProject(":compose:compose-ide-plugin", "../compose/compose-ide-plugin")
 includeProject(":ui-android-text", "android-text")
 includeProject(":ui-text", "text")
 includeProject(":ui-text:integration-tests:ui-text-demos", "text/integration-tests/text-demos")
