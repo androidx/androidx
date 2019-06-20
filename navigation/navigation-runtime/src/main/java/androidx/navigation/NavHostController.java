@@ -98,7 +98,7 @@ public final class NavHostController extends NavController {
 
     /**
      * Sets the host's ViewModelStore used by the NavController to store ViewModels at the
-     * navigation graph level. This is required to call {@link #getViewModelStore} and
+     * navigation graph level. This is required to call {@link #getViewModelStoreOwner} and
      * should generally be called for you by your {@link NavHost}.
      *
      * @param viewModelStore ViewModelStore used to store ViewModels at the navigation graph level
