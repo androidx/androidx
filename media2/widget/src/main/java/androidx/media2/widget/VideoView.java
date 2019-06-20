@@ -559,15 +559,13 @@ public class VideoView extends SelectiveLayout {
     }
 
     void updateMusicView(MediaItem item) {
-        if (item == null || item.getMetadata() == null) {
-            return;
-        }
-
-        if (isCurrentItemMusic()) {
+        boolean shouldShowMusicView = item != null && isCurrentItemMusic();
+        if (shouldShowMusicView) {
             mMusicView.setVisibility(View.VISIBLE);
 
             MediaMetadata metadata = item.getMetadata();
             Resources resources = getResources();
+
             Drawable albumDrawable = getAlbumArt(metadata,
                     resources.getDrawable(R.drawable.ic_default_album_image));
             String title = getString(metadata, MediaMetadata.METADATA_KEY_TITLE,
@@ -580,6 +578,9 @@ public class VideoView extends SelectiveLayout {
             mMusicView.setArtistText(artist);
         } else {
             mMusicView.setVisibility(View.GONE);
+            mMusicView.setAlbumDrawable(null);
+            mMusicView.setTitleText(null);
+            mMusicView.setArtistText(null);
         }
     }
 
@@ -587,7 +588,7 @@ public class VideoView extends SelectiveLayout {
         Drawable drawable = defaultDrawable;
         Bitmap bitmap = null;
 
-        if (metadata.containsKey(MediaMetadata.METADATA_KEY_ALBUM_ART)) {
+        if (metadata != null && metadata.containsKey(MediaMetadata.METADATA_KEY_ALBUM_ART)) {
             bitmap = metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART);
         }
         if (bitmap != null) {
@@ -609,7 +610,7 @@ public class VideoView extends SelectiveLayout {
 
     private String getString(@NonNull MediaMetadata metadata, String stringKey,
             String defaultValue) {
-        String value = metadata.getString(stringKey);
+        String value = (metadata == null) ? defaultValue : metadata.getString(stringKey);
         return value == null ? defaultValue : value;
     }
 
@@ -684,6 +685,7 @@ public class VideoView extends SelectiveLayout {
                 Log.d(TAG, "onCurrentMediaItemChanged(): MediaItem: " + item);
             }
             if (shouldIgnoreCallback(player)) return;
+
             updateMusicView(item);
         }
 
