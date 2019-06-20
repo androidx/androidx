@@ -43,6 +43,7 @@ import androidx.ui.layout.Row
 import androidx.compose.Composable
 import androidx.compose.composer
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -1466,7 +1467,36 @@ class FlexTest : LayoutTest() {
         val childSizeDp = 30.dp
         val childSize = childSizeDp.toIntPx()
 
-        val drawLatch = CountDownLatch(4)
+        val layoutLatch = CountDownLatch(1)
+        val containerSize = Ref<PxSize>()
+        show {
+            Center {
+                ConstrainedBox(
+                    constraints = DpConstraints.tightConstraints(sizeDp, sizeDp)
+                ) {
+                    Row {
+                        OnChildPositioned(onPositioned = { coordinates ->
+                            containerSize.value = coordinates.size
+                            layoutLatch.countDown()
+                        }) {
+                            FixedSpacer(width = childSizeDp, height = childSizeDp)
+                        }
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(PxSize(childSize, childSize), containerSize.value)
+    }
+
+    @Test
+    fun testColumn_doesNotUseMinConstraintsOnChildren() = withDensity(density) {
+        val sizeDp = 50.dp
+        val childSizeDp = 30.dp
+        val childSize = childSizeDp.toIntPx()
+
+        val layoutLatch = CountDownLatch(1)
         val containerSize = Ref<PxSize>()
         show {
             Center {
@@ -1476,6 +1506,7 @@ class FlexTest : LayoutTest() {
                     Column {
                         OnChildPositioned(onPositioned = { coordinates ->
                             containerSize.value = coordinates.size
+                            layoutLatch.countDown()
                         }) {
                             FixedSpacer(width = childSizeDp, height = childSizeDp)
                         }
@@ -1483,7 +1514,7 @@ class FlexTest : LayoutTest() {
                 }
             }
         }
-        drawLatch.await(1, TimeUnit.SECONDS)
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(PxSize(childSize, childSize), containerSize.value)
     }
