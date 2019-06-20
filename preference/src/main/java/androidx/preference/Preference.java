@@ -2091,8 +2091,13 @@ public class Preference implements Comparable<Preference> {
     /**
      * Initializes an {@link android.view.accessibility.AccessibilityNodeInfo} with information
      * about the View for this preference.
+     *
+     * @deprecated Preferences aren't views. They should not need any accessibility changes,
+     * unless the view hierarchy is customized. In this situation, please add Accessibility
+     * information in {@link #onBindViewHolder}.
      */
     @CallSuper
+    @Deprecated
     public void onInitializeAccessibilityNodeInfo(AccessibilityNodeInfoCompat info) {}
 
     /**
