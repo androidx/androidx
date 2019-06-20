@@ -74,6 +74,7 @@ package androidx.ui.core {
     method public static java.util.List<java.lang.Object> childrenLayouts(androidx.ui.core.LayoutNode);
     method public static androidx.ui.core.LayoutNode? findLastLayoutChild(androidx.ui.core.ComponentNode, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutNode,java.lang.Boolean> block);
     method public static androidx.ui.core.PxPosition globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition global, boolean withOwnerOffset = true);
+    method public static boolean hasNoLayoutDescendants(androidx.ui.core.ComponentNode);
     method public static boolean isAttached(androidx.ui.core.ComponentNode);
     method public static androidx.ui.core.PxPosition localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition local, boolean withOwnerOffset = true);
     method public static androidx.ui.core.PxPosition positionRelativeToAncestor(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode ancestor);
@@ -349,6 +350,10 @@ package androidx.ui.core.pointerinput {
     method public androidx.ui.core.pointerinput.PointerInputEventData copy(int id, androidx.ui.core.PointerInputData pointerInputData);
     method public int getId();
     method public androidx.ui.core.PointerInputData getPointerInputData();
+  }
+
+  public final class PointerInputEventProcessorKt {
+    ctor public PointerInputEventProcessorKt();
   }
 
 }
