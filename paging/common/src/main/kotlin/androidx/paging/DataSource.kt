@@ -95,8 +95,8 @@ typealias OnInvalidated = () -> Unit
  * can differentiate unloaded placeholder items from content that has been paged in.
  *
  * @param Key Unique identifier for item loaded from DataSource. Often an integer to represent
- *            position in data set. Note - this is distinct from e.g. Room's `<Value> Value type
- *            loaded by the DataSource.
+ * position in data set. Note - this is distinct from e.g. Room's `<Value> Value type
+ * loaded by the DataSource.
  */
 abstract class DataSource<Key : Any, Value : Any>
 // Since we currently rely on implementation details of two implementations, prevent external
@@ -394,19 +394,6 @@ internal constructor(internal val type: KeyType) {
         val counted: Boolean
     ) {
         init {
-            validate()
-        }
-
-        // only one of leadingNulls / offset may be used
-        private fun position() = leadingNulls + offset
-
-        internal fun totalCount() = when {
-            // only one of leadingNulls / offset may be used
-            counted -> position() + data.size + trailingNulls
-            else -> TOTAL_COUNT_UNKNOWN
-        }
-
-        private fun validate() {
             if (leadingNulls < 0 || offset < 0) {
                 throw IllegalArgumentException("Position must be non-negative")
             }
@@ -422,6 +409,16 @@ internal constructor(internal val type: KeyType) {
             }
         }
 
+        // only one of leadingNulls / offset may be used
+        private fun position() = leadingNulls + offset
+
+        internal fun totalCount() = when {
+            // only one of leadingNulls / offset may be used
+            counted -> position() + data.size + trailingNulls
+            else -> TOTAL_COUNT_UNKNOWN
+        }
+
+        // TODO: Delete now that tiling is gone?
         internal fun validateForInitialTiling(pageSize: Int) {
             if (!counted) {
                 throw IllegalStateException(
@@ -445,6 +442,21 @@ internal constructor(internal val type: KeyType) {
                 )
             }
         }
+
+        /**
+         * Assumes that nextKey and prevKey returned by this [BaseResult] matches the expected type
+         * in [PagedSource.LoadResult].
+         */
+        @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct Key type.
+        internal fun <Key : Any> toLoadResult() = PagedSource.LoadResult(
+            leadingNulls,
+            trailingNulls,
+            nextKey as Key?,
+            prevKey as Key?,
+            data,
+            offset,
+            counted
+        )
 
         override fun equals(other: Any?) = when (other) {
             is BaseResult<*> -> data == other.data &&

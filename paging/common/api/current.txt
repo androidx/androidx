@@ -293,6 +293,78 @@ package androidx.paging {
     method public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, Key? initialKey = null);
   }
 
+  public abstract class PagedSource<Key, Value> {
+    ctor public PagedSource();
+    method public abstract boolean getInvalid();
+    method public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
+    method public abstract void invalidate();
+    method public abstract boolean isRetryableError(Throwable error);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedSource.LoadResult<Key,Value>> load(androidx.paging.PagedSource.LoadParams<Key> params);
+    property public abstract boolean invalid;
+    property public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
+    field public static final int COUNT_UNDEFINED = -1; // 0xffffffff
+    field public static final androidx.paging.PagedSource.Companion! Companion;
+  }
+
+  public static final class PagedSource.Companion {
+  }
+
+  public abstract static sealed class PagedSource.KeyProvider<Key, Value> {
+  }
+
+  public abstract static class PagedSource.KeyProvider.ItemKey<Key, Value> extends androidx.paging.PagedSource.KeyProvider<Key,Value> {
+    ctor public PagedSource.KeyProvider.ItemKey();
+    method public abstract Key getKey(Value item);
+  }
+
+  public static final class PagedSource.KeyProvider.PageKey<Key, Value> extends androidx.paging.PagedSource.KeyProvider<Key,Value> {
+    ctor public PagedSource.KeyProvider.PageKey();
+  }
+
+  public static final class PagedSource.KeyProvider.Positional<Value> extends androidx.paging.PagedSource.KeyProvider<java.lang.Integer,Value> {
+    ctor public PagedSource.KeyProvider.Positional();
+  }
+
+  public static final class PagedSource.LoadParams<Key> {
+    ctor public PagedSource.LoadParams(androidx.paging.PagedSource.LoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
+    method public androidx.paging.PagedSource.LoadType component1();
+    method public Key? component2();
+    method public int component3();
+    method public boolean component4();
+    method public int component5();
+    method public androidx.paging.PagedSource.LoadParams<Key> copy(androidx.paging.PagedSource.LoadType loadType, Key? key, int loadSize, boolean placeholdersEnabled, int pageSize);
+    method public Key? getKey();
+    method public int getLoadSize();
+    method public androidx.paging.PagedSource.LoadType getLoadType();
+    method public int getPageSize();
+    method public boolean getPlaceholdersEnabled();
+  }
+
+  public static final class PagedSource.LoadResult<Key, Value> {
+    ctor public PagedSource.LoadResult(int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset, boolean counted);
+    method public int component1();
+    method public int component2();
+    method public Key? component3();
+    method public Key? component4();
+    method public java.util.List<Value> component5();
+    method public int component6();
+    method public boolean component7();
+    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset, boolean counted);
+    method public boolean getCounted();
+    method public java.util.List<Value> getData();
+    method public int getItemsAfter();
+    method public int getItemsBefore();
+    method public Key? getNextKey();
+    method public int getOffset();
+    method public Key? getPrevKey();
+  }
+
+  public enum PagedSource.LoadType {
+    enum_constant public static final androidx.paging.PagedSource.LoadType END;
+    enum_constant public static final androidx.paging.PagedSource.LoadType INITIAL;
+    enum_constant public static final androidx.paging.PagedSource.LoadType START;
+  }
+
   public abstract class PositionalDataSource<T> extends androidx.paging.ListenablePositionalDataSource<T> {
     ctor public PositionalDataSource();
     method public static final int computeInitialLoadPosition(androidx.paging.PositionalDataSource.LoadInitialParams params, int totalCount);
