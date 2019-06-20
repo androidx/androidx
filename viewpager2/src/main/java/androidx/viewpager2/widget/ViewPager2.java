@@ -247,7 +247,10 @@ public final class ViewPager2 extends ViewGroup {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return mAccessibilityProvider.onGetAccessibilityClassName();
+        if (mAccessibilityProvider.handlesGetAccessibilityClassName()) {
+            return mAccessibilityProvider.onGetAccessibilityClassName();
+        }
+        return super.getAccessibilityClassName();
     }
 
     private void setOrientation(Context context, AttributeSet attrs) {
@@ -840,7 +843,6 @@ public final class ViewPager2 extends ViewGroup {
         mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
-    @RequiresApi(16)
     @Override
     public boolean performAccessibilityAction(int action, Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
@@ -1075,6 +1077,7 @@ public final class ViewPager2 extends ViewGroup {
 
     private interface AccessibilityProvider {
         void onInitialize(@NonNull RecyclerView recyclerView);
+        boolean handlesGetAccessibilityClassName();
         String onGetAccessibilityClassName();
         void onRestorePendingState();
         void onAttachAdapter(@Nullable Adapter<?> newAdapter);
@@ -1135,7 +1138,15 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         @Override
+        public boolean handlesGetAccessibilityClassName() {
+            return true;
+        }
+
+        @Override
         public String onGetAccessibilityClassName() {
+            if (!handlesGetAccessibilityClassName()) {
+                throw new IllegalStateException();
+            }
             return "androidx.viewpager.widget.ViewPager";
         }
 
