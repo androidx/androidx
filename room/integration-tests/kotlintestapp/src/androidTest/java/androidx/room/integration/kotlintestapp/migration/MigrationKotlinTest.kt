@@ -218,7 +218,7 @@ class MigrationKotlinTest {
 
         assertThat<Throwable>(throwable, instanceOf<Throwable>(IllegalStateException::class.java))
 
-        assertThat<String>(throwable!!.message, containsString("Migration failed"))
+        assertThat<String>(throwable!!.message, containsString("Migration didn't properly handle"))
     }
 
     @Test
@@ -244,7 +244,7 @@ class MigrationKotlinTest {
         }
 
         assertThat<Throwable>(throwable, instanceOf<Throwable>(IllegalStateException::class.java))
-        assertThat<String>(throwable!!.message, containsString("Migration failed"))
+        assertThat<String>(throwable!!.message, containsString("Migration didn't properly handle"))
     }
 
     internal val MIGRATION_1_2: Migration = object : Migration(1, 2) {
