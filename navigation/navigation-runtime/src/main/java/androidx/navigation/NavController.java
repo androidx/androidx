@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.TaskStackBuilder;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -486,7 +487,7 @@ public class NavController {
                 if (args != null) {
                     args.setClassLoader(mContext.getClassLoader());
                 }
-                mBackStack.add(new NavBackStackEntry(uuid, node, args));
+                mBackStack.add(new NavBackStackEntry(uuid, node, args, mViewModel));
             }
             updateOnBackPressedCallbackEnabled();
             mBackStackUUIDsToRestore = null;
@@ -860,7 +861,7 @@ public class NavController {
         if (newDest != null) {
             // The mGraph should always be on the back stack after you navigate()
             if (mBackStack.isEmpty()) {
-                mBackStack.add(new NavBackStackEntry(mGraph, finalArgs));
+                mBackStack.add(new NavBackStackEntry(mGraph, finalArgs, mViewModel));
             }
             // Now ensure all intermediate NavGraphs are put on the back stack
             // to ensure that global actions work.
@@ -869,14 +870,14 @@ public class NavController {
             while (destination != null && findDestination(destination.getId()) == null) {
                 NavGraph parent = destination.getParent();
                 if (parent != null) {
-                    hierarchy.addFirst(new NavBackStackEntry(parent, finalArgs));
+                    hierarchy.addFirst(new NavBackStackEntry(parent, finalArgs, mViewModel));
                 }
                 destination = parent;
             }
             mBackStack.addAll(hierarchy);
             // And finally, add the new destination with its default args
             NavBackStackEntry newBackStackEntry = new NavBackStackEntry(newDest,
-                    newDest.addInDefaultArgs(finalArgs));
+                    newDest.addInDefaultArgs(finalArgs), mViewModel);
             mBackStack.add(newBackStackEntry);
         }
         updateOnBackPressedCallbackEnabled();
@@ -1031,11 +1032,38 @@ public class NavController {
 
     void setViewModelStore(@NonNull ViewModelStore viewModelStore) {
         mViewModel = NavControllerViewModel.getInstance(viewModelStore);
+        // Ensure that all of the NavBackStackEntry instances are using the
+        // newly set NavControllerViewModel as their backing store.
+        for (NavBackStackEntry entry : mBackStack) {
+            entry.setNavControllerViewModel(mViewModel);
+        }
     }
 
     /**
-     * Gets the view model for a NavGraph. If a view model does not exist it will create and
-     * store one.
+     * Gets the {@link ViewModelStore} for a NavGraph.This can be passed to
+     * {@link androidx.lifecycle.ViewModelProvider} to retrieve a ViewModel that is scoped
+     * to the navigation graph - it will be cleared when the navigation graph is popped off
+     * the back stack.
+     *
+     * @param navGraphId ID of a NavGraph that exists on the back stack
+     * @throws IllegalStateException if called before the {@link NavHost} has called
+     * {@link NavHostController#setViewModelStore}.
+     * @throws IllegalArgumentException if the NavGraph is not on the back stack
+     * @deprecated Use {@link #getViewModelStoreOwner(int)}, calling
+     * {@link ViewModelStoreOwner#getViewModelStore()} on the returned ViewModelStoreOwner
+     * if you need specifically a ViewModelStore.
+     */
+    @Deprecated
+    @NonNull
+    public ViewModelStore getViewModelStore(@IdRes int navGraphId) {
+        return getViewModelStoreOwner(navGraphId).getViewModelStore();
+    }
+
+    /**
+     * Gets the {@link ViewModelStoreOwner} for a NavGraph.This can be passed to
+     * {@link androidx.lifecycle.ViewModelProvider} to retrieve a ViewModel that is scoped
+     * to the navigation graph - it will be cleared when the navigation graph is popped off
+     * the back stack.
      *
      * @param navGraphId ID of a NavGraph that exists on the back stack
      * @throws IllegalStateException if called before the {@link NavHost} has called
@@ -1043,10 +1071,10 @@ public class NavController {
      * @throws IllegalArgumentException if the NavGraph is not on the back stack
      */
     @NonNull
-    public ViewModelStore getViewModelStore(@IdRes int navGraphId) {
+    public ViewModelStoreOwner getViewModelStoreOwner(@IdRes int navGraphId) {
         if (mViewModel == null) {
             throw new IllegalStateException("You must call setViewModelStore() before calling "
-                    + "getViewModelStore().");
+                    + "getViewModelStoreOwner().");
         }
         NavBackStackEntry lastFromBackStack = null;
         Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
@@ -1062,6 +1090,6 @@ public class NavController {
             throw new IllegalArgumentException("No NavGraph with ID " + navGraphId + " is on the "
                     + "NavController's back stack");
         }
-        return mViewModel.getViewModelStore(lastFromBackStack.mId);
+        return lastFromBackStack;
     }
 }

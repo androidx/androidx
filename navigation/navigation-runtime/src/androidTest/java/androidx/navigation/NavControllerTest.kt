@@ -872,7 +872,7 @@ class NavControllerTest {
     }
 
     @Test
-    fun testGetViewModelStore() {
+    fun testGetViewModelStoreOwner() {
         val navController = createNavController()
         navController.setViewModelStore(ViewModelStore())
         val navGraph = navController.navigatorProvider.navigation(
@@ -883,12 +883,14 @@ class NavControllerTest {
         }
         navController.setGraph(navGraph, null)
 
-        val store = navController.getViewModelStore(navGraph.id)
+        val owner = navController.getViewModelStoreOwner(navGraph.id)
+        assertThat(owner).isNotNull()
+        val store = owner.viewModelStore
         assertThat(store).isNotNull()
     }
 
     @Test
-    fun testSaveRestoreGetViewModelStore() {
+    fun testSaveRestoreGetViewModelStoreOwner() {
         val hostStore = ViewModelStore()
         val navController = createNavController()
         navController.setViewModelStore(hostStore)
@@ -900,7 +902,7 @@ class NavControllerTest {
         }
         navController.setGraph(navGraph, null)
 
-        val store = navController.getViewModelStore(navGraph.id)
+        val store = navController.getViewModelStoreOwner(navGraph.id).viewModelStore
         assertThat(store).isNotNull()
 
         val savedState = navController.saveState()
@@ -910,21 +912,21 @@ class NavControllerTest {
         restoredNavController.graph = navGraph
 
         assertWithMessage("Restored NavController should return the same ViewModelStore")
-            .that(restoredNavController.getViewModelStore(navGraph.id))
+            .that(restoredNavController.getViewModelStoreOwner(navGraph.id).viewModelStore)
             .isSameInstanceAs(store)
     }
 
     @Test
-    fun testGetViewModelStoreNoGraph() {
+    fun testGetViewModelStoreOwnerNoGraph() {
         val navController = createNavController()
         navController.setViewModelStore(ViewModelStore())
         val navGraphId = 1
 
         try {
-            navController.getViewModelStore(navGraphId)
+            navController.getViewModelStoreOwner(navGraphId)
             fail(
-                "Attempting to get ViewModelStore for navGraph not on back stack should throw " +
-                        "IllegalArgumentException"
+                "Attempting to get ViewModelStoreOwner for navGraph not on back stack should " +
+                        "throw IllegalArgumentException"
             )
         } catch (e: IllegalArgumentException) {
             assertThat(e)
@@ -935,7 +937,7 @@ class NavControllerTest {
     }
 
     @Test
-    fun testGetViewModelStoreSameGraph() {
+    fun testGetViewModelStoreOwnerSameGraph() {
         val navController = createNavController()
         navController.setViewModelStore(ViewModelStore())
         val provider = navController.navigatorProvider
@@ -946,10 +948,14 @@ class NavControllerTest {
         }
 
         navController.setGraph(graph, null)
-        val viewStore = navController.getViewModelStore(graph.id)
-
+        val owner = navController.getViewModelStoreOwner(graph.id)
+        assertThat(owner).isNotNull()
+        val viewStore = owner.viewModelStore
         assertThat(viewStore).isNotNull()
-        assertThat(navController.getViewModelStore(graph.id)).isSameInstanceAs(viewStore)
+
+        val sameGraphOwner = navController.getViewModelStoreOwner(graph.id)
+        assertThat(sameGraphOwner).isSameInstanceAs(owner)
+        assertThat(sameGraphOwner.viewModelStore).isSameInstanceAs(viewStore)
     }
 
     private fun createNavController(): NavController {

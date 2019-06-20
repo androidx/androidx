@@ -52,6 +52,8 @@ inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     @IdRes navGraphId: Int,
     noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ): Lazy<VM> {
-    val storeProducer: () -> ViewModelStore = { findNavController().getViewModelStore(navGraphId) }
+    val storeProducer: () -> ViewModelStore = {
+        findNavController().getViewModelStoreOwner(navGraphId).viewModelStore
+    }
     return createViewModelLazy(VM::class, storeProducer, factoryProducer)
 }
