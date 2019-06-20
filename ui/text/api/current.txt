@@ -380,7 +380,7 @@ package androidx.ui.engine.window {
 package androidx.ui.painting {
 
   public final class TextPainter {
-    ctor public TextPainter(androidx.ui.painting.TextSpan? text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection? textDirection, float textScaleFactor, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale, androidx.ui.graphics.Color selectionColor);
+    ctor public TextPainter(androidx.ui.painting.TextSpan? text, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection? textDirection, float textScaleFactor, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale);
     ctor public TextPainter();
     method public androidx.ui.engine.text.ParagraphStyle createParagraphStyle(androidx.ui.engine.text.TextDirection? defaultTextDirection = null);
     method public boolean getDidExceedMaxLines();
@@ -392,7 +392,6 @@ package androidx.ui.painting {
     method public androidx.ui.rendering.paragraph.TextOverflow? getOverflow();
     method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getPreferredLineHeight();
-    method public androidx.ui.graphics.Color getSelectionColor();
     method public androidx.ui.engine.geometry.Size getSize();
     method public boolean getSoftWrap();
     method public androidx.ui.painting.TextSpan? getText();
@@ -403,11 +402,10 @@ package androidx.ui.painting {
     method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
     method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
-    method public void paintSelection(androidx.ui.services.text_editing.TextSelection selection, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
+    method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void setLocale(androidx.ui.engine.window.Locale? value);
     method public void setMaxLines(Integer? value);
     method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow? value);
-    method public void setSelectionColor(androidx.ui.graphics.Color p);
     method public void setSoftWrap(boolean value);
     method public void setText(androidx.ui.painting.TextSpan? value);
     method public void setTextAlign(androidx.ui.engine.text.TextAlign value);

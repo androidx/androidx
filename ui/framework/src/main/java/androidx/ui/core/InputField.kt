@@ -96,10 +96,25 @@ fun InputField(
         Layout(
             children = @Composable {
                 Draw { canvas, _ ->
-                    // TODO(nona): Draw Selection
-                    // TODO(nona): Draw Composition
-                    // TODO(nona): Draw and blink cursor
+                    textPainter.paintBackground(
+                        value.selection.start,
+                        value.selection.end,
+                        editorStyle.selectionColor,
+                        canvas,
+                        Offset.zero
+                    )
+                    value.composition?.let {
+                        textPainter.paintBackground(
+                            it.start,
+                            it.end,
+                            editorStyle.compositionColor,
+                            canvas,
+                            Offset.zero
+                        )
+                    }
                     textPainter.paint(canvas, Offset.zero)
+
+                    // TODO(nona): Draw and blink cursor
                 }
             },
             layoutBlock = { _, constraints ->

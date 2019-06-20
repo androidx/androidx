@@ -37,11 +37,7 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextRange
-import androidx.ui.services.text_editing.TextSelection
 import kotlin.math.ceil
-
-/** The default selection color if none is specified. */
-private val DEFAULT_SELECTION_COLOR = Color(0x6633B5E5)
 
 /**
  * Unfortunately, using full precision floating point here causes bad layouts because floating
@@ -108,8 +104,7 @@ class TextPainter(
     maxLines: Int? = null,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
-    locale: Locale? = null,
-    var selectionColor: Color = DEFAULT_SELECTION_COLOR
+    locale: Locale? = null
 ) {
     init {
         assert(maxLines == null || maxLines > 0)
@@ -484,17 +479,22 @@ class TextPainter(
     }
 
     /**
-     * Paint the text selection highlight of the given [selection] and [offset] on [canvas].
+     * Draws text background of the given range.
      *
-     * This function can only be called after [layout] is called first.
+     * If the given range is empty, do nothing.
+     *
+     * @param start inclusive start offset of the drawing range.
+     * @param end exclusive end offset of the drawing range.
+     * @param color a color to be used for drawing background.
+     * @param canvas the target canvas.
+     * @param offset the drawing offset.
      */
-    fun paintSelection(selection: TextSelection, canvas: Canvas, offset: Offset) {
+    fun paintBackground(start: Int, end: Int, color: Color, canvas: Canvas, offset: Offset) {
         assert(!needsLayout)
-        val selectionPath = paragraph!!.getPathForRange(selection.start, selection.end)
+        if (start == end) return
+        val selectionPath = paragraph!!.getPathForRange(start, end)
         // TODO(haoyuchang): check if move this paint to parameter is better
-        val selectionPaint = Paint()
-        selectionPaint.color = selectionColor
-        canvas.drawPath(selectionPath.shift(offset), selectionPaint)
+        canvas.drawPath(selectionPath.shift(offset), Paint().apply { this.color = color })
     }
 
     /** Returns the position within the text for the given pixel offset. */
