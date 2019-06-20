@@ -34,7 +34,9 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.setContent
+import androidx.ui.core.ComplexLayout
 import androidx.ui.core.IntPx
+import androidx.ui.core.ipx
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -133,6 +135,34 @@ open class LayoutTest {
             position.value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
             positionedLatch.countDown()
         })
+    }
+
+    internal fun testIntrinsics(
+        vararg layouts: @Composable() () -> Unit,
+        test: ((IntPx) -> IntPx, (IntPx) -> IntPx, (IntPx) -> IntPx, (IntPx) -> IntPx) -> Unit
+    ) {
+        layouts.forEach { layout ->
+            val layoutLatch = CountDownLatch(1)
+            show {
+                ComplexLayout(layout) {
+                    layout { measurables, _ ->
+                        val measurable = measurables.first()
+                        test(
+                            { h -> measurable.minIntrinsicWidth(h) },
+                            { w -> measurable.minIntrinsicHeight(w) },
+                            { h -> measurable.maxIntrinsicWidth(h) },
+                            { w -> measurable.maxIntrinsicHeight(w) }
+                        )
+                        layoutLatch.countDown()
+                    }
+                    minIntrinsicWidth { _, _ -> 0.ipx }
+                    maxIntrinsicWidth { _, _ -> 0.ipx }
+                    minIntrinsicHeight { _, _ -> 0.ipx }
+                    maxIntrinsicHeight { _, _ -> 0.ipx }
+                }
+            }
+            assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+        }
     }
 
     internal fun assertEquals(expected: PxSize?, actual: PxSize?) {

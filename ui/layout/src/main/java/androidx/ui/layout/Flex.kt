@@ -29,6 +29,7 @@ import androidx.ui.core.max
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.isFinite
 
 /**
  * Parent data associated with children to assign flex and fit values for them.
@@ -433,9 +434,12 @@ private data class OrientationIndependentConstraints(
         IntPx.Zero, IntPx.Infinity, crossAxisMin, crossAxisMax
     )
 
-    // Creates a new instance with the same cross axis constraints and unbounded main axis.
+    // Creates a new instance with the same main axis constraints and maximum tight cross axis.
     fun stretchCrossAxis() = OrientationIndependentConstraints(
-        mainAxisMin, mainAxisMax, crossAxisMax, crossAxisMax
+        mainAxisMin,
+        mainAxisMax,
+        if (crossAxisMax.isFinite()) crossAxisMax else crossAxisMin,
+        crossAxisMax
     )
 
     // Given an orientation, resolves the current instance to traditional constraints.
