@@ -39,6 +39,8 @@ import java.util.concurrent.TimeUnit
 @RunWith(Parameterized::class)
 @LargeTest
 class AccessibilityTest(private val config: TestConfig) : BaseTest() {
+    private val enhancedA11yEnabled = ViewPager2.sFeatureEnhancedA11yEnabled
+
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
         val rtl: Boolean
@@ -51,11 +53,17 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
     }
 
     override fun setUp() {
+        ViewPager2.sFeatureEnhancedA11yEnabled = true
         super.setUp()
         if (config.rtl) {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
         }
+    }
+
+    override fun tearDown() {
+        super.tearDown()
+        ViewPager2.sFeatureEnhancedA11yEnabled = enhancedA11yEnabled
     }
 
     @Test
