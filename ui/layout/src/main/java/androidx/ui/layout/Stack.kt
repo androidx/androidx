@@ -29,6 +29,9 @@ import androidx.ui.core.max
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.coerceAtLeast
+import androidx.ui.core.ipx
+import androidx.ui.core.isFinite
 
 /**
  * Collects information about the children of a [Stack] when its body is executed
@@ -126,24 +129,25 @@ fun Stack(
         (0 until measurables.size).filter { i -> measurables[i].positioned }.forEach { i ->
             val childData = measurables[i].stackChildData
             // Obtain width constraints.
-            val childMaxWidth =
-                stackWidth - (childData.leftInset?.toIntPx() ?: IntPx.Zero) -
-                        (childData.rightInset?.toIntPx() ?: IntPx.Zero)
-            val childMinWidth = if (childData.leftInset != null && childData.rightInset != null) {
+            val childMaxWidth = (stackWidth -
+                    (childData.leftInset?.toIntPx() ?: IntPx.Zero) -
+                    (childData.rightInset?.toIntPx() ?: IntPx.Zero)).coerceAtLeast(0.ipx)
+            val childMinWidth = if (childData.leftInset != null && childData.rightInset != null &&
+                    childMaxWidth.isFinite()) {
                 childMaxWidth
             } else {
                 IntPx.Zero
             }
             // Obtain height constraints.
-            val childMaxHeight =
-                stackHeight - (childData.topInset?.toIntPx() ?: IntPx.Zero) -
-                        (childData.bottomInset?.toIntPx() ?: IntPx.Zero)
-            val childMinHeight =
-                if (childData.topInset != null && childData.bottomInset != null) {
-                    childMaxHeight
-                } else {
-                    IntPx.Zero
-                }
+            val childMaxHeight = (stackHeight -
+                    (childData.topInset?.toIntPx() ?: IntPx.Zero) -
+                    (childData.bottomInset?.toIntPx() ?: IntPx.Zero)).coerceAtLeast(0.ipx)
+            val childMinHeight = if (childData.topInset != null && childData.bottomInset != null &&
+                childMaxHeight.isFinite()) {
+                childMaxHeight
+            } else {
+                IntPx.Zero
+            }
             measurables[i].measure(
                 Constraints(
                     childMinWidth, childMaxWidth, childMinHeight, childMaxHeight
