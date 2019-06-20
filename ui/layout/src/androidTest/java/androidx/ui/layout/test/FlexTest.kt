@@ -42,7 +42,8 @@ import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Row
 import androidx.compose.Composable
 import androidx.compose.composer
-import org.junit.Assert.assertEquals
+import androidx.ui.core.IntPx
+import androidx.ui.layout.AspectRatio
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1517,5 +1518,153 @@ class FlexTest : LayoutTest() {
         assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
 
         assertEquals(PxSize(childSize, childSize), containerSize.value)
+    }
+
+    @Test
+    fun testRow_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        testIntrinsics(@Composable {
+            Row {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Row(mainAxisSize = MainAxisSize.Min) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Row(
+                mainAxisAlignment = MainAxisAlignment.Start,
+                crossAxisAlignment = CrossAxisAlignment.Start
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Row(
+                mainAxisAlignment = MainAxisAlignment.Center,
+                crossAxisAlignment = CrossAxisAlignment.Center
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Row(
+                mainAxisAlignment = MainAxisAlignment.End,
+                crossAxisAlignment = CrossAxisAlignment.End
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Row(
+                mainAxisAlignment = MainAxisAlignment.SpaceAround,
+                crossAxisAlignment = CrossAxisAlignment.Stretch
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Row(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Row(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(50.dp.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(25.dp.toIntPx() * 2 + 50.dp.toIntPx(), minIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(70.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals(50.dp.toIntPx(), maxIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(25.dp.toIntPx() * 2 + 50.dp.toIntPx(), maxIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(70.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testColumn_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        testIntrinsics(@Composable {
+            Column {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Column(mainAxisSize = MainAxisSize.Min) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Column(
+                mainAxisAlignment = MainAxisAlignment.Start,
+                crossAxisAlignment = CrossAxisAlignment.Start
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Column(
+                mainAxisAlignment = MainAxisAlignment.Center,
+                crossAxisAlignment = CrossAxisAlignment.Center
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Column(
+                mainAxisAlignment = MainAxisAlignment.End,
+                crossAxisAlignment = CrossAxisAlignment.End
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Column(
+                mainAxisAlignment = MainAxisAlignment.SpaceAround,
+                crossAxisAlignment = CrossAxisAlignment.Stretch
+            ) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }, @Composable {
+            Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                AspectRatio(2f) { }
+                ConstrainedBox(DpConstraints.tightConstraints(50.dp, 40.dp)) { }
+            }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(50.dp.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx() / 2 + 40.dp.toIntPx(), minIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals(50.dp.toIntPx(), maxIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), maxIntrinsicWidth(25.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx() / 2 + 40.dp.toIntPx(), maxIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
     }
 }
