@@ -55,8 +55,8 @@ dependencies {
 androidx {
     name = "Android WorkManager Kotlin Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.WORKMANAGER
-    mavenGroup = LibraryGroups.WORKMANAGER
+    mavenVersion = LibraryVersions.WORK
+    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
     url = AndroidXExtension.ARCHITECTURE_URL
