@@ -389,7 +389,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 29)
     fun textStyle_setWordSpacingOnWholeText() {
         val text = "ab cd"
         val wordSpacing = 2.0f
@@ -412,7 +412,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 29)
     fun textStyle_setWordSpacingOnPartText() {
         val text = "abc d"
         val wordSpacing = 2.0f
@@ -435,7 +435,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 28)
+    @SdkSuppress(minSdkVersion = 29)
     fun textStyle_setWordSpacingTwice_lastOneOverwrite() {
         val text = "abc d"
         val wordSpacing = 2.0f
