@@ -641,6 +641,22 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
 //        return new PathMetrics._(this, forceClosed);
 //    }
 
+    /**
+     * Returns the path's convexity, as defined by the content of the path.
+     *
+     * A path is convex if it has a single contour, and only ever curves in a
+     * single direction.
+     *
+     * This function will calculate the convexity of the path from its control
+     * points, and cache the result.
+     */
+    val isConvex: Boolean get() = internalPath.isConvex
+
+    /**
+     * Returns true if the path is empty (contains no lines or curves)
+     */
+    val isEmpty: Boolean get() = internalPath.isEmpty
+
     private fun _rectIsValid(rect: Rect): Boolean {
         assert(Float.NaN != rect.left) {
             "Rect.left is NaN"
