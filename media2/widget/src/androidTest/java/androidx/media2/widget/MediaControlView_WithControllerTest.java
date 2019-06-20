@@ -19,22 +19,22 @@ package androidx.media2.widget;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
-import androidx.media2.common.SessionPlayer;
+import androidx.media2.session.MediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
 import org.junit.runner.RunWith;
 
 /**
- * Test {@link MediaControlView} with a {@link SessionPlayer}.
+ * Test {@link MediaControlView} with a {@link MediaController}.
  * Please place actual test cases in {@link MediaControlView_WithSthTestBase}.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MediaControlView_WithPlayerTest extends MediaControlView_WithSthTestBase {
+public class MediaControlView_WithControllerTest extends MediaControlView_WithSthTestBase {
     @Override
     PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item) {
-        return createPlayerWrapperOfPlayer(callback, item);
+        return createPlayerWrapperOfController(callback, item);
     }
 }

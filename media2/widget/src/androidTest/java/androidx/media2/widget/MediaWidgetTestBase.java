@@ -29,9 +29,15 @@ import android.os.Build;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.UriMediaItem;
+import androidx.media2.player.MediaPlayer;
+import androidx.media2.session.MediaController;
+import androidx.media2.session.MediaSession;
 import androidx.media2.widget.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -39,13 +45,19 @@ import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
-public class MediaWidgetTestBase {
+public class MediaWidgetTestBase extends MediaTestBase {
     // Expected success time
     static final int WAIT_TIME_MS = 1000;
+
+    private List<SessionPlayer> mPlayers = new ArrayList<>();
+    private List<MediaSession> mSessions = new ArrayList<>();
+    private List<MediaController> mControllers = new ArrayList<>();
 
     Context mContext;
     Executor mMainHandlerExecutor;
@@ -107,5 +119,58 @@ public class MediaWidgetTestBase {
 
     MediaItem createTestMediaItem(Uri uri) {
         return new UriMediaItem.Builder(uri).build();
+    }
+
+    PlayerWrapper createPlayerWrapperOfController(@NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable MediaItem item) {
+        prepareLooper();
+
+        SessionPlayer player = new MediaPlayer(mContext);
+        MediaSession session = new MediaSession.Builder(mContext, player).build();
+        MediaController controller = new MediaController.Builder(mContext)
+                .setSessionToken(session.getToken())
+                .build();
+        mPlayers.add(player);
+        mSessions.add(session);
+        mControllers.add(controller);
+        PlayerWrapper wrapper = new PlayerWrapper(controller, mMainHandlerExecutor, callback);
+        wrapper.attachCallback();
+        if (item != null) {
+            player.setMediaItem(item);
+            player.prepare();
+        }
+        return wrapper;
+    }
+
+    PlayerWrapper createPlayerWrapperOfPlayer(@NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable MediaItem item) {
+        SessionPlayer player = new MediaPlayer(mContext);
+        mPlayers.add(player);
+        PlayerWrapper wrapper = new PlayerWrapper(player, mMainHandlerExecutor, callback);
+        wrapper.attachCallback();
+        if (item != null) {
+            player.setMediaItem(item);
+            player.prepare();
+        }
+        return wrapper;
+    }
+
+    void closeAll() {
+        for (MediaController controller : mControllers) {
+            controller.close();
+        }
+        for (MediaSession session : mSessions) {
+            session.close();
+        }
+        for (SessionPlayer player : mPlayers) {
+            try {
+                player.close();
+            } catch (Exception ex) {
+                // ignore
+            }
+        }
+        mControllers.clear();
+        mSessions.clear();
+        mPlayers.clear();
     }
 }
