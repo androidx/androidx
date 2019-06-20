@@ -82,34 +82,6 @@ package androidx.paging {
     field public final int requestedLoadSize;
   }
 
-  public abstract class ListenablePageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
-    ctor public ListenablePageKeyedDataSource();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePageKeyedDataSource.Result<Key,Value>> loadAfter(androidx.paging.ListenablePageKeyedDataSource.LoadParams<Key> params);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePageKeyedDataSource.Result<Key,Value>> loadBefore(androidx.paging.ListenablePageKeyedDataSource.LoadParams<Key> params);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePageKeyedDataSource.InitialResult<Key,Value>> loadInitial(androidx.paging.ListenablePageKeyedDataSource.LoadInitialParams<Key> params);
-  }
-
-  public static class ListenablePageKeyedDataSource.InitialResult<Key, Value> extends androidx.paging.DataSource.BaseResult<Value> {
-    ctor public ListenablePageKeyedDataSource.InitialResult(java.util.List<? extends Value> data, int position, int totalCount, Key? previousPageKey, Key? nextPageKey);
-    ctor public ListenablePageKeyedDataSource.InitialResult(java.util.List<? extends Value> data, Key? previousPageKey, Key? nextPageKey);
-  }
-
-  public static class ListenablePageKeyedDataSource.LoadInitialParams<Key> {
-    ctor public ListenablePageKeyedDataSource.LoadInitialParams(int requestedLoadSize, boolean placeholdersEnabled);
-    field public final boolean placeholdersEnabled;
-    field public final int requestedLoadSize;
-  }
-
-  public static class ListenablePageKeyedDataSource.LoadParams<Key> {
-    ctor public ListenablePageKeyedDataSource.LoadParams(Key key, int requestedLoadSize);
-    field public final Key key;
-    field public final int requestedLoadSize;
-  }
-
-  public static class ListenablePageKeyedDataSource.Result<Key, Value> extends androidx.paging.DataSource.BaseResult<Value> {
-    ctor public ListenablePageKeyedDataSource.Result(java.util.List<? extends Value> data, Key? adjacentPageKey);
-  }
-
   public abstract class ListenablePositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {
     ctor public ListenablePositionalDataSource();
     method public static final int computeInitialLoadPosition(androidx.paging.ListenablePositionalDataSource.LoadInitialParams params, int totalCount);
@@ -141,13 +113,10 @@ package androidx.paging {
     ctor public ListenablePositionalDataSource.RangeResult(java.util.List<? extends V> data);
   }
 
-  public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.ListenablePageKeyedDataSource<Key,Value> {
+  public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public PageKeyedDataSource();
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePageKeyedDataSource.Result<Key,Value>> loadAfter(androidx.paging.ListenablePageKeyedDataSource.LoadParams<Key> params);
     method public abstract void loadAfter(androidx.paging.PageKeyedDataSource.LoadParams<Key> params, androidx.paging.PageKeyedDataSource.LoadCallback<Key,Value> callback);
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePageKeyedDataSource.Result<Key,Value>> loadBefore(androidx.paging.ListenablePageKeyedDataSource.LoadParams<Key> params);
     method public abstract void loadBefore(androidx.paging.PageKeyedDataSource.LoadParams<Key> params, androidx.paging.PageKeyedDataSource.LoadCallback<Key,Value> callback);
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePageKeyedDataSource.InitialResult<Key,Value>> loadInitial(androidx.paging.ListenablePageKeyedDataSource.LoadInitialParams<Key> params);
     method public abstract void loadInitial(androidx.paging.PageKeyedDataSource.LoadInitialParams<Key> params, androidx.paging.PageKeyedDataSource.LoadInitialCallback<Key,Value> callback);
     method public final <ToValue> androidx.paging.PageKeyedDataSource<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
     method public final <ToValue> androidx.paging.PageKeyedDataSource<Key,ToValue> map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
@@ -168,12 +137,16 @@ package androidx.paging {
     method public abstract void onResult(java.util.List<? extends Value> data, Key? previousPageKey, Key? nextPageKey);
   }
 
-  public static class PageKeyedDataSource.LoadInitialParams<Key> extends androidx.paging.ListenablePageKeyedDataSource.LoadInitialParams<Key> {
+  public static class PageKeyedDataSource.LoadInitialParams<Key> {
     ctor public PageKeyedDataSource.LoadInitialParams(int requestedLoadSize, boolean placeholdersEnabled);
+    field public final boolean placeholdersEnabled;
+    field public final int requestedLoadSize;
   }
 
-  public static class PageKeyedDataSource.LoadParams<Key> extends androidx.paging.ListenablePageKeyedDataSource.LoadParams<Key> {
+  public static class PageKeyedDataSource.LoadParams<Key> {
     ctor public PageKeyedDataSource.LoadParams(Key key, int requestedLoadSize);
+    field public final Key key;
+    field public final int requestedLoadSize;
   }
 
   public abstract class PagedList<T> extends java.util.AbstractList<T> {

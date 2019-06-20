@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.ListenablePositionalDataSource.InitialResult
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -156,11 +155,8 @@ abstract class ListenablePositionalDataSource<T : Any> : DataSource<Int, T>(KeyT
      */
     abstract fun loadRange(params: LoadRangeParams): ListenableFuture<RangeResult<T>>
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    final override fun getKeyInternal(item: T): Int =
+    @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
+    internal override fun getKeyInternal(item: T): Int =
         throw IllegalStateException("Cannot get key by item in positionalDataSource")
 
     internal companion object {
