@@ -20,7 +20,6 @@ import androidx.compose.Children
 import androidx.test.filters.SmallTest
 import androidx.ui.core.Layout
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
@@ -31,9 +30,7 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
-import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.toPx
@@ -137,41 +134,21 @@ class AspectRatioTest : LayoutTest() {
 
     @Test
     fun testAspectRatio_intrinsicDimensions() = withDensity(density) {
-        val positionedLatch = CountDownLatch(1)
-        show {
-            Align(alignment = Alignment.TopLeft) {
-                val children = @Composable {
-                    AspectRatio(2f) {
-                        OnPositioned(onPositioned = { _ -> positionedLatch.countDown() })
-                        Container(width = 30.dp, height = 40.dp) { }
-                    }
-                }
-                ComplexLayout(children) {
-                    layout { measurables, constraints ->
-                        val measurable = measurables.first()
-                        assertEquals(40.ipx, measurable.minIntrinsicWidth(20.ipx))
-                        assertEquals(40.ipx, measurable.maxIntrinsicWidth(20.ipx))
-                        assertEquals(20.ipx, measurable.minIntrinsicHeight(40.ipx))
-                        assertEquals(20.ipx, measurable.maxIntrinsicHeight(40.ipx))
-
-                        assertEquals(30.dp.toIntPx(), measurable.minIntrinsicWidth(IntPx.Infinity))
-                        assertEquals(30.dp.toIntPx(), measurable.maxIntrinsicWidth(IntPx.Infinity))
-                        assertEquals(40.dp.toIntPx(), measurable.minIntrinsicHeight(IntPx.Infinity))
-                        assertEquals(40.dp.toIntPx(), measurable.maxIntrinsicHeight(IntPx.Infinity))
-
-                        val placeable = measurable.measure(constraints)
-                        layoutResult(placeable.width, placeable.height) {
-                            placeable.place(0.ipx, 0.ipx)
-                        }
-                    }
-                    minIntrinsicWidth { _, _ -> 0.ipx }
-                    maxIntrinsicWidth { _, _ -> 0.ipx }
-                    minIntrinsicHeight { _, _ -> 0.ipx }
-                    maxIntrinsicHeight { _, _ -> 0.ipx }
-                }
+        testIntrinsics(@Children {
+            AspectRatio(2f) {
+                Container(width = 30.dp, height = 40.dp) { }
             }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            assertEquals(40.ipx, minIntrinsicWidth(20.ipx))
+            assertEquals(40.ipx, maxIntrinsicWidth(20.ipx))
+            assertEquals(20.ipx, minIntrinsicHeight(40.ipx))
+            assertEquals(20.ipx, maxIntrinsicHeight(40.ipx))
+
+            assertEquals(30.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            assertEquals(30.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
         }
-        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
     }
 
     private fun getSize(aspectRatio: Float, aspectRatioConstraints: Constraints): PxSize {
