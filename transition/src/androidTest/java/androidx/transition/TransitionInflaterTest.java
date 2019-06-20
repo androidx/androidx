@@ -156,7 +156,7 @@ public class TransitionInflaterTest extends BaseTest {
     }
 
     private void verifyTargetClass(Transition transition) {
-        List<Class> targets = transition.getTargetTypes();
+        List<Class<?>> targets = transition.getTargetTypes();
         assertNotNull(targets);
         assertEquals(2, targets.size());
         assertEquals(TextView.class, targets.get(0));

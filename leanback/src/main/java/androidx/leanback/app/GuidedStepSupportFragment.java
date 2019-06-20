@@ -577,7 +577,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @return BackStackEntry name for the GuidedStepSupportFragment or empty String if no entry is
      * associated.
      */
-    static String generateStackEntryName(int uiStyle, Class guidedStepFragmentClass) {
+    static String generateStackEntryName(int uiStyle, Class<?> guidedStepFragmentClass) {
         switch (uiStyle) {
         case UI_STYLE_REPLACE:
             return ENTRY_NAME_REPLACE + guidedStepFragmentClass.getName();
@@ -1291,7 +1291,8 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @param  guidedStepFragmentClass  Name of the Class of GuidedStepSupportFragment to pop to.
      * @param flags Either 0 or {@link FragmentManager#POP_BACK_STACK_INCLUSIVE}.
      */
-    public void popBackStackToGuidedStepSupportFragment(Class guidedStepFragmentClass, int flags) {
+    public void popBackStackToGuidedStepSupportFragment(Class<?> guidedStepFragmentClass,
+            int flags) {
         if (!GuidedStepSupportFragment.class.isAssignableFrom(guidedStepFragmentClass)) {
             return;
         }

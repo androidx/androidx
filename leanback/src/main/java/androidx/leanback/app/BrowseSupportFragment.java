@@ -665,14 +665,15 @@ public class BrowseSupportFragment extends BaseSupportFragment {
      * against {@link PageRow}.
      */
     public final static class MainFragmentAdapterRegistry {
-        private final Map<Class, FragmentFactory> mItemToFragmentFactoryMapping = new HashMap<>();
+        private final Map<Class<?>, FragmentFactory> mItemToFragmentFactoryMapping =
+                new HashMap<>();
         private final static FragmentFactory sDefaultFragmentFactory = new ListRowFragmentFactory();
 
         public MainFragmentAdapterRegistry() {
             registerFragment(ListRow.class, sDefaultFragmentFactory);
         }
 
-        public void registerFragment(Class rowClass, FragmentFactory factory) {
+        public void registerFragment(Class<?> rowClass, FragmentFactory factory) {
             mItemToFragmentFactoryMapping.put(rowClass, factory);
         }
 

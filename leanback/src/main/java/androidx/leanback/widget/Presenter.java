@@ -77,7 +77,7 @@ public abstract class Presenter implements FacetProvider {
      */
     public static class ViewHolder implements FacetProvider {
         public final View view;
-        private Map<Class, Object> mFacets;
+        private Map<Class<?>, Object> mFacets;
 
         public ViewHolder(View view) {
             this.view = view;
@@ -98,7 +98,7 @@ public abstract class Presenter implements FacetProvider {
          */
         public final void setFacet(Class<?> facetClass, Object facetImpl) {
             if (mFacets == null) {
-                mFacets = new ArrayMap<Class, Object>();
+                mFacets = new ArrayMap<>();
             }
             mFacets.put(facetClass, facetImpl);
         }
@@ -116,7 +116,7 @@ public abstract class Presenter implements FacetProvider {
         }
     }
 
-    private Map<Class, Object> mFacets;
+    private Map<Class<?>, Object> mFacets;
 
     /**
      * Creates a new {@link View}.
@@ -221,7 +221,7 @@ public abstract class Presenter implements FacetProvider {
      */
     public final void setFacet(Class<?> facetClass, Object facetImpl) {
         if (mFacets == null) {
-            mFacets = new ArrayMap<Class, Object>();
+            mFacets = new ArrayMap<>();
         }
         mFacets.put(facetClass, facetImpl);
     }
