@@ -82,37 +82,6 @@ package androidx.paging {
     field public final int requestedLoadSize;
   }
 
-  public abstract class ListenablePositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {
-    ctor public ListenablePositionalDataSource();
-    method public static final int computeInitialLoadPosition(androidx.paging.ListenablePositionalDataSource.LoadInitialParams params, int totalCount);
-    method public static final int computeInitialLoadSize(androidx.paging.ListenablePositionalDataSource.LoadInitialParams params, int initialLoadPosition, int totalCount);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.InitialResult<T>> loadInitial(androidx.paging.ListenablePositionalDataSource.LoadInitialParams params);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.RangeResult<T>> loadRange(androidx.paging.ListenablePositionalDataSource.LoadRangeParams params);
-  }
-
-  public static class ListenablePositionalDataSource.InitialResult<V> extends androidx.paging.DataSource.BaseResult<V> {
-    ctor public ListenablePositionalDataSource.InitialResult(java.util.List<? extends V> data, int position, int totalCount);
-    ctor public ListenablePositionalDataSource.InitialResult(java.util.List<? extends V> data, int position);
-  }
-
-  public static class ListenablePositionalDataSource.LoadInitialParams {
-    ctor public ListenablePositionalDataSource.LoadInitialParams(int requestedStartPosition, int requestedLoadSize, int pageSize, boolean placeholdersEnabled);
-    field public final int pageSize;
-    field public final boolean placeholdersEnabled;
-    field public final int requestedLoadSize;
-    field public final int requestedStartPosition;
-  }
-
-  public static class ListenablePositionalDataSource.LoadRangeParams {
-    ctor public ListenablePositionalDataSource.LoadRangeParams(int startPosition, int loadSize);
-    field public final int loadSize;
-    field public final int startPosition;
-  }
-
-  public static class ListenablePositionalDataSource.RangeResult<V> extends androidx.paging.DataSource.BaseResult<V> {
-    ctor public ListenablePositionalDataSource.RangeResult(java.util.List<? extends V> data);
-  }
-
   public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public PageKeyedDataSource();
     method public abstract void loadAfter(androidx.paging.PageKeyedDataSource.LoadParams<Key> params, androidx.paging.PageKeyedDataSource.LoadCallback<Key,Value> callback);
@@ -319,13 +288,11 @@ package androidx.paging {
     enum_constant public static final androidx.paging.PagedSource.LoadType START;
   }
 
-  public abstract class PositionalDataSource<T> extends androidx.paging.ListenablePositionalDataSource<T> {
+  public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {
     ctor public PositionalDataSource();
     method public static final int computeInitialLoadPosition(androidx.paging.PositionalDataSource.LoadInitialParams params, int totalCount);
     method public static final int computeInitialLoadSize(androidx.paging.PositionalDataSource.LoadInitialParams params, int initialLoadPosition, int totalCount);
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.InitialResult<T>> loadInitial(androidx.paging.ListenablePositionalDataSource.LoadInitialParams params);
     method @WorkerThread public abstract void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams params, androidx.paging.PositionalDataSource.LoadInitialCallback<T> callback);
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.paging.ListenablePositionalDataSource.RangeResult<T>> loadRange(androidx.paging.ListenablePositionalDataSource.LoadRangeParams params);
     method @WorkerThread public abstract void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams params, androidx.paging.PositionalDataSource.LoadRangeCallback<T> callback);
     method public final <V> androidx.paging.PositionalDataSource<V> map(androidx.arch.core.util.Function<T,V> function);
     method public final <V> androidx.paging.PositionalDataSource<V> map(kotlin.jvm.functions.Function1<? super T,? extends V> function);
@@ -340,8 +307,12 @@ package androidx.paging {
     method public abstract void onResult(java.util.List<? extends T> data, int position);
   }
 
-  public static class PositionalDataSource.LoadInitialParams extends androidx.paging.ListenablePositionalDataSource.LoadInitialParams {
+  public static class PositionalDataSource.LoadInitialParams {
     ctor public PositionalDataSource.LoadInitialParams(int requestedStartPosition, int requestedLoadSize, int pageSize, boolean placeholdersEnabled);
+    field public final int pageSize;
+    field public final boolean placeholdersEnabled;
+    field public final int requestedLoadSize;
+    field public final int requestedStartPosition;
   }
 
   public abstract static class PositionalDataSource.LoadRangeCallback<T> {
@@ -350,8 +321,10 @@ package androidx.paging {
     method public abstract void onResult(java.util.List<? extends T> data);
   }
 
-  public static class PositionalDataSource.LoadRangeParams extends androidx.paging.ListenablePositionalDataSource.LoadRangeParams {
+  public static class PositionalDataSource.LoadRangeParams {
     ctor public PositionalDataSource.LoadRangeParams(int startPosition, int loadSize);
+    field public final int loadSize;
+    field public final int startPosition;
   }
 
 }

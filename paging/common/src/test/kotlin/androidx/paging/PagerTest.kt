@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.PagedList.LoadState.DONE
 import androidx.paging.PagedList.LoadState.IDLE
 import androidx.paging.PagedList.LoadState.LOADING
@@ -24,7 +23,6 @@ import androidx.paging.PagedList.LoadType.END
 import androidx.paging.PagedList.LoadType.START
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
-import com.google.common.util.concurrent.ListenableFuture
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -36,14 +34,13 @@ class PagerTest {
     val testExecutor = TestExecutor()
 
     inner class ImmediateListDataSource(private val data: List<String>) :
-        ListenablePositionalDataSource<String>() {
+        PositionalDataSource<String>() {
+
         init {
             initExecutor(testExecutor)
         }
 
-        override fun loadInitial(params: LoadInitialParams):
-                ListenableFuture<InitialResult<String>> {
-            val future = ResolvableFuture.create<InitialResult<String>>()
+        override fun loadInitial(params: LoadInitialParams, callback: LoadInitialCallback<String>) {
             executor.execute {
                 val totalCount = data.size
 
@@ -51,29 +48,23 @@ class PagerTest {
                 val loadSize = computeInitialLoadSize(params, position, totalCount)
 
                 val sublist = data.subList(position, position + loadSize)
-                future.set(InitialResult(sublist, position, totalCount))
+                callback.onResult(sublist, position, totalCount)
             }
-            return future
         }
 
-        override fun loadRange(params: LoadRangeParams):
-                ListenableFuture<RangeResult<String>> {
-            val future = ResolvableFuture.create<RangeResult<String>>()
+        override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
             executor.execute {
-
                 val position = params.startPosition
                 val end = minOf(position + params.loadSize, data.size)
-                future.set(rangeResult(position, end))
+                callback.onResult(data.subList(position, end))
             }
-
-            return future
         }
     }
 
     val data = List(9) { "$it" }
 
     private fun rangeResult(start: Int, end: Int) =
-        ListenablePositionalDataSource.RangeResult(data.subList(start, end))
+        PositionalDataSource.RangeResult(data.subList(start, end))
 
     private data class Result(
         val type: PagedList.LoadType,
@@ -127,7 +118,7 @@ class PagerTest {
         DirectExecutor,
         consumer,
         null,
-        ListenablePositionalDataSource.InitialResult(data.subList(start, end), start, data.size)
+        PositionalDataSource.InitialResult(data.subList(start, end), start, data.size)
     )
 
     @Test
@@ -169,7 +160,7 @@ class PagerTest {
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
             consumer.takeStateChanges(), listOf(
-                StateChange(START, PagedList.LoadState.LOADING)
+                StateChange(START, LOADING)
             )
         )
 
