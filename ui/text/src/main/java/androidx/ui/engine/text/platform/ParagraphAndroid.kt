@@ -21,7 +21,6 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.TextUtils
 import android.text.style.AbsoluteSizeSpan
-import android.text.style.AlignmentSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LeadingMarginSpan
@@ -44,14 +43,13 @@ import androidx.text.LayoutCompat.DEFAULT_TEXT_DIRECTION
 import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
-import androidx.text.TextAlignmentAdapter
 import androidx.text.TextLayout
 import androidx.text.selection.WordBoundary
 import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.FontFeatureSpan
 import androidx.text.style.LetterSpacingSpan
-import androidx.text.style.SkewXSpan
 import androidx.text.style.ShadowSpan
+import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
 import androidx.ui.core.px
@@ -65,6 +63,7 @@ import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.TextIndent
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.text.hasFontAttributes
 import androidx.ui.painting.AnnotatedString
@@ -147,7 +146,7 @@ internal class ParagraphAndroid constructor(
             textPaint.textSize = it
         }
 
-        // TODO: This default values are problem here. If the user just gives a single font
+        // TODO(siyamed): This default values are problem here. If the user just gives a single font
         // in the family, and does not provide any fontWeight, TypefaceAdapter will still get the
         // call as FontWeight.normal (which is the default value)
         if (paragraphStyle.hasFontAttributes()) {
@@ -156,7 +155,6 @@ internal class ParagraphAndroid constructor(
                 fontWeight = paragraphStyle.fontWeight ?: FontWeight.normal,
                 fontStyle = paragraphStyle.fontStyle ?: FontStyle.Normal,
                 fontSynthesis = paragraphStyle.fontSynthesis ?: FontSynthesis.All
-
             )
         }
 
@@ -167,7 +165,8 @@ internal class ParagraphAndroid constructor(
             )
         }
 
-        val charSequence = applyTextStyle(text, textStyles)
+        val charSequence = applyTextStyle(text, paragraphStyle.textIndent, textStyles)
+
         val alignment = toLayoutAlign(paragraphStyle.textAlign)
         // TODO(Migration/haoyuchang): Layout has more settings that flutter,
         //  we may add them in future.
@@ -176,14 +175,14 @@ internal class ParagraphAndroid constructor(
             TextDirection.Rtl -> TEXT_DIRECTION_RTL
             else -> DEFAULT_TEXT_DIRECTION
         }
+
         val maxLines = paragraphStyle.maxLines ?: DEFAULT_MAX_LINES
         val justificationMode = when (paragraphStyle.textAlign) {
             TextAlign.Justify -> JUSTIFICATION_MODE_INTER_WORD
             else -> DEFAULT_JUSTIFICATION_MODE
         }
 
-        val lineSpacingMultiplier =
-            paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER
+        val lineSpacingMultiplier = paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER
 
         val ellipsize = if (paragraphStyle.ellipsis == true) {
             TextUtils.TruncateAt.END
@@ -268,105 +267,33 @@ internal class ParagraphAndroid constructor(
         canvas.translate(-x, -y)
     }
 
-    /**
-     * Adjust the paragraph span position to fit affected paragraphs correctly. As a paragraph span
-     * will take effect on a paragraph when any character of the paragraph is covered, the range of
-     * the span doesn't necessarily equals to the range it take effect. This functions is used to
-     * convert the range where the span is attached to the range in which the span actually take
-     * effect.
-     * E.g. For input text "ab\ncd\ne" where a paragraph span is attached to "ab\nc", the span will
-     * take effect on "ab\ncd". Thus this function will return Pair(0, 5).
-     *
-     * @param text the text where the span is applied on
-     * @param start the inclusive start position of the paragraph span.
-     * @param end the exclusive end position of the paragraph span.
-     * @return a pair of indices which represent the adjusted position of the paragraph span.
-     */
-    private fun adjustSpanPositionForParagraph(
-        text: String,
-        start: Int,
-        end: Int
-    ): Pair<Int, Int> {
-        if (text.isEmpty()) return Pair(0, 0)
-        if (end <= start) return Pair(start, start)
-
-        var spanStart = start.coerceIn(0, text.length - 1)
-        var spanEnd = end.coerceIn(0, text.length)
-
-        if (text[spanStart] == LINE_FEED) {
-            // The span happens to start with a LINE_FEED; check if the previous char is LINE_FEED.
-            // If not, the spanStart points to the end of a paragraph; skip the LINE_FEED.
-            // Otherwise, the span covers an empty paragraph; won't change start position.
-            if (spanStart > 0 && text[spanStart - 1] != LINE_FEED) {
-                ++spanStart
-            }
-        } else {
-            // The span starts with a non LINE_FEED character, reposition the start to the first
-            // character following a previous LINE_FEED.
-            while (spanStart > 0 && text[spanStart - 1] != LINE_FEED) {
-                --spanStart
-            }
-        }
-
-        if (spanEnd > 0 && text[spanEnd - 1] == LINE_FEED) {
-            // The span ends with a LINE_FEED; check if the second last char is LINE_FEED.
-            // If not, the spanEnd is pointing to the end of a paragraph; skip the LINE_FEED.
-            // Otherwise, the span covers an empty paragraph; won't change the end position
-            if (spanEnd > 1 && text[spanEnd - 2] != LINE_FEED) {
-                --spanEnd
-            }
-        } else {
-            // The span ends with a non LINE_FEED character, reposition the end to the first
-            // character followed by a LINE_FEED.
-            while (spanEnd < text.length && text[spanEnd] != LINE_FEED) {
-                ++spanEnd
-            }
-        }
-        return Pair(spanStart, spanEnd)
-    }
-
     private fun applyTextStyle(
         text: String,
+        textIndent: TextIndent?,
         textStyles: List<AnnotatedString.Item<TextStyle>>
     ): CharSequence {
-        if (textStyles.isEmpty()) return text
+        if (textStyles.isEmpty() && textIndent == null) return text
         val spannableString = SpannableString(text)
+
+        textIndent?.let { indent ->
+            if (indent.firstLine == 0.px && indent.restLine == 0.px) return@let
+            spannableString.setSpan(
+                LeadingMarginSpan.Standard(
+                    indent.firstLine.value.toInt(),
+                    indent.restLine.value.toInt()
+                ),
+                0,
+                text.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+
         for (textStyle in textStyles) {
             val start = textStyle.start
             val end = textStyle.end
             val style = textStyle.style.getTextStyle()
 
             if (start < 0 || start >= text.length || end <= start || end > text.length) continue
-
-            style.textIndent?.let { indent ->
-                if (indent.firstLine == 0.px && indent.restLine == 0.px) return@let
-                val (spanStart, spanEnd) = adjustSpanPositionForParagraph(text, start, end)
-                // Filter out invalid result.
-                if (spanStart >= spanEnd) return@let
-                spannableString.setSpan(
-                    LeadingMarginSpan.Standard(
-                        indent.firstLine.value.toInt(),
-                        indent.restLine.value.toInt()
-                    ),
-                    spanStart,
-                    spanEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-
-            style.textAlign?.let { align ->
-                val (spanStart, spanEnd) = adjustSpanPositionForParagraph(text, start, end)
-                // Filter out invalid result.
-                if (spanStart >= spanEnd) return@let
-
-                // TODO(haoyuchang): Support TextAlign.JUSTIFY
-                spannableString.setSpan(
-                    AlignmentSpan.Standard(TextAlignmentAdapter.get(toLayoutAlign(align))),
-                    spanStart,
-                    spanEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
 
             // Be aware that SuperscriptSpan needs to be applied before all other spans which
             // affect FontMetrics
@@ -530,3 +457,60 @@ internal fun toLayoutAlign(align: TextAlign?): Int = when (align) {
     TextAlign.End -> ALIGN_OPPOSITE
     else -> DEFAULT_ALIGNMENT
 }
+
+// /**
+// * Adjust the paragraph span position to fit affected paragraphs correctly. As a paragraph span
+// * will take effect on a paragraph when any character of the paragraph is covered, the range of
+// * the span doesn't necessarily equals to the range it take effect. This functions is used to
+// * convert the range where the span is attached to the range in which the span actually take
+// * effect.
+// * E.g. For input text "ab\ncd\ne" where a paragraph span is attached to "ab\nc", the span will
+// * take effect on "ab\ncd". Thus this function will return Pair(0, 5).
+// *
+// * @param text the text where the span is applied on
+// * @param start the inclusive start position of the paragraph span.
+// * @param end the exclusive end position of the paragraph span.
+// * @return a pair of indices which represent the adjusted position of the paragraph span.
+// */
+// private fun adjustSpanPositionForParagraph(
+//    text: StringBuilder,
+//    start: Int,
+//    end: Int
+// ): Pair<Int, Int> {
+//    if (text.isEmpty()) return Pair(0, 0)
+//    if (end <= start) return Pair(start, start)
+//
+//    var spanStart = start.coerceIn(0, text.length - 1)
+//    var spanEnd = end.coerceIn(0, text.length)
+//
+//    if (text[spanStart] == LINE_FEED) {
+//        // The span happens to start with a LINE_FEED; check if the previous char is LINE_FEED.
+//        // If not, the spanStart points to the end of a paragraph; skip the LINE_FEED.
+//        // Otherwise, the span covers an empty paragraph; won't change start position.
+//        if (spanStart > 0 && text[spanStart - 1] != LINE_FEED) {
+//            ++spanStart
+//        }
+//    } else {
+//        // The span starts with a non LINE_FEED character, reposition the start to the first
+//        // character following a previous LINE_FEED.
+//        while (spanStart > 0 && text[spanStart - 1] != LINE_FEED) {
+//            --spanStart
+//        }
+//    }
+//
+//    if (spanEnd > 0 && text[spanEnd - 1] == LINE_FEED) {
+//        // The span ends with a LINE_FEED; check if the second last char is LINE_FEED.
+//        // If not, the spanEnd is pointing to the end of a paragraph; skip the LINE_FEED.
+//        // Otherwise, the span covers an empty paragraph; won't change the end position
+//        if (spanEnd > 1 && text[spanEnd - 2] != LINE_FEED) {
+//            --spanEnd
+//        }
+//    } else {
+//        // The span ends with a non LINE_FEED character, reposition the end to the first
+//        // character followed by a LINE_FEED.
+//        while (spanEnd < text.length && text[spanEnd] != LINE_FEED) {
+//            ++spanEnd
+//        }
+//    }
+//    return Pair(spanStart, spanEnd)
+// }

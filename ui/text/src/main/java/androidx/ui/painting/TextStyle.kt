@@ -38,7 +38,7 @@ import androidx.ui.toStringAsFixed
 private const val _kDefaultDebugLabel: String = "unknown"
 
 /** The default font size if none is specified. */
-private const val _defaultFontSize: Float = 14.0f
+internal const val _defaultFontSize: Float = 14.0f
 
 /**
  * Configuration object to define the text style.
@@ -58,13 +58,10 @@ private const val _defaultFontSize: Float = 14.0f
  * @param wordSpacing The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word). Only works on Android Q and above.
  * @param baselineShift This parameter specifies how much the baseline is shifted from the current position.
  * @param textGeometricTransform The geometric transformation applied the text.
- * @param lineHeight The line height for this text, as a multiple of the font size.
  * @param locale The locale used to select region-specific glyphs.
  * @param background The background color for the text.
  * @param decoration The decorations to paint near the text (e.g., an underline).
  * @param fontFamily The name of the font to use when painting the text (e.g., Roboto).
- * @param textIndent Specify how much a paragraph is indented.
- * @param textAlign Specify how a paragraph is aligned.
  * @param shadow The shadow effect applied on the text.
  * @param debugLabel A human-readable description of this text style.
  */
@@ -80,13 +77,10 @@ data class TextStyle(
     val wordSpacing: Float? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
-    val lineHeight: Float? = null,
     val locale: Locale? = null,
     val background: Color? = null,
     val decoration: TextDecoration? = null,
     var fontFamily: FontFamily? = null,
-    val textIndent: TextIndent? = null,
-    val textAlign: TextAlign? = null,
     val shadow: Shadow? = null,
     val debugLabel: String? = null
 ) {
@@ -127,12 +121,9 @@ data class TextStyle(
             wordSpacing = other.wordSpacing ?: this.wordSpacing,
             baselineShift = other.baselineShift ?: this.baselineShift,
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
-            lineHeight = other.lineHeight ?: this.lineHeight,
             locale = other.locale ?: this.locale,
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
-            textIndent = other.textIndent ?: this.textIndent,
-            textAlign = other.textAlign ?: this.textAlign,
             shadow = other.shadow ?: this.shadow,
             debugLabel = mergedDebugLabel
         )
@@ -233,16 +224,9 @@ data class TextStyle(
                     b.textGeometricTransform ?: TextGeometricTransform.None,
                     t
                 ),
-                lineHeight = lerpFloat(a.lineHeight, b.lineHeight, t),
                 locale = lerpDiscrete(a.locale, b.locale, t),
                 background = lerpDiscrete(a.background, b.background, t),
                 decoration = lerpDiscrete(a.decoration, b.decoration, t),
-                textIndent = lerp(
-                    a.textIndent ?: TextIndent.NONE,
-                    b.textIndent ?: TextIndent.NONE,
-                    t
-                ),
-                textAlign = if (t < 0.5) a.textAlign else b.textAlign,
                 shadow = lerp(
                     a.shadow ?: Shadow(),
                     b.shadow ?: Shadow(),
@@ -269,9 +253,6 @@ data class TextStyle(
             wordSpacing = wordSpacing,
             baselineShift = baselineShift,
             textGeometricTransform = textGeometricTransform,
-            textAlign = textAlign,
-            lineHeight = lineHeight,
-            textIndent = textIndent,
             locale = locale,
             background = background,
             shadow = shadow
@@ -290,6 +271,8 @@ data class TextStyle(
     fun getParagraphStyle(
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
+        textIndent: TextIndent? = null,
+        lineHeight: Float? = null,
         textScaleFactor: Float = 1.0f,
         ellipsis: Boolean? = null,
         maxLines: Int? = null,
@@ -299,12 +282,13 @@ data class TextStyle(
         return ParagraphStyle(
             textAlign = textAlign,
             textDirection = textDirection,
+            textIndent = textIndent,
+            lineHeight = lineHeight,
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             maxLines = maxLines,
             fontFamily = fontFamily,
             fontSize = (fontSize ?: _defaultFontSize) * textScaleFactor,
-            lineHeight = lineHeight,
             ellipsis = ellipsis,
             locale = locale,
             fontSynthesis = fontSynthesis
@@ -333,7 +317,6 @@ data class TextStyle(
             wordSpacing != other.wordSpacing ||
             baselineShift != other.baselineShift ||
             textGeometricTransform != other.textGeometricTransform ||
-            lineHeight != other.lineHeight ||
             locale != other.locale ||
             background != other.background
         ) {

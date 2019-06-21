@@ -36,7 +36,6 @@ import androidx.ui.engine.text.TextIndent
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirection: TextDirection? = null,
-    // TODO(siyamed) these two are not being applied from ParagraphStyle for now.
     val lineHeight: Float? = null,
     val textIndent: TextIndent? = null
 ) {

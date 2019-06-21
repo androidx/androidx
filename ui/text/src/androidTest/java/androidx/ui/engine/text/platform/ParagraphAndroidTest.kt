@@ -40,7 +40,6 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.matchers.equalToBitmap
 import androidx.ui.matchers.hasSpan
 import androidx.ui.matchers.hasSpanOnTop
-import androidx.ui.matchers.notHasSpan
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Shadow
 import androidx.ui.painting.AnnotatedString
@@ -714,164 +713,21 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setTextIndent_onWholeParagraph() {
+    fun textIndent_onWholeParagraph() {
         val text = "abc\ndef"
         val firstLine = 40
         val restLine = 20
-        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, "abc".length)
-            )
+            textIndent = TextIndent(firstLine.px, restLine.px)
         )
         // width is not important
         paragraph.layout(100.0f)
 
         assertThat(
             paragraph.underlyingText,
-            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc".length) {
-                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
-            }
-        )
-    }
-
-    @Test
-    fun textStyle_setTextIndent_onPartParagraph() {
-        val text = "abc\ndef"
-        val firstLine = 40
-        val restLine = 20
-        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, 1)
-            )
-        )
-        // width is not important
-        paragraph.layout(100.0f)
-
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc".length) {
-                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
-            }
-        )
-    }
-
-    @Test
-    fun textStyle_setTextIndent_lastCharIsLineFeed() {
-        val text = "abc\ndef"
-        val firstLine = 40
-        val restLine = 20
-        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, "abc\n".length)
-            )
-        )
-        // width is not important
-        paragraph.layout(100.0f)
-
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc".length) {
-                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
-            }
-        )
-    }
-
-    @Test
-    fun textStyle_setTextIndent_firstCharIsLineFeed() {
-        val text = "abc\ndef"
-        val firstLine = 40
-        val restLine = 20
-        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, "abc".length, "abc\nd".length)
-            )
-        )
-        // width is not important
-        paragraph.layout(100.0f)
-
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(LeadingMarginSpan.Standard::class, "abc\n".length, "abc\ndef".length) {
-                it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
-            }
-        )
-    }
-
-    @Test
-    fun textStyle_setTextIndent_coverLineFeed() {
-        val text = "abc\ndef"
-        val firstLine = 40
-        val restLine = 20
-        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, "abc".length, "abc\n".length)
-            )
-        )
-        // width is not important
-        paragraph.layout(100.0f)
-
-        assertThat(
-            paragraph.underlyingText,
-            notHasSpan(LeadingMarginSpan.Standard::class, 0, text.length)
-        )
-    }
-
-    @Test
-    fun textStyle_setTextIndent_coverEmptyParagraph() {
-        val text = "abc\n\ndef"
-        val firstLine = 40
-        val restLine = 20
-        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, "abc".length, "abc\n\n".length)
-            )
-        )
-        // width is not important
-        paragraph.layout(100.0f)
-
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(LeadingMarginSpan.Standard::class, "abc\n".length, "abc\n\n".length)
-        )
-    }
-
-    @Test
-    fun textStyle_setTextIndent_coverMultiParagraph() {
-        val text = "abc\ndef\nghi"
-        val firstLine = 40
-        val restLine = 20
-        val textStyle = TextStyle(textIndent = TextIndent(firstLine.px, restLine.px))
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, "ab".length, "abc\nd".length)
-            )
-        )
-        // width is not important
-        paragraph.layout(100.0f)
-
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(LeadingMarginSpan.Standard::class, 0, "abc\ndef".length) {
+            hasSpan(LeadingMarginSpan.Standard::class, 0, text.length) {
                 it.getLeadingMargin(true) == firstLine && it.getLeadingMargin(false) == restLine
             }
         )
@@ -1215,6 +1071,7 @@ class ParagraphAndroidTest {
     private fun simpleParagraph(
         text: String = "",
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
+        textIndent: TextIndent? = null,
         textAlign: TextAlign? = null,
         fontSize: Float? = null,
         ellipsis: Boolean? = null,
@@ -1230,6 +1087,7 @@ class ParagraphAndroidTest {
             typefaceAdapter = typefaceAdapter,
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
+                textIndent = textIndent,
                 ellipsis = ellipsis,
                 maxLines = maxLines,
                 fontFamily = fontFamily,

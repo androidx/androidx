@@ -42,7 +42,7 @@ class TextSpanTest {
 
     @Test
     fun `constructor with customized style`() {
-        val textStyle = TextStyle(fontSize = 10.0f, lineHeight = 123.0f)
+        val textStyle = TextStyle(fontSize = 10.0f, letterSpacing = 1.5f)
         val textSpan = TextSpan(style = textStyle)
 
         assertThat(textSpan.style).isEqualTo(textStyle)
@@ -261,7 +261,7 @@ class TextSpanTest {
     @Test
     fun `compareTo with one null style should return LAYOUT`() {
         val textSpan1 = TextSpan()
-        val textSpan2 = TextSpan(style = TextStyle(lineHeight = 123.0f))
+        val textSpan2 = TextSpan(style = TextStyle(letterSpacing = 1.5f))
 
         assertThat(textSpan1.compareTo(textSpan2)).isEqualTo(RenderComparison.LAYOUT)
     }

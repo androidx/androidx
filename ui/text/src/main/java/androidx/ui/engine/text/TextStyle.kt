@@ -43,15 +43,11 @@ import androidx.ui.painting.Shadow
  * @param textBaseline The common baseline that should be aligned between this text span and its
  *  parent text span, or, for the root text spans, with the line box.
  * @param baselineShift This parameter specifies how much the baseline is shifted from the current position.
- * @param lineHeight The line height for this text, as a multiple of the font size.
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param locale The locale used to select region-specific glyphs.
  * @param background The background color for the text.
  * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
  *  style cannot be found in the provided custom font family.
- * @param textIndent The amount of indentation applied to the affected paragraph. A paragraph is affected
- *  if any of its character is covered by the TextSpan.
- * @param textAlign Specify how a paragraph is aligned.
  * @param shadow The shadow effect applied on the text.
  */
 data class TextStyle constructor(
@@ -67,11 +63,8 @@ data class TextStyle constructor(
     val wordSpacing: Float? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
-    val lineHeight: Float? = null,
     val locale: Locale? = null,
     val background: Color? = null,
     val fontSynthesis: FontSynthesis? = null,
-    val textIndent: TextIndent? = null,
-    val textAlign: TextAlign? = null,
     val shadow: Shadow? = null
 )
