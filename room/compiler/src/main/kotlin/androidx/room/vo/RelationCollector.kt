@@ -34,7 +34,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.parameter.QueryParameterAdapter
 import androidx.room.solver.query.result.RowAdapter
 import androidx.room.solver.query.result.SingleColumnRowAdapter
-import androidx.room.verifier.DatabaseVerificaitonErrors
+import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.writer.QueryWriter
 import androidx.room.writer.RelationCollectorMethodWriter
 import com.google.auto.common.MoreTypes
@@ -315,7 +315,7 @@ data class RelationCollector(
                     parsedQuery.resultInfo = resultInfo
                     if (resultInfo?.error != null) {
                         context.logger.e(relation.field.element,
-                                DatabaseVerificaitonErrors.cannotVerifyQuery(resultInfo.error))
+                                DatabaseVerificationErrors.cannotVerifyQuery(resultInfo.error))
                     }
                 }
                 val resultInfo = parsedQuery.resultInfo

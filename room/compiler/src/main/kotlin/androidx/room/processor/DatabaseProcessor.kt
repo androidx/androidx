@@ -22,7 +22,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.ext.toAnnotationBox
-import androidx.room.verifier.DatabaseVerificaitonErrors
+import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
@@ -301,7 +301,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             view.query.resultInfo = dbVerifier.analyze(view.query.original)
             if (view.query.resultInfo?.error != null) {
                 context.logger.e(viewElement,
-                        DatabaseVerificaitonErrors.cannotVerifyQuery(
+                        DatabaseVerificationErrors.cannotVerifyQuery(
                                 view.query.resultInfo!!.error!!))
             }
         }

@@ -18,7 +18,7 @@ package androidx.room.verifier
 
 import java.sql.SQLException
 
-object DatabaseVerificaitonErrors {
+object DatabaseVerificationErrors {
     private val CANNOT_VERIFY_QUERY: String = "There is a problem with the query: %s"
     fun cannotVerifyQuery(exception: SQLException): String {
         return CANNOT_VERIFY_QUERY.format(exception.message)

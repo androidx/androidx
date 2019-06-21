@@ -84,7 +84,7 @@ class DatabaseVerifier private constructor(
                 DatabaseVerifier(connection, context, entities, views)
             } catch (ex: Exception) {
                 context.logger.w(Warning.CANNOT_CREATE_VERIFICATION_DATABASE, element,
-                        DatabaseVerificaitonErrors.cannotCreateConnection(ex))
+                        DatabaseVerificationErrors.cannotCreateConnection(ex))
                 null
             }
         }
