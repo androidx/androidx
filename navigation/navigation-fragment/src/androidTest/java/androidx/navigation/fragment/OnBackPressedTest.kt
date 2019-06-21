@@ -21,94 +21,95 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.NavigationActivity
 import androidx.navigation.fragment.test.R
-import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.TimeUnit
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class OnBackPressedTest {
 
-    @get:Rule
-    var activityRule = ActivityTestRule(NavigationActivity::class.java)
-
-    @UiThreadTest
     @Test
-    @FlakyTest
     fun testOnBackPressedOnRoot() {
-        val activity = activityRule.activity
-        val navController = activity.navController
-        navController.setGraph(R.navigation.nav_simple)
-        activity.onBackPressed()
-        assertWithMessage("onBackPressed() should finish the activity on the root")
-            .that(activity.isFinishing)
-            .isTrue()
+        with(ActivityScenario.launch(NavigationActivity::class.java)) {
+            val countDownLatch = withActivity {
+                navController.setGraph(R.navigation.nav_simple)
+                onBackPressed()
+                finishCountDownLatch
+            }
+            assertWithMessage("onBackPressed() should finish the activity on the root")
+                .that(countDownLatch.await(1, TimeUnit.SECONDS))
+                .isTrue()
+        }
     }
 
-    @UiThreadTest
     @Test
     fun testOnBackPressedAfterNavigate() {
-        val activity = activityRule.activity
-        val navController = activity.navController
-        navController.setGraph(R.navigation.nav_simple)
-        navController.navigate(R.id.empty_fragment)
-
-        activity.onBackPressed()
-        assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
-            .that(navController.currentDestination?.id)
-            .isEqualTo(R.id.start_fragment)
+        with(ActivityScenario.launch(NavigationActivity::class.java)) {
+            withActivity {
+                navController.setGraph(R.navigation.nav_simple)
+                navController.navigate(R.id.empty_fragment)
+                onBackPressed()
+                assertWithMessage("onBackPressed() should trigger NavController.popBackStack()")
+                    .that(navController.currentDestination?.id)
+                    .isEqualTo(R.id.start_fragment)
+            }
+        }
     }
 
-    @UiThreadTest
     @Test
-    @FlakyTest
     fun testOnBackPressedAfterNavigate_notDefaultNavHost() {
-        val activity = activityRule.activity
-        val navController = activity.navController
-        navController.setGraph(R.navigation.nav_simple)
-        navController.navigate(R.id.empty_fragment)
-        activity.supportFragmentManager.beginTransaction()
-            .setPrimaryNavigationFragment(null)
-            .commitNow()
+        with(ActivityScenario.launch(NavigationActivity::class.java)) {
+            val countDownLatch = withActivity {
+                navController.setGraph(R.navigation.nav_simple)
+                navController.navigate(R.id.empty_fragment)
+                supportFragmentManager.beginTransaction()
+                    .setPrimaryNavigationFragment(null)
+                    .commitNow()
 
-        activity.onBackPressed()
-        assertWithMessage("onBackPressed() should finish the activity when not the primary nav")
-            .that(activity.isFinishing)
-            .isTrue()
+                onBackPressed()
+                finishCountDownLatch
+            }
+            assertWithMessage("onBackPressed() should finish the activity when not the " +
+                    "primary nav")
+                .that(countDownLatch.await(1, TimeUnit.SECONDS))
+                .isTrue()
+        }
     }
 
-    @UiThreadTest
     @Test
     fun testOnBackPressedWithChildBackStack() {
-        val activity = activityRule.activity
-        val navHostFragment = activity.supportFragmentManager.primaryNavigationFragment
-                as NavHostFragment
-        val navHostFragmentManager = navHostFragment.childFragmentManager
-        val navController = navHostFragment.navController
-        navController.setGraph(R.navigation.nav_simple)
-        navController.navigate(R.id.child_back_stack_fragment)
-        navHostFragmentManager.executePendingTransactions()
+        with(ActivityScenario.launch(NavigationActivity::class.java)) {
+            withActivity {
+                val navHostFragment = supportFragmentManager.primaryNavigationFragment
+                        as NavHostFragment
+                val navHostFragmentManager = navHostFragment.childFragmentManager
+                val navController = navHostFragment.navController
+                navController.setGraph(R.navigation.nav_simple)
+                navController.navigate(R.id.child_back_stack_fragment)
+                navHostFragmentManager.executePendingTransactions()
 
-        val currentFragment = navHostFragmentManager.primaryNavigationFragment
-                as ChildBackStackFragment
-        assertWithMessage("Current Fragment should have a child Fragment by default")
-            .that(currentFragment.childFragment)
-            .isNotNull()
+                val currentFragment = navHostFragmentManager.primaryNavigationFragment
+                        as ChildBackStackFragment
+                assertWithMessage("Current Fragment should have a child Fragment by default")
+                    .that(currentFragment.childFragment)
+                    .isNotNull()
 
-        activity.onBackPressed()
-        assertWithMessage("onBackPressed() should not trigger NavController when there is a " +
-                "child back stack")
-            .that(navController.currentDestination?.id)
-            .isEqualTo(R.id.child_back_stack_fragment)
-        assertWithMessage("Child Fragment should be popped")
-            .that(currentFragment.childFragment)
-            .isNull()
+                onBackPressed()
+                assertWithMessage("onBackPressed() should not trigger NavController when there " +
+                        "is a child back stack")
+                    .that(navController.currentDestination?.id)
+                    .isEqualTo(R.id.child_back_stack_fragment)
+                assertWithMessage("Child Fragment should be popped")
+                    .that(currentFragment.childFragment)
+                    .isNull()
+            }
+        }
     }
 }
 
