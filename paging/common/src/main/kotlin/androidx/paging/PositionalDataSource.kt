@@ -384,6 +384,13 @@ abstract class PositionalDataSource<T : Any> : ListenablePositionalDataSource<T>
         function: Function<List<T>, List<V>>
     ): PositionalDataSource<V> = WrapperPositionalDataSource(this, function)
 
+    final override fun <V : Any> mapByPage(
+        function: (List<T>) -> List<V>
+    ): PositionalDataSource<V> = mapByPage(Function { function(it) })
+
     final override fun <V : Any> map(function: Function<T, V>): PositionalDataSource<V> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
+
+    final override fun <V : Any> map(function: (T) -> V): PositionalDataSource<V> =
+        mapByPage(Function { list -> list.map(function) })
 }

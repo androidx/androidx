@@ -29,8 +29,7 @@ import java.util.IdentityHashMap
  */
 internal open class WrapperDataSource<Key : Any, ValueFrom : Any, ValueTo : Any>(
     private val source: DataSource<Key, ValueFrom>,
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    val listFunction: Function<List<ValueFrom>, List<ValueTo>>
+    private val listFunction: Function<List<ValueFrom>, List<ValueTo>>
 ) : DataSource<Key, ValueTo>(source.type) {
     private val keyMap = when (source.type) {
         KeyType.ITEM_KEYED -> IdentityHashMap<ValueTo, Key>()
