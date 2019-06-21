@@ -368,8 +368,16 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
         function: Function<List<Value>, List<ToValue>>
     ): ItemKeyedDataSource<Key, ToValue> = WrapperItemKeyedDataSource(this, function)
 
+    final override fun <ToValue : Any> mapByPage(
+        function: (List<Value>) -> List<ToValue>
+    ): ItemKeyedDataSource<Key, ToValue> = mapByPage(Function { function(it) })
+
     final override fun <ToValue : Any> map(
         function: Function<Value, ToValue>
     ): ItemKeyedDataSource<Key, ToValue> =
         mapByPage(Function { list -> list.map { function.apply(it) } })
+
+    final override fun <ToValue : Any> map(
+        function: (Value) -> ToValue
+    ): ItemKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })
 }
