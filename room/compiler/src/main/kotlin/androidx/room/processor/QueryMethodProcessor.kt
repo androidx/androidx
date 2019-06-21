@@ -26,7 +26,7 @@ import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
 import androidx.room.solver.query.result.PojoRowAdapter
-import androidx.room.verifier.DatabaseVerificaitonErrors
+import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.WriteQueryMethod
 import androidx.room.vo.QueryMethod
@@ -63,7 +63,7 @@ class QueryMethodProcessor(
             }
             if (query.resultInfo?.error != null) {
                 context.logger.e(executableElement,
-                        DatabaseVerificaitonErrors.cannotVerifyQuery(query.resultInfo!!.error!!))
+                        DatabaseVerificationErrors.cannotVerifyQuery(query.resultInfo!!.error!!))
             }
 
             context.checker.check(returnType.kind != TypeKind.ERROR,
