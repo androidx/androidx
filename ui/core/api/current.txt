@@ -1349,20 +1349,10 @@ package androidx.ui.graphics {
 package androidx.ui.input {
 
   public final class EditorState {
-    ctor public EditorState(String text, androidx.ui.core.TextRange selection, androidx.ui.core.TextRange? composition);
-    ctor public EditorState();
-    method public String component1();
-    method public androidx.ui.core.TextRange component2();
-    method public androidx.ui.core.TextRange? component3();
-    method public androidx.ui.input.EditorState copy(String text, androidx.ui.core.TextRange selection, androidx.ui.core.TextRange? composition);
+    ctor public EditorState(String text, androidx.ui.core.TextRange selection);
     method public androidx.ui.core.TextRange? getComposition();
     method public androidx.ui.core.TextRange getSelection();
     method public String getText();
-  }
-
-  public interface TextInputService {
-    method public void startInput(androidx.ui.input.EditorState initState, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onUpdateEditorState, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onEditorActionPerformed, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onKeyEventForwarded);
-    method public void stopInput();
   }
 
 }

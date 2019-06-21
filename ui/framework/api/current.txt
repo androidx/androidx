@@ -20,11 +20,6 @@ package androidx.ui.core {
     property public androidx.ui.core.Density density;
   }
 
-  public final class EditableTextKt {
-    ctor public EditableTextKt();
-    method public static void EditableText(androidx.ui.input.EditorState value, androidx.ui.core.EditorStyle editorStyle, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onEditorActionPerformed = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onKeyEventForwarded = {});
-  }
-
   public final class EditorStyle {
     ctor public EditorStyle(androidx.ui.painting.TextStyle textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
     method public androidx.ui.painting.TextStyle component1();
@@ -34,6 +29,11 @@ package androidx.ui.core {
     method public androidx.ui.graphics.Color getCompositionColor();
     method public androidx.ui.graphics.Color getSelectionColor();
     method public androidx.ui.painting.TextStyle getTextStyle();
+  }
+
+  public final class InputFieldKt {
+    ctor public InputFieldKt();
+    method public static void InputField(androidx.ui.input.EditorState value, androidx.ui.core.EditorStyle editorStyle, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onEditorActionPerformed = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onKeyEventForwarded = {});
   }
 
   public final class IntrinsicMeasurementsReceiver implements androidx.ui.core.DensityReceiver {
@@ -242,7 +242,7 @@ package androidx.ui.core.input {
 
   public final class TextInputClientKt {
     ctor public TextInputClientKt();
-    method public static void TextInputClient(androidx.ui.input.EditorState editorState = EditorState(), kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onEditorStateChange = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onEditorActionPerformed = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onKeyEventForwarded = {}, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void TextInputClient(androidx.ui.input.EditorState editorState, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onEditorStateChange, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onEditorActionPerformed = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onKeyEventForwarded = {}, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

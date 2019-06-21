@@ -17,13 +17,14 @@
 package androidx.ui.core.input
 
 import android.content.Context
-import android.text.Editable
 import android.text.InputType
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
+import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorState
+import androidx.ui.input.InputEventListener
 import androidx.ui.input.TextInputService
 
 /**
@@ -37,14 +38,13 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
      *  The following three observers are set when the editable widget has initiated the input
      *  session
      */
-    private var onUpdateEditorState: (EditorState) -> Unit = {}
+    private var onEditCommand: (List<EditOperation>) -> Unit = {}
     private var onEditorActionPerformed: (Any) -> Unit = {}
     private var onKeyEventForwarded: (Any) -> Unit = {}
 
     /**
      * The editable buffer used for BaseInputConnection.
      */
-    private var editable = Editable.Factory.getInstance().newEditable("")
     private val imm =
         view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
@@ -58,12 +58,11 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
         outAttrs.inputType = InputType.TYPE_CLASS_TEXT
         outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN
 
-        return CraneInputConnection(
-            view=view,
-            onUpdateEditorState = onUpdateEditorState,
-            onEditorActionPerformed = onEditorActionPerformed,
-            onKeyEventForwarded = onKeyEventForwarded,
-            mEditable = editable)
+        return RecordingInputConnection(object : InputEventListener {
+            override fun onEditOperations(editOps: List<EditOperation>) {
+                onEditCommand(editOps)
+            }
+        })
     }
 
     /**
@@ -73,15 +72,14 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
 
     override fun startInput(
         initState: EditorState,
-        onUpdateEditorState: (EditorState) -> Unit,
+        onEditCommand: (List<EditOperation>) -> Unit,
         onEditorActionPerformed: (Any) -> Unit,
         onKeyEventForwarded: (Any) -> Unit
     ) {
         editorHasFocus = true
-        this.onUpdateEditorState = onUpdateEditorState
+        this.onEditCommand = onEditCommand
         this.onEditorActionPerformed = onEditorActionPerformed
         this.onKeyEventForwarded = onKeyEventForwarded
-        this.editable = initState.toEditable()
 
         view.requestFocus()
         view.post {
@@ -92,7 +90,7 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
 
     override fun stopInput() {
         editorHasFocus = false
-        onUpdateEditorState = {}
+        onEditCommand = {}
         onEditorActionPerformed = {}
         onKeyEventForwarded = {}
 

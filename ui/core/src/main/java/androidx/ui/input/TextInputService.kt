@@ -16,16 +16,20 @@
 
 package androidx.ui.input
 
+import androidx.annotation.RestrictTo
+
 /**
  * An interface for text input service.
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 interface TextInputService {
     /**
      * Start text input session for given client.
      */
     fun startInput(
         initState: EditorState,
-        onUpdateEditorState: (EditorState) -> Unit,
+        onEditCommand: (List<EditOperation>) -> Unit,
         onEditorActionPerformed: (Any) -> Unit, /* TODO(nona): decide type */
         onKeyEventForwarded: (Any) -> Unit /* TODO(nona): decide type */
     )
