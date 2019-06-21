@@ -18,6 +18,7 @@ package androidx.annotation.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
+import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
@@ -46,23 +47,31 @@ class ExperimentalDetectorTest {
         return java(javaClass.getResource("/${className.replace('.','/')}.java").readText())
     }
 
+    /**
+     * Loads a [TestFile] from Kotlin source code included in the JAR resources.
+     */
+    private fun ktSample(className: String): TestFile {
+        return kotlin(javaClass.getResource("/${className.replace('.','/')}.kt").readText())
+    }
+
     @Test
-    fun useExperimentalClassUnchecked() {
+    fun useJavaExperimentalFromJava() {
         val input = arrayOf(
+            javaSample("sample.DateProvider"),
             javaSample("sample.ExperimentalDateTime"),
-            javaSample("sample.UseExperimentalClassUnchecked")
+            javaSample("sample.UseJavaExperimentalFromJava")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseExperimentalClassUnchecked.java:29: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromJava.java:24: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
-        DateProvider provider = new DateProvider();
-                                ~~~~~~~~~~~~~~~~~~
-src/sample/UseExperimentalClassUnchecked.java:30: Error: This declaration is experimental and its usage should be marked with
+        DateProvider dateProvider = new DateProvider();
+                                    ~~~~~~~~~~~~~~~~~~
+src/sample/UseJavaExperimentalFromJava.java:25: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
-        return provider.getDate();
-                        ~~~~~~~
+        return dateProvider.getDate();
+                            ~~~~~~~
 2 errors, 0 warnings
     """.trimIndent()
         /* ktlint-enable max-line-length */
@@ -71,45 +80,34 @@ src/sample/UseExperimentalClassUnchecked.java:30: Error: This declaration is exp
     }
 
     @Test
-    fun useExperimentalClassChecked() {
+    fun useJavaExperimentalFromKt() {
         val input = arrayOf(
+            javaSample("sample.DateProvider"),
             javaSample("sample.ExperimentalDateTime"),
-            javaSample("sample.UseExperimentalClassChecked")
-        )
-
-        val expected = "No warnings."
-
-        checkJava(*input).expect(expected)
-    }
-
-    @Test
-    fun useExperimentalMethodUnchecked() {
-        val input = arrayOf(
-            javaSample("sample.ExperimentalDateTime"),
-            javaSample("sample.UseExperimentalMethodUnchecked")
+            ktSample("sample.UseJavaExperimentalFromKt")
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseExperimentalMethodUnchecked.java:35: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromKt.kt:24: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
-        System.out.println(getDate());
-                           ~~~~~~~
-1 errors, 0 warnings
+        val dateProvider = DateProvider()
+                           ~~~~~~~~~~~~
+src/sample/UseJavaExperimentalFromKt.kt:25: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.date
+                            ~~~~
+src/sample/UseJavaExperimentalFromKt.kt:36: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+        val dateProvider = DateProvider()
+                           ~~~~~~~~~~~~
+src/sample/UseJavaExperimentalFromKt.kt:37: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.date
+                            ~~~~
+4 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
-
-        checkJava(*input).expect(expected)
-    }
-
-    @Test
-    fun useExperimentalClassCheckedUses() {
-        val input = arrayOf(
-            javaSample("sample.ExperimentalDateTime"),
-            javaSample("sample.UseExperimentalClassCheckedUses")
-        )
-
-        val expected = "No warnings."
 
         checkJava(*input).expect(expected)
     }

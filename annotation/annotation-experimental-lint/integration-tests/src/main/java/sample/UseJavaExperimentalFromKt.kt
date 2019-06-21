@@ -14,19 +14,30 @@
  * limitations under the License.
  */
 
-package sample;
+package sample
 
-@SuppressWarnings("unused")
-class UseExperimentalClassUnchecked {
-    @ExperimentalDateTime
-    class DateProvider {
-        int getDate() {
-            return -1;
-        }
+import androidx.annotation.UseExperimental
+
+@Suppress("unused")
+class UseJavaExperimentalFromKt {
+    fun getDateUnsafe(): Int {
+        val dateProvider = DateProvider()
+        return dateProvider.date
     }
 
-    int getDate() {
-        DateProvider provider = new DateProvider();
-        return provider.getDate();
+    @ExperimentalDateTime
+    fun getDateExperimental(): Int {
+        val dateProvider = DateProvider()
+        return dateProvider.date
+    }
+
+    @UseExperimental(markerClass = ExperimentalDateTime::class)
+    fun getDateUseExperimental(): Int {
+        val dateProvider = DateProvider()
+        return dateProvider.date
+    }
+
+    fun displayDate() {
+        println("" + getDateUnsafe())
     }
 }
