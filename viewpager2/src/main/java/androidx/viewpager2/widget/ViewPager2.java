@@ -251,6 +251,7 @@ public final class ViewPager2 extends ViewGroup {
         };
     }
 
+    @RequiresApi(23)
     @Override
     public CharSequence getAccessibilityClassName() {
         if (mAccessibilityProvider.handlesGetAccessibilityClassName()) {
@@ -849,6 +850,7 @@ public final class ViewPager2 extends ViewGroup {
         mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
+    @RequiresApi(16)
     @Override
     public boolean performAccessibilityAction(int action, Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {
@@ -866,6 +868,7 @@ public final class ViewPager2 extends ViewGroup {
             super(context);
         }
 
+        @RequiresApi(23)
         @Override
         public CharSequence getAccessibilityClassName() {
             if (mAccessibilityProvider.handlesRvGetAccessibilityClassName()) {
@@ -1345,7 +1348,7 @@ public final class ViewPager2 extends ViewGroup {
         @Override
         public void onRvInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
             event.setSource(ViewPager2.this);
-            event.setClassName(ViewPager2.this.getAccessibilityClassName());
+            event.setClassName(onGetAccessibilityClassName());
         }
 
         /**
