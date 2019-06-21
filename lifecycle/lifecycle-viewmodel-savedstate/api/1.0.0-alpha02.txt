@@ -19,10 +19,7 @@ package androidx.lifecycle {
   }
 
   public final class SavedStateVMFactory extends androidx.lifecycle.AbstractSavedStateVMFactory implements androidx.lifecycle.ViewModelProvider.Factory {
-    ctor public SavedStateVMFactory(androidx.fragment.app.Fragment);
-    ctor public SavedStateVMFactory(androidx.fragment.app.Fragment, android.os.Bundle?);
-    ctor public SavedStateVMFactory(androidx.fragment.app.FragmentActivity);
-    ctor public SavedStateVMFactory(androidx.fragment.app.FragmentActivity, android.os.Bundle?);
+    ctor public SavedStateVMFactory(android.app.Application, androidx.savedstate.SavedStateRegistryOwner);
     ctor public SavedStateVMFactory(android.app.Application, androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
     method protected <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>, androidx.lifecycle.SavedStateHandle);
   }

@@ -16,14 +16,12 @@
 
 package androidx.lifecycle;
 
-import android.app.Activity;
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.lang.reflect.Constructor;
@@ -33,8 +31,7 @@ import java.util.Arrays;
 /**
  * {@link androidx.lifecycle.ViewModelProvider.Factory} that can create ViewModels accessing and contributing
  * to a saved state via {@link SavedStateHandle} received in a constructor. If {@code defaultArgs}
- * bundle was passed in {@link #SavedStateVMFactory(Fragment, Bundle)}
- * or {@link #SavedStateVMFactory(FragmentActivity, Bundle)}, it will provide default values in
+ * bundle was passed into the constructor, it will provide default values in
  * {@code SavedStateHandle}.
  * <p>
  * If ViewModel is instance of {@link androidx.lifecycle.AndroidViewModel}, it looks for a constructor that
@@ -49,54 +46,15 @@ public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
      * Creates {@link SavedStateVMFactory}.
      * <p>
      * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code fragment}.
-     *
-     * @param fragment scope of this fragment will be used for state saving
-     */
-    public SavedStateVMFactory(@NonNull Fragment fragment) {
-        this(fragment, null);
-    }
-
-    /**
-     * Creates {@link SavedStateVMFactory}.
-     * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code fragment}.
-     *
-     * @param fragment scope of this fragment will be used for state saving
-     * @param defaultArgs values from this {@code Bundle} will be used as defaults by
-     * {@link SavedStateHandle} if there is no previously saved state or previously saved state
-     * miss a value by such key.
-     */
-    public SavedStateVMFactory(@NonNull Fragment fragment, @Nullable Bundle defaultArgs) {
-        this(checkApplication(checkActivity(fragment)), fragment, defaultArgs);
-    }
-
-    /**
-     * Creates {@link SavedStateVMFactory}.
-     * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
      * the given {@code activity}.
      *
-     * @param activity scope of this activity will be used for state saving
+     * @param application an application
+     * @param owner {@link SavedStateRegistryOwner} that will provide restored state for created
+     * {@link androidx.lifecycle.ViewModel ViewModels}
      */
-    public SavedStateVMFactory(@NonNull FragmentActivity activity) {
-        this(activity, null);
-    }
-
-    /**
-     * Creates {@link SavedStateVMFactory}.
-     * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code activity}.
-     *
-     * @param activity scope of this activity will be used for state saving
-     * @param defaultArgs values from this {@code Bundle} will be used as defaults by
-     * {@link SavedStateHandle} if there is no previously saved state or previously saved state
-     * misses a value by such key.
-     */
-    public SavedStateVMFactory(@NonNull FragmentActivity activity, @Nullable Bundle defaultArgs) {
-        this(checkApplication(activity), activity, defaultArgs);
+    public SavedStateVMFactory(@NonNull Application application,
+            @NonNull SavedStateRegistryOwner owner) {
+        this(application, owner, null);
     }
 
     /**
@@ -112,6 +70,7 @@ public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
      * {@link SavedStateHandle} if there is no previously saved state or previously saved state
      * misses a value by such key.
      */
+    @SuppressLint("LambdaLast")
     public SavedStateVMFactory(@NonNull Application application,
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs) {
@@ -164,24 +123,5 @@ public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
             }
         }
         return null;
-    }
-
-    private static Application checkApplication(Activity activity) {
-        Application application = activity.getApplication();
-        if (application == null) {
-            throw new IllegalStateException("Your activity/fragment is not yet attached to "
-                    + "Application. You can't request ViewModelsWithStateFactory "
-                    + "before onCreate call.");
-        }
-        return application;
-    }
-
-    private static Activity checkActivity(Fragment fragment) {
-        Activity activity = fragment.getActivity();
-        if (activity == null) {
-            throw new IllegalStateException("Can't create ViewModelsWithStateFactory"
-                    + " for detached fragment");
-        }
-        return activity;
     }
 }
