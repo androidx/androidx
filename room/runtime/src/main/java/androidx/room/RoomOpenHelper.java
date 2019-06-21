@@ -77,8 +77,11 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
             // framework's SQLiteOpenHelper thinks the database was just created from scratch. If we
             // find the database not to be empty, then it is a pre-populated, we must validate it to
             // see if its suitable for usage.
-            // TODO: Use better error message indicating pre-packaged DB issue instead of migration.
-            mDelegate.validateMigration(db);
+            ValidationResult result = mDelegate.onValidateSchema(db);
+            if (!result.isValid) {
+                throw new IllegalStateException("Pre-packaged database has an invalid schema: "
+                        + result.expectedFoundMsg);
+            }
         }
         updateIdentity(db);
         mDelegate.onCreate(db);
@@ -95,7 +98,11 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
                 for (Migration migration : migrations) {
                     migration.migrate(db);
                 }
-                mDelegate.validateMigration(db);
+                ValidationResult result = mDelegate.onValidateSchema(db);
+                if (!result.isValid) {
+                    throw new IllegalStateException("Migration didn't properly handle: "
+                            + result.expectedFoundMsg);
+                }
                 mDelegate.onPostMigrate(db);
                 updateIdentity(db);
                 migrated = true;
@@ -151,8 +158,11 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         } else {
             // No room_master_table, this might an a pre-populated DB, we must validate to see if
             // its suitable for usage.
-            // TODO: Use better error message indicating pre-packaged DB issue instead of migration
-            mDelegate.validateMigration(db);
+            ValidationResult result = mDelegate.onValidateSchema(db);
+            if (!result.isValid) {
+                throw new IllegalStateException("Pre-packaged database has an invalid schema: "
+                        + result.expectedFoundMsg);
+            }
             mDelegate.onPostMigrate(db);
             updateIdentity(db);
         }
@@ -212,9 +222,25 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
          * Called after a migration run to validate database integrity.
          *
          * @param db The SQLite database.
+         *
+         * @deprecated Use {@link #onValidateSchema(SupportSQLiteDatabase)}
          */
-        protected abstract void validateMigration(SupportSQLiteDatabase db);
+        @Deprecated
+        protected void validateMigration(SupportSQLiteDatabase db) {
+            throw new UnsupportedOperationException("validateMigration is deprecated");
+        }
 
+        /**
+         * Called after a migration run or pre-package database copy to validate database integrity.
+         *
+         * @param db The SQLite database.
+         */
+        @SuppressWarnings("deprecation")
+        @NonNull
+        protected ValidationResult onValidateSchema(@NonNull SupportSQLiteDatabase db) {
+            validateMigration(db);
+            return new ValidationResult(true, null);
+        }
 
         /**
          * Called before migrations execute to perform preliminary work.
@@ -233,4 +259,19 @@ public class RoomOpenHelper extends SupportSQLiteOpenHelper.Callback {
         }
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public static class ValidationResult {
+
+        public final boolean isValid;
+        @Nullable
+        public final String expectedFoundMsg;
+
+        public ValidationResult(boolean isValid, @Nullable String expectedFoundMsg) {
+            this.isValid = isValid;
+            this.expectedFoundMsg = expectedFoundMsg;
+        }
+    }
 }

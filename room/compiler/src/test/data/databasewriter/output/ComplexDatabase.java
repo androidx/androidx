@@ -4,6 +4,7 @@ import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomOpenHelper;
 import androidx.room.RoomOpenHelper.Delegate;
+import androidx.room.RoomOpenHelper.ValidationResult;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
 import androidx.room.util.TableInfo.Column;
@@ -14,7 +15,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
-import java.lang.IllegalStateException;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
@@ -79,7 +79,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
             }
 
             @Override
-            protected void validateMigration(SupportSQLiteDatabase _db) {
+            protected RoomOpenHelper.ValidationResult onValidateSchema(SupportSQLiteDatabase _db) {
                 final HashMap<String, TableInfo.Column> _columnsUser = new HashMap<String, TableInfo.Column>(4);
                 _columnsUser.put("uid", new TableInfo.Column("uid", "INTEGER", true, 1, null));
                 _columnsUser.put("name", new TableInfo.Column("name", "TEXT", false, 0, null));
@@ -90,7 +90,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 final TableInfo _infoUser = new TableInfo("User", _columnsUser, _foreignKeysUser, _indicesUser);
                 final TableInfo _existingUser = TableInfo.read(_db, "User");
                 if (! _infoUser.equals(_existingUser)) {
-                    throw new IllegalStateException("Migration didn't properly handle User(foo.bar.User).\n"
+                    return new RoomOpenHelper.ValidationResult(false, "User(foo.bar.User).\n"
                             + " Expected:\n" + _infoUser + "\n"
                             + " Found:\n" + _existingUser);
                 }
@@ -104,7 +104,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 final TableInfo _infoChild1 = new TableInfo("Child1", _columnsChild1, _foreignKeysChild1, _indicesChild1);
                 final TableInfo _existingChild1 = TableInfo.read(_db, "Child1");
                 if (! _infoChild1.equals(_existingChild1)) {
-                    throw new IllegalStateException("Migration didn't properly handle Child1(foo.bar.Child1).\n"
+                    return new RoomOpenHelper.ValidationResult(false, "Child1(foo.bar.Child1).\n"
                             + " Expected:\n" + _infoChild1 + "\n"
                             + " Found:\n" + _existingChild1);
                 }
@@ -118,17 +118,18 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 final TableInfo _infoChild2 = new TableInfo("Child2", _columnsChild2, _foreignKeysChild2, _indicesChild2);
                 final TableInfo _existingChild2 = TableInfo.read(_db, "Child2");
                 if (! _infoChild2.equals(_existingChild2)) {
-                    throw new IllegalStateException("Migration didn't properly handle Child2(foo.bar.Child2).\n"
+                    return new RoomOpenHelper.ValidationResult(false, "Child2(foo.bar.Child2).\n"
                             + " Expected:\n" + _infoChild2 + "\n"
                             + " Found:\n" + _existingChild2);
                 }
                 final ViewInfo _infoUserSummary = new ViewInfo("UserSummary", "CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
                 final ViewInfo _existingUserSummary = ViewInfo.read(_db, "UserSummary");
-                if (!_infoUserSummary.equals(_existingUserSummary)) {
-                    throw new IllegalStateException("Migration didn't properly handle UserSummary(foo.bar.UserSummary).\n"
+                if (! _infoUserSummary.equals(_existingUserSummary)) {
+                    return new RoomOpenHelper.ValidationResult(false, "UserSummary(foo.bar.UserSummary).\n"
                             + " Expected:\n" + _infoUserSummary + "\n"
                             + " Found:\n" + _existingUserSummary);
                 }
+                return new RoomOpenHelper.ValidationResult(true, null);
             }
         }, "12b646c55443feeefb567521e2bece85", "2f1dbf49584f5d6c91cb44f8a6ecfee2");
         final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)

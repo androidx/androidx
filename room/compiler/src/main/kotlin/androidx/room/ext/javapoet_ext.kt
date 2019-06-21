@@ -71,6 +71,8 @@ object RoomTypeNames {
             ClassName.get(ROOM_PACKAGE, "RoomOpenHelper")
     val OPEN_HELPER_DELEGATE: ClassName =
             ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.Delegate")
+    val OPEN_HELPER_VALIDATION_RESULT: ClassName =
+            ClassName.get(ROOM_PACKAGE, "RoomOpenHelper.ValidationResult")
     val TABLE_INFO: ClassName =
             ClassName.get("$ROOM_PACKAGE.util", "TableInfo")
     val TABLE_INFO_COLUMN: ClassName =

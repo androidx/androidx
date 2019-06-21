@@ -21,7 +21,6 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.vo.DatabaseView
 import com.squareup.javapoet.ParameterSpec
 import stripNonJava
@@ -42,10 +41,9 @@ class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
                     dbParam, view.viewName)
 
             beginControlFlow("if (! $L.equals($L))", expectedInfoVar, existingVar).apply {
-                addStatement("throw new $T($S + $L + $S + $L)",
-                        IllegalStateException::class.typeName(),
-                        "Migration didn't properly handle ${view.viewName}" +
-                                "(${view.element.qualifiedName}).\n Expected:\n",
+                addStatement("return new $T(false, $S + $L + $S + $L)",
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        "${view.viewName}(${view.element.qualifiedName}).\n Expected:\n",
                         expectedInfoVar, "\n Found:\n", existingVar)
             }
             endControlFlow()

@@ -92,9 +92,9 @@ class SQLiteOpenHelperWriter(val database: Database) {
         while (!entities.isEmpty() || !views.isEmpty()) {
             val isPrimaryMethod = methodSpecs.isEmpty()
             val methodName = if (isPrimaryMethod) {
-                "validateMigration"
+                "onValidateSchema"
             } else {
-                "validateMigration${methodSpecs.size + 1}"
+                "onValidateSchema${methodSpecs.size + 1}"
             }
             methodSpecs.add(MethodSpec.methodBuilder(methodName).apply {
                 if (isPrimaryMethod) {
@@ -103,6 +103,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
                 } else {
                     addModifiers(PRIVATE)
                 }
+                returns(RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT)
                 addParameter(dbParam)
                 var statementCount = 0
                 while (!entities.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
@@ -124,6 +125,10 @@ class SQLiteOpenHelperWriter(val database: Database) {
                     addCode(methodScope.builder().build())
                     statementCount += validationWriter.statementCount()
                 }
+                if (!isPrimaryMethod) {
+                    addStatement("return new $T(true, null)",
+                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT)
+                }
             }.build())
         }
 
@@ -131,9 +136,21 @@ class SQLiteOpenHelperWriter(val database: Database) {
         // from the primary method.
         if (methodSpecs.size > 1) {
             methodSpecs[0] = methodSpecs[0].toBuilder().apply {
+                val resultVar = scope.getTmpVar("_result")
+                addStatement("$T $L", RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT, resultVar)
                 methodSpecs.drop(1).forEach {
-                    addStatement("${it.name}($N)", dbParam)
+                    addStatement("$L = ${it.name}($N)", resultVar, dbParam)
+                    beginControlFlow("if (!$L.isValid)", resultVar)
+                    addStatement("return $L", resultVar)
+                    endControlFlow()
                 }
+                addStatement("return new $T(true, null)",
+                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT)
+            }.build()
+        } else if (methodSpecs.size == 1) {
+            methodSpecs[0] = methodSpecs[0].toBuilder().apply {
+                addStatement("return new $T(true, null)",
+                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT)
             }.build()
         }
 

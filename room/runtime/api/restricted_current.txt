@@ -65,8 +65,15 @@ package androidx.room {
     method protected abstract void onOpen(androidx.sqlite.db.SupportSQLiteDatabase!);
     method protected void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase!);
     method protected void onPreMigrate(androidx.sqlite.db.SupportSQLiteDatabase!);
-    method protected abstract void validateMigration(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method protected androidx.room.RoomOpenHelper.ValidationResult onValidateSchema(androidx.sqlite.db.SupportSQLiteDatabase);
+    method @Deprecated protected void validateMigration(androidx.sqlite.db.SupportSQLiteDatabase!);
     field public final int version;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class RoomOpenHelper.ValidationResult {
+    ctor public RoomOpenHelper.ValidationResult(boolean, String?);
+    field public final String? expectedFoundMsg;
+    field public final boolean isValid;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RoomSQLiteQuery implements androidx.sqlite.db.SupportSQLiteProgram androidx.sqlite.db.SupportSQLiteQuery {
