@@ -35,6 +35,7 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -48,6 +49,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 @SmallTest
+@FlakyTest
 @RunWith(AndroidJUnit4.class)
 public class PrepackageTest {
 

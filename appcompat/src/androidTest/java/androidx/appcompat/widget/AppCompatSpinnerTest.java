@@ -52,6 +52,7 @@ import androidx.test.espresso.action.CoordinatesProvider;
 import androidx.test.espresso.action.GeneralSwipeAction;
 import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -222,6 +223,7 @@ public class AppCompatSpinnerTest
     }
 
     @Test
+    @FlakyTest
     public void testSlowScroll() {
         final AppCompatSpinner spinner = mContainer
                 .findViewById(R.id.spinner_dropdown_popup_with_scroll);

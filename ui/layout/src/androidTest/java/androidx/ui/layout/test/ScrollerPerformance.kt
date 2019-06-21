@@ -26,6 +26,7 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.setContent
 import androidx.compose.unaryPlus
+import androidx.test.filters.FlakyTest
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
@@ -51,6 +52,7 @@ class ScrollerPerformance : LayoutTest() {
     val benchmarkRule = BenchmarkRule()
 
     @Test
+    @FlakyTest
     fun benchmarkScrollLayout() {
         val scrollerPosition = ScrollerPosition()
         val compositionContext =
@@ -88,6 +90,7 @@ class ScrollerPerformance : LayoutTest() {
     }
 
     @Test
+    @FlakyTest
     fun benchmarkScrollComposition() {
         val scrollerPosition = ScrollerPosition()
         val compositionContext =
@@ -113,6 +116,7 @@ class ScrollerPerformance : LayoutTest() {
     }
 
     @Test
+    @FlakyTest
     fun benchmarkLargeComposition() {
         val scrollerPosition = ScrollerPosition()
         val compositionContext =

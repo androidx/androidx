@@ -23,6 +23,7 @@ import androidx.navigation.fragment.test.NavigationActivity
 import androidx.navigation.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
@@ -39,6 +40,7 @@ class OnBackPressedTest {
 
     @UiThreadTest
     @Test
+    @FlakyTest
     fun testOnBackPressedOnRoot() {
         val activity = activityRule.activity
         val navController = activity.navController
@@ -65,6 +67,7 @@ class OnBackPressedTest {
 
     @UiThreadTest
     @Test
+    @FlakyTest
     fun testOnBackPressedAfterNavigate_notDefaultNavHost() {
         val activity = activityRule.activity
         val navController = activity.navController
