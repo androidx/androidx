@@ -17,7 +17,6 @@
 package androidx.ui.text.demos
 
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.EditorStyle
 import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.px
@@ -33,7 +32,6 @@ import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
-import androidx.ui.input.EditorState
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
@@ -47,7 +45,6 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.InputField
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
@@ -94,8 +91,6 @@ fun TextDemo() {
                 TexDemoTextOverflowFade()
                 TagLine(tag = "shadow")
                 TextDemoShadowEffect()
-                TagLine(tag = "editing")
-                EditLine()
                 TagLine(tag = "selection")
                 TextDemoSelection()
                 TagLine(tag = "selection in 2D Array Vertical")
@@ -534,16 +529,6 @@ fun TextDemoShadowEffect() {
             Span(text = "shadow!", style = TextStyle(shadow = shadow))
         }
     }
-}
-
-@Composable
-fun EditLine() {
-    val state = +state { EditorState(text = "Hello, Editor") }
-    InputField(
-        value = state.value,
-        onValueChange = { state.value = it },
-        editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
-    )
 }
 
 @Composable
