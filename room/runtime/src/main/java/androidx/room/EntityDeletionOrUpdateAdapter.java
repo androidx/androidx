@@ -79,7 +79,7 @@ public abstract class EntityDeletionOrUpdateAdapter<T> extends SharedSQLiteState
      * @param entities Entities to delete or update
      * @return The number of affected rows
      */
-    public final int handleMultiple(Iterable<T> entities) {
+    public final int handleMultiple(Iterable<? extends T> entities) {
         final SupportSQLiteStatement stmt = acquire();
         try {
             int total = 0;
