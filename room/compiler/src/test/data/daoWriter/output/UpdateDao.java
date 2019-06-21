@@ -22,11 +22,11 @@ import javax.annotation.Generated;
 public final class UpdateDao_Impl implements UpdateDao {
   private final RoomDatabase __db;
 
-  private final EntityDeletionOrUpdateAdapter __updateAdapterOfUser;
+  private final EntityDeletionOrUpdateAdapter<User> __updateAdapterOfUser;
 
-  private final EntityDeletionOrUpdateAdapter __updateAdapterOfMultiPKeyEntity;
+  private final EntityDeletionOrUpdateAdapter<MultiPKeyEntity> __updateAdapterOfMultiPKeyEntity;
 
-  private final EntityDeletionOrUpdateAdapter __updateAdapterOfBook;
+  private final EntityDeletionOrUpdateAdapter<Book> __updateAdapterOfBook;
 
   private final SharedSQLiteStatement __preparedStmtOfAgeUserByUid;
 
