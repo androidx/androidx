@@ -47,6 +47,7 @@ import androidx.lifecycle.testapp.CollectingSupportFragment;
 import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.lifecycle.testapp.TestEvent;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -118,12 +119,14 @@ public class PartiallyCoveredActivityTest {
     }
 
     @Test
+    @FlakyTest
     public void coveredWithDialog_activity() throws Throwable {
         final CollectingSupportActivity activity = activityRule.getActivity();
         runTest(activity);
     }
 
     @Test
+    @FlakyTest
     public void coveredWithDialog_fragment() throws Throwable {
         CollectingSupportFragment fragment = new CollectingSupportFragment();
         activityRule.runOnUiThread(() -> activityRule.getActivity().replaceFragment(fragment));
@@ -131,6 +134,7 @@ public class PartiallyCoveredActivityTest {
     }
 
     @Test
+    @FlakyTest
     public void coveredWithDialog_childFragment() throws Throwable {
         CollectingSupportFragment parentFragment = new CollectingSupportFragment();
         CollectingSupportFragment childFragment = new CollectingSupportFragment();
