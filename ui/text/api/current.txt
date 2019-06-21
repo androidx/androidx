@@ -391,54 +391,47 @@ package androidx.ui.painting {
     method public T! getStyle();
   }
 
+  public final class ParagraphStyle {
+    ctor public ParagraphStyle(androidx.ui.engine.text.TextAlign? textAlign, androidx.ui.engine.text.TextDirection? textDirection, Float? lineHeight, androidx.ui.engine.text.TextIndent? textIndent);
+    ctor public ParagraphStyle();
+    method public androidx.ui.engine.text.TextAlign? component1();
+    method public androidx.ui.engine.text.TextDirection? component2();
+    method public Float? component3();
+    method public androidx.ui.engine.text.TextIndent? component4();
+    method public androidx.ui.painting.ParagraphStyle copy(androidx.ui.engine.text.TextAlign? textAlign, androidx.ui.engine.text.TextDirection? textDirection, Float? lineHeight, androidx.ui.engine.text.TextIndent? textIndent);
+    method public Float? getLineHeight();
+    method public androidx.ui.engine.text.TextAlign? getTextAlign();
+    method public androidx.ui.engine.text.TextDirection? getTextDirection();
+    method public androidx.ui.engine.text.TextIndent? getTextIndent();
+  }
+
   public final class TextPainter {
-    ctor public TextPainter(androidx.ui.painting.AnnotatedString? text, androidx.ui.painting.TextStyle? style, androidx.ui.engine.text.TextAlign textAlign, androidx.ui.engine.text.TextDirection? textDirection, float textScaleFactor, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale);
+    ctor public TextPainter(androidx.ui.painting.AnnotatedString? text, androidx.ui.painting.TextStyle? style, androidx.ui.painting.ParagraphStyle? paragraphStyle, float textScaleFactor, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale);
     ctor public TextPainter();
-    method public androidx.ui.engine.text.ParagraphStyle createParagraphStyle(androidx.ui.engine.text.TextDirection? defaultTextDirection = null);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
-    method public androidx.ui.engine.window.Locale? getLocale();
     method public float getMaxIntrinsicWidth();
-    method public Integer? getMaxLines();
     method public float getMinIntrinsicWidth();
-    method public androidx.ui.rendering.paragraph.TextOverflow? getOverflow();
+    method public androidx.ui.painting.ParagraphStyle? getParagraphStyle();
     method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getPreferredLineHeight();
     method public androidx.ui.engine.geometry.Size getSize();
-    method public boolean getSoftWrap();
     method public androidx.ui.painting.AnnotatedString? getText();
-    method public androidx.ui.engine.text.TextAlign getTextAlign();
-    method public androidx.ui.engine.text.TextDirection? getTextDirection();
-    method public float getTextScaleFactor();
     method public androidx.ui.painting.TextStyle? getTextStyle();
     method public float getWidth();
     method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
     method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
-    method public void setLocale(androidx.ui.engine.window.Locale? value);
-    method public void setMaxLines(Integer? value);
-    method public void setOverflow(androidx.ui.rendering.paragraph.TextOverflow? value);
-    method public void setSoftWrap(boolean value);
     method public void setText(androidx.ui.painting.AnnotatedString? value);
-    method public void setTextAlign(androidx.ui.engine.text.TextAlign value);
-    method public void setTextDirection(androidx.ui.engine.text.TextDirection? value);
-    method public void setTextScaleFactor(float value);
     method public void setTextStyle(androidx.ui.painting.TextStyle? value);
     property public final boolean didExceedMaxLines;
     property public final float height;
-    property public final androidx.ui.engine.window.Locale? locale;
     property public final float maxIntrinsicWidth;
-    property public final Integer? maxLines;
     property public final float minIntrinsicWidth;
-    property public final androidx.ui.rendering.paragraph.TextOverflow? overflow;
     property public final float preferredLineHeight;
     property public final androidx.ui.engine.geometry.Size size;
-    property public final boolean softWrap;
     property public final androidx.ui.painting.AnnotatedString? text;
-    property public final androidx.ui.engine.text.TextAlign textAlign;
-    property public final androidx.ui.engine.text.TextDirection? textDirection;
-    property public final float textScaleFactor;
     property public final androidx.ui.painting.TextStyle? textStyle;
     property public final float width;
   }
