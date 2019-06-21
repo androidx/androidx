@@ -83,7 +83,8 @@ public class PrepackageTest {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
-        assertThat(throwable.getMessage(), containsString("Migration didn't properly handle"));
+        assertThat(throwable.getMessage(),
+                containsString("Pre-packaged database has an invalid schema"));
     }
 
     @Test
@@ -139,7 +140,8 @@ public class PrepackageTest {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
-        assertThat(throwable.getMessage(), containsString("Migration didn't properly handle"));
+        assertThat(throwable.getMessage(),
+                containsString("Pre-packaged database has an invalid schema"));
     }
 
     @Test
@@ -389,7 +391,8 @@ public class PrepackageTest {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
-        assertThat(throwable.getMessage(), containsString("Migration didn't properly handle"));
+        assertThat(throwable.getMessage(),
+                containsString("Pre-packaged database has an invalid schema"));
     }
 
     @Test
@@ -432,7 +435,8 @@ public class PrepackageTest {
             throwable = t;
         }
         assertThat(throwable, instanceOf(IllegalStateException.class));
-        assertThat(throwable.getMessage(), containsString("Migration didn't properly handle"));
+        assertThat(throwable.getMessage(),
+                containsString("Pre-packaged database has an invalid schema"));
     }
 
     @Database(entities = Product.class, version = 1, exportSchema = false)
