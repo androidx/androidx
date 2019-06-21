@@ -18,7 +18,6 @@ package androidx.car.widget;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -33,7 +32,7 @@ import androidx.car.R;
  * <ul>
  *     <li>Title - Primary text that is shown on the item.
  *     <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
- *     <li>Icon - An {@link Icon} shown before the title, if the item is not checkable (a switch).
+ *     <li>Icon - An icon shown before the title, if the item is not checkable (a switch).
  *     <li>Style - A Resource Id that specifies the style of the item if it's not an overflow item.
  *     <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
  *     <li>Checkable - A boolean that specifies whether the item is checkable (a switch) or not.
@@ -86,7 +85,6 @@ public final class CarMenuItem {
     @Nullable
     private final OnClickListener mOnClickListener;
     @Nullable
-    private final Icon mIcon;
     private final Drawable mIconDrawable;
 
     private final boolean mIsCheckable;
@@ -96,7 +94,6 @@ public final class CarMenuItem {
         mTitle = builder.mTitle;
         mOnClickListener = builder.mOnClickListener;
         mStyleResId = builder.mStyleResId;
-        mIcon = builder.mIcon;
         mIconDrawable = builder.mIconDrawable;
         mIsEnabled = builder.mIsEnabled;
         mIsChecked = builder.mIsChecked;
@@ -205,8 +202,6 @@ public final class CarMenuItem {
         @Nullable
         OnClickListener mOnClickListener;
         @Nullable
-        Icon mIcon;
-        @Nullable
         Drawable mIconDrawable;
         @StyleRes
         int mStyleResId = R.style.Widget_Car_ActionButton_Light;
@@ -257,21 +252,6 @@ public final class CarMenuItem {
          *
          * @param icon Icon of the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
-         *
-         * @deprecated Use {@link #setIcon(Context, int)} instead.
-         */
-        @Deprecated
-        @NonNull
-        public Builder setIcon(@NonNull Icon icon) {
-            mIcon = icon;
-            return this;
-        }
-
-        /**
-         * Sets the icon of the {@code CarMenuItem}.
-         *
-         * @param icon Icon of the {@code CarMenuItem}.
-         * @return This {@code Builder} object to allow call chaining.
          */
         @NonNull
         public Builder setIcon(@NonNull Drawable icon) {
@@ -282,7 +262,7 @@ public final class CarMenuItem {
         /**
          * Sets the icon of the {@code CarMenuItem}.
          *
-         * @param context Context to load the drawble resource with.
+         * @param context Context to load the drawable resource with.
          * @param iconResId Resource id of icon of the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
          */

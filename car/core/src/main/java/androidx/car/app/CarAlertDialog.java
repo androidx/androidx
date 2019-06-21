@@ -21,7 +21,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.graphics.drawable.Icon;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.MovementMethod;
@@ -50,7 +50,7 @@ import androidx.car.R;
  */
 public class CarAlertDialog extends Dialog {
     private final CharSequence mTitle;
-    private final Icon mIcon;
+    private final Drawable mIconDrawable;
     private final CharSequence mBody;
     private final CharSequence mPositiveButtonText;
     private final OnClickListener mPositiveButtonListener;
@@ -79,7 +79,7 @@ public class CarAlertDialog extends Dialog {
         super(context, getDialogTheme(context));
 
         mTitle = builder.mTitle;
-        mIcon = builder.mIcon;
+        mIconDrawable = builder.mIconDrawable;
         mBody = builder.mBody;
         mBodyMovementMethod = builder.mBodyMovementMethod;
         mPositiveButtonText = builder.mPositiveButtonText;
@@ -115,7 +115,7 @@ public class CarAlertDialog extends Dialog {
         setBody(mBody);
         setPositiveButton(mPositiveButtonText);
         setNegativeButton(mNegativeButtonText);
-        setHeaderIcon(mIcon);
+        setHeaderIcon(mIconDrawable);
         setTitleInternal(mTitle);
         // setupHeader() should be called last because we want to center title and adjust
         // padding depending on icon/body/button configuration.
@@ -137,9 +137,9 @@ public class CarAlertDialog extends Dialog {
         backgroundDimAnimator.start();
     }
 
-    private void setHeaderIcon(@Nullable Icon icon) {
-        if (icon != null) {
-            mIconView.setImageIcon(icon);
+    private void setHeaderIcon(@Nullable Drawable iconDrawable) {
+        if (iconDrawable != null) {
+            mIconView.setImageDrawable(iconDrawable);
             mIconView.setVisibility(View.VISIBLE);
         } else {
             mIconView.setVisibility(View.GONE);
@@ -425,7 +425,7 @@ public class CarAlertDialog extends Dialog {
     public static final class Builder {
         private final Context mContext;
 
-        Icon mIcon;
+        Drawable mIconDrawable;
         CharSequence mTitle;
         CharSequence mBody;
         MovementMethod mBodyMovementMethod;
@@ -457,20 +457,7 @@ public class CarAlertDialog extends Dialog {
          */
         @NonNull
         public Builder setHeaderIcon(@DrawableRes int iconId) {
-            mIcon = Icon.createWithResource(mContext, iconId);
-            return this;
-        }
-
-        /**
-         * Sets the header icon of the dialog to be the given Icon.
-         * Passing-in a null icon will hide the ImageView in the header.
-         *
-         * @param icon The Icon to be used as the header icon.
-         * @return This {@code Builder} object to allow for chaining of calls.
-         */
-        @NonNull
-        public Builder setHeaderIcon(@Nullable Icon icon) {
-            mIcon = icon;
+            mIconDrawable = mContext.getDrawable(iconId);
             return this;
         }
 
