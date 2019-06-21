@@ -17,25 +17,24 @@
 package androidx.biometric;
 
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.Build;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 
 /**
  * A class that contains biometric utilities. For authentication, see {@link BiometricPrompt}.
  * On devices running Q and above, this will query the framework's version of
  * {@link android.hardware.biometrics.BiometricManager}. On devices P and older, this will query
- * {@link FingerprintManagerCompat}.
+ * {@link androidx.core.hardware.fingerprint.FingerprintManagerCompat}.
  */
 public class BiometricManager {
 
     private final Context mContext;
     // Only guaranteed to be non-null on SDK < 29
-    private final FingerprintManagerCompat mFingerprintManager;
+    @SuppressWarnings("deprecation")
+    private final androidx.core.hardware.fingerprint.FingerprintManagerCompat mFingerprintManager;
     // Only guaranteed to be non-null on SDK >= 29 (Q)
     private final android.hardware.biometrics.BiometricManager mBiometricManager;
 
@@ -86,6 +85,7 @@ public class BiometricManager {
         return new BiometricManager(context);
     }
 
+    @SuppressWarnings("deprecation")
     private BiometricManager(Context context) {
         mContext = context;
 
@@ -94,7 +94,8 @@ public class BiometricManager {
             mFingerprintManager = null;
         } else {
             mBiometricManager = null;
-            mFingerprintManager = FingerprintManagerCompat.from(mContext);
+            mFingerprintManager = androidx.core.hardware.fingerprint.FingerprintManagerCompat
+                    .from(mContext);
         }
     }
 
@@ -117,10 +118,7 @@ public class BiometricManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             return Api29Impl.canAuthenticate(mBiometricManager);
         } else {
-            if (!mContext.getPackageManager()
-                    .hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
-                return BIOMETRIC_ERROR_NO_HARDWARE;
-            } else if (!mFingerprintManager.isHardwareDetected()) {
+            if (!mFingerprintManager.isHardwareDetected()) {
                 return BIOMETRIC_ERROR_HW_UNAVAILABLE;
             } else if (!mFingerprintManager.hasEnrolledFingerprints()) {
                 return BIOMETRIC_ERROR_NONE_ENROLLED;

@@ -77,6 +77,8 @@ public class BiometricPromptDemo extends FragmentActivity {
             "BIOMETRIC_ERROR_HW_UNAVAILABLE";
     private static final String BIOMETRIC_ERROR_NONE_ENROLLED_MESSAGE =
             "BIOMETRIC_ERROR_NONE_ENROLLED";
+    private static final String BIOMETRIC_ERROR_NO_HARDWARE =
+            "BIOMETRIC_ERROR_NO_HARDWARE";
     private static final String BIOMETRIC_ERROR_UNKNOWN = "Error unknown return result";
 
     private static final int MODE_NONE = 0;
@@ -190,6 +192,9 @@ public class BiometricPromptDemo extends FragmentActivity {
                     break;
                 case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
                     message = BIOMETRIC_ERROR_NONE_ENROLLED_MESSAGE;
+                    break;
+                case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
+                    message = BIOMETRIC_ERROR_NO_HARDWARE;
                     break;
                 default:
                     message = BIOMETRIC_ERROR_UNKNOWN;
