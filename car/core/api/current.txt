@@ -509,9 +509,12 @@ package androidx.car.widget {
     method public void setListContentTopOffset(@Px int);
     method public void setMaxPages(int);
     method @Deprecated public void setOnScrollListener(androidx.car.widget.PagedListView.OnScrollListener!);
+    method public void setScrollBarButtonRippleBackground(@DrawableRes int);
+    method public void setScrollBarButtonTintColor(@ColorRes int);
     method public void setScrollBarContainerWidth(int);
     method public final void setScrollBarEnabled(boolean);
     method public void setScrollBarTopMargin(int);
+    method public void setScrollbarThumbColor(@ColorRes int);
     method public void setScrollbarThumbEnabled(boolean);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable!);
     method public void snapToPosition(int);
