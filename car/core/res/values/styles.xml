@@ -541,13 +541,14 @@ limitations under the License.
     <eat-comment />
 
     <style name="Widget.Car.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
+        <item name="android:textColor">@color/car_primary_text</item>
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1</item>
         <item name="android:buttonTint">?android:attr/colorAccent</item>
         <item name="buttonTint">?android:attr/colorAccent</item>
     </style>
 
     <style name="Widget.Car.CheckBox.Light">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="android:textColor">@color/car_primary_text_light</item>
     </style>
 
     <!-- ================== -->
