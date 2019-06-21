@@ -34,12 +34,22 @@ dependencies {
 
     compileOnly(project(":camera:camera-extensions-stub"))
 
-
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ROBOLECTRIC)
 
     testCompileOnly(project(":camera:camera-extensions-stub"))
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(project(":camera:camera-testing"))
+
+    androidTestImplementation(project(":camera:integration-tests:camera-testlib-extensions"))
+    // To use the testlib to have the implementation of the extensions-stub interface.
 }
 
 android {

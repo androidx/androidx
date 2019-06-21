@@ -17,10 +17,8 @@
 package androidx.camera.extensions;
 
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
-import android.util.Pair;
 
 import androidx.annotation.GuardedBy;
 import androidx.camera.camera2.Camera2Config;
@@ -32,7 +30,6 @@ import androidx.camera.core.CameraCaptureResults;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureStage;
-import androidx.camera.core.Config;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageInfoProcessor;
 import androidx.camera.core.PreviewConfig;
@@ -78,27 +75,6 @@ public abstract class PreviewExtender {
         mImpl.enableExtension(cameraId, cameraCharacteristics);
 
         switch (mImpl.getProcessorType()) {
-            case PROCESSOR_TYPE_NONE:
-                CaptureStageImpl captureStage = mImpl.getCaptureStage();
-
-                Camera2Config.Builder camera2ConfigurationBuilder =
-                        new Camera2Config.Builder();
-
-                for (Pair<CaptureRequest.Key, Object> captureParameter :
-                        captureStage.getParameters()) {
-                    camera2ConfigurationBuilder.setCaptureRequestOption(captureParameter.first,
-                            captureParameter.second);
-                }
-
-                final Camera2Config camera2Config = camera2ConfigurationBuilder.build();
-
-                for (Config.Option<?> option : camera2Config.listOptions()) {
-                    @SuppressWarnings("unchecked") // Options/values are being copied directly
-                            Config.Option<Object> objectOpt = (Config.Option<Object>) option;
-                    mBuilder.getMutableConfig().insertOption(objectOpt,
-                            camera2Config.retrieveOption(objectOpt));
-                }
-                break;
             case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:
                 mBuilder.setImageInfoProcessor(new ImageInfoProcessor() {
                     @Override
@@ -131,6 +107,8 @@ public abstract class PreviewExtender {
                         return captureStageImpl != null;
                     }
                 });
+                break;
+            default: // fall out
         }
 
         PreviewExtenderAdapter previewExtenderAdapter = new PreviewExtenderAdapter(mImpl);
