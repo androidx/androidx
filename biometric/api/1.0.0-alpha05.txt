@@ -1,6 +1,15 @@
 // Signature format: 3.0
 package androidx.biometric {
 
+  public class BiometricManager {
+    method public int canAuthenticate();
+    method public static androidx.biometric.BiometricManager from(android.content.Context);
+    field public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1; // 0x1
+    field public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11; // 0xb
+    field public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12; // 0xc
+    field public static final int BIOMETRIC_SUCCESS = 0; // 0x0
+  }
+
   public class BiometricPrompt {
     ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
