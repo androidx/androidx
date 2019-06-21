@@ -19,6 +19,7 @@ package androidx.lifecycle.viewmodel.savedstate.activity;
 import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -67,7 +68,7 @@ public class FakingSavedStateActivity extends FragmentActivity {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         if (mCountDownLatch != null) {
             mLastSavedState = outState;
