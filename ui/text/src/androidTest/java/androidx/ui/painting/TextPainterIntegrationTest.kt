@@ -31,7 +31,6 @@ import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.graphics.Color
 import androidx.ui.matchers.equalToBitmap
 import androidx.ui.rendering.paragraph.TextOverflow
-import androidx.ui.services.text_editing.TextSelection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 import org.junit.Before
@@ -283,7 +282,7 @@ class TextPainterIntegrationTest {
     }
 
     @Test
-    fun testSelectionPaint_paint_wrap_multiLines() {
+    fun testBackgroundPaint_paint_wrap_multiLines() {
         // Setup test.
         val fontSize = 20.0f
         val text = "HelloHello"
@@ -329,14 +328,15 @@ class TextPainterIntegrationTest {
 
         // Run.
         // Select all.
-        textPainter.paintSelection(TextSelection(0, text.length), actualCanvas, Offset.zero)
+        textPainter.paintBackground(
+            0, text.length, defaultSelectionColor, actualCanvas, Offset.zero)
 
         // Assert.
         Assert.assertThat(actualBitmap, equalToBitmap(expectedBitmap))
     }
 
     @Test
-    fun testSelectionPaint_paint_with_default_color() {
+    fun testBackgroundPaint_paint_with_default_color() {
         // Setup test.
         val selectionStart = 0
         val selectionEnd = 3
@@ -373,8 +373,9 @@ class TextPainterIntegrationTest {
         val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
         // Run.
-        textPainter.paintSelection(
-            TextSelection(selectionStart, selectionEnd),
+        textPainter.paintBackground(
+            selectionStart, selectionEnd,
+            defaultSelectionColor,
             actualCanvas,
             Offset.zero
         )
@@ -384,7 +385,7 @@ class TextPainterIntegrationTest {
     }
 
     @Test
-    fun testSelectionPaint_paint_with_default_color_bidi() {
+    fun testBackgroundPaint_paint_with_default_color_bidi() {
         // Setup test.
         val textLTR = "Hello"
         // From right to left: שלום
@@ -434,8 +435,10 @@ class TextPainterIntegrationTest {
         val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
         // Run.
-        textPainter.paintSelection(
-            TextSelection(selectionLTRStart, textLTR.length + selectionRTLEnd),
+        textPainter.paintBackground(
+            selectionLTRStart,
+            textLTR.length + selectionRTLEnd,
+            defaultSelectionColor,
             actualCanvas,
             Offset.zero
         )
@@ -445,7 +448,7 @@ class TextPainterIntegrationTest {
     }
 
     @Test
-    fun testSelectionPaint_paint_with_customized_color() {
+    fun testBackgroundPaint_paint_with_customized_color() {
         // Setup test.
         val selectionStart = 0
         val selectionEnd = 3
@@ -456,8 +459,7 @@ class TextPainterIntegrationTest {
         val selectionColor = Color(0x66AABB33)
         val textPainter = TextPainter(
             text = textSpan,
-            textDirection = TextDirection.Ltr,
-            selectionColor = selectionColor)
+            textDirection = TextDirection.Ltr)
         textPainter.layout(Constraints())
 
         val expectedBitmap = Bitmap.createBitmap(
@@ -485,8 +487,10 @@ class TextPainterIntegrationTest {
         val actualCanvas = Canvas(android.graphics.Canvas(actualBitmap))
 
         // Run.
-        textPainter.paintSelection(
-            TextSelection(selectionStart, selectionEnd),
+        textPainter.paintBackground(
+            selectionStart,
+            selectionEnd,
+            selectionColor,
             actualCanvas,
             Offset.zero
         )
