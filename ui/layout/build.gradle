@@ -27,7 +27,6 @@ plugins {
     id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
-    id("androidx.benchmark")
 }
 
 dependencies {
@@ -56,7 +55,7 @@ dependencies {
     }
     androidTestImplementation project(path: ':ui-platform')
     androidTestImplementation(TRUTH)
-    androidTestImplementation("androidx.benchmark:benchmark:1.0.0-alpha01")
+    androidTestImplementation(project(":benchmark"))
 }
 
 androidx {
