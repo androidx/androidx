@@ -19,6 +19,7 @@ package androidx.appcompat.app;
 import android.content.res.Configuration;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 
@@ -42,6 +43,7 @@ public class NightModeActivity extends BaseTestActivity {
         mLastConfigurationChange = newConfig;
     }
 
+    @Nullable
     Configuration getLastConfigurationChangeAndClear() {
         final Configuration config = mLastConfigurationChange;
         mLastConfigurationChange = null;
