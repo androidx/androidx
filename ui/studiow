@@ -153,12 +153,12 @@ function ensureComposeAt() {
   copyOption=$2
   idePluginJar="$pluginPath/r4a-ide-plugin.jar"
   compilerPluginJar="$pluginPath/r4a-compiler-plugin.jar"
-  compilerPluginJarOutput="${projectDir}/../../../out/ui/compose-plugin-cli/build/libs/compose-plugin-cli-1.0.0-alpha01.jar"
-  idePluginJarOutput="${projectDir}/../../../out/ui/compose-plugin-ide/build/libs/compose-plugin-ide-1.0.0-alpha01.jar"
+  compilerPluginJarOutput="${projectDir}/../../../out/ui/compose/compose-compiler-hosted/build/libs/compose-compiler-hosted-1.0.0-alpha01.jar"
+  idePluginJarOutput="${projectDir}/../../../out/ui/compose/compose-ide-plugin/build/libs/compose-ide-plugin-1.0.0-alpha01.jar"
   if [ ! -e "$idePluginJarOutput" ] || [ ! -e "$compilerPluginJarOutput" ]
   then
     echo "Building compose plugin"
-    ${scriptDir}/gradlew -p ${projectDir} :compose-plugin-ide:assemble :compose-plugin-cli:ideVersion
+    ${scriptDir}/gradlew -p ${projectDir} :compose:compose-ide-plugin:assemble :compose:compose-compiler-hosted:assemble
   fi
   cp $copyOption "$compilerPluginJarOutput" "$compilerPluginJar"
   cp $copyOption "$idePluginJarOutput" "$idePluginJar"
