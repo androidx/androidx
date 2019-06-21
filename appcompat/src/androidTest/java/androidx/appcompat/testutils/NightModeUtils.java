@@ -117,7 +117,7 @@ public class NightModeUtils {
         return manager.getNightMode() == UiModeManager.MODE_NIGHT_YES;
     }
 
-    private static void setNightMode(
+    public static void setNightMode(
             @NightMode final int nightMode,
             final AppCompatActivity activity,
             final NightSetMode setMode) {

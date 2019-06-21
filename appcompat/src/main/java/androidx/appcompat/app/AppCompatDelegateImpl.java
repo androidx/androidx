@@ -112,6 +112,8 @@ import androidx.core.view.ViewPropertyAnimatorListenerAdapter;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.widget.PopupWindowCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
 
 import org.xmlpull.v1.XmlPullParser;
 
@@ -225,6 +227,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private boolean mBaseContextAttached;
     private boolean mCreated;
+    private boolean mStarted;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mIsDestroyed;
 
@@ -490,6 +493,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onStart() {
+        mStarted = true;
+
         // This will apply day/night if the time has changed, it will also call through to
         // setupAutoNightModeIfNeeded()
         applyDayNight();
@@ -499,6 +504,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public void onStop() {
+        mStarted = false;
+
         markStopped(this);
 
         ActionBar ab = getSupportActionBar();
@@ -573,6 +580,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             mWindow.getDecorView().removeCallbacks(mInvalidatePanelMenuRunnable);
         }
 
+        mStarted = false;
         mIsDestroyed = true;
 
         if (mActionBar != null) {
@@ -2347,7 +2355,19 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         if (callOnConfigChange && mHost instanceof Activity) {
-            ((Activity) mHost).onConfigurationChanged(conf);
+            final Activity activity = (Activity) mHost;
+            if (activity instanceof LifecycleOwner) {
+                // If the Activity is a LifecyleOwner, check that it is at least started
+                Lifecycle lifecycle = ((LifecycleOwner) activity).getLifecycle();
+                if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+                    activity.onConfigurationChanged(conf);
+                }
+            } else {
+                // Otherwise we'll fallback to our internal started flag.
+                if (mStarted) {
+                    activity.onConfigurationChanged(conf);
+                }
+            }
         }
     }
 
