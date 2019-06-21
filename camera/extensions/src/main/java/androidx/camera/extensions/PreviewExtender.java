@@ -72,7 +72,7 @@ public abstract class PreviewExtender {
         CameraX.LensFacing lensFacing = mBuilder.build().getLensFacing();
         String cameraId = CameraUtil.getCameraId(lensFacing);
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);
-        mImpl.enableExtension(cameraId, cameraCharacteristics);
+        mImpl.init(cameraId, cameraCharacteristics);
 
         switch (mImpl.getProcessorType()) {
             case PROCESSOR_TYPE_REQUEST_UPDATE_ONLY:

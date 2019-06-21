@@ -59,7 +59,7 @@ abstract class ImageCaptureExtender {
         CameraX.LensFacing lensFacing = mBuilder.build().getLensFacing();
         String cameraId = CameraUtil.getCameraId(lensFacing);
         CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(cameraId);
-        mImpl.enableExtension(cameraId, cameraCharacteristics);
+        mImpl.init(cameraId, cameraCharacteristics);
 
         CaptureProcessorImpl captureProcessor = mImpl.getCaptureProcessor();
         if (captureProcessor != null) {

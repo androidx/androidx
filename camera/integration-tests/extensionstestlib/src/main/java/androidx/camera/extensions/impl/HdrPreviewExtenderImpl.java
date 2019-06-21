@@ -37,7 +37,7 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     public HdrPreviewExtenderImpl() { }
 
     @Override
-    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override

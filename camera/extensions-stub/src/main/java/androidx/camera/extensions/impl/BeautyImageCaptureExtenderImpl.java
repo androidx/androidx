@@ -35,7 +35,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     }
 
     @Override
-    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 
