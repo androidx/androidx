@@ -11,7 +11,7 @@ package androidx.room {
     ctor public EntityDeletionOrUpdateAdapter(androidx.room.RoomDatabase!);
     method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement!, T!);
     method public final int handle(T!);
-    method public final int handleMultiple(Iterable<T!>!);
+    method public final int handleMultiple(Iterable<? extends T>!);
     method public final int handleMultiple(T![]!);
   }
 
@@ -20,7 +20,7 @@ package androidx.room {
     method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement!, T!);
     method public final void insert(T!);
     method public final void insert(T![]!);
-    method public final void insert(Iterable<T!>!);
+    method public final void insert(Iterable<? extends T>!);
     method public final long insertAndReturnId(T!);
     method public final long[]! insertAndReturnIdsArray(java.util.Collection<T!>!);
     method public final long[]! insertAndReturnIdsArray(T![]!);

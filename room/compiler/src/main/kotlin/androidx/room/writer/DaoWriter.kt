@@ -38,6 +38,7 @@ import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
@@ -470,7 +471,8 @@ class DaoWriter(
         val onConflictText: String
     ) : SharedFieldSpec(
         baseName = "insertionAdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = RoomTypeNames.INSERTION_ADAPTER
+        type = ParameterizedTypeName.get(
+            RoomTypeNames.INSERTION_ADAPTER, shortcutEntity.pojo.typeName)
     ) {
         override fun getUniqueKey(): String {
             return "${shortcutEntity.pojo.typeName}-${shortcutEntity.entityTypeName}$onConflictText"
@@ -486,7 +488,8 @@ class DaoWriter(
         val methodPrefix: String
     ) : SharedFieldSpec(
         baseName = "${methodPrefix}AdapterOf${shortcutEntityFieldNamePart(shortcutEntity)}",
-        type = RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
+        type = ParameterizedTypeName.get(
+            RoomTypeNames.DELETE_OR_UPDATE_ADAPTER, shortcutEntity.pojo.typeName)
     ) {
         override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)

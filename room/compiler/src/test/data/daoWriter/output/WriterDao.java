@@ -30,11 +30,11 @@ import javax.annotation.Generated;
 public final class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 
-    private final EntityInsertionAdapter __insertionAdapterOfUser;
+    private final EntityInsertionAdapter<User> __insertionAdapterOfUser;
 
-    private final EntityInsertionAdapter __insertionAdapterOfUser_1;
+    private final EntityInsertionAdapter<User> __insertionAdapterOfUser_1;
 
-    private final EntityInsertionAdapter __insertionAdapterOfBook;
+    private final EntityInsertionAdapter<Book> __insertionAdapterOfBook;
 
     public WriterDao_Impl(RoomDatabase __db) {
         this.__db = __db;

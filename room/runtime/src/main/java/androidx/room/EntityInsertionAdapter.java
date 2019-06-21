@@ -89,7 +89,7 @@ public abstract class EntityInsertionAdapter<T> extends SharedSQLiteStatement {
      *
      * @param entities Entities to insert
      */
-    public final void insert(Iterable<T> entities) {
+    public final void insert(Iterable<? extends T> entities) {
         final SupportSQLiteStatement stmt = acquire();
         try {
             for (T entity : entities) {
