@@ -19,10 +19,18 @@
         package="androidx.ui.text.demos">
 
     <application>
-        <!-- Note: when you have more than one demo, change the label to "Text/Demo name" -->
         <activity android:name=".CraneTextActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Text">
+                  android:label="Text/Static Text Demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".CraneInputFieldActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Text/Input Field Demo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
