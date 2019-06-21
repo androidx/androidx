@@ -25,6 +25,7 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
+import com.android.tools.lint.detector.api.isKotlin
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiMethod
@@ -36,12 +37,12 @@ import org.jetbrains.uast.UNamedExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 import org.jetbrains.uast.getParentOfType
 
+@Suppress("SyntheticAccessor")
 class ExperimentalDetector : Detector(), SourceCodeScanner {
     override fun applicableAnnotations(): List<String>? = listOf(
-        EXPERIMENTAL_ANNOTATION
+        JAVA_EXPERIMENTAL_ANNOTATION,
+        KOTLIN_EXPERIMENTAL_ANNOTATION
     )
-
-    override fun inheritAnnotation(annotation: String): Boolean = true
 
     override fun visitAnnotationUsage(
         context: JavaContext,
@@ -57,8 +58,15 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         allPackageAnnotations: List<UAnnotation>
     ) {
         when (qualifiedName) {
-            EXPERIMENTAL_ANNOTATION -> {
-                checkExperimentalUsage(context, annotation, usage)
+            JAVA_EXPERIMENTAL_ANNOTATION -> {
+                checkExperimentalUsage(context, annotation, usage,
+                    JAVA_USE_EXPERIMENTAL_ANNOTATION)
+            }
+            KOTLIN_EXPERIMENTAL_ANNOTATION -> {
+                if (!isKotlin(usage.sourcePsi)) {
+                    checkExperimentalUsage(context, annotation, usage,
+                        KOTLIN_USE_EXPERIMENTAL_ANNOTATION)
+                }
             }
         }
     }
@@ -70,16 +78,17 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
      * @param context the lint scanning context
      * @param annotation the experimental annotation detected on the referenced element
      * @param usage the element whose usage should be checked
+     * @param useAnnotationName fully-qualified class name for experimental opt-in annotation
      */
     private fun checkExperimentalUsage(
         context: JavaContext,
         annotation: UAnnotation,
-        usage: UElement
+        usage: UElement,
+        useAnnotationName: String
     ) {
         val useAnnotation = (annotation.uastParent as? UClass)?.qualifiedName ?: return
-        if (!hasOrUsesAnnotation(context, usage, useAnnotation)) {
-            val level = annotation.attributeValues[0].simpleName
-                ?: throw IllegalStateException("Failed to extract level from annotation")
+        if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationName)) {
+            val level = extractAttribute(annotation, "level")
             report(context, usage, """
                 This declaration is experimental and its usage should be marked with
                 '@$useAnnotation' or '@UseExperimental($useAnnotation.class)'
@@ -87,10 +96,24 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         }
     }
 
+    private fun extractAttribute(annotation: UAnnotation, name: String): String {
+        if (annotation.attributeValues.isNotEmpty()) {
+            return annotation.attributeValues[0].simpleName
+                ?: throw IllegalStateException("Failed to extract level from simple annotation")
+        }
+        return (annotation.findAttributeValue(name)?.evaluate() as? Pair<*, *>)?.second?.toString()
+            ?: throw IllegalStateException("Failed to extract level from reference annotation")
+    }
+
+    /**
+     * Check whether the specified [usage] is either within the scope of [annotationName] or an
+     * explicit opt-in via the [useAnnotationName] annotation.
+     */
     private fun hasOrUsesAnnotation(
         context: JavaContext,
         usage: UElement,
-        annotationName: String
+        annotationName: String,
+        useAnnotationName: String
     ): Boolean {
         var element: UAnnotated? = if (usage is UAnnotated) {
             usage
@@ -102,7 +125,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             val annotations = context.evaluator.getAllAnnotations(element, false)
             val matchName = annotations.any { it.qualifiedName == annotationName }
             val matchUse = annotations
-                .filter { annotation -> annotation.qualifiedName == USE_EXPERIMENTAL_ANNOTATION }
+                .filter { annotation -> annotation.qualifiedName == useAnnotationName }
                 .mapNotNull { annotation -> annotation.attributeValues.getOrNull(0) }
                 .any { attrValue -> attrValue.getFullyQualifiedName(context) == annotationName }
             if (matchName || matchUse) return true
@@ -135,9 +158,13 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             Scope.JAVA_FILE_SCOPE
         )
 
-        private const val EXPERIMENTAL_ANNOTATION = "androidx.annotation.Experimental"
-        private const val USE_EXPERIMENTAL_ANNOTATION = "androidx.annotation.UseExperimental"
+        private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
+        private const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
 
+        private const val JAVA_EXPERIMENTAL_ANNOTATION = "androidx.annotation.Experimental"
+        private const val JAVA_USE_EXPERIMENTAL_ANNOTATION = "androidx.annotation.UseExperimental"
+
+        @Suppress("DefaultLocale")
         private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
             id = "UnsafeExperimentalUsage${level.capitalize()}",
             briefDescription = "Unsafe experimental usage intended to be $level-level severity",
@@ -157,6 +184,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
 
         val ISSUE_ERROR = issueForLevel("error", Severity.ERROR)
         val ISSUE_WARNING = issueForLevel("warning", Severity.WARNING)
+
         val ISSUES = listOf(ISSUE_ERROR, ISSUE_WARNING)
     }
 }

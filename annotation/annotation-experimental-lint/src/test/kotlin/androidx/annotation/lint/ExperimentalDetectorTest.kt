@@ -40,20 +40,6 @@ class ExperimentalDetectorTest {
             .run()
     }
 
-    /**
-     * Loads a [TestFile] from Java source code included in the JAR resources.
-     */
-    private fun javaSample(className: String): TestFile {
-        return java(javaClass.getResource("/${className.replace('.','/')}.java").readText())
-    }
-
-    /**
-     * Loads a [TestFile] from Kotlin source code included in the JAR resources.
-     */
-    private fun ktSample(className: String): TestFile {
-        return kotlin(javaClass.getResource("/${className.replace('.','/')}.kt").readText())
-    }
-
     @Test
     fun useJavaExperimentalFromJava() {
         val input = arrayOf(
@@ -110,5 +96,89 @@ src/sample/UseJavaExperimentalFromKt.kt:37: Error: This declaration is experimen
         /* ktlint-enable max-line-length */
 
         checkJava(*input).expect(expected)
+    }
+
+    @Test
+    fun useKtExperimentalFromJava() {
+        val input = arrayOf(
+            EXPERIMENTAL_KT,
+            ktSample("sample.DateProviderKt"),
+            ktSample("sample.ExperimentalDateTimeKt"),
+            javaSample("sample.UseKtExperimentalFromJava")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/UseKtExperimentalFromJava.java:24: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        DateProviderKt dateProvider = new DateProviderKt();
+                                      ~~~~~~~~~~~~~~~~~~~~
+src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experimental and its usage should be marked with
+'@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
+        return dateProvider.getDate();
+                            ~~~~~~~
+2 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        checkJava(*input).expect(expected)
+    }
+
+    /**
+     * Loads a [TestFile] from Java source code included in the JAR resources.
+     */
+    private fun javaSample(className: String): TestFile {
+        return java(javaClass.getResource("/java/${className.replace('.','/')}.java").readText())
+    }
+
+    /**
+     * Loads a [TestFile] from Kotlin source code included in the JAR resources.
+     */
+    private fun ktSample(className: String): TestFile {
+        return kotlin(javaClass.getResource("/java/${className.replace('.','/')}.kt").readText())
+    }
+
+    companion object {
+        /* ktlint-disable max-line-length */
+        // The contents of Experimental.kt from the Kotlin standard library.
+        val EXPERIMENTAL_KT: TestFile = kotlin("""
+            package kotlin
+
+            import kotlin.annotation.AnnotationRetention.BINARY
+            import kotlin.annotation.AnnotationRetention.SOURCE
+            import kotlin.annotation.AnnotationTarget.*
+            import kotlin.internal.RequireKotlin
+            import kotlin.internal.RequireKotlinVersionKind
+            import kotlin.reflect.KClass
+
+            @Target(ANNOTATION_CLASS)
+            @Retention(BINARY)
+            @SinceKotlin("1.2")
+            @RequireKotlin("1.2.50", versionKind = RequireKotlinVersionKind.COMPILER_VERSION)
+            @Suppress("ANNOTATION_CLASS_MEMBER")
+            public annotation class Experimental(val level: Level = Level.ERROR) {
+                public enum class Level {
+                    WARNING,
+                    ERROR,
+                }
+            }
+
+            @Target(
+                CLASS, PROPERTY, LOCAL_VARIABLE, VALUE_PARAMETER, CONSTRUCTOR, FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER, EXPRESSION, FILE, TYPEALIAS
+            )
+            @Retention(SOURCE)
+            @SinceKotlin("1.2")
+            @RequireKotlin("1.2.50", versionKind = RequireKotlinVersionKind.COMPILER_VERSION)
+            public annotation class UseExperimental(
+                vararg val markerClass: KClass<out Annotation>
+            )
+
+            @Target(CLASS, PROPERTY, CONSTRUCTOR, FUNCTION, TYPEALIAS)
+            @Retention(BINARY)
+            internal annotation class WasExperimental(
+                vararg val markerClass: KClass<out Annotation>
+            )
+        """.trimIndent())
+        /* ktlint-enable max-line-length */
     }
 }
