@@ -179,8 +179,7 @@ internal fun Text(
             softWrap = softWrap,
             overflow = overflow,
             textScaleFactor = textScaleFactor,
-            maxLines = maxLines,
-            selectionColor = selectionColor
+            maxLines = maxLines
         )
         // TODO(Migration/siyamed): This is temporary and should be removed when resource
         // system is resolved.
@@ -192,7 +191,8 @@ internal fun Text(
             OnPositioned(onPositioned = { layoutCoordinates.value = it })
             Draw { canvas, _ ->
                 internalSelection.value?.let {
-                    textPainter.paintSelection(it, canvas, Offset.zero)
+                    textPainter.paintBackground(
+                        it.start, it.end, selectionColor, canvas, Offset.zero)
                 }
                 textPainter.paint(canvas, Offset.zero)
             }
