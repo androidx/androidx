@@ -32,6 +32,8 @@ import androidx.paging.PagedList.LoadType
 import androidx.paging.futures.DirectExecutor
 import androidx.paging.futures.transform
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
 import java.lang.ref.WeakReference
 import java.util.AbstractList
 import java.util.ArrayList
@@ -174,6 +176,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun <K : Any, T : Any> create(
             dataSource: DataSource<K, T>,
+            coroutineScope: CoroutineScope,
             notifyExecutor: Executor,
             fetchExecutor: Executor,
             initialLoadExecutor: Executor,
@@ -195,11 +198,13 @@ abstract class PagedList<T : Any> : AbstractList<T> {
                 config.enablePlaceholders,
                 config.pageSize
             )
+
             return dataSource.load(params).transform(
                 Function { initialResult ->
                     dataSource.initExecutor(fetchExecutor)
                     ContiguousPagedList(
                         dataSource,
+                        coroutineScope,
                         notifyExecutor,
                         fetchExecutor,
                         boundaryCallback,
@@ -295,6 +300,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     class Builder<Key : Any, Value : Any> {
         private val dataSource: DataSource<Key, Value>
         private val config: Config
+        private var coroutineScope: CoroutineScope = GlobalScope
         private var notifyExecutor: Executor? = null
         private var fetchExecutor: Executor? = null
         private var boundaryCallback: BoundaryCallback<Value>? = null
@@ -328,6 +334,22 @@ abstract class PagedList<T : Any> : AbstractList<T> {
             dataSource,
             PagedList.Config.Builder().setPageSize(pageSize).build()
         )
+
+        /**
+         * Set the [CoroutineScope] that page loads should be launched within.
+         *
+         * The set [coroutineScope] allows a [PagedSource] to cancel running load operations when
+         * the results are no longer needed - for example, when the containing Activity is
+         * destroyed.
+         *
+         * Defaults to [GlobalScope].
+         *
+         * @param coroutineScope
+         * @return this
+         */
+        fun setCoroutineScope(coroutineScope: CoroutineScope) = this.apply {
+            this.coroutineScope = coroutineScope
+        }
 
         /**
          * The executor defining where page loading updates are dispatched.
@@ -446,6 +468,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         private fun create(initialFetchExecutor: Executor): ListenableFuture<PagedList<Value>> =
             create(
                 dataSource,
+                coroutineScope,
                 notifyExecutor!!,
                 fetchExecutor!!,
                 initialFetchExecutor,

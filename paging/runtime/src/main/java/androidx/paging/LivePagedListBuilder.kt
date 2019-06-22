@@ -18,6 +18,8 @@ package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
 import java.util.concurrent.Executor
 
 /**
@@ -39,6 +41,7 @@ class LivePagedListBuilder<Key : Any, Value : Any>(
     private val dataSourceFactory: DataSource.Factory<Key, Value>,
     private val config: PagedList.Config
 ) {
+    private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
     private var fetchExecutor = ArchTaskExecutor.getIOThreadExecutor()
@@ -59,6 +62,21 @@ class LivePagedListBuilder<Key : Any, Value : Any>(
         dataSourceFactory,
         PagedList.Config.Builder().setPageSize(pageSize).build()
     )
+
+    /**
+     * Set the [CoroutineScope] that page loads should be launched within. The set [coroutineScope]
+     * allows a [PagedSource] to cancel running load operations when the results are no longer
+     * needed - for example, when the containing activity is destroyed.
+     *
+     * Defaults to [GlobalScope].
+     *
+     * @param coroutineScope
+     * @return this
+     */
+    @Suppress("unused") // Public API
+    fun setCoroutineScope(coroutineScope: CoroutineScope) = this.apply {
+        this.coroutineScope = coroutineScope
+    }
 
     /**
      * First loading key passed to the first PagedList/DataSource.
@@ -119,6 +137,7 @@ class LivePagedListBuilder<Key : Any, Value : Any>(
      */
     fun build(): LiveData<PagedList<Value>> {
         return LivePagedList(
+            coroutineScope,
             initialLoadKey,
             config,
             boundaryCallback,

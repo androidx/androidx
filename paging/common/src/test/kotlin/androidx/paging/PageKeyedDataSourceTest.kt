@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
+import kotlinx.coroutines.GlobalScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -91,6 +92,7 @@ class PageKeyedDataSourceTest {
         // validate paging entire ItemDataSource results in full, correctly ordered data
         val pagedListFuture = PagedList.create(
             ItemDataSource(),
+            GlobalScope,
             mainThread,
             backgroundThread,
             backgroundThread,
@@ -149,6 +151,7 @@ class PageKeyedDataSourceTest {
 
         PagedList.create(
             dataSource,
+            GlobalScope,
             FailExecutor(),
             DirectExecutor,
             DirectExecutor,
@@ -236,6 +239,7 @@ class PageKeyedDataSourceTest {
 
         val pagedList = PagedList.create(
             dataSource,
+            GlobalScope,
             executor,
             executor,
             executor,
@@ -291,6 +295,7 @@ class PageKeyedDataSourceTest {
 
         val pagedList = PagedList.create(
             dataSource,
+            GlobalScope,
             executor,
             executor,
             executor,

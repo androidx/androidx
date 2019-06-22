@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
 
 /**
@@ -26,6 +27,7 @@ import java.util.concurrent.Executor
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
     override val dataSource: DataSource<K, V>,
+    coroutineScope: CoroutineScope,
     mainThreadExecutor: Executor,
     backgroundThreadExecutor: Executor,
     boundaryCallback: BoundaryCallback<V>?,
@@ -187,6 +189,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
     init {
         this.lastLoad = lastLoad
         pager = Pager(
+            coroutineScope,
             config,
             PagedSourceWrapper(dataSource), // TODO: Fix non-final in constructor.
             mainThreadExecutor,

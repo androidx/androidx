@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.RestrictTo
 import androidx.paging.futures.DirectExecutor
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * InitialPagedList is an empty placeholder that's sent at the front of a stream of PagedLists.
@@ -30,11 +31,13 @@ import androidx.paging.futures.DirectExecutor
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class InitialPagedList<K : Any, V : Any>(
     dataSource: DataSource<K, V>,
+    coroutineScope: CoroutineScope,
     config: Config,
     initialKey: K?
 ) :
     ContiguousPagedList<K, V>(
         dataSource,
+        coroutineScope,
         DirectExecutor,
         DirectExecutor,
         null,
