@@ -29,13 +29,11 @@ import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextGeometricTransform
 import androidx.ui.engine.text.TextIndent
-import androidx.ui.engine.text.TextStyle
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.window.Locale
@@ -45,6 +43,8 @@ import androidx.ui.matchers.hasSpanOnTop
 import androidx.ui.matchers.notHasSpan
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Shadow
+import androidx.ui.painting.AnnotatedString
+import androidx.ui.painting.TextStyle
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -84,7 +84,7 @@ class ParagraphAndroidTest {
         val fontSize = 50.0f
         for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
             val paragraphAndroid = simpleParagraph(
-                text = StringBuilder(text),
+                text = text,
                 fontSize = fontSize,
                 fontFamily = fontFamily
             )
@@ -114,7 +114,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(100.0f)
 
@@ -128,7 +128,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100.0f)
 
@@ -144,8 +144,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, text.length),
+                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
             )
         )
         paragraph.layout(100.0f)
@@ -165,7 +165,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(100.0f)
 
@@ -180,7 +180,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(100.0f)
 
@@ -195,7 +195,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100.0f)
 
@@ -210,7 +210,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100.0f)
 
@@ -229,7 +229,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100.0f)
 
@@ -247,7 +247,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(paragraphWidth)
 
@@ -263,7 +263,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(paragraphWidth)
 
@@ -282,8 +282,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, text.length),
+                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
             )
         )
         paragraph.layout(paragraphWidth)
@@ -304,7 +304,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(100f)
 
@@ -324,7 +324,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100f)
 
@@ -344,7 +344,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(100.0f)
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
@@ -358,7 +358,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100.0f)
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
@@ -374,8 +374,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, text.length),
+                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
             )
         )
         paragraph.layout(100.0f)
@@ -397,7 +397,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         // Notice that the width doesn't matter for this test.
         paragraph.layout(100.0f)
@@ -420,7 +420,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         // Notice that the width doesn't matter for this test.
         paragraph.layout(100.0f)
@@ -446,8 +446,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, text.length),
+                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
             )
         )
         // Notice that the width doesn't matter for this test.
@@ -482,7 +482,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(100.0f)
 
@@ -502,7 +502,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100.0f)
 
@@ -525,8 +525,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, text.length),
+                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
             )
         )
         paragraph.layout(100.0f)
@@ -558,7 +558,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         paragraph.layout(100.0f)
 
@@ -573,7 +573,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         paragraph.layout(100.0f)
 
@@ -589,8 +589,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, text.length),
+                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
             )
         )
         paragraph.layout(100.0f)
@@ -610,7 +610,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         // width is not important
         paragraph.layout(100.0f)
@@ -625,7 +625,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         // width is not important
         paragraph.layout(100.0f)
@@ -642,8 +642,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, text.length),
+                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
             )
         )
         // width is not important
@@ -664,7 +664,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         // width is not important
         paragraph.layout(100.0f)
@@ -681,7 +681,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         // width is not important
         paragraph.layout(100.0f)
@@ -701,7 +701,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
         )
         // width is not important
         paragraph.layout(100.0f)
@@ -723,7 +723,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length)
+                AnnotatedString.Item(textStyle, 0, "abc".length)
             )
         )
         // width is not important
@@ -747,7 +747,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, 1)
+                AnnotatedString.Item(textStyle, 0, 1)
             )
         )
         // width is not important
@@ -771,7 +771,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc\n".length)
+                AnnotatedString.Item(textStyle, 0, "abc\n".length)
             )
         )
         // width is not important
@@ -795,7 +795,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, "abc".length, "abc\nd".length)
+                AnnotatedString.Item(textStyle, "abc".length, "abc\nd".length)
             )
         )
         // width is not important
@@ -819,7 +819,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, "abc".length, "abc\n".length)
+                AnnotatedString.Item(textStyle, "abc".length, "abc\n".length)
             )
         )
         // width is not important
@@ -841,7 +841,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, "abc".length, "abc\n\n".length)
+                AnnotatedString.Item(textStyle, "abc".length, "abc\n\n".length)
             )
         )
         // width is not important
@@ -863,7 +863,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, "ab".length, "abc\nd".length)
+                AnnotatedString.Item(textStyle, "ab".length, "abc\nd".length)
             )
         )
         // width is not important
@@ -888,7 +888,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, start = 0, end = text.length)
+                AnnotatedString.Item(textStyle, start = 0, end = text.length)
             )
         )
         // width is not important
@@ -923,8 +923,8 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(textStyle, start = 0, end = text.length),
-                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, start = 0, end = "abc".length)
+                AnnotatedString.Item(textStyle, start = 0, end = text.length),
+                AnnotatedString.Item(textStyleOverwrite, start = 0, end = "abc".length)
             )
         )
         // width is not important
@@ -969,7 +969,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(
+                AnnotatedString.Item(
                     textStyle,
                     expectedStart,
                     expectedEnd
@@ -1007,7 +1007,7 @@ class ParagraphAndroidTest {
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(
-                ParagraphBuilder.TextStyleIndex(
+                AnnotatedString.Item(
                     textStyle,
                     expectedStart,
                     expectedEnd
@@ -1032,7 +1032,7 @@ class ParagraphAndroidTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
         )
         // width is not important
         paragraph.layout(100.0f)
@@ -1213,8 +1213,8 @@ class ParagraphAndroidTest {
     }
 
     private fun simpleParagraph(
-        text: CharSequence = "",
-        textStyles: List<ParagraphBuilder.TextStyleIndex> = listOf(),
+        text: String = "",
+        textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         textAlign: TextAlign? = null,
         fontSize: Float? = null,
         ellipsis: Boolean? = null,
@@ -1225,7 +1225,7 @@ class ParagraphAndroidTest {
         typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
     ): ParagraphAndroid {
         return ParagraphAndroid(
-            text = StringBuilder(text),
+            text = text,
             textStyles = textStyles,
             typefaceAdapter = typefaceAdapter,
             paragraphStyle = ParagraphStyle(

@@ -43,7 +43,7 @@ internal class TextSelectionHandlerImpl(
     private val box: Rect
 
     init {
-        lastTextPosition = textPainter.text?.let { it.toPlainText().length - 1 } ?: 0
+        lastTextPosition = textPainter.text?.let { it.text.length - 1 } ?: 0
         box = Rect(
             top = 0f,
             bottom = textPainter.height,
