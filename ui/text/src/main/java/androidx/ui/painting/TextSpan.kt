@@ -36,8 +36,10 @@ import androidx.ui.painting.basictypes.RenderComparison
  *   non-null, the text will precede the children. The list must not contain any nulls.
  *
  * @param recognizer A gesture recognizer that will receive events that hit this text span.
+ * @hide
  */
 // TODO(haoyuchang) Make TextSpan immutable.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextSpan(
     var style: TextStyle? = null,
     var text: String? = null,
@@ -200,7 +202,9 @@ private fun TextSpan.annotatedStringVisitor(
  * Convert a [TextSpan] into an [AnnotatedString].
  * @param includeRootStyle whether to attach the text style in the root [TextSpan] to the output
  *  [AnnotatedString]. It's useful when the top level [TextStyle] is used as global text style setting.
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun TextSpan.toAnnotatedString(includeRootStyle: Boolean = true): AnnotatedString {
     val stringBuilder = java.lang.StringBuilder()
     val tempRecords = mutableListOf<RecordInternal>()
