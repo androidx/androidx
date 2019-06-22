@@ -16,7 +16,6 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.arch.core.util.Function
 import androidx.concurrent.futures.ResolvableFuture
@@ -358,11 +357,8 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      */
     abstract fun getKey(item: Value): Key
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    final override fun getKeyInternal(item: Value): Key = getKey(item)
+    @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
+    internal override fun getKeyInternal(item: Value): Key = getKey(item)
 
     final override fun <ToValue : Any> mapByPage(
         function: Function<List<Value>, List<ToValue>>
