@@ -41,6 +41,9 @@ dependencies {
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation project(':internal-testutils'), {
+        exclude group: 'androidx.fragment', module: 'fragment'
+    }
 }
 
 androidx {

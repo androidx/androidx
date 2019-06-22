@@ -23,27 +23,29 @@ import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@MediumTest
 class OnBackPressedCallbackTest {
 
     @Test
     fun testBackPressFinishesActivity() {
         with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
-            withActivity {
+            val countDownLatch = withActivity {
                 onBackPressed()
-                assertWithMessage("Activity should be finishing after onBackPressed() " +
-                        "on an empty back stack")
-                    .that(isFinishing)
-                    .isTrue()
+                finishCountDownLatch
             }
+            assertWithMessage("Activity should be finishing after onBackPressed() " +
+                    "on an empty back stack")
+                .that(countDownLatch.await(1, TimeUnit.SECONDS))
+                .isTrue()
         }
     }
 
@@ -186,18 +188,19 @@ class OnBackPressedCallbackTest {
             assertThat(fragmentManager.findFragmentById(R.id.content))
                 .isSameInstanceAs(fragment)
 
-            withActivity {
+            val countDownLatch = withActivity {
                 fragmentManager.popBackStack()
 
                 onBackPressed()
 
                 assertThat(fragmentManager.findFragmentById(R.id.content))
                     .isNull()
-                assertWithMessage("Activity should be finishing after onBackPressed() " +
-                        "on an empty back stack")
-                    .that(isFinishing)
-                    .isTrue()
+                finishCountDownLatch
             }
+            assertWithMessage("Activity should be finishing after onBackPressed() " +
+                    "on an empty back stack")
+                .that(countDownLatch.await(1, TimeUnit.SECONDS))
+                .isTrue()
         }
     }
 

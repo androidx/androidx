@@ -21,11 +21,19 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.test.R
+import java.util.concurrent.CountDownLatch
 
 /**
  * A simple activity used for Fragment Transitions and lifecycle event ordering
  */
 class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
+
+    val finishCountDownLatch = CountDownLatch(1)
+
+    override fun finish() {
+        super.finish()
+        finishCountDownLatch.countDown()
+    }
 
     class ParentFragment : Fragment() {
         var wasAttachedInTime: Boolean = false
