@@ -65,6 +65,7 @@ package androidx.ui.engine.text {
 
   public final class Paragraph {
     method public float getBaseline();
+    method public androidx.ui.engine.geometry.Rect getCursorRect(int offset);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
     method public float getLineHeight(int lineIndex);
@@ -423,6 +424,7 @@ package androidx.ui.painting {
     method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
+    method public void paintCursor(int offset, androidx.ui.painting.Canvas canvas);
     method public void setText(androidx.ui.painting.AnnotatedString? value);
     method public void setTextStyle(androidx.ui.painting.TextStyle? value);
     property public final boolean didExceedMaxLines;

@@ -1353,6 +1353,9 @@ package androidx.ui.input {
     method public androidx.ui.core.TextRange? getComposition();
     method public androidx.ui.core.TextRange getSelection();
     method public String getText();
+    property public final androidx.ui.core.TextRange? composition;
+    property public final androidx.ui.core.TextRange selection;
+    property public final String text;
   }
 
 }

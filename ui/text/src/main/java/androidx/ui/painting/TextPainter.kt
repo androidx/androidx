@@ -500,6 +500,20 @@ class TextPainter(
         canvas.drawPath(selectionPath.shift(offset), Paint().apply { this.color = color })
     }
 
+    /**
+     * Draws the cursor at the given offset.
+     *
+     * TODO(nona): Make cursor customizable.
+     *
+     * @param offset the cursor offset in the text.
+     * @param canvas the target canvas.
+     */
+    fun paintCursor(offset: Int, canvas: Canvas) {
+        assert(!needsLayout)
+        val cursorRect = paragraph!!.getCursorRect(offset)
+        canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
+    }
+
     /** Returns the position within the text for the given pixel offset. */
     fun getPositionForOffset(offset: Offset): TextPosition {
         assert(!needsLayout)

@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.unaryPlus
 import androidx.ui.core.input.TextInputClient
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditorState
 import androidx.ui.painting.AnnotatedString
@@ -32,7 +31,7 @@ import androidx.ui.painting.TextStyle
  */
 data class EditorStyle(
     /** The  editor text style */
-    val textStyle: TextStyle,
+    val textStyle: TextStyle? = null,
 
     /**
      * The composition background color
@@ -89,38 +88,21 @@ fun InputField(
         val mergedStyle = style.merge(editorStyle.textStyle)
 
         // TODO(nona): Add parameter for text direction, softwrap, etc.
-        val textPainter = TextPainter(
-            text = AnnotatedString(value.text),
+        val delegate = InputFieldDelegate(TextPainter(
+            text = AnnotatedString(text = value.text),
             style = mergedStyle
-        )
+        ))
 
         Layout(
             children = @Composable {
                 Draw { canvas, _ ->
-                    textPainter.paintBackground(
-                        value.selection.start,
-                        value.selection.end,
-                        editorStyle.selectionColor,
-                        canvas,
-                        Offset.zero
-                    )
-                    value.composition?.let {
-                        textPainter.paintBackground(
-                            it.start,
-                            it.end,
-                            editorStyle.compositionColor,
-                            canvas,
-                            Offset.zero
-                        )
-                    }
-                    textPainter.paint(canvas, Offset.zero)
-
-                    // TODO(nona): Draw and blink cursor
+                    delegate.draw(canvas, value, editorStyle)
                 }
             },
             layoutBlock = { _, constraints ->
-                textPainter.layout(constraints)
-                layout(textPainter.width.px.round(), textPainter.height.px.round()) {}
+                delegate.layout(constraints).let {
+                    layout(it.first, it.second) {}
+                }
             }
         )
     }
