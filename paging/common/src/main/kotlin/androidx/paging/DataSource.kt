@@ -576,10 +576,6 @@ internal constructor(internal val type: KeyType) {
 
     internal abstract fun load(params: Params<Key>): ListenableFuture<out BaseResult<Value>>
 
-    /**
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     internal abstract fun getKeyInternal(item: Value): Key
 
     /**
