@@ -20,6 +20,7 @@ dependencies {
     api("androidx.loader:loader:1.0.0")
     api(project(":activity:activity"))
     api(project(":lifecycle:lifecycle-viewmodel"))
+    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
