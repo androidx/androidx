@@ -23,8 +23,8 @@ import androidx.ui.core.input.TextInputClient
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditorState
+import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.TextPainter
-import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 
 /**
@@ -90,7 +90,8 @@ fun InputField(
 
         // TODO(nona): Add parameter for text direction, softwrap, etc.
         val textPainter = TextPainter(
-            text = TextSpan(style = mergedStyle, text = value.text)
+            text = AnnotatedString(value.text),
+            style = mergedStyle
         )
 
         Layout(

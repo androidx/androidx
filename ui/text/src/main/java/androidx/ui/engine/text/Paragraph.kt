@@ -18,8 +18,10 @@ package androidx.ui.engine.text
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.platform.ParagraphAndroid
+import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
+import androidx.ui.painting.TextStyle
 import androidx.ui.services.text_editing.TextRange
 
 /**
@@ -28,21 +30,12 @@ import androidx.ui.services.text_editing.TextRange
  * A paragraph retains the size and position of each glyph in the text and can
  * be efficiently resized and painted.
  *
- * To create a [Paragraph] object, use a [ParagraphBuilder].
- *
- * Paragraphs can be displayed on a [Canvas] using the [Canvas.drawParagraph]
- * method.
- *
- * This class is created by the engine, and should not be instantiated
- * or extended directly.
- *
- * To create a [Paragraph] object, use a [ParagraphBuilder].
+ * Paragraphs can be displayed on a [Canvas] using the [paint] method.
  */
-//
 class Paragraph internal constructor(
-    val text: StringBuilder,
+    val text: String,
     val paragraphStyle: ParagraphStyle,
-    internal val textStyles: List<ParagraphBuilder.TextStyleIndex>
+    val textStyles: List<AnnotatedString.Item<TextStyle>>
 ) {
     private var needsLayout = true
     /** increased visibility for testing **/

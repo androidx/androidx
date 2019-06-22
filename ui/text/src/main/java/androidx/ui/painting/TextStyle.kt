@@ -271,6 +271,7 @@ data class TextStyle(
             textGeometricTransform = textGeometricTransform,
             textAlign = textAlign,
             lineHeight = lineHeight,
+            textIndent = textIndent,
             locale = locale,
             background = background,
             shadow = shadow
