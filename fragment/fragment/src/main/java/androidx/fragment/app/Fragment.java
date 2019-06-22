@@ -64,6 +64,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.SavedStateVMFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -258,6 +259,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable FragmentViewLifecycleOwner mViewLifecycleOwner;
     MutableLiveData<LifecycleOwner> mViewLifecycleOwnerLiveData = new MutableLiveData<>();
 
+    private ViewModelProvider.Factory mDefaultFactory;
+
     SavedStateRegistryController mSavedStateRegistryController;
 
     @LayoutRes
@@ -356,14 +359,26 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mFragmentManager.getViewModelStore(this);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The {@link #getArguments() Fragment's arguments} when this is first called will be used
+     * as the defaults to any {@link androidx.lifecycle.SavedStateHandle} passed to a view model
+     * created using this factory.</p>
+     */
     @NonNull
     @Override
     public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
         if (mFragmentManager == null) {
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
-        return ViewModelProvider.AndroidViewModelFactory.getInstance(
-                requireActivity().getApplication());
+        if (mDefaultFactory == null) {
+            mDefaultFactory = new SavedStateVMFactory(
+                    requireActivity().getApplication(),
+                    this,
+                    getArguments());
+        }
+        return mDefaultFactory;
     }
 
     @NonNull
