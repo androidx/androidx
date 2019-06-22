@@ -598,22 +598,13 @@ limitations under the License.
         <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Light</item>
     </style>
 
-    <!-- The style for dialog buttons. This style removes the horizontal padding from the
-         borderless buttons to ensure they are flush to the text. -->
+    <!-- The style for dialog buttons. -->
     <style name="Widget.Car.Dialog.Button" parent="Widget.Car.Button.Borderless.Colored">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Medium</item>
         <item name="android:fontFamily">sans-serif-medium</item>
-        <item name="android:paddingStart">0dp</item>
-        <item name="android:paddingEnd">0dp</item>
-    </style>
-
-    <!-- The style for selection dialog buttons. -->
-    <style name="Widget.Car.SelectionDialog.Button" parent="Widget.Car.Dialog.Button">
         <item name="android:minWidth">@dimen/car_dialog_button_min_width</item>
-        <item name="android:layout_marginTop">@dimen/car_padding_2</item>
-        <item name="android:layout_marginBottom">@dimen/car_padding_2</item>
-        <item name="android:paddingStart">@dimen/car_padding_4</item>
-        <item name="android:paddingEnd">@dimen/car_padding_4</item>
+        <item name="android:paddingStart">@dimen/car_padding_2</item>
+        <item name="android:paddingEnd">@dimen/car_padding_2</item>
     </style>
 
     <!-- ================= -->
