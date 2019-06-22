@@ -18,7 +18,15 @@ package androidx.navigation.fragment.test
 
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.findNavController
+import java.util.concurrent.CountDownLatch
 
 class NavigationActivity : FragmentActivity(R.layout.navigation_activity) {
     val navController get() = findNavController(R.id.nav_host)
+
+    val finishCountDownLatch = CountDownLatch(1)
+
+    override fun finish() {
+        super.finish()
+        finishCountDownLatch.countDown()
+    }
 }
