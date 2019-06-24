@@ -32,8 +32,8 @@ import androidx.browser.customtabs.CustomTabsSessionToken;
 import androidx.browser.customtabs.EnableComponentsTestRule;
 import androidx.browser.customtabs.TestActivity;
 import androidx.browser.customtabs.TestCustomTabsServiceSupportsTwas;
-import androidx.browser.customtabs.TrustedWebUtils;
 import androidx.browser.customtabs.testutil.CustomTabConnectionRule;
+import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -86,7 +86,7 @@ public class TrustedWebActivityBuilderTest {
         Bundle splashScreenParams = new Bundle();
         int splashBgColor = 0x112233;
         splashScreenParams.putInt(
-                TrustedWebUtils.SplashScreenParamKey.BACKGROUND_COLOR, splashBgColor);
+                SplashScreenParamKey.BACKGROUND_COLOR, splashBgColor);
 
         final TrustedWebActivityBuilder builder =
                 new TrustedWebActivityBuilder(mActivity, url)
@@ -106,14 +106,14 @@ public class TrustedWebActivityBuilderTest {
                 .isAssociatedWith(mSession));
         assertEquals(url, intent.getData());
         assertEquals(statusBarColor, intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
-        assertEquals(additionalTrustedOrigins,
-                intent.getStringArrayListExtra(TrustedWebUtils.EXTRA_ADDITIONAL_TRUSTED_ORIGINS));
+        assertEquals(additionalTrustedOrigins, intent.getStringArrayListExtra(
+                TrustedWebActivityBuilder.EXTRA_ADDITIONAL_TRUSTED_ORIGINS));
 
         Bundle splashScreenParamsReceived =
-                intent.getBundleExtra(TrustedWebUtils.EXTRA_SPLASH_SCREEN_PARAMS);
+                intent.getBundleExtra(TrustedWebActivityBuilder.EXTRA_SPLASH_SCREEN_PARAMS);
 
         // No need to test every splash screen param: they are sent in as-is in provided Bundle.
         assertEquals(splashBgColor, splashScreenParamsReceived.getInt(
-                TrustedWebUtils.SplashScreenParamKey.BACKGROUND_COLOR));
+                SplashScreenParamKey.BACKGROUND_COLOR));
     }
 }
