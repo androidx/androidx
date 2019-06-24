@@ -16,8 +16,6 @@
 
 package androidx.ui.painting
 
-import androidx.ui.engine.text.TextAffinity
-import androidx.ui.engine.text.TextPosition
 import androidx.ui.graphics.Color
 import androidx.ui.painting.basictypes.RenderComparison
 import com.google.common.truth.Truth.assertThat
@@ -122,66 +120,6 @@ class TextSpanTest {
         assertThat(result).isFalse()
         verify(textSpan1, times(1)).visitTextSpan(returnFalseFunction)
         verify(textSpan2, times(0)).visitTextSpan(returnFalseFunction)
-    }
-
-    @Test
-    fun `getSpanForPosition without text`() {
-        val textSpan = TextSpan()
-        val textPosition = TextPosition(0, TextAffinity.downstream)
-
-        assertThat(textSpan.getSpanForPosition(textPosition)).isNull()
-    }
-
-    @Test
-    fun `getSpanForPosition with text, 0 offset, and downstream TextAffinity`() {
-        val textSpan = TextSpan(text = "Hello")
-        val textPosition = TextPosition(0, TextAffinity.downstream)
-
-        assertThat(textSpan.getSpanForPosition(textPosition)).isEqualTo(textSpan)
-    }
-
-    @Test
-    fun `getSpanForPosition with text, and offset is smaller than text length`() {
-        val string = "Hello"
-        val textSpan = TextSpan(text = string)
-        val textPosition = TextPosition(string.length - 1, TextAffinity.downstream)
-
-        assertThat(textSpan.getSpanForPosition(textPosition)).isEqualTo(textSpan)
-    }
-
-    @Test
-    fun `getSpanForPosition with text, offset = text length, and upstream TextAffinity`() {
-        val string = "Hello"
-        val textSpan = TextSpan(text = string)
-        val textPosition = TextPosition(string.length, TextAffinity.upstream)
-
-        assertThat(textSpan.getSpanForPosition(textPosition)).isEqualTo(textSpan)
-    }
-
-    @Test
-    fun `getSpanForPosition with text, 0 offset, and upstream TextAffinity`() {
-        val textSpan = TextSpan(text = "Hello")
-        val textPosition = TextPosition(0, TextAffinity.upstream)
-
-        assertThat(textSpan.getSpanForPosition(textPosition)).isNull()
-    }
-
-    @Test
-    fun `getSpanForPosition with text, offset = text length, and downstream TextAffinity`() {
-        val string = "Hello"
-        val textSpan = TextSpan(text = string)
-        val textPosition = TextPosition(string.length, TextAffinity.downstream)
-
-        assertThat(textSpan.getSpanForPosition(textPosition)).isNull()
-    }
-
-    @Test
-    fun `getSpanForPosition with text, offset is bigger than text length`() {
-        val string = "Hello"
-        val textSpan = TextSpan(text = string)
-        val textPosition = TextPosition(string.length + 1, TextAffinity.upstream)
-
-        assertThat(textSpan.getSpanForPosition(textPosition)).isNull()
     }
 
     @Test
