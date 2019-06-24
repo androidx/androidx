@@ -216,6 +216,8 @@ class TextPainter(
             textAlign = textAlign,
             textDirection = textDirection,
             textScaleFactor = textScaleFactor,
+            lineHeight = paragraphStyle?.lineHeight,
+            textIndent = paragraphStyle?.textIndent,
             maxLines = maxLines,
             ellipsis = overflow == TextOverflow.Ellipsis,
             locale = locale
