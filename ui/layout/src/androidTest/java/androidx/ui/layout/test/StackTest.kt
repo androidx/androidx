@@ -18,6 +18,7 @@ package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.IntPx
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
@@ -26,12 +27,14 @@ import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
+import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Alignment
+import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.Container
+import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.compose.Composable
 import androidx.compose.composer
-import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -249,5 +252,63 @@ class StackTest : LayoutTest() {
         assertEquals(PxPosition(size - inset - halfSize, halfSize), childPosition[5].value)
         assertEquals(PxSize(halfSize, halfSize), childSize[6].value)
         assertEquals(PxPosition(halfSize, size - inset - halfSize), childPosition[6].value)
+    }
+
+    @Test
+    fun testStack_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        testIntrinsics(@Composable {
+            Stack {
+                aligned(Alignment.TopLeft) {
+                    AspectRatio(2f) { }
+                }
+                aligned(Alignment.BottomCenter) {
+                    ConstrainedBox(DpConstraints.tightConstraints(90.dp, 80.dp)) { }
+                }
+                positioned(10.dp, 10.dp, 10.dp, 10.dp) {
+                    ConstrainedBox(DpConstraints.tightConstraints(200.dp, 200.dp)) { }
+                }
+            }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(90.dp.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(100.dp.toIntPx(), minIntrinsicWidth(50.dp.toIntPx()))
+            assertEquals(90.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals(80.dp.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(200.dp.toIntPx() / 2, minIntrinsicHeight(200.dp.toIntPx()))
+            assertEquals(80.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals(90.dp.toIntPx(), maxIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(100.dp.toIntPx(), maxIntrinsicWidth(50.dp.toIntPx()))
+            assertEquals(90.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals(80.dp.toIntPx(), maxIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(200.dp.toIntPx() / 2, maxIntrinsicHeight(200.dp.toIntPx()))
+            assertEquals(80.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testStack_hasCorrectIntrinsicMeasurements_withNoAlignedChildren() = withDensity(density) {
+        testIntrinsics(@Composable {
+            Stack {
+                positioned(10.dp, 10.dp, 10.dp, 10.dp) {
+                    ConstrainedBox(DpConstraints.tightConstraints(200.dp, 200.dp)) { }
+                }
+            }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(0.dp.toIntPx(), minIntrinsicWidth(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals(0.dp.toIntPx(), minIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals(0.dp.toIntPx(), maxIntrinsicWidth(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals(0.dp.toIntPx(), maxIntrinsicHeight(50.dp.toIntPx()))
+            assertEquals(0.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
     }
 }
