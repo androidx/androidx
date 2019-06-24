@@ -16,6 +16,7 @@
 
 package androidx.lifecycle;
 
+import android.annotation.SuppressLint;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,7 +46,8 @@ import java.util.Set;
  * These values will persist after the process is killed by the system
  * and remain available via the same object.
  * <p>
- * You can read a value from it via {@link #get(String)} or observe it via {@link androidx.lifecycle.LiveData} returned
+ * You can read a value from it via {@link #get(String)} or observe it via
+ * {@link androidx.lifecycle.LiveData} returned
  * by {@link #getLiveData(String)}.
  * <p>
  * You can write a value to it via {@link #set(String, Object)} or setting a value to
@@ -102,7 +104,7 @@ public final class SavedStateHandle {
 
         Map<String, Object> state = new HashMap<>();
         if (defaultState != null) {
-            for (String key: defaultState.keySet()) {
+            for (String key : defaultState.keySet()) {
                 state.put(key, defaultState.get(key));
             }
         }
@@ -136,12 +138,57 @@ public final class SavedStateHandle {
     }
 
     /**
-     * Returns a {@link androidx.lifecycle.LiveData} that access data associated with the given key,.
+     * Returns a {@link androidx.lifecycle.LiveData} that access data associated with the given key.
+     *
+     * @see #getLiveData(String, Object)
      */
     @SuppressWarnings("unchecked")
     @MainThread
     @NonNull
-    public <T> MutableLiveData<T> getLiveData(@Nullable String key) {
+    public <T> MutableLiveData<T> getLiveData(@NonNull String key) {
+        return getLiveDataInternal(key, false, null);
+    }
+
+    /**
+     * Returns a {@link androidx.lifecycle.LiveData} that access data associated with the given key.
+     *
+     * <pre>{@code
+     *     LiveData<String> liveData = savedStateHandle.get(KEY, "defaultValue");
+     * }</pre
+     *
+     * Keep in mind that {@link LiveData} can have {@code null} as a valid value. If the
+     * {@code initialValue} is {@code null} and the data does not already exist in the
+     * {@link SavedStateHandle}, the value of the returned {@link LiveData} will be set to
+     * {@code null} and observers will be notified. You can call {@link #getLiveData(String)} if
+     * you want to avoid dispatching {@code null} to observers.
+     * <pre>{@code
+     *     String defaultValue = ...; // nullable
+     *     LiveData<String> liveData;
+     *     if (defaultValue != null) {
+     *         liveData = savedStateHandle.get(KEY, defaultValue);
+     *     } else {
+     *         liveData = savedStateHandle.get(KEY);
+     *     }
+     * }</pre>
+     *
+     * @param key          The identifier for the value
+     * @param initialValue If no value exists with the given {@code key}, a new one is created
+     *                     with the given {@code initialValue}. Note that passing {@code null} will
+     *                     create a {@link LiveData} with {@code null} value.
+     */
+    @MainThread
+    @NonNull
+    public <T> MutableLiveData<T> getLiveData(@NonNull String key,
+            @SuppressLint("UnknownNullness") T initialValue) {
+        return getLiveDataInternal(key, true, initialValue);
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    private <T> MutableLiveData<T> getLiveDataInternal(
+            @NonNull String key,
+            boolean hasInitialValue,
+            @Nullable T initialValue) {
         MutableLiveData<T> liveData = (MutableLiveData<T>) mLiveDatas.get(key);
         if (liveData != null) {
             return liveData;
@@ -150,6 +197,8 @@ public final class SavedStateHandle {
         // double hashing but null is valid value
         if (mRegular.containsKey(key)) {
             mutableLd = new SavingStateLiveData<>(this, key, (T) mRegular.get(key));
+        } else if (hasInitialValue) {
+            mutableLd = new SavingStateLiveData<>(this, key, initialValue);
         } else {
             mutableLd = new SavingStateLiveData<>(this, key);
         }
