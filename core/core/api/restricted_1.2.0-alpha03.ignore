@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+ChangedType: androidx.core.graphics.TypefaceCompatApi26Impl#mFontFamily:
+    Field androidx.core.graphics.TypefaceCompatApi26Impl.mFontFamily has changed type from java.lang.Class to java.lang.Class<?>
+ChangedType: androidx.core.graphics.TypefaceCompatApi26Impl#mFontFamilyCtor:
+    Field androidx.core.graphics.TypefaceCompatApi26Impl.mFontFamilyCtor has changed type from java.lang.reflect.Constructor to java.lang.reflect.Constructor<?>
+ChangedType: androidx.core.graphics.TypefaceCompatApi26Impl#obtainFontFamily():
+    Method androidx.core.graphics.TypefaceCompatApi26Impl.obtainFontFamily has changed return type from Class to Class<?>
+ChangedType: androidx.core.graphics.TypefaceCompatApi26Impl#obtainFontFamilyCtor(Class<?>):
+    Method androidx.core.graphics.TypefaceCompatApi26Impl.obtainFontFamilyCtor has changed return type from java.lang.reflect.Constructor to java.lang.reflect.Constructor<?>
