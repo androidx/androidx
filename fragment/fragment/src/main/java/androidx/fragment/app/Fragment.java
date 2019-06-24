@@ -64,7 +64,7 @@ import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.SavedStateVMFactory;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -373,7 +373,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
         if (mDefaultFactory == null) {
-            mDefaultFactory = new SavedStateVMFactory(
+            mDefaultFactory = new SavedStateViewModelFactory(
                     requireActivity().getApplication(),
                     this,
                     getArguments());

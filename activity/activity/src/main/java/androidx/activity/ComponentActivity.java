@@ -34,7 +34,7 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
-import androidx.lifecycle.SavedStateVMFactory;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -290,7 +290,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     + "Application instance. You can't request ViewModel before onCreate call.");
         }
         if (mDefaultFactory == null) {
-            mDefaultFactory = new SavedStateVMFactory(
+            mDefaultFactory = new SavedStateViewModelFactory(
                     getApplication(),
                     this,
                     getIntent() != null ? getIntent().getExtras() : null);
