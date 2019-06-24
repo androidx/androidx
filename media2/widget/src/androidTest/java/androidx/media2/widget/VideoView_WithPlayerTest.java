@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,6 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.player.MediaPlayer;
 import androidx.media2.widget.test.R;
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
@@ -45,15 +44,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
- * Test {@link VideoView}.
+ * Test {@link VideoView} with a {@link SessionPlayer}.
  */
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class VideoViewTest extends MediaWidgetTestBase {
-
-    /** Debug TAG. **/
-    private static final String TAG = "VideoViewTest";
-
+public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     private Activity mActivity;
     private VideoView mVideoView;
     private MediaItem mMediaItem;
@@ -87,14 +82,6 @@ public class VideoViewTest extends MediaWidgetTestBase {
     @After
     public void tearDown() throws Throwable {
         mPlayer.close();
-    }
-
-    @UiThreadTest
-    @Test
-    public void testConstructor() {
-        new VideoView(mActivity);
-        new VideoView(mActivity, null);
-        new VideoView(mActivity, null, 0);
     }
 
     @Test
