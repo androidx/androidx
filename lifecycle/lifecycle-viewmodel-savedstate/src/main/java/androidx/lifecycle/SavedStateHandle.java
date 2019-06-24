@@ -39,7 +39,7 @@ import java.util.Set;
 
 /**
  * A handle to saved state passed down to {@link androidx.lifecycle.ViewModel}. You should use
- * {@link SavedStateVMFactory} if you want to receive this object in {@code ViewModel}'s
+ * {@link SavedStateViewModelFactory} if you want to receive this object in {@code ViewModel}'s
  * constructor.
  * <p>
  * This is a key-value map that will let you write and retrieve objects to and from the saved state.

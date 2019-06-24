@@ -27,7 +27,7 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.SavedStateVMFactory;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.viewmodel.savedstate.activity.FakingSavedStateActivity;
@@ -143,11 +143,11 @@ public class ViewModelsWithStateTests {
     private ViewModelProvider vmProvider(FakingSavedStateActivity activity) {
         if (FRAGMENT_MODE.equals(mode)) {
             Fragment fragment = activity.getFragment();
-            return new ViewModelProvider(fragment, new SavedStateVMFactory(
+            return new ViewModelProvider(fragment, new SavedStateViewModelFactory(
                     fragment.requireActivity().getApplication(),
                     fragment));
         }
-        return new ViewModelProvider(activity, new SavedStateVMFactory(
+        return new ViewModelProvider(activity, new SavedStateViewModelFactory(
                 activity.getApplication(),
                 activity));
     }
