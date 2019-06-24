@@ -275,7 +275,19 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
             return;
         }
 
-        Integer tag = (Integer) imageInfo.getTag();
+        Object tagObject = imageInfo.getTag();
+        if (tagObject == null) {
+            image.close();
+            return;
+        }
+
+        if (!(tagObject instanceof Integer)) {
+            image.close();
+            return;
+        }
+
+        Integer tag = (Integer) tagObject;
+
         if (mCaptureStage.getId() != tag) {
             Log.w(TAG, "ImageProxyBundle does not contain this id: " + tag);
             image.close();
