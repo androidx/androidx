@@ -22,6 +22,8 @@ dependencies {
 
     implementation(project(":concurrent:concurrent-futures"))
 
+    annotationProcessor(NULLAWAY)
+
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
