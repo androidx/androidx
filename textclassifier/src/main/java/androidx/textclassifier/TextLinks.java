@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.SpannedString;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
@@ -122,9 +123,7 @@ public final class TextLinks {
 
     /**
      * Returns the text that was used to generate these links.
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
     public CharSequence getText() {
         return mFullText;
@@ -348,7 +347,7 @@ public final class TextLinks {
                 @Nullable EntityConfig entityConfig,
                 @Nullable Long referenceTime,
                 @NonNull Bundle extras) {
-            mText = text;
+            mText = SpannedString.valueOf(text);
             mDefaultLocales = defaultLocales;
             mEntityConfig = entityConfig == null
                     ? new TextClassifier.EntityConfig.Builder().build()
