@@ -135,6 +135,12 @@ class Paragraph internal constructor(
         return paragraphImpl.getPathForRange(start, end)
     }
 
+    /** Returns rectangle of the cursor area. */
+    fun getCursorRect(offset: Int): Rect {
+        assert(offset in (0..text.length))
+        return paragraphImpl.getCursorRect(offset)
+    }
+
     /** Returns the left x Coordinate of the given line. */
     fun getLineLeft(lineIndex: Int): Float = paragraphImpl.getLineLeft(lineIndex)
 

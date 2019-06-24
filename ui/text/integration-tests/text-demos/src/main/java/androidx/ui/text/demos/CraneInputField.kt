@@ -23,6 +23,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.EditorStyle
 import androidx.ui.core.InputField
+import androidx.ui.core.TextRange
 import androidx.ui.input.EditorState
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
@@ -43,7 +44,7 @@ fun InputFieldDemo() {
 
 @Composable
 fun EditLine() {
-    val state = +state { EditorState(text = "Hello, Editor") }
+    val state = +state { EditorState(text = "Hello, Editor", selection = TextRange(2, 2)) }
     InputField(
         value = state.value,
         onValueChange = { state.value = it },

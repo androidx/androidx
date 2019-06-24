@@ -16,6 +16,7 @@
 
 package androidx.ui.input
 
+import androidx.annotation.RestrictTo
 import androidx.ui.core.TextRange
 
 /**
@@ -25,13 +26,14 @@ import androidx.ui.core.TextRange
  * state. TextInputService sends the latest editing state to TextInputClient when the platform input
  * service sends some input events.
  */
-class EditorState internal constructor(
+class EditorState {
+
     /**
      * The text
      *
      * The text buffer updated by InputMethodService.
      */
-    val text: String = String(),
+    val text: String
 
     /**
      * The selection range.
@@ -39,7 +41,7 @@ class EditorState internal constructor(
      * If the selection is collapsed, it represents caret location.
      * @see android.view.inputmethod.InputConnection.getSelectedText
      */
-    val selection: TextRange = TextRange(0, 0),
+    val selection: TextRange
 
     /**
      * The composition range.
@@ -56,8 +58,24 @@ class EditorState internal constructor(
      * This composition can be null if there is no composition string in the text.
      * @see android.view.inputmethod.InputConnection.setComposingRegion
      */
-    val composition: TextRange? = null
-) {
+    val composition: TextRange?
+
+    /**
+     * Hidden constructor from the developers since composition is owned by IMEs and there is no way
+     * of setting composition from developers.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    constructor(
+        text: String = String(),
+        selection: TextRange = TextRange(0, 0),
+        composition: TextRange? = null
+    ) {
+        this.text = text
+        this.selection = selection
+        this.composition = composition
+    }
+
     constructor(text: String = String(), selection: TextRange = TextRange(0, 0))
             : this(text, selection, null)
 }

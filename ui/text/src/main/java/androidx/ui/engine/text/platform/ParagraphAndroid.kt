@@ -236,6 +236,21 @@ internal class ParagraphAndroid constructor(
         return Path(path)
     }
 
+    fun getCursorRect(offset: Int): Rect {
+        // TODO(nona): Support cursor drawable.
+        val cursorWidth = 4.0f
+        val layout = ensureLayout
+        val horizontal = layout.getPrimaryHorizontal(offset)
+        val line = layout.getLineForOffset(offset)
+
+        return Rect(
+            horizontal - 0.5f * cursorWidth,
+            layout.getLineTop(line),
+            horizontal + 0.5f * cursorWidth,
+            layout.getLineBottom(line)
+        )
+    }
+
     private var wordBoundary: WordBoundary? = null
 
     fun getWordBoundary(offset: Int): Pair<Int, Int> {
