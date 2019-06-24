@@ -1,0 +1,553 @@
+// Signature format: 3.0
+package androidx.preference {
+
+  public class CheckBoxPreference extends androidx.preference.TwoStatePreference {
+    ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public CheckBoxPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public CheckBoxPreference(android.content.Context!);
+  }
+
+  public abstract class DialogPreference extends androidx.preference.Preference {
+    ctor public DialogPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public DialogPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public DialogPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public DialogPreference(android.content.Context!);
+    method public android.graphics.drawable.Drawable! getDialogIcon();
+    method public int getDialogLayoutResource();
+    method public CharSequence! getDialogMessage();
+    method public CharSequence! getDialogTitle();
+    method public CharSequence! getNegativeButtonText();
+    method public CharSequence! getPositiveButtonText();
+    method public void setDialogIcon(android.graphics.drawable.Drawable!);
+    method public void setDialogIcon(int);
+    method public void setDialogLayoutResource(int);
+    method public void setDialogMessage(CharSequence!);
+    method public void setDialogMessage(int);
+    method public void setDialogTitle(CharSequence!);
+    method public void setDialogTitle(int);
+    method public void setNegativeButtonText(CharSequence!);
+    method public void setNegativeButtonText(int);
+    method public void setPositiveButtonText(CharSequence!);
+    method public void setPositiveButtonText(int);
+  }
+
+  public static interface DialogPreference.TargetFragment {
+    method public <T extends androidx.preference.Preference> T? findPreference(CharSequence);
+  }
+
+  public class DropDownPreference extends androidx.preference.ListPreference {
+    ctor public DropDownPreference(android.content.Context!);
+    ctor public DropDownPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public DropDownPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public DropDownPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    method protected android.widget.ArrayAdapter! createAdapter();
+  }
+
+  public class EditTextPreference extends androidx.preference.DialogPreference {
+    ctor public EditTextPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public EditTextPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public EditTextPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public EditTextPreference(android.content.Context!);
+    method public String! getText();
+    method public void setOnBindEditTextListener(androidx.preference.EditTextPreference.OnBindEditTextListener?);
+    method public void setText(String!);
+  }
+
+  public static interface EditTextPreference.OnBindEditTextListener {
+    method public void onBindEditText(android.widget.EditText);
+  }
+
+  public static final class EditTextPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.EditTextPreference> {
+    method public static androidx.preference.EditTextPreference.SimpleSummaryProvider! getInstance();
+    method public CharSequence! provideSummary(androidx.preference.EditTextPreference!);
+  }
+
+  @Deprecated public class EditTextPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
+    ctor @Deprecated public EditTextPreferenceDialogFragment();
+    method @Deprecated public static androidx.preference.EditTextPreferenceDialogFragment! newInstance(String!);
+    method @Deprecated protected void onBindDialogView(android.view.View!);
+    method @Deprecated public void onDialogClosed(boolean);
+  }
+
+  public class EditTextPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
+    ctor public EditTextPreferenceDialogFragmentCompat();
+    method public static androidx.preference.EditTextPreferenceDialogFragmentCompat! newInstance(String!);
+    method public void onDialogClosed(boolean);
+  }
+
+  public class ListPreference extends androidx.preference.DialogPreference {
+    ctor public ListPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public ListPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public ListPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public ListPreference(android.content.Context!);
+    method public int findIndexOfValue(String!);
+    method public CharSequence![]! getEntries();
+    method public CharSequence! getEntry();
+    method public CharSequence![]! getEntryValues();
+    method public String! getValue();
+    method public void setEntries(CharSequence![]!);
+    method public void setEntries(@ArrayRes int);
+    method public void setEntryValues(CharSequence![]!);
+    method public void setEntryValues(@ArrayRes int);
+    method public void setValue(String!);
+    method public void setValueIndex(int);
+  }
+
+  public static final class ListPreference.SimpleSummaryProvider implements androidx.preference.Preference.SummaryProvider<androidx.preference.ListPreference> {
+    method public static androidx.preference.ListPreference.SimpleSummaryProvider! getInstance();
+    method public CharSequence! provideSummary(androidx.preference.ListPreference!);
+  }
+
+  @Deprecated public class ListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
+    ctor @Deprecated public ListPreferenceDialogFragment();
+    method @Deprecated public static androidx.preference.ListPreferenceDialogFragment! newInstance(String!);
+    method @Deprecated public void onDialogClosed(boolean);
+    method @Deprecated protected void onPrepareDialogBuilder(android.app.AlertDialog.Builder!);
+  }
+
+  public class ListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
+    ctor public ListPreferenceDialogFragmentCompat();
+    method public static androidx.preference.ListPreferenceDialogFragmentCompat! newInstance(String!);
+    method public void onDialogClosed(boolean);
+  }
+
+  public class MultiSelectListPreference extends androidx.preference.DialogPreference {
+    ctor public MultiSelectListPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public MultiSelectListPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public MultiSelectListPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public MultiSelectListPreference(android.content.Context!);
+    method public int findIndexOfValue(String!);
+    method public CharSequence![]! getEntries();
+    method public CharSequence![]! getEntryValues();
+    method protected boolean[]! getSelectedItems();
+    method public java.util.Set<java.lang.String!>! getValues();
+    method public void setEntries(CharSequence![]!);
+    method public void setEntries(@ArrayRes int);
+    method public void setEntryValues(CharSequence![]!);
+    method public void setEntryValues(@ArrayRes int);
+    method public void setValues(java.util.Set<java.lang.String!>!);
+  }
+
+  @Deprecated public class MultiSelectListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
+    ctor @Deprecated public MultiSelectListPreferenceDialogFragment();
+    method @Deprecated public static androidx.preference.MultiSelectListPreferenceDialogFragment! newInstance(String!);
+    method @Deprecated public void onDialogClosed(boolean);
+    method @Deprecated protected void onPrepareDialogBuilder(android.app.AlertDialog.Builder!);
+  }
+
+  public class MultiSelectListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
+    ctor public MultiSelectListPreferenceDialogFragmentCompat();
+    method public static androidx.preference.MultiSelectListPreferenceDialogFragmentCompat! newInstance(String!);
+    method public void onDialogClosed(boolean);
+  }
+
+  public class Preference implements java.lang.Comparable<androidx.preference.Preference> {
+    ctor public Preference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public Preference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public Preference(android.content.Context!, android.util.AttributeSet!);
+    ctor public Preference(android.content.Context!);
+    method public boolean callChangeListener(Object!);
+    method public int compareTo(androidx.preference.Preference);
+    method protected <T extends androidx.preference.Preference> T? findPreferenceInHierarchy(String);
+    method public android.content.Context! getContext();
+    method public String! getDependency();
+    method public android.os.Bundle! getExtras();
+    method public String! getFragment();
+    method public android.graphics.drawable.Drawable! getIcon();
+    method public android.content.Intent! getIntent();
+    method public String! getKey();
+    method public final int getLayoutResource();
+    method public androidx.preference.Preference.OnPreferenceChangeListener! getOnPreferenceChangeListener();
+    method public androidx.preference.Preference.OnPreferenceClickListener! getOnPreferenceClickListener();
+    method public int getOrder();
+    method public androidx.preference.PreferenceGroup? getParent();
+    method protected boolean getPersistedBoolean(boolean);
+    method protected float getPersistedFloat(float);
+    method protected int getPersistedInt(int);
+    method protected long getPersistedLong(long);
+    method protected String! getPersistedString(String!);
+    method public java.util.Set<java.lang.String!>! getPersistedStringSet(java.util.Set<java.lang.String!>!);
+    method public androidx.preference.PreferenceDataStore? getPreferenceDataStore();
+    method public androidx.preference.PreferenceManager! getPreferenceManager();
+    method public android.content.SharedPreferences! getSharedPreferences();
+    method public boolean getShouldDisableView();
+    method public CharSequence! getSummary();
+    method public final androidx.preference.Preference.SummaryProvider? getSummaryProvider();
+    method public CharSequence! getTitle();
+    method public final int getWidgetLayoutResource();
+    method public boolean hasKey();
+    method public boolean isCopyingEnabled();
+    method public boolean isEnabled();
+    method public boolean isIconSpaceReserved();
+    method public boolean isPersistent();
+    method public boolean isSelectable();
+    method public final boolean isShown();
+    method public boolean isSingleLineTitle();
+    method public final boolean isVisible();
+    method protected void notifyChanged();
+    method public void notifyDependencyChange(boolean);
+    method protected void notifyHierarchyChanged();
+    method public void onAttached();
+    method protected void onAttachedToHierarchy(androidx.preference.PreferenceManager!);
+    method public void onBindViewHolder(androidx.preference.PreferenceViewHolder!);
+    method protected void onClick();
+    method public void onDependencyChanged(androidx.preference.Preference!, boolean);
+    method public void onDetached();
+    method protected Object! onGetDefaultValue(android.content.res.TypedArray!, int);
+    method @Deprecated @CallSuper public void onInitializeAccessibilityNodeInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat!);
+    method public void onParentChanged(androidx.preference.Preference!, boolean);
+    method protected void onPrepareForRemoval();
+    method protected void onRestoreInstanceState(android.os.Parcelable!);
+    method protected android.os.Parcelable! onSaveInstanceState();
+    method @Deprecated protected void onSetInitialValue(boolean, Object!);
+    method protected void onSetInitialValue(Object?);
+    method public android.os.Bundle! peekExtras();
+    method protected boolean persistBoolean(boolean);
+    method protected boolean persistFloat(float);
+    method protected boolean persistInt(int);
+    method protected boolean persistLong(long);
+    method protected boolean persistString(String!);
+    method public boolean persistStringSet(java.util.Set<java.lang.String!>!);
+    method public void restoreHierarchyState(android.os.Bundle!);
+    method public void saveHierarchyState(android.os.Bundle!);
+    method public void setCopyingEnabled(boolean);
+    method public void setDefaultValue(Object!);
+    method public void setDependency(String!);
+    method public void setEnabled(boolean);
+    method public void setFragment(String!);
+    method public void setIcon(android.graphics.drawable.Drawable!);
+    method public void setIcon(int);
+    method public void setIconSpaceReserved(boolean);
+    method public void setIntent(android.content.Intent!);
+    method public void setKey(String!);
+    method public void setLayoutResource(int);
+    method public void setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener!);
+    method public void setOnPreferenceClickListener(androidx.preference.Preference.OnPreferenceClickListener!);
+    method public void setOrder(int);
+    method public void setPersistent(boolean);
+    method public void setPreferenceDataStore(androidx.preference.PreferenceDataStore!);
+    method public void setSelectable(boolean);
+    method public void setShouldDisableView(boolean);
+    method public void setSingleLineTitle(boolean);
+    method public void setSummary(CharSequence!);
+    method public void setSummary(int);
+    method public final void setSummaryProvider(androidx.preference.Preference.SummaryProvider?);
+    method public void setTitle(CharSequence!);
+    method public void setTitle(int);
+    method public void setViewId(int);
+    method public final void setVisible(boolean);
+    method public void setWidgetLayoutResource(int);
+    method public boolean shouldDisableDependents();
+    method protected boolean shouldPersist();
+    field public static final int DEFAULT_ORDER = 2147483647; // 0x7fffffff
+  }
+
+  public static class Preference.BaseSavedState extends android.view.AbsSavedState {
+    ctor public Preference.BaseSavedState(android.os.Parcel!);
+    ctor public Preference.BaseSavedState(android.os.Parcelable!);
+    field public static final android.os.Parcelable.Creator<androidx.preference.Preference.BaseSavedState!>! CREATOR;
+  }
+
+  public static interface Preference.OnPreferenceChangeListener {
+    method public boolean onPreferenceChange(androidx.preference.Preference!, Object!);
+  }
+
+  public static interface Preference.OnPreferenceClickListener {
+    method public boolean onPreferenceClick(androidx.preference.Preference!);
+  }
+
+  public static interface Preference.SummaryProvider<T extends androidx.preference.Preference> {
+    method public CharSequence! provideSummary(T!);
+  }
+
+  public class PreferenceCategory extends androidx.preference.PreferenceGroup {
+    ctor public PreferenceCategory(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public PreferenceCategory(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public PreferenceCategory(android.content.Context!, android.util.AttributeSet!);
+    ctor public PreferenceCategory(android.content.Context!);
+  }
+
+  public abstract class PreferenceDataStore {
+    ctor public PreferenceDataStore();
+    method public boolean getBoolean(String!, boolean);
+    method public float getFloat(String!, float);
+    method public int getInt(String!, int);
+    method public long getLong(String!, long);
+    method public String? getString(String!, String?);
+    method public java.util.Set<java.lang.String!>? getStringSet(String!, java.util.Set<java.lang.String!>?);
+    method public void putBoolean(String!, boolean);
+    method public void putFloat(String!, float);
+    method public void putInt(String!, int);
+    method public void putLong(String!, long);
+    method public void putString(String!, String?);
+    method public void putStringSet(String!, java.util.Set<java.lang.String!>?);
+  }
+
+  @Deprecated public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
+    ctor @Deprecated public PreferenceDialogFragment();
+    method @Deprecated public androidx.preference.DialogPreference! getPreference();
+    method @Deprecated protected void onBindDialogView(android.view.View!);
+    method @Deprecated public void onClick(android.content.DialogInterface!, int);
+    method @Deprecated public void onCreate(android.os.Bundle!);
+    method @Deprecated public android.app.Dialog onCreateDialog(android.os.Bundle!);
+    method @Deprecated protected android.view.View! onCreateDialogView(android.content.Context!);
+    method @Deprecated public abstract void onDialogClosed(boolean);
+    method @Deprecated public void onDismiss(android.content.DialogInterface!);
+    method @Deprecated protected void onPrepareDialogBuilder(android.app.AlertDialog.Builder!);
+    method @Deprecated public void onSaveInstanceState(android.os.Bundle);
+    field @Deprecated protected static final String ARG_KEY = "key";
+  }
+
+  public abstract class PreferenceDialogFragmentCompat extends androidx.fragment.app.DialogFragment implements android.content.DialogInterface.OnClickListener {
+    ctor public PreferenceDialogFragmentCompat();
+    method public androidx.preference.DialogPreference! getPreference();
+    method protected void onBindDialogView(android.view.View!);
+    method public void onClick(android.content.DialogInterface!, int);
+    method protected android.view.View! onCreateDialogView(android.content.Context!);
+    method public abstract void onDialogClosed(boolean);
+    method protected void onPrepareDialogBuilder(androidx.appcompat.app.AlertDialog.Builder!);
+    field protected static final String ARG_KEY = "key";
+  }
+
+  @Deprecated public abstract class PreferenceFragment extends android.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
+    ctor @Deprecated public PreferenceFragment();
+    method @Deprecated public void addPreferencesFromResource(@XmlRes int);
+    method @Deprecated public <T extends androidx.preference.Preference> T! findPreference(CharSequence!);
+    method @Deprecated public final androidx.recyclerview.widget.RecyclerView! getListView();
+    method @Deprecated public androidx.preference.PreferenceManager! getPreferenceManager();
+    method @Deprecated public androidx.preference.PreferenceScreen! getPreferenceScreen();
+    method @Deprecated public void onCreate(android.os.Bundle!);
+    method @Deprecated protected androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter(androidx.preference.PreferenceScreen!);
+    method @Deprecated public androidx.recyclerview.widget.RecyclerView.LayoutManager! onCreateLayoutManager();
+    method @Deprecated public abstract void onCreatePreferences(android.os.Bundle!, String!);
+    method @Deprecated public androidx.recyclerview.widget.RecyclerView! onCreateRecyclerView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public void onDestroyView();
+    method @Deprecated public void onDisplayPreferenceDialog(androidx.preference.Preference!);
+    method @Deprecated public void onNavigateToScreen(androidx.preference.PreferenceScreen!);
+    method @Deprecated public boolean onPreferenceTreeClick(androidx.preference.Preference!);
+    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
+    method @Deprecated public void onStart();
+    method @Deprecated public void onStop();
+    method @Deprecated public void onViewCreated(android.view.View!, android.os.Bundle!);
+    method @Deprecated public void scrollToPreference(String!);
+    method @Deprecated public void scrollToPreference(androidx.preference.Preference!);
+    method @Deprecated public void setDivider(android.graphics.drawable.Drawable!);
+    method @Deprecated public void setDividerHeight(int);
+    method @Deprecated public void setPreferenceScreen(androidx.preference.PreferenceScreen!);
+    method @Deprecated public void setPreferencesFromResource(@XmlRes int, String?);
+    field @Deprecated public static final String ARG_PREFERENCE_ROOT = "androidx.preference.PreferenceFragmentCompat.PREFERENCE_ROOT";
+  }
+
+  @Deprecated public static interface PreferenceFragment.OnPreferenceDisplayDialogCallback {
+    method @Deprecated public boolean onPreferenceDisplayDialog(androidx.preference.PreferenceFragment, androidx.preference.Preference!);
+  }
+
+  @Deprecated public static interface PreferenceFragment.OnPreferenceStartFragmentCallback {
+    method @Deprecated public boolean onPreferenceStartFragment(androidx.preference.PreferenceFragment!, androidx.preference.Preference!);
+  }
+
+  @Deprecated public static interface PreferenceFragment.OnPreferenceStartScreenCallback {
+    method @Deprecated public boolean onPreferenceStartScreen(androidx.preference.PreferenceFragment!, androidx.preference.PreferenceScreen!);
+  }
+
+  public abstract class PreferenceFragmentCompat extends androidx.fragment.app.Fragment implements androidx.preference.DialogPreference.TargetFragment androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener androidx.preference.PreferenceManager.OnNavigateToScreenListener androidx.preference.PreferenceManager.OnPreferenceTreeClickListener {
+    ctor public PreferenceFragmentCompat();
+    method public void addPreferencesFromResource(@XmlRes int);
+    method public <T extends androidx.preference.Preference> T? findPreference(CharSequence);
+    method public final androidx.recyclerview.widget.RecyclerView! getListView();
+    method public androidx.preference.PreferenceManager! getPreferenceManager();
+    method public androidx.preference.PreferenceScreen! getPreferenceScreen();
+    method protected androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter(androidx.preference.PreferenceScreen!);
+    method public androidx.recyclerview.widget.RecyclerView.LayoutManager! onCreateLayoutManager();
+    method public abstract void onCreatePreferences(android.os.Bundle!, String!);
+    method public androidx.recyclerview.widget.RecyclerView! onCreateRecyclerView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method public void onDisplayPreferenceDialog(androidx.preference.Preference!);
+    method public void onNavigateToScreen(androidx.preference.PreferenceScreen!);
+    method public boolean onPreferenceTreeClick(androidx.preference.Preference!);
+    method public void scrollToPreference(String!);
+    method public void scrollToPreference(androidx.preference.Preference!);
+    method public void setDivider(android.graphics.drawable.Drawable!);
+    method public void setDividerHeight(int);
+    method public void setPreferenceScreen(androidx.preference.PreferenceScreen!);
+    method public void setPreferencesFromResource(@XmlRes int, String?);
+    field public static final String ARG_PREFERENCE_ROOT = "androidx.preference.PreferenceFragmentCompat.PREFERENCE_ROOT";
+  }
+
+  public static interface PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
+    method public boolean onPreferenceDisplayDialog(androidx.preference.PreferenceFragmentCompat, androidx.preference.Preference!);
+  }
+
+  public static interface PreferenceFragmentCompat.OnPreferenceStartFragmentCallback {
+    method public boolean onPreferenceStartFragment(androidx.preference.PreferenceFragmentCompat!, androidx.preference.Preference!);
+  }
+
+  public static interface PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+    method public boolean onPreferenceStartScreen(androidx.preference.PreferenceFragmentCompat!, androidx.preference.PreferenceScreen!);
+  }
+
+  public abstract class PreferenceGroup extends androidx.preference.Preference {
+    ctor public PreferenceGroup(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public PreferenceGroup(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public PreferenceGroup(android.content.Context!, android.util.AttributeSet!);
+    method public void addItemFromInflater(androidx.preference.Preference!);
+    method public boolean addPreference(androidx.preference.Preference!);
+    method protected void dispatchRestoreInstanceState(android.os.Bundle!);
+    method protected void dispatchSaveInstanceState(android.os.Bundle!);
+    method public <T extends androidx.preference.Preference> T? findPreference(CharSequence);
+    method public int getInitialExpandedChildrenCount();
+    method public androidx.preference.Preference! getPreference(int);
+    method public int getPreferenceCount();
+    method protected boolean isOnSameScreenAsChildren();
+    method public boolean isOrderingAsAdded();
+    method protected boolean onPrepareAddPreference(androidx.preference.Preference!);
+    method public void removeAll();
+    method public boolean removePreference(androidx.preference.Preference!);
+    method public boolean removePreferenceRecursively(CharSequence);
+    method public void setInitialExpandedChildrenCount(int);
+    method public void setOrderingAsAdded(boolean);
+  }
+
+  public static interface PreferenceGroup.PreferencePositionCallback {
+    method public int getPreferenceAdapterPosition(String!);
+    method public int getPreferenceAdapterPosition(androidx.preference.Preference!);
+  }
+
+  public class PreferenceManager {
+    method public androidx.preference.PreferenceScreen! createPreferenceScreen(android.content.Context!);
+    method public <T extends androidx.preference.Preference> T? findPreference(CharSequence);
+    method public android.content.Context! getContext();
+    method public static android.content.SharedPreferences! getDefaultSharedPreferences(android.content.Context!);
+    method public androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener! getOnDisplayPreferenceDialogListener();
+    method public androidx.preference.PreferenceManager.OnNavigateToScreenListener! getOnNavigateToScreenListener();
+    method public androidx.preference.PreferenceManager.OnPreferenceTreeClickListener! getOnPreferenceTreeClickListener();
+    method public androidx.preference.PreferenceManager.PreferenceComparisonCallback! getPreferenceComparisonCallback();
+    method public androidx.preference.PreferenceDataStore? getPreferenceDataStore();
+    method public androidx.preference.PreferenceScreen! getPreferenceScreen();
+    method public android.content.SharedPreferences! getSharedPreferences();
+    method public int getSharedPreferencesMode();
+    method public String! getSharedPreferencesName();
+    method public boolean isStorageDefault();
+    method public boolean isStorageDeviceProtected();
+    method public static void setDefaultValues(android.content.Context!, int, boolean);
+    method public static void setDefaultValues(android.content.Context!, String!, int, int, boolean);
+    method public void setOnDisplayPreferenceDialogListener(androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener!);
+    method public void setOnNavigateToScreenListener(androidx.preference.PreferenceManager.OnNavigateToScreenListener!);
+    method public void setOnPreferenceTreeClickListener(androidx.preference.PreferenceManager.OnPreferenceTreeClickListener!);
+    method public void setPreferenceComparisonCallback(androidx.preference.PreferenceManager.PreferenceComparisonCallback!);
+    method public void setPreferenceDataStore(androidx.preference.PreferenceDataStore!);
+    method public boolean setPreferences(androidx.preference.PreferenceScreen!);
+    method public void setSharedPreferencesMode(int);
+    method public void setSharedPreferencesName(String!);
+    method public void setStorageDefault();
+    method public void setStorageDeviceProtected();
+    method public void showDialog(androidx.preference.Preference!);
+    field public static final String KEY_HAS_SET_DEFAULT_VALUES = "_has_set_default_values";
+  }
+
+  public static interface PreferenceManager.OnDisplayPreferenceDialogListener {
+    method public void onDisplayPreferenceDialog(androidx.preference.Preference!);
+  }
+
+  public static interface PreferenceManager.OnNavigateToScreenListener {
+    method public void onNavigateToScreen(androidx.preference.PreferenceScreen!);
+  }
+
+  public static interface PreferenceManager.OnPreferenceTreeClickListener {
+    method public boolean onPreferenceTreeClick(androidx.preference.Preference!);
+  }
+
+  public abstract static class PreferenceManager.PreferenceComparisonCallback {
+    ctor public PreferenceManager.PreferenceComparisonCallback();
+    method public abstract boolean arePreferenceContentsTheSame(androidx.preference.Preference!, androidx.preference.Preference!);
+    method public abstract boolean arePreferenceItemsTheSame(androidx.preference.Preference!, androidx.preference.Preference!);
+  }
+
+  public static class PreferenceManager.SimplePreferenceComparisonCallback extends androidx.preference.PreferenceManager.PreferenceComparisonCallback {
+    ctor public PreferenceManager.SimplePreferenceComparisonCallback();
+    method public boolean arePreferenceContentsTheSame(androidx.preference.Preference!, androidx.preference.Preference!);
+    method public boolean arePreferenceItemsTheSame(androidx.preference.Preference!, androidx.preference.Preference!);
+  }
+
+  public final class PreferenceScreen extends androidx.preference.PreferenceGroup {
+    method public void setShouldUseGeneratedIds(boolean);
+    method public boolean shouldUseGeneratedIds();
+  }
+
+  public class PreferenceViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+    method public android.view.View! findViewById(@IdRes int);
+    method public boolean isDividerAllowedAbove();
+    method public boolean isDividerAllowedBelow();
+    method public void setDividerAllowedAbove(boolean);
+    method public void setDividerAllowedBelow(boolean);
+  }
+
+  public class SeekBarPreference extends androidx.preference.Preference {
+    ctor public SeekBarPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public SeekBarPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public SeekBarPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public SeekBarPreference(android.content.Context!);
+    method public int getMax();
+    method public int getMin();
+    method public final int getSeekBarIncrement();
+    method public boolean getShowSeekBarValue();
+    method public boolean getUpdatesContinuously();
+    method public int getValue();
+    method public boolean isAdjustable();
+    method public void setAdjustable(boolean);
+    method public final void setMax(int);
+    method public void setMin(int);
+    method public final void setSeekBarIncrement(int);
+    method public void setShowSeekBarValue(boolean);
+    method public void setUpdatesContinuously(boolean);
+    method public void setValue(int);
+  }
+
+  public class SwitchPreference extends androidx.preference.TwoStatePreference {
+    ctor public SwitchPreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public SwitchPreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public SwitchPreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public SwitchPreference(android.content.Context!);
+    method public CharSequence! getSwitchTextOff();
+    method public CharSequence! getSwitchTextOn();
+    method public void setSwitchTextOff(CharSequence!);
+    method public void setSwitchTextOff(int);
+    method public void setSwitchTextOn(CharSequence!);
+    method public void setSwitchTextOn(int);
+  }
+
+  public class SwitchPreferenceCompat extends androidx.preference.TwoStatePreference {
+    ctor public SwitchPreferenceCompat(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public SwitchPreferenceCompat(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public SwitchPreferenceCompat(android.content.Context!, android.util.AttributeSet!);
+    ctor public SwitchPreferenceCompat(android.content.Context!);
+    method public CharSequence! getSwitchTextOff();
+    method public CharSequence! getSwitchTextOn();
+    method public void setSwitchTextOff(CharSequence!);
+    method public void setSwitchTextOff(int);
+    method public void setSwitchTextOn(CharSequence!);
+    method public void setSwitchTextOn(int);
+  }
+
+  public abstract class TwoStatePreference extends androidx.preference.Preference {
+    ctor public TwoStatePreference(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public TwoStatePreference(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public TwoStatePreference(android.content.Context!, android.util.AttributeSet!);
+    ctor public TwoStatePreference(android.content.Context!);
+    method public boolean getDisableDependentsState();
+    method public CharSequence! getSummaryOff();
+    method public CharSequence! getSummaryOn();
+    method public boolean isChecked();
+    method public void setChecked(boolean);
+    method public void setDisableDependentsState(boolean);
+    method public void setSummaryOff(CharSequence!);
+    method public void setSummaryOff(int);
+    method public void setSummaryOn(CharSequence!);
+    method public void setSummaryOn(int);
+    method protected void syncSummaryView(androidx.preference.PreferenceViewHolder!);
+    field protected boolean mChecked;
+  }
+
+}
+
