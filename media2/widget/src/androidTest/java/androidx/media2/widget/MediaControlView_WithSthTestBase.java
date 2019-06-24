@@ -23,6 +23,7 @@ import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -92,8 +93,11 @@ public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBa
         });
     }
 
+    /**
+     * It also tests clicking play button
+     */
     @Test
-    public void testPlayPauseButtonClick() throws Throwable {
+    public void testSetPlayerOrController_PausedState() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
@@ -108,8 +112,51 @@ public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBa
         }, mFileSchemeMediaItem);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        onView(allOf(withId(R.id.pause), isCompletelyDisplayed())).perform(click());
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
+                .check(matches(withContentDescription(R.string.mcv2_play_button_desc)))
+                .perform(click());
         assertTrue(latchForPlayingState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
+                .check(matches(withContentDescription(R.string.mcv2_pause_button_desc)));
+    }
+
+    /**
+     * It also tests clicking pause button
+     */
+    @Test
+    public void testSetPlayerOrController_PlayingState() throws Throwable {
+        final CountDownLatch latchForPreparedState = new CountDownLatch(1);
+        final CountDownLatch latchForPausedState = new CountDownLatch(1);
+        final CountDownLatch latchForPlayingState = new CountDownLatch(1);
+        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
+            private int mState = SessionPlayer.PLAYER_STATE_IDLE;
+
+            @Override
+            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
+                if (mState == SessionPlayer.PLAYER_STATE_IDLE
+                        && state == SessionPlayer.PLAYER_STATE_PAUSED) {
+                    latchForPreparedState.countDown();
+                }
+                if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
+                    latchForPlayingState.countDown();
+                }
+                if (mState == SessionPlayer.PLAYER_STATE_PLAYING
+                        && state == SessionPlayer.PLAYER_STATE_PAUSED) {
+                    latchForPausedState.countDown();
+                }
+                mState = state;
+            }
+        }, mFileSchemeMediaItem);
+        assertTrue(latchForPreparedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        playerWrapper.play();
+        assertTrue(latchForPlayingState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        setPlayerWrapper(playerWrapper);
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
+                .check(matches(withContentDescription(R.string.mcv2_pause_button_desc)))
+                .perform(click());
+        assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
+                .check(matches(withContentDescription(R.string.mcv2_play_button_desc)));
     }
 
     @Test
