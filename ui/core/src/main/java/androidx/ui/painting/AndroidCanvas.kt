@@ -25,7 +25,6 @@ import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
-import androidx.ui.vectormath64.degrees
 import androidx.ui.vectormath64.isIdentity
 
 /**
@@ -214,8 +213,8 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     /**
      * @see Canvas.rotate
      */
-    override fun rotate(radians: Float) {
-        internalCanvas.rotate(degrees(radians))
+    override fun rotate(degrees: Float) {
+        internalCanvas.rotate(degrees)
     }
 
     /**
@@ -380,8 +379,8 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
         internalRectF.set(rect.toFrameworkRect())
         internalCanvas.drawArc(
             internalRectF,
-            degrees(startAngle),
-            degrees(sweepAngle),
+            startAngle,
+            sweepAngle,
             useCenter,
             paint.asFrameworkPaint()
         )

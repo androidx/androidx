@@ -76,7 +76,7 @@ fun RepeatedRotation() {
                         Draw { canvas, parentSize ->
                             // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
                             canvas.nativeCanvas.save()
-                            canvas.rotate(radians(state[rotation]))
+                            canvas.rotate(state[rotation])
                             canvas.drawRect(parentSize.toRect(),
                                 Paint().apply { color = Color(0xFF00FF00.toInt()) })
                             // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
