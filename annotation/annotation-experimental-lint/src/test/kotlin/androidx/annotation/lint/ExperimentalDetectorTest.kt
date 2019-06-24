@@ -31,8 +31,8 @@ class ExperimentalDetectorTest {
     private fun checkJava(vararg testFiles: TestFile): TestLintResult {
         return lint()
             .files(
-                javaSample("androidx.annotation.Experimental"),
-                javaSample("androidx.annotation.UseExperimental"),
+                EXPERIMENTAL_JAVA,
+                USE_EXPERIMENTAL_JAVA,
                 *testFiles
             )
             .allowMissingSdk(true)
@@ -140,6 +140,49 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
 
     companion object {
         /* ktlint-disable max-line-length */
+        // The contents of Experimental.java from the experimental annotation library.
+        val EXPERIMENTAL_JAVA: TestFile = java("""
+            package androidx.annotation;
+
+            import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+            import static java.lang.annotation.RetentionPolicy.CLASS;
+
+            import java.lang.annotation.Retention;
+            import java.lang.annotation.Target;
+
+            @Retention(CLASS)
+            @Target({ANNOTATION_TYPE})
+            public @interface Experimental {
+                enum Level {
+                    WARNING,
+                    ERROR,
+                }
+
+                Level level() default Level.ERROR;
+            }
+        """.trimIndent())
+
+        // The contents of UseExperimental.java from the experimental annotation library.
+        val USE_EXPERIMENTAL_JAVA: TestFile = java("""
+            package androidx.annotation;
+
+            import static java.lang.annotation.ElementType.CONSTRUCTOR;
+            import static java.lang.annotation.ElementType.FIELD;
+            import static java.lang.annotation.ElementType.METHOD;
+            import static java.lang.annotation.ElementType.PACKAGE;
+            import static java.lang.annotation.ElementType.TYPE;
+            import static java.lang.annotation.RetentionPolicy.CLASS;
+
+            import java.lang.annotation.Retention;
+            import java.lang.annotation.Target;
+
+            @Retention(CLASS)
+            @Target({TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
+            public @interface UseExperimental {
+                Class<?> markerClass();
+            }
+        """.trimIndent())
+
         // The contents of Experimental.kt from the Kotlin standard library.
         val EXPERIMENTAL_KT: TestFile = kotlin("""
             package kotlin

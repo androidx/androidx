@@ -28,8 +28,6 @@ plugins {
 sourceSets {
     test.resources.srcDirs(
             project(":annotation:annotation-experimental-lint-integration-tests")
-                    .projectDir.toString() + "/src/main",
-            project(":annotation:annotation-experimental")
                     .projectDir.toString() + "/src/main"
     )
 }
