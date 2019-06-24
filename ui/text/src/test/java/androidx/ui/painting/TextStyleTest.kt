@@ -147,15 +147,6 @@ class TextStyleTest {
         assertThat(textStyle.decoration).isEqualTo(decoration)
     }
 
-    /*@Test
-    fun `constructor with customized debugLabel`() {
-        val label = "foo"
-
-        val textStyle = TextStyle(debugLabel = label)
-
-        assertThat(textStyle.debugLabel).isEqualTo(label)
-    }*/
-
     @Test
     fun `constructor with customized fontFamily`() {
         val fontFamily = FontFamily(genericFamily = "sans-serif")
@@ -406,29 +397,6 @@ class TextStyleTest {
         assertThat(newTextStyle.baselineShift).isEqualTo(otherBaselineShift)
     }
 
-//    @Test
-//    fun `merge with other's height is null should use this' height`() {
-//        val height = 123.0f
-//        val textStyle = TextStyle(lineHeight = height)
-//        val otherTextStyle = TextStyle()
-//
-//        val newTextStyle = textStyle.merge(otherTextStyle)
-//
-//        assertThat(newTextStyle.lineHeight).isEqualTo(height)
-//    }
-//
-//    @Test
-//    fun `merge with other's height is set should use other's height`() {
-//        val height = 123.0f
-//        val otherHeight = 200.0f
-//        val textStyle = TextStyle(lineHeight = height)
-//        val otherTextStyle = TextStyle(lineHeight = otherHeight)
-//
-//        val newTextStyle = textStyle.merge(otherTextStyle)
-//
-//        assertThat(newTextStyle.lineHeight).isEqualTo(otherHeight)
-//    }
-//
     @Test
     fun `merge with other's background is null should use this' background`() {
         val color = Color(0xFF00FF00.toInt())
@@ -1137,30 +1105,6 @@ class TextStyleTest {
         assertThat(newTextStyle?.letterSpacing).isNull()
     }
 
-//    @Test
-//    fun `lerp letterSpacing with a and b are not Null`() {
-//        val letterSpacing1 = 1.0f
-//        val letterSpacing2 = 3.0f
-//        val t = 0.8f
-//        val textStyle1 = TextStyle(
-//            fontSize = 4.0f,
-//            wordSpacing = 1.0f,
-//            letterSpacing = letterSpacing1,
-//            lineHeight = 123.0f
-//        )
-//        val textStyle2 = TextStyle(
-//            fontSize = 7.0f,
-//            wordSpacing = 2.0f,
-//            letterSpacing = letterSpacing2,
-//            lineHeight = 20.0f
-//        )
-//
-//        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-//
-//        // a + (b - a) * t = 1.0f + (3.0f - 1.0f) * 0.8f = 2.6f
-//        assertThat(newTextStyle?.letterSpacing).isEqualTo(2.6f)
-//    }
-
     @Test
     fun `lerp wordSpacing with a is Null and t is smaller than half`() {
         val wordSpacing = 2.0f
@@ -1205,30 +1149,6 @@ class TextStyleTest {
         assertThat(newTextStyle?.wordSpacing).isNull()
     }
 
-//    @Test
-//    fun `lerp wordSpacing with a and b are not Null`() {
-//        val wordSpacing1 = 1.0f
-//        val wordSpacing2 = 3.0f
-//        val t = 0.8f
-//        val textStyle1 = TextStyle(
-//            fontSize = 4.0f,
-//            wordSpacing = wordSpacing1,
-//            letterSpacing = 2.2f,
-//            lineHeight = 123.0f
-//        )
-//        val textStyle2 = TextStyle(
-//            fontSize = 7.0f,
-//            wordSpacing = wordSpacing2,
-//            letterSpacing = 3.0f,
-//            lineHeight = 20.0f
-//        )
-//
-//        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-//
-//        // a + (b - a) * t = 1.0f + (3.0f - 1.0f) * 0.8f = 2.6f
-//        assertThat(newTextStyle?.wordSpacing).isEqualTo(2.6f)
-//    }
-//
     @Test
     fun `lerp baselineShift with a is Null and t is smaller than half`() {
         val baselineShift = BaselineShift.Superscript
@@ -1344,64 +1264,6 @@ class TextStyleTest {
         assertThat(newTextStyle?.textGeometricTransform)
             .isEqualTo(lerp(textTransform1, textTransform2, t))
     }
-
-//    @Test
-//    fun `lerp height with a is Null and t is smaller than half`() {
-//        val height = 88.0f
-//        val t = 0.2f
-//        val textStyle = TextStyle(lineHeight = height)
-//
-//        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-//
-//        assertThat(newTextStyle?.lineHeight).isNull()
-//    }
-//
-//    @Test
-//    fun `lerp height with a is Null and t is larger than half`() {
-//        val height = 88.0f
-//        val t = 0.8f
-//        val textStyle = TextStyle(lineHeight = height)
-//
-//        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-//
-//        assertThat(newTextStyle?.lineHeight).isEqualTo(height)
-//    }
-//
-//    @Test
-//    fun `lerp height with b is Null and t is smaller than half`() {
-//        val height = 88.0f
-//        val t = 0.2f
-//        val textStyle = TextStyle(lineHeight = height)
-//
-//        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-//
-//        assertThat(newTextStyle?.lineHeight).isEqualTo(height)
-//    }
-//
-//    @Test
-//    fun `lerp height with b is Null and t is larger than half`() {
-//        val height = 88.0f
-//        val t = 0.8f
-//        val textStyle = TextStyle(lineHeight = height)
-//
-//        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-//
-//        assertThat(newTextStyle?.lineHeight).isNull()
-//    }
-//
-//    @Test
-//    fun `lerp height with a and b are not Null`() {
-//        val height1 = 88.0f
-//        val height2 = 128.0f
-//        val t = 0.8f
-//        val textStyle1 = TextStyle(lineHeight = height1)
-//        val textStyle2 = TextStyle(lineHeight = height2)
-//
-//        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-//
-//        // a + (b - a) * t = 88.0 + (128.0 - 88.0) * 0.8 = 120.0
-//        assertThat(newTextStyle?.lineHeight).isEqualTo(120.0f)
-//    }
 
     @Test
     fun `lerp locale with a is Null and t is smaller than half`() {
