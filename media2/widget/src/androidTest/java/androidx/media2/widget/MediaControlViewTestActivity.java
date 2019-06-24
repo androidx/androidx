@@ -24,7 +24,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.media2.widget.test.R;
 
 /**
- * A minimal application for {@link MediaControlViewTest}.
+ * A minimal application for testing {@link MediaControlView}.
  */
 public class MediaControlViewTestActivity extends FragmentActivity {
     private SurfaceView mSurfaceView;
