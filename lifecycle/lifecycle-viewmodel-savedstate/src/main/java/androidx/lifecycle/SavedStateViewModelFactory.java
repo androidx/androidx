@@ -29,49 +29,52 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
- * {@link androidx.lifecycle.ViewModelProvider.Factory} that can create ViewModels accessing and contributing
- * to a saved state via {@link SavedStateHandle} received in a constructor. If {@code defaultArgs}
- * bundle was passed into the constructor, it will provide default values in
+ * {@link androidx.lifecycle.ViewModelProvider.Factory} that can create ViewModels accessing and
+ * contributing to a saved state via {@link SavedStateHandle} received in a constructor. If
+ * {@code defaultArgs} bundle was passed into the constructor, it will provide default values in
  * {@code SavedStateHandle}.
  * <p>
- * If ViewModel is instance of {@link androidx.lifecycle.AndroidViewModel}, it looks for a constructor that
- * receives an {@link Application} and {@link SavedStateHandle} (in this order), otherwise
- * it looks for a constructor that receives {@link SavedStateHandle} only.
+ * If ViewModel is instance of {@link androidx.lifecycle.AndroidViewModel}, it looks for a
+ * constructor that receives an {@link Application} and {@link SavedStateHandle} (in this order),
+ * otherwise it looks for a constructor that receives {@link SavedStateHandle} only.
  */
-public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
+public final class SavedStateViewModelFactory extends AbstractSavedStateViewModelFactory {
     private final Application mApplication;
     private final ViewModelProvider.AndroidViewModelFactory mFactory;
 
     /**
-     * Creates {@link SavedStateVMFactory}.
+     * Creates {@link SavedStateViewModelFactory}.
      * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code activity}.
+     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
+     * scoped to the given {@code activity}.
      *
      * @param application an application
-     * @param owner {@link SavedStateRegistryOwner} that will provide restored state for created
-     * {@link androidx.lifecycle.ViewModel ViewModels}
+     * @param owner       {@link SavedStateRegistryOwner} that will provide restored state for
+     *                                                   created
+     *                    {@link androidx.lifecycle.ViewModel ViewModels}
      */
-    public SavedStateVMFactory(@NonNull Application application,
+    public SavedStateViewModelFactory(@NonNull Application application,
             @NonNull SavedStateRegistryOwner owner) {
         this(application, owner, null);
     }
 
     /**
-     * Creates {@link SavedStateVMFactory}.
+     * Creates {@link SavedStateViewModelFactory}.
      * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code activity}.
+     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
+     * scoped to the given {@code activity}.
      *
      * @param application an application
-     * @param owner {@link SavedStateRegistryOwner} that will provide restored state for created
-     * {@link androidx.lifecycle.ViewModel ViewModels}
+     * @param owner       {@link SavedStateRegistryOwner} that will provide restored state for
+     *                                                   created
+     *                    {@link androidx.lifecycle.ViewModel ViewModels}
      * @param defaultArgs values from this {@code Bundle} will be used as defaults by
-     * {@link SavedStateHandle} if there is no previously saved state or previously saved state
-     * misses a value by such key.
+     *                    {@link SavedStateHandle} if there is no previously saved state or
+     *                    previously saved state
+     *                    misses a value by such key.
      */
     @SuppressLint("LambdaLast")
-    public SavedStateVMFactory(@NonNull Application application,
+    public SavedStateViewModelFactory(@NonNull Application application,
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs) {
         super(owner, defaultArgs);

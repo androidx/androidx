@@ -19,23 +19,12 @@
 
     <issue
         id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;owner&quot;, in androidx.lifecycle.AbstractSavedStateVMFactory.AbstractSavedStateVMFactory) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        message="Functional interface parameters (such as parameter 1, &quot;owner&quot;, in androidx.lifecycle.AbstractSavedStateViewModelFactory.AbstractSavedStateViewModelFactory) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @Nullable Bundle defaultArgs) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/lifecycle/AbstractSavedStateVMFactory.java"
+            file="src/main/java/androidx/lifecycle/AbstractSavedStateViewModelFactory.java"
             line="51"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 2, &quot;owner&quot;, in androidx.lifecycle.SavedStateVMFactory.SavedStateVMFactory) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @Nullable Bundle defaultArgs) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/lifecycle/SavedStateVMFactory.java"
-            line="117"
             column="13"/>
     </issue>
 
