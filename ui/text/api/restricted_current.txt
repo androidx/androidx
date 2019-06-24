@@ -4,5 +4,23 @@ package androidx.ui.painting {
   public final class TextPainter {
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextSpan {
+    ctor public TextSpan(androidx.ui.painting.TextStyle? style, String? text, java.util.List<androidx.ui.painting.TextSpan> children);
+    ctor public TextSpan();
+    method public androidx.ui.painting.basictypes.RenderComparison compareTo(androidx.ui.painting.TextSpan other);
+    method public java.util.List<androidx.ui.painting.TextSpan> getChildren();
+    method public androidx.ui.painting.TextSpan? getSpanForPosition(androidx.ui.engine.text.TextPosition position);
+    method public androidx.ui.painting.TextStyle? getStyle();
+    method public String? getText();
+    method public void setStyle(androidx.ui.painting.TextStyle? p);
+    method public void setText(String? p);
+    method public String toPlainText();
+    method public boolean visitTextSpan(kotlin.jvm.functions.Function1<? super androidx.ui.painting.TextSpan,java.lang.Boolean> visitor);
+  }
+
+  public final class TextSpanKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.ui.painting.AnnotatedString toAnnotatedString(androidx.ui.painting.TextSpan, boolean includeRootStyle = true);
+  }
+
 }
 
