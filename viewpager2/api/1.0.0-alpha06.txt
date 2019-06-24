@@ -33,12 +33,12 @@ package androidx.viewpager2.widget {
     ctor public CompositePageTransformer();
     method public void addTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer);
     method public void removeTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer);
-    method public void transformPage(android.view.View, @FloatRange(from=-1.0, to=1.0) float);
+    method public void transformPage(android.view.View, float);
   }
 
   public final class MarginPageTransformer implements androidx.viewpager2.widget.ViewPager2.PageTransformer {
     ctor public MarginPageTransformer(@Px int);
-    method public void transformPage(android.view.View, @FloatRange(from=-1.0, to=1.0) float);
+    method public void transformPage(android.view.View, float);
   }
 
   public final class ViewPager2 extends android.view.ViewGroup {
@@ -89,7 +89,7 @@ package androidx.viewpager2.widget {
   }
 
   public static interface ViewPager2.PageTransformer {
-    method public void transformPage(android.view.View, @FloatRange(from=-1.0, to=1.0) float);
+    method public void transformPage(android.view.View, float);
   }
 
 }
