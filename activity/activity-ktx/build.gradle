@@ -35,6 +35,9 @@ android {
 
 dependencies {
     api(project(":activity:activity"))
+    api(project(":lifecycle:lifecycle-runtime-ktx")) {
+        because 'Mirror activity dependency graph for -ktx artifacts'
+    }
     api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
