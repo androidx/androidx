@@ -74,11 +74,10 @@ public final class WorkManagerTestInitHelper {
      * useful in the context of testing when using WorkManager.
      */
     public static @Nullable TestDriver getTestDriver(@NonNull Context context) {
-        WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
-        if (workManager == null) {
+        try {
+            return (TestWorkManagerImpl) WorkManagerImpl.getInstance(context);
+        } catch (IllegalStateException e) {
             return null;
-        } else {
-            return (TestWorkManagerImpl) workManager;
         }
     }
 
