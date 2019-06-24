@@ -50,8 +50,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        mWorkManagerImpl = WorkManagerImpl.getInstance(getApplicationContext());
-        if (mWorkManagerImpl == null) {
+        try {
+            mWorkManagerImpl = WorkManagerImpl.getInstance(getApplicationContext());
+            mWorkManagerImpl.getProcessor().addExecutionListener(this);
+        } catch (IllegalStateException e) {
             // This can occur if...
             // 1. The app is performing an auto-backup.  Prior to O, JobScheduler could erroneously
             //    try to send commands to JobService in this state (b/32180780).  Since neither
@@ -68,12 +70,10 @@ public class SystemJobService extends JobService implements ExecutionListener {
                 throw new IllegalStateException("WorkManager needs to be initialized via a "
                         + "ContentProvider#onCreate() or an Application#onCreate().");
             }
-            Logger.get().warning(TAG, "Could not find WorkManager instance; this may be because an "
-                    + "auto-backup is in progress. Ignoring JobScheduler commands for now. Please "
-                    + "make sure that you are initializing WorkManager if you have manually "
+            Logger.get().warning(TAG, "Could not find WorkManager instance; this may be because "
+                    + "an auto-backup is in progress. Ignoring JobScheduler commands for now. "
+                    + "Please make sure that you are initializing WorkManager if you have manually "
                     + "disabled WorkManagerInitializer.");
-        } else {
-            mWorkManagerImpl.getProcessor().addExecutionListener(this);
         }
     }
 

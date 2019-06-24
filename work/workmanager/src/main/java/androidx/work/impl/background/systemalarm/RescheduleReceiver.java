@@ -35,15 +35,15 @@ public class RescheduleReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Logger.get().debug(TAG, String.format("Received intent %s", intent));
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
-            if (workManager == null) {
+            try {
+                WorkManagerImpl workManager = WorkManagerImpl.getInstance(context);
+                final PendingResult pendingResult = goAsync();
+                workManager.setReschedulePendingResult(pendingResult);
+            } catch (IllegalStateException e) {
                 // WorkManager has not already been initialized.
                 Logger.get().error(TAG,
                         "Cannot reschedule jobs. WorkManager needs to be initialized via a "
                                 + "ContentProvider#onCreate() or an Application#onCreate().");
-            } else {
-                final PendingResult pendingResult = goAsync();
-                workManager.setReschedulePendingResult(pendingResult);
             }
         } else {
             Intent reschedule = CommandHandler.createRescheduleIntent(context);
