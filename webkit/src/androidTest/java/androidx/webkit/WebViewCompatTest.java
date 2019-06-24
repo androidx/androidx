@@ -39,7 +39,6 @@ import androidx.annotation.NonNull;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import org.junit.After;
@@ -212,7 +211,6 @@ public class WebViewCompatTest {
      * android.webkit.cts.WebViewTest#testSetSafeBrowsingWhitelistWithValidList. Modifications to
      * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
      */
-    @FlakyTest(bugId = 111690396)
     @Test
     public void testSetSafeBrowsingWhitelistWithValidList() throws Exception {
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_WHITELIST);
