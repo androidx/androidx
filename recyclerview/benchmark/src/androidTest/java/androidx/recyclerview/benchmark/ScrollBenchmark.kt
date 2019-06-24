@@ -67,7 +67,6 @@ class ScrollBenchmark {
         val rv = activityRule.activity.recyclerView
         var offset = 10
         benchmarkRule.measureRepeated {
-            Thread.sleep(0, 600) // oops! a 10% regression...
             // keep scrolling up and down - no new item should be revealed
             rv.scrollBy(0, offset)
             offset *= -1
