@@ -18,7 +18,6 @@ package androidx.viewpager2.widget;
 
 import android.view.View;
 
-import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.viewpager2.widget.ViewPager2.PageTransformer;
 
@@ -49,8 +48,7 @@ public final class CompositePageTransformer implements PageTransformer {
     }
 
     @Override
-    public void transformPage(@NonNull View page,
-            @FloatRange(from = -1.0, to = 1.0) float position) {
+    public void transformPage(@NonNull View page, float position) {
         for (PageTransformer transformer : mTransformers) {
             transformer.transformPage(page, position);
         }

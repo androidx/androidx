@@ -35,8 +35,11 @@ import org.hamcrest.Matchers.closeTo
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 private const val LABEL_NONE = "None"
 private const val LABEL_50_PX = "Margin 50px"
@@ -47,11 +50,36 @@ private const val LABEL_32_DP = "Margin 32dp"
 class MarginPageTransformerTest :
     BaseTest<PageTransformerActivity>(PageTransformerActivity::class.java) {
 
-    // TODO: break down / refactor
     @Test
-    fun testMargin() {
+    fun testMargin_offscreenLimit_noChange() {
+        testMargin(null)
+    }
+
+    @Test
+    fun testMargin_offscreenLimit_default() {
+        testMargin(ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT)
+    }
+
+    @Ignore("Test logic needs updating (visible pages detection).") // TODO: re-enable
+    @Test
+    fun testMargin_offscreenLimit_1() {
+        testMargin(1)
+    }
+
+    @Ignore("Test logic needs updating (visible pages detection).") // TODO: re-enable
+    @Test
+    fun testMargin_offscreenLimit_4() {
+        testMargin(4)
+    }
+
+    // TODO: break down / refactor
+    /**
+     * @param offscreenLimit <code>null</code> for no change. Otherwise an explicit value.
+     */
+    private fun testMargin(offscreenLimit: Int?) {
 
         // given
+        setOffscreenLimit(offscreenLimit)
         val recyclerView = viewPager.getChildAt(0) as RecyclerView
         val layoutManager = recyclerView.layoutManager as LinearLayoutManager
 
@@ -82,6 +110,7 @@ class MarginPageTransformerTest :
 
                 when (viewPager.orientation) {
                     ORIENTATION_HORIZONTAL -> {
+                        // TODO: move assertions from UiThread to TestThread
                         assertThat(Math.abs(pageB.x - pageA.x) - width, closeTo(marginPx, 1.0))
                         assertThat(pageA.translationY, equalTo(0f))
                         assertThat(pageB.translationY, equalTo(0f))
@@ -106,6 +135,21 @@ class MarginPageTransformerTest :
                 repeat(swipeCount) { swipeToPreviousPage() }
             }
         }
+    }
+
+    private fun setOffscreenLimit(offscreenLimit: Int?) {
+        if (offscreenLimit != null) {
+            // TODO: consider replacing by activityTestRule.runOnUiThread
+            val latch = CountDownLatch(1)
+            viewPager.post {
+                viewPager.offscreenPageLimit = offscreenLimit
+                latch.countDown()
+            }
+            assertThat(latch.await(5, TimeUnit.SECONDS), equalTo(true))
+        }
+
+        val expected = offscreenLimit ?: ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT
+        assertThat(viewPager.offscreenPageLimit, equalTo(expected))
     }
 
     /** @return margin in px */
