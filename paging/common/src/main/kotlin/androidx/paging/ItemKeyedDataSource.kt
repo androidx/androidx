@@ -20,10 +20,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.arch.core.util.Function
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.DataSource.KeyType.ITEM_KEYED
+import androidx.paging.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Incremental data loader for paging keyed content, where loaded content uses previously loaded
+* Incremental data loader for paging keyed content, where loaded content uses previously loaded
  * items as input to future loads.
  *
  * Implement a DataSource using ItemKeyedDataSource if you need to use data from item `N - 1`
@@ -193,7 +194,7 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     }
 
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
-    internal final override fun load(params: Params<Key>): ListenableFuture<out BaseResult<Value>> {
+    internal final override suspend fun load(params: Params<Key>): BaseResult<Value> {
         when (params.type) {
             LoadType.INITIAL -> {
                 val initParams = LoadInitialParams(
@@ -201,15 +202,15 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                     params.initialLoadSize,
                     params.placeholdersEnabled
                 )
-                return loadInitial(initParams)
+                return loadInitial(initParams).await()
             }
             LoadType.START -> {
                 val loadParams = LoadParams(params.key!!, params.pageSize)
-                return loadBefore(loadParams)
+                return loadBefore(loadParams).await()
             }
             LoadType.END -> {
                 val loadParams = LoadParams(params.key!!, params.pageSize)
-                return loadAfter(loadParams)
+                return loadAfter(loadParams).await()
             }
         }
     }
@@ -233,14 +234,19 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                     future.setException(error)
                 }
             }
-            loadInitial(
-                LoadInitialParams(
-                    params.requestedInitialKey,
-                    params.requestedLoadSize,
-                    params.placeholdersEnabled
-                ),
-                callback
-            )
+
+            try {
+                loadInitial(
+                    LoadInitialParams(
+                        params.requestedInitialKey,
+                        params.requestedLoadSize,
+                        params.placeholdersEnabled
+                    ),
+                    callback
+                )
+            } catch (e: Exception) {
+                future.setException(e)
+            }
         }
         return future
     }

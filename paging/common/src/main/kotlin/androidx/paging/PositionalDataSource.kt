@@ -23,6 +23,7 @@ import androidx.arch.core.util.Function
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.PositionalDataSource.LoadInitialCallback
+import androidx.paging.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
@@ -350,7 +351,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
     }
 
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
-    internal final override fun load(params: Params<Int>): ListenableFuture<out BaseResult<T>> {
+    internal final override suspend fun load(params: Params<Int>): BaseResult<T> {
         if (params.type == LoadType.INITIAL) {
             var initialPosition = 0
             var initialLoadSize = params.initialLoadSize
@@ -376,7 +377,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                 params.pageSize,
                 params.placeholdersEnabled
             )
-            return loadInitial(initParams)
+            return loadInitial(initParams).await()
         } else {
             var startIndex = params.key!!
             var loadSize = params.pageSize
@@ -384,7 +385,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                 loadSize = minOf(loadSize, startIndex + 1)
                 startIndex = startIndex - loadSize + 1
             }
-            return loadRange(LoadRangeParams(startIndex, loadSize))
+            return loadRange(LoadRangeParams(startIndex, loadSize)).await()
         }
     }
 

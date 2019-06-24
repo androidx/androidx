@@ -17,9 +17,6 @@
 package androidx.paging
 
 import androidx.arch.core.util.Function
-import androidx.paging.futures.DirectExecutor
-import androidx.paging.futures.transform
-import com.google.common.util.concurrent.ListenableFuture
 import java.util.IdentityHashMap
 
 /**
@@ -67,13 +64,10 @@ internal open class WrapperDataSource<Key : Any, ValueFrom : Any, ValueTo : Any>
         }
     }
 
-    override fun load(params: Params<Key>): ListenableFuture<out BaseResult<ValueTo>> =
-        source.load(params).transform(
-            Function { input ->
-                val result = BaseResult.convert(input, listFunction)
-                stashKeysIfNeeded(input.data, result.data)
-                result
-            },
-            DirectExecutor
-        )
+    override suspend fun load(params: Params<Key>): BaseResult<ValueTo> {
+        val input = source.load(params)
+        val result = BaseResult.convert(input, listFunction)
+        stashKeysIfNeeded(input.data, result.data)
+        return result
+    }
 }

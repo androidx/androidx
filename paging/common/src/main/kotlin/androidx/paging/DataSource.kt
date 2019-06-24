@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
-import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
@@ -443,16 +442,9 @@ internal constructor(internal val type: KeyType) {
     /**
      * @param K Type of the key used to query the [DataSource].
      * @property key Can be `null` for init, otherwise non-null
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     class Params<K : Any> internal constructor(
-        /**
-         * @hide
-         */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        val type: LoadType,
+        internal val type: LoadType,
         val key: K?,
         val initialLoadSize: Int,
         val placeholdersEnabled: Boolean,
@@ -575,7 +567,7 @@ internal constructor(internal val type: KeyType) {
         ITEM_KEYED
     }
 
-    internal abstract fun load(params: Params<Key>): ListenableFuture<out BaseResult<Value>>
+    internal abstract suspend fun load(params: Params<Key>): BaseResult<Value>
 
     internal abstract fun getKeyInternal(item: Value): Key
 

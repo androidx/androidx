@@ -30,10 +30,12 @@ import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadType
 import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.future
 import androidx.paging.futures.transform
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import java.lang.ref.WeakReference
 import java.util.AbstractList
 import java.util.ArrayList
@@ -199,7 +201,11 @@ abstract class PagedList<T : Any> : AbstractList<T> {
                 config.pageSize
             )
 
-            return dataSource.load(params).transform(
+            val future = coroutineScope.future(initialLoadExecutor.asCoroutineDispatcher()) {
+                dataSource.load(params)
+            }
+
+            return future.transform(
                 Function { initialResult ->
                     dataSource.initExecutor(fetchExecutor)
                     ContiguousPagedList(

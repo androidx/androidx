@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.paging.DataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>):
+    Added method androidx.paging.DataSource.load$lintWithKotlin(androidx.paging.DataSource.Params<Key>,kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>)
 AddedAbstractMethod: androidx.paging.PagedList#isContiguous():
     Added method androidx.paging.PagedList.isContiguous()
 
