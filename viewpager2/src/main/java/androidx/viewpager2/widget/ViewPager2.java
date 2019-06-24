@@ -42,7 +42,6 @@ import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
-import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -1003,10 +1002,6 @@ public final class ViewPager2 extends ViewGroup {
      * A PageTransformer is invoked whenever a visible/attached page is scrolled.
      * This offers an opportunity for the application to apply a custom transformation
      * to the page views using animation properties.
-     *
-     * <p>As property animation is only supported as of Android 3.0 and forward,
-     * setting a PageTransformer on a ViewPager on earlier platform versions will
-     * be ignored.</p>
      */
     public interface PageTransformer {
 
@@ -1016,9 +1011,13 @@ public final class ViewPager2 extends ViewGroup {
          * @param page Apply the transformation to this page
          * @param position Position of page relative to the current front-and-center
          *                 position of the pager. 0 is front and center. 1 is one full
-         *                 page position to the right, and -1 is one page position to the left.
+         *                 page position to the right, and -2 is two pages to the left.
+         *                 Minimum / maximum observed values depend on how many pages we keep
+         *                 attached, which depends on offscreenPageLimit.
+         *
+         * @see #setOffscreenPageLimit(int)
          */
-        void transformPage(@NonNull View page, @FloatRange(from = -1.0, to = 1.0) float position);
+        void transformPage(@NonNull View page, float position);
     }
 
     /**
