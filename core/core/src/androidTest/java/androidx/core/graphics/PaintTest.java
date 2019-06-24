@@ -21,12 +21,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.BlendMode;
-import android.graphics.BlendModeColorFilter;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
 import android.os.Build;
@@ -118,30 +114,6 @@ public class PaintTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    public void testNullBlendModeRemovesBlendModeColorFilter() {
-        Paint p = new Paint();
-        assertTrue(PaintCompat.setBlendModeColorFilter(p, Color.RED, BlendModeCompat.CLEAR));
-        ColorFilter filter = p.getColorFilter();
-        assertTrue(filter instanceof BlendModeColorFilter);
-
-        PaintCompat.setBlendModeColorFilter(p, 0, null);
-        assertNull(p.getColorFilter());
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
-    public void testNullBlendModeRemovesPorterDuffColorFilter() {
-        Paint p = new Paint();
-        assertTrue(PaintCompat.setBlendModeColorFilter(p, Color.RED, BlendModeCompat.CLEAR));
-        ColorFilter filter = p.getColorFilter();
-        assertTrue(filter instanceof PorterDuffColorFilter);
-
-        PaintCompat.setBlendModeColorFilter(p, 0, null);
-        assertNull(p.getColorFilter());
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     public void testNullBlendModeRemovesBlendMode() {
         Paint p = new Paint();
         assertTrue(PaintCompat.setBlendMode(p, BlendModeCompat.CLEAR));
@@ -203,7 +175,7 @@ public class PaintTest {
         // PorterDuffXferMode
         Xfermode xfermode = p.getXfermode();
         if (compat != null) {
-            assertEquals(mode, PaintCompat.obtainPorterDuffFromCompat(compat));
+            assertEquals(mode, BlendModeUtils.obtainPorterDuffFromCompat(compat));
         }
 
         if (mode != null) {
