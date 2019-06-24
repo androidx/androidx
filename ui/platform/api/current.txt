@@ -21,7 +21,6 @@ package androidx.ui.core {
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
-    method public void requestRelayout(androidx.ui.core.LayoutNode layoutNode);
     method public void sendEvent(android.view.MotionEvent event);
     method public void setCommitUnsubscribe(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void setConstraints(androidx.ui.core.Constraints p);
