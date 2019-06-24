@@ -34,6 +34,12 @@ import androidx.ui.engine.window.Locale
  *   directionality of the paragraph, as well as the meaning of
  *   [TextAlign.Start] and [TextAlign.End] in the `textAlign` field.
  *
+ * @param textIndent The amount of indentation applied to the affected paragraph. A paragraph is
+ *   affected if any of its character is covered by the TextSpan.
+ *
+ * @param lineHeight The minimum height of the line boxes, as a multiple of the
+ *   font size.
+ *
  * @param fontWeight The typeface thickness to use when painting the text
  *   (e.g., bold).
  *
@@ -50,8 +56,8 @@ import androidx.ui.engine.window.Locale
  * @param fontSize The size of glyphs (in logical pixels) to use when painting
  *   the text.
  *
- * @param lineHeight The minimum height of the line boxes, as a multiple of the
- *   font size.
+ * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
+ *   style cannot be found in the provided custom font family.
  *
  * @param ellipsis Whether to ellipsize overflowing text. If `maxLines` is
  *   not null, ellipsis is applied to the last rendered line, if that line
@@ -60,52 +66,21 @@ import androidx.ui.engine.window.Locale
  *
  * @param locale The locale used to select region-specific glyphs.
  *
- * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
- *                   style cannot be found in the provided custom font family.
  */
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
     val textDirection: TextDirection? = null,
+    val textIndent: TextIndent? = null,
+    val lineHeight: Float? = null,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val maxLines: Int? = null,
     val fontFamily: FontFamily? = null,
     val fontSize: Float? = null,
-    val lineHeight: Float? = null,
-    // TODO(Migration/siyamed): pass to TextLayout
+    val fontSynthesis: FontSynthesis? = null,
     val ellipsis: Boolean? = null,
-    val locale: Locale? = null,
-    val fontSynthesis: FontSynthesis? = null
-) {
-
-    override fun toString(): String {
-        return "ParagraphStyle(" +
-            "textAlign: ${textAlign ?: "unspecified"}, " +
-            "textDirection: ${textDirection ?: "unspecified"}, " +
-            "fontWeight: ${fontWeight ?: "unspecified"}, " +
-            "fontStyle: ${fontStyle ?: "unspecified"}, " +
-            "maxLines: ${maxLines ?: "unspecified"}, " +
-            "fontFamily: ${fontFamily ?: "unspecified"}, " +
-            "fontSize: ${fontSize ?: "unspecified"}, " +
-            "lineHeight: ${if (lineHeight != null) "${lineHeight}x" else "unspecified"}, " +
-            "ellipsis: ${if (ellipsis != null) "\"$ellipsis\"" else "unspecified"}, " +
-            "locale: ${locale ?: "unspecified"}, " +
-            "fontSynthesis: ${fontSynthesis ?: "unspecified"}" +
-            ")"
-    }
-
-    fun getTextStyle(): TextStyle {
-        return TextStyle(
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontFamily = fontFamily,
-            fontSize = fontSize,
-            locale = locale,
-            lineHeight = lineHeight,
-            fontSynthesis = fontSynthesis
-        )
-    }
-}
+    val locale: Locale? = null
+)
 
 /**
  * Returns true if this [ParagraphStyle] contains any font style attributes set.
