@@ -665,6 +665,51 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    // When a new child is added, the parent must be remeasured because we don't know
+    // if it affects the size and the child's measure() must be called as well.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testRelayoutOnNewChild() {
+        val drawChild = DoDraw()
+
+        val outerColor = Color(0xFF000080.toInt())
+        val innerColor = Color(0xFFFFFFFF.toInt())
+        runOnUiThread {
+            activity.setContent {
+                CraneWrapper {
+                    AtLeastSize(size = 30.ipx) {
+                        Draw { canvas, parentSize ->
+                            drawLatch.countDown()
+                            val paint = Paint()
+                            paint.color = outerColor
+                            canvas.drawRect(parentSize.toRect(), paint)
+                        }
+                        if (drawChild.value) {
+                            Padding(size = 20.ipx) {
+                                AtLeastSize(size = 20.ipx) {
+                                    Draw { canvas, parentSize ->
+                                        drawLatch.countDown()
+                                        val paint = Paint()
+                                        paint.color = innerColor
+                                        canvas.drawRect(parentSize.toRect(), paint)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // The padded area doesn't draw
+        validateSquareColors(outerColor = outerColor, innerColor = outerColor, size = 10)
+
+        drawLatch = CountDownLatch(1)
+        runOnUiThread { drawChild.value = true }
+
+        validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 20)
+    }
+
     // We only need this because IR compiler doesn't like converting lambdas to Runnables
     private fun runOnUiThread(block: () -> Unit) {
         val runnable: Runnable = object : Runnable {
@@ -1045,3 +1090,6 @@ class SquareModel(
 
 @Model
 class OffsetModel(var offset: IntPx)
+
+@Model
+class DoDraw(var value: Boolean = false)
