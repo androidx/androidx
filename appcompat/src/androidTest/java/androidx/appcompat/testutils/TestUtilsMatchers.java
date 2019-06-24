@@ -30,6 +30,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.test.espresso.matcher.BoundedMatcher;
 
+import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -41,7 +42,7 @@ public class TestUtilsMatchers {
      * Returns a matcher that matches <code>ImageView</code>s which have drawable flat-filled
      * with the specific color.
      */
-    public static Matcher drawable(@ColorInt final int color) {
+    public static Matcher<View> drawable(@ColorInt final int color) {
         return new BoundedMatcher<View, ImageView>(ImageView.class) {
             private String failedComparisonDescription;
 
@@ -81,7 +82,7 @@ public class TestUtilsMatchers {
      * Returns a matcher that matches <code>View</code>s which have background flat-filled
      * with the specific color.
      */
-    public static Matcher isBackground(@ColorInt final int color) {
+    public static Matcher<View> isBackground(@ColorInt final int color) {
         return isBackground(color, false);
     }
 
@@ -89,7 +90,8 @@ public class TestUtilsMatchers {
      * Returns a matcher that matches <code>View</code>s which have background flat-filled
      * with the specific color.
      */
-    public static Matcher isBackground(@ColorInt final int color, final boolean onlyTestCenter) {
+    public static Matcher<View> isBackground(
+            @ColorInt final int color, final boolean onlyTestCenter) {
         return new BoundedMatcher<View, View>(View.class) {
             private String failedComparisonDescription;
 
@@ -132,7 +134,7 @@ public class TestUtilsMatchers {
      * Returns a matcher that matches <code>View</code>s whose combined background starting
      * from the view and up its ancestor chain matches the specified color.
      */
-    public static Matcher isCombinedBackground(@ColorInt final int color,
+    public static Matcher<View> isCombinedBackground(@ColorInt final int color,
             final boolean onlyTestCenterPixel) {
         return new BoundedMatcher<View, View>(View.class) {
             private String failedComparisonDescription;
@@ -173,7 +175,7 @@ public class TestUtilsMatchers {
     /**
      * Returns a matcher that matches <code>CheckedTextView</code>s which are in checked state.
      */
-    public static Matcher isCheckedTextView() {
+    public static Matcher<View> isCheckedTextView() {
         return new BoundedMatcher<View, CheckedTextView>(CheckedTextView.class) {
             private String failedDescription;
 
@@ -199,7 +201,7 @@ public class TestUtilsMatchers {
     /**
      * Returns a matcher that matches <code>CheckedTextView</code>s which are in checked state.
      */
-    public static Matcher isNonCheckedTextView() {
+    public static Matcher<View> isNonCheckedTextView() {
         return new BoundedMatcher<View, CheckedTextView>(CheckedTextView.class) {
             private String failedDescription;
 
@@ -245,7 +247,7 @@ public class TestUtilsMatchers {
     /**
      * Returns a matcher that matches Views which implement TintableBackgroundView.
      */
-    public static Matcher<View> isTintableBackgroundView() {
+    static Matcher<View> isTintableBackgroundView() {
         return new TypeSafeMatcher<View>() {
             @Override
             public void describeTo(Description description) {
@@ -388,7 +390,7 @@ public class TestUtilsMatchers {
      * Returns a matcher that matches <code>SwitchCompat</code>s whose thumb drawable is flat-filled
      * with the specific color.
      */
-    public static Matcher thumbColor(@ColorInt final int color) {
+    public static Matcher<SwitchCompat> thumbColor(@ColorInt final int color) {
         return new TypeSafeMatcher<SwitchCompat>() {
             private String mFailedComparisonDescription;
 
@@ -431,7 +433,7 @@ public class TestUtilsMatchers {
      * Returns a matcher that matches <code>SwitchCompat</code>s whose track drawable is flat-filled
      * with the specific color.
      */
-    public static Matcher trackColor(@ColorInt final int color) {
+    public static Matcher<SwitchCompat> trackColor(@ColorInt final int color) {
         return new TypeSafeMatcher<SwitchCompat>() {
             private String mFailedComparisonDescription;
 
@@ -466,6 +468,23 @@ public class TestUtilsMatchers {
                     mFailedComparisonDescription = t.getMessage();
                     return false;
                 }
+            }
+        };
+    }
+
+    /**
+     * Wraps an extends-View matcher with a View matcher for compatibility with Espresso APIs.
+     */
+    public static Matcher<View> asViewMatcher(final Matcher<? extends View> matcher) {
+        return new BaseMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                matcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matches(Object item) {
+                return matcher.matches(item);
             }
         };
     }

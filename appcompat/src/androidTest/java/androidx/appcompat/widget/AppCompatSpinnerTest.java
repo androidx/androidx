@@ -15,6 +15,8 @@
  */
 package androidx.appcompat.widget;
 
+import static androidx.appcompat.testutils.TestUtilsActions.setScreenOrientation;
+import static androidx.appcompat.testutils.TestUtilsMatchers.asViewMatcher;
 import static androidx.appcompat.testutils.TestUtilsMatchers.hasChild;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isCombinedBackground;
 import static androidx.test.espresso.Espresso.onView;
@@ -23,6 +25,7 @@ import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
+import static androidx.test.espresso.matcher.ViewMatchers.isRoot;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -37,8 +40,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.os.Build;
-import android.os.SystemClock;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -63,7 +66,6 @@ import androidx.testutils.PollingCheck;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -90,12 +92,6 @@ public class AppCompatSpinnerTest
     public void setUp() {
         super.setUp();
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
-        setOrientation(true);
-    }
-
-    @After
-    public void cleanUp() {
-        setOrientation(true);
     }
 
     /**
@@ -103,11 +99,11 @@ public class AppCompatSpinnerTest
      * is themed with the specified color.
      */
     private void verifySpinnerPopupTheming(@IdRes int spinnerId,
-            @ColorRes int expectedPopupColorResId, boolean matchDropDownListView) {
+            @ColorRes int expectedPopupColorResId) {
         final Resources res = mActivityTestRule.getActivity().getResources();
         final @ColorInt int expectedPopupColor =
                 ResourcesCompat.getColor(res, expectedPopupColorResId, null);
-        final AppCompatSpinner spinner = (AppCompatSpinner) mContainer.findViewById(spinnerId);
+        final AppCompatSpinner spinner = mContainer.findViewById(spinnerId);
 
         // Click the spinner to show its popup content
         onView(withId(spinnerId)).perform(click());
@@ -125,11 +121,11 @@ public class AppCompatSpinnerTest
         // internal implementation details on which exact "chrome" part of the popup has the
         // matching background.
         String itemText = (String) spinner.getAdapter().getItem(2);
-        Matcher popupContentMatcher = hasChild(withText(itemText));
+        Matcher<ViewGroup> popupContentMatcher = hasChild(withText(itemText));
         // Note that we are only testing the center pixel of the combined popup background. This
         // is to "eliminate" otherwise hacky code that would need to skip over rounded corners and
         // drop shadow of the combined visual appearance of a popup.
-        onView(popupContentMatcher).inRoot(isPlatformPopup()).check(
+        onView(asViewMatcher(popupContentMatcher)).inRoot(isPlatformPopup()).check(
                 matches(isCombinedBackground(expectedPopupColor, true)));
 
         // Click an entry in the popup to dismiss it
@@ -141,36 +137,36 @@ public class AppCompatSpinnerTest
 
     @Test
     public void testPopupThemingFromXmlAttribute() {
-        verifySpinnerPopupTheming(R.id.view_magenta_themed_popup, R.color.test_magenta, true);
+        verifySpinnerPopupTheming(R.id.view_magenta_themed_popup, R.color.test_magenta);
     }
 
     @Test
     public void testUnthemedPopupRuntimeTheming() {
         final AppCompatSpinner spinner =
-                (AppCompatSpinner) mContainer.findViewById(R.id.view_unthemed_popup);
+                mContainer.findViewById(R.id.view_unthemed_popup);
         spinner.setPopupBackgroundResource(R.drawable.test_background_blue);
-        verifySpinnerPopupTheming(R.id.view_unthemed_popup, R.color.test_blue, false);
+        verifySpinnerPopupTheming(R.id.view_unthemed_popup, R.color.test_blue);
 
         // Set a different popup background
         spinner.setPopupBackgroundDrawable(ContextCompat.getDrawable(
                 mActivityTestRule.getActivity(), R.drawable.test_background_green));
-        verifySpinnerPopupTheming(R.id.view_unthemed_popup, R.color.test_green, false);
+        verifySpinnerPopupTheming(R.id.view_unthemed_popup, R.color.test_green);
     }
 
     @Test
     public void testThemedPopupRuntimeTheming() {
         final AppCompatSpinner spinner =
-                (AppCompatSpinner) mContainer.findViewById(R.id.view_ocean_themed_popup);
-        verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.ocean_default, true);
+                mContainer.findViewById(R.id.view_ocean_themed_popup);
+        verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.ocean_default);
 
         // Now set a different popup background
         spinner.setPopupBackgroundResource(R.drawable.test_background_red);
-        verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.test_red, false);
+        verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.test_red);
 
         // Set a different popup background
         spinner.setPopupBackgroundDrawable(ContextCompat.getDrawable(
                 mActivityTestRule.getActivity(), R.drawable.test_background_blue));
-        verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.test_blue, false);
+        verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.test_blue);
     }
 
     @MediumTest
@@ -191,15 +187,15 @@ public class AppCompatSpinnerTest
 
     @Test
     public void testChangeOrientationDialogPopupPersists() {
-        verifyChangeOrientationPopupPersists(R.id.spinner_dialog_popup, true);
+        verifyChangeOrientationPopupPersists(R.id.spinner_dialog_popup);
     }
 
     @Test
     public void testChangeOrientationDropdownPopupPersists() {
-        verifyChangeOrientationPopupPersists(R.id.spinner_dropdown_popup, false);
+        verifyChangeOrientationPopupPersists(R.id.spinner_dropdown_popup);
     }
 
-    private void verifyChangeOrientationPopupPersists(@IdRes int spinnerId, boolean isDialog) {
+    private void verifyChangeOrientationPopupPersists(@IdRes int spinnerId) {
         onView(withId(spinnerId)).perform(click());
         // Wait until the popup is showing
         waitUntilPopupIsShown((AppCompatSpinner) mActivity.findViewById(spinnerId));
@@ -210,11 +206,11 @@ public class AppCompatSpinnerTest
                 new Instrumentation.ActivityMonitor(mActivity.getClass().getName(), null, false);
         mInstrumentation.addMonitor(monitor);
 
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-        SystemClock.sleep(250);
+        onView(isRoot()).perform(
+                setScreenOrientation(mActivity, ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE));
 
-        mInstrumentation.waitForIdleSync();
         mActivity = (AppCompatSpinnerActivity) mInstrumentation.waitForMonitor(monitor);
+        mInstrumentation.waitForIdleSync();
 
         // Now we can get the new (post-rotation) instance of our spinner
         AppCompatSpinner newSpinner = mActivity.findViewById(spinnerId);
@@ -424,19 +420,5 @@ public class AppCompatSpinnerTest
 
         mContainer = mActivity.findViewById(R.id.container);
         mResources = mActivity.getResources();
-    }
-
-    private void setOrientation(final boolean toPortrait) {
-        final int desiredOrientation = toPortrait
-                ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-
-        if (mActivity.getRequestedOrientation() != desiredOrientation) {
-            mActivity.setRequestedOrientation(desiredOrientation);
-            SystemClock.sleep(250);
-            mActivity = mActivityTestRule.getActivity();
-            mContainer = mActivity.findViewById(R.id.container);
-            mResources = mActivity.getResources();
-        }
     }
 }

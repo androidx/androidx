@@ -44,6 +44,7 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.test.espresso.UiController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -68,10 +69,11 @@ public abstract class AppCompatBaseViewTest<A extends BaseTestActivity, T extend
     protected ViewGroup mContainer;
 
     protected A mActivity;
+    protected UiController mUiController;
     protected Resources mResources;
 
     public AppCompatBaseViewTest(Class<A> clazz) {
-        mActivityTestRule = new ActivityTestRule<A>(clazz);
+        mActivityTestRule = new ActivityTestRule<>(clazz);
     }
 
     @Before
