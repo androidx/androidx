@@ -511,6 +511,7 @@ package androidx.car.widget {
     method public void setScrollBarButtonTintColor(@ColorRes int);
     method public void setScrollBarContainerWidth(int);
     method public final void setScrollBarEnabled(boolean);
+    method public void setScrollBarGravity(int);
     method public void setScrollBarTopMargin(int);
     method public void setScrollbarThumbColor(@ColorRes int);
     method public void setScrollbarThumbEnabled(boolean);
