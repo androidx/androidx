@@ -18,7 +18,10 @@ package androidx.ui.core
 
 import android.util.Log
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.input.EditOperation
+import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.TextPainter
 
@@ -29,7 +32,17 @@ internal class InputFieldDelegate(
     /**
      * A text painter used for this InputField
      */
-    val textPainter: TextPainter
+    private val textPainter: TextPainter,
+
+    /**
+     * An edit processor used for this InputField
+     */
+    private val editProcessor: EditProcessor,
+
+    /**
+     * A callback called when new editor state is created.
+     */
+    private val onValueChange: (EditorState) -> Unit
 ) {
 
     /**
@@ -75,18 +88,42 @@ internal class InputFieldDelegate(
         textPainter.paint(canvas, Offset.zero)
     }
 
+    /**
+     * Called when edit operations are passed from TextInputService
+     *
+     * @param ops A list of edit operations.
+     */
+    fun onEditCommand(ops: List<EditOperation>) {
+        onValueChange(editProcessor.onEditCommands(ops))
+    }
+
+    /**
+     * Called when onPress event is fired.
+     *
+     * @param position The event position in widget coordinate.
+     */
     fun onPress(position: PxPosition) {
         // TODO(nona): Implement this function
         Log.d("InputFieldDelegate", "onPress: $position")
     }
 
+    /**
+     * Called when onDrag event is fired.
+     *
+     * @param position The event position in widget coordinate.
+     */
     fun onDragAt(position: PxPosition) {
         // TODO(nona): Implement this function
         Log.d("InputFieldDelegate", "onDrag: $position")
     }
 
+    /**
+     * Called when onRelease event is fired.
+     *
+     * @param position The event position in widget coordinate.
+     */
     fun onRelease(position: PxPosition) {
-        // TODO(nona): Implement this function
-        Log.d("InputFieldDelegate", "onRelease: $position")
+        val offset = textPainter.getPositionForOffset(position.toOffset())
+        onEditCommand(listOf(SetSelectionEditOp(offset, offset)))
     }
 }
