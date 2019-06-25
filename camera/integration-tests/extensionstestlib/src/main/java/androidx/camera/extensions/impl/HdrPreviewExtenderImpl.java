@@ -20,7 +20,6 @@ import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
@@ -31,8 +30,9 @@ import android.view.Surface;
  * don't need to implement this, unless this is used for related testing usage.
  */
 public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
-    private static final String TAG = "HDRImpl";
     private static final int DEFAULT_STAGE_ID = 0;
+
+    GLImage2SurfaceRenderer mRenderer;
 
     public HdrPreviewExtenderImpl() { }
 
@@ -67,20 +67,32 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     }
 
     private PreviewImageProcessorImpl mProcessor = new PreviewImageProcessorImpl() {
+        Surface mSurface;
+        Size mSize;
+
+
+        private void setWindowSurface() {
+            if (mSurface != null && mSize != null) {
+                mRenderer.setWindowSurface(mSurface, mSize.getWidth(), mSize.getHeight());
+            }
+        }
 
         @Override
         public void onOutputSurface(Surface surface, int imageFormat) {
+            mSurface = surface;
+            setWindowSurface();
         }
 
         @Override
         public void process(Image image, TotalCaptureResult result) {
-            Log.d(TAG, "process image");
+            mRenderer.renderTexture(image);
         }
 
-        Size mSize;
         @Override
         public void onResolutionUpdate(Size size) {
             mSize = size;
+            setWindowSurface();
+            mRenderer.setInput(size);
         }
 
         @Override
@@ -92,12 +104,13 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     @Override
     public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
             Context context) {
-
+        mRenderer = new GLImage2SurfaceRenderer();
     }
 
     @Override
     public void onDeInit() {
-
+        mRenderer.close();
+        mRenderer = null;
     }
 
     @Override
