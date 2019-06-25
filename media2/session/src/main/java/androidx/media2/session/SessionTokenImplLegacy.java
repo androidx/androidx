@@ -138,12 +138,14 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     }
 
     @Override
-    public @NonNull String getPackageName() {
+    @NonNull
+    public String getPackageName() {
         return mPackageName;
     }
 
     @Override
-    public @Nullable String getServiceName() {
+    @Nullable
+    public String getServiceName() {
         return mComponentName == null ? null : mComponentName.getClassName();
     }
 
@@ -153,7 +155,8 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     }
 
     @Override
-    public @SessionToken.TokenType int getType() {
+    @SessionToken.TokenType
+    public int getType() {
         switch (mType) {
             case TYPE_SESSION_LEGACY:
                 return TYPE_SESSION;
@@ -163,8 +166,8 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
         return TYPE_SESSION;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public Bundle getExtras() {
         return mExtras == null ? Bundle.EMPTY : new Bundle(mExtras);
     }

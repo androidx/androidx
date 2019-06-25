@@ -64,14 +64,15 @@ public class TestBrowserCallback extends BrowserCallback
 
     @CallSuper
     @Override
-    public void onConnected(MediaController controller, SessionCommandGroup commands) {
+    public void onConnected(@NonNull MediaController controller,
+            @NonNull SessionCommandGroup commands) {
         connectLatch.countDown();
         mCallbackProxy.onConnected(controller, commands);
     }
 
     @CallSuper
     @Override
-    public void onDisconnected(MediaController controller) {
+    public void onDisconnected(@NonNull MediaController controller) {
         disconnectLatch.countDown();
         mCallbackProxy.onDisconnected(controller);
     }
@@ -98,9 +99,10 @@ public class TestBrowserCallback extends BrowserCallback
         }
     }
 
+    @NonNull
     @Override
-    public SessionResult onCustomCommand(MediaController controller,
-            SessionCommand command, Bundle args) {
+    public SessionResult onCustomCommand(@NonNull MediaController controller,
+            @NonNull SessionCommand command, Bundle args) {
         synchronized (this) {
             if (mOnCustomCommandRunnable != null) {
                 mOnCustomCommandRunnable.run();
@@ -110,72 +112,73 @@ public class TestBrowserCallback extends BrowserCallback
     }
 
     @Override
-    public void onPlaybackInfoChanged(MediaController controller,
-            MediaController.PlaybackInfo info) {
+    public void onPlaybackInfoChanged(@NonNull MediaController controller,
+            @NonNull MediaController.PlaybackInfo info) {
         mCallbackProxy.onPlaybackInfoChanged(controller, info);
     }
 
     @Override
-    public int onSetCustomLayout(MediaController controller, List<CommandButton> layout) {
+    public int onSetCustomLayout(@NonNull MediaController controller,
+            @NonNull List<CommandButton> layout) {
         return mCallbackProxy.onSetCustomLayout(controller, layout);
     }
 
     @Override
-    public void onAllowedCommandsChanged(MediaController controller,
-            SessionCommandGroup commands) {
+    public void onAllowedCommandsChanged(@NonNull MediaController controller,
+            @NonNull SessionCommandGroup commands) {
         mCallbackProxy.onAllowedCommandsChanged(controller, commands);
     }
 
     @Override
-    public void onPlayerStateChanged(MediaController controller, int state) {
+    public void onPlayerStateChanged(@NonNull MediaController controller, int state) {
         mCallbackProxy.onPlayerStateChanged(controller, state);
     }
 
     @Override
-    public void onSeekCompleted(MediaController controller, long position) {
+    public void onSeekCompleted(@NonNull MediaController controller, long position) {
         mCallbackProxy.onSeekCompleted(controller, position);
     }
 
     @Override
-    public void onPlaybackSpeedChanged(MediaController controller, float speed) {
+    public void onPlaybackSpeedChanged(@NonNull MediaController controller, float speed) {
         mCallbackProxy.onPlaybackSpeedChanged(controller, speed);
     }
 
     @Override
-    public void onBufferingStateChanged(MediaController controller, MediaItem item,
-            int state) {
+    public void onBufferingStateChanged(@NonNull MediaController controller,
+            @NonNull MediaItem item, int state) {
         mCallbackProxy.onBufferingStateChanged(controller, item, state);
     }
 
     @Override
-    public void onCurrentMediaItemChanged(MediaController controller, MediaItem item) {
+    public void onCurrentMediaItemChanged(@NonNull MediaController controller, MediaItem item) {
         mCallbackProxy.onCurrentMediaItemChanged(controller, item);
     }
 
     @Override
-    public void onPlaylistChanged(MediaController controller,
+    public void onPlaylistChanged(@NonNull MediaController controller,
             List<MediaItem> list, MediaMetadata metadata) {
         mCallbackProxy.onPlaylistChanged(controller, list, metadata);
     }
 
     @Override
-    public void onPlaylistMetadataChanged(MediaController controller,
+    public void onPlaylistMetadataChanged(@NonNull MediaController controller,
             MediaMetadata metadata) {
         mCallbackProxy.onPlaylistMetadataChanged(controller, metadata);
     }
 
     @Override
-    public void onShuffleModeChanged(MediaController controller, int shuffleMode) {
+    public void onShuffleModeChanged(@NonNull MediaController controller, int shuffleMode) {
         mCallbackProxy.onShuffleModeChanged(controller, shuffleMode);
     }
 
     @Override
-    public void onRepeatModeChanged(MediaController controller, int repeatMode) {
+    public void onRepeatModeChanged(@NonNull MediaController controller, int repeatMode) {
         mCallbackProxy.onRepeatModeChanged(controller, repeatMode);
     }
 
     @Override
-    public void onPlaybackCompleted(MediaController controller) {
+    public void onPlaybackCompleted(@NonNull MediaController controller) {
         mCallbackProxy.onPlaybackCompleted(controller);
     }
 
@@ -186,18 +189,20 @@ public class TestBrowserCallback extends BrowserCallback
     }
 
     @Override
-    public void onTrackInfoChanged(MediaController controller,
-            List<SessionPlayer.TrackInfo> trackInfos) {
+    public void onTrackInfoChanged(@NonNull MediaController controller,
+            @NonNull List<SessionPlayer.TrackInfo> trackInfos) {
         mCallbackProxy.onTrackInfoChanged(controller, trackInfos);
     }
 
     @Override
-    public void onTrackSelected(MediaController controller, SessionPlayer.TrackInfo trackInfo) {
+    public void onTrackSelected(@NonNull MediaController controller,
+            @NonNull SessionPlayer.TrackInfo trackInfo) {
         mCallbackProxy.onTrackSelected(controller, trackInfo);
     }
 
     @Override
-    public void onTrackDeselected(MediaController controller, SessionPlayer.TrackInfo trackInfo) {
+    public void onTrackDeselected(@NonNull MediaController controller,
+            @NonNull SessionPlayer.TrackInfo trackInfo) {
         mCallbackProxy.onTrackDeselected(controller, trackInfo);
     }
 

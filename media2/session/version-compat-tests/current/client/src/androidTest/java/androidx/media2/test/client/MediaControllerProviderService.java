@@ -27,6 +27,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.MediaParcelUtils;
 import androidx.media2.common.Rating;
@@ -428,8 +429,8 @@ public class MediaControllerProviderService extends Service {
             private CountDownLatch mConnectionLatch = new CountDownLatch(1);
 
             @Override
-            public void onConnected(MediaController controller,
-                    SessionCommandGroup allowedCommands) {
+            public void onConnected(@NonNull MediaController controller,
+                    @NonNull SessionCommandGroup allowedCommands) {
                 super.onConnected(controller, allowedCommands);
                 mConnectionLatch.countDown();
             }

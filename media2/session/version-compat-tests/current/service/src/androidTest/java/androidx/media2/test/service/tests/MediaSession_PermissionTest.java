@@ -115,8 +115,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         mPlayer = new MockPlayer(1);
         mCallback = new MySessionCallback() {
             @Override
-            public SessionCommandGroup onConnect(MediaSession session,
-                    ControllerInfo controller) {
+            public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 if (!TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName())) {
                     return null;
                 }
@@ -629,8 +629,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onCommandRequest(MediaSession session, ControllerInfo controller,
-                SessionCommand command) {
+        public int onCommandRequest(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull SessionCommand command) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnCommandRequestCalled = true;
             mCommand = command;
@@ -639,7 +639,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onFastForward(MediaSession session, ControllerInfo controller) {
+        public int onFastForward(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnFastForwardCalled = true;
             mCountDownLatch.countDown();
@@ -647,7 +648,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onRewind(MediaSession session, ControllerInfo controller) {
+        public int onRewind(@NonNull MediaSession session, @NonNull ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnRewindCalled = true;
             mCountDownLatch.countDown();
@@ -655,7 +656,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onSkipForward(MediaSession session, ControllerInfo controller) {
+        public int onSkipForward(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnSkipForwardCalled = true;
             mCountDownLatch.countDown();
@@ -663,7 +665,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onSkipBackward(MediaSession session, ControllerInfo controller) {
+        public int onSkipBackward(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnSkipBackwardCalled = true;
             mCountDownLatch.countDown();
@@ -671,8 +674,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onPlayFromMediaId(MediaSession session, ControllerInfo controller,
-                String mediaId, Bundle extras) {
+        public int onPlayFromMediaId(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPlayFromMediaIdCalled = true;
             mMediaId = mediaId;
@@ -682,8 +685,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onPlayFromSearch(MediaSession session, ControllerInfo controller,
-                String query, Bundle extras) {
+        public int onPlayFromSearch(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPlayFromSearchCalled = true;
             mQuery = query;
@@ -693,8 +696,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onPlayFromUri(MediaSession session, ControllerInfo controller,
-                Uri uri, Bundle extras) {
+        public int onPlayFromUri(@NonNull MediaSession session, @NonNull ControllerInfo controller,
+                @NonNull Uri uri, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPlayFromUriCalled = true;
             mUri = uri;
@@ -704,8 +707,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onPrepareFromMediaId(MediaSession session, ControllerInfo controller,
-                String mediaId, Bundle extras) {
+        public int onPrepareFromMediaId(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPrepareFromMediaIdCalled = true;
             mMediaId = mediaId;
@@ -715,8 +718,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onPrepareFromSearch(MediaSession session, ControllerInfo controller,
-                String query, Bundle extras) {
+        public int onPrepareFromSearch(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPrepareFromSearchCalled = true;
             mQuery = query;
@@ -726,8 +729,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onPrepareFromUri(MediaSession session, ControllerInfo controller,
-                Uri uri, Bundle extras) {
+        public int onPrepareFromUri(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller, @NonNull Uri uri, Bundle extras) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnPrepareFromUriCalled = true;
             mUri = uri;
@@ -737,8 +740,8 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onSetRating(MediaSession session, ControllerInfo controller,
-                String mediaId, Rating rating) {
+        public int onSetRating(@NonNull MediaSession session, @NonNull ControllerInfo controller,
+                @NonNull String mediaId, @NonNull Rating rating) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnSetRatingCalled = true;
             mMediaId = mediaId;

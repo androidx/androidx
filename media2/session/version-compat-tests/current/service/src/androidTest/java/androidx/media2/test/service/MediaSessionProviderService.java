@@ -143,8 +143,8 @@ public class MediaSessionProviderService extends Service {
                 case TEST_CONTROLLER_CALLBACK_SESSION_REJECTS: {
                     builder.setSessionCallback(mExecutor, new MediaSession.SessionCallback() {
                         @Override
-                        public SessionCommandGroup onConnect(MediaSession session,
-                                MediaSession.ControllerInfo controller) {
+                        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                                @NonNull MediaSession.ControllerInfo controller) {
                             return null;
                         }
                     });
@@ -153,8 +153,8 @@ public class MediaSessionProviderService extends Service {
                 case TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST: {
                     builder.setSessionCallback(mExecutor, new MediaSession.SessionCallback() {
                         @Override
-                        public SessionCommandGroup onConnect(MediaSession session,
-                                MediaSession.ControllerInfo controller) {
+                        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                                @NonNull MediaSession.ControllerInfo controller) {
                             SessionCommandGroup commands = new SessionCommandGroup.Builder()
                                     .addCommand(new SessionCommand(
                                             SessionCommand

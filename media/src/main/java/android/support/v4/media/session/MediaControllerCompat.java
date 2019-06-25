@@ -544,7 +544,8 @@ public final class MediaControllerCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public @Nullable VersionedParcelable getSession2Token() {
+    @Nullable
+    public VersionedParcelable getSession2Token() {
         return mToken.getSession2Token();
     }
 
@@ -1454,7 +1455,8 @@ public final class MediaControllerCompat {
          *
          * @return The attributes for this session.
          */
-        public @NonNull AudioAttributesCompat getAudioAttributes() {
+        @NonNull
+        public AudioAttributesCompat getAudioAttributes() {
             return mAudioAttrsCompat;
         }
 

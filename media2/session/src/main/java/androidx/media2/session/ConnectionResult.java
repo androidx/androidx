@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer.TrackInfo;
@@ -31,6 +32,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -209,8 +211,9 @@ class ConnectionResult extends CustomVersionedParcelable {
         return mVideoSize;
     }
 
+    @NonNull
     public List<TrackInfo> getTrackInfo() {
-        return mTrackInfos;
+        return (mTrackInfos == null) ? Collections.emptyList() : mTrackInfos;
     }
 
     public TrackInfo getSelectedVideoTrack() {
