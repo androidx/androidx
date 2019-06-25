@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.subtitle;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -47,7 +45,7 @@ import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.NonNull;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -56,18 +54,16 @@ import java.util.Comparator;
 import java.util.List;
 
 // Note: This is forked from android.media.Cea708CaptionRenderer since P
-/** @hide */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public class Cea708CaptionRenderer extends SubtitleController.Renderer {
+class Cea708CaptionRenderer extends SubtitleController.Renderer {
     private final Context mContext;
     private Cea708CCWidget mCCWidget;
 
-    public Cea708CaptionRenderer(Context context) {
+    Cea708CaptionRenderer(@NonNull Context context) {
         mContext = context;
     }
 
     @Override
-    public boolean supports(MediaFormat format) {
+    public boolean supports(@NonNull MediaFormat format) {
         if (format.containsKey(MediaFormat.KEY_MIME)) {
             String mimeType = format.getString(MediaFormat.KEY_MIME);
             return MediaFormat.MIMETYPE_TEXT_CEA_708.equals(mimeType);
@@ -76,7 +72,7 @@ public class Cea708CaptionRenderer extends SubtitleController.Renderer {
     }
 
     @Override
-    public SubtitleTrack createTrack(MediaFormat format) {
+    public @NonNull SubtitleTrack createTrack(@NonNull MediaFormat format) {
         String mimeType = format.getString(MediaFormat.KEY_MIME);
         if (MediaFormat.MIMETYPE_TEXT_CEA_708.equals(mimeType)) {
             if (mCCWidget == null) {

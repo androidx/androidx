@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.subtitle;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.widget;
 
 import android.graphics.Canvas;
 import android.media.MediaFormat;
@@ -26,7 +24,8 @@ import android.util.Log;
 import android.util.LongSparseArray;
 import android.util.Pair;
 
-import androidx.annotation.RestrictTo;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media2.common.SubtitleData;
 
 import java.util.ArrayList;
@@ -39,11 +38,8 @@ import java.util.TreeMap;
 /**
  * A subtitle track abstract base class that is responsible for parsing and displaying
  * an instance of a particular type of subtitle.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
+abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
     private static final String TAG = "SubtitleTrack";
     private long mLastUpdateTimeMs;
     private long mLastTimeMs;
@@ -65,7 +61,7 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
 
     private MediaFormat mFormat;
 
-    public SubtitleTrack(MediaFormat format) {
+    SubtitleTrack(MediaFormat format) {
         mFormat = format;
         mCues = new CueList();
         clearActiveCues();
@@ -564,14 +560,15 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
         }
     }
 
-    /** Cue has timing information */
+    /** Cue has timing information
+     */
     public static class Cue {
         public long mStartTimeMs;
         public long mEndTimeMs;
-        public long[] mInnerTimesMs;
+        public @Nullable long[] mInnerTimesMs;
         public long mRunID;
 
-        public Cue mNextInRun;
+        public @Nullable Cue mNextInRun;
 
         /**
          * Called to inform current timeMs to the cue
@@ -663,7 +660,7 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
     /**
      * Interface for rendering subtitles onto a Canvas.
      */
-    public interface RenderingWidget {
+    interface RenderingWidget {
         /**
          * Sets the widget's callback, which is used to send updates when the
          * rendered data has changed.
@@ -707,13 +704,13 @@ public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeList
         /**
          * Callback used to send updates about changes to rendering data.
          */
-        public interface OnChangedListener {
+        interface OnChangedListener {
             /**
              * Called when the rendering data has changed.
              *
              * @param renderingWidget the widget whose data has changed
              */
-            void onChanged(RenderingWidget renderingWidget);
+            void onChanged(@NonNull RenderingWidget renderingWidget);
         }
     }
 }
