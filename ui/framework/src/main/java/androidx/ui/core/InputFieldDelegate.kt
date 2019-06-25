@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import android.util.Log
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.input.EditorState
 import androidx.ui.painting.Canvas
@@ -72,5 +73,20 @@ internal class InputFieldDelegate(
             )
         }
         textPainter.paint(canvas, Offset.zero)
+    }
+
+    fun onPress(position: PxPosition) {
+        // TODO(nona): Implement this function
+        Log.d("InputFieldDelegate", "onPress: $position")
+    }
+
+    fun onDragAt(position: PxPosition) {
+        // TODO(nona): Implement this function
+        Log.d("InputFieldDelegate", "onDrag: $position")
+    }
+
+    fun onRelease(position: PxPosition) {
+        // TODO(nona): Implement this function
+        Log.d("InputFieldDelegate", "onRelease: $position")
     }
 }
