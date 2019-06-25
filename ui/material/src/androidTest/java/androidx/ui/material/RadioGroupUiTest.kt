@@ -38,6 +38,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
+import androidx.ui.test.assertIsNotSelected
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -101,13 +102,13 @@ class RadioGroupUiTest {
 
         findByTag(itemOne)
             .assertIsInMutuallyExclusiveGroup()
-            .assertIsSelected(true)
+            .assertIsSelected()
         findByTag(itemTwo)
             .assertIsInMutuallyExclusiveGroup()
-            .assertIsSelected(false)
+            .assertIsNotSelected()
         findByTag(itemThree)
             .assertIsInMutuallyExclusiveGroup()
-            .assertIsSelected(false)
+            .assertIsNotSelected()
     }
 
     @Test
