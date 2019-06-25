@@ -27,12 +27,15 @@ import androidx.compose.onCommit
 import androidx.compose.onDispose
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.selection.Selection
+import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
-import androidx.ui.core.selection.TextSelectionHandlerImpl
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.ParagraphStyle
+import androidx.ui.core.selection.TextSelectionHandler
+import androidx.ui.core.selection.TextSelectionProcessor
 import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
@@ -221,10 +224,42 @@ fun Text(
 
         +onCommit(textPainter) {
             val id = registrar.subscribe(
-                TextSelectionHandlerImpl(
-                    textPainter = textPainter,
-                    layoutCoordinates = layoutCoordinates.value,
-                    onSelectionChange = { internalSelection.value = it })
+                object : TextSelectionHandler {
+                    override fun getSelection(
+                        selectionCoordinates: Pair<PxPosition, PxPosition>,
+                        containerLayoutCoordinates: LayoutCoordinates,
+                        mode: SelectionMode
+                    ): Selection? {
+                        val relativePosition = containerLayoutCoordinates.childToLocal(
+                            layoutCoordinates.value!!, PxPosition.Origin
+                        )
+                        val startPx = selectionCoordinates.first - relativePosition
+                        val endPx = selectionCoordinates.second - relativePosition
+
+                        val textSelectionProcessor = TextSelectionProcessor(
+                            selectionCoordinates = Pair(startPx, endPx),
+                            mode = mode,
+                            onSelectionChange = { internalSelection.value = it },
+                            textPainter = textPainter
+                        )
+
+                        if (!textSelectionProcessor.isSelected) return null
+
+                        // TODO(qqd): Determine a set of coordinates around a character that we need.
+                        return Selection(
+                            startOffset = textSelectionProcessor.startOffset,
+                            endOffset = textSelectionProcessor.endOffset,
+                            startLayoutCoordinates =
+                            if (textSelectionProcessor.containsWholeSelectionStart) {
+                                layoutCoordinates.value!!
+                            } else null,
+                            endLayoutCoordinates =
+                            if (textSelectionProcessor.containsWholeSelectionEnd) {
+                                layoutCoordinates.value!!
+                            } else null
+                        )
+                    }
+                }
             )
             onDispose {
                 registrar.unsubscribe(id)
