@@ -287,13 +287,14 @@ package androidx.ui.core {
   }
 
   public final class SemanticsTreeNodeImpl implements androidx.ui.core.SemanticsTreeNode {
-    ctor public SemanticsTreeNodeImpl(androidx.ui.core.SemanticsTreeNode? parent, androidx.ui.core.semantics.SemanticsConfiguration data, androidx.ui.core.SemanticsComponentNode semanticsComponentNode);
+    ctor public SemanticsTreeNodeImpl(androidx.ui.core.SemanticsTreeNode? parent, androidx.ui.core.SemanticsComponentNode semanticsComponentNode);
     method public void addChild(androidx.ui.core.SemanticsTreeNode child);
     method public java.util.Set<androidx.ui.core.SemanticsTreeNode> getChildren();
     method public androidx.ui.core.semantics.SemanticsConfiguration getData();
     method public androidx.ui.core.PxPosition? getGlobalPosition();
     method public androidx.ui.core.SemanticsTreeNode? getParent();
     property public java.util.Set<androidx.ui.core.SemanticsTreeNode> children;
+    property public androidx.ui.core.semantics.SemanticsConfiguration data;
     property public androidx.ui.core.PxPosition? globalPosition;
   }
 

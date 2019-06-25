@@ -16,19 +16,18 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.SemanticsTreeNode
+
 /**
- * Performs a click action on the given component.
+ * Represents a component with which one can interact with the hierarchy.
+ * Examples of interactions include [findByTag], [isCheckable], [assertIsChecked], [doClick]
+ *
+ * Example usage:
+ * findByTag("myCheckbox")
+ *    .doClick()
+ *    .assertIsChecked()
  */
-fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
-    assertStillExists()
-
-    // TODO(catalintudor): get real coordinates after Semantics API is ready (b/125702443)
-    val globalCoordinates = semanticsTreeNode.globalPosition
-        ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
-    val x = globalCoordinates.x.value + 1f
-    val y = globalCoordinates.y.value + 1f
-
-    semanticsTreeInteraction.sendClick(x, y)
-
-    return this
-}
+class SemanticsNodeInteraction internal constructor(
+    internal val semanticsTreeNode: SemanticsTreeNode,
+    internal val semanticsTreeInteraction: SemanticsTreeInteraction
+)

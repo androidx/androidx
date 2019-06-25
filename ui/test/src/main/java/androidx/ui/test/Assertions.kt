@@ -19,103 +19,169 @@ package androidx.ui.test
 import androidx.ui.core.semantics.SemanticsConfiguration
 
 /**
+ * Asserts no items found given a criteria, throws [AssertionError] otherwise.
+ */
+fun assertDoesNotExist(
+    selector: SemanticsConfiguration.() -> Boolean
+) {
+    val foundNodes = semanticsTreeInteractionFactory(selector)
+        .findAllMatching()
+
+    if (foundNodes.isNotEmpty()) {
+        throw AssertionError("Found '${foundNodes.size}' components that match, " +
+                "expected '0' components")
+    }
+}
+/**
  * Asserts that current component is visible.
  */
 // TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
-fun SemanticsTreeInteraction.assertIsVisible() =
-    verifyAssertOnExactlyOne("The component is not visible!") {
+fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
+    verify({ "The component is not visible!" }) {
         !it.isHidden
     }
+    return this
+}
 
 /**
  * Asserts that current component is hidden. This requires that the component actually exists in
  * the hierarchy and is hidden. If you want to actually verify that the component does not  exist
- * at all, please use [assertDoesNotExist]
+ * at all, please use [assertNoLongerExists]
  */
-fun SemanticsTreeInteraction.assertIsHidden() =
-    verifyAssertOnExactlyOne("The component is visible!") {
+fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
+    verify({ "The component is visible!" }) {
         it.isHidden
     }
 
-/**
- * Asserts that there is no component that was matched by the query. If the component exists but is
- * hidden use [assertIsHidden] instead.
- */
-fun SemanticsTreeInteraction.assertDoesNotExist(): SemanticsTreeInteraction {
-    val foundNodes = findAllMatching()
-    if (foundNodes.isNotEmpty()) {
-        throw AssertionError("Found '${foundNodes.size}' nodes but 0 was expected!")
-    }
     return this
 }
 
 /**
- * Asserts that current component is visible.
+ * Asserts that the component is still part of the component tree.
  */
-// TODO(pavlis): Provide guarantees of being visible VS being actually displayed
-fun SemanticsTreeInteraction.assertIsChecked() =
-    // TODO(pavlis): Throw exception if component is not checkable
-    verifyAssertOnExactlyOne("The component is not checked!") {
+fun SemanticsNodeInteraction.assertStillExists() {
+    if (!semanticsTreeInteraction.contains(semanticsTreeNode.data)) {
+        throw AssertionError("Assert failed: The component does not exist!")
+    }
+}
+
+/**
+ * Asserts that the component isn't part of the component tree anymore. If the component exists but
+ * is hidden use [assertIsHidden] instead.
+ */
+fun SemanticsNodeInteraction.assertNoLongerExists() {
+    if (semanticsTreeInteraction.contains(semanticsTreeNode.data)) {
+        throw AssertionError("Assert failed: The component does exist!")
+    }
+}
+
+/**
+ * Asserts that the current component is checked.
+ */
+fun SemanticsNodeInteraction.assertIsChecked(): SemanticsNodeInteraction {
+        // TODO(pavlis): Throw exception if component is not checkable
+    verify({ "The component is not checked!" }) {
         it.isChecked == true
     }
+    return this
+}
 
-fun SemanticsTreeInteraction.assertIsNotChecked() =
-    // TODO(pavlis): Throw exception if component is not checkable
-    verifyAssertOnExactlyOne("The component is checked!") {
+/**
+ * Asserts that the current component is not checked.
+ */
+fun SemanticsNodeInteraction.assertIsNotChecked(): SemanticsNodeInteraction {
+        // TODO(pavlis): Throw exception if component is not checkable
+    verify({ "The component is checked!" }) {
         it.isChecked != true
     }
+    return this
+}
 
-fun SemanticsTreeInteraction.assertIsSelected(expected: Boolean) =
-    // TODO(pavlis): Throw exception if component is not selectable
-    verifyAssertOnExactlyOne(
-        "The component is expected to be selected = '$expected', but it's not!"
-    ) {
-        it.isSelected == expected
+/**
+ * Asserts that the current component is selected.
+ */
+fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction {
+        // TODO(pavlis): Throw exception if component is not selectable
+    verify(
+        { "The component is expected to be selected" }) {
+        it.isSelected == true
     }
+    return this
+}
 
-fun SemanticsTreeInteraction.assertIsInMutuallyExclusiveGroup() =
+/**
+ * Asserts that the current component is not selected.
+ */
+fun SemanticsNodeInteraction.assertIsNotSelected(): SemanticsNodeInteraction {
     // TODO(pavlis): Throw exception if component is not selectable
-    verifyAssertOnExactlyOne(
-        "The component is expected to be mutually exclusive group, but it's not!"
-    ) {
+    verify(
+        { "The component is expected to not be selected!" }) {
+        it.isSelected == false
+    }
+    return this
+}
+
+/**
+ * Asserts the component is in a mutually exclusive group. This is used by radio groups to assert
+ * only one is selected at a given time.
+ * For further details please check [SemanticsConfiguration.isInMutuallyExclusiveGroup].
+ */
+fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction {
+    // TODO(pavlis): Throw exception if component is not selectable
+    verify(
+        { "The component is expected to be mutually exclusive group, but it's not!" }) {
         it.isInMutuallyExclusiveGroup
     }
+    return this
+}
 
-fun SemanticsTreeInteraction.assertValueEquals(value: String) =
-    verifyAssertOnExactlyOne({ node -> "Expected value: $value Actual value: ${node.value}" }) {
+/**
+ * Asserts the component's value equals the given value. This is used by
+ * [CircularProgressIndicator] to check progress.
+ * For further details please check [SemanticsConfiguration.value].
+ */
+fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction {
+    verify({ node -> "Expected value: $value Actual value: ${node.value}" }) {
         it.value == value
     }
-
-fun SemanticsTreeInteraction.assertSemanticsIsEqualTo(
-    expectedProperties: SemanticsConfiguration
-): SemanticsTreeInteraction {
-    val foundNodes = findAllMatching()
-    if (foundNodes.size != 1) {
-        throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")
-    }
-    val nodeSemanticProperties = foundNodes.first().data
-    nodeSemanticProperties.assertEquals(expectedProperties)
     return this
 }
 
-internal fun SemanticsTreeInteraction.verifyAssertOnExactlyOne(
-    assertionMessage: String,
-    condition: (SemanticsConfiguration) -> Boolean
-): SemanticsTreeInteraction {
-    return verifyAssertOnExactlyOne({ assertionMessage }, condition)
+/**
+ * Asserts that the semantics of the component are the same as the given semantics.
+ * For further details please check [SemanticsConfiguration.assertEquals].
+ */
+fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
+    expectedProperties: SemanticsConfiguration
+): SemanticsNodeInteraction {
+    assertStillExists()
+    semanticsTreeNode.data.assertEquals(expectedProperties)
+
+    return this
 }
 
-internal fun SemanticsTreeInteraction.verifyAssertOnExactlyOne(
+/**
+ * Asserts that given a list of components, it's size is equal to the passed in size.
+ */
+fun List<SemanticsNodeInteraction>.assertCountEquals(
+    count: Int
+): List<SemanticsNodeInteraction> {
+    if (size != count) {
+        // TODO(b/133217292)
+        throw AssertionError("Found '$size' nodes but exactly '$count' was expected!")
+    }
+
+    return this
+}
+
+internal fun SemanticsNodeInteraction.verify(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
-): SemanticsTreeInteraction {
-    val foundNodes = findAllMatching()
-    if (foundNodes.size != 1) {
-        throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")
+) {
+    assertStillExists()
+
+    if (!condition.invoke(semanticsTreeNode.data)) {
+        // TODO(b/133217292)
+        throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
     }
-    val node = foundNodes.first().data
-    if (!condition.invoke(node)) {
-        throw AssertionError("Assert failed: ${assertionMessage(node)}")
-    }
-    return this
 }

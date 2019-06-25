@@ -16,19 +16,11 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.semantics.SemanticsConfiguration
+
 /**
- * Performs a click action on the given component.
+ * Verifies that a component is checkable.
  */
-fun SemanticsNodeInteraction.doClick(): SemanticsNodeInteraction {
-    assertStillExists()
-
-    // TODO(catalintudor): get real coordinates after Semantics API is ready (b/125702443)
-    val globalCoordinates = semanticsTreeNode.globalPosition
-        ?: throw AssertionError("Semantic Node has no child layout to perform click on!")
-    val x = globalCoordinates.x.value + 1f
-    val y = globalCoordinates.y.value + 1f
-
-    semanticsTreeInteraction.sendClick(x, y)
-
-    return this
+fun SemanticsConfiguration.isCheckable(): Boolean {
+    return isChecked != null
 }

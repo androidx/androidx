@@ -16,37 +16,30 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.SemanticsTreeNode
+import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.test.android.AndroidSemanticsTreeInteraction
 
 /**
  * Provides abstraction for writing queries, actions and asserts over Compose semantics tree using
  * extension functions. This class is expected to have Android and host side specific
  * implementations.
- *
- * The typical pattern would be:
- * - use findByXXX methods such us [findByTag]
- * - optionally perform an action using extension method e.g. [doClick]
- * - assert properties using extension methods e.g. [assertIsChecked]
- *
- * Example usage:
- * findByTag("myCheckbox")
- *    .doClick()
- *    .assertIsChecked()
  */
-abstract class SemanticsTreeInteraction {
+internal abstract class SemanticsTreeInteraction {
 
-    internal abstract fun addSelector(
-        selector: (SemanticsTreeNode) -> Boolean
-    ): SemanticsTreeInteraction
+    internal abstract fun findAllMatching(): List<SemanticsNodeInteraction>
 
-    internal abstract fun findAllMatching(): List<SemanticsTreeNode>
+    internal abstract fun findOne(): SemanticsNodeInteraction
 
     internal abstract fun sendClick(x: Float, y: Float)
+
+    internal abstract fun contains(semanticsConfiguration: SemanticsConfiguration): Boolean
 }
 
-internal var semanticsTreeInteractionFactory: () -> SemanticsTreeInteraction = {
-    AndroidSemanticsTreeInteraction(throwOnRecomposeTimeout)
+internal var semanticsTreeInteractionFactory: (
+    selector: SemanticsConfiguration.() -> Boolean
+) -> SemanticsTreeInteraction = {
+        selector ->
+    AndroidSemanticsTreeInteraction(throwOnRecomposeTimeout, selector)
 }
 
 /**
