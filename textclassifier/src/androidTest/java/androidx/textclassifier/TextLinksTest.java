@@ -53,7 +53,7 @@ import java.util.Map;
 @RunWith(AndroidJUnit4.class)
 public final class TextLinksTest {
 
-    private static final Spannable FULL_TEXT = new SpannableString("this is just a test");
+    private static final String FULL_TEXT = "this is just a test";
     private static final int START = 5;
     private static final int END = 6;
 
@@ -95,7 +95,7 @@ public final class TextLinksTest {
 
     @Test
     public void testBundle() {
-        final TextLinks reference = new TextLinks.Builder(FULL_TEXT.toString())
+        final TextLinks reference = new TextLinks.Builder(FULL_TEXT)
                 .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
                 .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
                 .setExtras(BUNDLE)
@@ -115,7 +115,7 @@ public final class TextLinksTest {
         // Serialize/deserialize.
         TextLinks.Request result = TextLinks.Request.createFromBundle(reference.toBundle());
 
-        assertEquals(FULL_TEXT, result.getText());
+        assertEquals(FULL_TEXT, result.getText().toString());
         assertEquals(LANGUAGE_TAGS, result.getDefaultLocales().toLanguageTags());
         assertThat(result.getEntityConfig().getHints()).containsExactly("hints");
         assertThat(result.getEntityConfig().resolveTypes(
@@ -132,7 +132,7 @@ public final class TextLinksTest {
         // Serialize/deserialize.
         TextLinks.Request result = TextLinks.Request.createFromBundle(reference.toBundle());
 
-        assertEquals(FULL_TEXT, result.getText());
+        assertEquals(FULL_TEXT, result.getText().toString());
     }
 
     @Test
@@ -141,7 +141,7 @@ public final class TextLinksTest {
         TextLinks.Request request = createTextLinksRequest().build();
 
         android.view.textclassifier.TextLinks.Request platformRequest = request.toPlatform();
-        assertEquals(FULL_TEXT, platformRequest.getText());
+        assertEquals(FULL_TEXT, platformRequest.getText().toString());
         assertEquals(LANGUAGE_TAGS, platformRequest.getDefaultLocales().toLanguageTags());
         assertThat(platformRequest.getEntityConfig().getHints()).containsExactly("hints");
         assertThat(platformRequest.getEntityConfig().resolveEntityListModifications(
@@ -164,7 +164,7 @@ public final class TextLinksTest {
                         .build();
 
         TextLinks.Request request = TextLinks.Request.fromPlatform(platformRequest);
-        assertThat(request.getText()).isEqualTo(FULL_TEXT);
+        assertThat(request.getText().toString()).isEqualTo(FULL_TEXT);
         assertThat(request.getDefaultLocales().toLanguageTags()).isEqualTo(LANGUAGE_TAGS);
         assertThat(request.getEntityConfig().getHints()).containsExactly("hints");
         assertThat(request.getEntityConfig().resolveTypes(Arrays.asList("default", "exclude")))
@@ -175,7 +175,7 @@ public final class TextLinksTest {
     @SdkSuppress(minSdkVersion = 28)
     public void testConvertFromPlatformTextLinks() {
         final android.view.textclassifier.TextLinks platformTextLinks =
-                new android.view.textclassifier.TextLinks.Builder(FULL_TEXT.toString())
+                new android.view.textclassifier.TextLinks.Builder(FULL_TEXT)
                         .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
                         .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
                         .build();
@@ -188,7 +188,7 @@ public final class TextLinksTest {
     @SdkSuppress(minSdkVersion = 28)
     public void testConvertToPlatformTextLinks() {
         final TextLinks textLinks =
-                new TextLinks.Builder(FULL_TEXT.toString())
+                new TextLinks.Builder(FULL_TEXT)
                         .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
                         .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
                         .build();
@@ -254,7 +254,7 @@ public final class TextLinksTest {
     }
 
     private void assertTextLinks(TextLinks textLinks) {
-        assertEquals(FULL_TEXT.toString(), textLinks.getText());
+        assertEquals(FULL_TEXT, textLinks.getText().toString());
         final List<TextLinks.TextLink> resultList = new ArrayList<>(textLinks.getLinks());
         final float epsilon = 1e-7f;
         assertEquals(2, resultList.size());

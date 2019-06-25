@@ -63,9 +63,6 @@ package androidx.textclassifier {
   public static final class TextClassifier.EntityConfig {
   }
 
-  public final class TextLinks {
-  }
-
 
 
   public static class TextLinks.TextLinkSpanData {
