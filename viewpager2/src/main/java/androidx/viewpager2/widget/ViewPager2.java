@@ -428,6 +428,7 @@ public final class ViewPager2 extends ViewGroup {
     public void setAdapter(@Nullable @SuppressWarnings("rawtypes") Adapter adapter) {
         mAccessibilityProvider.onDetachAdapter(mRecyclerView.getAdapter());
         mRecyclerView.setAdapter(adapter);
+        mCurrentItem = 0;
         restorePendingState();
         mAccessibilityProvider.onAttachAdapter(adapter);
     }
