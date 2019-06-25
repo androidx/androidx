@@ -16,11 +16,11 @@
 
 package sample;
 
-import static androidx.annotation.Experimental.Level.ERROR;
+import static androidx.annotation.experimental.Experimental.Level.ERROR;
 
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import androidx.annotation.Experimental;
+import androidx.annotation.experimental.Experimental;
 
 import java.lang.annotation.Retention;
 

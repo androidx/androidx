@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.annotation.lint
+package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
@@ -142,7 +142,7 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
         /* ktlint-disable max-line-length */
         // The contents of Experimental.java from the experimental annotation library.
         val EXPERIMENTAL_JAVA: TestFile = java("""
-            package androidx.annotation;
+            package androidx.annotation.experimental;
 
             import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
             import static java.lang.annotation.RetentionPolicy.CLASS;
@@ -164,7 +164,7 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
 
         // The contents of UseExperimental.java from the experimental annotation library.
         val USE_EXPERIMENTAL_JAVA: TestFile = java("""
-            package androidx.annotation;
+            package androidx.annotation.experimental;
 
             import static java.lang.annotation.ElementType.CONSTRUCTOR;
             import static java.lang.annotation.ElementType.FIELD;

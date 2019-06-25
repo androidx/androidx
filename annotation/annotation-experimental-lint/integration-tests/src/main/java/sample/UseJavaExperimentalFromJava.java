@@ -16,7 +16,7 @@
 
 package sample;
 
-import androidx.annotation.UseExperimental;
+import androidx.annotation.experimental.UseExperimental;
 
 @SuppressWarnings("unused")
 class UseJavaExperimentalFromJava {

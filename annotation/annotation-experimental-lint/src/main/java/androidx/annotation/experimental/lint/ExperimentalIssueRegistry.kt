@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.annotation.lint
+package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
 

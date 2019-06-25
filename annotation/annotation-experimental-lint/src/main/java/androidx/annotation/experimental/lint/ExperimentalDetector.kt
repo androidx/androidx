@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.annotation.lint
+package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.detector.api.AnnotationUsageType
 import com.android.tools.lint.detector.api.Category
@@ -60,12 +60,14 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         when (qualifiedName) {
             JAVA_EXPERIMENTAL_ANNOTATION -> {
                 checkExperimentalUsage(context, annotation, usage,
-                    JAVA_USE_EXPERIMENTAL_ANNOTATION)
+                    JAVA_USE_EXPERIMENTAL_ANNOTATION
+                )
             }
             KOTLIN_EXPERIMENTAL_ANNOTATION -> {
                 if (!isKotlin(usage.sourcePsi)) {
                     checkExperimentalUsage(context, annotation, usage,
-                        KOTLIN_USE_EXPERIMENTAL_ANNOTATION)
+                        KOTLIN_USE_EXPERIMENTAL_ANNOTATION
+                    )
                 }
             }
         }
@@ -161,8 +163,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         private const val KOTLIN_EXPERIMENTAL_ANNOTATION = "kotlin.Experimental"
         private const val KOTLIN_USE_EXPERIMENTAL_ANNOTATION = "kotlin.UseExperimental"
 
-        private const val JAVA_EXPERIMENTAL_ANNOTATION = "androidx.annotation.Experimental"
-        private const val JAVA_USE_EXPERIMENTAL_ANNOTATION = "androidx.annotation.UseExperimental"
+        private const val JAVA_EXPERIMENTAL_ANNOTATION =
+            "androidx.annotation.experimental.Experimental"
+        private const val JAVA_USE_EXPERIMENTAL_ANNOTATION =
+            "androidx.annotation.experimental.UseExperimental"
 
         @Suppress("DefaultLocale")
         private fun issueForLevel(level: String, severity: Severity): Issue = Issue.create(
@@ -182,10 +186,21 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
             implementation = IMPLEMENTATION
         )
 
-        val ISSUE_ERROR = issueForLevel("error", Severity.ERROR)
-        val ISSUE_WARNING = issueForLevel("warning", Severity.WARNING)
+        val ISSUE_ERROR =
+            issueForLevel(
+                "error",
+                Severity.ERROR
+            )
+        val ISSUE_WARNING =
+            issueForLevel(
+                "warning",
+                Severity.WARNING
+            )
 
-        val ISSUES = listOf(ISSUE_ERROR, ISSUE_WARNING)
+        val ISSUES = listOf(
+            ISSUE_ERROR,
+            ISSUE_WARNING
+        )
     }
 }
 
