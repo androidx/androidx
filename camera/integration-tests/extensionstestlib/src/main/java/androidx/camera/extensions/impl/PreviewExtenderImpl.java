@@ -43,12 +43,15 @@ public interface PreviewExtenderImpl extends ExtenderStateListener {
     boolean isExtensionAvailable(String cameraId, CameraCharacteristics cameraCharacteristics);
 
     /**
-     * Enable the extension if available. If not available then acts a no-op.
+     * Initializes the extender to be used with the specified camera.
+     *
+     * <p>This should be called before any other method on the extender. The exception is {@link
+     * #isExtensionAvailable(String, CameraCharacteristics)}.
      *
      * @param cameraId The camera2 id string of the camera.
      * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
      */
-    void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics);
+    void init(String cameraId, CameraCharacteristics cameraCharacteristics);
 
     /**
      * The set of parameters required to produce the effect on the preview stream.

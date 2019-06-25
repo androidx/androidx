@@ -47,7 +47,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
     }
 
     @Override
-    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override
