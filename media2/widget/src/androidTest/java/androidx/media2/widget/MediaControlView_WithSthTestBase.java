@@ -34,6 +34,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.net.Uri;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -343,6 +344,44 @@ public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBa
                 .check(matches(isCompletelyDisplayed()));
         onView(withText(subtitleTrackOffText)).inRoot(isPlatformPopup()).perform(click());
         assertTrue(latchForSubtitleDeselect.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testAttachViewAndPlayAfterSetPlayerOrController() throws Throwable {
+        final CountDownLatch latchForPausedState = new CountDownLatch(1);
+        final CountDownLatch latchForPlayingState = new CountDownLatch(1);
+        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
+            @Override
+            public void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
+                if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
+                    latchForPausedState.countDown();
+                } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
+                    latchForPlayingState.countDown();
+                }
+            }
+        }, mFileSchemeMediaItem);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewGroup layout = mActivity.findViewById(R.id.framelayout);
+                layout.removeView(mMediaControlView);
+                mMediaControlView = new MediaControlView(mActivity);
+                if (playerWrapper.mPlayer != null) {
+                    mMediaControlView.setPlayer(playerWrapper.mPlayer);
+                } else if (playerWrapper.mController != null) {
+                    mMediaControlView.setMediaController(playerWrapper.mController);
+                }
+                layout.addView(mMediaControlView);
+            }
+        });
+        checkAttachedToWindow(mMediaControlView);
+        assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
+                .check(matches(withContentDescription(R.string.mcv2_play_button_desc)))
+                .perform(click());
+        assertTrue(latchForPlayingState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
+                .check(matches(withContentDescription(R.string.mcv2_pause_button_desc)));
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
