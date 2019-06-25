@@ -128,6 +128,10 @@ package androidx.paging {
     field public final int requestedLoadSize;
   }
 
+  public final class PageKeyedDataSourceKt {
+    ctor public PageKeyedDataSourceKt();
+  }
+
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
     method public void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
     method public void addWeakLoadStateListener(kotlin.jvm.functions.Function3<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,? super java.lang.Throwable,kotlin.Unit> listener);
