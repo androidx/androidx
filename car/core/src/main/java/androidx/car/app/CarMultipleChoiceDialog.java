@@ -19,6 +19,7 @@ package androidx.car.app;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -131,34 +132,46 @@ public final class CarMultipleChoiceDialog extends Dialog {
     }
 
     private void initializeButtons() {
-        boolean isButtonPresent = false;
         Window window = getWindow();
+        Resources res = getContext().getResources();
+
         Button positiveButtonView = window.findViewById(R.id.positive_button);
-        if (!TextUtils.isEmpty(mPositiveButtonText)) {
-            isButtonPresent = true;
-            positiveButtonView.setText(mPositiveButtonText);
-            positiveButtonView.setOnClickListener(v -> {
-                if (mOnClickListener != null) {
-                    mOnClickListener.onClick(this,
-                            Arrays.copyOf(mCheckedItems, mCheckedItems.length));
-                }
-                dismiss();
-            });
-        } else {
-            positiveButtonView.setVisibility(View.GONE);
-        }
+        positiveButtonView.setText(mPositiveButtonText);
+        positiveButtonView.setOnClickListener(v -> {
+            if (mOnClickListener != null) {
+                mOnClickListener.onClick(this,
+                        Arrays.copyOf(mCheckedItems, mCheckedItems.length));
+            }
+            dismiss();
+        });
+
+        int buttonOffset = res.getDimensionPixelSize(R.dimen.car_padding_4)
+                - res.getDimensionPixelSize(R.dimen.car_padding_2);
+
+        ViewGroup.MarginLayoutParams positiveButtonLayoutParams =
+                (ViewGroup.MarginLayoutParams) positiveButtonView.getLayoutParams();
 
         Button negativeButtonView = window.findViewById(R.id.negative_button);
         if (!TextUtils.isEmpty(mNegativeButtonText)) {
-            isButtonPresent = true;
             negativeButtonView.setText(mNegativeButtonText);
             negativeButtonView.setOnClickListener(v -> dismiss());
+
+            ViewGroup.MarginLayoutParams negativeButtonLayoutParams =
+                    (ViewGroup.MarginLayoutParams) negativeButtonView.getLayoutParams();
+
+            int buttonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_2);
+
+            positiveButtonLayoutParams.setMarginStart(buttonSpacing);
+            positiveButtonView.requestLayout();
+
+            negativeButtonLayoutParams.setMarginStart(buttonOffset);
+            negativeButtonLayoutParams.setMarginEnd(buttonSpacing);
+            negativeButtonView.requestLayout();
         } else {
             negativeButtonView.setVisibility(View.GONE);
-        }
 
-        if (!isButtonPresent) {
-            window.findViewById(R.id.button_panel).setVisibility(View.GONE);
+            positiveButtonLayoutParams.setMarginStart(buttonOffset);
+            positiveButtonView.requestLayout();
         }
     }
 
