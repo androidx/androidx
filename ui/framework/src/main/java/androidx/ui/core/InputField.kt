@@ -16,11 +16,18 @@
 package androidx.ui.core
 
 import androidx.compose.composer
+import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
+import androidx.compose.memo
+import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.input.TextInputClient
+import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.input.FocusManager
 import androidx.ui.graphics.Color
+import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
 import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.TextPainter
@@ -78,21 +85,39 @@ fun InputField(
     /** Called when the InputMethod forwarded a key event */
     onKeyEventForwarded: (Any) -> Unit = {} // TODO(nona): Define argument type
 ) {
-    TextInputClient(
-        editorState = value,
-        onEditorStateChange = onValueChange,
-        onEditorActionPerformed = onEditorActionPerformed,
-        onKeyEventForwarded = onKeyEventForwarded
-    ) {
-        val style = +ambient(CurrentTextStyleAmbient)
-        val mergedStyle = style.merge(editorStyle.textStyle)
+    val style = +ambient(CurrentTextStyleAmbient)
+    val mergedStyle = style.merge(editorStyle.textStyle)
 
-        // TODO(nona): Add parameter for text direction, softwrap, etc.
-        val delegate = InputFieldDelegate(TextPainter(
+    val processor = +memo { EditProcessor() }
+    processor.onNewState(value)
+
+    // TODO(nona): Add parameter for text direction, softwrap, etc.
+    val delegate = InputFieldDelegate(
+        TextPainter(
             text = AnnotatedString(text = value.text),
             style = mergedStyle
-        ))
+        )
+    )
 
+    val textInputService = +ambient(TextInputServiceAmbient)
+    TextInputEventObserver(
+        onPress = { delegate.onPress(it) },
+        onFocus = {
+            textInputService?.startInput(
+                initState = value,
+                onEditCommand = {
+                    onValueChange(processor.onEditCommands(it))
+                },
+                onEditorActionPerformed = onEditorActionPerformed,
+                onKeyEventForwarded = onKeyEventForwarded
+            )
+        },
+        onBlur = {
+            textInputService?.stopInput()
+        },
+        onDragAt = { delegate.onDragAt(it) },
+        onRelease = { delegate.onRelease(it) }
+    ) {
         Layout(
             children = @Composable {
                 Draw { canvas, _ ->
@@ -105,5 +130,112 @@ fun InputField(
                 }
             }
         )
+    }
+}
+
+/**
+ * Helper composable for observing all text input related events.
+ */
+@Composable
+private fun TextInputEventObserver(
+    onPress: (PxPosition) -> Unit,
+    onDragAt: (PxPosition) -> Unit,
+    onRelease: (PxPosition) -> Unit,
+    onFocus: () -> Unit,
+    onBlur: () -> Unit,
+    @Children children: @Composable() () -> Unit
+) {
+    val focused = +state { false }
+    val focusManager = +ambient(FocusManagerAmbient)
+
+    DragPositionGestureDetector(
+        onPress = {
+            if (focused.value) {
+                onPress(it)
+            } else {
+                focusManager.requestFocus(object : FocusManager.FocusNode {
+                    override fun onFocus() {
+                        onFocus()
+                        focused.value = true
+                    }
+
+                    override fun onBlur() {
+                        onBlur()
+                        focused.value = false
+                    }
+                })
+            }
+        },
+        onDragAt = onDragAt,
+        onRelease = onRelease
+    ) {
+        children()
+    }
+}
+
+/**
+ * Helper class for tracking dragging event.
+ */
+internal class DragEventTracker {
+    private var origin = PxPosition.Origin
+    private var distance = PxPosition.Origin
+
+    /**
+     * Restart the tracking from given origin.
+     *
+     * @param origin The origin of the drag gesture.
+     */
+    fun init(origin: PxPosition) {
+        this.origin = origin
+    }
+
+    /**
+     * Pass distance parameter called by DragGestureDetector$onDrag callback
+     *
+     * @param distance The distance from the origin of the drag origin.
+     */
+    fun onDrag(distance: PxPosition) {
+        this.distance = distance
+    }
+
+    /**
+     * Returns the current position.
+     *
+     * @return The position of the current drag point.
+     */
+    fun getPosition(): PxPosition {
+        return origin + distance
+    }
+}
+
+/**
+ * Helper composable for tracking drag position.
+ */
+@Composable
+private fun DragPositionGestureDetector(
+    onPress: (PxPosition) -> Unit,
+    onDragAt: (PxPosition) -> Unit,
+    onRelease: (PxPosition) -> Unit,
+    @Children children: @Composable() () -> Unit
+) {
+    val tracker = +state { DragEventTracker() }
+    PressGestureDetector(
+        onPress = {
+            tracker.value.init(it)
+            onPress(it)
+        },
+        onRelease = { onRelease(tracker.value.getPosition()) }
+    ) {
+        DragGestureDetector(
+            dragObserver = object : DragObserver {
+                override fun onDrag(dragDistance: PxPosition): PxPosition {
+                    tracker.value.onDrag(dragDistance)
+                    onDragAt(tracker.value.getPosition())
+                    return tracker.value.getPosition()
+                }
+            }
+        ) {
+            children()
+        }
     }
 }
