@@ -203,6 +203,7 @@ package androidx.textclassifier {
     method public static androidx.textclassifier.TextLinks createFromBundle(android.os.Bundle);
     method public android.os.Bundle getExtras();
     method public java.util.Collection<androidx.textclassifier.TextLinks.TextLink!> getLinks();
+    method public CharSequence getText();
     method public android.os.Bundle toBundle();
     field public static final int APPLY_STRATEGY_IGNORE = 0; // 0x0
     field public static final int APPLY_STRATEGY_REPLACE = 1; // 0x1
