@@ -32,8 +32,6 @@ limitations under the License.
         android:id="@+id/content_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/car_padding_4"
-        android:layout_marginEnd="@dimen/car_padding_4"
         android:paddingTop="@dimen/car_padding_4"
         android:paddingBottom="@dimen/car_padding_4"
         android:orientation="vertical">
@@ -42,6 +40,9 @@ limitations under the License.
             android:id="@+id/header_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/car_padding_4"
+            android:layout_marginEnd="@dimen/car_padding_4"
+
             android:paddingTop="@dimen/car_padding_4"
             android:paddingBottom="@dimen/car_padding_2"
             android:orientation="horizontal">
@@ -66,6 +67,9 @@ limitations under the License.
             android:id="@+id/body"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/car_padding_4"
+            android:layout_marginEnd="@dimen/car_padding_4"
+
             android:visibility="gone"
             style="?attr/dialogBodyStyle" />
 
@@ -77,17 +81,16 @@ limitations under the License.
             android:orientation="horizontal"
             android:visibility="gone">
 
+            <!-- Margins for buttons set dynamically. -->
             <Button
                 android:id="@+id/positive_button"
                 android:layout_width="wrap_content"
-                android:minWidth="0dp"
                 android:visibility="gone"
                 style="?attr/dialogButtonStyle" />
 
             <Button
                 android:id="@+id/negative_button"
                 android:layout_width="wrap_content"
-                android:minWidth="0dp"
                 android:visibility="gone"
                 style="?attr/dialogButtonStyle" />
         </LinearLayout>

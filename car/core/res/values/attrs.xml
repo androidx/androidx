@@ -229,8 +229,6 @@ limitations under the License.
         <attr name="dialogButtonStyle" format="reference"/>
         <!-- A theme for the styling of the list in a CarListDialog. -->
         <attr name="dialogListTheme" format="reference"/>
-        <!-- The style of buttons in a selection car dialog. -->
-        <attr name="selectionDialogButtonStyle" format="reference"/>
 
         <!-- ================= -->
         <!-- Drawer Attributes -->

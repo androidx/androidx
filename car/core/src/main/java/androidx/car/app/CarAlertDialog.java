@@ -20,14 +20,11 @@ import android.animation.ValueAnimator;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.text.method.MovementMethod;
 import android.util.TypedValue;
-import android.view.MotionEvent;
-import android.view.TouchDelegate;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -60,7 +57,6 @@ public class CarAlertDialog extends Dialog {
     private final int mTopPadding;
     private final int mButtonPanelTopMargin;
     private final int mBottomPadding;
-    private final int mButtonMinWidth;
     private final int mButtonSpacing;
 
     private View mContentView;
@@ -73,7 +69,6 @@ public class CarAlertDialog extends Dialog {
     private View mButtonPanel;
     private Button mPositiveButton;
     private Button mNegativeButton;
-    private ButtonPanelTouchDelegate mButtonPanelTouchDelegate;
 
     CarAlertDialog(Context context, Builder builder) {
         super(context, getDialogTheme(context));
@@ -91,8 +86,7 @@ public class CarAlertDialog extends Dialog {
         mTopPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
         mButtonPanelTopMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
         mBottomPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
-        mButtonMinWidth = res.getDimensionPixelSize(R.dimen.car_button_min_width);
-        mButtonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_5);
+        mButtonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_2);
     }
 
     @Override
@@ -197,7 +191,6 @@ public class CarAlertDialog extends Dialog {
         mPositiveButton.setText(text);
         mPositiveButton.setVisibility(showButton ? View.VISIBLE : View.GONE);
 
-        updateTargetTargetForButton(mPositiveButton);
         updateButtonPanelVisibility();
         updateButtonSpacing();
     }
@@ -206,7 +199,6 @@ public class CarAlertDialog extends Dialog {
         mNegativeButton.setText(text);
         mNegativeButton.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 
-        updateTargetTargetForButton(mNegativeButton);
         updateButtonPanelVisibility();
         updateButtonSpacing();
     }
@@ -230,70 +222,37 @@ public class CarAlertDialog extends Dialog {
     }
 
     /**
-     * Checks if the given view that represents a positive or negative button currently meets the
-     * minimum touch target size that is dictated by {@link #mButtonMinWidth}. If it does not, then
-     * this method will utilize a {@link TouchDelegate} to expand the touch target size of that
-     * button.
-     *
-     * @param button One of {@link #mPositiveButton} or {@link #mNegativeButton}.
-     */
-    private void updateTargetTargetForButton(View button) {
-        if (button != mPositiveButton && button != mNegativeButton) {
-            throw new IllegalArgumentException("Method must be passed one of mPositiveButton or "
-                    + "mNegativeButton");
-        }
-
-        if (button.getVisibility() != View.VISIBLE) {
-            return;
-        }
-
-        // The TouchDelegate needs to be set after the panel has been laid out in order to get the
-        // hit Rect.
-        mButtonPanel.post(() -> {
-            Rect rect = new Rect();
-            button.getHitRect(rect);
-
-            int hitWidth = Math.abs(rect.right - rect.left);
-
-            TouchDelegate touchDelegate = null;
-
-            // If the button does not meet the minimum requirements for touch target size, then
-            // expand its hit area with a TouchDelegate.
-            if (hitWidth < mButtonMinWidth) {
-                int amountToIncrease = (mButtonMinWidth - hitWidth) / 2;
-                rect.left -= amountToIncrease;
-                rect.right += amountToIncrease;
-
-                touchDelegate = new TouchDelegate(rect, button);
-            }
-
-            if (button == mPositiveButton) {
-                mButtonPanelTouchDelegate.setPositiveButtonDelegate(touchDelegate);
-            } else {
-                mButtonPanelTouchDelegate.setNegativeButtonDelegate(touchDelegate);
-            }
-        });
-    }
-
-    /**
-     * Checks if spacing should be added between the positive and negative button. The spacing is
-     * only needed if both buttons are visible.
+     * Updates the start and end margins for the positive and negative buttons.
      */
     private void updateButtonSpacing() {
-        int marginEnd;
-
         // If both buttons are visible, then there needs to be spacing between them.
+
+        Resources res = getContext().getResources();
+
+        int buttonOffset = mBottomPadding - mButtonSpacing;
+
+        ViewGroup.MarginLayoutParams positiveButtonLayoutParams =
+                (ViewGroup.MarginLayoutParams) mPositiveButton.getLayoutParams();
+        ViewGroup.MarginLayoutParams negativeButtonLayoutParams =
+                (ViewGroup.MarginLayoutParams) mNegativeButton.getLayoutParams();
+
+
         if ((mPositiveButton.getVisibility() == View.VISIBLE
                 && mNegativeButton.getVisibility() == View.VISIBLE)) {
-            marginEnd = mButtonSpacing;
-        } else {
-            marginEnd = 0;
-        }
 
-        ViewGroup.MarginLayoutParams layoutParams =
-                (ViewGroup.MarginLayoutParams) mPositiveButton.getLayoutParams();
-        layoutParams.setMarginEnd(marginEnd);
-        mPositiveButton.requestLayout();
+            positiveButtonLayoutParams.setMarginStart(buttonOffset);
+            positiveButtonLayoutParams.setMarginEnd(mButtonSpacing);
+            mPositiveButton.requestLayout();
+
+            negativeButtonLayoutParams.setMarginStart(mButtonSpacing);
+            mNegativeButton.requestLayout();
+        } else if (mPositiveButton.getVisibility() == View.VISIBLE) {
+            positiveButtonLayoutParams.setMarginStart(buttonOffset);
+            mPositiveButton.requestLayout();
+        } else if (mNegativeButton.getVisibility() == View.VISIBLE) {
+            negativeButtonLayoutParams.setMarginStart(buttonOffset);
+            mNegativeButton.requestLayout();
+        }
     }
 
     /**
@@ -324,7 +283,7 @@ public class CarAlertDialog extends Dialog {
 
     /**
      * Initializes the views within the dialog that are modifiable based on the data that has been
-     * set on it. Also responsible for hooking up listeners for button clicks.
+     * set on it.
      */
     private void initializeViews() {
         Window window = getWindow();
@@ -336,9 +295,6 @@ public class CarAlertDialog extends Dialog {
         mBodyView = window.findViewById(R.id.body);
 
         mButtonPanel = window.findViewById(R.id.button_panel);
-        mButtonPanelTouchDelegate = new ButtonPanelTouchDelegate(mButtonPanel);
-        mButtonPanel.setTouchDelegate(mButtonPanelTouchDelegate);
-
         mPositiveButton = window.findViewById(R.id.positive_button);
         mNegativeButton = window.findViewById(R.id.negative_button);
 
@@ -361,47 +317,6 @@ public class CarAlertDialog extends Dialog {
             mNegativeButtonListener.onClick(/* dialog= */ this, BUTTON_NEGATIVE);
         } else {
             dismiss();
-        }
-    }
-
-    /**
-     * A composite {@link TouchDelegate} for a button panel that has two buttons. It can hold
-     * multiple {@code TouchDelegate}s and will delegate out touch events to each.
-     */
-    private static final class ButtonPanelTouchDelegate extends TouchDelegate {
-        @Nullable
-        private TouchDelegate mPositiveButtonDelegate;
-        @Nullable
-        private TouchDelegate mNegativeButtonDelegate;
-
-        ButtonPanelTouchDelegate(View view) {
-            super(new Rect(), view);
-        }
-
-        void setPositiveButtonDelegate(@Nullable TouchDelegate delegate) {
-            mPositiveButtonDelegate = delegate;
-        }
-
-        void setNegativeButtonDelegate(@Nullable TouchDelegate delegate) {
-            mNegativeButtonDelegate = delegate;
-        }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent event) {
-            boolean result = false;
-            float x = event.getX();
-            float y = event.getY();
-            event.setLocation(x, y);
-
-            if (mPositiveButtonDelegate != null) {
-                result = mPositiveButtonDelegate.onTouchEvent(event);
-            }
-
-            if (mNegativeButtonDelegate != null) {
-                result |= mNegativeButtonDelegate.onTouchEvent(event);
-            }
-
-            return result;
         }
     }
 

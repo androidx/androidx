@@ -87,15 +87,20 @@ limitations under the License.
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+                <!-- Horizontal margins for buttons set dynamically. -->
                 <Button
                     android:id="@+id/negative_button"
-                    style="?attr/selectionDialogButtonStyle"
+                    style="?attr/dialogButtonStyle"
+                    android:layout_marginTop="@dimen/car_padding_2"
+                    android:layout_marginBottom="@dimen/car_padding_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
                 <Button
                     android:id="@+id/positive_button"
-                    style="?attr/selectionDialogButtonStyle"
+                    style="?attr/dialogButtonStyle"
+                    android:layout_marginTop="@dimen/car_padding_2"
+                    android:layout_marginBottom="@dimen/car_padding_2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
