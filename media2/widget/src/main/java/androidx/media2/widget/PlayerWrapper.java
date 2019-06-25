@@ -110,6 +110,9 @@ class PlayerWrapper {
     }
 
     long getCurrentPosition() {
+        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
+            return 0;
+        }
         long position = 0;
         if (mController != null) {
             position = mController.getCurrentPosition();
@@ -120,6 +123,9 @@ class PlayerWrapper {
     }
 
     long getBufferPercentage() {
+        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
+            return 0;
+        }
         long duration = getDurationMs();
         if (duration == 0) return 0;
         long bufferedPos = 0;
@@ -128,7 +134,7 @@ class PlayerWrapper {
         } else if (mPlayer != null) {
             bufferedPos = mPlayer.getBufferedPosition();
         }
-        return (bufferedPos < 0) ? -1 : (bufferedPos * 100 / duration);
+        return (bufferedPos < 0) ? 0 : (bufferedPos * 100 / duration);
     }
 
     int getPlayerState() {
@@ -241,12 +247,16 @@ class PlayerWrapper {
     }
 
     long getDurationMs() {
-        if (mController != null) {
-            return mController.getDuration();
-        } else if (mPlayer != null) {
-            return mPlayer.getDuration();
+        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
+            return 0;
         }
-        return SessionPlayer.UNKNOWN_TIME;
+        long duration = 0;
+        if (mController != null) {
+            duration = mController.getDuration();
+        } else if (mPlayer != null) {
+            duration = mPlayer.getDuration();
+        }
+        return (duration < 0) ? 0 : duration;
     }
 
     CharSequence getTitle() {
@@ -290,7 +300,7 @@ class PlayerWrapper {
         return null;
     }
 
-    private void updateCachedStates() {
+    void updateCachedStates() {
         mSavedPlayerState = getPlayerState();
         mAllowedCommands = getAllowedCommands();
         MediaItem item = getCurrentMediaItem();
@@ -357,8 +367,7 @@ class PlayerWrapper {
         public void onConnected(@NonNull MediaController controller,
                 @NonNull SessionCommandGroup allowedCommands) {
             mWrapperCallback.onConnected(PlayerWrapper.this);
-            onAllowedCommandsChanged(controller, allowedCommands);
-            onCurrentMediaItemChanged(controller, controller.getCurrentMediaItem());
+            updateCachedStates();
         }
 
         @Override
