@@ -25,6 +25,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -51,7 +52,10 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.CaptureBundle;
+import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.CaptureProcessor;
+import androidx.camera.core.CaptureStage;
 import androidx.camera.core.Exif;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.Metadata;
@@ -61,6 +65,8 @@ import androidx.camera.core.ImageCapture.UseCaseError;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.fakes.FakeCaptureStage;
+import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -79,7 +85,11 @@ import org.mockito.ArgumentMatcher;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
@@ -560,5 +570,82 @@ public final class ImageCaptureTest {
                 .setCaptureProcessor(mock(CaptureProcessor.class))
                 .build();
         new ImageCapture(config);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void constructor_maxCaptureStageInvalid_throwsException() {
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder().setMaxCaptureStages(0).build();
+        new ImageCapture(config);
+    }
+
+    @Test
+    public void captureStagesAbove1_withoutCaptureProcessor() {
+        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
+
+        CaptureBundle captureBundle = new CaptureBundle() {
+            @Override
+            public List<CaptureStage> getCaptureStages() {
+                return Collections.unmodifiableList(new ArrayList<>(
+                        Arrays.asList(
+                                new FakeCaptureStage(0, new CaptureConfig.Builder().build()),
+                                new FakeCaptureStage(1, new CaptureConfig.Builder().build()))));
+            }
+        };
+
+        ImageCaptureConfig.Builder configBuilder =
+                new ImageCaptureConfig.Builder().setCaptureBundle(captureBundle);
+        ImageCapture imageCapture = new ImageCapture(configBuilder.build());
+        CameraX.bindToLifecycle(lifecycle, imageCapture);
+        lifecycle.startAndResume();
+
+        OnImageCapturedListener mockOnImageCaptureListener = mock(OnImageCapturedListener.class);
+        imageCapture.takePicture(mockOnImageCaptureListener);
+
+        verify(mockOnImageCaptureListener, timeout(3000)).onError(any(UseCaseError.class),
+                anyString(), any(IllegalArgumentException.class));
+
+        CameraX.unbind(imageCapture);
+    }
+
+    @Test
+    public void captureStageExceedMaxCaptureStage_whenIssueTakePicture() {
+        FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
+
+        // Initial the captureStages not greater than the maximum count to bypass the
+        // CaptureStage count checking during bindToLifeCycle.
+        List<CaptureStage> captureStages = new ArrayList<>();
+        captureStages.add(new FakeCaptureStage(0, new CaptureConfig.Builder().build()));
+
+        CaptureBundle captureBundle = new CaptureBundle() {
+            @Override
+            public List<CaptureStage> getCaptureStages() {
+                return Collections.unmodifiableList(captureStages);
+            }
+        };
+
+        ImageCaptureConfig config = new ImageCaptureConfig.Builder()
+                .setMaxCaptureStages(1)
+                .setCaptureBundle(captureBundle)
+                .setCaptureProcessor(mock(CaptureProcessor.class))
+                .build();
+        ImageCapture imageCapture = new ImageCapture(config);
+        CameraX.bindToLifecycle(lifecycle, imageCapture);
+        lifecycle.startAndResume();
+
+        // Add an additional capture stage to test the case
+        // captureStage.size() >　mMaxCaptureStages during takePicture.
+        captureStages.add(new FakeCaptureStage(1, new CaptureConfig.Builder().build()));
+
+        OnImageCapturedListener mockOnImageCaptureListener = mock(OnImageCapturedListener.class);
+
+        // Take 2 photos.
+        imageCapture.takePicture(mockOnImageCaptureListener);
+        imageCapture.takePicture(mockOnImageCaptureListener);
+
+        // It should get onError() callback twice.
+        verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(any(UseCaseError.class),
+                anyString(), any(IllegalArgumentException.class));
+
+        CameraX.unbind(imageCapture);
     }
 }

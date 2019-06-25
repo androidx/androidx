@@ -18,6 +18,9 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.mock;
+
+import android.graphics.ImageFormat;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Size;
@@ -151,6 +154,19 @@ public final class ProcessingImageReaderTest {
         // Expects to throw exception when creating ProcessingImageReader.
         new ProcessingImageReader(imageReaderProxy, mMainHandler,
                 mCaptureBundle, NOOP_PROCESSOR);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void captureStageExceedMaxCaptureStage_setCaptureBundleThrowsException() {
+        // Creates a ProcessingImageReader with maximum Image number.
+        ProcessingImageReader processingImageReader = new ProcessingImageReader(100, 100,
+                ImageFormat.YUV_420_888, 2, mMainHandler, mCaptureBundle,
+                mock(CaptureProcessor.class));
+
+        // Expects to throw exception when invoke the setCaptureBundle method with a
+        // CaptureBundle size greater than maximum image number.
+        processingImageReader.setCaptureBundle(
+                CaptureBundles.createCaptureBundle(mCaptureStage1, mCaptureStage2, mCaptureStage3));
     }
 
     private void triggerImageAvailable(int captureId, long timestamp) throws InterruptedException {
