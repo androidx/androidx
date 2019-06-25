@@ -58,6 +58,14 @@ private val DefaultSelectionColor = Color(0x6633B5E5)
  */
 @Composable
 fun Text(
+    /**
+     * Style configuration that applies at character level such as color, font etc.
+     */
+    style: TextStyle? = null,
+    /**
+     * Style configuration that applies only to paragraphs such as text alignment, or text
+     * direction.
+     */
     paragraphStyle: ParagraphStyle? = null,
     /**
      *  Whether the text should break at soft line breaks.
@@ -91,20 +99,9 @@ fun Text(
     compose(rootTextSpan, ref, child)
     +onDispose { disposeComposition(rootTextSpan, ref) }
 
-    // TODO(haoyuchang): this trick should be removed. right now those attributes not in
-    //  ParagraphStyle won't work
-    val textSpan = if (rootTextSpan.children.size == 1 &&
-        rootTextSpan.style == null &&
-        rootTextSpan.text == null
-    ) {
-        rootTextSpan.children[0]
-    } else {
-        rootTextSpan
-    }
-
     Text(
-        text = textSpan.toAnnotatedString(includeRootStyle = false),
-        style = textSpan.style,
+        text = rootTextSpan.toAnnotatedString(),
+        style = style,
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
@@ -127,7 +124,9 @@ fun Text(
     paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    maxLines: Int? = DefaultMaxLines
+    textScaleFactor: Float = 1.0f,
+    maxLines: Int? = DefaultMaxLines,
+    selectionColor: Color = DefaultSelectionColor
 ) {
     Text(
         text = AnnotatedString(text),
@@ -135,9 +134,9 @@ fun Text(
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
-        textScaleFactor = 1.0f,
+        textScaleFactor = textScaleFactor,
         maxLines = maxLines,
-        selectionColor = DefaultSelectionColor
+        selectionColor = selectionColor
     )
 }
 

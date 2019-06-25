@@ -17,6 +17,7 @@
 package androidx.ui.painting
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.IntPxSize
@@ -39,6 +40,8 @@ import kotlin.math.ceil
 
 private val DefaultTextAlign: TextAlign = TextAlign.Start
 private val DefaultTextDirection: TextDirection = TextDirection.Ltr
+/** The default font size if none is specified. */
+private const val DefaultFontSize: Float = 14.0f
 
 /**
  * Unfortunately, using full precision floating point here causes bad layouts because floating
@@ -99,7 +102,7 @@ fun applyFloatingPointHack(layoutValue: Float): Float {
  */
 class TextPainter(
     text: AnnotatedString? = null,
-    style: TextStyle? = null,
+    val style: TextStyle? = null,
     val paragraphStyle: androidx.ui.painting.ParagraphStyle? = null,
     textScaleFactor: Float = 1.0f,
     maxLines: Int? = null,
@@ -132,6 +135,8 @@ class TextPainter(
     private var lastMinWidth: Float = 0.0f
     private var lastMaxWidth: Float = 0.0f
 
+    // TODO(siyamed) make arguments below immutable
+    @RestrictTo(LIBRARY_GROUP)
     var text: AnnotatedString? = text
         set(value) {
             if (field == value) return
@@ -140,14 +145,8 @@ class TextPainter(
             needsLayout = true
         }
 
-    var textStyle: TextStyle? = style
-        set(value) {
-            if (field == value) return
-            layoutTemplate = null
-            field = value
-            paragraph = null
-            needsLayout = true
-        }
+    internal val textStyle: TextStyle
+        get() = style ?: TextStyle()
 
     internal var textAlign: TextAlign =
         if (paragraphStyle?.textAlign != null) paragraphStyle.textAlign else DefaultTextAlign
@@ -210,23 +209,18 @@ class TextPainter(
             needsLayout = true
         }
 
+    private fun createTextStyle(): TextStyle {
+        return textStyle.copy(fontSize = (textStyle.fontSize ?: DefaultFontSize) * textScaleFactor)
+    }
+
     internal fun createParagraphStyle(): ParagraphStyle {
-        return textStyle?.getParagraphStyle(
+        return ParagraphStyle(
             textAlign = textAlign,
             textDirection = textDirection,
-            textScaleFactor = textScaleFactor,
-            lineHeight = paragraphStyle?.lineHeight,
             textIndent = paragraphStyle?.textIndent,
+            lineHeight = paragraphStyle?.lineHeight,
             maxLines = maxLines,
-            ellipsis = overflow == TextOverflow.Ellipsis,
-            locale = locale
-        ) ?: ParagraphStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
-            maxLines = maxLines,
-            ellipsis = overflow == TextOverflow.Ellipsis,
-            locale = locale
-        )
+            ellipsis = overflow == TextOverflow.Ellipsis)
     }
 
     /**
@@ -246,7 +240,7 @@ class TextPainter(
                 // TODO(Migration/qqd): The textDirection below used to be RTL.
                 layoutTemplate = Paragraph(
                     text = " ",
-                    defaultTextStyle = textStyle ?: TextStyle(),
+                    style = createTextStyle(),
                     // direction doesn't matter, text is just a space
                     paragraphStyle = createParagraphStyle(),
                     textStyles = listOf()
@@ -363,10 +357,9 @@ class TextPainter(
         if (paragraph == null) {
             paragraph = Paragraph(
                 text = text!!.text,
-                defaultTextStyle = textStyle ?: TextStyle(),
+                style = createTextStyle(),
                 paragraphStyle = createParagraphStyle(),
-                textStyles = text!!.textStyles
-            )
+                textStyles = text!!.textStyles)
         }
         lastMinWidth = minWidth
         lastMaxWidth = finalMaxWidth

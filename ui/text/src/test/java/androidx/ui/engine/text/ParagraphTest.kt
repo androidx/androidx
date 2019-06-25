@@ -16,7 +16,6 @@
 package androidx.ui.engine.text
 
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.window.Locale
 import androidx.ui.painting.TextStyle
 import com.nhaarman.mockitokotlin2.mock
 import org.hamcrest.CoreMatchers.equalTo
@@ -31,56 +30,64 @@ class ParagraphTest {
     @Test
     fun `width default value`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         assertThat(paragraph.width, equalTo(-1.0f))
     }
 
     @Test
     fun `height default value`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         assertThat(paragraph.height, equalTo(0.0f))
     }
 
     @Test
     fun `minIntrinsicWidth default value`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         assertThat(paragraph.minIntrinsicWidth, equalTo(0.0f))
     }
 
     @Test
     fun `maxIntrinsicWidth  default value`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0f))
     }
 
     @Test
     fun `alphabeticBaseline default value`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         assertThat(paragraph.baseline, equalTo(Float.MAX_VALUE))
     }
 
     @Test
     fun `didExceedMaxLines default value`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         assertThat(paragraph.didExceedMaxLines, equalTo(false))
     }
 
     @Test(expected = IllegalStateException::class)
     fun `paint throws exception if layout is not called`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         paragraph.paint(mock(), 0.0f, 0.0f)
     }
 
     @Test(expected = IllegalStateException::class)
     fun `getPositionForOffset throws exception if layout is not called`() {
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph("", TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
+
         paragraph.getPositionForOffset(Offset(0.0f, 0.0f))
     }
 
@@ -90,7 +97,7 @@ class ParagraphTest {
         val textStart = 0
         val textEnd = text.length
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph(text, TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
 
         paragraph.getPathForRange(textEnd, textStart)
     }
@@ -101,7 +108,7 @@ class ParagraphTest {
         val textStart = 0
         val textEnd = text.length
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph(text, TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
 
         paragraph.getPathForRange(textStart - 2, textEnd - 1)
     }
@@ -112,32 +119,31 @@ class ParagraphTest {
         val textStart = 0
         val textEnd = text.length
         val paragraphStyle = createParagraphStyle()
-        val paragraph = Paragraph(text, TextStyle(), paragraphStyle, listOf())
+        val paragraph = createParagraph(paragraphStyle)
 
         paragraph.getPathForRange(textStart, textEnd + 1)
+    }
+
+    private fun createParagraph(paragraphStyle: ParagraphStyle): Paragraph {
+        return Paragraph(text = "",
+            style = TextStyle(),
+            paragraphStyle = paragraphStyle,
+            textStyles = listOf())
     }
 
     private fun createParagraphStyle(): ParagraphStyle {
         val textAlign = TextAlign.End
         val textDirection = TextDirection.Rtl
-        val fontWeight = FontWeight.bold
-        val fontStyle = FontStyle.Italic
         val maxLines = 2
-        val fontSize = 1.0f
         val lineHeight = 2.0f
         val ellipsis = false
-        val locale = Locale("en")
 
         return ParagraphStyle(
             textAlign = textAlign,
             textDirection = textDirection,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
             maxLines = maxLines,
-            fontSize = fontSize,
             lineHeight = lineHeight,
-            ellipsis = ellipsis,
-            locale = locale
+            ellipsis = ellipsis
         )
     }
 }
