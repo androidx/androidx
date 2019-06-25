@@ -20,6 +20,8 @@ def includeProject(name, filePath) {
 }
 
 
+includeProject(":benchmark", "../benchmark")
+includeProject(":benchmark:benchmark-gradle-plugin", "../benchmark/gradle-plugin")
 includeProject(":compose:compose-runtime", "../compose/compose-runtime")
 includeProject(":compose:compose-compiler-hosted", "../compose/compose-compiler-hosted")
 includeProject(":compose:compose-compiler-hosted:integration-tests", "../compose/compose-compiler-hosted/integration-tests")
