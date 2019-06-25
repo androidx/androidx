@@ -104,7 +104,7 @@ public final class PreviewTest {
         CameraX.init(context, appConfig);
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(null);
+        mDefaultConfig = Preview.DEFAULT_CONFIG.getConfig(LensFacing.BACK);
     }
 
     @FlakyTest
