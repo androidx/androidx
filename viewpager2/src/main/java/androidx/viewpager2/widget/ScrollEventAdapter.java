@@ -282,6 +282,9 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mAdapterState = smooth
                 ? STATE_IN_PROGRESS_SMOOTH_SCROLL
                 : STATE_IN_PROGRESS_IMMEDIATE_SCROLL;
+        // mFakeDragging is true when a fake drag is interrupted by an a11y command
+        // set it to false so endFakeDrag won't fling the RecyclerView
+        mFakeDragging = false;
         boolean hasNewTarget = mTarget != target;
         mTarget = target;
         dispatchStateChanged(SCROLL_STATE_SETTLING);
