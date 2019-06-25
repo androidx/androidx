@@ -65,8 +65,8 @@ class TextPainterIntegrationTest {
     // investigation. It is being changed in the native level, and probably related to the font.
 //    @Test
 //    fun preferredLineHeight_style_not_set() {
-//        val textStyle = TextStyle(fontFamily = fontFamily)
-//        val textPainter = TextPainter(style = textStyle)
+//        val defaultTextStyle = TextStyle(fontFamily = fontFamily)
+//        val textPainter = TextPainter(style = defaultTextStyle)
 //
 //        val prefferedHeight = textPainter.preferredLineHeight
 //

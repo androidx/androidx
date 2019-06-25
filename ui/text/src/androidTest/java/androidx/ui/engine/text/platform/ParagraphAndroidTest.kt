@@ -107,7 +107,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setColorOnWholeText() {
+    fun testAnnotatedString_setColorOnWholeText() {
         val text = "abcde"
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
 
@@ -121,7 +121,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setColorOnPartOfText() {
+    fun testAnnotatedString_setColorOnPartOfText() {
         val text = "abcde"
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
 
@@ -135,7 +135,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setColorTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setColorTwice_lastOneOverwrite() {
         val text = "abcde"
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
         val textStyleOverwrite = TextStyle(color = Color(0xFF00FF00.toInt()))
@@ -238,7 +238,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setFontSizeOnWholeText() {
+    fun testAnnotatedString_setFontSizeOnWholeText() {
         val text = "abcde"
         val fontSize = 20.0f
         val paragraphWidth = text.length * fontSize
@@ -254,7 +254,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setFontSizeOnPartText() {
+    fun testAnnotatedString_setFontSizeOnPartText() {
         val text = "abcde"
         val fontSize = 20.0f
         val paragraphWidth = text.length * fontSize
@@ -270,7 +270,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setFontSizeTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setFontSizeTwice_lastOneOverwrite() {
         val text = "abcde"
         val fontSize = 20.0f
         val fontSizeOverwrite = 30.0f
@@ -296,7 +296,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setFontSizeScaleOnWholeText() {
+    fun testAnnotatedString_setFontSizeScaleOnWholeText() {
         val text = "abcde"
         val fontSizeScale = 2.0f
         val textStyle = TextStyle(fontSizeScale = fontSizeScale)
@@ -316,7 +316,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setFontSizeScaleOnPartText() {
+    fun testAnnotatedString_setFontSizeScaleOnPartText() {
         val text = "abcde"
         val fontSizeScale = 2.0f
         val textStyle = TextStyle(fontSizeScale = fontSizeScale)
@@ -336,7 +336,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setLetterSpacingOnWholeText() {
+    fun testAnnotatedString_setLetterSpacingOnWholeText() {
         val text = "abcde"
         val letterSpacing = 2.0f
         val textStyle = TextStyle(letterSpacing = letterSpacing)
@@ -351,7 +351,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setLetterSpacingOnPartText() {
+    fun testAnnotatedString_setLetterSpacingOnPartText() {
         val text = "abcde"
         val textStyle = TextStyle(letterSpacing = 2.0f)
 
@@ -365,7 +365,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setLetterSpacingTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setLetterSpacingTwice_lastOneOverwrite() {
         val text = "abcde"
         val textStyle = TextStyle(letterSpacing = 2.0f)
         val textStyleOverwrite = TextStyle(letterSpacing = 3.0f)
@@ -389,7 +389,7 @@ class ParagraphAndroidTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 29)
-    fun textStyle_setWordSpacingOnWholeText() {
+    fun testAnnotatedString_setWordSpacingOnWholeText() {
         val text = "ab cd"
         val wordSpacing = 2.0f
         val textStyle = TextStyle(wordSpacing = wordSpacing)
@@ -412,7 +412,7 @@ class ParagraphAndroidTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 29)
-    fun textStyle_setWordSpacingOnPartText() {
+    fun testAnnotatedString_setWordSpacingOnPartText() {
         val text = "abc d"
         val wordSpacing = 2.0f
         val textStyle = TextStyle(wordSpacing = wordSpacing)
@@ -435,7 +435,7 @@ class ParagraphAndroidTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 29)
-    fun textStyle_setWordSpacingTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setWordSpacingTwice_lastOneOverwrite() {
         val text = "abc d"
         val wordSpacing = 2.0f
         val textStyle = TextStyle(wordSpacing = wordSpacing)
@@ -474,7 +474,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setBackgroundOnWholeText() {
+    fun testAnnotatedString_setBackgroundOnWholeText() {
         val text = "abcde"
         val color = Color(0xFF0000FF.toInt())
         val textStyle = TextStyle(background = color)
@@ -494,7 +494,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setBackgroundOnPartText() {
+    fun testAnnotatedString_setBackgroundOnPartText() {
         val text = "abcde"
         val color = Color(0xFF0000FF.toInt())
         val textStyle = TextStyle(background = color)
@@ -514,7 +514,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setBackgroundTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setBackgroundTwice_lastOneOverwrite() {
         val text = "abcde"
         val color = Color(0xFF0000FF.toInt())
         val textStyle = TextStyle(background = color)
@@ -550,7 +550,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setLocaleOnWholeText() {
+    fun testAnnotatedString_setLocaleOnWholeText() {
         val text = "abcde"
         val locale = Locale("en", "US")
         val textStyle = TextStyle(locale = locale)
@@ -565,7 +565,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setLocaleOnPartText() {
+    fun testAnnotatedString_setLocaleOnPartText() {
         val text = "abcde"
         val locale = Locale("en", "US")
         val textStyle = TextStyle(locale = locale)
@@ -580,7 +580,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setLocaleTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setLocaleTwice_lastOneOverwrite() {
         val text = "abcde"
         val textStyle = TextStyle(locale = Locale("en", "US"))
         val textStyleOverwrite = TextStyle(locale = Locale("ja", "JP"))
@@ -603,7 +603,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setBaselineShiftOnWholeText() {
+    fun testAnnotatedString_setBaselineShiftOnWholeText() {
         val text = "abcde"
         val textStyle = TextStyle(baselineShift = BaselineShift.Subscript)
 
@@ -618,7 +618,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setBaselineShiftOnPartText() {
+    fun testAnnotatedString_setBaselineShiftOnPartText() {
         val text = "abcde"
         val textStyle = TextStyle(baselineShift = BaselineShift.Superscript)
 
@@ -633,7 +633,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setBaselineShiftTwice_LastOneOnTop() {
+    fun testAnnotatedString_setBaselineShiftTwice_LastOneOnTop() {
         val text = "abcde"
         val textStyle = TextStyle(baselineShift = BaselineShift.Subscript)
         val textStyleOverwrite = TextStyle(baselineShift = BaselineShift.Superscript)
@@ -657,7 +657,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setTextGeometricTransformWithNull_noSpanSet() {
+    fun testAnnotatedString_setTextGeometricTransformWithNull_noSpanSet() {
         val text = "abcde"
         val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform(null, null))
 
@@ -673,7 +673,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setTextGeometricTransformWithScaleX() {
+    fun testAnnotatedString_setTextGeometricTransformWithScaleX() {
         val text = "abcde"
         val scaleX = 0.5f
         val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform(scaleX, null))
@@ -693,7 +693,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setTextGeometricTransformWithSkewX() {
+    fun testAnnotatedString_setTextGeometricTransformWithSkewX() {
         val text = "aa"
         val skewX = 1f
         val textStyle = TextStyle(textGeometricTransform = TextGeometricTransform(null, skewX))
@@ -734,7 +734,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setShadow() {
+    fun testAnnotatedString_setShadow() {
         val text = "abcde"
         val color = Color(0xFF00FF00.toInt())
         val offset = Offset(1f, 2f)
@@ -762,7 +762,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setShadowTwice_lastOnTop() {
+    fun testAnnotatedString_setShadowTwice_lastOnTop() {
         val text = "abcde"
         val color = Color(0xFF00FF00.toInt())
         val offset = Offset(1f, 2f)
@@ -807,7 +807,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_fontFamily_addsTypefaceSpanWithCorrectTypeface() {
+    fun testAnnotatedString_fontFamily_addsTypefaceSpanWithCorrectTypeface() {
         val text = "abcde"
         val textStyle = TextStyle(
             fontFamily = fontFamily,
@@ -843,7 +843,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_fontFamily_whenFontSynthesizeTurnedOff() {
+    fun testAnnotatedString_fontFamily_whenFontSynthesizeTurnedOff() {
         val text = "abcde"
         val textStyle = TextStyle(
             fontFamily = fontFamily,
@@ -881,7 +881,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_fontFeatureSetting_setSpanOnText() {
+    fun testAnnotatedString_fontFeatureSetting_setSpanOnText() {
         val text = "abc"
         val fontFeatureSettings = "\"kern\" 0"
         val textStyle = TextStyle(fontFeatureSettings = fontFeatureSettings)
@@ -1094,7 +1094,8 @@ class ParagraphAndroidTest {
                 fontSize = fontSize,
                 fontWeight = fontWeight,
                 fontStyle = fontStyle
-            )
+            ),
+            defaultTextStyle = TextStyle()
         )
     }
 }

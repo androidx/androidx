@@ -34,6 +34,7 @@ import androidx.ui.services.text_editing.TextRange
  */
 class Paragraph internal constructor(
     val text: String,
+    val defaultTextStyle: TextStyle,
     val paragraphStyle: ParagraphStyle,
     val textStyles: List<AnnotatedString.Item<TextStyle>>
 ) {
@@ -97,7 +98,7 @@ class Paragraph internal constructor(
         if (paragraphStyle.lineHeight != null && paragraphStyle.lineHeight < 0.0f) {
             throw IllegalArgumentException("lineHeight can't be negative")
         }
-        paragraphImpl = ParagraphAndroid(text, paragraphStyle, textStyles)
+        paragraphImpl = ParagraphAndroid(text, defaultTextStyle, paragraphStyle, textStyles)
     }
 
     // void Paragraph::SetFontCollection(
