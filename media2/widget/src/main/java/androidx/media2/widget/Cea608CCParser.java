@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.subtitle;
+package androidx.media2.widget;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -25,6 +25,8 @@ import android.text.style.UnderlineSpan;
 import android.text.style.UpdateAppearance;
 import android.util.Log;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
+
+import androidx.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -423,7 +425,7 @@ class Cea608CCParser {
         }
 
         @Override
-        public void updateDrawState(TextPaint ds) {
+        public void updateDrawState(@NonNull TextPaint ds) {
             ds.bgColor = mColor;
         }
     }

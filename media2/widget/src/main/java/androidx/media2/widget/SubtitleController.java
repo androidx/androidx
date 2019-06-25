@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.subtitle;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.widget;
 
 import android.content.Context;
 import android.media.MediaFormat;
@@ -27,8 +25,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.accessibility.CaptioningManager;
 
-import androidx.annotation.RestrictTo;
-import androidx.media2.player.subtitle.SubtitleTrack.RenderingWidget;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.media2.widget.SubtitleTrack.RenderingWidget;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -38,11 +37,8 @@ import java.util.Locale;
  * The subtitle controller provides the architecture to display subtitles for a
  * media source.  It allows specifying which tracks to display, on which anchor
  * to display them, and also allows adding external, out-of-band subtitle tracks.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public class SubtitleController {
+class SubtitleController {
     private MediaTimeProvider mTimeProvider;
     private ArrayList<Renderer> mRenderers;
     private ArrayList<SubtitleTrack> mTracks;
@@ -93,7 +89,7 @@ public class SubtitleController {
                 }
             };
 
-    public SubtitleController(Context context) {
+    SubtitleController(@NonNull Context context) {
         this(context, null, null);
     }
 
@@ -103,10 +99,10 @@ public class SubtitleController {
      *
      * @param timeProvider
      */
-    public SubtitleController(
-            Context context,
-            MediaTimeProvider timeProvider,
-            Listener listener) {
+    SubtitleController(
+            @NonNull Context context,
+            @Nullable MediaTimeProvider timeProvider,
+            @Nullable Listener listener) {
         mTimeProvider = timeProvider;
         mListener = listener;
 
@@ -414,7 +410,7 @@ public class SubtitleController {
          * @return true if and only if the track format is supported by this
          * renderer
          */
-        public abstract boolean supports(MediaFormat format);
+        public abstract boolean supports(@NonNull MediaFormat format);
 
         /**
          * Called by {@link MediaPlayer}'s {@link SubtitleController} for each
@@ -428,7 +424,7 @@ public class SubtitleController {
          * @return a {@link SubtitleTrack} object that will be used to parse
          * and render the subtitle track.
          */
-        public abstract SubtitleTrack createTrack(MediaFormat format);
+        public abstract @NonNull SubtitleTrack createTrack(@NonNull MediaFormat format);
     }
 
     /**
@@ -470,7 +466,7 @@ public class SubtitleController {
      * Subtitle anchor, an object that is able to display a subtitle renderer,
      * e.g. a VideoView.
      */
-    public interface Anchor {
+    interface Anchor {
         /**
          * Anchor should use the supplied subtitle rendering widget, or
          * none if it is null.
@@ -526,7 +522,7 @@ public class SubtitleController {
     /**
      * Listener for when subtitle track has been selected.
      */
-    public interface Listener {
+    interface Listener {
         /**
          * Called when a subtitle track has been selected.
          *
