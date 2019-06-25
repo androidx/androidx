@@ -25,11 +25,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":media2:media2-common"))
-    api(project(":media2:media2-session"))
+    api("androidx.media2:media2-common:1.0.0-rc01")
+    api("androidx.media2:media2-session:1.0.0-rc01")
     implementation("androidx.appcompat:appcompat:1.0.2")
     implementation("androidx.palette:palette:1.0.0")
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0-beta01")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -45,6 +45,12 @@ dependencies {
 android {
     defaultConfig {
         minSdkVersion 19
+    }
+    lintOptions {
+	// Lint cannot determine the groupId of androidx.media2:media2widget,
+	// so it fails on calls to other media2 libraries.
+	// Remove once b/136119801 is fixed
+	disable("RestrictedApi")
     }
 }
 
