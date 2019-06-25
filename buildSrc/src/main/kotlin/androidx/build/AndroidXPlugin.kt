@@ -199,10 +199,14 @@ class AndroidXPlugin : Plugin<Project> {
         if (isRunningOnBuildServer()) {
             gradle.startParameter.showStacktrace = ShowStacktrace.ALWAYS
         }
+        val createAggregateBuildInfoFilesTask =
+            tasks.register(CREATE_AGGREGATE_BUILD_INFO_FILES_TASK,
+                CreateAggregateLibraryBuildInfoFileTask::class.java)
         val createLibraryBuildInfoFilesTask =
             tasks.register(CREATE_LIBRARY_BUILD_INFO_FILES_TASK)
 
         val buildOnServerTask = tasks.create(BUILD_ON_SERVER_TASK, BuildOnServer::class.java)
+        buildOnServerTask.dependsOn(createAggregateBuildInfoFilesTask)
         buildOnServerTask.dependsOn(createLibraryBuildInfoFilesTask)
 
         val projectModules = ConcurrentHashMap<String, String>()
@@ -515,12 +519,30 @@ class AndroidXPlugin : Plugin<Project> {
         afterEvaluate {
             if (extension.publish) { // Only generate build info files for published libraries.
                 val task = project.tasks.register(
-                    "createLibraryBuildInfoFile",
+                    CREATE_LIBRARY_BUILD_INFO_FILES_TASK,
                     CreateLibraryBuildInfoFileTask::class.java
-                )
-                project.rootProject.tasks.getByName(CREATE_LIBRARY_BUILD_INFO_FILES_TASK)
-                    .dependsOn(task)
+                ) {
+                    it.outputFile.set(File(project.getDistributionDirectory(),
+                        "${project.group}_${project.name}_build_info.txt"))
+                }
+                project.rootProject.tasks.named(CREATE_LIBRARY_BUILD_INFO_FILES_TASK).configure {
+                    it.dependsOn(task)
+                }
+                addTaskToAggregateBuildInfoFileTask(task)
             }
+        }
+    }
+
+    private fun Project.addTaskToAggregateBuildInfoFileTask(
+        task: TaskProvider<CreateLibraryBuildInfoFileTask>
+    ) {
+        project.rootProject.tasks.named(CREATE_AGGREGATE_BUILD_INFO_FILES_TASK).configure {
+            var aggregateLibraryBuildInfoFileTask: CreateAggregateLibraryBuildInfoFileTask = it
+                    as CreateAggregateLibraryBuildInfoFileTask
+            aggregateLibraryBuildInfoFileTask.dependsOn(task)
+            aggregateLibraryBuildInfoFileTask.libraryBuildInfoFiles.add(
+                task.flatMap { it.outputFile }
+            )
         }
     }
 
@@ -549,6 +571,7 @@ class AndroidXPlugin : Plugin<Project> {
         const val CHECK_NO_WARNINGS_TASK = "checkNoWarnings"
         const val CHECK_SAME_VERSION_LIBRARY_GROUPS = "checkSameVersionLibraryGroups"
         const val CREATE_LIBRARY_BUILD_INFO_FILES_TASK = "createLibraryBuildInfoFiles"
+        const val CREATE_AGGREGATE_BUILD_INFO_FILES_TASK = "createAggregateBuildInfoFiles"
     }
 }
 
