@@ -1777,10 +1777,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         if (trackInfos == null || trackInfos.size() == 0) {
             return;
         }
-
-        Vector<Integer> videoTrackIndices = new Vector<>();
-        Vector<Integer> audioTrackIndices = new Vector<>();
-        Vector<Integer> subtitleTrackIndices = new Vector<>();
         for (int i = 0; i < trackInfos.size(); ++i) {
             assertNotNull(trackInfos.get(i));
             switch (trackInfos.get(i).getTrackType()) {
@@ -1795,10 +1791,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                     break;
             }
         }
-
-        mVideoTrackIndices.addAll(videoTrackIndices);
-        mAudioTrackIndices.addAll(audioTrackIndices);
-        mSubtitleTrackIndices.addAll(subtitleTrackIndices);
     }
 
     private void selectSubtitleTrack(int index) throws Exception {
@@ -1961,6 +1953,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         readTracks();
 
+        assertTrue(mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) < 0);
+
         // Waits until at least two captions are fired. Timeout is 2.5 sec.
         selectSubtitleTrack(0);
         assertTrue(mOnSubtitleDataCalled.waitForCountedSignals(2, 2500) >= 2);
@@ -2063,6 +2057,13 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         assertEquals(1, mVideoTrackIndices.size());
         assertEquals(1, mAudioTrackIndices.size());
         assertEquals(0, mSubtitleTrackIndices.size());
+
+        // Test getSelectedTrack
+        assertEquals(mVideoTrackIndices.get(0).intValue(),
+                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
+        assertEquals(mAudioTrackIndices.get(0).intValue(),
+                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+        assertTrue(mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) < 0);
 
         mPlayer.reset();
     }

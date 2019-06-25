@@ -218,24 +218,30 @@ import java.util.List;
     }
 
     public int getSelectedTrack(int trackType) {
+        // Note: This logic should be aligned with the order of track types in getTrackInfos().
         switch (trackType) {
-            case MEDIA_TRACK_TYPE_AUDIO:
-                return mSelectedAudioTrackIndex;
             case MEDIA_TRACK_TYPE_VIDEO:
-                return mAudioTrackInfos.size() + mSelectedVideoTrackIndex;
+                return mSelectedVideoTrackIndex;
+            case MEDIA_TRACK_TYPE_AUDIO:
+                if (mSelectedAudioTrackIndex < 0) break;
+                return mVideoTrackInfos.size() + mSelectedAudioTrackIndex;
             case MEDIA_TRACK_TYPE_METADATA:
-                return mAudioTrackInfos.size() + mVideoTrackInfos.size()
+                if (mSelectedMetadataTrackIndex < 0) break;
+                return mVideoTrackInfos.size() + mAudioTrackInfos.size()
                         + mSelectedMetadataTrackIndex;
             case MEDIA_TRACK_TYPE_SUBTITLE:
-                return mAudioTrackInfos.size() + mVideoTrackInfos.size()
+                if (mSelectedTextTrackIndex < 0) break;
+                return mVideoTrackInfos.size() + mAudioTrackInfos.size()
                         + mMetadataTrackInfos.size() + mSelectedTextTrackIndex;
             case MEDIA_TRACK_TYPE_UNKNOWN:
             default:
-                return TRACK_INDEX_UNSET;
+                break;
         }
+        return TRACK_INDEX_UNSET;
     }
 
     public List<MediaPlayer2.TrackInfo> getTrackInfos() {
+        // Note: This order should be aligned with getSelectedTrack() logic.
         ArrayList<MediaPlayer2.TrackInfo> trackInfos = new ArrayList<>(
                 mVideoTrackInfos.size() + mAudioTrackInfos.size() + mMetadataTrackInfos.size()
                         + mInternalTextTrackInfos.size());
