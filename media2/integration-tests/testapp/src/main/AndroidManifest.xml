@@ -22,6 +22,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application android:label="Video View Test"
                  android:supportsRtl="true">
@@ -42,6 +43,11 @@
                 <action android:name="android.intent.action.VIEW"/>
             </intent-filter>
         </activity>
-    </application>
 
+        <service android:name=".VideoSessionService">
+            <intent-filter>
+                <action android:name="androidx.media2.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+    </application>
 </manifest>

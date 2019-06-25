@@ -97,6 +97,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
 
     @After
     public void tearDown() throws Throwable {
+        mActivityRule.finishActivity();
         mPlayer.close();
     }
 
