@@ -1299,7 +1299,7 @@ public class MediaControlView extends ViewGroup {
                 case SETTINGS_MODE_PLAYBACK_SPEED:
                     if (position != mSelectedSpeedIndex) {
                         float speed = mPlaybackSpeedMultBy100List.get(position) / 100.0f;
-                        mPlayer.setSpeed(speed);
+                        mPlayer.setPlaybackSpeed(speed);
                     }
                     dismissSettingsWindow();
                     break;
