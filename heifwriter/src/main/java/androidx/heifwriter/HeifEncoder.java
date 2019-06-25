@@ -313,7 +313,8 @@ public final class HeifEncoder implements AutoCloseable,
             // Calculate the bitrate based on image dimension, max compression ratio and quality.
             // Note that we set the frame rate to the number of tiles, so the bitrate would be the
             // intended bits for one image.
-            int bitrate = (int) (width * height * 1.5 * 8 * MAX_COMPRESS_RATIO * quality / 100.0f);
+            int bitrate = caps.getVideoCapabilities().getBitrateRange().clamp(
+                    (int) (width * height * 1.5 * 8 * MAX_COMPRESS_RATIO * quality / 100.0f));
             codecFormat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
         }
 
