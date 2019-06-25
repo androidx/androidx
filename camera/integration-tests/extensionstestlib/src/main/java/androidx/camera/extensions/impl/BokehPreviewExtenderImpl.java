@@ -36,7 +36,7 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
     public BokehPreviewExtenderImpl() {}
 
     @Override
-    public void enableExtension(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
         mCaptureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
         mCaptureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
                 CaptureRequest.CONTROL_EFFECT_MODE_OFF);
