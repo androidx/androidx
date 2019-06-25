@@ -44,4 +44,17 @@
     <dimen name="MusicView_landscape_text_minimum_width">200dp</dimen>
     <dimen name="MusicView_title_text_size">20sp</dimen>
     <dimen name="MusicView_artist_text_size">16sp</dimen>
+
+    <!-- Rounded corner radius for video subtitles. -->
+    <dimen name="subtitle_corner_radius">2dp</dimen>
+
+    <!-- Shadow radius for video subtitles. -->
+    <dimen name="subtitle_shadow_radius">2dp</dimen>
+
+    <!-- Shadow offset for video subtitles. -->
+    <dimen name="subtitle_shadow_offset">2dp</dimen>
+
+    <!-- Outline width for video subtitles. -->
+    <dimen name="subtitle_outline_width">2dp</dimen>
+
 </resources>

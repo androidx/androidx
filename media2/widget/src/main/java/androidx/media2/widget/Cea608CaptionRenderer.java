@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.subtitle;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+package androidx.media2.widget;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -38,27 +36,23 @@ import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.RestrictTo;
-import androidx.media2.player.R;
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatTextView;
 
 import java.util.ArrayList;
 
-// Note: This is forked from android.media.ClosedCaptionRenderer since P
-/**
- * @hide
- */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public class ClosedCaptionRenderer extends SubtitleController.Renderer {
-    private static final String TAG = "ClosedCaptionRenderer";
+// Note: This is forked from android.media.Cea608CaptionRenderer since P
+class Cea608CaptionRenderer extends SubtitleController.Renderer {
+    private static final String TAG = "Cea608CaptionRenderer";
     private final Context mContext;
     private Cea608CCWidget mCCWidget;
 
-    public ClosedCaptionRenderer(Context context) {
+    Cea608CaptionRenderer(@NonNull Context context) {
         mContext = context;
     }
 
     @Override
-    public boolean supports(MediaFormat format) {
+    public boolean supports(@NonNull MediaFormat format) {
         if (format.containsKey(MediaFormat.KEY_MIME)) {
             String mimeType = format.getString(MediaFormat.KEY_MIME);
             return MediaFormat.MIMETYPE_TEXT_CEA_608.equals(mimeType);
@@ -67,7 +61,7 @@ public class ClosedCaptionRenderer extends SubtitleController.Renderer {
     }
 
     @Override
-    public SubtitleTrack createTrack(MediaFormat format) {
+    public @NonNull SubtitleTrack createTrack(@NonNull MediaFormat format) {
         String mimeType = format.getString(MediaFormat.KEY_MIME);
         if (MediaFormat.MIMETYPE_TEXT_CEA_608.equals(mimeType)) {
             if (mCCWidget == null) {
@@ -143,7 +137,7 @@ public class ClosedCaptionRenderer extends SubtitleController.Renderer {
             return mCaptionStyle;
         }
 
-        private class CCLineBox extends TextView {
+        private class CCLineBox extends AppCompatTextView {
             private static final float FONT_PADDING_RATIO = 0.75f;
             private static final float EDGE_OUTLINE_RATIO = 0.1f;
             private static final float EDGE_SHADOW_RATIO = 0.05f;

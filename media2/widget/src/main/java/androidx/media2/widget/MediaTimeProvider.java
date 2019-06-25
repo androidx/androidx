@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.media2.player.subtitle;
+package androidx.media2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
-import androidx.annotation.RestrictTo;
+import androidx.annotation.NonNull;
 
 // Note: This is just copied from android.media.MediaTimeProvider.
-/**
- * @hide
- */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
-public interface MediaTimeProvider {
+interface MediaTimeProvider {
     // we do not allow negative media time
     /**
      * Presentation time value if no timed event notification is requested.
@@ -43,7 +37,7 @@ public interface MediaTimeProvider {
      * @param timeUs presentation time to get timed event callback at (or
      *               {@link #NO_TIME})
      */
-    void notifyAt(long timeUs, OnMediaTimeListener listener);
+    void notifyAt(long timeUs, @NonNull OnMediaTimeListener listener);
 
     /**
      * Cancels all previous notification request from this listener if any.  It
@@ -51,12 +45,12 @@ public interface MediaTimeProvider {
      * is stopped, the listener will immediately receive a stop notification.
      * Otherwise, it will receive a timed event notificaton.
      */
-    void scheduleUpdate(OnMediaTimeListener listener);
+    void scheduleUpdate(@NonNull OnMediaTimeListener listener);
 
     /**
      * Cancels all previous notification request from this listener if any.
      */
-    void cancelNotifications(OnMediaTimeListener listener);
+    void cancelNotifications(@NonNull OnMediaTimeListener listener);
 
     /**
      * Get the current presentation time.
@@ -75,7 +69,7 @@ public interface MediaTimeProvider {
     /**
      * Mediatime listener
      */
-    public interface OnMediaTimeListener {
+    interface OnMediaTimeListener {
         /**
          * Called when the registered time was reached naturally.
          *
