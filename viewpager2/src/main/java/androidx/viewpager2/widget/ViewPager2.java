@@ -122,7 +122,7 @@ public final class ViewPager2 extends ViewGroup {
     public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1;
 
     /** Feature flag while stabilizing enhanced a11y */
-    static boolean sFeatureEnhancedA11yEnabled = false;
+    static boolean sFeatureEnhancedA11yEnabled = true;
 
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
