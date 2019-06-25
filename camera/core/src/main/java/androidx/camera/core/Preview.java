@@ -22,6 +22,7 @@ import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -378,6 +379,25 @@ public class Preview extends UseCase {
      *
      * @hide
      */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected void updateUseCaseConfig(UseCaseConfig<?> useCaseConfig) {
+        PreviewConfig config = (PreviewConfig) useCaseConfig;
+        // Checks the device constraints and get the corrected aspect ratio.
+        if (CameraX.getSurfaceManager().requiresCorrectedAspectRatio(config)) {
+            Rational resultRatio = CameraX.getSurfaceManager().getCorrectedAspectRatio(config);
+            PreviewConfig.Builder configBuilder = PreviewConfig.Builder.fromConfig(config);
+            configBuilder.setTargetAspectRatio(resultRatio);
+            config = configBuilder.build();
+        }
+        super.updateUseCaseConfig(config);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
@@ -529,7 +549,14 @@ public class Preview extends UseCase {
 
         @Override
         public PreviewConfig getConfig(LensFacing lensFacing) {
-            return DEFAULT_CONFIG;
+            if (lensFacing != null) {
+                PreviewConfig.Builder configBuilder = PreviewConfig.Builder.fromConfig(
+                        DEFAULT_CONFIG);
+                configBuilder.setLensFacing(lensFacing);
+                return configBuilder.build();
+            } else {
+                return DEFAULT_CONFIG;
+            }
         }
     }
 
@@ -552,6 +579,7 @@ public class Preview extends UseCase {
         public abstract SurfaceTexture getSurfaceTexture();
 
         /** Returns the dimensions of the PreviewOutput. */
+        @NonNull
         public abstract Size getTextureSize();
 
         /**

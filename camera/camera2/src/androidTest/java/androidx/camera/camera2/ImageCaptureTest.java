@@ -65,7 +65,7 @@ import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -84,7 +84,7 @@ import java.util.Map;
 import java.util.concurrent.Semaphore;
 
 @FlakyTest
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureTest {
 
