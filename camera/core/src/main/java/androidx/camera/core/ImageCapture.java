@@ -41,6 +41,7 @@ import androidx.camera.core.CameraCaptureMetaData.AfState;
 import androidx.camera.core.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.CameraCaptureResult.EmptyCameraCaptureResult;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.AsyncFunction;
@@ -627,9 +628,11 @@ public class ImageCapture extends UseCase {
                             if (image != null) {
                                 // Call the head request listener to process the captured image.
                                 ImageCaptureRequest imageCaptureRequest;
-                                if ((imageCaptureRequest = mImageCaptureRequests.poll()) != null) {
-                                    imageCaptureRequest.dispatchImage(image);
-                                    ImageCapture.this.issueImageCaptureRequests();
+                                if ((imageCaptureRequest = mImageCaptureRequests.peek()) != null) {
+                                    SingleCloseImageProxy wrappedImage = new SingleCloseImageProxy(
+                                            image);
+                                    wrappedImage.addOnImageCloseListener(mOnImageCloseListener);
+                                    imageCaptureRequest.dispatchImage(wrappedImage);
                                 } else {
                                     // Discard the image if we have no requests.
                                     image.close();
@@ -653,6 +656,29 @@ public class ImageCapture extends UseCase {
 
         return suggestedResolutionMap;
     }
+
+    final OnImageCloseListener mOnImageCloseListener = new OnImageCloseListener() {
+        /**
+         * {@inheritDoc}
+         *
+         * <p>Issues next image capture request when dispatched image is closed, which can ensure
+         * the image buffer in ImageReader is always available.
+         */
+        @Override
+        public void onImageClose(ImageProxy image) {
+            if (Looper.getMainLooper() != Looper.myLooper()) {
+                mMainHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        onImageClose(image);
+                    }
+                });
+                return;
+            }
+            mImageCaptureRequests.poll();
+            issueImageCaptureRequests();
+        }
+    };
 
     /**
      * Routine before taking picture.
@@ -1198,6 +1224,7 @@ public class ImageCapture extends UseCase {
              * @param captureResult the camera capture result.
              * @return the check result, return null to continue checking.
              */
+            @Nullable
             T check(@NonNull CameraCaptureResult captureResult);
         }
 
