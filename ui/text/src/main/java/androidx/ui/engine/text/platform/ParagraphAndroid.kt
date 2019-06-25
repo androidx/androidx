@@ -78,6 +78,7 @@ const val LINE_FEED = '\n'
 
 internal class ParagraphAndroid constructor(
     val text: String,
+    val defaultTextStyle: TextStyle,
     val paragraphStyle: ParagraphStyle,
     val textStyles: List<AnnotatedString.Item<TextStyle>>,
     val typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
@@ -142,6 +143,9 @@ internal class ParagraphAndroid constructor(
     fun layout(width: Float) {
         val floorWidth = floor(width)
 
+        defaultTextStyle.applyTextStyle(textPaint)
+
+        // TODO(haoyuchang) remove this engine.ParagraphStyle
         paragraphStyle.fontSize?.let {
             textPaint.textSize = it
         }
@@ -462,6 +466,18 @@ internal class ParagraphAndroid constructor(
         }
         return spannableString
     }
+}
+
+internal fun TextStyle.applyTextStyle(textPaint: TextPaint) {
+    color?.let {
+        textPaint.color = it.toArgb()
+    }
+
+    letterSpacing?.let {
+        textPaint.letterSpacing = it
+    }
+
+    // TODO(haoyuchang) apply other styles when engine.ParagraphStyle get removed.
 }
 
 internal fun toLayoutAlign(align: TextAlign?): Int = when (align) {

@@ -247,11 +247,10 @@ class TextPainter(
                 // TODO(Migration/qqd): The textDirection below used to be RTL.
                 layoutTemplate = Paragraph(
                     text = " ",
+                    defaultTextStyle = textStyle ?: TextStyle(),
                     // direction doesn't matter, text is just a space
                     paragraphStyle = createParagraphStyle(),
-                    textStyles = textStyle?.let {
-                        listOf(AnnotatedString.Item(it, 0, 1))
-                    } ?: listOf()
+                    textStyles = listOf()
                 )
                 layoutTemplate?.layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))
             }
@@ -363,7 +362,12 @@ class TextPainter(
         if (!needsLayout && minWidth == lastMinWidth && finalMaxWidth == lastMaxWidth) return
         needsLayout = false
         if (paragraph == null) {
-            paragraph = Paragraph(text!!.text, createParagraphStyle(), text!!.textStyles)
+            paragraph = Paragraph(
+                text = text!!.text,
+                defaultTextStyle = textStyle ?: TextStyle(),
+                paragraphStyle = createParagraphStyle(),
+                textStyles = text!!.textStyles
+            )
         }
         lastMinWidth = minWidth
         lastMaxWidth = finalMaxWidth

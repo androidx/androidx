@@ -66,6 +66,7 @@ package androidx.ui.engine.text {
   public final class Paragraph {
     method public float getBaseline();
     method public androidx.ui.engine.geometry.Rect getCursorRect(int offset);
+    method public androidx.ui.painting.TextStyle getDefaultTextStyle();
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
     method public float getLineHeight(int lineIndex);
