@@ -83,11 +83,6 @@ class ScrollBenchmark {
         }
     }
 
-    fun spin(nsToSpin: Long) {
-        val start = System.nanoTime()
-        while (System.nanoTime() < start + nsToSpin) {}
-    }
-
     @UiThreadTest
     @Test
     fun createBindOffset() {
@@ -100,7 +95,6 @@ class ScrollBenchmark {
 
         val rv = activityRule.activity.recyclerView
         benchmarkRule.measureRepeated {
-            spin(nsToSpin = 17500)
             // each scroll should reveal a new item that must be inflated
             rv.scrollBy(0, 100)
         }
