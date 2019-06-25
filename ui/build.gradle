@@ -13,7 +13,6 @@ buildscript {
         classpath build_libs.gradle
         classpath build_libs.kotlin.gradle_plugin
         classpath build_libs.dokka_gradle
-        classpath "androidx.benchmark:benchmark-gradle-plugin:1.0.0-alpha01"
     }
 }
 
