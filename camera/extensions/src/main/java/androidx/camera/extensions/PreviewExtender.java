@@ -36,6 +36,7 @@ import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -107,6 +108,10 @@ public abstract class PreviewExtender {
                         return captureStageImpl != null;
                     }
                 });
+                break;
+            case PROCESSOR_TYPE_IMAGE_PROCESSOR:
+                mBuilder.setCaptureProcessor(new
+                        AdaptingPreviewProcessor((PreviewImageProcessorImpl) mImpl.getProcessor()));
                 break;
             default: // fall out
         }
