@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
@@ -70,8 +71,8 @@ public class SessionPlayerTest extends MediaSessionTestBase {
         mSession = new MediaSession.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            MediaSession.ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull MediaSession.ControllerInfo controller) {
                         if (CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                             return super.onConnect(session, controller);
                         }
@@ -79,8 +80,8 @@ public class SessionPlayerTest extends MediaSessionTestBase {
                     }
 
                     @Override
-                    public MediaItem onCreateMediaItem(MediaSession session,
-                            ControllerInfo controller, String mediaId) {
+                    public MediaItem onCreateMediaItem(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller, @NonNull String mediaId) {
                         return MediaTestUtils.createMediaItem(mediaId);
                     }
                 }).build();

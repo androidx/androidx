@@ -105,8 +105,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         mSession = new MediaSession.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller) {
                         if (Process.myUid() == controller.getUid()) {
                             return super.onConnect(session, controller);
                         }
@@ -114,8 +114,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
                     }
 
                     @Override
-                    public MediaItem onCreateMediaItem(MediaSession session,
-                            ControllerInfo controller, String mediaId) {
+                    public MediaItem onCreateMediaItem(@NonNull MediaSession session,
+                            @NonNull ControllerInfo controller, @NonNull String mediaId) {
                         return TestUtils.createMediaItem(mediaId);
                     }
                 })
@@ -244,14 +244,14 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(3);
         mController = createController(mSession.getToken(), true, null, new ControllerCallback() {
             @Override
-            public void onPlayerStateChanged(MediaController controller, int state) {
+            public void onPlayerStateChanged(@NonNull MediaController controller, int state) {
                 assertEquals(mController, controller);
                 assertEquals(testState, state);
                 latch.countDown();
             }
 
             @Override
-            public void onPlaylistChanged(MediaController controller, List<MediaItem> list,
+            public void onPlaylistChanged(@NonNull MediaController controller, List<MediaItem> list,
                     MediaMetadata metadata) {
                 assertEquals(mController, controller);
                 assertEquals(testPlaylist, list);
@@ -260,7 +260,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
             }
 
             @Override
-            public void onPlaybackInfoChanged(MediaController controller, PlaybackInfo info) {
+            public void onPlaybackInfoChanged(@NonNull MediaController controller,
+                    @NonNull PlaybackInfo info) {
                 assertEquals(mController, controller);
                 assertEquals(testAudioAttributes, info.getAudioAttributes());
                 latch.countDown();
@@ -331,7 +332,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlaylistChanged(MediaController controller,
+            public void onPlaylistChanged(@NonNull MediaController controller,
                     List<MediaItem> playlist, MediaMetadata metadata) {
                 assertNotNull(playlist);
                 TestUtils.assertMediaItemListEquals(testList, playlist);
@@ -364,7 +365,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlaylistChanged(MediaController controller,
+            public void onPlaylistChanged(@NonNull MediaController controller,
                     List<MediaItem> playlist, MediaMetadata metadata) {
                 assertNotNull(playlist);
                 TestUtils.assertMediaItemListEquals(testList, playlist);
@@ -403,7 +404,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlaylistMetadataChanged(MediaController controller,
+            public void onPlaylistMetadataChanged(@NonNull MediaController controller,
                     MediaMetadata metadata) {
                 assertNotNull(testMetadata);
                 assertEquals(testMetadata.getMediaId(), metadata.getMediaId());
@@ -449,7 +450,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final MediaController controller =
                 createController(mSession.getToken(), true, null, new ControllerCallback() {
                     @Override
-                    public void onPlaybackSpeedChanged(MediaController controller,
+                    public void onPlaybackSpeedChanged(@NonNull MediaController controller,
                             float speedOut) {
                         assertEquals(speed, speedOut, 0.0f);
                         latch.countDown();
@@ -476,7 +477,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlaylistMetadataChanged(MediaController controller,
+            public void onPlaylistMetadataChanged(@NonNull MediaController controller,
                     MediaMetadata metadata) {
                 assertNotNull(metadata);
                 assertEquals(item.getMediaId(), metadata.getMediaId());
@@ -485,8 +486,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         };
         final SessionCallback sessionCallback = new SessionCallback() {
             @Override
-            public SessionCommandGroup onConnect(MediaSession session,
-                    ControllerInfo controller) {
+            public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 if (Process.myUid() == controller.getUid()) {
                     SessionCommandGroup commands = new SessionCommandGroup.Builder()
                             .addCommand(new SessionCommand(
@@ -517,7 +518,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onSeekCompleted(MediaController controller, long position) {
+            public void onSeekCompleted(@NonNull MediaController controller, long position) {
                 controller.setTimeDiff(Long.valueOf(0));
                 assertEquals(testSeekPosition, position);
                 assertEquals(testPosition, controller.getCurrentPosition());
@@ -548,8 +549,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onBufferingStateChanged(MediaController controller, MediaItem item,
-                    int state) {
+            public void onBufferingStateChanged(@NonNull MediaController controller,
+                    @NonNull MediaItem item, int state) {
                 controller.setTimeDiff(Long.valueOf(0));
                 assertEquals(testItem, item);
                 assertEquals(testBufferingState, state);
@@ -579,7 +580,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlayerStateChanged(MediaController controller, int state) {
+            public void onPlayerStateChanged(@NonNull MediaController controller, int state) {
                 controller.setTimeDiff(Long.valueOf(0));
                 assertEquals(testPlayerState, state);
                 assertEquals(testPlayerState, controller.getPlayerState());
@@ -613,7 +614,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final MediaController controller =
                 createController(mSession.getToken(), true, null, new ControllerCallback() {
                     @Override
-                    public void onCurrentMediaItemChanged(MediaController controller,
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
                             MediaItem item) {
                         switch ((int) latch.getCount()) {
                             case 3:
@@ -731,7 +732,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onShuffleModeChanged(MediaController controller, int shuffleMode) {
+            public void onShuffleModeChanged(@NonNull MediaController controller, int shuffleMode) {
                 assertEquals(testShuffleMode, shuffleMode);
                 latch.countDown();
             }
@@ -764,7 +765,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onRepeatModeChanged(MediaController controller, int repeatMode) {
+            public void onRepeatModeChanged(@NonNull MediaController controller, int repeatMode) {
                 assertEquals(testRepeatMode, repeatMode);
                 latch.countDown();
             }
@@ -796,7 +797,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(2);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onRepeatModeChanged(MediaController controller, int repeatMode) {
+            public void onRepeatModeChanged(@NonNull MediaController controller, int repeatMode) {
                 switch ((int) latch.getCount()) {
                     case 2:
                         assertEquals(noneRepeatMode, repeatMode);
@@ -1014,8 +1015,10 @@ public class MediaControllerTest extends MediaSessionTestBase {
             }
 
             @Override
-            public SessionResult onCustomCommand(MediaSession session,
-                    ControllerInfo controller, SessionCommand customCommand, Bundle args) {
+            @NonNull
+            public SessionResult onCustomCommand(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller,
+                    @NonNull SessionCommand customCommand, Bundle args) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(command, customCommand.getCustomAction());
                 assertTrue(TestUtils.equals(testArgs, args));
@@ -1045,8 +1048,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         prepareLooper();
         final MediaSession.SessionCallback sessionCallback = new SessionCallback() {
             @Override
-            public SessionCommandGroup onConnect(MediaSession session,
-                    ControllerInfo controller) {
+            public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 return null;
             }
         };
@@ -1085,7 +1088,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onFastForward(MediaSession session, ControllerInfo controller) {
+            public int onFastForward(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 latch.countDown();
                 return RESULT_SUCCESS;
@@ -1106,7 +1110,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onRewind(MediaSession session, ControllerInfo controller) {
+            public int onRewind(@NonNull MediaSession session, @NonNull ControllerInfo controller) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 latch.countDown();
                 return RESULT_SUCCESS;
@@ -1130,8 +1134,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPlayFromSearch(MediaSession session, ControllerInfo controller,
-                    String query, Bundle extras) {
+            public int onPlayFromSearch(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
                 super.onPlayFromSearch(session, controller, query, extras);
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(request, query);
@@ -1158,8 +1162,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPlayFromUri(MediaSession session, ControllerInfo controller, Uri uri,
-                    Bundle extras) {
+            public int onPlayFromUri(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull Uri uri, Bundle extras) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
@@ -1185,8 +1189,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPlayFromMediaId(MediaSession session, ControllerInfo controller,
-                    String mediaId, Bundle extras) {
+            public int onPlayFromMediaId(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
@@ -1212,8 +1216,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPrepareFromSearch(MediaSession session, ControllerInfo controller,
-                    String query, Bundle extras) {
+            public int onPrepareFromSearch(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String query, Bundle extras) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(request, query);
                 assertTrue(TestUtils.equals(bundle, extras));
@@ -1239,8 +1243,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPrepareFromUri(MediaSession session, ControllerInfo controller, Uri uri,
-                    Bundle extras) {
+            public int onPrepareFromUri(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull Uri uri, Bundle extras) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
@@ -1266,8 +1270,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPrepareFromMediaId(MediaSession session, ControllerInfo controller,
-                    String mediaId, Bundle extras) {
+            public int onPrepareFromMediaId(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String mediaId, Bundle extras) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
@@ -1294,8 +1298,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onSetRating(MediaSession session, ControllerInfo controller,
-                    String mediaIdOut, Rating ratingOut) {
+            public int onSetRating(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller, @NonNull String mediaIdOut,
+                    @NonNull Rating ratingOut) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(mediaId, mediaIdOut);
                 assertEquals(rating, ratingOut);
@@ -1455,8 +1460,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
         mController = createController(TestUtils.getServiceToken(mContext, id), true,
                 null, new ControllerCallback() {
                     @Override
-                    public SessionResult onCustomCommand(
-                            MediaController controller, SessionCommand command, Bundle args) {
+                    @NonNull
+                    public SessionResult onCustomCommand(@NonNull MediaController controller,
+                            @NonNull SessionCommand command, Bundle args) {
                         if (testCommand.equals(command)) {
                             controllerLatch.countDown();
                         }
@@ -1544,7 +1550,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onPlayerStateChanged(MediaController controller, int state) {
+            public void onPlayerStateChanged(@NonNull MediaController controller, int state) {
                 switch ((int) latch.getCount()) {
                     case 2:
                         assertEquals(state, pausedState);
@@ -1667,7 +1673,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onTrackInfoChanged(MediaController controller, List<TrackInfo> trackInfos) {
+            public void onTrackInfoChanged(@NonNull MediaController controller,
+                    @NonNull List<TrackInfo> trackInfos) {
                 assertEquals(testTracks.size(), trackInfos.size());
                 for (int i = 0; i < testTracks.size(); i++) {
                     assertEquals(testTracks.get(i), trackInfos.get(i));
@@ -1696,13 +1703,15 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public void onTrackSelected(MediaController controller, TrackInfo trackInfo) {
+            public void onTrackSelected(@NonNull MediaController controller,
+                    @NonNull TrackInfo trackInfo) {
                 assertEquals(testTrack, trackInfo);
                 trackSelectedLatch.countDown();
             }
 
             @Override
-            public void onTrackDeselected(MediaController controller, TrackInfo trackInfo) {
+            public void onTrackDeselected(@NonNull MediaController controller,
+                    @NonNull TrackInfo trackInfo) {
                 assertEquals(testTrack, trackInfo);
                 trackDeselectedLatch.countDown();
             }

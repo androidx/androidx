@@ -24,6 +24,7 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.RemoteSessionPlayer;
 import androidx.media2.session.SessionCommandGroup;
@@ -61,8 +62,8 @@ public class RemoteSessionPlayerTest extends MediaSessionTestBase {
         mSession = new MediaSession.Builder(mContext, new MockPlayer(1))
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup onConnect(MediaSession session,
-                            MediaSession.ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                            @NonNull MediaSession.ControllerInfo controller) {
                         if (CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                             return super.onConnect(session, controller);
                         }

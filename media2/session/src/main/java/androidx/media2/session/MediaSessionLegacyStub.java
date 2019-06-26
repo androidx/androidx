@@ -608,23 +608,23 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, @NonNull List<CommandButton> layout) throws RemoteException {
             // no-op.
         }
 
         @Override
-        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
 
         @Override
-        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+        void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
                 throws RemoteException {
             // no-op
         }
 
         @Override
-        void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+        void sendCustomCommand(int seq, @NonNull SessionCommand command, Bundle args)
                 throws RemoteException {
             // no-op
         }
@@ -642,7 +642,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+        void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
@@ -660,7 +660,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+        void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
@@ -688,13 +688,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
 
@@ -771,24 +771,24 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, @NonNull List<CommandButton> layout) throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
 
         @Override
-        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info) throws RemoteException {
             // no-op. Calling MediaSessionCompat#setPlaybackToLocal/Remote
             // is already done in updatePlayerConnector().
         }
 
         @Override
-        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+        void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
                 throws RemoteException {
             throw new AssertionError("This shouldn't be called");
         }
 
         @Override
-        void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+        void sendCustomCommand(int seq, @NonNull SessionCommand command, Bundle args)
                 throws RemoteException {
             // no-op
         }
@@ -810,7 +810,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+        void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
@@ -833,7 +833,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+        void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             if (Build.VERSION.SDK_INT < 21) {
                 if (playlist == null) {
@@ -903,13 +903,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             // no-op
         }
 

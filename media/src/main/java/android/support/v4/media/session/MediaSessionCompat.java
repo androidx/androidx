@@ -952,7 +952,8 @@ public class MediaSessionCompat {
      * @see MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER
      * @see MediaSessionManager#isTrustedForMediaControl(RemoteUserInfo)
      */
-    public final @NonNull RemoteUserInfo getCurrentControllerInfo() {
+    @NonNull
+    public final RemoteUserInfo getCurrentControllerInfo() {
         return mImpl.getCurrentControllerInfo();
     }
 
@@ -4208,7 +4209,8 @@ public class MediaSessionCompat {
         }
 
         @Override
-        public final @NonNull RemoteUserInfo getCurrentControllerInfo() {
+        @NonNull
+        public final RemoteUserInfo getCurrentControllerInfo() {
             android.media.session.MediaSessionManager.RemoteUserInfo info =
                     ((MediaSession) mSessionFwk).getCurrentControllerInfo();
             return new RemoteUserInfo(info);

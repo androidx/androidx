@@ -52,6 +52,7 @@ import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SearchCallback;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 
+import androidx.annotation.NonNull;
 import androidx.media2.session.MediaLibraryService;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.filters.LargeTest;
@@ -137,7 +138,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
             }
 
             @Override
-            public void onError(String itemId) {
+            public void onError(@NonNull String itemId) {
                 fail();
             }
         });
@@ -153,7 +154,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 assertEquals(testParentId, parentId);
                 assertNotNull(children);
                 assertEquals(GET_CHILDREN_RESULT.size(), children.size());
@@ -166,7 +168,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle option) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle option) {
                 fail();
             }
         });
@@ -182,7 +185,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 assertEquals(testParentId, parentId);
                 assertNotNull(children);
                 assertTrue(children.size() < LONG_LIST_COUNT);
@@ -195,7 +199,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle option) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle option) {
                 fail();
             }
         });
@@ -218,8 +223,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         option.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
         mBrowserCompat.subscribe(testParentId, option, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children,
-                    Bundle options) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle options) {
                 assertEquals(testParentId, parentId);
                 assertEquals(page, option.getInt(MediaBrowserCompat.EXTRA_PAGE));
                 assertEquals(pageSize, option.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE));
@@ -238,7 +243,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 fail();
             }
         });
@@ -254,7 +260,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children) {
                 assertNotNull(children);
                 assertEquals(0, children.size());
                 latch.countDown();
@@ -272,14 +279,14 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
             @Override
-            public void onError(String parentId) {
+            public void onError(@NonNull String parentId) {
                 assertEquals(testParentId, parentId);
                 latch.countDown();
             }
 
             @Override
-            public void onChildrenLoaded(String parentId, List<MediaItem> children,
-                    Bundle options) {
+            public void onChildrenLoaded(@NonNull String parentId,
+                    @NonNull List<MediaItem> children, @NonNull Bundle options) {
                 fail();
             }
         });
@@ -301,7 +308,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 int expectedSize = Math.max(
@@ -340,7 +348,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
 
@@ -366,7 +375,8 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 assertNotNull(items);
@@ -388,14 +398,15 @@ public class MediaBrowserCompatTestWithMediaLibraryService extends
         final CountDownLatch latch = new CountDownLatch(1);
         mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
             @Override
-            public void onError(String query, Bundle extras) {
+            public void onError(@NonNull String query, Bundle extras) {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
             }
 
             @Override
-            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+            public void onSearchResult(@NonNull String query, Bundle extras,
+                    @NonNull List<MediaItem> items) {
                 fail();
             }
         });

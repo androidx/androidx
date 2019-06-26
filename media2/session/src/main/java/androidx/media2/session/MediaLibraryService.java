@@ -103,7 +103,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @see MediaMetadata#METADATA_KEY_MEDIA_ID
              * @see LibraryParams
              */
-            public @NonNull LibraryResult onGetLibraryRoot(@NonNull MediaLibrarySession session,
+            @NonNull
+            public LibraryResult onGetLibraryRoot(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @Nullable LibraryParams params) {
                 return new LibraryResult(RESULT_ERROR_NOT_SUPPORTED);
             }
@@ -121,7 +122,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              *         will be thrown if an invalid result is returned.
              * @see SessionCommand#COMMAND_CODE_LIBRARY_GET_ITEM
              */
-            public @NonNull LibraryResult onGetItem(@NonNull MediaLibrarySession session,
+            @NonNull
+            public LibraryResult onGetItem(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String mediaId) {
                 return new LibraryResult(RESULT_ERROR_NOT_SUPPORTED);
             }
@@ -144,7 +146,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @see SessionCommand#COMMAND_CODE_LIBRARY_GET_CHILDREN
              * @see LibraryParams
              */
-            public @NonNull LibraryResult onGetChildren(@NonNull MediaLibrarySession session,
+            @NonNull
+            public LibraryResult onGetChildren(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId,
                     @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
                     @Nullable LibraryParams params) {
@@ -171,7 +174,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @see SessionCommand#COMMAND_CODE_LIBRARY_SUBSCRIBE
              * @see LibraryParams
              */
-            public @ResultCode int onSubscribe(@NonNull MediaLibrarySession session,
+            @ResultCode
+            public int onSubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId,
                     @Nullable LibraryParams params) {
                 return RESULT_ERROR_NOT_SUPPORTED;
@@ -190,7 +194,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @return result code
              * @see SessionCommand#COMMAND_CODE_LIBRARY_UNSUBSCRIBE
              */
-            public @ResultCode int onUnsubscribe(@NonNull MediaLibrarySession session,
+            @ResultCode
+            public int onUnsubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId) {
                 return RESULT_ERROR_NOT_SUPPORTED;
             }
@@ -213,7 +218,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @see #notifySearchResultChanged(ControllerInfo, String, int, LibraryParams)
              * @see LibraryParams
              */
-            public @ResultCode int onSearch(@NonNull MediaLibrarySession session,
+            @ResultCode
+            public int onSearch(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String query,
                     @Nullable LibraryParams params) {
                 return RESULT_ERROR_NOT_SUPPORTED;
@@ -241,7 +247,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @see SessionCommand#COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT
              * @see LibraryParams
              */
-            public @NonNull LibraryResult onGetSearchResult(
+            @NonNull
+            public LibraryResult onGetSearchResult(
                     @NonNull MediaLibrarySession session, @NonNull ControllerInfo controller,
                     @NonNull String query, @IntRange(from = 0) int page,
                     @IntRange(from = 1) int pageSize, @Nullable LibraryParams params) {
@@ -275,23 +282,26 @@ public abstract class MediaLibraryService extends MediaSessionService {
             }
 
             @Override
-            public @NonNull Builder setSessionActivity(@Nullable PendingIntent pi) {
+            @NonNull
+            public Builder setSessionActivity(@Nullable PendingIntent pi) {
                 return super.setSessionActivity(pi);
             }
 
             @Override
-            public @NonNull Builder setId(@NonNull String id) {
+            @NonNull
+            public Builder setId(@NonNull String id) {
                 return super.setId(id);
             }
 
-            @NonNull
             @Override
+            @NonNull
             public Builder setExtras(@NonNull Bundle extras) {
                 return super.setExtras(extras);
             }
 
             @Override
-            public @NonNull MediaLibrarySession build() {
+            @NonNull
+            public MediaLibrarySession build() {
                 if (mCallbackExecutor == null) {
                     mCallbackExecutor = ContextCompat.getMainExecutor(mContext);
                 }
@@ -398,6 +408,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
         }
 
         @Override
+        @NonNull
         MediaLibrarySessionCallback getCallback() {
             return (MediaLibrarySessionCallback) super.getCallback();
         }
@@ -443,7 +454,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
     }
 
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(@NonNull Intent intent) {
         return super.onBind(intent);
     }
 
@@ -551,7 +562,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
          * <p>
          * Extras are the private contract between browser and library session.
          */
-        public @Nullable Bundle getExtras() {
+        @Nullable
+        public Bundle getExtras() {
             return mBundle;
         }
 
@@ -575,7 +587,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @param recent {@code true} for recent items. {@code false} otherwise.
              * @return this builder
              */
-            public @NonNull Builder setRecent(boolean recent) {
+            @NonNull
+            public Builder setRecent(boolean recent) {
                 mRecent = recent;
                 return this;
             }
@@ -590,7 +603,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @param offline {@code true} for offline items. {@code false} otherwise.
              * @return this builder
              */
-            public @NonNull Builder setOffline(boolean offline) {
+            @NonNull
+            public Builder setOffline(boolean offline) {
                 mOffline = offline;
                 return this;
             }
@@ -606,7 +620,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @param suggested {@code true} for suggested items. {@code false} otherwise
              * @return this builder
              */
-            public @NonNull Builder setSuggested(boolean suggested) {
+            @NonNull
+            public Builder setSuggested(boolean suggested) {
                 mSuggested = suggested;
                 return this;
             }
@@ -617,7 +632,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * @param extras The extras or null.
              * @return this builder
              */
-            public @NonNull Builder setExtras(@Nullable Bundle extras) {
+            @NonNull
+            public Builder setExtras(@Nullable Bundle extras) {
                 mBundle = extras;
                 return this;
             }
@@ -627,7 +643,8 @@ public abstract class MediaLibraryService extends MediaSessionService {
              *
              * @return new LibraryParams
              */
-            public @NonNull LibraryParams build() {
+            @NonNull
+            public LibraryParams build() {
                 return new LibraryParams(mBundle, mRecent, mOffline, mSuggested);
             }
         }

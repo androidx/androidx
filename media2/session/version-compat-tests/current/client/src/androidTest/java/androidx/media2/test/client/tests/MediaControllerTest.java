@@ -402,15 +402,15 @@ public class MediaControllerTest extends MediaSessionTestBase {
         MediaController controller = createController(mRemoteSession.getToken(), true, null,
                 new MediaController.ControllerCallback() {
                     @Override
-                    public void onTrackSelected(MediaController controller,
-                            SessionPlayer.TrackInfo trackInfo) {
+                    public void onTrackSelected(@NonNull MediaController controller,
+                            @NonNull SessionPlayer.TrackInfo trackInfo) {
                         assertEquals(testTrack, trackInfo);
                         selectTrackLatch.countDown();
                     }
 
                     @Override
-                    public void onTrackDeselected(MediaController controller,
-                            SessionPlayer.TrackInfo trackInfo) {
+                    public void onTrackDeselected(@NonNull MediaController controller,
+                            @NonNull SessionPlayer.TrackInfo trackInfo) {
                         assertEquals(testTrack, trackInfo);
                         deselectTrackLatch.countDown();
                     }

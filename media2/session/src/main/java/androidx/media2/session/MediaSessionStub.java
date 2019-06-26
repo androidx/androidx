@@ -154,8 +154,8 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     private void dispatchSessionTask(@NonNull IMediaController caller, int seq,
-            final @CommandCode int commandCode,
-            final @NonNull SessionTask task) {
+            @CommandCode final int commandCode,
+            @NonNull final SessionTask task) {
         dispatchSessionTaskInternal(caller, seq, null, commandCode, task);
     }
 
@@ -166,9 +166,9 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     private void dispatchSessionTaskInternal(@NonNull IMediaController caller, final int seq,
-            final @Nullable SessionCommand sessionCommand,
-            final @CommandCode int commandCode,
-            final @NonNull SessionTask task) {
+            @Nullable final SessionCommand sessionCommand,
+            @CommandCode final int commandCode,
+            @NonNull final SessionTask task) {
         final long token = Binder.clearCallingIdentity();
         try {
             final ControllerInfo controller = mConnectedControllersManager.getController(
@@ -308,7 +308,7 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     private void dispatchLibrarySessionTask(@NonNull IMediaController caller, int seq,
-            @CommandCode final int commandCode, final @NonNull LibrarySessionCallbackTask task) {
+            @CommandCode final int commandCode, @NonNull final LibrarySessionCallbackTask task) {
         if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("MediaSession cannot handle MediaLibrarySession command");
         }
@@ -1295,25 +1295,25 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, @NonNull List<CommandButton> layout) throws RemoteException {
             mIControllerCallback.onSetCustomLayout(seq,
                     MediaUtils.convertCommandButtonListToParcelImplList(layout));
         }
 
         @Override
-        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info) throws RemoteException {
             mIControllerCallback.onPlaybackInfoChanged(seq, MediaParcelUtils.toParcelable(info));
         }
 
         @Override
-        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+        void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
                 throws RemoteException {
             mIControllerCallback.onAllowedCommandsChanged(
                     seq, MediaParcelUtils.toParcelable(commands));
         }
 
         @Override
-        void sendCustomCommand(int seq, SessionCommand command, Bundle args)
+        void sendCustomCommand(int seq, @NonNull SessionCommand command, Bundle args)
                 throws RemoteException {
             mIControllerCallback.onCustomCommand(seq, MediaParcelUtils.toParcelable(command), args);
         }
@@ -1331,7 +1331,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+        void onBufferingStateChanged(int seq, @NonNull MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             mIControllerCallback.onBufferingStateChanged(seq, MediaParcelUtils.toParcelable(item),
                     bufferingState, bufferedPositionMs, eventTimeMs, positionMs);
@@ -1351,7 +1351,7 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+        void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             ControllerInfo controller = mConnectedControllersManager.getController(
                     getCallbackBinder());
@@ -1398,15 +1398,15 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
+                LibraryParams params) throws RemoteException {
             mIControllerCallback.onChildrenChanged(seq, parentId, itemCount,
                     MediaParcelUtils.toParcelable(params));
         }
 
         @Override
-        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
-                throws RemoteException {
+        void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
+                LibraryParams params) throws RemoteException {
             mIControllerCallback.onSearchResultChanged(seq, query, itemCount,
                     MediaParcelUtils.toParcelable(params));
         }

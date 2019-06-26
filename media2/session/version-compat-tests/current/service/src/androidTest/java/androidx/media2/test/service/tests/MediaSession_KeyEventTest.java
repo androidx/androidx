@@ -30,6 +30,7 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Build;
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSession.ControllerInfo;
@@ -222,7 +223,8 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
         boolean mRewindCalled;
 
         @Override
-        public SessionCommandGroup onConnect(MediaSession session, ControllerInfo controller) {
+        public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             if (sExpectedControllerPackageName.equals(controller.getPackageName())) {
                 return super.onConnect(session, controller);
             }
@@ -230,14 +232,15 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
         }
 
         @Override
-        public int onFastForward(MediaSession session, ControllerInfo controller) {
+        public int onFastForward(@NonNull MediaSession session,
+                @NonNull ControllerInfo controller) {
             mFastForwardCalled = true;
             mCountDownLatch.countDown();
             return RESULT_SUCCESS;
         }
 
         @Override
-        public int onRewind(MediaSession session, ControllerInfo controller) {
+        public int onRewind(@NonNull MediaSession session, @NonNull ControllerInfo controller) {
             mRewindCalled = true;
             mCountDownLatch.countDown();
             return RESULT_SUCCESS;

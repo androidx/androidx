@@ -310,7 +310,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * it should be ignored and a {@link PlayerResult} should be returned with
      * {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> play();
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> play();
 
     /**
      * Pauses playback.
@@ -321,7 +322,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * it should be ignored and a {@link PlayerResult} should be returned with
      * {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> pause();
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> pause();
 
     /**
      * Prepares the media items for playback. During this time, the player may allocate resources
@@ -334,7 +336,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * it is ignored and {@link PlayerResult} should be returned with
      * {@link PlayerResult#RESULT_ERROR_INVALID_STATE}.
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> prepare();
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> prepare();
 
     /**
      * Seeks to the specified position. Moves the playback head to the specified position.
@@ -347,7 +350,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @param position the new playback position in ms. The value should be in the range of start
      * and end positions defined in {@link MediaItem}.
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> seekTo(long position);
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> seekTo(long position);
 
     /**
      * Sets the playback speed. {@code 1.0f} is the default, negative values indicate reverse
@@ -366,7 +370,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see #getPlaybackSpeed()
      * @see PlayerCallback#onPlaybackSpeedChanged(SessionPlayer, float)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> setPlaybackSpeed(float playbackSpeed);
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> setPlaybackSpeed(float playbackSpeed);
 
     /**
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the media.
@@ -380,7 +385,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      *
      * @param attributes non-null <code>AudioAttributes</code>.
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> setAudioAttributes(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> setAudioAttributes(
             @NonNull AudioAttributesCompat attributes);
 
     /**
@@ -393,7 +399,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see #PLAYER_STATE_PLAYING
      * @see #PLAYER_STATE_ERROR
      */
-    public abstract @PlayerState int getPlayerState();
+    @PlayerState
+    public abstract int getPlayerState();
 
     /**
      * Gets the current playback head position.
@@ -425,7 +432,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the buffering state.
      * @see #getBufferedPosition()
      */
-    public abstract @BuffState int getBufferingState();
+    @BuffState
+    public abstract int getBufferingState();
 
     /**
      * Gets the actual playback speed to be used by the player when playing. A value of {@code 1.0f}
@@ -513,7 +521,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see PlayerCallback#onPlaylistChanged
      * @see PlayerCallback#onCurrentMediaItemChanged
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> setPlaylist(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> setPlaylist(
             @NonNull List<MediaItem> list, @Nullable MediaMetadata metadata);
 
     /**
@@ -551,7 +560,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see PlayerCallback#onCurrentMediaItemChanged
      * @throws IllegalArgumentException if the given item is {@code null}.
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> setMediaItem(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> setMediaItem(
             @NonNull MediaItem item);
 
     /**
@@ -576,7 +586,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @param item the media item you want to add
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> addPlaylistItem(int index,
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> addPlaylistItem(int index,
             @NonNull MediaItem item);
 
     /**
@@ -593,7 +604,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @param index the index of the item you want to remove in the playlist
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> removePlaylistItem(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> removePlaylistItem(
             @IntRange(from = 0) int index);
 
     /**
@@ -613,7 +625,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @param item the new item
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> replacePlaylistItem(int index,
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> replacePlaylistItem(int index,
             @NonNull MediaItem item);
 
     /**
@@ -628,7 +641,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      *
      * @see PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> skipToPreviousPlaylistItem();
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> skipToPreviousPlaylistItem();
 
     /**
      * Skips to the next item in the playlist.
@@ -642,7 +656,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      *
      * @see PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> skipToNextPlaylistItem();
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> skipToNextPlaylistItem();
 
     /**
      * Skips to the the media item.
@@ -657,7 +672,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @param index The index of the item you want to play in the playlist
      * @see PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> skipToPlaylistItem(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> skipToPlaylistItem(
             @IntRange(from = 0) int index);
 
     /**
@@ -673,7 +689,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @param metadata metadata of the playlist
      * @see PlayerCallback#onPlaylistMetadataChanged(SessionPlayer, MediaMetadata)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> updatePlaylistMetadata(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> updatePlaylistMetadata(
             @Nullable MediaMetadata metadata);
 
     /**
@@ -692,7 +709,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see #REPEAT_MODE_GROUP
      * @see PlayerCallback#onRepeatModeChanged(SessionPlayer, int)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> setRepeatMode(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> setRepeatMode(
             @RepeatMode int repeatMode);
 
     /**
@@ -710,7 +728,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see #SHUFFLE_MODE_GROUP
      * @see PlayerCallback#onShuffleModeChanged(SessionPlayer, int)
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> setShuffleMode(
+    @NonNull
+    public abstract ListenableFuture<PlayerResult> setShuffleMode(
             @ShuffleMode int shuffleMode);
 
     /**
@@ -720,7 +739,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return playlist, or {@code null}
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      */
-    public abstract @Nullable List<MediaItem> getPlaylist();
+    @Nullable
+    public abstract List<MediaItem> getPlaylist();
 
     /**
      * Gets the playlist metadata.
@@ -729,7 +749,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      * @see PlayerCallback#onPlaylistMetadataChanged(SessionPlayer, MediaMetadata)
      */
-    public abstract @Nullable MediaMetadata getPlaylistMetadata();
+    @Nullable
+    public abstract MediaMetadata getPlaylistMetadata();
 
     /**
      * Gets the repeat mode.
@@ -741,7 +762,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see #REPEAT_MODE_GROUP
      * @see PlayerCallback#onRepeatModeChanged(SessionPlayer, int)
      */
-    public abstract @RepeatMode int getRepeatMode();
+    @RepeatMode
+    public abstract int getRepeatMode();
 
     /**
      * Gets the shuffle mode.
@@ -752,7 +774,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see #SHUFFLE_MODE_GROUP
      * @see PlayerCallback#onShuffleModeChanged(SessionPlayer, int)
      */
-    public abstract @ShuffleMode int getShuffleMode();
+    @ShuffleMode
+    public abstract int getShuffleMode();
 
     /**
      * Gets the current media item, which is currently playing or would be played with later
@@ -766,7 +789,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @see #setMediaItem
      * @see #setPlaylist
      */
-    public abstract @Nullable MediaItem getCurrentMediaItem();
+    @Nullable
+    public abstract MediaItem getCurrentMediaItem();
 
     /**
      * Gets the index of current media item in playlist. This value may be updated when
@@ -776,7 +800,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the index of current media item. Can be {@link #INVALID_ITEM_INDEX} when current
      *         media item is null or not in the playlist, and when the playlist hasn't been set.
      */
-    public abstract @IntRange(from = INVALID_ITEM_INDEX) int getCurrentMediaItemIndex();
+    @IntRange(from = INVALID_ITEM_INDEX)
+    public abstract int getCurrentMediaItemIndex();
 
     /**
      * Gets the previous item index in the playlist. The returned value can be outdated after
@@ -786,7 +811,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the index of previous media item. Can be {@link #INVALID_ITEM_INDEX} only when
      *         previous media item does not exist or playlist hasn't been set.
      */
-    public abstract @IntRange(from = INVALID_ITEM_INDEX) int getPreviousMediaItemIndex();
+    @IntRange(from = INVALID_ITEM_INDEX)
+    public abstract int getPreviousMediaItemIndex();
 
     /**
      * Gets the next item index in the playlist. The returned value can be outdated after
@@ -796,7 +822,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the index of next media item. Can be {@link #INVALID_ITEM_INDEX} only when next media
      *         item does not exist or playlist hasn't been set.
      */
-    public abstract @IntRange(from = INVALID_ITEM_INDEX) int getNextMediaItemIndex();
+    @IntRange(from = INVALID_ITEM_INDEX)
+    public abstract int getNextMediaItemIndex();
 
     // Listeners / Callback related
     // Intentionally final not to allow developers to change the behavior
@@ -852,7 +879,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      *
      * @return map of callbacks and its executors
      */
-    protected final @NonNull List<Pair<PlayerCallback, Executor>> getCallbacks() {
+    @NonNull
+    protected final List<Pair<PlayerCallback, Executor>> getCallbacks() {
         List<Pair<PlayerCallback, Executor>> list = new ArrayList<>();
         synchronized (mLock) {
             list.addAll(mCallbacks);
@@ -1508,7 +1536,8 @@ public abstract class SessionPlayer implements AutoCloseable {
          * @see #RESULT_INFO_SKIPPED
          */
         @Override
-        public @ResultCode int getResultCode() {
+        @ResultCode
+        public int getResultCode() {
             return mResultCode;
         }
 
@@ -1532,7 +1561,8 @@ public abstract class SessionPlayer implements AutoCloseable {
          *         the current media item was {@code null}.
          */
         @Override
-        public @Nullable MediaItem getMediaItem() {
+        @Nullable
+        public MediaItem getMediaItem() {
             return mItem;
         }
     }

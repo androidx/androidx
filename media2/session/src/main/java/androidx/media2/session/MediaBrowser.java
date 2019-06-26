@@ -260,9 +260,9 @@ public class MediaBrowser extends MediaController {
      * @see LibraryResult#getMediaItems()
      */
     @NonNull
-    public ListenableFuture<LibraryResult> getSearchResult(final @NonNull String query,
+    public ListenableFuture<LibraryResult> getSearchResult(@NonNull final String query,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
-            final @Nullable LibraryParams params) {
+            @Nullable final LibraryParams params) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
         }

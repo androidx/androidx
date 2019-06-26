@@ -224,7 +224,8 @@ public abstract class MediaSessionService extends Service {
      * @param session a session that needs notification update.
      * @return a {@link MediaNotification}. Can be {@code null}.
      */
-    public @Nullable MediaNotification onUpdateNotification(@NonNull MediaSession session) {
+    @Nullable
+    public MediaNotification onUpdateNotification(@NonNull MediaSession session) {
         if (session == null) {
             throw new NullPointerException("session shouldn't be null");
         }
@@ -236,7 +237,8 @@ public abstract class MediaSessionService extends Service {
      *
      * @return sessions
      */
-    public final @NonNull List<MediaSession> getSessions() {
+    @NonNull
+    public final List<MediaSession> getSessions() {
         return mImpl.getSessions();
     }
 
@@ -253,8 +255,8 @@ public abstract class MediaSessionService extends Service {
      * @return Binder
      */
     @CallSuper
-    @Nullable
     @Override
+    @Nullable
     public IBinder onBind(@NonNull Intent intent) {
         return mImpl.onBind(intent);
     }
@@ -318,7 +320,8 @@ public abstract class MediaSessionService extends Service {
          *
          * @return the notification
          */
-        public @NonNull Notification getNotification() {
+        @NonNull
+        public Notification getNotification() {
             return mNotification;
         }
     }

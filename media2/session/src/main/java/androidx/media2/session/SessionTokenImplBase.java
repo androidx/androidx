@@ -128,12 +128,14 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     }
 
     @Override
-    public @NonNull String getPackageName() {
+    @NonNull
+    public String getPackageName() {
         return mPackageName;
     }
 
     @Override
-    public @Nullable String getServiceName() {
+    @Nullable
+    public String getServiceName() {
         return mServiceName;
     }
 
@@ -148,12 +150,13 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     }
 
     @Override
-    public @SessionToken.TokenType int getType() {
+    @SessionToken.TokenType
+    public int getType() {
         return mType;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public Bundle getExtras() {
         return mExtras == null ? Bundle.EMPTY : new Bundle(mExtras);
     }
