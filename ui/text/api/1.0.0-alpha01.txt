@@ -77,7 +77,7 @@ package androidx.ui.engine.text {
     method public float getMinIntrinsicWidth();
     method public androidx.ui.engine.text.ParagraphStyle getParagraphStyle();
     method public androidx.ui.painting.Path getPathForRange(int start, int end);
-    method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
+    method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public String getText();
     method public java.util.List<androidx.ui.painting.AnnotatedString.Item<androidx.ui.painting.TextStyle>> getTextStyles();
     method public float getWidth();
@@ -410,13 +410,13 @@ package androidx.ui.painting {
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
     method public androidx.ui.painting.ParagraphStyle? getParagraphStyle();
-    method public androidx.ui.engine.text.TextPosition getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
+    method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getPreferredLineHeight();
     method public androidx.ui.engine.geometry.Size getSize();
     method public androidx.ui.painting.AnnotatedString? getText();
     method public androidx.ui.painting.TextStyle? getTextStyle();
     method public float getWidth();
-    method public androidx.ui.services.text_editing.TextRange getWordBoundary(androidx.ui.engine.text.TextPosition position);
+    method public androidx.ui.services.text_editing.TextRange getWordBoundary(int position);
     method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);

@@ -185,7 +185,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset does not match",
                 position,
-                equalTo(TextPosition(i))
+                equalTo(i)
             )
         }
     }
@@ -205,7 +205,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset does not match",
                 position,
-                equalTo(TextPosition(text.length - i))
+                equalTo(text.length - i)
             )
         }
     }
@@ -228,7 +228,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset, second line does not match",
                 position,
-                equalTo(TextPosition(i + firstLine.length))
+                equalTo(i + firstLine.length)
             )
         }
     }
@@ -251,7 +251,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset, second line does not match",
                 position,
-                equalTo(TextPosition(text.length - i))
+                equalTo(text.length - i)
             )
         }
     }
@@ -267,12 +267,12 @@ class ParagraphIntegrationTest {
         // greater than width
         var offset = Offset(fontSize * text.length * 2, fontSize / 2)
         var position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(text.length)))
+        assertThat(position, equalTo(text.length))
 
         // negative
         offset = Offset(-1 * fontSize, fontSize / 2)
         position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(0)))
+        assertThat(position, equalTo(0))
     }
 
     @Test
@@ -286,12 +286,12 @@ class ParagraphIntegrationTest {
         // greater than height
         var offset = Offset(fontSize / 2, fontSize * text.length * 2)
         var position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(0)))
+        assertThat(position, equalTo(0))
 
         // negative
         offset = Offset(fontSize / 2, -1 * fontSize)
         position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(0)))
+        assertThat(position, equalTo(0))
     }
 
     @Test
@@ -303,8 +303,7 @@ class ParagraphIntegrationTest {
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
         // test positions that are 0, 1, 2 ... which maps to chars 0, 1, 2 ...
         for (i in 0..text.length - 1) {
-            val textPosition = TextPosition(i)
-            val box = paragraph.getBoundingBoxForTextPosition(textPosition)
+            val box = paragraph.getBoundingBoxForTextPosition(i)
             assertThat(box.left, equalTo(i * fontSize))
             assertThat(box.right, equalTo((i + 1) * fontSize))
             assertThat(box.top, equalTo(0f))
@@ -325,7 +324,7 @@ class ParagraphIntegrationTest {
         // test positions are 3, 4, 5 and always on the second line
         // which maps to chars 3, 4, 5
         for (i in 0..secondLine.length - 1) {
-            val textPosition = TextPosition(i + firstLine.length)
+            val textPosition = i + firstLine.length
             val box = paragraph.getBoundingBoxForTextPosition(textPosition)
             assertThat(box.left, equalTo(i * fontSize))
             assertThat(box.right, equalTo((i + 1) * fontSize))
@@ -342,7 +341,7 @@ class ParagraphIntegrationTest {
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
-        val textPosition = TextPosition(-1)
+        val textPosition = -1
         val box = paragraph.getBoundingBoxForTextPosition(textPosition)
         assertThat(box.left, equalTo(0f))
         assertThat(box.right, equalTo(0f))
@@ -358,7 +357,7 @@ class ParagraphIntegrationTest {
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
-        val textPosition = TextPosition(text.length + 1)
+        val textPosition = text.length + 1
         paragraph.getBoundingBoxForTextPosition(textPosition)
     }
 
@@ -766,7 +765,7 @@ class ParagraphIntegrationTest {
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
         // The offset of the last character in display order.
         val offset = Offset("a.".length * fontSize + 1, fontSize / 2)
-        val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+        val charIndex = paragraph.getPositionForOffset(offset = offset)
         assertThat(charIndex, equalTo(2))
     }
 
@@ -784,7 +783,7 @@ class ParagraphIntegrationTest {
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
         // The offset of the first character in display order.
         val offset = Offset(fontSize / 2 + 1, fontSize / 2)
-        val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+        val charIndex = paragraph.getPositionForOffset(offset = offset)
         assertThat(charIndex, equalTo(2))
     }
 
@@ -802,7 +801,7 @@ class ParagraphIntegrationTest {
         for (i in 0..text.length) {
             // The offset of the i-th character in display order.
             val offset = Offset(i * fontSize + 1, fontSize / 2)
-            val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+            val charIndex = paragraph.getPositionForOffset(offset = offset)
             assertThat(charIndex, equalTo(i))
         }
     }
@@ -821,7 +820,7 @@ class ParagraphIntegrationTest {
         for (i in 0 until text.length) {
             // The offset of the i-th character in display order.
             val offset = Offset(i * fontSize + 1, fontSize / 2)
-            val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+            val charIndex = paragraph.getPositionForOffset(offset = offset)
             assertThat(charIndex, equalTo(i))
         }
     }
@@ -839,7 +838,7 @@ class ParagraphIntegrationTest {
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
         // The first character in display order should be '.'
         val offset = Offset(fontSize / 2 + 1, fontSize / 2)
-        val index = paragraph.getPositionForOffset(offset = offset).offset
+        val index = paragraph.getPositionForOffset(offset = offset)
         assertThat(index, equalTo(2))
     }
 
@@ -1295,7 +1294,7 @@ class ParagraphIntegrationTest {
         // Otherwise this offset will point to the second character 'b'.
         val offset = Offset(indent + 1, fontSize / 2)
         // The position corresponding to the offset should be the first char 'a'.
-        assertThat(paragraphImpl.getPositionForOffset(offset).offset, equalTo(0))
+        assertThat(paragraphImpl.getPositionForOffset(offset), equalTo(0))
     }
 
     @Test
@@ -1319,7 +1318,7 @@ class ParagraphIntegrationTest {
         // Otherwise this offset will point to the second character of the second line.
         val offset = Offset(indent + 1, fontSize / 2)
         // The position corresponding to the offset should be the first char 'a'.
-        assertThat(paragraphImpl.getPositionForOffset(offset).offset, equalTo(0))
+        assertThat(paragraphImpl.getPositionForOffset(offset), equalTo(0))
     }
 
     @Test
@@ -1342,7 +1341,7 @@ class ParagraphIntegrationTest {
         val offset = Offset(indent + 1, fontSize / 2 + fontSize)
         // The position corresponding to the offset should be the 'd' in the second line.
         assertThat(
-            paragraphImpl.getPositionForOffset(offset).offset,
+            paragraphImpl.getPositionForOffset(offset),
             equalTo("abcd".length - 1)
         )
     }
