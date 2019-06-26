@@ -26,6 +26,7 @@ includeProject(":compose:compose-compiler-hosted", "../compose/compose-compiler-
 includeProject(":compose:compose-compiler-hosted:integration-tests", "../compose/compose-compiler-hosted/integration-tests")
 includeProject(":compose:compose-ide-plugin", "../compose/compose-ide-plugin")
 includeProject(":compose:compose-runtime", "../compose/compose-runtime")
+includeProject(":compose:compose-runtime:benchmark", "../compose/compose-runtime/compose-runtime-benchmark")
 includeProject(":ui:integration-tests:benchmark", "integration-tests/benchmark")
 includeProject(":ui:integration-tests:demos", "integration-tests/demos")
 includeProject(":ui:integration-tests:test", "integration-tests/test")
