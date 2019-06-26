@@ -188,26 +188,24 @@ function ensureCompose() {
 function runStudioLinux() {
   studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
   echo "$studioPath &"
-  # Override AGP version until we have a 3.5* compatible build of Compose Studio
-  # TODO: Remove after b/132355581
+  # Override AGP version overridden because compose studio is behind androidx studio
   env STUDIO_PROPERTIES="${projectDir}/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/../development/studio/studio.vmoptions" \
       ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
-      KOTLIN_OVERRIDE="1.3.30-compose-20190503" \
-      GRADLE_PLUGIN_VERSION="3.4.0" \
+      KOTLIN_OVERRIDE="1.3.30-compose-20190520" \
+      GRADLE_PLUGIN_VERSION="3.5.0-beta01" \
       "${studioPath}" "${projectDir}" &
 }
 
 function runStudioMac() {
   appPath="$(findStudioMacAppPath)"
   echo "open ${appPath}"
-  # Override AGP version until we have a 3.5* compatible build of Compose Studio
-  # TODO: Remove after b/132355581
+  # Override AGP version overridden because compose studio is behind androidx studio
   env STUDIO_PROPERTIES="${projectDir}/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/../development/studio/studio.vmoptions" \
       ANDROID_LINT_NULLNESS_IGNORE_DEPRECATED="true" \
-      KOTLIN_OVERRIDE="1.3.30-compose-20190503" \
-      GRADLE_PLUGIN_VERSION="3.4.0" \
+      KOTLIN_OVERRIDE="1.3.30-compose-20190520" \
+      GRADLE_PLUGIN_VERSION="3.5.0-beta01" \
       open -a "${appPath}" "${projectDir}"
 }
 
