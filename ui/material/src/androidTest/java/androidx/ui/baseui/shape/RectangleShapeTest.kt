@@ -37,7 +37,7 @@ class RectangleShapeTest {
 
     @Test
     fun rectangularShapeWithCorrectSize() {
-        val rectangular = RectangleShape()
+        val rectangular = RectangleShape
 
         val outline = rectangular.toOutline() as Outline.Rectangle
         Truth.assertThat(outline.rect).isEqualTo(size.toRect())

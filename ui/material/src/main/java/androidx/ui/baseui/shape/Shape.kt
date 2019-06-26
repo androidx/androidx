@@ -30,9 +30,4 @@ interface Shape {
      * @return [Outline] of this shape for the given [size].
      */
     fun DensityReceiver.createOutline(size: PxSize): Outline
-
-    /**
-     * Optional border to draw on top. Null means this shape has no border.
-     */
-    val border: Border? get() = null
 }
