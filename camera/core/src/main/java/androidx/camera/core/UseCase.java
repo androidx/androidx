@@ -51,11 +51,11 @@ public abstract class UseCase {
     private final Set<StateChangeListener> mListeners = new HashSet<>();
 
     /**
-     * A map of camera id and CameraControl. A CameraControl will be attached into the usecase after
-     * usecase is bound to lifecycle. It is used for controlling zoom/focus/flash/triggering Af or
-     * AE.
+     * A map of camera id and CameraControlInternal. A CameraControlInternal will be attached
+     * into the usecase after usecase is bound to lifecycle. It is used for controlling
+     * zoom/focus/flash/triggering Af or AE.
      */
-    private final Map<String, CameraControl> mAttachedCameraControlMap = new HashMap<>();
+    private final Map<String, CameraControlInternal> mAttachedCameraControlMap = new HashMap<>();
 
     /**
      * A map of the names of the {@link android.hardware.camera2.CameraDevice} to the {@link
@@ -149,7 +149,7 @@ public abstract class UseCase {
      * <p>This is called during initialization of the class. Subclassess can override this method to
      * modify the behavior of combining user-supplied values and default values.
      *
-     * @param userConfig    The user-supplied configuration.
+     * @param userConfig           The user-supplied configuration.
      * @param defaultConfigBuilder A builder containing use-case default values.
      * @return The configuration that will be used by this use case.
      * @hide
@@ -214,17 +214,17 @@ public abstract class UseCase {
     }
 
     /**
-     * Attach a CameraControl to this use case.
+     * Attach a CameraControlInternal to this use case.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public final void attachCameraControl(String cameraId, CameraControl cameraControl) {
+    public final void attachCameraControl(String cameraId, CameraControlInternal cameraControl) {
         mAttachedCameraControlMap.put(cameraId, cameraControl);
         onCameraControlReady(cameraId);
     }
 
-    /** Detach a CameraControl from this use case. */
+    /** Detach a CameraControlInternal from this use case. */
     final void detachCameraControl(String cameraId) {
         mAttachedCameraControlMap.remove(cameraId);
     }
@@ -263,6 +263,7 @@ public abstract class UseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this UseCase that it has
      * transitioned to an active state.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -274,6 +275,7 @@ public abstract class UseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this UseCase that it has
      * transitioned to an inactive state.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -285,6 +287,7 @@ public abstract class UseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this UseCase that the
      * settings have been updated.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -297,6 +300,7 @@ public abstract class UseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this UseCase that the use
      * case needs to be completely reset.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -309,6 +313,7 @@ public abstract class UseCase {
     /**
      * Notify all {@link StateChangeListener} that are listening to this UseCase of its current
      * state.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -346,7 +351,6 @@ public abstract class UseCase {
      * Retrieves the configuration used by this use case.
      *
      * @return the configuration used by this use case.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -359,7 +363,6 @@ public abstract class UseCase {
      *
      * @param cameraId the camera id for the desired surface.
      * @return the currently attached surface resolution for the given camera id.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -401,9 +404,9 @@ public abstract class UseCase {
             Map<String, Size> suggestedResolutionMap);
 
     /**
-     * Called when CameraControl is attached into the UseCase. UseCase may need to override this
-     * method to configure the CameraControl here. Ex. Setting correct flash mode by
-     * CameraControl.setFlashMode to enable correct AE mode and flash state.
+     * Called when CameraControlInternal is attached into the UseCase. UseCase may need to
+     * override this method to configure the CameraControlInternal here. Ex. Setting correct flash
+     * mode by CameraControlInternal.setFlashMode to enable correct AE mode and flash state.
      *
      * @hide
      */
@@ -426,15 +429,15 @@ public abstract class UseCase {
     }
 
     /**
-     * Retrieves a previously attached {@link CameraControl}.
+     * Retrieves a previously attached {@link CameraControlInternal}.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected CameraControl getCameraControl(String cameraId) {
-        CameraControl cameraControl = mAttachedCameraControlMap.get(cameraId);
+    protected CameraControlInternal getCameraControl(String cameraId) {
+        CameraControlInternal cameraControl = mAttachedCameraControlMap.get(cameraId);
         if (cameraControl == null) {
-            return CameraControl.DEFAULT_EMPTY_INSTANCE;
+            return CameraControlInternal.DEFAULT_EMPTY_INSTANCE;
         }
         return cameraControl;
     }
@@ -514,6 +517,7 @@ public abstract class UseCase {
 
         /**
          * Called when use case was bound to the life cycle.
+         *
          * @param cameraId that current used.
          */
         void onBind(String cameraId);

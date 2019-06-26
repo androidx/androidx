@@ -35,7 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraDeviceStateCallbacks;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -92,7 +92,7 @@ final class Camera implements BaseCamera {
      */
     final AtomicReference<State> mState = new AtomicReference<>(State.UNINITIALIZED);
     /** The camera control shared across all use cases bound to this Camera. */
-    private final CameraControl mCameraControl;
+    private final CameraControlInternal mCameraControlInternal;
     private final StateCallback mStateCallback = new StateCallback();
     /** Information about the characteristics of this camera */
     // Nullable because this is lazily instantiated
@@ -128,7 +128,8 @@ final class Camera implements BaseCamera {
         ScheduledExecutorService executorScheduler = CameraXExecutors.newHandlerExecutor(mHandler);
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mState.set(State.INITIALIZED);
-        mCameraControl = new Camera2CameraControl(this, executorScheduler, executorScheduler);
+        mCameraControlInternal = new Camera2CameraControl(this, executorScheduler,
+                executorScheduler);
         mCaptureSession = new CaptureSession(mHandler);
     }
 
@@ -614,8 +615,8 @@ final class Camera implements BaseCamera {
         }
 
         if (validatingBuilder.isValid()) {
-            // Apply CameraControl's SessionConfig to let CameraControl be able to control
-            // Repeating Request and process results.
+            // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able
+            // to control Repeating Request and process results.
             validatingBuilder.add(mCameraControlSessionConfig);
 
             SessionConfig sessionConfig = validatingBuilder.build();
@@ -756,8 +757,8 @@ final class Camera implements BaseCamera {
 
     /** Returns the Camera2CameraControl attached to Camera */
     @Override
-    public CameraControl getCameraControl() {
-        return mCameraControl;
+    public CameraControlInternal getCameraControlInternal() {
+        return mCameraControlInternal;
     }
 
     /**
@@ -801,14 +802,14 @@ final class Camera implements BaseCamera {
 
     /** {@inheritDoc} */
     @Override
-    public void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig) {
+    public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
         mCameraControlSessionConfig = sessionConfig;
         updateCaptureSessionConfig();
     }
 
     /** {@inheritDoc} */
     @Override
-    public void onCameraControlCaptureRequests(List<CaptureConfig> captureConfigs) {
+    public void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         submitCaptureRequests(captureConfigs);
     }
 

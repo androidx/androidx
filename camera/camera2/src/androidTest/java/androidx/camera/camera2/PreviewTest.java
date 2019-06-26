@@ -33,9 +33,10 @@ import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2CameraControl;
 import androidx.camera.core.AppConfig;
-import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
@@ -88,7 +89,7 @@ public final class PreviewTest {
     private String mCameraId;
 
     @Before
-    public void setUp()  {
+    public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         // Instantiates OnPreviewOutputUpdateListener before each test run.
         mMockListener = mock(OnPreviewOutputUpdateListener.class);
@@ -142,7 +143,7 @@ public final class PreviewTest {
         Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        CameraControl cameraControl = mock(CameraControl.class);
+        CameraControlInternal cameraControl = mock(CameraControlInternal.class);
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
@@ -162,7 +163,7 @@ public final class PreviewTest {
         Preview useCase = new Preview(mDefaultConfig);
         useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
 
-        CameraControl cameraControl = mock(CameraControl.class);
+        CameraControlInternal cameraControl = mock(CameraControlInternal.class);
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
@@ -177,7 +178,7 @@ public final class PreviewTest {
     @UiThreadTest
     public void torchModeCanBeSet() {
         Preview useCase = new Preview(mDefaultConfig);
-        CameraControl cameraControl = getFakeCameraControl();
+        CameraControlInternal cameraControl = getFakeCameraControl();
         useCase.attachCameraControl(mCameraId, cameraControl);
 
         useCase.enableTorch(true);
@@ -488,15 +489,17 @@ public final class PreviewTest {
         assertThat(surfaceTexture0).isNotNull();
     }
 
-    private CameraControl getFakeCameraControl() {
+    private CameraControlInternal getFakeCameraControl() {
         return new Camera2CameraControl(
-                new CameraControl.ControlUpdateListener() {
+                new CameraControlInternal.ControlUpdateListener() {
                     @Override
-                    public void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig) {
+                    public void onCameraControlUpdateSessionConfig(
+                            @NonNull SessionConfig sessionConfig) {
                     }
 
                     @Override
-                    public void onCameraControlCaptureRequests(List<CaptureConfig> captureConfigs) {
+                    public void onCameraControlCaptureRequests(
+                            @NonNull List<CaptureConfig> captureConfigs) {
 
                     }
                 },

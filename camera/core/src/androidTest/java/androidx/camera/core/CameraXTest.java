@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;
 import androidx.camera.core.CameraX.LensFacing;
@@ -61,7 +62,7 @@ public final class CameraXTest {
     static {
         String cameraId = sCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
         sCameraFactory.insertCamera(cameraId,
-                new FakeCamera(new FakeCameraInfo(), mock(CameraControl.class)));
+                new FakeCamera(new FakeCameraInfo(), mock(CameraControlInternal.class)));
     }
 
     private String mCameraId;
@@ -212,7 +213,8 @@ public final class CameraXTest {
 
         CameraX.bindToLifecycle(mLifecycle, fakeUseCase);
 
-        assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(mCamera.getCameraControl());
+        assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
+                mCamera.getCameraControlInternal());
     }
 
     @Test
@@ -235,12 +237,12 @@ public final class CameraXTest {
 
         CameraX.unbind(fakeUseCase);
 
-        // after unbind, Camera's CameraControl should be detached from Usecase
+        // after unbind, Camera's CameraControlInternal should be detached from Usecase
         assertThat(fakeUseCase.getCameraControl(mCameraId)).isNotEqualTo(
-                mCamera.getCameraControl());
-        // UseCase still gets a non-null default CameraControl that does nothing.
+                mCamera.getCameraControlInternal());
+        // UseCase still gets a non-null default CameraControlInternal that does nothing.
         assertThat(fakeUseCase.getCameraControl(mCameraId)).isEqualTo(
-                CameraControl.DEFAULT_EMPTY_INSTANCE);
+                CameraControlInternal.DEFAULT_EMPTY_INSTANCE);
     }
 
     @Test
@@ -280,7 +282,7 @@ public final class CameraXTest {
         }
 
         @Override
-        public void onError(ErrorCode errorCode, String message) {
+        public void onError(@NonNull ErrorCode errorCode, @NonNull String message) {
             mCount.getAndIncrement();
             mLatch.countDown();
         }

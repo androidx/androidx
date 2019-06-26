@@ -20,9 +20,10 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.BaseCamera;
-import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
@@ -42,7 +43,7 @@ import java.util.List;
 public class FakeCamera implements BaseCamera {
     private static final String TAG = "FakeCamera";
     private static final String DEFAULT_CAMERA_ID = "0";
-    private final CameraControl mCameraControl;
+    private final CameraControlInternal mCameraControlInternal;
     private final CameraInfo mCameraInfo;
     private String mCameraId;
     private UseCaseAttachState mUseCaseAttachState;
@@ -63,17 +64,18 @@ public class FakeCamera implements BaseCamera {
         this(cameraId, new FakeCameraInfo(), /*cameraControl=*/null);
     }
 
-    public FakeCamera(CameraInfo cameraInfo, @Nullable CameraControl cameraControl) {
+    public FakeCamera(CameraInfo cameraInfo, @Nullable CameraControlInternal cameraControl) {
         this(DEFAULT_CAMERA_ID, cameraInfo, cameraControl);
     }
 
     public FakeCamera(String cameraId,
             CameraInfo cameraInfo,
-            @Nullable CameraControl cameraControl) {
+            @Nullable CameraControlInternal cameraControl) {
         mCameraInfo = cameraInfo;
         mCameraId = cameraId;
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
-        mCameraControl = cameraControl == null ? new FakeCameraControl(this) : cameraControl;
+        mCameraControlInternal = cameraControl == null ? new FakeCameraControl(this)
+                : cameraControl;
     }
 
     @Override
@@ -183,10 +185,11 @@ public class FakeCamera implements BaseCamera {
         updateCaptureSessionConfig();
     }
 
-    // Returns fixed CameraControl instance in order to verify the instance is correctly attached.
+    // Returns fixed CameraControlInternal instance in order to verify the instance is correctly
+    // attached.
     @Override
-    public CameraControl getCameraControl() {
-        return mCameraControl;
+    public CameraControlInternal getCameraControlInternal() {
+        return mCameraControlInternal;
     }
 
     @Override
@@ -195,13 +198,13 @@ public class FakeCamera implements BaseCamera {
     }
 
     @Override
-    public void onCameraControlUpdateSessionConfig(SessionConfig sessionConfig) {
+    public void onCameraControlUpdateSessionConfig(@NonNull SessionConfig sessionConfig) {
         mCameraControlSessionConfig = sessionConfig;
         updateCaptureSessionConfig();
     }
 
     @Override
-    public void onCameraControlCaptureRequests(List<CaptureConfig> captureConfigs) {
+    public void onCameraControlCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         Log.d(TAG, "Capture requests submitted:\n    " + TextUtils.join("\n    ", captureConfigs));
     }
 
@@ -233,8 +236,8 @@ public class FakeCamera implements BaseCamera {
         validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
 
         if (validatingBuilder.isValid()) {
-            // Apply CameraControl's SessionConfig to let CameraControl be able to control
-            // Repeating Request and process results.
+            // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able
+            // to control Repeating Request and process results.
             validatingBuilder.add(mCameraControlSessionConfig);
 
             mSessionConfig = validatingBuilder.build();
