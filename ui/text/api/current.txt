@@ -375,7 +375,6 @@ package androidx.ui.painting {
 
   public final class TextPainterKt {
     ctor public TextPainterKt();
-    method public static float applyFloatingPointHack(float layoutValue);
   }
 
   public final class TextSpanKt {
@@ -383,16 +382,16 @@ package androidx.ui.painting {
   }
 
   public final class TextStyle {
-    ctor public TextStyle(androidx.ui.graphics.Color? color, Float? fontSize, Float? fontSizeScale, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, androidx.ui.engine.window.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.font.FontFamily? fontFamily, androidx.ui.painting.Shadow? shadow, String? debugLabel);
+    ctor public TextStyle(androidx.ui.graphics.Color? color, Float? fontSize, Float? fontSizeScale, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, androidx.ui.engine.text.font.FontFamily? fontFamily, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, androidx.ui.engine.window.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.painting.Shadow? shadow, String? debugLabel);
     ctor public TextStyle();
     method public androidx.ui.painting.basictypes.RenderComparison compareTo(androidx.ui.painting.TextStyle other);
     method public androidx.ui.graphics.Color? component1();
-    method public androidx.ui.engine.text.BaselineShift? component10();
-    method public androidx.ui.engine.text.TextGeometricTransform? component11();
-    method public androidx.ui.engine.window.Locale? component12();
-    method public androidx.ui.graphics.Color? component13();
-    method public androidx.ui.engine.text.TextDecoration? component14();
-    method public androidx.ui.engine.text.font.FontFamily? component15();
+    method public Float? component10();
+    method public androidx.ui.engine.text.BaselineShift? component11();
+    method public androidx.ui.engine.text.TextGeometricTransform? component12();
+    method public androidx.ui.engine.window.Locale? component13();
+    method public androidx.ui.graphics.Color? component14();
+    method public androidx.ui.engine.text.TextDecoration? component15();
     method public androidx.ui.painting.Shadow? component16();
     method public String? component17();
     method public Float? component2();
@@ -400,10 +399,10 @@ package androidx.ui.painting {
     method public androidx.ui.engine.text.FontWeight? component4();
     method public androidx.ui.engine.text.FontStyle? component5();
     method public androidx.ui.engine.text.FontSynthesis? component6();
-    method public String? component7();
-    method public Float? component8();
+    method public androidx.ui.engine.text.font.FontFamily? component7();
+    method public String? component8();
     method public Float? component9();
-    method public androidx.ui.painting.TextStyle copy(androidx.ui.graphics.Color? color, Float? fontSize, Float? fontSizeScale, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, androidx.ui.engine.window.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.engine.text.font.FontFamily? fontFamily, androidx.ui.painting.Shadow? shadow, String? debugLabel);
+    method public androidx.ui.painting.TextStyle copy(androidx.ui.graphics.Color? color, Float? fontSize, Float? fontSizeScale, androidx.ui.engine.text.FontWeight? fontWeight, androidx.ui.engine.text.FontStyle? fontStyle, androidx.ui.engine.text.FontSynthesis? fontSynthesis, androidx.ui.engine.text.font.FontFamily? fontFamily, String? fontFeatureSettings, Float? letterSpacing, Float? wordSpacing, androidx.ui.engine.text.BaselineShift? baselineShift, androidx.ui.engine.text.TextGeometricTransform? textGeometricTransform, androidx.ui.engine.window.Locale? locale, androidx.ui.graphics.Color? background, androidx.ui.engine.text.TextDecoration? decoration, androidx.ui.painting.Shadow? shadow, String? debugLabel);
     method public androidx.ui.graphics.Color? getBackground();
     method public androidx.ui.engine.text.BaselineShift? getBaselineShift();
     method public androidx.ui.graphics.Color? getColor();

@@ -65,6 +65,7 @@ data class TextStyle(
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val fontSynthesis: FontSynthesis? = null,
+    var fontFamily: FontFamily? = null,
     val fontFeatureSettings: String? = null,
     val letterSpacing: Float? = null,
     val wordSpacing: Float? = null,
@@ -73,7 +74,6 @@ data class TextStyle(
     val locale: Locale? = null,
     val background: Color? = null,
     val decoration: TextDecoration? = null,
-    var fontFamily: FontFamily? = null,
     val shadow: Shadow? = null,
     val debugLabel: String? = null
 ) {
