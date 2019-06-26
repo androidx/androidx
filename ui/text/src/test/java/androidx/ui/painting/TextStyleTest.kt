@@ -463,55 +463,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `merge without debugLabel result's debugLabel should be empty`() {
-        val textStyle = TextStyle()
-        val otherTextStyle = TextStyle()
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.debugLabel).isEmpty()
-    }
-
-    @Test
-    fun `merge with customized this's debugLabel only`() {
-        val textStyle = TextStyle(debugLabel = "foo")
-        val otherTextStyle = TextStyle()
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.debugLabel).isEqualTo("(foo).merge(unknown)")
-    }
-
-    @Test
-    fun `merge with customized other's debugLabel only`() {
-        val textStyle = TextStyle()
-        val otherTextStyle = TextStyle(debugLabel = "bar")
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.debugLabel).isEqualTo("(unknown).merge(bar)")
-    }
-
-    @Test
-    fun `merge with customized this' and other's debugLabel`() {
-        val textStyle = TextStyle(debugLabel = "foo")
-        val otherTextStyle = TextStyle(debugLabel = "bar")
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.debugLabel).isEqualTo("(foo).merge(bar)")
-    }
-
-    @Test
-    fun `merge with chained debugLabel`() {
-        val bar = TextStyle(debugLabel = "bar", fontSize = 2.0f)
-        val baz = TextStyle(debugLabel = "baz", fontSize = 3.0f)
-        val fo = TextStyle(debugLabel = "foo", fontSize = 1.0f)
-
-        assertThat(fo.merge(bar).merge(baz).debugLabel).isEqualTo("((foo).merge(bar)).merge(baz)")
-    }
-
-    @Test
     fun `lerp with both Null Textstyles`() {
         val newTextStyle = TextStyle.lerp(t = 1.0f)
 
@@ -1471,57 +1422,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp returns debugLabel when both a and b's debugLabel are Null`() {
-        val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle()
-
-        val newTextStyle = TextStyle.lerp(textStyle1, textStyle2, 0.2f)
-
-        assertThat(newTextStyle?.debugLabel).isEqualTo("lerp(unknown ⎯0.2→ unknown)")
-    }
-
-    @Test
-    fun `lerp returns debugLabel when a's debugLabel is Null`() {
-        val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle(debugLabel = "foo")
-
-        val newTextStyle = TextStyle.lerp(textStyle1, textStyle2, 0.2f)
-
-        assertThat(newTextStyle?.debugLabel).isEqualTo("lerp(unknown ⎯0.2→ foo)")
-    }
-
-    @Test
-    fun `lerp returns debugLabel when b's debugLabel is Null`() {
-        val textStyle1 = TextStyle(debugLabel = "foo")
-        val textStyle2 = TextStyle()
-
-        val newTextStyle = TextStyle.lerp(textStyle1, textStyle2, 0.2f)
-
-        assertThat(newTextStyle?.debugLabel).isEqualTo("lerp(foo ⎯0.2→ unknown)")
-    }
-
-    @Test
-    fun `lerp returns debugLabel when both debugLabels are not Null`() {
-        val textStyle1 = TextStyle(debugLabel = "foo")
-        val textStyle2 = TextStyle(debugLabel = "bar")
-
-        val newTextStyle = TextStyle.lerp(textStyle1, textStyle2, 0.2f)
-
-        assertThat(newTextStyle?.debugLabel).isEqualTo("lerp(foo ⎯0.2→ bar)")
-    }
-
-    @Test
-    fun `lerp returns chained debugLabel`() {
-        val other = TextStyle(debugLabel = "foo")
-        val bar = TextStyle(debugLabel = "bar")
-        val baz = TextStyle(debugLabel = "baz")
-
-        val newTextStyle = TextStyle.lerp(TextStyle.lerp(other, bar, 0.2f), baz, 0.8f)
-
-        assertThat(newTextStyle?.debugLabel).isEqualTo("lerp(lerp(foo ⎯0.2→ bar) ⎯0.8→ baz)")
-    }
-
-    @Test
     fun `getTextStyle`() {
         val fontSize = 10.0f
         val color = Color(0xFF00FF00.toInt())
@@ -1558,20 +1458,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `debugLabel with constructor default values`() {
-        val unknown = TextStyle()
-
-        assertThat(unknown.debugLabel).isNull()
-    }
-
-    @Test
-    fun `debugLabel with constructor customized values`() {
-        val textStyle = TextStyle(debugLabel = "foo", fontSize = 1.0f)
-
-        assertThat(textStyle.debugLabel).isEqualTo("foo")
-    }
-
-    @Test
     fun `compareTo with same textStyle returns IDENTICAL`() {
         val textStyle = TextStyle()
 
@@ -1605,7 +1491,6 @@ class TextStyleTest {
             locale = Locale("en", "US"),
             background = bgColor,
             decoration = TextDecoration.Underline,
-            debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif"),
             shadow = Shadow(Color(0xFF0000FF.toInt()), Offset(1f, 2f), 3.px)
         )
@@ -1668,7 +1553,6 @@ class TextStyleTest {
             textGeometricTransform = TextGeometricTransform(null, null),
             locale = Locale("en", "US"),
             decoration = TextDecoration.Underline,
-            debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif"),
             shadow = shadow1
         )

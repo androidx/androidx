@@ -29,34 +29,32 @@ import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.lerp
 import androidx.ui.painting.basictypes.RenderComparison
-import androidx.ui.toStringAsFixed
-
-private const val _kDefaultDebugLabel: String = "unknown"
 
 /**
  * Configuration object to define the text style.
  *
- * @param color The color to use when painting the text. If this is specified, `foreground` must be null.
+ * @param color The color to use when painting the text.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text.
  * @param fontSizeScale The scale factor of the font size. When [fontSize] is also given in this
  *  TextStyle, the final fontSize will be the [fontSize] times this value.
  *  Otherwise, the final fontSize will be the current fontSize times this value.
  * @param fontWeight The typeface thickness to use when painting the text (e.g., bold).
- * @param fontStyle The typeface variant to use when drawing the letters (e.g., italics).
+ * @param fontStyle The typeface variant to use when drawing the letters (e.g., italic).
  * @param fontSynthesis Whether to synthesize font weight and/or style when the requested weight or
  *  style cannot be found in the provided custom font family.
- * @param fontFeatureSettings The advanced typography settings provided by font. The format is the same as the CSS font-feature-settings attribute:
- *  https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
+ * @param fontFamily font family to be used when rendering the text.
+ * @param fontFeatureSettings The advanced typography settings provided by font. The format is the
+ *  same as the CSS font-feature-settings attribute: https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
  * @param letterSpacing The amount of space (in logical pixels) to add between each letter.
- * @param wordSpacing The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word). Only works on Android Q and above.
- * @param baselineShift This parameter specifies how much the baseline is shifted from the current position.
+ * @param wordSpacing The amount of space (in logical pixels) to add at each sequence of white-space
+ *  (i.e. between each word). Only works on Android Q and above.
+ * @param baselineShift This parameter specifies how much the baseline is shifted from the current
+ *  position.
  * @param textGeometricTransform The geometric transformation applied the text.
  * @param locale The locale used to select region-specific glyphs.
  * @param background The background color for the text.
  * @param decoration The decorations to paint near the text (e.g., an underline).
- * @param fontFamily The name of the font to use when painting the text (e.g., Roboto).
  * @param shadow The shadow effect applied on the text.
- * @param debugLabel A human-readable description of this text style.
  */
 data class TextStyle(
     val color: Color? = null,
@@ -74,32 +72,20 @@ data class TextStyle(
     val locale: Locale? = null,
     val background: Color? = null,
     val decoration: TextDecoration? = null,
-    val shadow: Shadow? = null,
-    val debugLabel: String? = null
+    val shadow: Shadow? = null
 ) {
 
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
-     * If the given [other] text style has its [TextStyle.inherit] set to true, its null properties
-     * are replaced with the non-null properties of this text style. The [other] style
-     * _inherits_ the properties of this style. Another way to think of it is that the "missing"
-     * properties of the [other] style are _filled_ by the properties of this style.
-     *
-     * If the given [other] text style has its [TextStyle.inherit] set to false, returns the given
-     * [other] style unchanged. The [other] style does not inherit properties of this style.
+     * [other] text style's null properties are replaced with the non-null properties of this text
+     * style. Another way to think of it is that the "missing" properties of the [other] style are
+     * _filled_ by the properties of this style.
      *
      * If the given text style is null, returns this text style.
      */
     fun merge(other: TextStyle? = null): TextStyle {
         if (other == null) return this
-
-        // TODO(siyamed) remove debug labels
-        var mergedDebugLabel = ""
-        if (other.debugLabel != null || debugLabel != null) {
-            mergedDebugLabel = "(${debugLabel ?: _kDefaultDebugLabel}).merge(" +
-                    "${other.debugLabel ?: _kDefaultDebugLabel})"
-        }
 
         return TextStyle(
             color = other.color ?: this.color,
@@ -117,28 +103,11 @@ data class TextStyle(
             locale = other.locale ?: this.locale,
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
-            shadow = other.shadow ?: this.shadow,
-            debugLabel = mergedDebugLabel
+            shadow = other.shadow ?: this.shadow
         )
     }
 
-    /**
-     * Interpolate between two text styles.
-     *
-     * This will not work well if the styles don't set the same fields.
-     *
-     * The `t` argument represents position on the timeline, with 0.0 meaning that the interpolation
-     * has not started, returning `a` (or something equivalent to `a`), 1.0 meaning that the
-     * interpolation has finished, returning `b` (or something equivalent to `b`), and values in
-     * between meaning that the interpolation is at the relevant point on the timeline between `a`
-     * and `b`. The interpolation can be extrapolated beyond 0.0 and 1.0, so negative values and
-     * values greater than 1.0 are valid (and can easily be generated by curves such as
-     * [Curves.elasticInOut]).
-     *
-     * Values for `t` are usually obtained from an [Animation<Float>], such as an
-     * [AnimationController].
-     */
-    companion object {
+    internal companion object {
         private fun lerpColor(a: Color?, b: Color?, t: Float): Color? {
             if (a == null && b == null) {
                 return null
@@ -157,24 +126,34 @@ data class TextStyle(
 
         private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
 
+        /**
+         * Interpolate between two text styles.
+         *
+         * This will not work well if the styles don't set the same fields.
+         *
+         * The `t` argument represents position on the timeline, with 0.0 meaning that the interpolation
+         * has not started, returning `a` (or something equivalent to `a`), 1.0 meaning that the
+         * interpolation has finished, returning `b` (or something equivalent to `b`), and values in
+         * between meaning that the interpolation is at the relevant point on the timeline between `a`
+         * and `b`. The interpolation can be extrapolated beyond 0.0 and 1.0, so negative values and
+         * values greater than 1.0 are valid (and can easily be generated by curves such as
+         * [Curves.elasticInOut]).
+         *
+         * Values for `t` are usually obtained from an [Animation<Float>], such as an
+         * [AnimationController].
+         */
         fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Float): TextStyle? {
             val aIsNull = a == null
             val bIsNull = b == null
 
             if (aIsNull && bIsNull) return null
-            // TODO(siyamed) remove debug labels
-            val lerpDebugLabel = "lerp(${a?.debugLabel
-                ?: _kDefaultDebugLabel} ⎯${t.toStringAsFixed(1)}→ ${b?.debugLabel
-                ?: _kDefaultDebugLabel})"
 
             if (a == null) {
-                val newB =
-                    b?.copy(debugLabel = lerpDebugLabel) ?: TextStyle(debugLabel = lerpDebugLabel)
+                val newB = b?.copy() ?: TextStyle()
                 return if (t < 0.5) {
                     TextStyle(
                         color = lerpColor(null, newB.color, t),
-                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
-                        debugLabel = lerpDebugLabel
+                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t)
                     )
                 } else {
                     newB.copy(
@@ -188,14 +167,12 @@ data class TextStyle(
                 return if (t < 0.5) {
                     a.copy(
                         color = lerpColor(a.color, null, t),
-                        fontWeight = FontWeight.lerp(a.fontWeight, null, t),
-                        debugLabel = lerpDebugLabel
+                        fontWeight = FontWeight.lerp(a.fontWeight, null, t)
                     )
                 } else {
                     TextStyle(
                         color = lerpColor(a.color, null, t),
-                        fontWeight = FontWeight.lerp(a.fontWeight, null, t),
-                        debugLabel = lerpDebugLabel
+                        fontWeight = FontWeight.lerp(a.fontWeight, null, t)
                     )
                 }
             }
@@ -224,8 +201,7 @@ data class TextStyle(
                     a.shadow ?: Shadow(),
                     b.shadow ?: Shadow(),
                     t
-                ),
-                debugLabel = lerpDebugLabel
+                )
             )
         }
     }
@@ -260,7 +236,7 @@ data class TextStyle(
      *
      *  * [TextSpan.compareTo], which does the same thing for entire [TextSpan]s.
      */
-    fun compareTo(other: TextStyle): RenderComparison {
+    internal fun compareTo(other: TextStyle): RenderComparison {
         if (this == other) {
             return RenderComparison.IDENTICAL
         }
