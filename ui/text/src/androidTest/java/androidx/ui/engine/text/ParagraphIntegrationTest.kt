@@ -185,7 +185,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset does not match",
                 position,
-                equalTo(TextPosition(i, TextAffinity.upstream))
+                equalTo(TextPosition(i))
             )
         }
     }
@@ -205,7 +205,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset does not match",
                 position,
-                equalTo(TextPosition(text.length - i, TextAffinity.upstream))
+                equalTo(TextPosition(text.length - i))
             )
         }
     }
@@ -228,7 +228,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset, second line does not match",
                 position,
-                equalTo(TextPosition(i + firstLine.length, TextAffinity.upstream))
+                equalTo(TextPosition(i + firstLine.length))
             )
         }
     }
@@ -251,7 +251,7 @@ class ParagraphIntegrationTest {
             assertThat(
                 "position at index $i, offset $offset, second line does not match",
                 position,
-                equalTo(TextPosition(text.length - i, TextAffinity.upstream))
+                equalTo(TextPosition(text.length - i))
             )
         }
     }
@@ -267,12 +267,12 @@ class ParagraphIntegrationTest {
         // greater than width
         var offset = Offset(fontSize * text.length * 2, fontSize / 2)
         var position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(text.length, TextAffinity.upstream)))
+        assertThat(position, equalTo(TextPosition(text.length)))
 
         // negative
         offset = Offset(-1 * fontSize, fontSize / 2)
         position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(0, TextAffinity.upstream)))
+        assertThat(position, equalTo(TextPosition(0)))
     }
 
     @Test
@@ -286,12 +286,12 @@ class ParagraphIntegrationTest {
         // greater than height
         var offset = Offset(fontSize / 2, fontSize * text.length * 2)
         var position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(0, TextAffinity.upstream)))
+        assertThat(position, equalTo(TextPosition(0)))
 
         // negative
         offset = Offset(fontSize / 2, -1 * fontSize)
         position = paragraph.getPositionForOffset(offset)
-        assertThat(position, equalTo(TextPosition(0, TextAffinity.upstream)))
+        assertThat(position, equalTo(TextPosition(0)))
     }
 
     @Test
@@ -303,7 +303,7 @@ class ParagraphIntegrationTest {
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
         // test positions that are 0, 1, 2 ... which maps to chars 0, 1, 2 ...
         for (i in 0..text.length - 1) {
-            val textPosition = TextPosition(i, TextAffinity.upstream)
+            val textPosition = TextPosition(i)
             val box = paragraph.getBoundingBoxForTextPosition(textPosition)
             assertThat(box.left, equalTo(i * fontSize))
             assertThat(box.right, equalTo((i + 1) * fontSize))
@@ -325,7 +325,7 @@ class ParagraphIntegrationTest {
         // test positions are 3, 4, 5 and always on the second line
         // which maps to chars 3, 4, 5
         for (i in 0..secondLine.length - 1) {
-            val textPosition = TextPosition(i + firstLine.length, TextAffinity.upstream)
+            val textPosition = TextPosition(i + firstLine.length)
             val box = paragraph.getBoundingBoxForTextPosition(textPosition)
             assertThat(box.left, equalTo(i * fontSize))
             assertThat(box.right, equalTo((i + 1) * fontSize))
@@ -342,7 +342,7 @@ class ParagraphIntegrationTest {
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
-        val textPosition = TextPosition(-1, TextAffinity.upstream)
+        val textPosition = TextPosition(-1)
         val box = paragraph.getBoundingBoxForTextPosition(textPosition)
         assertThat(box.left, equalTo(0f))
         assertThat(box.right, equalTo(0f))
@@ -358,7 +358,7 @@ class ParagraphIntegrationTest {
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
-        val textPosition = TextPosition(text.length + 1, TextAffinity.upstream)
+        val textPosition = TextPosition(text.length + 1)
         paragraph.getBoundingBoxForTextPosition(textPosition)
     }
 

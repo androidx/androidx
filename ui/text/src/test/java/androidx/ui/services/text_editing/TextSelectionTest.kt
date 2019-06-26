@@ -16,7 +16,6 @@
 
 package androidx.ui.services.text_editing
 
-import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
@@ -29,25 +28,21 @@ class TextSelectionTest {
     @Test
     fun collapsed() {
         val offset = 10
-        val textAffinity = TextAffinity.upstream
-        val textSelection = TextSelection.collapsed(offset, textAffinity)
+        val textSelection = TextSelection.collapsed(offset)
 
         assertThat(offset, equalTo(textSelection.baseOffset))
         assertThat(offset, equalTo(textSelection.extentOffset))
-        assertThat(textAffinity, equalTo(textSelection.affinity))
         assertThat(false, equalTo(textSelection.isDirectional))
     }
 
     @Test
     fun fromPosition() {
         val offset = 20
-        val textAffinity = TextAffinity.downstream
-        val pos = TextPosition(offset, textAffinity)
+        val pos = TextPosition(offset)
         val textSelection = TextSelection.fromPosition(pos)
 
         assertThat(offset, equalTo(textSelection.baseOffset))
         assertThat(offset, equalTo(textSelection.extentOffset))
-        assertThat(textAffinity, equalTo(textSelection.affinity))
         assertThat(false, equalTo(textSelection.isDirectional))
     }
 }

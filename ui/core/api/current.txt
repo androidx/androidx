@@ -1079,22 +1079,15 @@ package androidx.ui.engine.geometry {
 
 package androidx.ui.engine.text {
 
-  public enum TextAffinity {
-    enum_constant public static final androidx.ui.engine.text.TextAffinity downstream;
-    enum_constant public static final androidx.ui.engine.text.TextAffinity upstream;
-  }
-
   public enum TextDirection {
     enum_constant public static final androidx.ui.engine.text.TextDirection Ltr;
     enum_constant public static final androidx.ui.engine.text.TextDirection Rtl;
   }
 
   public final class TextPosition {
-    ctor public TextPosition(int offset, androidx.ui.engine.text.TextAffinity affinity);
+    ctor public TextPosition(int offset);
     method public int component1();
-    method public androidx.ui.engine.text.TextAffinity component2();
-    method public androidx.ui.engine.text.TextPosition copy(int offset, androidx.ui.engine.text.TextAffinity affinity);
-    method public androidx.ui.engine.text.TextAffinity getAffinity();
+    method public androidx.ui.engine.text.TextPosition copy(int offset);
     method public int getOffset();
   }
 
@@ -1734,13 +1727,11 @@ package androidx.ui.services.text_editing {
   }
 
   public final class TextSelection extends androidx.ui.services.text_editing.TextRange {
-    ctor public TextSelection(int baseOffset, int extentOffset, androidx.ui.engine.text.TextAffinity affinity, boolean isDirectional);
+    ctor public TextSelection(int baseOffset, int extentOffset, boolean isDirectional);
     method public int component1();
     method public int component2();
-    method public androidx.ui.engine.text.TextAffinity component3();
-    method public boolean component4();
-    method public androidx.ui.services.text_editing.TextSelection copy(int baseOffset, int extentOffset, androidx.ui.engine.text.TextAffinity affinity, boolean isDirectional);
-    method public androidx.ui.engine.text.TextAffinity getAffinity();
+    method public boolean component3();
+    method public androidx.ui.services.text_editing.TextSelection copy(int baseOffset, int extentOffset, boolean isDirectional);
     method public androidx.ui.engine.text.TextPosition getBase();
     method public int getBaseOffset();
     method public androidx.ui.engine.text.TextPosition getExtent();
@@ -1752,7 +1743,7 @@ package androidx.ui.services.text_editing {
   }
 
   public static final class TextSelection.Companion {
-    method public androidx.ui.services.text_editing.TextSelection collapsed(int offset, androidx.ui.engine.text.TextAffinity affinity = TextAffinity.downstream);
+    method public androidx.ui.services.text_editing.TextSelection collapsed(int offset);
     method public androidx.ui.services.text_editing.TextSelection fromPosition(androidx.ui.engine.text.TextPosition position);
   }
 
