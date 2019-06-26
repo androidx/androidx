@@ -33,7 +33,7 @@ package androidx.webkit {
 
   public abstract class ServiceWorkerClientCompat {
     ctor public ServiceWorkerClientCompat();
-    method public abstract android.webkit.WebResourceResponse? shouldInterceptRequest(android.webkit.WebResourceRequest);
+    method @WorkerThread public abstract android.webkit.WebResourceResponse? shouldInterceptRequest(android.webkit.WebResourceRequest);
   }
 
   public abstract class ServiceWorkerControllerCompat {
@@ -144,9 +144,9 @@ package androidx.webkit {
   public class WebViewClientCompat extends android.webkit.WebViewClient {
     ctor public WebViewClientCompat();
     method @RequiresApi(23) public final void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, android.webkit.WebResourceError);
-    method @RequiresApi(21) public void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, androidx.webkit.WebResourceErrorCompat);
+    method @RequiresApi(21) @UiThread public void onReceivedError(android.webkit.WebView, android.webkit.WebResourceRequest, androidx.webkit.WebResourceErrorCompat);
     method @RequiresApi(27) public final void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, android.webkit.SafeBrowsingResponse);
-    method public void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, androidx.webkit.SafeBrowsingResponseCompat);
+    method @UiThread public void onSafeBrowsingHit(android.webkit.WebView, android.webkit.WebResourceRequest, int, androidx.webkit.SafeBrowsingResponseCompat);
   }
 
   public class WebViewCompat {
@@ -166,7 +166,7 @@ package androidx.webkit {
   }
 
   public static interface WebViewCompat.VisualStateCallback {
-    method public void onComplete(long);
+    method @UiThread public void onComplete(long);
   }
 
   public class WebViewFeature {

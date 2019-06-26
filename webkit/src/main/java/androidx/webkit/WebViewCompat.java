@@ -32,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -65,6 +66,7 @@ public class WebViewCompat {
          * @param requestId The identifier passed to {@link #postVisualStateCallback} when this
          *                  callback was posted.
          */
+        @UiThread
         void onComplete(long requestId);
     }
 
