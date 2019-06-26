@@ -1,9 +1,9 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.ui.core.TextKt#Text(String, androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, Integer) parameter #5:
+AutoBoxing: androidx.ui.core.TextKt#Text(String, androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, float, Integer, androidx.ui.graphics.Color) parameter #6:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.painting.AnnotatedString, androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, float, Integer, androidx.ui.graphics.Color) parameter #6:
     Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, float, Integer, androidx.ui.graphics.Color, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit>) parameter #4:
+AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, float, Integer, androidx.ui.graphics.Color, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit>) parameter #5:
     Must avoid boxed primitives (`java.lang.Integer`)
 
 
