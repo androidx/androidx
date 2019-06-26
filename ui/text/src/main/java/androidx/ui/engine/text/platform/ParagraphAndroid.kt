@@ -59,7 +59,6 @@ import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphStyle
-import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
@@ -208,13 +207,10 @@ internal class ParagraphAndroid constructor(
         this.width = floorWidth
     }
 
-    // TODO(qqd): TextAffinity in TextPosition is not implemented. We need to clean it up in future.
     fun getPositionForOffset(offset: Offset): TextPosition {
         val line = ensureLayout.getLineForVertical(offset.dy.toInt())
         return TextPosition(
-            offset = ensureLayout.getOffsetForHorizontal(line, offset.dx),
-            // TODO(Migration/siyamed): we provide a default value
-            affinity = TextAffinity.upstream
+            offset = ensureLayout.getOffsetForHorizontal(line, offset.dx)
         )
     }
 

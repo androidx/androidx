@@ -27,17 +27,5 @@ package androidx.ui.engine.text
  * being before the `H`, while offset 5 represents the cursor being just
  * after the `o`.
  *
- * If the offset has more than one visual location (e.g., occurs at a line
- * break), which of the two locations is represented by this position.
- *
- * For example, if the text `'AB'` had a forced line break between the `A`
- * and the `B`, then the downstream affinity at offset 1 represents the
- * cursor being just after the `A` on the first line, while the upstream
- * affinity at offset 1 represents the cursor being just before the `B` on
- * the first line.
  */
-data class TextPosition(val offset: Int, val affinity: TextAffinity) {
-    override fun toString(): String {
-        return "TextPosition(offset: $offset, affinity: $affinity)"
-    }
-}
+/* inline */ data class TextPosition(val offset: Int)

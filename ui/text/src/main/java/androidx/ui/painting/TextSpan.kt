@@ -17,8 +17,6 @@
 package androidx.ui.painting
 
 import androidx.annotation.RestrictTo
-import androidx.ui.engine.text.TextAffinity
-import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.basictypes.RenderComparison
 
 /**
@@ -63,27 +61,6 @@ class TextSpan(
             }
         }
         return true
-    }
-
-    /** Returns the text span that contains the given position in the text. */
-    fun getSpanForPosition(position: TextPosition): TextSpan? {
-        val affinity: TextAffinity = position.affinity
-        val targetOffset: Int = position.offset
-        var offset = 0
-        var result: TextSpan? = null
-        visitTextSpan {
-                span: TextSpan ->
-            assert(result == null)
-            val endOffset: Int = offset + span.text!!.length
-            if (targetOffset == offset && affinity == TextAffinity.downstream ||
-                targetOffset > offset && targetOffset < endOffset ||
-                targetOffset == endOffset && affinity == TextAffinity.upstream) {
-                result = span
-            }
-            offset = endOffset
-            true
-        }
-        return result
     }
 
     /**
