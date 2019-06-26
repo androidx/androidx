@@ -17,7 +17,6 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.OnPositioned
@@ -281,80 +280,27 @@ class PaddingTest : LayoutTest() {
 
     @Test
     fun testPadding_hasCorrectIntrinsicMeasurements() = withDensity(density) {
-        val layoutLatch = CountDownLatch(1)
-        show {
-            Center {
-                val paddedChild = @Composable {
-                    Padding(padding = 20.dp) {
-                        AspectRatio(2f) { }
-                    }
-                }
-                ComplexLayout(children = paddedChild) {
-                    layout { measurables, _ ->
-                        val paddingMeasurable = measurables.first()
-                        // Min width.
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.minIntrinsicWidth(0.dp.toIntPx())
-                        )
-                        assertEquals(
-                            100.dp.toIntPx(),
-                            paddingMeasurable.minIntrinsicWidth(70.dp.toIntPx())
-                        )
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.minIntrinsicWidth(IntPx.Infinity)
-                        )
-                        // Min height.
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.minIntrinsicHeight(0.dp.toIntPx())
-                        )
-                        assertEquals(
-                            55.dp.toIntPx(),
-                            paddingMeasurable.minIntrinsicHeight(70.dp.toIntPx())
-                        )
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.minIntrinsicHeight(IntPx.Infinity)
-                        )
-                        // Max width.
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.maxIntrinsicWidth(0.dp.toIntPx())
-                        )
-                        assertEquals(
-                            100.dp.toIntPx(),
-                            paddingMeasurable.maxIntrinsicWidth(70.dp.toIntPx())
-                        )
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.maxIntrinsicWidth(IntPx.Infinity)
-                        )
-                        // Max height.
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.maxIntrinsicHeight(0.dp.toIntPx())
-                        )
-                        assertEquals(
-                            55.dp.toIntPx(),
-                            paddingMeasurable.maxIntrinsicHeight(70.dp.toIntPx())
-                        )
-                        assertEquals(
-                            20.dp.toIntPx() * 2,
-                            paddingMeasurable.maxIntrinsicHeight(IntPx.Infinity)
-                        )
-                        layoutLatch.countDown()
-                    }
-                    minIntrinsicWidth { _, _ -> 0.ipx }
-                    maxIntrinsicWidth { _, _ -> 0.ipx }
-                    minIntrinsicHeight { _, _ -> 0.ipx }
-                    maxIntrinsicHeight { _, _ -> 0.ipx }
-                }
+        testIntrinsics(@Composable {
+            Padding(padding = 20.dp) {
+                AspectRatio(2f) { }
             }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(20.dp.toIntPx() * 2, minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals( 100.dp.toIntPx(), minIntrinsicWidth(70.dp.toIntPx()))
+            assertEquals( 20.dp.toIntPx() * 2, minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals( 20.dp.toIntPx() * 2, minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals( 55.dp.toIntPx(), minIntrinsicHeight(70.dp.toIntPx()))
+            assertEquals( 20.dp.toIntPx() * 2, minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals( 100.dp.toIntPx(), maxIntrinsicWidth(70.dp.toIntPx()) )
+            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals( 55.dp.toIntPx(), maxIntrinsicHeight(70.dp.toIntPx()))
+            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicHeight(IntPx.Infinity))
         }
-        layoutLatch.await(1, TimeUnit.SECONDS)
-        Unit
     }
-
 }
