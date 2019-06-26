@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+AcronymName: androidx.wear.widget.CurvingLayoutCallback#adjustAnchorOffsetXY(android.view.View, float[]):
+    Acronyms should not be capitalized in method names: was `adjustAnchorOffsetXY`, should this be `adjustAnchorOffsetXy`?
+
+
+ActionValue: androidx.wear.ambient.AmbientMode#EXTRA_BURN_IN_PROTECTION:
+    Inconsistent extra value; expected `androidx.wear.ambient.extra.BURN_IN_PROTECTION`, was `com.google.android.wearable.compat.extra.BURN_IN_PROTECTION`
+ActionValue: androidx.wear.ambient.AmbientMode#EXTRA_LOWBIT_AMBIENT:
+    Inconsistent extra value; expected `androidx.wear.ambient.extra.LOWBIT_AMBIENT`, was `com.google.android.wearable.compat.extra.LOWBIT_AMBIENT`
+ActionValue: androidx.wear.ambient.AmbientModeSupport#EXTRA_BURN_IN_PROTECTION:
+    Inconsistent extra value; expected `androidx.wear.ambient.extra.BURN_IN_PROTECTION`, was `com.google.android.wearable.compat.extra.BURN_IN_PROTECTION`
+ActionValue: androidx.wear.ambient.AmbientModeSupport#EXTRA_LOWBIT_AMBIENT:
+    Inconsistent extra value; expected `androidx.wear.ambient.extra.LOWBIT_AMBIENT`, was `com.google.android.wearable.compat.extra.LOWBIT_AMBIENT`
+
+
+CallbackMethodName: androidx.wear.widget.CurvingLayoutCallback:
+    Callback method names must follow the on<Something> style: adjustAnchorOffsetXY
+
+
+ForbiddenSuperClass: androidx.wear.activity.ConfirmationActivity:
+    ConfirmationActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
+
+
+NoClone: androidx.wear.ambient.AmbientMode#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientMode.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.wear.ambient.AmbientModeSupport#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.wear.ambient.AmbientModeSupport.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+
+
+RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#addCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):
+    Callback methods should be named register/unregister; was addCallback
+RegistrationName: androidx.wear.widget.SwipeDismissFrameLayout#removeCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback):
+    Callback methods should be named register/unregister; was removeCallback

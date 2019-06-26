@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ListenerInterface: androidx.slidingpanelayout.widget.SlidingPaneLayout.SimplePanelSlideListener:
+    Listeners should be an interface, or otherwise renamed Callback: SimplePanelSlideListener

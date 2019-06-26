@@ -1,0 +1,137 @@
+// Baseline format: 1.0
+AcronymName: androidx.ui.engine.text.TextBox.Companion#fromLTRBD(float, float, float, float, androidx.ui.engine.text.TextDirection):
+    Acronyms should not be capitalized in method names: was `fromLTRBD`, should this be `fromLtrbd`?
+AcronymName: androidx.ui.engine.text.TextIndent.Companion#getNONE():
+    Acronyms should not be capitalized in method names: was `getNONE`, should this be `getNone`?
+
+
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#ParagraphStyle(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, Integer, androidx.ui.engine.text.font.FontFamily, Float, androidx.ui.engine.text.FontSynthesis, Boolean, androidx.ui.engine.window.Locale) parameter #3:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#ParagraphStyle(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, Integer, androidx.ui.engine.text.font.FontFamily, Float, androidx.ui.engine.text.FontSynthesis, Boolean, androidx.ui.engine.window.Locale) parameter #6:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#ParagraphStyle(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, Integer, androidx.ui.engine.text.font.FontFamily, Float, androidx.ui.engine.text.FontSynthesis, Boolean, androidx.ui.engine.window.Locale) parameter #8:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#component4():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#component7():
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#component9():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#copy(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, Integer, androidx.ui.engine.text.font.FontFamily, Float, androidx.ui.engine.text.FontSynthesis, Boolean, androidx.ui.engine.window.Locale) parameter #3:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#copy(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, Integer, androidx.ui.engine.text.font.FontFamily, Float, androidx.ui.engine.text.FontSynthesis, Boolean, androidx.ui.engine.window.Locale) parameter #6:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#copy(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, Integer, androidx.ui.engine.text.font.FontFamily, Float, androidx.ui.engine.text.FontSynthesis, Boolean, androidx.ui.engine.window.Locale) parameter #8:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#getFontSize():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#getLineHeight():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.ParagraphStyle#getMaxLines():
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #0:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #1:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#component1():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#component2():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#copy(Float, Float) parameter #0:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#copy(Float, Float) parameter #1:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#getScaleX():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextGeometricTransform#getSkewX():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #5:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #6:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #8:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#TextStyle(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #9:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#component10():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#component6():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#component7():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#component9():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #5:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #6:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #8:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#copy(androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.font.FontFamily, Float, Float, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.FontSynthesis, androidx.ui.painting.Shadow) parameter #9:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#getFontSize():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#getFontSizeScale():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#getLetterSpacing():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.engine.text.TextStyle#getWordSpacing():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.ParagraphStyle#ParagraphStyle(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, Float, androidx.ui.engine.text.TextIndent) parameter #2:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.ParagraphStyle#component3():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.ParagraphStyle#copy(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, Float, androidx.ui.engine.text.TextIndent) parameter #2:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.ParagraphStyle#getLineHeight():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextPainter#TextPainter(androidx.ui.painting.AnnotatedString, androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, float, Integer, boolean, androidx.ui.rendering.paragraph.TextOverflow, androidx.ui.engine.window.Locale) parameter #4:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.painting.TextStyle#TextStyle(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #1:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#TextStyle(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #2:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#TextStyle(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #7:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#TextStyle(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #8:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#component2():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#component3():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#component8():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#component9():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#copy(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #1:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#copy(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #2:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#copy(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #7:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#copy(androidx.ui.graphics.Color, Float, Float, androidx.ui.engine.text.FontWeight, androidx.ui.engine.text.FontStyle, androidx.ui.engine.text.FontSynthesis, String, Float, Float, androidx.ui.engine.text.BaselineShift, androidx.ui.engine.text.TextGeometricTransform, androidx.ui.engine.window.Locale, androidx.ui.graphics.Color, androidx.ui.engine.text.TextDecoration, androidx.ui.engine.text.font.FontFamily, androidx.ui.painting.Shadow, String) parameter #8:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#getFontSize():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#getFontSizeScale():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#getLetterSpacing():
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#getParagraphStyle(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, float, Boolean, Integer, androidx.ui.engine.window.Locale) parameter #3:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.painting.TextStyle#getParagraphStyle(androidx.ui.engine.text.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.engine.text.TextIndent, Float, float, Boolean, Integer, androidx.ui.engine.window.Locale) parameter #6:
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.ui.painting.TextStyle#getWordSpacing():
+    Must avoid boxed primitives (`java.lang.Float`)
+
+
+KotlinOperator: androidx.ui.engine.text.TextDecoration#contains(androidx.ui.engine.text.TextDecoration):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.text.font.FontFamily#contains(androidx.ui.engine.text.font.Font):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.text.font.FontFamily#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.text.font.FontFamilyList#contains(androidx.ui.engine.text.font.FontFamily):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.text.font.FontFamilyList#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)

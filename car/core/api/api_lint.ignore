@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+KotlinOperator: androidx.car.widget.ListItemProvider#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.car.widget.ListItemProvider.ListProvider#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)

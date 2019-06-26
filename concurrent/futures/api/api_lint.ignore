@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+GenericException: androidx.concurrent.futures.CallbackToFutureAdapter.Resolver#attachCompleter(androidx.concurrent.futures.CallbackToFutureAdapter.Completer<T>):
+    Methods must not throw generic exceptions (`java.lang.Exception`)
+
+
+PairedRegistration: androidx.concurrent.futures.CallbackToFutureAdapter.Completer#addCancellationListener(Runnable, java.util.concurrent.Executor):
+    Found addCancellationListener but not removeCancellationListener in androidx.concurrent.futures.CallbackToFutureAdapter.Completer

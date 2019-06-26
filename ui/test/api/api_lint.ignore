@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.ui.test.ActionsKt#doClick(androidx.ui.test.SemanticsNodeInteraction):
+    Method ActionsKt.doClick appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.test.AssertionsKt#assertCountEquals(java.util.List<androidx.ui.test.SemanticsNodeInteraction>, int):
+    Method AssertionsKt.assertCountEquals appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.test.AssertionsKt#assertNoLongerExists(androidx.ui.test.SemanticsNodeInteraction):
+    Method AssertionsKt.assertNoLongerExists appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.test.AssertionsKt#assertStillExists(androidx.ui.test.SemanticsNodeInteraction):
+    Method AssertionsKt.assertStillExists appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.test.GoldenSemanticsKt#assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration):
+    Method GoldenSemanticsKt.assertEquals appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+ForbiddenSuperClass: androidx.ui.test.android.DefaultTestActivity:
+    DefaultTestActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.

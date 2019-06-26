@@ -1,0 +1,9 @@
+// Baseline format: 1.0
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_HONORED_ARGS:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.HONORED_ARGS`, was `android.content.extra.HONORED_ARGS`
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_REQUESTED_LIMIT:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.REQUESTED_LIMIT`, was `android-support:extra-ignored-limit`
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_SUGGESTED_LIMIT:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.SUGGESTED_LIMIT`, was `android-support:extra-suggested-limit`
+ActionValue: androidx.contentpager.content.ContentPager#EXTRA_TOTAL_COUNT:
+    Inconsistent extra value; expected `androidx.contentpager.content.extra.TOTAL_COUNT`, was `android.content.extra.TOTAL_COUNT`

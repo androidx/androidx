@@ -1,0 +1,35 @@
+// Baseline format: 1.0
+ContextFirst: androidx.fragment.app.FragmentActivity#onCreateView(String, android.content.Context, android.util.AttributeSet) parameter #1:
+    Context is distinct, so it must be the first argument (method `onCreateView`)
+ContextFirst: androidx.fragment.app.FragmentActivity#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
+    Context is distinct, so it must be the first argument (method `onCreateView`)
+ContextFirst: androidx.fragment.app.FragmentController#onCreateView(android.view.View, String, android.content.Context, android.util.AttributeSet) parameter #2:
+    Context is distinct, so it must be the first argument (method `onCreateView`)
+ContextFirst: androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks#onFragmentAttached(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment, android.content.Context) parameter #2:
+    Context is distinct, so it must be the first argument (method `onFragmentAttached`)
+ContextFirst: androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks#onFragmentPreAttached(androidx.fragment.app.FragmentManager, androidx.fragment.app.Fragment, android.content.Context) parameter #2:
+    Context is distinct, so it must be the first argument (method `onFragmentPreAttached`)
+
+
+ForbiddenSuperClass: androidx.fragment.app.FragmentActivity:
+    FragmentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
+
+
+NoClone: androidx.fragment.app.Fragment#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.Fragment.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.fragment.app.FragmentActivity#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentActivity.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.fragment.app.FragmentController#dumpLoaders(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentController.dumpLoaders(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.fragment.app.FragmentHostCallback#onDump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentHostCallback.onDump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+NoClone: androidx.fragment.app.FragmentManager#dump(String, java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #1:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.fragment.app.FragmentManager.dump(String prefix, java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+
+
+ParcelNotFinal: androidx.fragment.app.Fragment.SavedState:
+    Parcelable classes must be final: androidx.fragment.app.Fragment.SavedState is not final
+
+
+SingularCallback: androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks:
+    Callback class names should be singular: FragmentLifecycleCallbacks

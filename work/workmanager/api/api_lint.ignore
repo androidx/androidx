@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AcronymName: androidx.work.Operation.State.FAILURE:
+    Acronyms should not be capitalized in class names: was `FAILURE`, should this be `Failure`?
+AcronymName: androidx.work.Operation.State.IN_PROGRESS:
+    Acronyms should not be capitalized in class names: was `IN_PROGRESS`, should this be `InProgress`?
+AcronymName: androidx.work.Operation.State.SUCCESS:
+    Acronyms should not be capitalized in class names: was `SUCCESS`, should this be `Success`?

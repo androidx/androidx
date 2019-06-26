@@ -1,0 +1,61 @@
+// Baseline format: 1.0
+AcronymName: androidx.recyclerview.widget.ItemTouchHelper.Callback#getDefaultUIUtil():
+    Acronyms should not be capitalized in method names: was `getDefaultUIUtil`, should this be `getDefaultUiUtil`?
+AcronymName: androidx.recyclerview.widget.ItemTouchUIUtil:
+    Acronyms should not be capitalized in class names: was `ItemTouchUIUtil`, should this be `ItemTouchUiUtil`?
+AcronymName: androidx.recyclerview.widget.LinearLayoutManager#isLayoutRTL():
+    Acronyms should not be capitalized in method names: was `isLayoutRTL`, should this be `isLayoutRtl`?
+
+
+BannedThrow: androidx.recyclerview.widget.SnapHelper#attachToRecyclerView(androidx.recyclerview.widget.RecyclerView):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalStateException`)
+BannedThrow: androidx.recyclerview.widget.SortedList#get(int):
+    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IndexOutOfBoundsException`)
+
+
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.DataCallback:
+    Callback method names must follow the on<Something> style: refreshData
+CallbackMethodName: androidx.recyclerview.widget.AsyncListUtil.ViewCallback:
+    Callback method names must follow the on<Something> style: getItemRangeInto
+CallbackMethodName: androidx.recyclerview.widget.BatchingListUpdateCallback:
+    Callback method names must follow the on<Something> style: dispatchLastEvent
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.Callback:
+    Callback method names must follow the on<Something> style: getOldListSize
+CallbackMethodName: androidx.recyclerview.widget.DiffUtil.ItemCallback:
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.Callback:
+    Callback method names must follow the on<Something> style: getDefaultUIUtil
+CallbackMethodName: androidx.recyclerview.widget.ItemTouchHelper.SimpleCallback:
+    Callback method names must follow the on<Something> style: setDefaultSwipeDirs
+CallbackMethodName: androidx.recyclerview.widget.SortedList.BatchedCallback:
+    Callback method names must follow the on<Something> style: compare
+CallbackMethodName: androidx.recyclerview.widget.SortedList.Callback:
+    Callback method names must follow the on<Something> style: compare
+
+
+CallbackName: androidx.recyclerview.widget.RecyclerView.AdapterDataObserver:
+    Class should be named AdapterDataCallback
+
+
+ConcreteCollection: androidx.recyclerview.widget.RecyclerView#addFocusables(java.util.ArrayList<android.view.View>, int, int) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.recyclerview.widget.RecyclerView.LayoutManager#onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View>, int, int) parameter #1:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
+KotlinOperator: androidx.recyclerview.widget.RecyclerView.State#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.recyclerview.widget.SortedList#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+ListenerInterface: androidx.recyclerview.widget.RecyclerView.OnFlingListener:
+    Listeners should be an interface, or otherwise renamed Callback: OnFlingListener
+ListenerInterface: androidx.recyclerview.widget.RecyclerView.OnScrollListener:
+    Listeners should be an interface, or otherwise renamed Callback: OnScrollListener
+ListenerInterface: androidx.recyclerview.widget.RecyclerView.SimpleOnItemTouchListener:
+    Listeners should be an interface, or otherwise renamed Callback: SimpleOnItemTouchListener
+
+
+MethodNameUnits: androidx.recyclerview.widget.OrientationHelper#getTotalSpace():
+    Expected method name units to be `Bytes`, was `Space` in `getTotalSpace`

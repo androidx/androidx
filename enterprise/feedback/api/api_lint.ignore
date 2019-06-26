@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+VisiblySynchronized: androidx.enterprise.feedback.SingletonKeyedAppStatesReporter#getInstance(android.content.Context):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.enterprise.feedback.SingletonKeyedAppStatesReporter.getInstance(android.content.Context)
+VisiblySynchronized: androidx.enterprise.feedback.SingletonKeyedAppStatesReporter#initialize(android.content.Context, java.util.concurrent.Executor):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.enterprise.feedback.SingletonKeyedAppStatesReporter.initialize(android.content.Context,java.util.concurrent.Executor)

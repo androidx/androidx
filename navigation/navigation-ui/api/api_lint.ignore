@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AcronymName: androidx.navigation.ui.NavigationUI:
+    Acronyms should not be capitalized in class names: was `NavigationUI`, should this be `NavigationUi`?

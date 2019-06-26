@@ -1,0 +1,45 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.paging.DataSource#getExecutor():
+    Method DataSource.getExecutor appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.ItemKeyedDataSource.LoadCallback#onError(Throwable):
+    Method LoadCallback.onError appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PageKeyedDataSource.LoadCallback#onError(Throwable):
+    Method LoadCallback.onError appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PageKeyedDataSource.LoadInitialCallback#onError(Throwable):
+    Method LoadInitialCallback.onError appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PagedList#loadAround(int):
+    Method PagedList.loadAround appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PagedList.Builder#build():
+    Method Builder.build appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PagedList.Builder#buildAsync():
+    Method Builder.buildAsync appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PagedList.Config.Builder#build():
+    Method Builder.build appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PagedList.Config.Builder#setPageSize(int):
+    Method Builder.setPageSize appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PositionalDataSource.LoadInitialCallback#onError(Throwable):
+    Method LoadInitialCallback.onError appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.paging.PositionalDataSource.LoadRangeCallback#onError(Throwable):
+    Method LoadRangeCallback.onError appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+EqualsAndHashCode: androidx.paging.DataSource.BaseResult#equals(Object):
+    Must override both equals and hashCode; missing one in androidx.paging.DataSource.BaseResult
+
+
+KotlinOperator: androidx.paging.PagedList#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
+    Callback methods should be named register/unregister; was addInvalidatedCallback
+RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Callback methods should be named register/unregister; was addInvalidatedCallback
+RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
+    Callback methods should be named register/unregister; was removeInvalidatedCallback
+RegistrationName: androidx.paging.DataSource#removeInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
+    Callback methods should be named register/unregister; was removeInvalidatedCallback
+RegistrationName: androidx.paging.PagedList#addWeakCallback(java.util.List<? extends T>, androidx.paging.PagedList.Callback):
+    Callback methods should be named register/unregister; was addWeakCallback
+RegistrationName: androidx.paging.PagedList#removeWeakCallback(androidx.paging.PagedList.Callback):
+    Callback methods should be named register/unregister; was removeWeakCallback

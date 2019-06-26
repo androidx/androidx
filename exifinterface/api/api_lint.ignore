@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+NoClone: androidx.exifinterface.media.ExifInterface#ExifInterface(java.io.FileDescriptor) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fileDescriptor in androidx.exifinterface.media.ExifInterface(java.io.FileDescriptor fileDescriptor)

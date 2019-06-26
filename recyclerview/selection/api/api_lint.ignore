@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+AutoBoxing: androidx.recyclerview.selection.StableIdKeyProvider#getKey(int):
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.recyclerview.selection.StableIdKeyProvider#getPosition(Long) parameter #0:
+    Must avoid boxed primitives (`java.lang.Long`)
+
+
+CallbackName: androidx.recyclerview.selection.SelectionTracker.SelectionObserver:
+    Class should be named SelectionCallback
+
+
+KotlinOperator: androidx.recyclerview.selection.Selection#contains(K):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+VisiblySynchronized: androidx.recyclerview.selection.OperationMonitor#isStarted():
+    Internal locks must not be exposed: method androidx.recyclerview.selection.OperationMonitor.isStarted()

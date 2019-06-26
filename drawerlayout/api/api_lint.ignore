@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+ConcreteCollection: androidx.drawerlayout.widget.DrawerLayout#addFocusables(java.util.ArrayList<android.view.View>, int, int) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
+ListenerInterface: androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener:
+    Listeners should be an interface, or otherwise renamed Callback: SimpleDrawerListener
+
+
+ParcelCreator: androidx.drawerlayout.widget.DrawerLayout.SavedState:
+    Parcelable requires `public int describeContents()`; missing in androidx.drawerlayout.widget.DrawerLayout.SavedState
+
+
+ParcelNotFinal: androidx.drawerlayout.widget.DrawerLayout.SavedState:
+    Parcelable classes must be final: androidx.drawerlayout.widget.DrawerLayout.SavedState is not final

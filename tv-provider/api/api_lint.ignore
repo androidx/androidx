@@ -1,0 +1,51 @@
+// Baseline format: 1.0
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_INITIALIZE_PROGRAMS:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.INITIALIZE_PROGRAMS`, was `android.media.tv.action.INITIALIZE_PROGRAMS`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_PREVIEW_PROGRAM_ADDED_TO_WATCH_NEXT:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.PREVIEW_PROGRAM_ADDED_TO_WATCH_NEXT`, was `android.media.tv.action.PREVIEW_PROGRAM_ADDED_TO_WATCH_NEXT`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_PREVIEW_PROGRAM_BROWSABLE_DISABLED:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.PREVIEW_PROGRAM_BROWSABLE_DISABLED`, was `android.media.tv.action.PREVIEW_PROGRAM_BROWSABLE_DISABLED`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_REQUEST_CHANNEL_BROWSABLE:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.REQUEST_CHANNEL_BROWSABLE`, was `android.media.tv.action.REQUEST_CHANNEL_BROWSABLE`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#ACTION_WATCH_NEXT_PROGRAM_BROWSABLE_DISABLED:
+    Inconsistent action value; expected `androidx.tvprovider.media.tv.action.WATCH_NEXT_PROGRAM_BROWSABLE_DISABLED`, was `android.media.tv.action.WATCH_NEXT_PROGRAM_BROWSABLE_DISABLED`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_CHANNEL_ID:
+    Inconsistent extra value; expected `androidx.tvprovider.media.tv.extra.CHANNEL_ID`, was `android.media.tv.extra.CHANNEL_ID`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_PREVIEW_PROGRAM_ID:
+    Inconsistent extra value; expected `androidx.tvprovider.media.tv.extra.PREVIEW_PROGRAM_ID`, was `android.media.tv.extra.PREVIEW_PROGRAM_ID`
+ActionValue: androidx.tvprovider.media.tv.TvContractCompat#EXTRA_WATCH_NEXT_PROGRAM_ID:
+    Inconsistent extra value; expected `androidx.tvprovider.media.tv.extra.WATCH_NEXT_PROGRAM_ID`, was `android.media.tv.extra.WATCH_NEXT_PROGRAM_ID`
+
+
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag1():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag2():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag3():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.Channel#getInternalProviderFlag4():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag1():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag2():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag3():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.tvprovider.media.tv.PreviewChannel#getInternalProviderFlag4():
+    Must avoid boxed primitives (`java.lang.Long`)
+
+
+EqualsAndHashCode: androidx.tvprovider.media.tv.PreviewProgram#equals(Object):
+    Must override both equals and hashCode; missing one in androidx.tvprovider.media.tv.PreviewProgram
+EqualsAndHashCode: androidx.tvprovider.media.tv.WatchNextProgram#equals(Object):
+    Must override both equals and hashCode; missing one in androidx.tvprovider.media.tv.WatchNextProgram
+
+
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_COUNT:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_COUNT
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_TYPE:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLUMN_INTERACTION_COUNT:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_COUNT
+IntentName: androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms#COLUMN_INTERACTION_TYPE:
+    Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_TYPE
