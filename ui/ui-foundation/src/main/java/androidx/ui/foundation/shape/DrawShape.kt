@@ -22,12 +22,12 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
-import androidx.ui.core.vectorgraphics.Brush
-import androidx.ui.core.vectorgraphics.SolidColor
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.engine.geometry.drawOutline
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.vectorgraphics.Brush
+import androidx.ui.graphics.vectorgraphics.SolidColor
 import androidx.ui.painting.Paint
 
 /**

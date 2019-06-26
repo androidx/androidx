@@ -54,6 +54,8 @@ dependencies {
     androidTestImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
+
+    implementation "androidx.core:core:1.0.0"
 }
 
 androidx {

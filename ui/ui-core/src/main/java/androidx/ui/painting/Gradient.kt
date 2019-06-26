@@ -106,25 +106,19 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
             color: List<Color>,
             colorStops: List<Float>?,
             tileMode: TileMode = TileMode.clamp,
-            @Suppress("UNUSED_PARAMETER") matrix4: Matrix4,
-            focal: Offset?,
-            focalRadius: Float
+            @Suppress("UNUSED_PARAMETER") matrix4: Matrix4
         ): Gradient {
             _validateColorStops(color, colorStops)
-            if (focal == null || (focal == center && focalRadius == 0.0f)) {
-                TODO("Migration/njawad: add focal support to RadialGradient in framework")
-            } else {
-                // TODO(Migration/njawad use matrix parameter in creation of RadialGradient)
-                val radial = android.graphics.RadialGradient(
-                    center.dx,
-                    center.dy,
-                    radius,
-                    toIntArray(color),
-                    toFloatArray(colorStops),
-                    toFrameworkTileMode(tileMode)
-                )
-                return Gradient(radial)
-            }
+            // TODO(Migration/njawad use matrix parameter in creation of RadialGradient)
+            val radial = android.graphics.RadialGradient(
+                center.dx,
+                center.dy,
+                radius,
+                toIntArray(color),
+                toFloatArray(colorStops),
+                toFrameworkTileMode(tileMode)
+            )
+            return Gradient(radial)
         }
 
         /**
@@ -202,9 +196,9 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
 
         private fun _validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
             if (colorStops == null) {
-                if (colors.size != 2) {
+                if (colors.size < 2) {
                     throw IllegalArgumentException(
-                        "colors must have length 2 if colorStops " +
+                        "colors must have length of at least 2 if colorStops " +
                                 "is omitted."
                     )
                 }

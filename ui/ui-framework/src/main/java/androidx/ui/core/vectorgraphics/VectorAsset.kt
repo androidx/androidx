@@ -19,8 +19,27 @@ package androidx.ui.core.vectorgraphics
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.Px
+import androidx.ui.graphics.vectorgraphics.BrushType
+import androidx.ui.graphics.vectorgraphics.DefaultAlpha
+import androidx.ui.graphics.vectorgraphics.DefaultGroupName
+import androidx.ui.graphics.vectorgraphics.DefaultPathName
+import androidx.ui.graphics.vectorgraphics.DefaultPivotX
+import androidx.ui.graphics.vectorgraphics.DefaultPivotY
+import androidx.ui.graphics.vectorgraphics.DefaultRotation
+import androidx.ui.graphics.vectorgraphics.DefaultScaleX
+import androidx.ui.graphics.vectorgraphics.DefaultScaleY
+import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineCap
+import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineJoin
+import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineMiter
+import androidx.ui.graphics.vectorgraphics.DefaultStrokeLineWidth
+import androidx.ui.graphics.vectorgraphics.DefaultTranslationX
+import androidx.ui.graphics.vectorgraphics.DefaultTranslationY
+import androidx.ui.graphics.vectorgraphics.EmptyBrush
+import androidx.ui.graphics.vectorgraphics.EmptyPath
+import androidx.ui.graphics.vectorgraphics.PathData
 import androidx.ui.painting.StrokeCap
 import androidx.ui.painting.StrokeJoin
+import androidx.ui.vector.VectorScope
 import java.util.Stack
 import java.util.function.Consumer
 
@@ -372,7 +391,7 @@ class VectorPath(
  */
 @Composable
 fun DrawVector(vectorImage: VectorAsset) {
-    Vector(
+    DrawVector(
         name = vectorImage.name,
         viewportWidth = vectorImage.viewportWidth,
         viewportHeight = vectorImage.viewportHeight,
@@ -387,7 +406,7 @@ fun DrawVector(vectorImage: VectorAsset) {
  * the tree structure
  */
 @Composable
-private fun RenderVectorGroup(group: VectorGroup) {
+private fun VectorScope.RenderVectorGroup(group: VectorGroup) {
     for (vectorNode in group) {
         if (vectorNode is VectorPath) {
             Path(

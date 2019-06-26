@@ -17,9 +17,9 @@
 package androidx.ui.foundation.shape.border
 
 import androidx.ui.core.Dp
-import androidx.ui.core.vectorgraphics.Brush
-import androidx.ui.core.vectorgraphics.SolidColor
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.vectorgraphics.Brush
+import androidx.ui.graphics.vectorgraphics.SolidColor
 
 /**
  * A border of a shape.

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics
+package androidx.ui.graphics.vectorgraphics
 
 class PathBuilder {
 
@@ -93,7 +93,8 @@ class PathBuilder {
         sweepFlag: Float,
         x1: Float,
         y1: Float
-    ) = addNode(PathCommand.ArcTo, horizontalEllipseRadius, verticalEllipseRadius, theta,
+    ) = addNode(
+        PathCommand.ArcTo, horizontalEllipseRadius, verticalEllipseRadius, theta,
                 largeArcFlag, sweepFlag, x1, y1)
 
     fun arcToRelative(
