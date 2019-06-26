@@ -1384,6 +1384,10 @@ public abstract class SessionPlayer implements AutoCloseable {
          * <p>
          * The video size (width and height) could be 0 if there was no video,
          * no display surface was set, or the value was not determined yet.
+         * <p>
+         * This callback is generally called when player updates video size, but will also be
+         * called when {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)}
+         * is called.
          *
          * @param player the player associated with this callback
          * @param item the MediaItem of this media item
@@ -1392,7 +1396,7 @@ public abstract class SessionPlayer implements AutoCloseable {
          *
          * @hide
          */
-        // TODO: Change this into onVideoSizeChanged
+        // TODO: Add onVideoSizeChanged and deprecate this method (b/132928418)
         @RestrictTo(LIBRARY_GROUP)
         public void onVideoSizeChangedInternal(
                 @NonNull SessionPlayer player, @NonNull MediaItem item, @NonNull VideoSize size) {

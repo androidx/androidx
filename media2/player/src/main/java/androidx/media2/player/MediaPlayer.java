@@ -2974,6 +2974,8 @@ public final class MediaPlayer extends SessionPlayer {
                         public void callCallback(
                                 SessionPlayer.PlayerCallback callback) {
                             callback.onCurrentMediaItemChanged(MediaPlayer.this, item);
+                            callback.onVideoSizeChangedInternal(MediaPlayer.this,
+                                    getCurrentMediaItem(), getVideoSizeInternal());
                         }
                     });
                     break;
@@ -3092,14 +3094,17 @@ public final class MediaPlayer extends SessionPlayer {
         @Override
         public void onVideoSizeChanged(
                 MediaPlayer2 mp, final MediaItem item, final int width, final int height) {
-            final androidx.media2.common.VideoSize commonSize =
-                    new androidx.media2.common.VideoSize(width, height);
-            notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                @Override
-                public void callCallback(SessionPlayer.PlayerCallback callback) {
-                    callback.onVideoSizeChangedInternal(MediaPlayer.this, item, commonSize);
-                }
-            });
+            MediaItem currentItem = getCurrentMediaItem();
+            if (currentItem != null && currentItem == item) {
+                final androidx.media2.common.VideoSize commonSize =
+                        new androidx.media2.common.VideoSize(width, height);
+                notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                    @Override
+                    public void callCallback(SessionPlayer.PlayerCallback callback) {
+                        callback.onVideoSizeChangedInternal(MediaPlayer.this, item, commonSize);
+                    }
+                });
+            }
         }
 
         @Override
@@ -3229,6 +3234,7 @@ public final class MediaPlayer extends SessionPlayer {
          * @param item the MediaItem of this media item
          * @param size the size of the video
          */
+        // TODO: Deprecate this and unhide new API without MediaItem parameter (b/132928418)
         public void onVideoSizeChanged(
                 @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
 
