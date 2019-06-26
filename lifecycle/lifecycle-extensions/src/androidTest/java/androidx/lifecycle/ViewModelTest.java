@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import static androidx.lifecycle.Lifecycle.Event.ON_RESUME;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -23,7 +25,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.app.Instrumentation;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -61,40 +62,46 @@ public class ViewModelTest {
         final TestViewModel[] fragment2Model = new TestViewModel[1];
         final ViewModelActivity[] viewModelActivity = new ViewModelActivity[1];
         viewModelActivity[0] = mActivityRule.getActivity();
-        mActivityRule.runOnUiThread(() -> {
-            ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
-                    ViewModelActivity.FRAGMENT_TAG_1);
-            ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
-                    ViewModelActivity.FRAGMENT_TAG_2);
-            assertThat(fragment1, notNullValue());
-            assertThat(fragment2, notNullValue());
-            assertThat(fragment1.activityModel, is(fragment2.activityModel));
-            assertThat(fragment1.fragmentModel, not(is(fragment2.activityModel)));
-            assertThat(mActivityRule.getActivity().activityModel, is(fragment1.activityModel));
-            activityModel[0] = mActivityRule.getActivity().activityModel;
-            defaultActivityModel[0] = mActivityRule.getActivity().defaultActivityModel;
-            assertThat(defaultActivityModel[0], not(is(activityModel[0])));
-            fragment1Model[0] = fragment1.fragmentModel;
-            fragment2Model[0] = fragment2.fragmentModel;
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_1);
+                ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_2);
+                assertThat(fragment1, notNullValue());
+                assertThat(fragment2, notNullValue());
+                assertThat(fragment1.activityModel, is(fragment2.activityModel));
+                assertThat(fragment1.fragmentModel, not(is(fragment2.activityModel)));
+                assertThat(mActivityRule.getActivity().activityModel, is(fragment1.activityModel));
+                activityModel[0] = mActivityRule.getActivity().activityModel;
+                defaultActivityModel[0] = mActivityRule.getActivity().defaultActivityModel;
+                assertThat(defaultActivityModel[0], not(is(activityModel[0])));
+                fragment1Model[0] = fragment1.fragmentModel;
+                fragment2Model[0] = fragment2.fragmentModel;
+            }
         });
         viewModelActivity[0] = recreateActivity();
-        mActivityRule.runOnUiThread(() -> {
-            ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
-                    ViewModelActivity.FRAGMENT_TAG_1);
-            ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
-                    ViewModelActivity.FRAGMENT_TAG_2);
-            assertThat(fragment1, notNullValue());
-            assertThat(fragment2, notNullValue());
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewModelFragment fragment1 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_1);
+                ViewModelFragment fragment2 = getFragment(viewModelActivity[0],
+                        ViewModelActivity.FRAGMENT_TAG_2);
+                assertThat(fragment1, notNullValue());
+                assertThat(fragment2, notNullValue());
 
-            assertThat(fragment1.activityModel, is(activityModel[0]));
-            assertThat(fragment2.activityModel, is(activityModel[0]));
-            assertThat(fragment1.fragmentModel, is(fragment1Model[0]));
-            assertThat(fragment2.fragmentModel, is(fragment2Model[0]));
-            assertThat(fragment1.defaultActivityModel, is(defaultActivityModel[0]));
-            assertThat(fragment2.defaultActivityModel, is(defaultActivityModel[0]));
-            assertThat(mActivityRule.getActivity().activityModel, is(activityModel[0]));
-            assertThat(mActivityRule.getActivity().defaultActivityModel,
-                    is(defaultActivityModel[0]));
+                assertThat(fragment1.activityModel, is(activityModel[0]));
+                assertThat(fragment2.activityModel, is(activityModel[0]));
+                assertThat(fragment1.fragmentModel, is(fragment1Model[0]));
+                assertThat(fragment2.fragmentModel, is(fragment2Model[0]));
+                assertThat(fragment1.defaultActivityModel, is(defaultActivityModel[0]));
+                assertThat(fragment2.defaultActivityModel, is(defaultActivityModel[0]));
+                assertThat(mActivityRule.getActivity().activityModel, is(activityModel[0]));
+                assertThat(mActivityRule.getActivity().defaultActivityModel,
+                        is(defaultActivityModel[0]));
+            }
         });
     }
 
@@ -110,9 +117,10 @@ public class ViewModelTest {
     public void testOnClear() throws Throwable {
         final ViewModelActivity activity = mActivityRule.getActivity();
         final CountDownLatch latch = new CountDownLatch(1);
-        final LifecycleObserver observer = new DefaultLifecycleObserver() {
-            @Override
-            public void onResume(@NonNull LifecycleOwner owner) {
+        final LifecycleObserver observer = new LifecycleObserver() {
+            @SuppressWarnings("unused")
+            @OnLifecycleEvent(ON_RESUME)
+            void onResume() {
                 try {
                     final FragmentManager manager = activity.getSupportFragmentManager();
                     Fragment fragment = new Fragment();
@@ -127,7 +135,12 @@ public class ViewModelTest {
             }
         };
 
-        mActivityRule.runOnUiThread(() -> activity.getLifecycle().addObserver(observer));
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                activity.getLifecycle().addObserver(observer);
+            }
+        });
         assertThat(latch.await(TIMEOUT, TimeUnit.SECONDS), is(true));
     }
 
@@ -142,7 +155,12 @@ public class ViewModelTest {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         instrumentation.addMonitor(monitor);
         final ViewModelActivity previous = mActivityRule.getActivity();
-        mActivityRule.runOnUiThread(() -> previous.recreate());
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                previous.recreate();
+            }
+        });
         ViewModelActivity result;
 
         // this guarantee that we will reinstall monitor between notifications about onDestroy

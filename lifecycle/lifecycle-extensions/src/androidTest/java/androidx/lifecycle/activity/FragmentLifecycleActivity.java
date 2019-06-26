@@ -24,8 +24,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
 import androidx.lifecycle.extensions.test.R;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
     private static final String EXTRA_NESTED = "nested";
 
     private final List<Lifecycle.Event> mLoggedEvents = Collections
-            .synchronizedList(new ArrayList<>());
+            .synchronizedList(new ArrayList<Lifecycle.Event>());
     private LifecycleOwner mObservedOwner;
     private final CountDownLatch mDestroyLatch = new CountDownLatch(1);
 
@@ -96,8 +97,13 @@ public class FragmentLifecycleActivity extends AppCompatActivity {
 
     public void observe(LifecycleOwner provider) {
         mObservedOwner = provider;
-        provider.getLifecycle().addObserver(
-                (LifecycleEventObserver) (source, event) -> mLoggedEvents.add(event));
+        provider.getLifecycle().addObserver(new LifecycleObserver() {
+            @OnLifecycleEvent(Lifecycle.Event.ON_ANY)
+            public void anyEvent(@SuppressWarnings("unused") LifecycleOwner owner,
+                    Lifecycle.Event event) {
+                mLoggedEvents.add(event);
+            }
+        });
     }
 
     public List<Lifecycle.Event> getLoggedEvents() {
