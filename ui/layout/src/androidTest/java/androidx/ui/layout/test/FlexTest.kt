@@ -43,6 +43,7 @@ import androidx.ui.layout.Row
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.IntPx
+import androidx.ui.core.ipx
 import androidx.ui.layout.AspectRatio
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -1665,6 +1666,370 @@ class FlexTest : LayoutTest() {
             assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(0.dp.toIntPx()))
             assertEquals(50.dp.toIntPx() / 2 + 40.dp.toIntPx(), maxIntrinsicHeight(50.dp.toIntPx()))
             assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testFlexRow_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        testIntrinsics(@Composable {
+            FlexRow {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexRow(mainAxisSize = MainAxisSize.Min) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexRow(
+                mainAxisAlignment = MainAxisAlignment.Start,
+                crossAxisAlignment = CrossAxisAlignment.Start
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexRow(
+                mainAxisAlignment = MainAxisAlignment.Center,
+                crossAxisAlignment = CrossAxisAlignment.Center
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexRow(
+                mainAxisAlignment = MainAxisAlignment.End,
+                crossAxisAlignment = CrossAxisAlignment.End
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexRow(
+                mainAxisAlignment = MainAxisAlignment.SpaceAround,
+                crossAxisAlignment = CrossAxisAlignment.Stretch
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexRow(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexRow(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 40.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(2f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(20.dp, 30.dp)) { }
+                }
+            }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicWidth(0.ipx)
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicWidth(10.dp.toIntPx())
+            )
+            assertEquals(
+                25.dp.toIntPx() * 2 / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicWidth(25.dp.toIntPx())
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicWidth(IntPx.Infinity)
+            )
+            // Min height.
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(125.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicHeight(370.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            // Max width.
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicWidth(0.ipx)
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicWidth(10.dp.toIntPx())
+            )
+            assertEquals(
+                25.dp.toIntPx() * 2 / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicWidth(25.dp.toIntPx())
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicWidth(IntPx.Infinity)
+            )
+            // Max height.
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(125.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), maxIntrinsicHeight(370.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+        }
+    }
+
+    @Test
+    fun testFlexColumn_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        testIntrinsics(@Composable {
+            FlexColumn {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexColumn(mainAxisSize = MainAxisSize.Min) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexColumn(
+                mainAxisAlignment = MainAxisAlignment.Start,
+                crossAxisAlignment = CrossAxisAlignment.Start
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexColumn(
+                mainAxisAlignment = MainAxisAlignment.Center,
+                crossAxisAlignment = CrossAxisAlignment.Center
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexColumn(
+                mainAxisAlignment = MainAxisAlignment.End,
+                crossAxisAlignment = CrossAxisAlignment.End
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexColumn(
+                mainAxisAlignment = MainAxisAlignment.SpaceAround,
+                crossAxisAlignment = CrossAxisAlignment.Stretch
+            ) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexColumn(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }, @Composable {
+            FlexColumn(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                expanded(flex = 3f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    ConstrainedBox(DpConstraints.tightConstraints(40.dp, 30.dp)) { }
+                }
+                expanded(flex = 2f) {
+                    AspectRatio(0.5f) { }
+                }
+                inflexible {
+                    ConstrainedBox(DpConstraints.tightConstraints(30.dp, 20.dp)) { }
+                }
+            }
+        }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Min width.
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(125.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), minIntrinsicWidth(370.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            // Min height.
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicHeight(0.ipx)
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicHeight(10.dp.toIntPx())
+            )
+            assertEquals(
+                25.dp.toIntPx() * 2 / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicHeight(25.dp.toIntPx())
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                minIntrinsicHeight(IntPx.Infinity)
+            )
+            // Max width.
+            assertEquals(40.dp.toIntPx(), maxIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicWidth(125.dp.toIntPx()))
+            assertEquals(50.dp.toIntPx(), maxIntrinsicWidth(370.dp.toIntPx()))
+            assertEquals(40.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            // Max height.
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicHeight(0.ipx)
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicHeight(10.dp.toIntPx())
+            )
+            assertEquals(
+                25.dp.toIntPx() * 2 / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicHeight(25.dp.toIntPx())
+            )
+            assertEquals(
+                30.dp.toIntPx() / 2 * 7 + 20.dp.toIntPx(),
+                maxIntrinsicHeight(IntPx.Infinity)
+            )
         }
     }
 }
