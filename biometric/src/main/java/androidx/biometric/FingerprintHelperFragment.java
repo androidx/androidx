@@ -19,6 +19,7 @@ package androidx.biometric;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,7 +40,7 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FingerprintHelperFragment extends Fragment {
 
-    private static final String TAG = "FingerprintHelperFragment";
+    private static final String TAG = "fh_fragment";
 
     protected static final int USER_CANCELED_FROM_NONE = 0;
     protected static final int USER_CANCELED_FROM_USER = 1;
@@ -83,7 +84,7 @@ public class FingerprintHelperFragment extends Fragment {
 
                 @Override
                 public void onAuthenticationError(final int errMsgId,
-                        final CharSequence errString) {
+                        CharSequence errString) {
                     if (errMsgId == BiometricPrompt.ERROR_CANCELED) {
                         if (mCanceledFrom == USER_CANCELED_FROM_NONE) {
                             dismissAndForwardResult(errMsgId, errString);
@@ -92,9 +93,19 @@ public class FingerprintHelperFragment extends Fragment {
                             || errMsgId == BiometricPrompt.ERROR_LOCKOUT_PERMANENT) {
                         dismissAndForwardResult(errMsgId, errString);
                     } else {
+                        // Avoid passing a null error string to the client callback. This needs to
+                        // be a final copy, since it's accessed in the runnable below.
+                        final CharSequence errStringNonNull;
+                        if (errString != null) {
+                            errStringNonNull = errString;
+                        } else {
+                            Log.e(TAG, "Got null string for error message: " + errMsgId);
+                            errStringNonNull =
+                                    mContext.getResources().getString(R.string.default_error_msg);
+                        }
+
                         mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_ERROR, errMsgId,
-                                0,
-                                errString).sendToTarget();
+                                0, errStringNonNull).sendToTarget();
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -102,8 +113,7 @@ public class FingerprintHelperFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         mClientAuthenticationCallback.onAuthenticationError(
-                                                errMsgId,
-                                                errString);
+                                                errMsgId, errStringNonNull);
                                     }
                                 });
                             }
@@ -284,8 +294,10 @@ public class FingerprintHelperFragment extends Fragment {
                 return context.getString(R.string.fingerprint_error_no_fingerprints);
             case BiometricPrompt.ERROR_USER_CANCELED:
                 return context.getString(R.string.fingerprint_error_user_canceled);
+            default:
+                Log.e(TAG, "Unknown error code: " + errorCode);
+                return context.getString(R.string.default_error_msg);
         }
-        return null;
     }
 
     @SuppressWarnings("deprecation")
