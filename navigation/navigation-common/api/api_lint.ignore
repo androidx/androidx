@@ -1,0 +1,11 @@
+// Baseline format: 1.0
+KotlinOperator: androidx.navigation.NavType#get(android.os.Bundle, String):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.navigation.NavType.ParcelableArrayType#get(android.os.Bundle, String):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.navigation.NavType.ParcelableType#get(android.os.Bundle, String):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.navigation.NavType.SerializableArrayType#get(android.os.Bundle, String):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.navigation.NavType.SerializableType#get(android.os.Bundle, String):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)

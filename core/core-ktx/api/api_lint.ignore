@@ -1,0 +1,33 @@
+// Baseline format: 1.0
+AcronymName: androidx.core.database.sqlite.SQLiteDatabaseKt:
+    Acronyms should not be capitalized in class names: was `SQLiteDatabaseKt`, should this be `SqLiteDatabaseKt`?
+
+
+AutoBoxing: androidx.core.database.CursorKt#getDoubleOrNull(android.database.Cursor, int):
+    Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.core.database.CursorKt#getFloatOrNull(android.database.Cursor, int):
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.core.database.CursorKt#getIntOrNull(android.database.Cursor, int):
+    Must avoid boxed primitives (`java.lang.Integer`)
+AutoBoxing: androidx.core.database.CursorKt#getLongOrNull(android.database.Cursor, int):
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.core.database.CursorKt#getShortOrNull(android.database.Cursor, int):
+    Must avoid boxed primitives (`java.lang.Short`)
+
+
+DocumentExceptions: androidx.core.graphics.RegionKt#iterator(android.graphics.Region):
+    Method RegionKt.iterator appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.core.view.MenuKt#iterator(android.view.Menu):
+    Method MenuKt.iterator appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.core.view.ViewGroupKt#iterator(android.view.ViewGroup):
+    Method ViewGroupKt.iterator appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+PairedRegistration: androidx.core.animation.AnimatorKt#addListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>):
+    Found addListener but not removeListener in androidx.core.animation.AnimatorKt
+PairedRegistration: androidx.core.animation.AnimatorKt#addPauseListener(android.animation.Animator, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.animation.Animator,kotlin.Unit>):
+    Found addPauseListener but not removePauseListener in androidx.core.animation.AnimatorKt
+PairedRegistration: androidx.core.transition.TransitionKt#addListener(android.transition.Transition, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.transition.Transition,kotlin.Unit>):
+    Found addListener but not removeListener in androidx.core.transition.TransitionKt
+PairedRegistration: androidx.core.widget.TextViewKt#addTextChangedListener(android.widget.TextView, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function4<? super java.lang.CharSequence,? super java.lang.Integer,? super java.lang.Integer,? super java.lang.Integer,kotlin.Unit>, kotlin.jvm.functions.Function1<? super android.text.Editable,kotlin.Unit>):
+    Found addTextChangedListener but not removeTextChangedListener in androidx.core.widget.TextViewKt

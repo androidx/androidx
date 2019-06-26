@@ -1,0 +1,537 @@
+// Baseline format: 1.0
+AcronymName: androidx.ui.core.Dp#div-KkBJKWw(float):
+    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
+AcronymName: androidx.ui.core.Dp#times-KkBJKWw(float):
+    Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
+AcronymName: androidx.ui.core.DpCubed#div-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
+AcronymName: androidx.ui.core.DpInverse#compareTo-ASDJgtI(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-ASDJgtI`, should this be `compareTo-AsdJgtI`?
+AcronymName: androidx.ui.core.DpInverse#minus-ASDJgtI(float, float):
+    Acronyms should not be capitalized in method names: was `minus-ASDJgtI`, should this be `minus-AsdJgtI`?
+AcronymName: androidx.ui.core.DpInverse#plus-ASDJgtI(float, float):
+    Acronyms should not be capitalized in method names: was `plus-ASDJgtI`, should this be `plus-AsdJgtI`?
+AcronymName: androidx.ui.core.DpInverse#times-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `times-KkBJKWw`, should this be `times-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#compareTo-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-KkBJKWw`, should this be `compareTo-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#div-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `div-KkBJKWw`, should this be `div-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#minus-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `minus-KkBJKWw`, should this be `minus-KkBjkWw`?
+AcronymName: androidx.ui.core.DpSquared#plus-KkBJKWw(float, float):
+    Acronyms should not be capitalized in method names: was `plus-KkBJKWw`, should this be `plus-KkBjkWw`?
+AcronymName: androidx.ui.core.Px#div-kVJEwbQ(float):
+    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
+AcronymName: androidx.ui.core.Px#times-kVJEwbQ(float):
+    Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxCubed#div-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxInverse#compareTo-MXEAIGs(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-MXEAIGs`, should this be `compareTo-MxeaiGs`?
+AcronymName: androidx.ui.core.PxInverse#minus-MXEAIGs(float, float):
+    Acronyms should not be capitalized in method names: was `minus-MXEAIGs`, should this be `minus-MxeaiGs`?
+AcronymName: androidx.ui.core.PxInverse#plus-MXEAIGs(float, float):
+    Acronyms should not be capitalized in method names: was `plus-MXEAIGs`, should this be `plus-MxeaiGs`?
+AcronymName: androidx.ui.core.PxInverse#times-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `times-kVJEwbQ`, should this be `times-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#compareTo-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `compareTo-kVJEwbQ`, should this be `compareTo-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#div-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `div-kVJEwbQ`, should this be `div-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#minus-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `minus-kVJEwbQ`, should this be `minus-kVjEwbQ`?
+AcronymName: androidx.ui.core.PxSquared#plus-kVJEwbQ(float, float):
+    Acronyms should not be capitalized in method names: was `plus-kVJEwbQ`, should this be `plus-kVjEwbQ`?
+AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTRB(float, float, float, float):
+    Acronyms should not be capitalized in method names: was `fromLTRB`, should this be `fromLtrb`?
+AcronymName: androidx.ui.engine.geometry.Rect.Companion#fromLTWH(float, float, float, float):
+    Acronyms should not be capitalized in method names: was `fromLTWH`, should this be `fromLtwh`?
+AcronymName: androidx.ui.painting.Canvas#drawDRRect(androidx.ui.engine.geometry.RRect, androidx.ui.engine.geometry.RRect, androidx.ui.painting.Paint):
+    Acronyms should not be capitalized in method names: was `drawDRRect`, should this be `drawDrRect`?
+
+
+AutoBoxing: androidx.ui.vectormath64.Matrix4#scale(Object, Float, Float) parameter #1:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.vectormath64.Matrix4#scale(Object, Float, Float) parameter #2:
+    Must avoid boxed primitives (`java.lang.Float`)
+AutoBoxing: androidx.ui.vectormath64.Matrix4Kt#getAsScale(androidx.ui.vectormath64.Matrix4):
+    Must avoid boxed primitives (`java.lang.Float`)
+
+
+DocumentExceptions: androidx.ui.graphics.ColorKt#Color(float, float, float, float, androidx.ui.graphics.ColorSpace):
+    Method ColorKt.Color appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.painting.Path#arcToPoint(androidx.ui.engine.geometry.Offset, androidx.ui.engine.geometry.Radius, float, boolean, boolean):
+    Method Path.arcToPoint appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.painting.Path#conicTo(float, float, float, float, float):
+    Method Path.conicTo appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.painting.Path#relativeConicTo(float, float, float, float, float):
+    Method Path.relativeConicTo appears to be throwing java.lang.UnsupportedOperationException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.painting.Path.Companion#combine(androidx.ui.painting.PathOperation, androidx.ui.painting.Path, androidx.ui.painting.Path):
+    Method Companion.combine appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(androidx.ui.vectormath64.MatrixColumn):
+    Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix2#get(int):
+    Method Matrix2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(androidx.ui.vectormath64.MatrixColumn):
+    Method Matrix3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix3#get(int):
+    Method Matrix3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Matrix4#get(int):
+    Method Matrix4.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#get(androidx.ui.vectormath64.VectorComponent):
+    Method Vector2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#get(int):
+    Method Vector2.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#set(androidx.ui.vectormath64.VectorComponent, float):
+    Method Vector2.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector2#set(int, float):
+    Method Vector2.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#get(androidx.ui.vectormath64.VectorComponent):
+    Method Vector3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#get(int):
+    Method Vector3.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#set(androidx.ui.vectormath64.VectorComponent, float):
+    Method Vector3.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector3#set(int, float):
+    Method Vector3.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector4#get(int):
+    Method Vector4.get appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.ui.vectormath64.Vector4#set(int, float):
+    Method Vector4.set appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+
+
+EndsWithImpl: androidx.ui.core.DensityReceiverImpl:
+    Don't expose your implementation details: `DensityReceiverImpl` ends with `Impl`
+
+
+KotlinOperator: androidx.ui.core.Dp#div(androidx.ui.core.Dp):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#div(int):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#minus(androidx.ui.core.Dp):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#plus(androidx.ui.core.Dp):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#times(androidx.ui.core.Dp):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#times(int):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Dp#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Duration#div(double):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Duration#div(int):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Duration#minus(androidx.ui.core.Duration):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Duration#plus(androidx.ui.core.Duration):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Duration#plus(androidx.ui.core.Timestamp):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Duration#times(double):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Duration#times(int):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#div(double):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#div(int):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#minus(androidx.ui.core.IntPx):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#plus(androidx.ui.core.IntPx):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#times(double):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#times(int):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPx#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPxPosition#minus(androidx.ui.core.IntPxPosition):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.IntPxPosition#plus(androidx.ui.core.IntPxPosition):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Position#minus(androidx.ui.core.Position):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Position#plus(androidx.ui.core.Position):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#div(androidx.ui.core.Px):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#div(int):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#minus(androidx.ui.core.IntPx):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#minus(androidx.ui.core.Px):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#plus(androidx.ui.core.IntPx):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#plus(androidx.ui.core.Px):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#times(androidx.ui.core.Px):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#times(int):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Px#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.PxPosition#minus(androidx.ui.core.IntPxPosition):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.PxPosition#minus(androidx.ui.core.PxPosition):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.PxPosition#plus(androidx.ui.core.IntPxPosition):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.PxPosition#plus(androidx.ui.core.PxPosition):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.PxPosition#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#div(androidx.ui.core.Sp):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#div(int):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#minus(androidx.ui.core.Sp):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#plus(androidx.ui.core.Sp):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#times(int):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Sp#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.TextRange#contains(androidx.ui.core.TextRange):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.TextRange#contains(int):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Timestamp#minus(androidx.ui.core.Duration):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Timestamp#minus(androidx.ui.core.Timestamp):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Timestamp#plus(androidx.ui.core.Duration):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.core.Velocity#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Offset#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Offset#minus(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Offset#plus(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Offset#rem(float):
+    Method can be invoked as a binary operator from Kotlin: `rem` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Offset#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Offset#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.RRect#contains(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Radius#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Radius#minus(androidx.ui.engine.geometry.Radius):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Radius#plus(androidx.ui.engine.geometry.Radius):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Radius#rem(float):
+    Method can be invoked as a binary operator from Kotlin: `rem` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Radius#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Radius#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Rect#contains(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Size#contains(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Size#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Size#minus(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Size#minus(androidx.ui.engine.geometry.Size):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Size#plus(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Size#rem(float):
+    Method can be invoked as a binary operator from Kotlin: `rem` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.engine.geometry.Size#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.graphics.ColorSpace.Companion#get(androidx.ui.graphics.ColorSpace.Named):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.painting.Path#contains(androidx.ui.engine.geometry.Offset):
+    Method can be invoked as a "in" operator from Kotlin: `contains` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#dec():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `dec` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#get(androidx.ui.vectormath64.MatrixColumn):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#get(androidx.ui.vectormath64.MatrixColumn, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#get(int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#inc():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `inc` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#minus(float):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#plus(float):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#set(int, androidx.ui.vectormath64.Vector2):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#set(int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#times(androidx.ui.vectormath64.Matrix2):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#times(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix2#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#dec():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `dec` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#get(androidx.ui.vectormath64.MatrixColumn):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#get(androidx.ui.vectormath64.MatrixColumn, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#get(int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#inc():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `inc` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#minus(float):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#plus(float):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#set(int, androidx.ui.vectormath64.Vector3):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#set(int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#times(androidx.ui.vectormath64.Matrix3):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#times(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix3#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#dec():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `dec` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#get(androidx.ui.vectormath64.MatrixColumn):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#get(androidx.ui.vectormath64.MatrixColumn, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#get(int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#inc():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `inc` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#minus(float):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#plus(float):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#set(int, androidx.ui.vectormath64.Vector4):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#set(int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#times(androidx.ui.vectormath64.Matrix4):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#times(androidx.ui.vectormath64.Vector4):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#timesAssign(androidx.ui.vectormath64.Matrix4):
+    Method can be invoked as a compound assignment operator from Kotlin: `timesAssign` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Matrix4#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#dec():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `dec` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#div(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#get(androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#get(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#get(int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#inc():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `inc` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#minus(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#minus(float):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#plus(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#plus(float):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#set(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#set(androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#set(int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#set(int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#times(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector2#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#dec():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `dec` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#div(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#div(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#get(androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#get(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#get(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#get(int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#get(int, int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#inc():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `inc` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#minus(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#minus(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#minus(float):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#plus(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#plus(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#plus(float):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#set(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#set(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#set(androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#set(int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#set(int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#set(int, int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#times(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#times(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector3#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#dec():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `dec` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#div(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#div(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#div(androidx.ui.vectormath64.Vector4):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#div(float):
+    Method can be invoked as a binary operator from Kotlin: `div` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(int, int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#get(int, int, int, int):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#inc():
+    Method can be invoked as a pre/postfix inc/decrement operator from Kotlin: `inc` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#minus(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#minus(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#minus(androidx.ui.vectormath64.Vector4):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#minus(float):
+    Method can be invoked as a binary operator from Kotlin: `minus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#plus(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#plus(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#plus(androidx.ui.vectormath64.Vector4):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#plus(float):
+    Method can be invoked as a binary operator from Kotlin: `plus` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(androidx.ui.vectormath64.VectorComponent, androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(androidx.ui.vectormath64.VectorComponent, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(int, int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#set(int, int, int, int, float):
+    Method can be invoked with an indexing operator from Kotlin: `set` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#times(androidx.ui.vectormath64.Vector2):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#times(androidx.ui.vectormath64.Vector3):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#times(androidx.ui.vectormath64.Vector4):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#times(float):
+    Method can be invoked as a binary operator from Kotlin: `times` (this is usually desirable; just make sure it makes sense for this type of object)
+KotlinOperator: androidx.ui.vectormath64.Vector4#unaryMinus():
+    Method can be invoked as a unary operator from Kotlin: `unaryMinus` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
+MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration):
+    Returned time values must be in milliseconds, was `inSeconds`
+
+
+UniqueKotlinOperator: androidx.ui.vectormath64.Matrix4#times(androidx.ui.vectormath64.Matrix4):
+    Only one of `times` and `timesAssign` methods should be present for Kotlin
+UniqueKotlinOperator: androidx.ui.vectormath64.Matrix4#times(androidx.ui.vectormath64.Vector4):
+    Only one of `times` and `timesAssign` methods should be present for Kotlin
+UniqueKotlinOperator: androidx.ui.vectormath64.Matrix4#times(float):
+    Only one of `times` and `timesAssign` methods should be present for Kotlin

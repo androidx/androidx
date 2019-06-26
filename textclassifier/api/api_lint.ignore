@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+AutoBoxing: androidx.textclassifier.ConversationActions.Message#getReferenceTime():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.textclassifier.ConversationActions.Message.Builder#setReferenceTime(Long) parameter #0:
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.textclassifier.TextClassification.Request#getReferenceTime():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.textclassifier.TextClassification.Request.Builder#setReferenceTime(Long) parameter #0:
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.textclassifier.TextLinks.Request#getReferenceTime():
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.textclassifier.TextLinks.Request.Builder#setReferenceTime(Long) parameter #0:
+    Must avoid boxed primitives (`java.lang.Long`)
+AutoBoxing: androidx.textclassifier.TextLinksParams.Builder#setReferenceTime(Long) parameter #0:
+    Must avoid boxed primitives (`java.lang.Long`)

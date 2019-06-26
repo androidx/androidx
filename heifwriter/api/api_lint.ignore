@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+GenericException: androidx.heifwriter.HeifWriter#stop(long):
+    Methods must not throw generic exceptions (`java.lang.Exception`)
+
+
+NoClone: androidx.heifwriter.HeifWriter.Builder#Builder(java.io.FileDescriptor, int, int, int) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.heifwriter.HeifWriter.Builder(java.io.FileDescriptor fd, int width, int height, int inputMode)
+
+
+VisiblySynchronized: androidx.heifwriter.HeifWriter#addBitmap(android.graphics.Bitmap):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.heifwriter.HeifWriter.addBitmap(android.graphics.Bitmap)
+VisiblySynchronized: androidx.heifwriter.HeifWriter#addYuvBuffer(int, byte[]):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.heifwriter.HeifWriter.addYuvBuffer(int,byte[])
+VisiblySynchronized: androidx.heifwriter.HeifWriter#setInputEndOfStreamTimestamp(long):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.heifwriter.HeifWriter.setInputEndOfStreamTimestamp(long)
+VisiblySynchronized: androidx.heifwriter.HeifWriter#stop(long):
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.heifwriter.HeifWriter.stop(long)

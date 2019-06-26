@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+ActionValue: androidx.leanback.preference.LeanbackEditTextPreferenceDialogFragmentCompat#EXTRA_IME_OPTIONS:
+    Inconsistent extra value; expected `androidx.leanback.preference.extra.IME_OPTIONS`, was `ime_option`
+ActionValue: androidx.leanback.preference.LeanbackEditTextPreferenceDialogFragmentCompat#EXTRA_INPUT_TYPE:
+    Inconsistent extra value; expected `androidx.leanback.preference.extra.INPUT_TYPE`, was `input_type`

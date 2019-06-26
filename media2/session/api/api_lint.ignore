@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+InterfaceConstant: androidx.media2.session.MediaLibraryService#SERVICE_INTERFACE:
+    Inconsistent interface constant; expected 'MediaLibraryService'`
+InterfaceConstant: androidx.media2.session.MediaSessionService#SERVICE_INTERFACE:
+    Inconsistent interface constant; expected 'MediaSessionService'`

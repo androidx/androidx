@@ -1,0 +1,19 @@
+// Baseline format: 1.0
+AcronymName: androidx.sqlite.db.SimpleSQLiteQuery:
+    Acronyms should not be capitalized in class names: was `SimpleSQLiteQuery`, should this be `SimpleSqLiteQuery`?
+AcronymName: androidx.sqlite.db.SupportSQLiteDatabase:
+    Acronyms should not be capitalized in class names: was `SupportSQLiteDatabase`, should this be `SupportSqLiteDatabase`?
+AcronymName: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String):
+    Acronyms should not be capitalized in method names: was `execSQL`, should this be `execSql`?
+AcronymName: androidx.sqlite.db.SupportSQLiteDatabase#execSQL(String, Object[]):
+    Acronyms should not be capitalized in method names: was `execSQL`, should this be `execSql`?
+AcronymName: androidx.sqlite.db.SupportSQLiteOpenHelper:
+    Acronyms should not be capitalized in class names: was `SupportSQLiteOpenHelper`, should this be `SupportSqLiteOpenHelper`?
+AcronymName: androidx.sqlite.db.SupportSQLiteProgram:
+    Acronyms should not be capitalized in class names: was `SupportSQLiteProgram`, should this be `SupportSqLiteProgram`?
+AcronymName: androidx.sqlite.db.SupportSQLiteQuery:
+    Acronyms should not be capitalized in class names: was `SupportSQLiteQuery`, should this be `SupportSqLiteQuery`?
+AcronymName: androidx.sqlite.db.SupportSQLiteQueryBuilder:
+    Acronyms should not be capitalized in class names: was `SupportSQLiteQueryBuilder`, should this be `SupportSqLiteQueryBuilder`?
+AcronymName: androidx.sqlite.db.SupportSQLiteStatement:
+    Acronyms should not be capitalized in class names: was `SupportSQLiteStatement`, should this be `SupportSqLiteStatement`?

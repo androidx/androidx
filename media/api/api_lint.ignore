@@ -1,0 +1,57 @@
+// Baseline format: 1.0
+ActionValue: android.support.v4.media.MediaBrowserCompat#EXTRA_DOWNLOAD_PROGRESS:
+    Inconsistent extra value; expected `android.support.v4.media.extra.DOWNLOAD_PROGRESS`, was `android.media.browse.extra.DOWNLOAD_PROGRESS`
+ActionValue: android.support.v4.media.MediaBrowserCompat#EXTRA_MEDIA_ID:
+    Inconsistent extra value; expected `android.support.v4.media.extra.MEDIA_ID`, was `android.media.browse.extra.MEDIA_ID`
+ActionValue: android.support.v4.media.MediaBrowserCompat#EXTRA_PAGE:
+    Inconsistent extra value; expected `android.support.v4.media.extra.PAGE`, was `android.media.browse.extra.PAGE`
+ActionValue: android.support.v4.media.MediaBrowserCompat#EXTRA_PAGE_SIZE:
+    Inconsistent extra value; expected `android.support.v4.media.extra.PAGE_SIZE`, was `android.media.browse.extra.PAGE_SIZE`
+ActionValue: android.support.v4.media.MediaDescriptionCompat#EXTRA_BT_FOLDER_TYPE:
+    Inconsistent extra value; expected `android.support.v4.media.extra.BT_FOLDER_TYPE`, was `android.media.extra.BT_FOLDER_TYPE`
+ActionValue: android.support.v4.media.MediaDescriptionCompat#EXTRA_DOWNLOAD_STATUS:
+    Inconsistent extra value; expected `android.support.v4.media.extra.DOWNLOAD_STATUS`, was `android.media.extra.DOWNLOAD_STATUS`
+ActionValue: android.support.v4.media.session.MediaControllerCompat.TransportControls#EXTRA_LEGACY_STREAM_TYPE:
+    Inconsistent extra value; expected `android.support.v4.media.session.extra.LEGACY_STREAM_TYPE`, was `android.media.session.extra.LEGACY_STREAM_TYPE`
+ActionValue: androidx.media.MediaBrowserServiceCompat.BrowserRoot#EXTRA_OFFLINE:
+    Inconsistent extra value; expected `androidx.media.extra.OFFLINE`, was `android.service.media.extra.OFFLINE`
+ActionValue: androidx.media.MediaBrowserServiceCompat.BrowserRoot#EXTRA_RECENT:
+    Inconsistent extra value; expected `androidx.media.extra.RECENT`, was `android.service.media.extra.RECENT`
+ActionValue: androidx.media.MediaBrowserServiceCompat.BrowserRoot#EXTRA_SUGGESTED:
+    Inconsistent extra value; expected `androidx.media.extra.SUGGESTED`, was `android.service.media.extra.SUGGESTED`
+
+
+CallbackMethodName: android.support.v4.media.session.MediaControllerCompat.Callback:
+    Callback method names must follow the on<Something> style: binderDied
+
+
+ContextNameSuffix: androidx.media.MediaBrowserServiceCompat:
+    Inconsistent class name; should be `<Foo>Service`, was `MediaBrowserServiceCompat`
+
+
+IntentName: android.support.v4.media.MediaBrowserCompat#CUSTOM_ACTION_DOWNLOAD:
+    Intent action constant name must be ACTION_FOO: CUSTOM_ACTION_DOWNLOAD
+IntentName: android.support.v4.media.MediaBrowserCompat#CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE:
+    Intent action constant name must be ACTION_FOO: CUSTOM_ACTION_REMOVE_DOWNLOADED_FILE
+
+
+InterfaceConstant: androidx.media.MediaBrowserServiceCompat#SERVICE_INTERFACE:
+    Inconsistent interface constant; expected 'MediaBrowserServiceCompat'`
+
+
+NoClone: androidx.media.MediaBrowserServiceCompat#dump(java.io.FileDescriptor, java.io.PrintWriter, String[]) parameter #0:
+    Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.media.MediaBrowserServiceCompat.dump(java.io.FileDescriptor fd, java.io.PrintWriter writer, String[] args)
+
+
+ParcelConstructor: android.support.v4.media.session.ParcelableVolumeInfo#ParcelableVolumeInfo(android.os.Parcel):
+    Parcelable inflation is exposed through CREATOR, not raw constructors, in android.support.v4.media.session.ParcelableVolumeInfo
+
+
+ParcelNotFinal: android.support.v4.media.MediaBrowserCompat.MediaItem:
+    Parcelable classes must be final: android.support.v4.media.MediaBrowserCompat.MediaItem is not final
+ParcelNotFinal: android.support.v4.media.session.ParcelableVolumeInfo:
+    Parcelable classes must be final: android.support.v4.media.session.ParcelableVolumeInfo is not final
+
+
+RethrowRemoteException: android.support.v4.media.session.MediaControllerCompat#MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token):
+    Methods calling into system server should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)

@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.navigation.NavArgumentBuilder#getType():
+    Method NavArgumentBuilder.getType appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+DocumentExceptions: androidx.navigation.NavGraphBuilder#build():
+    Method NavGraphBuilder.build appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

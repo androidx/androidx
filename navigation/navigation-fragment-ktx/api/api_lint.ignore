@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+DocumentExceptions: androidx.navigation.fragment.FragmentNavArgsLazyKt#navArgs(androidx.fragment.app.Fragment):
+    Method FragmentNavArgsLazyKt.navArgs appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions

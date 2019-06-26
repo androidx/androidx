@@ -1,0 +1,21 @@
+// Baseline format: 1.0
+ConcreteCollection: androidx.viewpager.widget.ViewPager#addFocusables(java.util.ArrayList<android.view.View>, int, int) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+ConcreteCollection: androidx.viewpager.widget.ViewPager#addTouchables(java.util.ArrayList<android.view.View>) parameter #0:
+    Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
+
+
+ListenerInterface: androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener:
+    Listeners should be an interface, or otherwise renamed Callback: SimpleOnPageChangeListener
+
+
+ParcelCreator: androidx.viewpager.widget.ViewPager.SavedState:
+    Parcelable requires `public int describeContents()`; missing in androidx.viewpager.widget.ViewPager.SavedState
+
+
+ParcelNotFinal: androidx.viewpager.widget.ViewPager.SavedState:
+    Parcelable classes must be final: androidx.viewpager.widget.ViewPager.SavedState is not final
+
+
+VisiblySynchronized: androidx.viewpager.widget.PagerAdapter#notifyDataSetChanged():
+    Internal locks must not be exposed (synchronizing on this or class is still externally observable): method androidx.viewpager.widget.PagerAdapter.notifyDataSetChanged()
