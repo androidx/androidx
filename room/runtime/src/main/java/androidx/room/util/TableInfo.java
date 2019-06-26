@@ -349,13 +349,22 @@ public class TableInfo {
          * The default value of this column.
          */
         public final String defaultValue;
+        // Whether to ignore default value or not during equality check. This is set based on which
+        // constructor was called by generated code.
+        private final boolean mIgnoreDefaultValue;
 
         /**
          * @deprecated Use {@link Column#Column(String, String, boolean, int, String)} instead.
          */
         @Deprecated
         public Column(String name, String type, boolean notNull, int primaryKeyPosition) {
-            this(name, type, notNull, primaryKeyPosition, null);
+            this.name = name;
+            this.type = type;
+            this.notNull = notNull;
+            this.primaryKeyPosition = primaryKeyPosition;
+            this.affinity = findAffinity(type);
+            this.defaultValue = null;
+            this.mIgnoreDefaultValue = true;
         }
 
         // if you change this constructor, you must change TableInfoWriter.kt
@@ -367,6 +376,7 @@ public class TableInfo {
             this.primaryKeyPosition = primaryKeyPosition;
             this.affinity = findAffinity(type);
             this.defaultValue = defaultValue;
+            this.mIgnoreDefaultValue = false;
         }
 
         /**
@@ -417,10 +427,12 @@ public class TableInfo {
             if (!name.equals(column.name)) return false;
             //noinspection SimplifiableIfStatement
             if (notNull != column.notNull) return false;
-            //noinspection EqualsReplaceableByObjectsCall
-            if (defaultValue != null ? !defaultValue.equals(column.defaultValue)
-                    : column.defaultValue != null) {
-                return false;
+            if (!mIgnoreDefaultValue && !column.mIgnoreDefaultValue) {
+                //noinspection EqualsReplaceableByObjectsCall
+                if (defaultValue != null ? !defaultValue.equals(column.defaultValue)
+                        : column.defaultValue != null) {
+                    return false;
+                }
             }
             return affinity == column.affinity;
         }
@@ -440,7 +452,9 @@ public class TableInfo {
             result = 31 * result + affinity;
             result = 31 * result + (notNull ? 1231 : 1237);
             result = 31 * result + primaryKeyPosition;
-            result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
+            // Default value is not part of the hashcode since we conditionally check it for
+            // equality which would break the equals + hashcode contract.
+            // result = 31 * result + (defaultValue != null ? defaultValue.hashCode() : 0);
             return result;
         }
 
