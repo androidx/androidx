@@ -425,16 +425,6 @@ private class AndroidCanvas(val internalCanvas: android.graphics.Canvas) : Canva
     }
 
     /**
-     * @see Canvas.drawParagraph
-     */
-    // TODO(siyamed): Decide what to do with this method. Should it exist on Canvas?
-//    fun drawParagraph(paragraph: Paragraph, offset: Offset) {
-//        assert(paragraph != null)
-//        assert(Offset.isValid(offset))
-//        paragraph.paint(this, offset.dx, offset.dy)
-//    }
-
-    /**
      * @see Canvas.drawPoints
      */
     override fun drawPoints(pointMode: PointMode, points: List<Offset>, paint: Paint) {

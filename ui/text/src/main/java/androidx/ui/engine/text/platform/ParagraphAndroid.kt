@@ -451,6 +451,7 @@ private fun TextStyle.applyTextStyle(
         textPaint.textSize = it
     }
 
+    // fontSizeScale must be applied after fontSize is applied.
     fontSizeScale?.let {
         textPaint.textSize *= fontSizeScale
     }

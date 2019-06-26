@@ -26,7 +26,8 @@ package androidx.ui.painting.basictypes
  *  of cost. A value with index N implies all the values with index less than N.
  *  For example, [layout] (index 3) implies [paint] (2).
  */
-enum class RenderComparison {
+// TODO(siyamed) remove this class if not required
+internal enum class RenderComparison {
     /**
      * The two objects are identical (meaning deeply equal, not necessarily ===).
      */
