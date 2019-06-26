@@ -31,7 +31,6 @@ import androidx.ui.engine.text.ParagraphConstraints
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.window.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.rendering.paragraph.TextOverflow
@@ -521,13 +520,13 @@ class TextPainter(
     }
 
     /** Returns the position within the text for the given pixel offset. */
-    fun getPositionForOffset(offset: Offset): TextPosition {
+    fun getPositionForOffset(offset: Offset): Int {
         assert(!needsLayout)
         return paragraph!!.getPositionForOffset(offset)
     }
 
     /**
-     * Returns the bounding box as Rect of the character for given TextPosition. Rect includes the
+     * Returns the bounding box as Rect of the character for given text position. Rect includes the
      * top, bottom, left and right of a character.
      *
      * Valid only after [layout] has been called.
@@ -535,7 +534,7 @@ class TextPainter(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun getBoundingBoxForTextPosition(textPosition: TextPosition): Rect {
+    fun getBoundingBoxForTextPosition(textPosition: Int): Rect {
         assert(!needsLayout)
         return paragraph!!.getBoundingBoxForTextPosition(textPosition)
     }
@@ -548,8 +547,8 @@ class TextPainter(
      * Word boundaries are defined more precisely in Unicode Standard Annex #29
      * <http://www.unicode.org/reports/tr29/#Word_Boundaries>.
      */
-    fun getWordBoundary(position: TextPosition): TextRange {
+    fun getWordBoundary(position: Int): TextRange {
         assert(!needsLayout)
-        return paragraph!!.getWordBoundary(position.offset)
+        return paragraph!!.getWordBoundary(position)
     }
 }

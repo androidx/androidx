@@ -16,8 +16,6 @@
 
 package androidx.ui.services.text_editing
 
-import androidx.ui.engine.text.TextPosition
-
 /** A range of text that represents a selection. */
 data class TextSelection(
     /**
@@ -75,28 +73,8 @@ data class TextSelection(
          * contains zero characters but instead serves as an insertion point in the
          * text.
          */
-        fun fromPosition(position: TextPosition): TextSelection {
-            return collapsed(offset = position.offset)
+        fun fromPosition(position: Int): TextSelection {
+            return collapsed(offset = position)
         }
     }
-
-    /**
-     * The position at which the selection originates.
-     *
-     * Might be larger than, smaller than, or equal to extent.
-     */
-    val base: TextPosition
-            get() = TextPosition(offset = baseOffset)
-
-    /**
-     * The position at which the selection terminates.
-     *
-     * When the user uses the arrow keys to adjust the selection, this is the
-     * value that changes. Similarly, if the current theme paints a caret on one
-     * side of the selection, this is the location at which to paint the caret.
-     *
-     * Might be larger than, smaller than, or equal to base.
-     */
-    val extent: TextPosition
-            get() = TextPosition(offset = extentOffset)
 }

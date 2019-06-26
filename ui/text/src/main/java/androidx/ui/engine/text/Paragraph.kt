@@ -155,15 +155,15 @@ class Paragraph internal constructor(
     fun getLineWidth(lineIndex: Int): Float = paragraphImpl.getLineWidth(lineIndex)
 
     /** Returns the text position closest to the given offset. */
-    fun getPositionForOffset(offset: Offset): TextPosition {
+    fun getPositionForOffset(offset: Offset): Int {
         return paragraphImpl.getPositionForOffset(offset)
     }
 
     /**
-     * Returns the bounding box as Rect of the character for given TextPosition. Rect includes the
+     * Returns the bounding box as Rect of the character for given text position. Rect includes the
      * top, bottom, left and right of a character.
      */
-    internal fun getBoundingBoxForTextPosition(textPosition: TextPosition): Rect {
+    internal fun getBoundingBoxForTextPosition(textPosition: Int): Rect {
         return paragraphImpl.getBoundingBoxForTextPosition(textPosition)
     }
 

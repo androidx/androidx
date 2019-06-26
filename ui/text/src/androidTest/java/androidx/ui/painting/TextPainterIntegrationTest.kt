@@ -253,7 +253,7 @@ class TextPainterIntegrationTest {
 
         val selection = textPainter.getPositionForOffset(Offset(dx = 0f, dy = 0f))
 
-        assertThat(selection.offset).isEqualTo(0)
+        assertThat(selection).isEqualTo(0)
     }
 
     @Test
@@ -281,7 +281,7 @@ class TextPainterIntegrationTest {
             offset = Offset(dx = fontSize * characterIndex + 1f, dy = 0f)
         )
 
-        assertThat(selection.offset).isEqualTo(characterIndex)
+        assertThat(selection).isEqualTo(characterIndex)
     }
 
     @Test

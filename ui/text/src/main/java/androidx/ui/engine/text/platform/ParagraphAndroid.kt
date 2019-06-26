@@ -63,7 +63,6 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextIndent
-import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.text.hasFontAttributes
 import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.Canvas
@@ -207,11 +206,9 @@ internal class ParagraphAndroid constructor(
         this.width = floorWidth
     }
 
-    fun getPositionForOffset(offset: Offset): TextPosition {
+    fun getPositionForOffset(offset: Offset): Int {
         val line = ensureLayout.getLineForVertical(offset.dy.toInt())
-        return TextPosition(
-            offset = ensureLayout.getOffsetForHorizontal(line, offset.dx)
-        )
+        return ensureLayout.getOffsetForHorizontal(line, offset.dx)
     }
 
     /**
@@ -219,11 +216,11 @@ internal class ParagraphAndroid constructor(
      * top, bottom, left and right of a character.
      */
     // TODO:(qqd) Implement RTL case.
-    fun getBoundingBoxForTextPosition(textPosition: TextPosition): Rect {
-        val left = ensureLayout.getPrimaryHorizontal(textPosition.offset)
-        val right = ensureLayout.getPrimaryHorizontal(textPosition.offset + 1)
+    fun getBoundingBoxForTextPosition(textPosition: Int): Rect {
+        val left = ensureLayout.getPrimaryHorizontal(textPosition)
+        val right = ensureLayout.getPrimaryHorizontal(textPosition + 1)
 
-        val line = ensureLayout.getLineForOffset(textPosition.offset)
+        val line = ensureLayout.getLineForOffset(textPosition)
         val top = ensureLayout.getLineTop(line)
         val bottom = ensureLayout.getLineBottom(line)
 

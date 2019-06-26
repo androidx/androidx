@@ -20,7 +20,6 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.TextPainter
 import androidx.ui.services.text_editing.TextSelection
 import kotlin.math.max
@@ -91,26 +90,23 @@ internal class TextSelectionProcessor(
         var (textSelectionEnd, containsWholeSelectionEnd) =
             getSelectionBorder(textPainter, endPx, false)
 
-        if (textSelectionStart.offset == textSelectionEnd.offset) {
+        if (textSelectionStart == textSelectionEnd) {
             val wordBoundary = textPainter.getWordBoundary(textSelectionStart)
-            textSelectionStart =
-                TextPosition(wordBoundary.start)
-            textSelectionEnd = TextPosition(wordBoundary.end)
+            textSelectionStart = wordBoundary.start
+            textSelectionEnd = wordBoundary.end
         } else {
             // Currently the implementation of selection is inclusive-inclusive which is a temporary
             // workaround, but inclusive-exclusive in Android. Thus before calling drawing selection
             // background, make the selection matches Android behaviour.
-            textSelectionEnd =
-                TextPosition(textSelectionEnd.offset + 1)
+            textSelectionEnd = textSelectionEnd + 1
         }
 
-        onSelectionChange(TextSelection(textSelectionStart.offset, textSelectionEnd.offset))
+        onSelectionChange(TextSelection(textSelectionStart, textSelectionEnd))
 
         // Currently the implementation of selection is inclusive-inclusive which is a temporary
         // workaround, but inclusive-exclusive in Android. Thus make the selection end matches Crane
         // behaviour.
-        textSelectionEnd =
-            TextPosition(textSelectionEnd.offset - 1)
+        textSelectionEnd = textSelectionEnd - 1
 
         startOffset = textPainter.getBoundingBoxForTextPosition(textSelectionStart)
         endOffset = textPainter.getBoundingBoxForTextPosition(textSelectionEnd)
@@ -128,14 +124,12 @@ internal class TextSelectionProcessor(
         // This position is in Text widget coordinate system.
         position: PxPosition,
         isStart: Boolean
-    ): Pair<TextPosition, Boolean> {
+    ): Pair<Int, Boolean> {
         // The text position of the border of selection. The default value is set to the beginning
         // of the text widget for the start border, and the very last position of the text widget
         // for the end border. If the widget contains the whole selection's border, this value will
         // be reset.
-        var selectionBorder = TextPosition(
-            offset = if (isStart) 0 else max(length - 1, 0)
-        )
+        var selectionBorder = if (isStart) 0 else max(length - 1, 0)
         // Flag to check if the widget contains the whole selection's border.
         var containsWholeSelectionBorder = false
 
@@ -155,10 +149,8 @@ internal class TextSelectionProcessor(
             // Constrain the position of the selection border to be within the text range of the
             // current widget.
             val constrainedSelectionBorderPosition =
-                textPainter.getPositionForOffset(offset).offset.coerceIn(0, length - 1)
-            selectionBorder = TextPosition(
-                offset = constrainedSelectionBorderPosition
-            )
+                textPainter.getPositionForOffset(offset).coerceIn(0, length - 1)
+            selectionBorder = constrainedSelectionBorderPosition
             containsWholeSelectionBorder = true
         }
         return Pair(selectionBorder, containsWholeSelectionBorder)
