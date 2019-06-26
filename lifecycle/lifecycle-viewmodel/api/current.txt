@@ -12,7 +12,6 @@ package androidx.lifecycle {
   }
 
   public class ViewModelProvider {
-    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
     method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(Class<T!>);
@@ -39,7 +38,6 @@ package androidx.lifecycle {
   }
 
   public interface ViewModelStoreOwner {
-    method public default androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
   }
 
