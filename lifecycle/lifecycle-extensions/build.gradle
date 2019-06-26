@@ -30,7 +30,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
     api(project(":arch:core-common"))
     api(project(":arch:core-runtime"))
-    api(project(":fragment:fragment"))
+    api(SUPPORT_FRAGMENTS, libs.support_exclude_config)
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-process"))
