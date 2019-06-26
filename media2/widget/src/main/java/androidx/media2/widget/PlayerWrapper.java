@@ -93,7 +93,7 @@ class PlayerWrapper {
         mControllerCallback = null;
 
         mAllCommands = new SessionCommandGroup.Builder()
-                .addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_CURRENT)
+                .addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_1)
                 .build();
     }
 
