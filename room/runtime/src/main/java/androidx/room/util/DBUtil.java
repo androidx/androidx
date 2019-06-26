@@ -117,7 +117,7 @@ public class DBUtil {
         try {
             ByteBuffer buffer = ByteBuffer.allocate(4);
             input = new FileInputStream(databaseFile).getChannel();
-            input.lock(60, 4, true);
+            input.tryLock(60, 4, true);
             input.position(60);
             int read = input.read(buffer);
             if (read != 4) {

@@ -117,6 +117,12 @@ package androidx.room.paging {
 
 package androidx.room.util {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CopyLock {
+    ctor public CopyLock(String, java.io.File, boolean);
+    method public void lock();
+    method public void unlock();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CursorUtil {
     method public static android.database.Cursor copyAndClose(android.database.Cursor);
     method public static int getColumnIndex(android.database.Cursor, String);
@@ -127,6 +133,10 @@ package androidx.room.util {
     method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase!);
     method public static android.database.Cursor query(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean);
     method public static int readVersion(java.io.File) throws java.io.IOException;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FileUtil {
+    method public static void copy(java.nio.channels.ReadableByteChannel, java.nio.channels.FileChannel) throws java.io.IOException;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FtsTableInfo {
