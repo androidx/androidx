@@ -1084,13 +1084,6 @@ package androidx.ui.engine.text {
     enum_constant public static final androidx.ui.engine.text.TextDirection Rtl;
   }
 
-  public final class TextPosition {
-    ctor public TextPosition(int offset);
-    method public int component1();
-    method public androidx.ui.engine.text.TextPosition copy(int offset);
-    method public int getOffset();
-  }
-
 }
 
 package androidx.ui.graphics {
@@ -1732,19 +1725,15 @@ package androidx.ui.services.text_editing {
     method public int component2();
     method public boolean component3();
     method public androidx.ui.services.text_editing.TextSelection copy(int baseOffset, int extentOffset, boolean isDirectional);
-    method public androidx.ui.engine.text.TextPosition getBase();
     method public int getBaseOffset();
-    method public androidx.ui.engine.text.TextPosition getExtent();
     method public int getExtentOffset();
     method public boolean isDirectional();
-    property public final androidx.ui.engine.text.TextPosition base;
-    property public final androidx.ui.engine.text.TextPosition extent;
     field public static final androidx.ui.services.text_editing.TextSelection.Companion! Companion;
   }
 
   public static final class TextSelection.Companion {
     method public androidx.ui.services.text_editing.TextSelection collapsed(int offset);
-    method public androidx.ui.services.text_editing.TextSelection fromPosition(androidx.ui.engine.text.TextPosition position);
+    method public androidx.ui.services.text_editing.TextSelection fromPosition(int position);
   }
 
 }

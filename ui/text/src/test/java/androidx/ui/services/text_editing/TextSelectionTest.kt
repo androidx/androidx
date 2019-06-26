@@ -16,7 +16,6 @@
 
 package androidx.ui.services.text_editing
 
-import androidx.ui.engine.text.TextPosition
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -38,8 +37,7 @@ class TextSelectionTest {
     @Test
     fun fromPosition() {
         val offset = 20
-        val pos = TextPosition(offset)
-        val textSelection = TextSelection.fromPosition(pos)
+        val textSelection = TextSelection.fromPosition(offset)
 
         assertThat(offset, equalTo(textSelection.baseOffset))
         assertThat(offset, equalTo(textSelection.extentOffset))
