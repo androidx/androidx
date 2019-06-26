@@ -1,24 +1,4 @@
 // Signature format: 3.0
-package  {
-
-  public final class ProgressIndicatorKt {
-    ctor public ProgressIndicatorKt();
-    method public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = +themeColor({ 
-    primary
-}));
-    method public static void CircularProgressIndicator(androidx.ui.graphics.Color color = +themeColor({ 
-    primary
-}));
-    method public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = +themeColor({ 
-    primary
-}));
-    method public static void LinearProgressIndicator(androidx.ui.graphics.Color color = +themeColor({ 
-    primary
-}));
-  }
-
-}
-
 package androidx.ui.baseui {
 
   public final class ClickableKt {
@@ -320,6 +300,22 @@ package androidx.ui.material {
     method public androidx.ui.painting.TextStyle getOverline();
     method public androidx.ui.painting.TextStyle getSubtitle1();
     method public androidx.ui.painting.TextStyle getSubtitle2();
+  }
+
+  public final class ProgressIndicatorKt {
+    ctor public ProgressIndicatorKt();
+    method public static void CircularProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = +themeColor({ 
+    primary
+}));
+    method public static void CircularProgressIndicator(androidx.ui.graphics.Color color = +themeColor({ 
+    primary
+}));
+    method public static void LinearProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, androidx.ui.graphics.Color color = +themeColor({ 
+    primary
+}));
+    method public static void LinearProgressIndicator(androidx.ui.graphics.Color color = +themeColor({ 
+    primary
+}));
   }
 
   public final class RadioButtonKt {
