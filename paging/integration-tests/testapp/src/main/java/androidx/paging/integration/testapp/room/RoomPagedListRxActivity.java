@@ -20,7 +20,7 @@ import android.os.Bundle;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.integration.testapp.R;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,7 +40,7 @@ public class RoomPagedListRxActivity extends AppCompatActivity {
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recycler_view);
-        mViewModel = new ViewModelProvider(this)
+        mViewModel = ViewModelProviders.of(this)
                 .get(CustomerViewModel.class);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerview);

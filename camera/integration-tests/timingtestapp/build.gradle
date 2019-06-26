@@ -55,9 +55,11 @@ dependencies {
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-core"))
 
+    // Lifecycle and LiveData
+    implementation(ARCH_LIFECYCLE_EXTENSIONS)
+
     // Android support library
-    implementation(project(":fragment:fragment"))
-    implementation(project(":appcompat"))
+    implementation(SUPPORT_APPCOMPAT)
     implementation(ANDROIDX_COLLECTION)
     implementation(project(":preference")) // Still in alpha
     implementation("androidx.exifinterface:exifinterface:1.0.0")
