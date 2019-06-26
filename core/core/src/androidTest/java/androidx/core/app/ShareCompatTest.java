@@ -23,7 +23,7 @@ import android.content.Intent;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
     @Rule
     public ActivityTestRule<TestActivity> testRuleForReading =
