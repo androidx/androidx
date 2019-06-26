@@ -312,11 +312,15 @@ public class NavHostFragment extends Fragment implements NavHost {
         if (!(view instanceof ViewGroup)) {
             throw new IllegalStateException("created host view " + view + " is not a ViewGroup");
         }
-        // When added via XML, the parent is null and our view is the root of the NavHostFragment
-        // but when added programmatically, we need to set the NavController on the parent - i.e.,
+        Navigation.setViewNavController(view, mNavController);
+        // When added programmatically, we need to set the NavController on the parent - i.e.,
         // the View that has the ID matching this NavHostFragment.
-        View rootView = view.getParent() != null ? (View) view.getParent() : view;
-        Navigation.setViewNavController(rootView, mNavController);
+        if (view.getParent() != null) {
+            View rootView = (View) view.getParent();
+            if (rootView.getId() == getId()) {
+                Navigation.setViewNavController(rootView, mNavController);
+            }
+        }
     }
 
     @CallSuper
