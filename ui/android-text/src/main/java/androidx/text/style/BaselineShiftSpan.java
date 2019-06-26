@@ -49,4 +49,8 @@ public class BaselineShiftSpan extends MetricAffectingSpan {
     public void updateDrawState(TextPaint textPaint) {
         textPaint.baselineShift += textPaint.ascent() * mMultiplier;
     }
+
+    public float getMultiplier() {
+        return mMultiplier;
+    }
 }
