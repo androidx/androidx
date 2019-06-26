@@ -20,12 +20,8 @@ import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.ParagraphStyle
-import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
-import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextGeometricTransform
-import androidx.ui.engine.text.TextIndent
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.lerp
 import androidx.ui.engine.window.Locale
@@ -36,9 +32,6 @@ import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.toStringAsFixed
 
 private const val _kDefaultDebugLabel: String = "unknown"
-
-/** The default font size if none is specified. */
-internal const val _defaultFontSize: Float = 14.0f
 
 /**
  * Configuration object to define the text style.
@@ -238,7 +231,7 @@ data class TextStyle(
     }
 
     /** The style information for text runs, encoded for use by ui. */
-    fun getTextStyle(textScaleFactor: Float = 1.0f): androidx.ui.engine.text.TextStyle {
+    internal fun getTextStyle(textScaleFactor: Float = 1.0f): androidx.ui.engine.text.TextStyle {
         return androidx.ui.engine.text.TextStyle(
             color = color,
             decoration = decoration,
@@ -256,42 +249,6 @@ data class TextStyle(
             locale = locale,
             background = background,
             shadow = shadow
-        )
-    }
-
-    /**
-     * The style information for paragraphs, encoded for use by `ui`.
-     * The `textScaleFactor` argument must not be null. If omitted, it defaults
-     * to 1.0. The other arguments may be null. The `maxLines` argument, if
-     * specified and non-null, must be greater than zero.
-     *
-     * If the font size on this style isn't set, it will default to 14 logical
-     * pixels.
-     */
-    fun getParagraphStyle(
-        textAlign: TextAlign? = null,
-        textDirection: TextDirection? = null,
-        textIndent: TextIndent? = null,
-        lineHeight: Float? = null,
-        textScaleFactor: Float = 1.0f,
-        ellipsis: Boolean? = null,
-        maxLines: Int? = null,
-        locale: Locale? = null
-    ): ParagraphStyle {
-        assert(maxLines == null || maxLines > 0)
-        return ParagraphStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
-            textIndent = textIndent,
-            lineHeight = lineHeight,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            maxLines = maxLines,
-            fontFamily = fontFamily,
-            fontSize = (fontSize ?: _defaultFontSize) * textScaleFactor,
-            ellipsis = ellipsis,
-            locale = locale,
-            fontSynthesis = fontSynthesis
         )
     }
 

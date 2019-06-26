@@ -304,16 +304,6 @@ class TextSpanTest {
     }
 
     @Test
-    fun `toAnnotatedString with includeRootStyle false`() {
-        val textStyle = TextStyle(fontSize = 10f)
-        val text = "Hello"
-        val textSpan = TextSpan(style = textStyle, text = text)
-        val annotatedString = textSpan.toAnnotatedString(false)
-
-        assertThat(annotatedString.textStyles.size).isEqualTo(0)
-    }
-
-    @Test
     fun `toAnnotatedString with nested TextSpan plain text`() {
         val text1 = "Hello"
         val text2 = "World"

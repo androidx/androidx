@@ -18,7 +18,7 @@ package androidx.ui.painting {
   }
 
   public final class TextSpanKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.ui.painting.AnnotatedString toAnnotatedString(androidx.ui.painting.TextSpan, boolean includeRootStyle = true);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.ui.painting.AnnotatedString toAnnotatedString(androidx.ui.painting.TextSpan);
   }
 
 }
