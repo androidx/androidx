@@ -33,10 +33,10 @@ import androidx.ui.services.text_editing.TextRange
  * Paragraphs can be displayed on a [Canvas] using the [paint] method.
  */
 class Paragraph internal constructor(
-    val text: String,
-    val defaultTextStyle: TextStyle,
-    val paragraphStyle: ParagraphStyle,
-    val textStyles: List<AnnotatedString.Item<TextStyle>>
+    private val text: String,
+    style: TextStyle,
+    paragraphStyle: ParagraphStyle,
+    textStyles: List<AnnotatedString.Item<TextStyle>>
 ) {
     private var needsLayout = true
     /** increased visibility for testing **/
@@ -98,18 +98,13 @@ class Paragraph internal constructor(
         if (paragraphStyle.lineHeight != null && paragraphStyle.lineHeight < 0.0f) {
             throw IllegalArgumentException("lineHeight can't be negative")
         }
-        paragraphImpl = ParagraphAndroid(text, defaultTextStyle, paragraphStyle, textStyles)
+        paragraphImpl = ParagraphAndroid(
+            text = text,
+            style = style,
+            paragraphStyle = paragraphStyle,
+            textStyles = textStyles
+        )
     }
-
-    // void Paragraph::SetFontCollection(
-    // std::shared_ptr<FontCollection> font_collection) {
-    //    font_collection_ = std::move(font_collection);
-    // }
-
-    // void Paragraph::SetParagraphStyle(const ParagraphStyle& style) {
-    //    needs_layout_ = true;
-    //    paragraph_style_ = style;
-    // }
 
     /**
      * Computes the size and position of each glyph in the paragraph.

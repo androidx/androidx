@@ -28,7 +28,6 @@ import androidx.ui.engine.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.engine.text.FontTestData.Companion.FONT_200_REGULAR
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
-import androidx.ui.engine.text.platform.bitmap
 import androidx.ui.engine.window.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.matchers.equalToBitmap
@@ -377,11 +376,11 @@ class ParagraphIntegrationTest {
             val paragraph = Paragraph(
                 text = text,
                 textStyles = listOf(),
-                paragraphStyle = ParagraphStyle(
+                style = TextStyle(
                     fontSize = fontSize,
                     locale = locale
                 ),
-                defaultTextStyle = TextStyle()
+                paragraphStyle = ParagraphStyle()
             )
 
             // just have 10x font size to have a bitmap
@@ -895,10 +894,10 @@ class ParagraphIntegrationTest {
         Paragraph(
             text = "",
             textStyles = listOf(),
+            style = TextStyle(),
             paragraphStyle = ParagraphStyle(
                 lineHeight = -1.0f
-            ),
-            defaultTextStyle = TextStyle()
+            )
         )
     }
 
@@ -1433,7 +1432,7 @@ class ParagraphIntegrationTest {
 
         val paragraphWithColor = simpleParagraph(
             text = text,
-            defaultTextStyle = textStyle,
+            textStyle = textStyle,
             fontSize = fontSize
         )
         paragraphWithColor.layout(ParagraphConstraints(paragraphWidth))
@@ -1454,7 +1453,7 @@ class ParagraphIntegrationTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            defaultTextStyle = textStyle,
+            textStyle = textStyle,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(Float.MAX_VALUE))
@@ -1802,23 +1801,24 @@ class ParagraphIntegrationTest {
         lineHeight: Float? = null,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
         fontFamily: FontFamily = fontFamilyMeasureFont,
-        defaultTextStyle: TextStyle = TextStyle(),
-        locale: Locale? = null
+        locale: Locale? = null,
+        textStyle: TextStyle? = null
     ): Paragraph {
         return Paragraph(
             text = text,
             textStyles = textStyles,
+            style = TextStyle(
+                fontFamily = fontFamily,
+                fontSize = fontSize,
+                locale = locale
+            ).merge(textStyle),
             paragraphStyle = ParagraphStyle(
                 textIndent = textIndent,
                 textAlign = textAlign,
                 textDirection = textDirection,
                 maxLines = maxLines,
-                fontFamily = fontFamily,
-                fontSize = fontSize,
-                lineHeight = lineHeight,
-                locale = locale
-            ),
-            defaultTextStyle = defaultTextStyle
+                lineHeight = lineHeight
+            )
         )
     }
 }

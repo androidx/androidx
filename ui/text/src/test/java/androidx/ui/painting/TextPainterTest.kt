@@ -208,12 +208,10 @@ class TextPainterTest() {
 
         val paragraphStyle = textPainter.createParagraphStyle()
 
-        assertThat(paragraphStyle.fontSize).isNull()
         assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.Rtl)
         assertThat(paragraphStyle.maxLines).isEqualTo(maxLines)
         assertThat(paragraphStyle.ellipsis).isEqualTo(true)
-        assertThat(paragraphStyle.locale).isEqualTo(locale)
     }
 
     @Test
@@ -240,12 +238,10 @@ class TextPainterTest() {
 
         val paragraphStyle = textPainter.createParagraphStyle()
 
-        assertThat(paragraphStyle.fontSize).isEqualTo(fontSize * scaleFactor)
         assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.Rtl)
         assertThat(paragraphStyle.maxLines).isEqualTo(maxLines)
         assertThat(paragraphStyle.ellipsis).isEqualTo(true)
-        assertThat(paragraphStyle.locale).isEqualTo(locale)
     }
 
     @Test

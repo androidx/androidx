@@ -22,12 +22,8 @@ import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.ParagraphStyle
-import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
-import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextGeometricTransform
-import androidx.ui.engine.text.TextIndent
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.lerp
 import androidx.ui.engine.window.Locale
@@ -1557,87 +1553,6 @@ class TextStyleTest {
                 fontSynthesis = fontSynthesis,
                 fontFeatureSettings = fontFeatureSettings,
                 baselineShift = baselineShift
-            )
-        )
-    }
-
-    @Test
-    fun `getParagraphStyle with text align`() {
-        val fontSize = 10.0f
-        val color = Color(0xFF00FF00.toInt())
-        val fontSynthesis = FontSynthesis.Style
-        val textStyle = TextStyle(
-            fontSize = fontSize,
-            fontWeight = FontWeight.w800,
-            color = color,
-            fontSynthesis = fontSynthesis
-        )
-
-        assertThat(textStyle.fontFamily).isNull()
-        assertThat(textStyle.fontSize).isEqualTo(fontSize)
-        assertThat(textStyle.fontWeight).isEqualTo(FontWeight.w800)
-        assertThat(textStyle.color).isEqualTo(color)
-
-        val paragraphStyle = textStyle.getParagraphStyle(textAlign = TextAlign.Center)
-
-        assertThat(paragraphStyle).isEqualTo(
-            ParagraphStyle(
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.w800,
-                fontSize = fontSize,
-                fontSynthesis = fontSynthesis
-            )
-        )
-    }
-
-    @Test
-    fun `getParagraphStyle with LTR text direction`() {
-        val paragraphStyle = TextStyle().getParagraphStyle(textDirection = TextDirection.Ltr)
-
-        assertThat(paragraphStyle).isEqualTo(
-            ParagraphStyle(
-                textDirection = TextDirection.Ltr,
-                fontSize = _defaultFontSize
-            )
-        )
-    }
-
-    @Test
-    fun `getParagraphStyle with line height`() {
-        val lineHeight = 1.2f
-
-        val paragraphStyle = TextStyle().getParagraphStyle(lineHeight = lineHeight)
-
-        assertThat(paragraphStyle).isEqualTo(
-            ParagraphStyle(
-                lineHeight = lineHeight,
-                fontSize = _defaultFontSize
-            )
-        )
-    }
-
-    @Test
-    fun `getParagraphStyle with text indent`() {
-        val textIndent = TextIndent(firstLine = 10.px, restLine = 11.px)
-
-        val paragraphStyle = TextStyle().getParagraphStyle(textIndent = textIndent)
-
-        assertThat(paragraphStyle).isEqualTo(
-            ParagraphStyle(
-                textIndent = textIndent,
-                fontSize = _defaultFontSize
-            )
-        )
-    }
-
-    @Test
-    fun `getParagraphStyle with RTL text direction`() {
-        val paragraphStyle = TextStyle().getParagraphStyle(textDirection = TextDirection.Rtl)
-
-        assertThat(paragraphStyle).isEqualTo(
-            ParagraphStyle(
-                textDirection = TextDirection.Rtl,
-                fontSize = _defaultFontSize
             )
         )
     }

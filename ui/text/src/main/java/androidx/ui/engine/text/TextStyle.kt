@@ -50,7 +50,7 @@ import androidx.ui.painting.Shadow
  *  style cannot be found in the provided custom font family.
  * @param shadow The shadow effect applied on the text.
  */
-data class TextStyle constructor(
+internal data class TextStyle constructor(
     val color: Color? = null,
     val decoration: TextDecoration? = null,
     val fontWeight: FontWeight? = null,
