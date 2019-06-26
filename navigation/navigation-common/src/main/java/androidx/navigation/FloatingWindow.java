@@ -20,8 +20,11 @@ package androidx.navigation;
  * A marker interface for {@link NavDestination} subclasses that float above the view of other
  * destinations (i.e. {@link androidx.navigation.fragment.DialogFragmentNavigator.Destination}).
  *
- * <p>Used to allow {@link androidx.navigation.NavController.OnDestinationChangedListener} instances
- * to customize behavior based on whether the destination is a FloatingWindow.
+ * <p>Destinations that implement this interface will automatically be popped off the back
+ * stack when you navigate to a new destination.
+ *
+ * <p>{@link androidx.navigation.NavController.OnDestinationChangedListener} instances can also
+ * customize their behavior based on whether the destination is a FloatingWindow.
  */
 public interface FloatingWindow {
 }
