@@ -451,6 +451,10 @@ private fun TextStyle.applyTextStyle(
         textPaint.textSize = it
     }
 
+    fontSizeScale?.let {
+        textPaint.textSize *= fontSizeScale
+    }
+
     // TODO(siyamed): This default values are problem here. If the user just gives a single font
     // in the family, and does not provide any fontWeight, TypefaceAdapter will still get the
     // call as FontWeight.normal (which is the default value)
@@ -478,21 +482,48 @@ private fun TextStyle.applyTextStyle(
         textPaint.letterSpacing = it
     }
 
-    // TODO(siyamed) temporary fix for text style. Will apply Styles that cover the whole
-    // string onto the Paint. This will null the values that are already applied to paint
-    // and provide a text style with other values.
-    return copy(
-        fontSize = null,
-        locale = null,
-        fontWeight = null,
-        fontFamily = null,
-        fontStyle = null,
-        fontSynthesis = null,
-        letterSpacing = null,
-        color = null
-    )
+    fontFeatureSettings?.let {
+        textPaint.fontFeatureSettings = it
+    }
 
-    // TODO(haoyuchang) apply other styles when engine.ParagraphStyle get removed.
+    if (Build.VERSION.SDK_INT >= 29) {
+        wordSpacing?.let {
+            textPaint.wordSpacing = it
+        }
+    }
+
+    textGeometricTransform?.scaleX?.let {
+        textPaint.textScaleX *= it
+    }
+
+    textGeometricTransform?.skewX?.let {
+        textPaint.textSkewX += it
+    }
+
+    shadow?.let {
+        textPaint.setShadowLayer(
+            it.blurRadius.value,
+            it.offset.dx,
+            it.offset.dy,
+            it.color.toArgb()
+        )
+    }
+
+    decoration?.let {
+        if (it.contains(TextDecoration.Underline)) {
+            textPaint.isUnderlineText = true
+        }
+        if (it.contains(TextDecoration.LineThrough)) {
+            textPaint.isStrikeThruText = true
+        }
+    }
+
+    // baselineShift and bgColor is reset in the Android Layout constructor.
+    // therefore we cannot apply them on paint, have to use spans.
+    return TextStyle(
+        background = background,
+        baselineShift = baselineShift
+    )
 }
 
 /**

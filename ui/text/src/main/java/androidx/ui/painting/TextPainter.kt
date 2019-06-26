@@ -51,7 +51,7 @@ private const val DefaultFontSize: Float = 14.0f
  * fractional pixel values up to the nearest whole pixel value. The right long-term fix is to do
  * layout using fixed precision arithmetic.
  */
-fun applyFloatingPointHack(layoutValue: Float): Float {
+internal fun applyFloatingPointHack(layoutValue: Float): Float {
     return ceil(layoutValue)
 }
 

@@ -172,8 +172,6 @@ private fun TextSpan.annotatedStringVisitor(
 
 /**
  * Convert a [TextSpan] into an [AnnotatedString].
- * @param includeRootStyle whether to attach the text style in the root [TextSpan] to the output
- *  [AnnotatedString]. It's useful when the top level [TextStyle] is used as global text style setting.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

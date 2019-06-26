@@ -80,6 +80,7 @@ package androidx.text.style {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class BaselineShiftSpan extends android.text.style.MetricAffectingSpan {
     ctor public BaselineShiftSpan(float);
+    method public float getMultiplier();
     method public void updateDrawState(android.text.TextPaint!);
     method public void updateMeasureState(android.text.TextPaint);
   }
