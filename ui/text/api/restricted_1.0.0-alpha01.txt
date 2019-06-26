@@ -11,8 +11,6 @@ package androidx.ui.painting {
     method public java.util.List<androidx.ui.painting.TextSpan> getChildren();
     method public androidx.ui.painting.TextStyle? getStyle();
     method public String? getText();
-    method public void setStyle(androidx.ui.painting.TextStyle? p);
-    method public void setText(String? p);
     method public String toPlainText();
     method public boolean visitTextSpan(kotlin.jvm.functions.Function1<? super androidx.ui.painting.TextSpan,java.lang.Boolean> visitor);
   }

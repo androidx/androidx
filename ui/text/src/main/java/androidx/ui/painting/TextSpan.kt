@@ -35,11 +35,10 @@ import androidx.ui.painting.basictypes.RenderComparison
  *
  * @hide
  */
-// TODO(haoyuchang) Make TextSpan immutable.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class TextSpan(
-    var style: TextStyle? = null,
-    var text: String? = null,
+    val style: TextStyle? = null,
+    val text: String? = null,
     val children: MutableList<TextSpan> = mutableListOf()
 ) {
 
@@ -118,9 +117,6 @@ class TextSpan(
             return RenderComparison.LAYOUT
         }
         var result: RenderComparison = RenderComparison.IDENTICAL
-            // TODO(siyamed) add recognizer
-            /*if (recognizer == other.recognizer) RenderComparison.IDENTICAL
-            else RenderComparison.METADATA*/
         style?.let {
             val candidate: RenderComparison = it.compareTo(other.style!!)
             if (candidate.ordinal > result.ordinal) {
