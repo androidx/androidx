@@ -49,7 +49,6 @@ import android.widget.TextView;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.media2.common.MediaItem;
@@ -1496,7 +1495,6 @@ public class MediaControlView extends ViewGroup {
     /**
      * @return true iff the current media item is from network.
      */
-    @VisibleForTesting
     boolean isCurrentMediaItemFromNetwork() {
         ensurePlayerIsNotNull();
 

@@ -30,7 +30,6 @@ import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import android.net.Uri;
@@ -302,44 +301,6 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                 .check(matches(isCompletelyDisplayed()));
         onView(withText(subtitleTrackOffText)).inRoot(isPlatformPopup()).perform(click());
         assertTrue(latchForSubtitleDeselect.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
-    public void testCheckMediaItemIsFromHttp() throws Throwable {
-        testCheckMediaItemIsFromNetwork(Uri.parse("http://localhost/dummy.mp4"), true);
-    }
-
-    @Test
-    public void testCheckMediaItemIsFromHttps() throws Throwable {
-        testCheckMediaItemIsFromNetwork(Uri.parse("https://localhost/dummy.mp4"), true);
-    }
-
-    @Test
-    public void testCheckMediaItemIsFromRtsp() throws Throwable {
-        testCheckMediaItemIsFromNetwork(Uri.parse("rtsp://localhost/dummy.mp4"), true);
-    }
-
-    @Test
-    public void testCheckMediaItemIsFromFile() throws Throwable {
-        testCheckMediaItemIsFromNetwork(Uri.parse("file:///dummy.mp4"), false);
-    }
-
-    private void testCheckMediaItemIsFromNetwork(Uri uri, boolean isNetwork) throws Throwable {
-        final MediaItem mediaItem = createTestMediaItem(uri);
-        final CountDownLatch latch = new CountDownLatch(1);
-
-        registerCallback(new SessionPlayer.PlayerCallback() {
-            @Override
-            public void onCurrentMediaItemChanged(@NonNull SessionPlayer player,
-                    @NonNull MediaItem item) {
-                assertSame(mediaItem, item);
-                latch.countDown();
-            }
-        });
-
-        mPlayer.setMediaItem(mediaItem);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertEquals(mMediaControlView.isCurrentMediaItemFromNetwork(), isNetwork);
     }
 
     private void registerCallback(SessionPlayer.PlayerCallback callback) {
