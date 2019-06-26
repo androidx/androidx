@@ -2435,11 +2435,14 @@ public class ViewCompat {
                 return;
             }
 
-            v.setOnApplyWindowInsetsListener((view, insets) -> {
-                WindowInsetsCompat compatInsets = WindowInsetsCompat
-                        .toWindowInsetsCompat(insets);
-                compatInsets = listener.onApplyWindowInsets(view, compatInsets);
-                return compatInsets.toWindowInsets();
+            v.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View view, WindowInsets insets) {
+                    WindowInsetsCompat compatInsets = WindowInsetsCompat
+                            .toWindowInsetsCompat(insets);
+                    compatInsets = listener.onApplyWindowInsets(view, compatInsets);
+                    return compatInsets.toWindowInsets();
+                }
             });
         }
     }

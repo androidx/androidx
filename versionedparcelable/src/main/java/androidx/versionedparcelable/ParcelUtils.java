@@ -137,7 +137,7 @@ public class ParcelUtils {
      *
      * Returns null if the bundle isn't present or ClassLoader issues occur.
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals","unchecked"})
     @Nullable
     public static <T extends VersionedParcelable> List<T> getVersionedParcelableList(
             Bundle bundle, String key) {
@@ -148,7 +148,7 @@ public class ParcelUtils {
             ArrayList<Parcelable> parcelableArrayList =
                     innerBundle.getParcelableArrayList(INNER_BUNDLE_KEY);
             for (Parcelable parcelable : parcelableArrayList) {
-                resultList.add(fromParcelable(parcelable));
+                resultList.add((T) fromParcelable(parcelable));
             }
             return resultList;
         } catch (RuntimeException e) {

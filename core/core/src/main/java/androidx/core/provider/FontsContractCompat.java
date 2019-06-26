@@ -70,6 +70,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -364,10 +365,14 @@ public class FontsContractCompat {
             if (sExecutor == null) {
                 synchronized (sLock) {
                     if (sExecutor == null) {
-                        sExecutor = Executors.newFixedThreadPool(1, runnable -> {
-                            final Thread t = new Thread(runnable);
-                            t.setName("fonts");
-                            return t;
+
+                        sExecutor = Executors.newFixedThreadPool(1, new ThreadFactory() {
+                            @Override
+                            public Thread newThread(@NonNull Runnable runnable) {
+                                final Thread t = new Thread(runnable);
+                                t.setName("fonts");
+                                return t;
+                            }
                         });
                     }
                 }
