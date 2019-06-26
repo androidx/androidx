@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package androidx.ui.material
+
 import androidx.animation.CubicBezierEasing
 import androidx.animation.FloatPropKey
 import androidx.animation.Infinite
@@ -39,11 +41,8 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
-import androidx.ui.material.MaterialColors
-import androidx.ui.material.themeColor
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
@@ -285,7 +284,7 @@ private fun drawIndeterminateCircularIndicator(
 @Composable
 private fun CircularIndicatorContainer(@Children children: @Composable() () -> Unit) {
     Wrap {
-        Padding(padding = EdgeInsets(CircularIndicatorPadding)) {
+        Padding(CircularIndicatorPadding) {
             Container(width = CircularIndicatorDiameter, height = CircularIndicatorDiameter) {
                 children()
             }

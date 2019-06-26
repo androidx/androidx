@@ -15,8 +15,6 @@
  */
 package androidx.ui.material
 
-import CircularProgressIndicator
-import LinearProgressIndicator
 import androidx.compose.composer
 import androidx.compose.Model
 import androidx.test.filters.LargeTest
