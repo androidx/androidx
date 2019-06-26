@@ -7,7 +7,6 @@ package androidx.ui.painting {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextSpan {
     ctor public TextSpan(androidx.ui.painting.TextStyle? style, String? text, java.util.List<androidx.ui.painting.TextSpan> children);
     ctor public TextSpan();
-    method public androidx.ui.painting.basictypes.RenderComparison compareTo(androidx.ui.painting.TextSpan other);
     method public java.util.List<androidx.ui.painting.TextSpan> getChildren();
     method public androidx.ui.painting.TextStyle? getStyle();
     method public String? getText();

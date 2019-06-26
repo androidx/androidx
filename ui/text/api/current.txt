@@ -423,17 +423,6 @@ package androidx.ui.painting {
 
 }
 
-package androidx.ui.painting.basictypes {
-
-  public enum RenderComparison {
-    enum_constant public static final androidx.ui.painting.basictypes.RenderComparison IDENTICAL;
-    enum_constant public static final androidx.ui.painting.basictypes.RenderComparison LAYOUT;
-    enum_constant public static final androidx.ui.painting.basictypes.RenderComparison METADATA;
-    enum_constant public static final androidx.ui.painting.basictypes.RenderComparison PAINT;
-  }
-
-}
-
 package androidx.ui.rendering.paragraph {
 
   public enum TextOverflow {

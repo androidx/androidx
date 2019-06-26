@@ -76,38 +76,10 @@ class TextSpan(
     }
 
     /**
-     * Returns the UTF-16 code unit at the given index in the flattened string.
-     *
-     * Returns null if the index is out of bounds.
-     */
-    // TODO(Migration/qqd): VERY IMPORTANT the name is weird, and what it does is also weird.
-//    fun codeUnitAt(index: Int): Int? {
-//        if (index < 0)
-//            return null
-//        var offset: Int? = 0
-//        var result: Int? = null
-//        visitTextSpan {
-//                span: TextSpan ->
-//            if (index - offset!! < span.text!!.length) {
-//                // Flutter only considered BMP (Basic Multilingual Plane or Plane 0), so we only
-//                // return the high-surrogate (index 0) in the UTF-16 representation array resulting
-//                // from Character.toChars.
-//                val codePoint = span.text[index - offset]
-//                val utf16Array = Character.toChars(codePoint.toInt())
-//                result = utf16Array[0].toInt()
-//                false
-//            }
-//            offset += span.text?.length
-//            true
-//        }
-//        return result
-//    }
-
-    /**
      * Describe the difference between this text span and another, in terms ofhow much damage it
      * will make to the rendering. The comparison is deep.
      */
-    fun compareTo(other: TextSpan): RenderComparison {
+    internal fun compareTo(other: TextSpan): RenderComparison {
         if (this === other) {
             return RenderComparison.IDENTICAL
         }
