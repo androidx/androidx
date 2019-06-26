@@ -28,6 +28,7 @@ import androidx.ui.engine.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.engine.text.FontTestData.Companion.FONT_200_REGULAR
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
+import androidx.ui.engine.text.platform.bitmap
 import androidx.ui.engine.window.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.matchers.equalToBitmap
@@ -380,7 +381,8 @@ class ParagraphIntegrationTest {
                 paragraphStyle = ParagraphStyle(
                     fontSize = fontSize,
                     locale = locale
-                )
+                ),
+                defaultTextStyle = TextStyle()
             )
 
             // just have 10x font size to have a bitmap
@@ -399,11 +401,7 @@ class ParagraphIntegrationTest {
     @Test
     fun locale_isDefaultLocaleIfNotProvided() {
         val text = "abc"
-        val paragraph = Paragraph(
-            text = text,
-            textStyles = listOf(),
-            paragraphStyle = ParagraphStyle()
-        )
+        val paragraph = simpleParagraph(text = text)
 
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
 
@@ -417,13 +415,7 @@ class ParagraphIntegrationTest {
     fun locale_isSetOnParagraphImpl_enUS() {
         val locale = Locale(_languageCode = "en", _countryCode = "US")
         val text = "abc"
-        val paragraph = Paragraph(
-            text = text,
-            textStyles = listOf(),
-            paragraphStyle = ParagraphStyle(
-                locale = locale
-            )
-        )
+        val paragraph = simpleParagraph(text = text, locale = locale)
 
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
 
@@ -434,13 +426,7 @@ class ParagraphIntegrationTest {
     fun locale_isSetOnParagraphImpl_jpJP() {
         val locale = Locale(_languageCode = "ja", _countryCode = "JP")
         val text = "abc"
-        val paragraph = Paragraph(
-            text = text,
-            textStyles = listOf(),
-            paragraphStyle = ParagraphStyle(
-                locale = locale
-            )
-        )
+        val paragraph = simpleParagraph(text = text, locale = locale)
 
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
 
@@ -451,13 +437,7 @@ class ParagraphIntegrationTest {
     fun locale_noCountryCode_isSetOnParagraphImpl() {
         val locale = Locale(_languageCode = "ja")
         val text = "abc"
-        val paragraph = Paragraph(
-            text = text,
-            textStyles = listOf(),
-            paragraphStyle = ParagraphStyle(
-                locale = locale
-            )
-        )
+        val paragraph = simpleParagraph(text = text, locale = locale)
 
         paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
 
@@ -918,12 +898,13 @@ class ParagraphIntegrationTest {
             textStyles = listOf(),
             paragraphStyle = ParagraphStyle(
                 lineHeight = -1.0f
-            )
+            ),
+            defaultTextStyle = TextStyle()
         )
     }
 
     @Test
-    fun textStyle_setFontSizeOnWholeText() {
+    fun testAnnotatedString_setFontSizeOnWholeText() {
         val text = "abcde"
         val fontSize = 20.0f
         val textStyle = TextStyle(fontSize = fontSize)
@@ -943,7 +924,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_setFontSizeOnPartOfText() {
+    fun testAnnotatedString_setFontSizeOnPartOfText() {
         val text = "abcde"
         val fontSize = 20.0f
         val textStyleFontSize = 30.0f
@@ -966,7 +947,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_seFontSizeTwice_lastOneOverwrite() {
+    fun testAnnotatedString_seFontSizeTwice_lastOneOverwrite() {
         val text = "abcde"
         val fontSize = 20.0f
         val textStyle = TextStyle(fontSize = fontSize)
@@ -993,7 +974,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_fontSizeScale() {
+    fun testAnnotatedString_fontSizeScale() {
         val text = "abcde"
         val fontSize = 20f
         val fontSizeScale = 0.5f
@@ -1014,7 +995,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_fontSizeScaleNested() {
+    fun testAnnotatedString_fontSizeScaleNested() {
         val text = "abcde"
         val fontSize = 20f
         val fontSizeScale = 0.5f
@@ -1041,7 +1022,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_fontSizeScaleWithFontSizeFirst() {
+    fun testAnnotatedString_fontSizeScaleWithFontSizeFirst() {
         val text = "abcde"
         val paragraphFontSize = 20f
 
@@ -1069,7 +1050,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_fontSizeScaleWithFontSizeSecond() {
+    fun testAnnotatedString_fontSizeScaleWithFontSizeSecond() {
         val text = "abcde"
         val paragraphFontSize = 20f
 
@@ -1097,7 +1078,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_fontSizeScaleWithFontSizeNested() {
+    fun testAnnotatedString_fontSizeScaleWithFontSizeNested() {
         val text = "abcde"
         val paragraphFontSize = 20f
 
@@ -1129,7 +1110,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_setLetterSpacingOnWholeText() {
+    fun testAnnotatedString_setLetterSpacingOnWholeText() {
         val text = "abcde"
         val fontSize = 20.0f
         val letterSpacing = 5.0f
@@ -1154,7 +1135,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_setLetterSpacingOnPartText() {
+    fun testAnnotatedString_setLetterSpacingOnPartText() {
         val text = "abcde"
         val fontSize = 20.0f
         val letterSpacing = 5.0f
@@ -1177,7 +1158,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_setLetterSpacingTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setLetterSpacingTwice_lastOneOverwrite() {
         val text = "abcde"
         val fontSize = 20.0f
 
@@ -1209,7 +1190,7 @@ class ParagraphIntegrationTest {
 
     @SdkSuppress(minSdkVersion = 29)
     @Test
-    fun textStyle_setWordSpacingOnWholeText() {
+    fun testAnnotatedString_setWordSpacingOnWholeText() {
         if (!BuildCompat.isAtLeastQ()) return
         val text = "ab cd"
         val fontSize = 20.0f
@@ -1236,7 +1217,7 @@ class ParagraphIntegrationTest {
 
     @SdkSuppress(minSdkVersion = 29)
     @Test
-    fun textStyle_setWordSpacingOnPartText() {
+    fun testAnnotatedString_setWordSpacingOnPartText() {
         if (!BuildCompat.isAtLeastQ()) return
         val text = "a b c"
         val fontSize = 20.0f
@@ -1263,7 +1244,7 @@ class ParagraphIntegrationTest {
 
     @SdkSuppress(minSdkVersion = 29)
     @Test
-    fun textStyle_setWordSpacingTwice_lastOneOverwrite() {
+    fun testAnnotatedString_setWordSpacingTwice_lastOneOverwrite() {
         if (!BuildCompat.isAtLeastQ()) return
         val text = "a b c"
         val fontSize = 20.0f
@@ -1367,14 +1348,14 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_fontFamily_changesMeasurement() {
+    fun testAnnotatedString_fontFamily_changesMeasurement() {
         val text = "ad"
         val fontSize = 20.0f
         // custom 100 regular font has b as the wide glyph
         // custom 200 regular font has d as the wide glyph
         val textStyle = TextStyle(fontFamily = fontFamilyCustom200)
         // a is rendered in paragraphStyle font (custom 100), it will not have wide glyph
-        // d is rendered in textStyle font (custom 200), and it will be wide glyph
+        // d is rendered in defaultTextStyle font (custom 200), and it will be wide glyph
         val expectedWidth = fontSize + fontSize * 3
 
         val paragraph = simpleParagraph(
@@ -1393,7 +1374,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun textStyle_fontFeature_turnOffKern() {
+    fun testAnnotatedString_fontFeature_turnOffKern() {
         val text = "AaAa"
         val fontSize = 20.0f
         // This fontFeatureSetting turns off the kerning
@@ -1417,7 +1398,7 @@ class ParagraphIntegrationTest {
     }
 
     @Test
-    fun testStyle_shadow() {
+    fun testAnnotatedString_shadow() {
         val text = "abcde"
         val fontSize = 20f
         val paragraphWidth = fontSize * text.length
@@ -1435,6 +1416,54 @@ class ParagraphIntegrationTest {
         paragraph.layout(ParagraphConstraints(width = paragraphWidth))
 
         assertThat(paragraphShadow.bitmap(), not(equalToBitmap(paragraph.bitmap())))
+    }
+
+    @Test
+    fun testDefaultTextStyle_setColor() {
+        val text = "abc"
+        // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+        val fontSize = 100f
+        val paragraphWidth = fontSize * text.length
+        val textStyle = TextStyle(color = Color.Red)
+
+        val paragraphWithoutColor = simpleParagraph(
+            text = text,
+            fontSize = fontSize
+        )
+        paragraphWithoutColor.layout(ParagraphConstraints(paragraphWidth))
+
+        val paragraphWithColor = simpleParagraph(
+            text = text,
+            defaultTextStyle = textStyle,
+            fontSize = fontSize
+        )
+        paragraphWithColor.layout(ParagraphConstraints(paragraphWidth))
+
+        assertThat(
+            paragraphWithColor.bitmap(),
+            not(equalToBitmap(paragraphWithoutColor.bitmap()))
+        )
+    }
+
+    @Test
+    fun testDefaultTextStyle_setLetterSpacing() {
+        val text = "abc"
+        // FontSize doesn't matter here, but it should be big enough for bitmap comparison.
+        val fontSize = 100f
+        val letterSpacing = 1f
+        val textStyle = TextStyle(letterSpacing = letterSpacing)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            defaultTextStyle = textStyle,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(Float.MAX_VALUE))
+
+        assertThat(
+            paragraph.getLineRight(0),
+            equalTo(fontSize * (1 + letterSpacing) * text.length)
+        )
     }
 
     @Test
@@ -1773,7 +1802,9 @@ class ParagraphIntegrationTest {
         maxLines: Int? = null,
         lineHeight: Float? = null,
         textStyles: List<AnnotatedString.Item<TextStyle>> = listOf(),
-        fontFamily: FontFamily = fontFamilyMeasureFont
+        fontFamily: FontFamily = fontFamilyMeasureFont,
+        defaultTextStyle: TextStyle = TextStyle(),
+        locale: Locale? = null
     ): Paragraph {
         return Paragraph(
             text = text,
@@ -1785,8 +1816,10 @@ class ParagraphIntegrationTest {
                 maxLines = maxLines,
                 fontFamily = fontFamily,
                 fontSize = fontSize,
-                lineHeight = lineHeight
-            )
+                lineHeight = lineHeight,
+                locale = locale
+            ),
+            defaultTextStyle = defaultTextStyle
         )
     }
 }
