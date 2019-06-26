@@ -88,7 +88,8 @@ public final class FragmentScenario<F extends Fragment> {
                     R.style.FragmentScenarioEmptyFragmentActivityTheme));
 
             // Checks if we have a custom FragmentFactory and set it.
-            ViewModelProvider viewModelProvider = new ViewModelProvider(this);
+            ViewModelProvider viewModelProvider = new ViewModelProvider(
+                    this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()));
             FragmentFactory factory = viewModelProvider
                     .get(FragmentFactoryHolderViewModel.class)
                     .getFragmentFactory();
@@ -291,7 +292,10 @@ public final class FragmentScenario<F extends Fragment> {
                     @Override
                     public void perform(EmptyFragmentActivity activity) {
                         if (factory != null) {
-                            ViewModelProvider viewModelProvider = new ViewModelProvider(activity);
+                            ViewModelProvider viewModelProvider = new ViewModelProvider(
+                                    activity,
+                                    ViewModelProvider.AndroidViewModelFactory.getInstance(
+                                            activity.getApplication()));
                             viewModelProvider
                                     .get(FragmentFactoryHolderViewModel.class)
                                     .setFragmentFactory(factory);
