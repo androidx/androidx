@@ -603,7 +603,7 @@ public class CameraImplTest {
                     }
                 }));
 
-        mCamera.getCameraControl().submitCaptureRequests(
+        mCamera.getCameraControlInternal().submitCaptureRequests(
                 Arrays.asList(captureConfigBuilder.build()));
 
         UseCase useCase2 = createUseCase();
@@ -650,7 +650,7 @@ public class CameraImplTest {
 
                 }));
 
-        mCamera.getCameraControl().submitCaptureRequests(
+        mCamera.getCameraControlInternal().submitCaptureRequests(
                 Arrays.asList(captureConfigBuilder.build()));
         mCamera.removeOnlineUseCase(Arrays.asList(useCase1));
 

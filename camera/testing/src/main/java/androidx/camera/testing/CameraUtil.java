@@ -141,7 +141,7 @@ public final class CameraUtil {
             UseCase... useCases) {
         camera.addOnlineUseCase(Arrays.asList(useCases));
         for (UseCase useCase : useCases) {
-            useCase.attachCameraControl(cameraId, camera.getCameraControl());
+            useCase.attachCameraControl(cameraId, camera.getCameraControlInternal());
             camera.onUseCaseActive(useCase);
         }
     }

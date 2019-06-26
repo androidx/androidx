@@ -37,7 +37,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 
 import androidx.camera.camera2.Camera2Config;
-import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.SessionConfig;
@@ -63,7 +63,7 @@ public final class Camera2CameraControlTest {
 
     private static final long NO_TIMEOUT = 0;
     private Camera2CameraControl mCamera2CameraControl;
-    private CameraControl.ControlUpdateListener mControlUpdateListener;
+    private CameraControlInternal.ControlUpdateListener mControlUpdateListener;
     private ArgumentCaptor<SessionConfig> mSessionConfigArgumentCaptor =
             ArgumentCaptor.forClass(SessionConfig.class);
     @SuppressWarnings("unchecked")
@@ -74,7 +74,7 @@ public final class Camera2CameraControlTest {
 
     @Before
     public void setUp() throws InterruptedException {
-        mControlUpdateListener = mock(CameraControl.ControlUpdateListener.class);
+        mControlUpdateListener = mock(CameraControlInternal.ControlUpdateListener.class);
         mHandlerThread = new HandlerThread("ControlThread");
         mHandlerThread.start();
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());

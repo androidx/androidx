@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.util.Size;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -315,6 +316,25 @@ public final class CameraX {
         return INSTANCE.getCameraRepository().getCamera(cameraId).getCameraInfo();
     }
 
+
+    /**
+     * Returns the camera control for the camera with the given lens facing.
+     *
+     * @param lensFacing the lens facing of the camera
+     * @return the {@link CameraControl}.
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
+     *                                        insufficient permissions.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraControl getCameraControl(LensFacing lensFacing)
+            throws CameraInfoUnavailableException {
+
+        String cameraId = getCameraWithLensFacing(lensFacing);
+        return (CameraControl) INSTANCE.getCameraRepository().getCamera(
+                cameraId).getCameraControlInternal();
+    }
+
     /**
      * Returns the {@link CameraDeviceSurfaceManager} which can be used to query for valid surface
      * configurations.
@@ -422,7 +442,7 @@ public final class CameraX {
         }
 
         useCase.addStateChangeListener(camera);
-        useCase.attachCameraControl(cameraId, camera.getCameraControl());
+        useCase.attachCameraControl(cameraId, camera.getCameraControlInternal());
 
     }
 
@@ -607,6 +627,6 @@ public final class CameraX {
          * @param error   the type of error that occurred
          * @param message detailed message of the error condition
          */
-        void onError(ErrorCode error, String message);
+        void onError(@NonNull ErrorCode error, @NonNull String message);
     }
 }

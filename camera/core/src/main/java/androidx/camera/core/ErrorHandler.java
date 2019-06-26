@@ -21,6 +21,7 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraX.ErrorCode;
@@ -85,7 +86,7 @@ public final class ErrorHandler {
     /** An error listener which logs the error message and returns. */
     static final class PrintingErrorListener implements ErrorListener {
         @Override
-        public void onError(ErrorCode error, String message) {
+        public void onError(@NonNull ErrorCode error, @NonNull String message) {
             Log.e(TAG, "ErrorHandler occurred: " + error + " with message: " + message);
         }
     }

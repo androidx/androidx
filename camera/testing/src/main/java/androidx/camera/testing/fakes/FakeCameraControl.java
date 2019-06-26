@@ -21,7 +21,8 @@ import android.graphics.Rect;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.camera.core.CameraControl;
+import androidx.annotation.Nullable;
+import androidx.camera.core.CameraControlInternal;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.FlashMode;
 import androidx.camera.core.OnFocusListener;
@@ -31,9 +32,9 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * A fake implementation for the CameraControl interface.
+ * A fake implementation for the CameraControlInternal interface.
  */
-public final class FakeCameraControl implements CameraControl {
+public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     private final ControlUpdateListener mControlUpdateListener;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
@@ -46,7 +47,7 @@ public final class FakeCameraControl implements CameraControl {
     }
 
     @Override
-    public void setCropRegion(final Rect crop) {
+    public void setCropRegion(@Nullable final Rect crop) {
         Log.d(TAG, "setCropRegion(" + crop + ")");
     }
 
@@ -65,13 +66,14 @@ public final class FakeCameraControl implements CameraControl {
         Log.d(TAG, "focus(\n    " + focus + ",\n    " + metering + ")");
     }
 
+    @NonNull
     @Override
     public FlashMode getFlashMode() {
         return mFlashMode;
     }
 
     @Override
-    public void setFlashMode(FlashMode flashMode) {
+    public void setFlashMode(@NonNull FlashMode flashMode) {
         mFlashMode = flashMode;
         Log.d(TAG, "setFlashMode(" + mFlashMode + ")");
     }
@@ -110,7 +112,7 @@ public final class FakeCameraControl implements CameraControl {
     }
 
     @Override
-    public void submitCaptureRequests(List<CaptureConfig> captureConfigs) {
+    public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
         mControlUpdateListener.onCameraControlCaptureRequests(captureConfigs);
     }
 
