@@ -112,8 +112,6 @@ includeProject(":lifecycle:integration-tests:incrementality", "lifecycle/integra
 includeProject(":lifecycle:integration-tests:lifecycle-testapp", "lifecycle/integration-tests/testapp")
 includeProject(":lifecycle:integration-tests:lifecycle-testapp-kotlin", "lifecycle/integration-tests/kotlintestapp")
 includeProject(":lifecycle:lifecycle-common", "lifecycle/lifecycle-common")
-// scheduled for removal, because it is part of common now. It was left only for docs
-// (till next release of alpha)
 includeProject(":lifecycle:lifecycle-common-java8", "lifecycle/lifecycle-common-java8")
 includeProject(":lifecycle:lifecycle-compiler", "lifecycle/lifecycle-compiler")
 includeProject(":lifecycle:lifecycle-extensions", "lifecycle/lifecycle-extensions")
