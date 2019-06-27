@@ -363,24 +363,30 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
 
         @Override
         public void onError(@NonNull String parentId) {
-            onChildrenLoaded(parentId, null, null);
+            onChildrenLoadedInternal(parentId, null, null);
         }
 
         @Override
         public void onError(@NonNull String parentId, @NonNull Bundle options) {
-            onChildrenLoaded(parentId, null, options);
+            onChildrenLoadedInternal(parentId, null, options);
         }
 
         @Override
         public void onChildrenLoaded(@NonNull String parentId,
                 @NonNull List<MediaBrowserCompat.MediaItem> children) {
-            onChildrenLoaded(parentId, children, null);
+            onChildrenLoadedInternal(parentId, children, null);
         }
 
         @Override
         public void onChildrenLoaded(@NonNull final String parentId,
                 @NonNull List<MediaBrowserCompat.MediaItem> children,
                 @NonNull final Bundle options) {
+            onChildrenLoadedInternal(parentId, children, options);
+        }
+
+        private void onChildrenLoadedInternal(@NonNull final String parentId,
+                @Nullable List<MediaBrowserCompat.MediaItem> children,
+                @Nullable final Bundle options) {
             if (TextUtils.isEmpty(parentId)) {
                 Log.w(TAG, "SubscribeCallback.onChildrenLoaded(): Ignoring empty parentId");
                 return;
@@ -433,12 +439,17 @@ class MediaBrowserImplLegacy extends MediaControllerImplLegacy implements
         @Override
         public void onChildrenLoaded(@NonNull String parentId,
                 @NonNull List<MediaBrowserCompat.MediaItem> children) {
-            onChildrenLoaded(parentId, children);
+            onChildrenLoadedInternal(parentId, children, null);
         }
 
         @Override
         public void onChildrenLoaded(@NonNull final String parentId,
                 @NonNull List<MediaBrowserCompat.MediaItem> children, @NonNull Bundle options) {
+            onChildrenLoadedInternal(parentId, children, options);
+        }
+
+        private void onChildrenLoadedInternal(@NonNull final String parentId,
+                @NonNull List<MediaBrowserCompat.MediaItem> children, @Nullable Bundle options) {
             if (TextUtils.isEmpty(parentId)) {
                 Log.w(TAG, "GetChildrenCallback.onChildrenLoaded(): Ignoring empty parentId");
                 return;
