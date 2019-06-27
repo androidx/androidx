@@ -118,8 +118,9 @@ class TypeAssignmentTest {
     }
 
     private fun TypeElement.getField(
-            env: ProcessingEnvironment,
-            name: String): VariableElement {
+        env: ProcessingEnvironment,
+        name: String
+    ): VariableElement {
         return getAllFieldsIncludingPrivateSupers(env).first {
             it.simpleName.toString() == name
         }

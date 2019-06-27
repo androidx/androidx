@@ -22,8 +22,8 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.delay
 
-class CoroutineSleepWorker(context: Context, params: WorkerParameters)
-    : CoroutineWorker(context, params) {
+class CoroutineSleepWorker(context: Context, params: WorkerParameters) :
+    CoroutineWorker(context, params) {
 
     companion object {
         val sleepTimeKey = "sleep_time"

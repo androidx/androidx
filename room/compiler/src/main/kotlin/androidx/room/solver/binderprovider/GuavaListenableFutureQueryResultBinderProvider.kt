@@ -27,8 +27,8 @@ import androidx.room.solver.query.result.GuavaListenableFutureQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 
-class GuavaListenableFutureQueryResultBinderProvider(val context: Context)
-    : QueryResultBinderProvider {
+class GuavaListenableFutureQueryResultBinderProvider(val context: Context) :
+    QueryResultBinderProvider {
 
     private val hasGuavaRoom by lazy {
         context.processingEnv.elementUtils

@@ -43,4 +43,3 @@ private const val SYNTHETIC = "__synthetic_"
 fun syntheticName(method: ExecutableElement) = "$SYNTHETIC${method.simpleName}"
 
 fun isSyntheticMethod(method: ExecutableElement) = method.name().startsWith(SYNTHETIC)
-

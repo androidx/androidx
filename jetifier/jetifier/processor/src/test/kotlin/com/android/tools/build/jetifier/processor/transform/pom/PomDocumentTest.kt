@@ -339,4 +339,3 @@ class PomDocumentTest {
         return pomDocument
     }
 }
-

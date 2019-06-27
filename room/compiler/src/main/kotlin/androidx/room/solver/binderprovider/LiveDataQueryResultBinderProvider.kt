@@ -25,8 +25,8 @@ import androidx.room.solver.query.result.QueryResultBinder
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
-class LiveDataQueryResultBinderProvider(context: Context)
-    : ObservableQueryResultBinderProvider(context) {
+class LiveDataQueryResultBinderProvider(context: Context) :
+    ObservableQueryResultBinderProvider(context) {
     private val liveDataTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
                 .getTypeElement(LifecyclesTypeNames.LIVE_DATA.toString())?.asType()
@@ -34,8 +34,11 @@ class LiveDataQueryResultBinderProvider(context: Context)
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 
-    override fun create(typeArg: TypeMirror, resultAdapter: QueryResultAdapter?,
-                        tableNames: Set<String>): QueryResultBinder {
+    override fun create(
+        typeArg: TypeMirror,
+        resultAdapter: QueryResultAdapter?,
+        tableNames: Set<String>
+    ): QueryResultBinder {
         return LiveDataQueryResultBinder(
                 typeArg = typeArg,
                 tableNames = tableNames,

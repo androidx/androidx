@@ -26,10 +26,11 @@ abstract class QueryParameterAdapter(val isMultiple: Boolean) {
      * Must bind the value into the statement at the given index.
      */
     abstract fun bindToStmt(
-            inputVarName: String,
-            stmtVarName: String,
-            startIndexVarName: String,
-            scope: CodeGenScope)
+        inputVarName: String,
+        stmtVarName: String,
+        startIndexVarName: String,
+        scope: CodeGenScope
+    )
 
     /**
      * Should declare and set the given value with the count

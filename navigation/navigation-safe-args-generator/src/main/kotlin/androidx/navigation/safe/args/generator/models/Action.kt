@@ -16,7 +16,8 @@
 
 package androidx.navigation.safe.args.generator.models
 
-data class Action(val id: ResReference,
-                  val destination: ResReference?,
-                  val args: List<Argument> = emptyList())
-
+data class Action(
+    val id: ResReference,
+    val destination: ResReference?,
+    val args: List<Argument> = emptyList()
+)

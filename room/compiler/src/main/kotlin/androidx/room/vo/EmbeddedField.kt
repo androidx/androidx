@@ -23,8 +23,11 @@ import androidx.room.ext.hasAnnotation
  * Used when a field is embedded inside an Entity or Pojo.
  */
 // used in cache matching, must stay as a data class or implement equals
-data class EmbeddedField(val field: Field, val prefix: String = "",
-                         val parent: EmbeddedField?) {
+data class EmbeddedField(
+    val field: Field,
+    val prefix: String = "",
+    val parent: EmbeddedField?
+) {
     val getter by lazy { field.getter }
     val setter by lazy { field.setter }
     val nonNull = field.element.hasAnnotation(NonNull::class)

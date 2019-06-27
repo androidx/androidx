@@ -37,8 +37,8 @@ import javax.lang.model.element.Modifier
 /**
  * Writes the method that fetches the relations of a POJO and assigns them into the given map.
  */
-class RelationCollectorMethodWriter(private val collector: RelationCollector)
-    : ClassWriter.SharedMethodSpec(
+class RelationCollectorMethodWriter(private val collector: RelationCollector) :
+    ClassWriter.SharedMethodSpec(
         "fetchRelationship${collector.relation.entity.tableName.stripNonJava()}" +
                 "As${collector.relation.pojoTypeName.toString().stripNonJava()}") {
     companion object {

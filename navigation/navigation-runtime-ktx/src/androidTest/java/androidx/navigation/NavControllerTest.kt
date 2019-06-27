@@ -16,6 +16,7 @@
 
 package androidx.navigation
 
+import android.content.Context
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.test
 import androidx.test.core.app.ApplicationProvider
@@ -26,9 +27,9 @@ import org.junit.Test
 @SmallTest
 class NavControllerTest {
     private val navController =
-        NavController(ApplicationProvider.getApplicationContext() as android.content.Context).apply {
-        navigatorProvider += TestNavigator()
-    }
+        NavController(ApplicationProvider.getApplicationContext() as Context).apply {
+            navigatorProvider += TestNavigator()
+        }
 
     @Test
     fun createGraph() {
