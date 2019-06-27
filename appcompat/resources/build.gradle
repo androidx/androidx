@@ -28,8 +28,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.0.1")
     implementation("androidx.collection:collection:1.0.0")
-    api(project(":vectordrawable"))
-    api(project(":vectordrawable-animated"))
+    api("androidx.vectordrawable:vectordrawable:1.1.0-rc01")
+    api("androidx.vectordrawable:vectordrawable-animated:1.1.0-rc01")
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
