@@ -59,8 +59,11 @@ package androidx.paging {
     method public abstract Key getKey(Value item);
     method public final suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>> p);
     method public abstract void loadAfter(androidx.paging.ItemKeyedDataSource.LoadParams<Key> params, androidx.paging.ItemKeyedDataSource.LoadCallback<Value> callback);
+    method @VisibleForTesting public final suspend Object loadAfter$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.Result<Value>> p);
     method public abstract void loadBefore(androidx.paging.ItemKeyedDataSource.LoadParams<Key> params, androidx.paging.ItemKeyedDataSource.LoadCallback<Value> callback);
+    method @VisibleForTesting public final suspend Object loadBefore$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.Result<Value>> p);
     method public abstract void loadInitial(androidx.paging.ItemKeyedDataSource.LoadInitialParams<Key> params, androidx.paging.ItemKeyedDataSource.LoadInitialCallback<Value> callback);
+    method @VisibleForTesting public final suspend Object loadInitial$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadInitialParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.InitialResult<Value>> p);
     method public final <ToValue> androidx.paging.ItemKeyedDataSource<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
     method public final <ToValue> androidx.paging.ItemKeyedDataSource<Key,ToValue> map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
     method public final <ToValue> androidx.paging.ItemKeyedDataSource<Key,ToValue> mapByPage(androidx.arch.core.util.Function<java.util.List<Value>,java.util.List<ToValue>> function);
@@ -89,6 +92,10 @@ package androidx.paging {
     ctor public ItemKeyedDataSource.LoadParams(Key key, int requestedLoadSize);
     field public final Key key;
     field public final int requestedLoadSize;
+  }
+
+  public final class ItemKeyedDataSourceKt {
+    ctor public ItemKeyedDataSourceKt();
   }
 
   public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {

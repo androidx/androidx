@@ -18,10 +18,12 @@ package androidx.paging
 
 import androidx.annotation.VisibleForTesting
 import androidx.arch.core.util.Function
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.DataSource.KeyType.ITEM_KEYED
-import androidx.paging.futures.await
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.paging.ItemKeyedDataSource.Result
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
 * Incremental data loader for paging keyed content, where loaded content uses previously loaded
@@ -138,13 +140,12 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * empty list if there is no more data to load.
          *
          * @param data List of items loaded from the DataSource. If this is empty, the DataSource
-         *             is treated as empty, and no further loads will occur.
+         * is treated as empty, and no further loads will occur.
          * @param position Position of the item at the front of the list. If there are `N`
-         *                 items before the items in data that can be loaded from this DataSource,
-         *                 pass `N`.
+         * items before the items in data that can be loaded from this DataSource, pass `N`.
          * @param totalCount Total number of items that may be returned from this [DataSource].
-         *                   Includes the number in the initial `data` parameter as well as any
-         *                   items that can be loaded in front or behind of `data`.
+         * Includes the number in the initial `data` parameter as well as any items that can be
+         * loaded in front or behind of `data`.
          */
         abstract fun onResult(data: List<Value>, position: Int, totalCount: Int)
     }
@@ -195,91 +196,47 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
 
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
     internal final override suspend fun load(params: Params<Key>): BaseResult<Value> {
-        when (params.type) {
-            LoadType.INITIAL -> {
-                val initParams = LoadInitialParams(
+        return when (params.type) {
+            LoadType.INITIAL -> loadInitial(
+                LoadInitialParams(
                     params.key,
                     params.initialLoadSize,
                     params.placeholdersEnabled
                 )
-                return loadInitial(initParams).await()
-            }
-            LoadType.START -> {
-                val loadParams = LoadParams(params.key!!, params.pageSize)
-                return loadBefore(loadParams).await()
-            }
-            LoadType.END -> {
-                val loadParams = LoadParams(params.key!!, params.pageSize)
-                return loadAfter(loadParams).await()
-            }
+            )
+            LoadType.START -> loadBefore(LoadParams(params.key!!, params.pageSize))
+            LoadType.END -> loadAfter(LoadParams(params.key!!, params.pageSize))
         }
     }
 
     @VisibleForTesting
-    internal fun loadInitial(
-        params: LoadInitialParams<Key>
-    ): ListenableFuture<InitialResult<Value>> {
-        val future = ResolvableFuture.create<InitialResult<Value>>()
-        executor.execute {
-            val callback = object : LoadInitialCallback<Value>() {
+    internal suspend fun loadInitial(params: LoadInitialParams<Key>) =
+        suspendCancellableCoroutine<InitialResult<Value>> { cont ->
+            loadInitial(params, object : LoadInitialCallback<Value>() {
                 override fun onResult(data: List<Value>, position: Int, totalCount: Int) {
-                    future.set(InitialResult(data, position, totalCount))
+                    cont.resume(InitialResult(data, position, totalCount))
                 }
 
                 override fun onResult(data: List<Value>) {
-                    future.set(InitialResult(data))
+                    cont.resume(InitialResult(data))
                 }
 
                 override fun onError(error: Throwable) {
-                    future.setException(error)
+                    cont.resumeWithException(error)
                 }
-            }
-
-            try {
-                loadInitial(
-                    LoadInitialParams(
-                        params.requestedInitialKey,
-                        params.requestedLoadSize,
-                        params.placeholdersEnabled
-                    ),
-                    callback
-                )
-            } catch (e: Exception) {
-                future.setException(e)
-            }
+            })
         }
-        return future
-    }
 
     @VisibleForTesting
-    internal fun loadBefore(params: LoadParams<Key>): ListenableFuture<Result<Value>> {
-        val future = ResolvableFuture.create<Result<Value>>()
-        executor.execute {
-            val loadParams = LoadParams(params.key, params.requestedLoadSize)
-            loadBefore(loadParams, getFutureAsCallback(future))
+    internal suspend fun loadBefore(params: LoadParams<Key>) =
+        suspendCancellableCoroutine<Result<Value>> { cont ->
+            loadBefore(params, cont.asCallback())
         }
-        return future
-    }
 
     @VisibleForTesting
-    internal fun loadAfter(params: LoadParams<Key>): ListenableFuture<Result<Value>> {
-        val future = ResolvableFuture.create<Result<Value>>()
-        executor.execute {
-            val loadParams = LoadParams(params.key, params.requestedLoadSize)
-            loadAfter(loadParams, getFutureAsCallback(future))
-        }
-        return future
-    }
-
-    private fun getFutureAsCallback(future: ResolvableFuture<Result<Value>>): LoadCallback<Value> {
-        return object : LoadCallback<Value>() {
-            override fun onResult(data: List<Value>) {
-                future.set(Result(data))
-            }
-
-            override fun onError(error: Throwable) {
-                future.setException(error)
-            }
+    internal suspend fun loadAfter(params: LoadParams<Key>): Result<Value> {
+        return suspendCancellableCoroutine { cont ->
+            loadAfter(params, cont.asCallback())
         }
     }
 
@@ -336,7 +293,7 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * Data may be passed synchronously during the loadBefore method, or deferred and called at a
      * later time. Further loads going up will be blocked until the callback is called.
      *
-     * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
+     * If data cannot be loaded (for example, if the request is invalid, or the data would be stalteme
      * and inconsistent), it is valid to call [invalidate] to invalidate the data source, and
      * prevent further loading.
      *
@@ -383,3 +340,14 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
         function: (Value) -> ToValue
     ): ItemKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })
 }
+
+internal fun <Value : Any> CancellableContinuation<Result<Value>>.asCallback() =
+    object : ItemKeyedDataSource.LoadCallback<Value>() {
+        override fun onResult(data: List<Value>) {
+            resume(Result(data))
+        }
+
+        override fun onError(error: Throwable) {
+            resumeWithException(error)
+        }
+    }
