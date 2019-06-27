@@ -5133,11 +5133,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
     void dispatchOnScrolled(int hresult, int vresult) {
         mDispatchScrollCounter++;
-        // Pass the current scrollX/scrollY values; no actual change in these properties occurred
-        // but some general-purpose code may choose to respond to changes this way.
+        // Pass the current scrollX/scrollY values as current values. No actual change in these
+        // properties occurred. Pass negative hresult and vresult as old values so that
+        // postSendViewScrolledAccessibilityEventCallback(l - oldl, t - oldt) in onScrollChanged
+        // sends the scrolled accessibility event correctly.
         final int scrollX = getScrollX();
         final int scrollY = getScrollY();
-        onScrollChanged(scrollX, scrollY, scrollX, scrollY);
+        onScrollChanged(scrollX, scrollY, scrollX - hresult, scrollY - vresult);
 
         // Pass the real deltas to onScrolled, the RecyclerView-specific method.
         onScrolled(hresult, vresult);
