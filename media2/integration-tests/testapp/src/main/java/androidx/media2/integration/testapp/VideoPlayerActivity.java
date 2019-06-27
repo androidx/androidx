@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,6 +39,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaController;
 import androidx.media2.session.SessionCommandGroup;
 import androidx.media2.session.SessionToken;
@@ -199,6 +202,16 @@ public class VideoPlayerActivity extends FragmentActivity {
         @Override
         public void onConnected(@NonNull MediaController controller,
                 @NonNull SessionCommandGroup allowedCommands) {
+            MediaItem currentItem = controller.getCurrentMediaItem();
+            // Return if current media item exists and it is the same as the one that is selected
+            // to play.
+            if (currentItem != null
+                    && TextUtils.equals(currentItem.getMediaId(), mUri.toString())
+                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_IDLE
+                    && controller.getPlayerState() != SessionPlayer.PLAYER_STATE_ERROR) {
+                return;
+            }
+
             controller.setMediaItem(mUri.toString());
             controller.prepare();
         }
