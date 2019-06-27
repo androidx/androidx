@@ -195,15 +195,26 @@ fun Text(
     text.textStyles.forEach { it.style.fontFamily?.context = context }
 
     Semantics(label = text.text) {
-        val textPainter = TextPainter(
-            text = text,
-            style = mergedStyle,
-            paragraphStyle = paragraphStyle,
-            softWrap = softWrap,
-            overflow = overflow,
-            textScaleFactor = textScaleFactor,
-            maxLines = maxLines
-        )
+        val textPainter = +memo(
+            text,
+            mergedStyle,
+            paragraphStyle,
+            softWrap,
+            overflow,
+            textScaleFactor,
+            maxLines
+        ) {
+            TextPainter(
+                text = text,
+                style = mergedStyle,
+                paragraphStyle = paragraphStyle,
+                softWrap = softWrap,
+                overflow = overflow,
+                textScaleFactor = textScaleFactor,
+                maxLines = maxLines
+            )
+        }
+
         val children = @Composable {
             // Get the layout coordinates of the text widget. This is for hit test of cross-widget
             // selection.
@@ -221,7 +232,15 @@ fun Text(
             layout(textPainter.width.px.round(), textPainter.height.px.round()) {}
         })
 
-        +onCommit(textPainter) {
+        +onCommit(
+            text,
+            mergedStyle,
+            paragraphStyle,
+            softWrap,
+            overflow,
+            textScaleFactor,
+            maxLines
+        ) {
             val id = registrar.subscribe(
                 object : TextSelectionHandler {
                     override fun getSelection(
