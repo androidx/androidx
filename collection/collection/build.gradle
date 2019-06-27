@@ -24,6 +24,9 @@ plugins {
     id("java")
 }
 
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
     compile("androidx.annotation:annotation:1.1.0")
     annotationProcessor(NULLAWAY)

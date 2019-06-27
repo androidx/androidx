@@ -26,11 +26,11 @@ import androidx.savedstate.SavedStateRegistryOwner;
 
 /**
  * Skeleton of androidx.lifecycle.ViewModelProvider.KeyedFactory
- * that creates {@link SavedStateHandle} for every requested {@link androidx.lifecycle.ViewModel}.
- * The subclasses implement {@link #create(String, Class, SavedStateHandle)} to actually instantiate
+ * that creates {@link SavedStateHandle} for every requested {@link androidx.lifecycle.ViewModel}. The subclasses
+ * implement {@link #create(String, Class, SavedStateHandle)} to actually instantiate
  * {@code androidx.lifecycle.ViewModel}s.
  */
-public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvider.KeyedFactory {
+public abstract class AbstractSavedStateVMFactory extends ViewModelProvider.KeyedFactory {
     static final String TAG_SAVED_STATE_HANDLE_CONTROLLER = "androidx.lifecycle.savedstate.vm.tag";
 
     private final SavedStateRegistry mSavedStateRegistry;
@@ -47,7 +47,7 @@ public abstract class AbstractSavedStateViewModelFactory extends ViewModelProvid
      *                    if there is no previously saved state
      *                    or previously saved state misses a value by such key
      */
-    public AbstractSavedStateViewModelFactory(@NonNull SavedStateRegistryOwner owner,
+    public AbstractSavedStateVMFactory(@NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs) {
         mSavedStateRegistry = owner.getSavedStateRegistry();
         mLifecycle = owner.getLifecycle();

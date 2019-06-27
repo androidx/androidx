@@ -9,6 +9,13 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
+
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0-rc01") {
@@ -19,8 +26,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.loader:loader:1.0.0")
     api(project(":activity:activity"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
