@@ -17,6 +17,7 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
@@ -48,6 +51,9 @@ import java.util.concurrent.Executor;
 public class BiometricFragment extends Fragment {
 
     private static final String TAG = "BiometricFragment";
+
+    // Re-set in onAttach
+    private Context mContext;
 
     // Set whenever the support library's authenticate is called.
     private Bundle mBundle;
@@ -87,7 +93,7 @@ public class BiometricFragment extends Fragment {
                         public void run() {
                             CharSequence error = errString;
                             if (error == null) {
-                                error = getContext().getString(R.string.default_error_msg) + " "
+                                error = mContext.getString(R.string.default_error_msg) + " "
                                         + errorCode;
                             }
                             mClientAuthenticationCallback
@@ -216,8 +222,14 @@ public class BiometricFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
+
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         // Start the actual authentication when the fragment is attached.
         if (!mShowing) {
             mNegativeButtonText = mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
