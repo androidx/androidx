@@ -18,13 +18,14 @@ package androidx.paging
 
 import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadType
-import androidx.paging.futures.FutureCallback
-import androidx.paging.futures.addCallback
-import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class Pager<K : Any, V : Any>(
+    private val pagedListScope: CoroutineScope,
     val config: PagedList.Config,
     val source: PagedSource<K, V>,
     val notifyExecutor: Executor,
@@ -57,37 +58,34 @@ internal class Pager<K : Any, V : Any>(
         totalCount = result.totalCount()
     }
 
-    private fun listenTo(
-        type: LoadType,
-        future: ListenableFuture<out PagedSource.LoadResult<K, V>>
-    ) {
+    private fun listenTo(type: LoadType, future: suspend () -> PagedSource.LoadResult<K, V>) {
         // First listen on the BG thread if the DataSource is invalid, since it can be expensive
-        future.addListener(Runnable {
-            // if invalid, drop result on the floor
-            if (source.invalid) {
-                detach()
-                return@Runnable
+        pagedListScope.launch(fetchExecutor.asCoroutineDispatcher()) {
+            try {
+                val value = future()
+
+                // if invalid, drop result on the floor
+                if (source.invalid) {
+                    detach()
+                    return@launch
+                }
+
+                // Source has been verified to be valid after producing data, so sent data to UI
+                pagedListScope.launch(notifyExecutor.asCoroutineDispatcher()) {
+                    onLoadSuccess(type, object : DataSource.BaseResult<V>(
+                        value.data,
+                        value.prevKey,
+                        value.nextKey,
+                        value.itemsBefore,
+                        value.itemsAfter,
+                        value.offset,
+                        value.counted
+                    ) {})
+                }
+            } catch (throwable: Throwable) {
+                onLoadError(type, throwable)
             }
-
-            // Source has been verified to be valid after producing data, so sent data to UI
-            future.addCallback(
-                object : FutureCallback<PagedSource.LoadResult<K, V>> {
-                    override fun onSuccess(value: PagedSource.LoadResult<K, V>) =
-                        onLoadSuccess(type, object : DataSource.BaseResult<V>(
-                            value.data,
-                            value.prevKey,
-                            value.nextKey,
-                            value.itemsBefore,
-                            value.itemsAfter,
-                            value.offset,
-                            value.counted
-                        ) {})
-
-                    override fun onError(throwable: Throwable) = onLoadError(type, throwable)
-                },
-                notifyExecutor
-            )
-        }, fetchExecutor)
+        }
     }
 
     internal interface PageConsumer<V : Any> {
@@ -115,7 +113,7 @@ internal class Pager<K : Any, V : Any>(
         fun onPageResultResolution(type: LoadType, result: DataSource.BaseResult<V>)
     }
 
-    fun onLoadSuccess(type: LoadType, value: DataSource.BaseResult<V>) {
+    private fun onLoadSuccess(type: LoadType, value: DataSource.BaseResult<V>) {
         if (isDetached) return // abort!
 
         adjacentProvider.onPageResultResolution(type, value)
@@ -140,7 +138,7 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    fun onLoadError(type: LoadType, throwable: Throwable) {
+    private fun onLoadError(type: LoadType, throwable: Throwable) {
         if (isDetached) return // abort!
 
         // TODO: handle nesting
@@ -191,8 +189,7 @@ internal class Pager<K : Any, V : Any>(
         }
 
         loadStateManager.setState(LoadType.START, LoadState.LOADING, null)
-        listenTo(
-            LoadType.START,
+        listenTo(LoadType.START) {
             source.load(
                 PagedSource.LoadParams(
                     PagedSource.LoadType.START,
@@ -202,7 +199,7 @@ internal class Pager<K : Any, V : Any>(
                     config.pageSize
                 )
             )
-        )
+        }
     }
 
     private fun scheduleAppend() {
@@ -222,8 +219,7 @@ internal class Pager<K : Any, V : Any>(
         }
 
         loadStateManager.setState(LoadType.END, LoadState.LOADING, null)
-        listenTo(
-            LoadType.END,
+        listenTo(LoadType.END) {
             source.load(
                 PagedSource.LoadParams(
                     PagedSource.LoadType.END,
@@ -233,7 +229,7 @@ internal class Pager<K : Any, V : Any>(
                     config.pageSize
                 )
             )
-        )
+        }
     }
 
     fun retry() {

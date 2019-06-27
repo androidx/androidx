@@ -30,7 +30,8 @@ dependencies {
     compile("androidx.annotation:annotation:1.1.0")
     compile(ARCH_CORE_COMMON)
     compile("androidx.concurrent:concurrent-futures:1.0.0-alpha02")
-    implementation(KOTLIN_STDLIB)
+    api(KOTLIN_STDLIB)
+    api(KOTLIN_COROUTINES)
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)

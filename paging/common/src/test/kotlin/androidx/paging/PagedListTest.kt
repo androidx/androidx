@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
+import kotlinx.coroutines.GlobalScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -67,6 +68,7 @@ class PagedListTest {
         val success = mutableListOf(false)
         val future = PagedList.create(
             ListDataSource(ITEMS),
+            GlobalScope,
             mainThread,
             backgroundThread,
             backgroundThread,
@@ -104,6 +106,7 @@ class PagedListTest {
         val success = mutableListOf(false)
         val future = PagedList.create(
             dataSource,
+            GlobalScope,
             mainThread,
             backgroundThread,
             backgroundThread,

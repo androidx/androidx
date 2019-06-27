@@ -16,9 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.futures.DirectExecutor
-import androidx.paging.futures.transform
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.paging.futures.await
 
 /**
  * A wrapper around [DataSource] which adapts it to the [PagedSource] API.
@@ -42,7 +40,7 @@ internal class PagedSourceWrapper<Key : Any, Value : Any>(
 
     override fun invalidate() = dataSource.invalidate()
 
-    override fun load(params: LoadParams<Key>): ListenableFuture<LoadResult<Key, Value>> {
+    override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
         val loadType = when (params.loadType) {
             LoadType.INITIAL -> DataSource.LoadType.INITIAL
             LoadType.START -> DataSource.LoadType.START
@@ -56,8 +54,8 @@ internal class PagedSourceWrapper<Key : Any, Value : Any>(
             params.placeholdersEnabled,
             params.pageSize
         )
-        return dataSource.load(dataSourceParams)
-            .transform({ it.toLoadResult<Key>() }, DirectExecutor)
+
+        return dataSource.load(dataSourceParams).await().toLoadResult()
     }
 
     override fun isRetryableError(error: Throwable) = dataSource.isRetryableError(error)

@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.paging.futures.DirectExecutor
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.GlobalScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -310,7 +311,9 @@ class ItemKeyedDataSourceTest {
         }
 
         PagedList.create(
-            dataSource, FailExecutor(),
+            dataSource,
+            GlobalScope,
+            FailExecutor(),
             DirectExecutor,
             DirectExecutor,
             null,
