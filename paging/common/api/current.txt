@@ -8,6 +8,7 @@ package androidx.paging {
     method @AnyThread public void invalidate();
     method @WorkerThread public boolean isInvalid();
     method public boolean isRetryableError(Throwable error);
+    method public abstract suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>> p);
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> map(androidx.arch.core.util.Function<Value,ToValue> function);
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> map(kotlin.jvm.functions.Function1<? super Value,? extends ToValue> function);
     method public <ToValue> androidx.paging.DataSource<Key,ToValue> mapByPage(androidx.arch.core.util.Function<java.util.List<Value>,java.util.List<ToValue>> function);
@@ -42,6 +43,13 @@ package androidx.paging {
     method @AnyThread public void onInvalidated();
   }
 
+  public static final class DataSource.Params<K> {
+    method public int getInitialLoadSize();
+    method public K? getKey();
+    method public int getPageSize();
+    method public boolean getPlaceholdersEnabled();
+  }
+
   public final class DataSourceKt {
     ctor public DataSourceKt();
   }
@@ -49,6 +57,7 @@ package androidx.paging {
   public abstract class ItemKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public ItemKeyedDataSource();
     method public abstract Key getKey(Value item);
+    method public final suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>> p);
     method public abstract void loadAfter(androidx.paging.ItemKeyedDataSource.LoadParams<Key> params, androidx.paging.ItemKeyedDataSource.LoadCallback<Value> callback);
     method public abstract void loadBefore(androidx.paging.ItemKeyedDataSource.LoadParams<Key> params, androidx.paging.ItemKeyedDataSource.LoadCallback<Value> callback);
     method public abstract void loadInitial(androidx.paging.ItemKeyedDataSource.LoadInitialParams<Key> params, androidx.paging.ItemKeyedDataSource.LoadInitialCallback<Value> callback);
@@ -84,6 +93,7 @@ package androidx.paging {
 
   public abstract class PageKeyedDataSource<Key, Value> extends androidx.paging.DataSource<Key,Value> {
     ctor public PageKeyedDataSource();
+    method public final suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>> p);
     method public abstract void loadAfter(androidx.paging.PageKeyedDataSource.LoadParams<Key> params, androidx.paging.PageKeyedDataSource.LoadCallback<Key,Value> callback);
     method public abstract void loadBefore(androidx.paging.PageKeyedDataSource.LoadParams<Key> params, androidx.paging.PageKeyedDataSource.LoadCallback<Key,Value> callback);
     method public abstract void loadInitial(androidx.paging.PageKeyedDataSource.LoadInitialParams<Key> params, androidx.paging.PageKeyedDataSource.LoadInitialCallback<Key,Value> callback);
@@ -293,6 +303,7 @@ package androidx.paging {
     ctor public PositionalDataSource();
     method public static final int computeInitialLoadPosition(androidx.paging.PositionalDataSource.LoadInitialParams params, int totalCount);
     method public static final int computeInitialLoadSize(androidx.paging.PositionalDataSource.LoadInitialParams params, int initialLoadPosition, int totalCount);
+    method public final suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<java.lang.Integer> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>> p);
     method @WorkerThread public abstract void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams params, androidx.paging.PositionalDataSource.LoadInitialCallback<T> callback);
     method @WorkerThread public abstract void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams params, androidx.paging.PositionalDataSource.LoadRangeCallback<T> callback);
     method public final <V> androidx.paging.PositionalDataSource<V> map(androidx.arch.core.util.Function<T,V> function);

@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.assertFailsWithCause
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.GlobalScope
 import org.junit.Assert.assertEquals
@@ -176,28 +177,44 @@ class PageKeyedDataSourceTest {
         it.onResult(elevenLetterList, 0, 12, null, null)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackListTooBig() = performLoadInitial {
-        // LoadInitialCallback can't accept pos + list > totalCount
-        it.onResult(listOf("a", "b", "c"), 0, 2, null, null)
+    @Test
+    fun loadInitialCallbackListTooBig() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept pos + list > totalCount
+                it.onResult(listOf("a", "b", "c"), 0, 2, null, null)
+            }
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackPositionTooLarge() = performLoadInitial {
-        // LoadInitialCallback can't accept pos + list > totalCount
-        it.onResult(listOf("a", "b"), 1, 2, null, null)
+    @Test
+    fun loadInitialCallbackPositionTooLarge() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept pos + list > totalCount
+                it.onResult(listOf("a", "b"), 1, 2, null, null)
+            }
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackPositionNegative() = performLoadInitial {
-        // LoadInitialCallback can't accept negative position
-        it.onResult(listOf("a", "b", "c"), -1, 2, null, null)
+    @Test
+    fun loadInitialCallbackPositionNegative() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept negative position
+                it.onResult(listOf("a", "b", "c"), -1, 2, null, null)
+            }
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackEmptyCannotHavePlaceholders() = performLoadInitial {
-        // LoadInitialCallback can't accept empty result unless data set is empty
-        it.onResult(emptyList(), 0, 2, null, null)
+    @Test
+    fun loadInitialCallbackEmptyCannotHavePlaceholders() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept empty result unless data set is empty
+                it.onResult(emptyList(), 0, 2, null, null)
+            }
+        }
     }
 
     @Test

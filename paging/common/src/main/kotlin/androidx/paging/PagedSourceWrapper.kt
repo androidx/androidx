@@ -16,8 +16,6 @@
 
 package androidx.paging
 
-import androidx.paging.futures.await
-
 /**
  * A wrapper around [DataSource] which adapts it to the [PagedSource] API.
  */
@@ -55,7 +53,7 @@ internal class PagedSourceWrapper<Key : Any, Value : Any>(
             params.pageSize
         )
 
-        return dataSource.load(dataSourceParams).await().toLoadResult()
+        return dataSource.load(dataSourceParams).toLoadResult()
     }
 
     override fun isRetryableError(error: Throwable) = dataSource.isRetryableError(error)
