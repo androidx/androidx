@@ -31,79 +31,80 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 
 /**
- * {@link androidx.lifecycle.ViewModelProvider.Factory} that can create ViewModels accessing and contributing
- * to a saved state via {@link SavedStateHandle} received in a constructor. If {@code defaultArgs}
- * bundle was passed in {@link #SavedStateVMFactory(Fragment, Bundle)}
- * or {@link #SavedStateVMFactory(FragmentActivity, Bundle)}, it will provide default values in
- * {@code SavedStateHandle}.
+ * {@link androidx.lifecycle.ViewModelProvider.Factory} that can create ViewModels accessing and
+ * contributing to a saved state via {@link SavedStateHandle} received in a constructor.
+ * If {@code defaultArgs} bundle was passed in {@link #SavedStateViewModelFactory(Fragment, Bundle)}
+ * or {@link #SavedStateViewModelFactory(FragmentActivity, Bundle)}, it will provide default
+ * values in {@code SavedStateHandle}.
  * <p>
- * If ViewModel is instance of {@link androidx.lifecycle.AndroidViewModel}, it looks for a constructor that
- * receives an {@link Application} and {@link SavedStateHandle} (in this order), otherwise
- * it looks for a constructor that receives {@link SavedStateHandle} only.
+ * If ViewModel is instance of {@link androidx.lifecycle.AndroidViewModel}, it looks for a
+ * constructor that receives an {@link Application} and {@link SavedStateHandle} (in this order),
+ * otherwise it looks for a constructor that receives {@link SavedStateHandle} only.
  */
-public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
+public final class SavedStateViewModelFactory extends AbstractSavedStateViewModelFactory {
     private final Application mApplication;
     private final ViewModelProvider.AndroidViewModelFactory mFactory;
 
     /**
-     * Creates {@link SavedStateVMFactory}.
+     * Creates {@link SavedStateViewModelFactory}.
      * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code fragment}.
+     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
+     * scoped to the given {@code fragment}.
      *
      * @param fragment scope of this fragment will be used for state saving
      */
-    public SavedStateVMFactory(@NonNull Fragment fragment) {
+    public SavedStateViewModelFactory(@NonNull Fragment fragment) {
         this(fragment, null);
     }
 
     /**
-     * Creates {@link SavedStateVMFactory}.
+     * Creates {@link SavedStateViewModelFactory}.
      * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code fragment}.
+     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
+     * scoped to the given {@code fragment}.
      *
      * @param fragment scope of this fragment will be used for state saving
      * @param defaultArgs values from this {@code Bundle} will be used as defaults by
      * {@link SavedStateHandle} if there is no previously saved state or previously saved state
      * miss a value by such key.
      */
-    public SavedStateVMFactory(@NonNull Fragment fragment, @Nullable Bundle defaultArgs) {
+    public SavedStateViewModelFactory(@NonNull Fragment fragment, @Nullable Bundle defaultArgs) {
         this(checkApplication(checkActivity(fragment)), fragment, defaultArgs);
     }
 
     /**
-     * Creates {@link SavedStateVMFactory}.
+     * Creates {@link SavedStateViewModelFactory}.
      * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code activity}.
+     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
+     * scoped to the given {@code activity}.
      *
      * @param activity scope of this activity will be used for state saving
      */
-    public SavedStateVMFactory(@NonNull FragmentActivity activity) {
+    public SavedStateViewModelFactory(@NonNull FragmentActivity activity) {
         this(activity, null);
     }
 
     /**
-     * Creates {@link SavedStateVMFactory}.
+     * Creates {@link SavedStateViewModelFactory}.
      * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code activity}.
+     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
+     * scoped to the given {@code activity}.
      *
      * @param activity scope of this activity will be used for state saving
      * @param defaultArgs values from this {@code Bundle} will be used as defaults by
      * {@link SavedStateHandle} if there is no previously saved state or previously saved state
      * misses a value by such key.
      */
-    public SavedStateVMFactory(@NonNull FragmentActivity activity, @Nullable Bundle defaultArgs) {
+    public SavedStateViewModelFactory(@NonNull FragmentActivity activity,
+            @Nullable Bundle defaultArgs) {
         this(checkApplication(activity), activity, defaultArgs);
     }
 
     /**
-     * Creates {@link SavedStateVMFactory}.
+     * Creates {@link SavedStateViewModelFactory}.
      * <p>
-     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state scoped to
-     * the given {@code activity}.
+     * {@link androidx.lifecycle.ViewModel} created with this factory can access to saved state
+     * scoped to the given {@code activity}.
      *
      * @param application an application
      * @param owner {@link SavedStateRegistryOwner} that will provide restored state for created
@@ -112,7 +113,7 @@ public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
      * {@link SavedStateHandle} if there is no previously saved state or previously saved state
      * misses a value by such key.
      */
-    public SavedStateVMFactory(@NonNull Application application,
+    public SavedStateViewModelFactory(@NonNull Application application,
             @NonNull SavedStateRegistryOwner owner,
             @Nullable Bundle defaultArgs) {
         super(owner, defaultArgs);
