@@ -961,7 +961,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             f.mView.clearAnimation();
                             AnimationOrAnimator anim = null;
                             // If parent is being removed, no need to handle child animations.
-                            if (f.getParentFragment() == null || !f.getParentFragment().mRemoving) {
+                            if (!f.isRemovingParent()) {
                                 if (mCurState > Fragment.INITIALIZING && !mDestroyed
                                         && f.mView.getVisibility() == View.VISIBLE
                                         && f.mPostponedAlpha >= 0) {

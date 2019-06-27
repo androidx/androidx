@@ -974,6 +974,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Return <code>true</code> if this fragment or any of its ancestors are currently being removed
+     * from its activity.  This is <em>not</em> whether its activity is finishing, but rather
+     * whether it, or its ancestors are in the process of being removed from its activity.
+     */
+    final boolean isRemovingParent() {
+        Fragment parent = getParentFragment();
+        return parent != null && (parent.isRemoving() || parent.isRemovingParent());
+    }
+
+    /**
      * Return true if the layout is included as part of an activity view
      * hierarchy via the &lt;fragment&gt; tag.  This will always be true when
      * fragments are created through the &lt;fragment&gt; tag, <em>except</em>

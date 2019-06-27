@@ -249,6 +249,48 @@ class FragmentAnimationTest {
         assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
     }
 
+    // Ensure grandChild view is not removed before parent view animates out.
+    @Test
+    fun removeGrandParentWithAnimation() {
+        waitForAnimationReady()
+        val fm = activityRule.activity.supportFragmentManager
+
+        val parent = AnimatorFragment(R.layout.simple_container)
+        fm.beginTransaction()
+            .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+            .add(R.id.fragmentContainer, parent, "parent")
+            .commit()
+        activityRule.executePendingTransactions()
+
+        val child = AnimatorFragment(R.layout.simple_container)
+        parent.childFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, child, "child")
+            .commit()
+        activityRule.executePendingTransactions(parent.childFragmentManager)
+
+        val grandChild = AnimatorFragment()
+        child.childFragmentManager.beginTransaction()
+            .add(R.id.fragmentContainer, grandChild, "grandChild")
+            .commit()
+        activityRule.executePendingTransactions(child.childFragmentManager)
+
+        val childContainer = child.mContainer
+        val childView = child.mView
+
+        val grandChildContainer = grandChild.mContainer
+        val grandChildView = grandChild.mView
+
+        fm.beginTransaction()
+            .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
+            .replace(R.id.fragmentContainer, AnimatorFragment(), "other")
+            .commit()
+        activityRule.executePendingTransactions()
+
+        assertFragmentAnimation(parent, 2, false, EXIT)
+        assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
+        assertThat(grandChildContainer.findViewById<View>(grandChildView.id)).isNotNull()
+    }
+
     // Ensure that adding and popping a Fragment uses the enter and popExit animators,
     // but the animators are delayed when an entering Fragment is postponed.
     @Test
