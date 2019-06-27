@@ -19,6 +19,7 @@ package androidx.paging
 import androidx.arch.core.util.Function
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
+import androidx.paging.futures.await
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
@@ -234,28 +235,25 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
         }
     }
 
+    /**
+     * @throws [IllegalArgumentException] when passed an unsupported load type.
+     */
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
-    internal final override fun load(params: Params<Key>): ListenableFuture<out BaseResult<Value>> {
+    internal final override suspend fun load(params: Params<Key>): BaseResult<Value> {
         if (params.type == LoadType.INITIAL) {
             val initParams = LoadInitialParams<Key>(
                 params.initialLoadSize,
                 params.placeholdersEnabled
             )
-            return loadInitial(initParams)
+            return loadInitial(initParams).await()
         } else {
-            if (params.key == null) {
-                // null key, immediately return empty data
-                val future = ResolvableFuture.create<BaseResult<Value>>()
-                future.set(BaseResult.empty())
-                return future
-            }
+            // null key, return empty data
+            if (params.key == null) return BaseResult.empty()
 
             val loadParams = LoadParams(params.key, params.pageSize)
-
-            if (params.type == LoadType.START) {
-                return loadBefore(loadParams)
-            } else if (params.type == LoadType.END) {
-                return loadAfter(loadParams)
+            when {
+                params.type == LoadType.START -> return loadBefore(loadParams).await()
+                params.type == LoadType.END -> return loadAfter(loadParams).await()
             }
         }
         throw IllegalArgumentException("Unsupported type " + params.type.toString())

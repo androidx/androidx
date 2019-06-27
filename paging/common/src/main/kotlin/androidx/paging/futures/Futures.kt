@@ -22,15 +22,18 @@ package androidx.paging.futures
 import androidx.annotation.RestrictTo
 import androidx.arch.core.util.Function
 import androidx.concurrent.futures.ResolvableFuture
-
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import kotlin.coroutines.Continuation
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -194,4 +197,30 @@ private class ContinuationCallback<T>(@Volatile @JvmField var cont: Continuation
     override fun onError(throwable: Throwable) {
         cont?.resumeWithException(throwable)
     }
+}
+
+/**
+ * Launches a new coroutine with optionally provided [coroutineContext] and returns its result as an
+ * implementation of [ResolvableFuture].
+ *
+ * @param coroutineContext additional to [CoroutineScope.coroutineContext] context of the coroutine.
+ * @param block the coroutine code
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY) // Redundant to hide from Metalava b/135947782.
+internal fun <T> CoroutineScope.future(
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+    block: suspend CoroutineScope.() -> T
+): ListenableFuture<T> {
+    val future = ResolvableFuture.create<T>()
+    launch(coroutineContext) {
+        try {
+            future.set(block())
+        } catch (e: Throwable) {
+            future.setException(e)
+        }
+    }
+
+    return future
 }

@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.assertFailsWithCause
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.GlobalScope
@@ -337,28 +338,44 @@ class ItemKeyedDataSourceTest {
         it.onResult(elevenLetterList, 0, 12)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackListTooBig() = performLoadInitial {
-        // LoadInitialCallback can't accept pos + list > totalCount
-        it.onResult(listOf("a", "b", "c"), 0, 2)
+    @Test
+    fun loadInitialCallbackListTooBig() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept pos + list > totalCount
+                it.onResult(listOf("a", "b", "c"), 0, 2)
+            }
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackPositionTooLarge() = performLoadInitial {
-        // LoadInitialCallback can't accept pos + list > totalCount
-        it.onResult(listOf("a", "b"), 1, 2)
+    @Test
+    fun loadInitialCallbackPositionTooLarge() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept pos + list > totalCount
+                it.onResult(listOf("a", "b"), 1, 2)
+            }
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackPositionNegative() = performLoadInitial {
-        // LoadInitialCallback can't accept negative position
-        it.onResult(listOf("a", "b", "c"), -1, 2)
+    @Test
+    fun loadInitialCallbackPositionNegative() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept negative position
+                it.onResult(listOf("a", "b", "c"), -1, 2)
+            }
+        }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun loadInitialCallbackEmptyCannotHavePlaceholders() = performLoadInitial {
-        // LoadInitialCallback can't accept empty result unless data set is empty
-        it.onResult(emptyList(), 0, 2)
+    @Test
+    fun loadInitialCallbackEmptyCannotHavePlaceholders() {
+        assertFailsWithCause<IllegalArgumentException> {
+            performLoadInitial {
+                // LoadInitialCallback can't accept empty result unless data set is empty
+                it.onResult(emptyList(), 0, 2)
+            }
+        }
     }
 
     private abstract class WrapperDataSource<K : Any, A : Any, B : Any>(
