@@ -21,7 +21,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,7 +33,7 @@ import org.mockito.Mockito.mock
  * [ViewModelProvider.Factory] instance, allowing us to test the Fragment in isolation
  */
 @RunWith(AndroidJUnit4::class)
-@MediumTest
+@LargeTest
 class FragmentScenarioViewModelTest {
 
     @Test
