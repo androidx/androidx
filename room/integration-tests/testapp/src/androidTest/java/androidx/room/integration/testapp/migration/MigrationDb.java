@@ -42,7 +42,7 @@ import java.util.List;
                 MigrationDb.Entity4.class},
         views = {MigrationDb.View1.class})
 public abstract class MigrationDb extends RoomDatabase {
-    static final int LATEST_VERSION = 9;
+    static final int LATEST_VERSION = 10;
     static final int MAX_VERSION = 1000;
     abstract MigrationDao dao();
     @Entity(indices = {@Index(value = "name", unique = true)})
@@ -51,6 +51,8 @@ public abstract class MigrationDb extends RoomDatabase {
         @PrimaryKey
         public int id;
         public String name;
+        @ColumnInfo(defaultValue = "0")
+        public int addedInV10;
     }
 
     @Entity
