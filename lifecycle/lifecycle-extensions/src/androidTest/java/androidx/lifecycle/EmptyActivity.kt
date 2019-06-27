@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle;
+package androidx.lifecycle
 
-import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity
 
-public class EmptyActivity extends FragmentActivity {
-}
+class EmptyActivity : FragmentActivity()
