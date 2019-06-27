@@ -213,7 +213,7 @@ public class MigrationTest {
             helper.runMigrationsAndValidate(TEST_DB,
                     7, false, new Migration(6, 7) {
                         @Override
-                        public void migrate(SupportSQLiteDatabase database) {
+                        public void migrate(@NonNull SupportSQLiteDatabase database) {
                             database.execSQL("CREATE TABLE Entity4 (`id` INTEGER NOT NULL,"
                                     + " `name` TEXT, PRIMARY KEY(`id`))");
                         }
@@ -576,6 +576,14 @@ public class MigrationTest {
         }
     };
 
+    private static final Migration MIGRATION_9_10 = new Migration(9, 10) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL("ALTER TABLE Entity1 "
+                    + "ADD COLUMN addedInV10 INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
     /**
      * Downgrade migration from {@link MigrationDb#MAX_VERSION} to
      * {@link MigrationDb#LATEST_VERSION} that uses the schema file and re-creates the tables such
@@ -616,7 +624,7 @@ public class MigrationTest {
 
     private static final Migration[] ALL_MIGRATIONS = new Migration[]{MIGRATION_1_2,
             MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7,
-            MIGRATION_7_8, MIGRATION_8_9};
+            MIGRATION_7_8, MIGRATION_8_9, MIGRATION_9_10};
 
     static final class EmptyMigration extends Migration {
         EmptyMigration(int startVersion, int endVersion) {
@@ -624,7 +632,7 @@ public class MigrationTest {
         }
 
         @Override
-        public void migrate(SupportSQLiteDatabase database) {
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
             // do nothing
         }
     }
