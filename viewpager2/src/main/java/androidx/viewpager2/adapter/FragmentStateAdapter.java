@@ -650,7 +650,7 @@ public abstract class FragmentStateAdapter extends
                 return; // do not update while not idle to avoid jitter
             }
 
-            if (mFragments.isEmpty() || mViewPager.getChildCount() == 0) {
+            if (mFragments.isEmpty() || getItemCount() == 0) {
                 return; // nothing to do
             }
 
