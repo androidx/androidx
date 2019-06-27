@@ -1660,6 +1660,33 @@ public class MediaControlView extends ViewGroup {
         }
     }
 
+    void updatePrevNextButtons(int prevIndex, int nextIndex) {
+        int n = mTransportControlsMap.size();
+        for (int i = 0; i < n; i++) {
+            int sizeType = mTransportControlsMap.keyAt(i);
+            View prevButton = findControlButton(sizeType, R.id.prev);
+            if (prevButton != null) {
+                if (prevIndex > SessionPlayer.INVALID_ITEM_INDEX) {
+                    prevButton.setAlpha(1.0f);
+                    prevButton.setEnabled(true);
+                } else {
+                    prevButton.setAlpha(0.5f);
+                    prevButton.setEnabled(false);
+                }
+            }
+            View nextButton = findControlButton(sizeType, R.id.next);
+            if (nextButton != null) {
+                if (nextIndex > SessionPlayer.INVALID_ITEM_INDEX) {
+                    nextButton.setAlpha(1.0f);
+                    nextButton.setEnabled(true);
+                } else {
+                    nextButton.setAlpha(0.5f);
+                    nextButton.setEnabled(false);
+                }
+            }
+        }
+    }
+
     boolean shouldNotHideBars() {
         return (isCurrentItemMusic() && mSizeType == SIZE_TYPE_FULL)
                 || mAccessibilityManager.isTouchExplorationEnabled()
@@ -2079,6 +2106,20 @@ public class MediaControlView extends ViewGroup {
             }
             updateTimeViews(mediaItem);
             updateTitleView(mediaItem);
+            updatePrevNextButtons(player.getPreviousMediaItemIndex(),
+                    player.getNextMediaItemIndex());
+        }
+
+        @Override
+        void onPlaylistChanged(@NonNull PlayerWrapper player, @Nullable List<MediaItem> list,
+                @Nullable MediaMetadata metadata) {
+            if (player != mPlayer) return;
+
+            if (DEBUG) {
+                Log.d(TAG, "onPlaylistChanged(): list: " + list + ", metadata: " + metadata);
+            }
+            updatePrevNextButtons(player.getPreviousMediaItemIndex(),
+                    player.getNextMediaItemIndex());
         }
 
         @Override
