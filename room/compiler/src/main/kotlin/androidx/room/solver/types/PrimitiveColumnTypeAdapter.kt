@@ -34,11 +34,13 @@ import javax.lang.model.type.TypeKind.SHORT
 /**
  * Adapters for all primitives that has direct cursor mappings.
  */
-open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
-                                      val cursorGetter: String,
-                                      val stmtSetter: String,
-                                      typeAffinity: SQLTypeAffinity)
-        : ColumnTypeAdapter(out, typeAffinity) {
+open class PrimitiveColumnTypeAdapter(
+    out: PrimitiveType,
+    val cursorGetter: String,
+    val stmtSetter: String,
+    typeAffinity: SQLTypeAffinity
+) :
+        ColumnTypeAdapter(out, typeAffinity) {
     val cast = if (cursorGetter == "get${out.typeName().toString().capitalize()}")
                     ""
                 else
@@ -46,7 +48,7 @@ open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
 
     companion object {
         fun createPrimitiveAdapters(
-                processingEnvironment: ProcessingEnvironment
+            processingEnvironment: ProcessingEnvironment
         ): List<PrimitiveColumnTypeAdapter> {
             return listOf(
                     Triple(INT, "getInt", "bindLong"),
@@ -71,14 +73,22 @@ open class PrimitiveColumnTypeAdapter(out: PrimitiveType,
         }
     }
 
-    override fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
-                            scope: CodeGenScope) {
+    override fun bindToStmt(
+        stmtName: String,
+        indexVarName: String,
+        valueVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder()
                 .addStatement("$L.$L($L, $L)", stmtName, stmtSetter, indexVarName, valueVarName)
     }
 
-    override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
-                                scope: CodeGenScope) {
+    override fun readFromCursor(
+        outVarName: String,
+        cursorVarName: String,
+        indexVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder()
                 .addStatement("$L = $L$L.$L($L)", outVarName, cast, cursorVarName,
                         cursorGetter, indexVarName)

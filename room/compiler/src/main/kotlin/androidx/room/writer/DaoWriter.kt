@@ -58,8 +58,8 @@ class DaoWriter(
     val dao: Dao,
     private val dbElement: Element,
     val processingEnv: ProcessingEnvironment
-)
-    : ClassWriter(dao.typeName) {
+) :
+    ClassWriter(dao.typeName) {
     private val declaredDao = MoreTypes.asDeclared(dao.element.asType())
 
     companion object {

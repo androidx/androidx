@@ -21,9 +21,11 @@ import androidx.lifecycle.getPackage
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.TypeElement
 
-data class AdapterClass(val type: TypeElement,
-                        val calls: List<EventMethodCall>,
-                        val syntheticMethods: Set<ExecutableElement>)
+data class AdapterClass(
+    val type: TypeElement,
+    val calls: List<EventMethodCall>,
+    val syntheticMethods: Set<ExecutableElement>
+)
 
 fun getAdapterName(type: TypeElement): String {
     val packageElement = type.getPackage()

@@ -23,11 +23,12 @@ import javax.lang.model.element.TypeElement
 
 data class InputModel(
         // all java files with lifecycle annotations excluding classes from classpath
-        private val rootTypes: Set<TypeElement>,
+    private val rootTypes: Set<TypeElement>,
         // info about all lifecycle observers including classes from classpath
-        val observersInfo: Map<TypeElement, LifecycleObserverInfo>,
+    val observersInfo: Map<TypeElement, LifecycleObserverInfo>,
         // info about generated adapters from class path
-        val generatedAdapters: Map<TypeElement, List<ExecutableElement>>) {
+    val generatedAdapters: Map<TypeElement, List<ExecutableElement>>
+) {
 
     /**
      *  Root class is class defined in currently processed module, not in classpath
@@ -37,9 +38,9 @@ data class InputModel(
     fun hasSyntheticAccessorFor(eventMethod: EventMethod): Boolean {
         val syntheticMethods = generatedAdapters[eventMethod.type] ?: return false
         return syntheticMethods.any { executable ->
-            executable.name() == syntheticName(eventMethod.method)
+            executable.name() == syntheticName(eventMethod.method) &&
                     // same number + receiver object
-                    && (eventMethod.method.parameters.size + 1) == executable.parameters.size
+                    (eventMethod.method.parameters.size + 1) == executable.parameters.size
         }
     }
 }

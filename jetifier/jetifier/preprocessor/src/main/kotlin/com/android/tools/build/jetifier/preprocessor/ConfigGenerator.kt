@@ -50,7 +50,8 @@ class ConfigGenerator {
     fun generateMapping(
         config: Config,
         inputLibraries: List<File>,
-        outputConfigPath: Path) {
+        outputConfigPath: Path
+    ) {
 
         val mapper = LibraryMapGenerator(config)
         inputLibraries.forEach {

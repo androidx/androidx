@@ -27,9 +27,10 @@ import androidx.room.TypeConverters
                 childColumns = arrayOf("bookPublisherId"),
                 deferred = true)))
 data class Book(
-        @PrimaryKey val bookId: String,
-        val title: String,
-        val bookPublisherId: String,
-        @field:TypeConverters(Lang::class)
-        val languages: Set<Lang>,
-        val salesCnt: Int)
+    @PrimaryKey val bookId: String,
+    val title: String,
+    val bookPublisherId: String,
+    @field:TypeConverters(Lang::class)
+    val languages: Set<Lang>,
+    val salesCnt: Int
+)

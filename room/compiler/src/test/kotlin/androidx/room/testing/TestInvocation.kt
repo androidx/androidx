@@ -21,9 +21,11 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.annotation.processing.RoundEnvironment
 import javax.lang.model.element.TypeElement
 
-data class TestInvocation(val processingEnv: ProcessingEnvironment,
-                          val annotations: MutableSet<out TypeElement>,
-                          val roundEnv: RoundEnvironment) {
+data class TestInvocation(
+    val processingEnv: ProcessingEnvironment,
+    val annotations: MutableSet<out TypeElement>,
+    val roundEnv: RoundEnvironment
+) {
     val context = Context(processingEnv)
 
     fun typeElement(qName: String): TypeElement {

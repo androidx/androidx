@@ -16,6 +16,7 @@
 
 package androidx.core.os
 
+import android.content.Context
 import android.graphics.Rect
 import android.os.Binder
 import android.os.Bundle
@@ -133,11 +134,13 @@ class BundleTest {
 
     @Test fun bundleOfInvalid() {
         assertThrows<IllegalArgumentException> {
-            bundleOf("nope" to View(ApplicationProvider.getApplicationContext() as android.content.Context))
+            bundleOf("nope" to View(ApplicationProvider.getApplicationContext() as Context))
         }.hasMessageThat().isEqualTo("Illegal value type android.view.View for key \"nope\"")
 
         assertThrows<IllegalArgumentException> {
-            bundleOf("nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as android.content.Context)))
+            bundleOf(
+                "nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as Context))
+            )
         }.hasMessageThat().isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
     }
 }

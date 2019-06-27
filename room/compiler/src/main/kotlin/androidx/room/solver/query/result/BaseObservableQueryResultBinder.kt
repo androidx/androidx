@@ -30,8 +30,8 @@ import javax.lang.model.element.Modifier
  * Base class for query result binders that observe the database. It includes common functionality
  * like creating a finalizer to release the query or creating the actual adapter call code.
  */
-abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?)
-    : QueryResultBinder(adapter) {
+abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?) :
+    QueryResultBinder(adapter) {
 
     protected fun createFinalizeMethod(roomSQLiteQueryVar: String): MethodSpec {
         return MethodSpec.methodBuilder("finalize").apply {

@@ -21,12 +21,14 @@ import androidx.room.migration.bundle.ForeignKeyBundle
 /**
  * Keeps information about a foreign key.
  */
-data class ForeignKey(val parentTable: String,
-                      val parentColumns: List<String>,
-                      val childFields: List<Field>,
-                      val onDelete: ForeignKeyAction,
-                      val onUpdate: ForeignKeyAction,
-                      val deferred: Boolean) : HasSchemaIdentity {
+data class ForeignKey(
+    val parentTable: String,
+    val parentColumns: List<String>,
+    val childFields: List<Field>,
+    val onDelete: ForeignKeyAction,
+    val onUpdate: ForeignKeyAction,
+    val deferred: Boolean
+) : HasSchemaIdentity {
     override fun getIdKey(): String {
         return parentTable +
                 "-${parentColumns.joinToString(",")}" +

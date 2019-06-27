@@ -70,8 +70,8 @@ sealed class RxQueryResultBinderProvider(
     }
 }
 
-class RxFlowableQueryResultBinderProvider(context: Context)
-    : RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.FLOWABLE)
+class RxFlowableQueryResultBinderProvider(context: Context) :
+    RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.FLOWABLE)
 
-class RxObservableQueryResultBinderProvider(context: Context)
-    : RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.OBSERVABLE)
+class RxObservableQueryResultBinderProvider(context: Context) :
+    RxQueryResultBinderProvider(context, RxQueryResultBinder.RxType.OBSERVABLE)

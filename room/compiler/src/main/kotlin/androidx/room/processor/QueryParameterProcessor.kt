@@ -22,10 +22,11 @@ import javax.lang.model.element.VariableElement
 import javax.lang.model.type.DeclaredType
 
 class QueryParameterProcessor(
-        baseContext: Context,
-        val containing: DeclaredType,
-        val element: VariableElement,
-        private val sqlName: String? = null) {
+    baseContext: Context,
+    val containing: DeclaredType,
+    val element: VariableElement,
+    private val sqlName: String? = null
+) {
     val context = baseContext.fork(element)
     fun process(): QueryParameter {
         val asMember = MoreTypes.asMemberOf(context.processingEnv.typeUtils, containing, element)

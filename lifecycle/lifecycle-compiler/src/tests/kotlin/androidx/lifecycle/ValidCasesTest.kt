@@ -138,8 +138,11 @@ class ValidCasesTest {
     }
 
     // compile-testing has fancy, but not always convenient API
-    private fun doesntGenerateClass(compile: CompileTester.SuccessfulCompilationClause,
-                                    packageName: String, className: String) {
+    private fun doesntGenerateClass(
+        compile: CompileTester.SuccessfulCompilationClause,
+        packageName: String,
+        className: String
+    ) {
         try {
             compile.and().generatesFileNamed(StandardLocation.CLASS_OUTPUT,
                     packageName, "$className.class")

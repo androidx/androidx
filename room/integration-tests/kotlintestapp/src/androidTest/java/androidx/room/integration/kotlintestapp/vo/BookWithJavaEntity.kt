@@ -21,6 +21,6 @@ import androidx.room.Relation
 class BookWithJavaEntity {
     @Embedded
     var book: Book? = null
-    @Relation(parentColumn = "bookId", entityColumn = "bookId", entity=JavaEntity::class)
+    @Relation(parentColumn = "bookId", entityColumn = "bookId", entity = JavaEntity::class)
     var javaEntities: List<JavaEntity>? = null
 }

@@ -67,20 +67,20 @@ sealed class RxCallableDeleteOrUpdateMethodBinderProvider(
     }
 }
 
-class RxSingleDeleteOrUpdateMethodBinderProvider(context: Context)
-    : RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.SINGLE) {
+class RxSingleDeleteOrUpdateMethodBinderProvider(context: Context) :
+    RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.SINGLE) {
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 }
 
-class RxMaybeDeleteOrUpdateMethodBinderProvider(context: Context)
-    : RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.MAYBE) {
+class RxMaybeDeleteOrUpdateMethodBinderProvider(context: Context) :
+    RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.MAYBE) {
 
     override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
 }
 
-class RxCompletableDeleteOrUpdateMethodBinderProvider(context: Context)
-    : RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.COMPLETABLE) {
+class RxCompletableDeleteOrUpdateMethodBinderProvider(context: Context) :
+    RxCallableDeleteOrUpdateMethodBinderProvider(context, RxType.COMPLETABLE) {
 
     private val completableTypeMirror: TypeMirror? by lazy {
         context.processingEnv.elementUtils
