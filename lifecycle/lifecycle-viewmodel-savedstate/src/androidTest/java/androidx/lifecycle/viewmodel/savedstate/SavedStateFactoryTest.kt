@@ -20,7 +20,7 @@ import android.app.Application
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.SavedStateVMFactory
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -41,7 +41,8 @@ class SavedStateFactoryTest {
 
     @Test
     fun testCreateAndroidVM() {
-        val savedStateVMFactory = SavedStateVMFactory(activityRule.activity)
+        val savedStateVMFactory =
+            SavedStateViewModelFactory(activityRule.activity)
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
         assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
