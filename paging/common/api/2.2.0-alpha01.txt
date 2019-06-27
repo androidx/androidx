@@ -316,6 +316,7 @@ package androidx.paging {
     method public static final int computeInitialLoadSize(androidx.paging.PositionalDataSource.LoadInitialParams params, int initialLoadPosition, int totalCount);
     method public final suspend Object load$lintWithKotlin(androidx.paging.DataSource.Params<java.lang.Integer> params, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<T>> p);
     method @WorkerThread public abstract void loadInitial(androidx.paging.PositionalDataSource.LoadInitialParams params, androidx.paging.PositionalDataSource.LoadInitialCallback<T> callback);
+    method @VisibleForTesting public final suspend Object loadInitial$lintWithKotlin(androidx.paging.PositionalDataSource.LoadInitialParams params, kotlin.coroutines.Continuation<? super androidx.paging.PositionalDataSource.InitialResult<T>> p);
     method @WorkerThread public abstract void loadRange(androidx.paging.PositionalDataSource.LoadRangeParams params, androidx.paging.PositionalDataSource.LoadRangeCallback<T> callback);
     method public final <V> androidx.paging.PositionalDataSource<V> map(androidx.arch.core.util.Function<T,V> function);
     method public final <V> androidx.paging.PositionalDataSource<V> map(kotlin.jvm.functions.Function1<? super T,? extends V> function);
