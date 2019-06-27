@@ -96,7 +96,9 @@ fun InputField(
         TextPainter(
             text = AnnotatedString(text = value.text),
             style = mergedStyle
-        )
+        ),
+        processor,
+        onValueChange
     )
 
     val textInputService = +ambient(TextInputServiceAmbient)
@@ -105,29 +107,21 @@ fun InputField(
         onFocus = {
             textInputService?.startInput(
                 initState = value,
-                onEditCommand = {
-                    onValueChange(processor.onEditCommands(it))
-                },
+                onEditCommand = { delegate.onEditCommand(it) },
                 onEditorActionPerformed = onEditorActionPerformed,
                 onKeyEventForwarded = onKeyEventForwarded
             )
         },
-        onBlur = {
-            textInputService?.stopInput()
-        },
+        onBlur = { textInputService?.stopInput() },
         onDragAt = { delegate.onDragAt(it) },
         onRelease = { delegate.onRelease(it) }
     ) {
         Layout(
             children = @Composable {
-                Draw { canvas, _ ->
-                    delegate.draw(canvas, value, editorStyle)
-                }
+                Draw { canvas, _ -> delegate.draw(canvas, value, editorStyle) }
             },
             layoutBlock = { _, constraints ->
-                delegate.layout(constraints).let {
-                    layout(it.first, it.second) {}
-                }
+                delegate.layout(constraints).let { layout(it.first, it.second) {} }
             }
         )
     }
