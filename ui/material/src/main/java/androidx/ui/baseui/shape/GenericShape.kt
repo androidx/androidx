@@ -24,11 +24,9 @@ import androidx.ui.painting.Path
 /**
  * Creates [Shape] defined by applying the provided [builder] on a [Path].
  *
- * @param border optional border for the shape
  * @param builder the builder lambda to apply on a [Path]
  */
 data class GenericShape(
-    override val border: Border? = null,
     private val builder: Path.(size: PxSize) -> Unit
 ) : Shape {
     override fun DensityReceiver.createOutline(size: PxSize): Outline {

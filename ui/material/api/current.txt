@@ -46,39 +46,37 @@ package androidx.ui.baseui.selection {
 
 package androidx.ui.baseui.shape {
 
+  public final class GenericShape implements androidx.ui.baseui.shape.Shape {
+    ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
+    method public androidx.ui.baseui.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
+    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
+  }
+
+  public final class RectangleShapeKt {
+    ctor public RectangleShapeKt();
+    method public static androidx.ui.baseui.shape.Shape getRectangleShape();
+  }
+
+  public interface Shape {
+    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
+  }
+
+}
+
+package androidx.ui.baseui.shape.border {
+
   public final class Border {
     ctor public Border(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp width);
     method public androidx.ui.core.vectorgraphics.Brush component1();
     method public androidx.ui.core.Dp component2();
-    method public androidx.ui.baseui.shape.Border copy(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp width);
+    method public androidx.ui.baseui.shape.border.Border copy(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp width);
     method public androidx.ui.core.vectorgraphics.Brush getBrush();
     method public androidx.ui.core.Dp getWidth();
   }
 
   public final class BorderKt {
     ctor public BorderKt();
-    method public static androidx.ui.baseui.shape.Border Border(androidx.ui.graphics.Color color, androidx.ui.core.Dp width);
-  }
-
-  public final class GenericShape implements androidx.ui.baseui.shape.Shape {
-    ctor public GenericShape(androidx.ui.baseui.shape.Border? border, kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
-    method public androidx.ui.baseui.shape.Border? component1();
-    method public androidx.ui.baseui.shape.GenericShape copy(androidx.ui.baseui.shape.Border? border, kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
-    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
-  }
-
-  public final class RectangleShape implements androidx.ui.baseui.shape.Shape {
-    ctor public RectangleShape(androidx.ui.baseui.shape.Border? border);
-    ctor public RectangleShape();
-    method public androidx.ui.baseui.shape.Border? component1();
-    method public androidx.ui.baseui.shape.RectangleShape copy(androidx.ui.baseui.shape.Border? border);
-    method public androidx.ui.engine.geometry.Outline.Rectangle createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
-  }
-
-  public interface Shape {
-    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
-    method public default androidx.ui.baseui.shape.Border? getBorder();
-    property public default androidx.ui.baseui.shape.Border? border;
+    method public static androidx.ui.baseui.shape.border.Border Border(androidx.ui.graphics.Color color, androidx.ui.core.Dp width);
   }
 
 }
@@ -144,18 +142,17 @@ package androidx.ui.baseui.shape.corner {
   }
 
   public final class RoundedCornerShape extends androidx.ui.baseui.shape.corner.CornerBasedShape {
-    ctor public RoundedCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners, androidx.ui.baseui.shape.Border? border);
+    ctor public RoundedCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
     method public androidx.ui.baseui.shape.corner.CornerSizes component1();
-    method public androidx.ui.baseui.shape.Border? component2();
-    method public androidx.ui.baseui.shape.corner.RoundedCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners, androidx.ui.baseui.shape.Border? border);
+    method public androidx.ui.baseui.shape.corner.RoundedCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners);
     method public androidx.ui.engine.geometry.Outline.Rounded createOutline(androidx.ui.core.DensityReceiver, androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
     method public androidx.ui.baseui.shape.corner.CornerSizes getCorners();
   }
 
   public final class RoundedCornerShapeKt {
     ctor public RoundedCornerShapeKt();
-    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape CircleShape(androidx.ui.baseui.shape.Border? border = null);
-    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape RoundedCornerShape(kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> corner, androidx.ui.baseui.shape.Border? border = null);
+    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape RoundedCornerShape(kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> corner);
+    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape getCircleShape();
   }
 
 }
@@ -623,10 +620,9 @@ package androidx.ui.material.ripple {
 package androidx.ui.material.shape {
 
   public final class CutCornerShape extends androidx.ui.baseui.shape.corner.CornerBasedShape {
-    ctor public CutCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners, androidx.ui.baseui.shape.Border? border);
+    ctor public CutCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
     method public androidx.ui.baseui.shape.corner.CornerSizes component1();
-    method public androidx.ui.baseui.shape.Border? component2();
-    method public androidx.ui.material.shape.CutCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners, androidx.ui.baseui.shape.Border? border);
+    method public androidx.ui.material.shape.CutCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners);
     method public androidx.ui.engine.geometry.Outline.Generic createOutline(androidx.ui.core.DensityReceiver, androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
     method public androidx.ui.baseui.shape.corner.CornerSizes getCorners();
   }

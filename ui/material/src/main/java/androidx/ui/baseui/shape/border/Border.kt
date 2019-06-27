@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.baseui.shape
+package androidx.ui.baseui.shape.border
 
 import androidx.ui.core.Dp
 import androidx.ui.core.vectorgraphics.Brush
