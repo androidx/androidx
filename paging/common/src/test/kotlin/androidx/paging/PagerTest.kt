@@ -23,6 +23,7 @@ import androidx.paging.PagedList.LoadType.END
 import androidx.paging.PagedList.LoadType.START
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
+import kotlinx.coroutines.GlobalScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -112,6 +113,7 @@ class PagerTest {
     }
 
     private fun createPager(consumer: MockConsumer, start: Int = 0, end: Int = 10) = Pager(
+        GlobalScope,
         PagedList.Config(2, 2, true, 10, PagedList.Config.MAX_SIZE_UNBOUNDED),
         PagedSourceWrapper(ImmediateListDataSource(data)),
         DirectExecutor,

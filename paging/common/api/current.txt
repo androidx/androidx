@@ -161,6 +161,7 @@ package androidx.paging {
     method @Deprecated @WorkerThread public androidx.paging.PagedList<Value> build();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedList<Value>> buildAsync();
     method public androidx.paging.PagedList.Builder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
+    method public androidx.paging.PagedList.Builder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
     method public androidx.paging.PagedList.Builder<Key,Value> setFetchExecutor(java.util.concurrent.Executor fetchExecutor);
     method public androidx.paging.PagedList.Builder<Key,Value> setInitialKey(Key? initialKey);
     method public androidx.paging.PagedList.Builder<Key,Value> setNotifyExecutor(java.util.concurrent.Executor notifyExecutor);
@@ -222,7 +223,7 @@ package androidx.paging {
     method public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
     method public abstract void invalidate();
     method public abstract boolean isRetryableError(Throwable error);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedSource.LoadResult<Key,Value>> load(androidx.paging.PagedSource.LoadParams<Key> params);
+    method public abstract suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
     property public abstract boolean invalid;
     property public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
     field public static final int COUNT_UNDEFINED = -1; // 0xffffffff

@@ -20,7 +20,6 @@ import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.KeyProvider.ItemKey
 import androidx.paging.PagedSource.KeyProvider.PageKey
 import androidx.paging.PagedSource.KeyProvider.Positional
-import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * Base class for an abstraction of pageable static data from some source, where loading pages data
@@ -193,7 +192,7 @@ abstract class PagedSource<Key : Any, Value : Any> {
      *
      * Implement this method to trigger your async load (e.g. from database or network).
      */
-    abstract fun load(params: LoadParams<Key>): ListenableFuture<LoadResult<Key, Value>>
+    abstract suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value>
 
     /**
      * @return `false` if the observed error should never be retried, `true` otherwise.

@@ -26,6 +26,7 @@ import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import kotlinx.coroutines.GlobalScope
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -173,6 +174,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     ): ContiguousPagedList<Int, Item> {
         val ret = PagedList.create(
             dataSource,
+            GlobalScope,
             mainThread,
             backgroundThread,
             DirectExecutor,

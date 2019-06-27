@@ -21,9 +21,11 @@ import androidx.lifecycle.LiveData
 import androidx.paging.futures.FutureCallback
 import androidx.paging.futures.addCallback
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
 
 internal class LivePagedList<Key : Any, Value : Any>(
+    private val coroutineScope: CoroutineScope,
     initialKey: Key?,
     private val config: PagedList.Config,
     private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
@@ -39,7 +41,8 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val refreshRetryCallback = Runnable { invalidate(true) }
 
     init {
-        currentData = InitialPagedList(dataSourceFactory.create(), config, initialKey)
+        currentData =
+            InitialPagedList(dataSourceFactory.create(), coroutineScope, config, initialKey)
         onSuccess(currentData)
     }
 
@@ -64,7 +67,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
         setValue(value)
     }
 
-    fun invalidate(force: Boolean) {
+    private fun invalidate(force: Boolean) {
         // work is already ongoing, not forcing, so skip invalidate
         if (currentFuture != null && !force) return
 
@@ -87,6 +90,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
         val lastKey = currentData.lastKey as Key?
         return PagedList.create(
             dataSource,
+            coroutineScope,
             notifyExecutor,
             fetchExecutor,
             fetchExecutor,

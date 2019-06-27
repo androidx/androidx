@@ -102,6 +102,7 @@ abstract class DataSource<Key : Any, Value : Any>
 // Since we currently rely on implementation details of two implementations, prevent external
 // subclassing, except through exposed subclasses.
 internal constructor(internal val type: KeyType) {
+
     @VisibleForTesting
     internal val onInvalidatedCallbacks = CopyOnWriteArrayList<InvalidatedCallback>()
 

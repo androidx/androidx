@@ -32,6 +32,7 @@ package androidx.paging {
     ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
     method public androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> build();
     method public androidx.paging.LivePagedListBuilder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
+    method public androidx.paging.LivePagedListBuilder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
     method public androidx.paging.LivePagedListBuilder<Key,Value> setFetchExecutor(java.util.concurrent.Executor fetchExecutor);
     method public androidx.paging.LivePagedListBuilder<Key,Value> setInitialLoadKey(Key? key);
   }
