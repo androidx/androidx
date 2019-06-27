@@ -23,12 +23,8 @@ import androidx.ui.engine.geometry.Outline
 
 /**
  * A shape describing the rectangle.
- *
- * @param border optional border to draw on top of the shape
  */
-data class RectangleShape(
-    override val border: Border? = null
-) : Shape {
+val RectangleShape: Shape = object : Shape {
     override fun DensityReceiver.createOutline(size: PxSize) =
         Outline.Rectangle(size.toRect())
 }
