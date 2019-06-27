@@ -20,11 +20,11 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.PositionalDataSource.LoadInitialCallback
-import androidx.paging.futures.await
-import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Position-based data loader for a fixed-size, countable data set, supporting fixed-size loads at
@@ -214,7 +214,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * Called to pass loaded data from [loadRange].
          *
          * @param data List of items loaded from the [DataSource]. Must be same size as requested,
-         *             unless at end of list.
+         * unless at end of list.
          */
         abstract fun onResult(data: List<T>)
 
@@ -274,7 +274,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * ```
          *
          * @param params Params passed to [loadInitial], including page size, and requested start /
-         *               loadSize.
+         * loadSize.
          * @param totalCount Total size of the data set.
          * @return Position to start loading at.
          *
@@ -377,7 +377,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                 params.pageSize,
                 params.placeholdersEnabled
             )
-            return loadInitial(initParams).await()
+            return loadInitial(initParams)
         } else {
             var startIndex = params.key!!
             var loadSize = params.pageSize
@@ -385,7 +385,7 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                 loadSize = minOf(loadSize, startIndex + 1)
                 startIndex = startIndex - loadSize + 1
             }
-            return loadRange(LoadRangeParams(startIndex, loadSize)).await()
+            return loadRange(LoadRangeParams(startIndex, loadSize))
         }
     }
 
@@ -398,26 +398,19 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      *
      * @param params Parameters for initial load, including requested start position, load size, and
      * page size.
-     * @return [ListenableFuture] of the loaded data.
+     * @return [InitialResult] The loaded data.
      */
     @VisibleForTesting
-    internal fun loadInitial(params: LoadInitialParams): ListenableFuture<InitialResult<T>> {
-        val future = ResolvableFuture.create<InitialResult<T>>()
-        executor.execute {
-            val newParams = LoadInitialParams(
-                params.requestedStartPosition,
-                params.requestedLoadSize,
-                params.pageSize,
-                params.placeholdersEnabled
-            )
-            val callback = object : LoadInitialCallback<T>() {
+    internal suspend fun loadInitial(params: LoadInitialParams) =
+        suspendCancellableCoroutine<InitialResult<T>> { cont ->
+            loadInitial(params, object : LoadInitialCallback<T>() {
                 override fun onResult(data: List<T>, position: Int, totalCount: Int) {
                     if (isInvalid) {
                         // NOTE: this isInvalid check works around
                         // https://issuetracker.google.com/issues/124511903
-                        future.set(InitialResult(emptyList(), 0, 0))
+                        cont.resume(InitialResult(emptyList(), 0, 0))
                     } else {
-                        setFuture(newParams, InitialResult(data, position, totalCount))
+                        resume(params, InitialResult(data, position, totalCount))
                     }
                 }
 
@@ -425,27 +418,24 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                     if (isInvalid) {
                         // NOTE: this isInvalid check works around
                         // https://issuetracker.google.com/issues/124511903
-                        future.set(InitialResult(emptyList(), 0))
+                        cont.resume(InitialResult(emptyList(), 0))
                     } else {
-                        setFuture(newParams, InitialResult(data, position))
+                        resume(params, InitialResult(data, position))
                     }
-                }
-
-                private fun setFuture(params: LoadInitialParams, result: InitialResult<T>) {
-                    if (params.placeholdersEnabled) {
-                        result.validateForInitialTiling(params.pageSize)
-                    }
-                    future.set(result)
                 }
 
                 override fun onError(error: Throwable) {
-                    future.setException(error)
+                    cont.resumeWithException(error)
                 }
-            }
-            loadInitial(newParams, callback)
+
+                private fun resume(params: LoadInitialParams, result: InitialResult<T>) {
+                    if (params.placeholdersEnabled) {
+                        result.validateForInitialTiling(params.pageSize)
+                    }
+                    cont.resume(result)
+                }
+            })
         }
-        return future
-    }
 
     /**
      * Called to load a range of data from the DataSource.
@@ -458,27 +448,23 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      * requested, at the position requested.
      *
      * @param params Parameters for load, including start position and load size.
-     * @return [ListenableFuture] of the loaded data.
+     * @return [RangeResult] The loaded data.
      */
-    private fun loadRange(params: LoadRangeParams): ListenableFuture<RangeResult<T>> {
-        val future = ResolvableFuture.create<RangeResult<T>>()
-        executor.execute {
-            val callback = object : LoadRangeCallback<T>() {
+    private suspend fun loadRange(params: LoadRangeParams) =
+        suspendCancellableCoroutine<RangeResult<T>> { cont ->
+            loadRange(params, object : LoadRangeCallback<T>() {
                 override fun onResult(data: List<T>) {
                     when {
-                        isInvalid -> future.set(RangeResult(emptyList()))
-                        else -> future.set(RangeResult(data))
+                        isInvalid -> cont.resume(RangeResult(emptyList()))
+                        else -> cont.resume(RangeResult(data))
                     }
                 }
 
                 override fun onError(error: Throwable) {
-                    future.setException(error)
+                    cont.resumeWithException(error)
                 }
-            }
-            loadRange(LoadRangeParams(params.startPosition, params.loadSize), callback)
+            })
         }
-        return future
-    }
 
     /**
      * Load initial list data.
