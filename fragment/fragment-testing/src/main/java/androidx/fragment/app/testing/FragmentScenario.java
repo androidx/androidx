@@ -65,7 +65,6 @@ public final class FragmentScenario<F extends Fragment> {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Class<F> mFragmentClass;
     private final ActivityScenario<EmptyFragmentActivity> mActivityScenario;
-    @Nullable private final FragmentFactory mFragmentFactory;
 
     /**
      * An empty activity inheriting FragmentActivity. This Activity is used to host Fragment in
@@ -88,10 +87,7 @@ public final class FragmentScenario<F extends Fragment> {
                     R.style.FragmentScenarioEmptyFragmentActivityTheme));
 
             // Checks if we have a custom FragmentFactory and set it.
-            ViewModelProvider viewModelProvider = new ViewModelProvider(
-                    this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()));
-            FragmentFactory factory = viewModelProvider
-                    .get(FragmentFactoryHolderViewModel.class)
+            FragmentFactory factory = FragmentFactoryHolderViewModel.getInstance(this)
                     .getFragmentFactory();
             if (factory != null) {
                 getSupportFragmentManager().setFragmentFactory(factory);
@@ -111,6 +107,22 @@ public final class FragmentScenario<F extends Fragment> {
      */
     @RestrictTo(LIBRARY)
     public static class FragmentFactoryHolderViewModel extends ViewModel {
+
+        private static final ViewModelProvider.Factory FACTORY = new ViewModelProvider.Factory() {
+            @NonNull
+            @Override
+            @SuppressWarnings("unchecked")
+            public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+                FragmentFactoryHolderViewModel viewModel = new FragmentFactoryHolderViewModel();
+                return (T) viewModel;
+            }
+        };
+
+        @NonNull
+        static FragmentFactoryHolderViewModel getInstance(@NonNull FragmentActivity activity) {
+            ViewModelProvider viewModelProvider = new ViewModelProvider(activity, FACTORY);
+            return viewModelProvider.get(FragmentFactoryHolderViewModel.class);
+        }
 
         @Nullable private FragmentFactory mFragmentFactory;
 
@@ -132,10 +144,8 @@ public final class FragmentScenario<F extends Fragment> {
 
     private FragmentScenario(
             @NonNull Class<F> fragmentClass,
-            @Nullable FragmentFactory fragmentFactory,
             @NonNull ActivityScenario<EmptyFragmentActivity> activityScenario) {
         this.mFragmentClass = fragmentClass;
-        this.mFragmentFactory = fragmentFactory;
         this.mActivityScenario = activityScenario;
     }
 
@@ -285,19 +295,14 @@ public final class FragmentScenario<F extends Fragment> {
                                 EmptyFragmentActivity.class))
                         .putExtra(EmptyFragmentActivity.THEME_EXTRAS_BUNDLE_KEY, themeResId);
         FragmentScenario<F> scenario = new FragmentScenario<>(
-                fragmentClass, factory,
+                fragmentClass,
                 ActivityScenario.<EmptyFragmentActivity>launch(startActivityIntent));
         scenario.mActivityScenario.onActivity(
                 new ActivityScenario.ActivityAction<EmptyFragmentActivity>() {
                     @Override
                     public void perform(EmptyFragmentActivity activity) {
                         if (factory != null) {
-                            ViewModelProvider viewModelProvider = new ViewModelProvider(
-                                    activity,
-                                    ViewModelProvider.AndroidViewModelFactory.getInstance(
-                                            activity.getApplication()));
-                            viewModelProvider
-                                    .get(FragmentFactoryHolderViewModel.class)
+                            FragmentFactoryHolderViewModel.getInstance(activity)
                                     .setFragmentFactory(factory);
                             activity.getSupportFragmentManager().setFragmentFactory(factory);
                         }
