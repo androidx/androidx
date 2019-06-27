@@ -20,6 +20,9 @@ import kotlin.UseExperimental;
 
 @SuppressWarnings("unused")
 class UseKtExperimentalFromJava {
+    /**
+     * Unsafe call into an experimental class.
+     */
     int getDateUnsafe() {
         DateProviderKt dateProvider = new DateProviderKt();
         return dateProvider.getDate();

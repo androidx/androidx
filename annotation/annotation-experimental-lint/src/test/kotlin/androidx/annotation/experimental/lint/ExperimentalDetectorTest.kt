@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ExperimentalDetectorTest {
 
-    private fun checkJava(vararg testFiles: TestFile): TestLintResult {
+    private fun check(vararg testFiles: TestFile): TestLintResult {
         return lint()
             .files(
                 EXPERIMENTAL_JAVA,
@@ -50,11 +50,11 @@ class ExperimentalDetectorTest {
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaExperimentalFromJava.java:24: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         DateProvider dateProvider = new DateProvider();
                                     ~~~~~~~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromJava.java:25: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
@@ -62,7 +62,7 @@ src/sample/UseJavaExperimentalFromJava.java:25: Error: This declaration is exper
     """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        checkJava(*input).expect(expected)
+        check(*input).expect(expected)
     }
 
     @Test
@@ -75,27 +75,19 @@ src/sample/UseJavaExperimentalFromJava.java:25: Error: This declaration is exper
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaExperimentalFromKt.kt:24: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromKt.kt:27: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         val dateProvider = DateProvider()
                            ~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromKt.kt:25: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.date
                             ~~~~
-src/sample/UseJavaExperimentalFromKt.kt:36: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
-        val dateProvider = DateProvider()
-                           ~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromKt.kt:37: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
-        return dateProvider.date
-                            ~~~~
-4 errors, 0 warnings
+2 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        checkJava(*input).expect(expected)
+        check(*input).expect(expected)
     }
 
     @Test
@@ -109,11 +101,11 @@ src/sample/UseJavaExperimentalFromKt.kt:37: Error: This declaration is experimen
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseKtExperimentalFromJava.java:24: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         DateProviderKt dateProvider = new DateProviderKt();
                                       ~~~~~~~~~~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
@@ -121,7 +113,7 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        checkJava(*input).expect(expected)
+        check(*input).expect(expected)
     }
 
     /**
