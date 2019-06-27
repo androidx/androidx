@@ -24,8 +24,9 @@ import javax.lang.model.type.TypeMirror
  */
 data class QueryParameter(
         // this is name seen by java
-        val name: String,
+    val name: String,
         // this is the name used in the query. Might be different for kotlin queries
-        val sqlName: String,
-        val type: TypeMirror,
-        val queryParamAdapter: QueryParameterAdapter?)
+    val sqlName: String,
+    val type: TypeMirror,
+    val queryParamAdapter: QueryParameterAdapter?
+)

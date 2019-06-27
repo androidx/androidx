@@ -16,6 +16,7 @@
 
 package androidx.core.os
 
+import android.content.Context
 import android.view.View
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -77,11 +78,15 @@ class PersistableBundleTest {
 
     @Test fun persistableBundleOfInvalid() {
         assertThrows<IllegalArgumentException> {
-            persistableBundleOf("nope" to View(ApplicationProvider.getApplicationContext() as android.content.Context))
+            persistableBundleOf(
+                "nope" to View(ApplicationProvider.getApplicationContext() as Context)
+            )
         }.hasMessageThat().isEqualTo("Illegal value type android.view.View for key \"nope\"")
 
         assertThrows<IllegalArgumentException> {
-            persistableBundleOf("nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as android.content.Context)))
+            persistableBundleOf(
+                "nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as Context))
+            )
         }.hasMessageThat().isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
     }
 }

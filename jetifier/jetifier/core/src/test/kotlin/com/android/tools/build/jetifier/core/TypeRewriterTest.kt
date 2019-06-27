@@ -124,12 +124,13 @@ class TypeRewriterTest {
     }
 
     fun testRewrite(
-            from: String,
-            to: String?,
-            packagePrefix: String = "test/",
-            typesMap: TypesMap = TypesMap.EMPTY,
-            rewriteRulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
-            useFallback: Boolean = false) {
+        from: String,
+        to: String?,
+        packagePrefix: String = "test/",
+        typesMap: TypesMap = TypesMap.EMPTY,
+        rewriteRulesMap: RewriteRulesMap = RewriteRulesMap.EMPTY,
+        useFallback: Boolean = false
+    ) {
         val config = Config.fromOptional(
             restrictToPackagePrefixes = setOf(packagePrefix),
             rulesMap = rewriteRulesMap,

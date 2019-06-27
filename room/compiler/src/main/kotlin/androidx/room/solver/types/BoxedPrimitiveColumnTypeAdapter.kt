@@ -26,13 +26,13 @@ import javax.lang.model.type.TypeMirror
  * Adapters for all boxed primitives that has direct cursor mappings.
  */
 open class BoxedPrimitiveColumnTypeAdapter(
-        boxed: TypeMirror,
-        val primitiveAdapter: PrimitiveColumnTypeAdapter
+    boxed: TypeMirror,
+    val primitiveAdapter: PrimitiveColumnTypeAdapter
 ) : ColumnTypeAdapter(boxed, primitiveAdapter.typeAffinity) {
     companion object {
         fun createBoxedPrimitiveAdapters(
-                processingEnvironment: ProcessingEnvironment,
-                primitiveAdapters: List<PrimitiveColumnTypeAdapter>
+            processingEnvironment: ProcessingEnvironment,
+            primitiveAdapters: List<PrimitiveColumnTypeAdapter>
         ): List<ColumnTypeAdapter> {
 
             return primitiveAdapters.map {
@@ -45,8 +45,12 @@ open class BoxedPrimitiveColumnTypeAdapter(
         }
     }
 
-    override fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
-                            scope: CodeGenScope) {
+    override fun bindToStmt(
+        stmtName: String,
+        indexVarName: String,
+        valueVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder().apply {
             beginControlFlow("if ($L == null)", valueVarName).apply {
                 addStatement("$L.bindNull($L)", stmtName, indexVarName)
@@ -58,8 +62,12 @@ open class BoxedPrimitiveColumnTypeAdapter(
         }
     }
 
-    override fun readFromCursor(outVarName: String, cursorVarName: String, indexVarName: String,
-                                scope: CodeGenScope) {
+    override fun readFromCursor(
+        outVarName: String,
+        cursorVarName: String,
+        indexVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder().apply {
             beginControlFlow("if ($L.isNull($L))", cursorVarName, indexVarName).apply {
                 addStatement("$L = null", outVarName)

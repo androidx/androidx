@@ -29,11 +29,14 @@ import com.squareup.javapoet.ParameterizedTypeName
  *
  * <p>n.b. this will only be useful if the project uses Java 8.
  */
-class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryResultAdapter)
-    : QueryResultAdapter(resultAdapter.rowAdapter) {
+class OptionalQueryResultAdapter(private val resultAdapter: SingleEntityQueryResultAdapter) :
+    QueryResultAdapter(resultAdapter.rowAdapter) {
     val type = resultAdapter.rowAdapter?.out
     override fun convert(
-            outVarName: String, cursorVarName: String, scope: CodeGenScope) {
+        outVarName: String,
+        cursorVarName: String,
+        scope: CodeGenScope
+    ) {
         scope.builder().apply {
             val valueVarName = scope.getTmpVar("_value")
             resultAdapter.convert(valueVarName, cursorVarName, scope)

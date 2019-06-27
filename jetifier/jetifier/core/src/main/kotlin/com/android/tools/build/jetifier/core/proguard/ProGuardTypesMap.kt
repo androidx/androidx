@@ -43,8 +43,8 @@ data class ProGuardTypesMap(private val rules: Map<ProGuardType, Set<ProGuardTyp
         expandedMap
     }
 
-    constructor(vararg rules: Pair<ProGuardType, ProGuardType>)
-        : this(rules.map { it.first to setOf(it.second) }.toMap())
+    constructor(vararg rules: Pair<ProGuardType, ProGuardType>) :
+        this(rules.map { it.first to setOf(it.second) }.toMap())
 
     /** Returns JSON data model of this class */
     fun toJson(): JsonData {

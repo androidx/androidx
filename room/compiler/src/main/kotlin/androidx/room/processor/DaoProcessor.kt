@@ -38,8 +38,12 @@ import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 
-class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: DeclaredType,
-                   val dbVerifier: DatabaseVerifier?) {
+class DaoProcessor(
+    baseContext: Context,
+    val element: TypeElement,
+    val dbType: DeclaredType,
+    val dbVerifier: DatabaseVerifier?
+) {
     val context = baseContext.fork(element)
 
     companion object {
@@ -57,8 +61,8 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
         val methods = allMembers
             .filter {
-                it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD
-                        && it.findKotlinDefaultImpl(context.processingEnv.typeUtils) == null
+                it.hasAnyOf(ABSTRACT) && it.kind == ElementKind.METHOD &&
+                        it.findKotlinDefaultImpl(context.processingEnv.typeUtils) == null
             }.map {
                 MoreElements.asExecutable(it)
             }.groupBy { method ->
@@ -125,9 +129,9 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
         } ?: emptyList()
 
         val transactionMethods = allMembers.filter { member ->
-            member.hasAnnotation(Transaction::class)
-                    && member.kind == ElementKind.METHOD
-                    && PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
+            member.hasAnnotation(Transaction::class) &&
+                    member.kind == ElementKind.METHOD &&
+                    PROCESSED_ANNOTATIONS.none { member.hasAnnotation(it) }
         }.map {
             TransactionMethodProcessor(
                     baseContext = context,
@@ -140,8 +144,8 @@ class DaoProcessor(baseContext: Context, val element: TypeElement, val dbType: D
                 .map { MoreElements.asExecutable(it) }
         val typeUtils = context.processingEnv.typeUtils
         val goodConstructor = constructors.firstOrNull {
-            it.parameters.size == 1
-                    && typeUtils.isAssignable(dbType, it.parameters[0].asType())
+            it.parameters.size == 1 &&
+                    typeUtils.isAssignable(dbType, it.parameters[0].asType())
         }
         val constructorParamType = if (goodConstructor != null) {
             goodConstructor.parameters[0].asType().typeName()

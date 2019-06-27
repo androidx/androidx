@@ -40,8 +40,12 @@ class Checks(private val logger: RLog) {
         return predicate
     }
 
-    fun hasAnnotation(element: Element, annotation: KClass<out Annotation>, errorMsg: String,
-                      vararg args: Any): Boolean {
+    fun hasAnnotation(
+        element: Element,
+        annotation: KClass<out Annotation>,
+        errorMsg: String,
+        vararg args: Any
+    ): Boolean {
         return if (!element.hasAnnotation(annotation)) {
             logger.e(element, errorMsg, args)
             false
@@ -50,8 +54,12 @@ class Checks(private val logger: RLog) {
         }
     }
 
-    fun notUnbound(typeName: TypeName, element: Element, errorMsg: String,
-                   vararg args: Any): Boolean {
+    fun notUnbound(
+        typeName: TypeName,
+        element: Element,
+        errorMsg: String,
+        vararg args: Any
+    ): Boolean {
         // TODO support bounds cases like <T extends Foo> T bar()
         val failed = check(typeName !is TypeVariableName, element, errorMsg, args)
         if (typeName is ParameterizedTypeName) {

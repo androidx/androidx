@@ -88,8 +88,8 @@ abstract class MigrationDbKotlin : RoomDatabase() {
         fun insert(vararg entity2: Entity2)
     }
 
-    internal class Entity2Pojo(id: Int, addedInV3: String?, name: String?)
-        : Entity2(id, addedInV3, name)
+    internal class Entity2Pojo(id: Int, addedInV3: String?, name: String?) :
+        Entity2(id, addedInV3, name)
 
     /**
      * not a real dao because database will change.

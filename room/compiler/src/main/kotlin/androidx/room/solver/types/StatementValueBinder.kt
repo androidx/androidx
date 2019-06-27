@@ -25,6 +25,10 @@ import javax.lang.model.type.TypeMirror
  */
 interface StatementValueBinder {
     fun typeMirror(): TypeMirror
-    fun bindToStmt(stmtName: String, indexVarName: String, valueVarName: String,
-                            scope: CodeGenScope)
+    fun bindToStmt(
+        stmtName: String,
+        indexVarName: String,
+        valueVarName: String,
+        scope: CodeGenScope
+    )
 }

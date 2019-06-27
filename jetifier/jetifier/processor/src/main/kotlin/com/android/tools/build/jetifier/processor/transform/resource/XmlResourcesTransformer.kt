@@ -38,8 +38,8 @@ import javax.xml.stream.XMLStreamException
  * Searches for any java type reference that is pointing to the support library and rewrites it
  * using the available mappings from [TypesMap].
  */
-class XmlResourcesTransformer internal constructor(private val context: TransformationContext)
-        : Transformer {
+class XmlResourcesTransformer internal constructor(private val context: TransformationContext) :
+        Transformer {
 
     companion object {
         const val TAG = "XmlResourcesTransformer"

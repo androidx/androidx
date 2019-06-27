@@ -314,8 +314,8 @@ class MigrationKotlinTest {
     private val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5,
             MIGRATION_5_6, MIGRATION_6_7)
 
-    internal class EmptyMigration(startVersion: Int, endVersion: Int)
-        : Migration(startVersion, endVersion) {
+    internal class EmptyMigration(startVersion: Int, endVersion: Int) :
+        Migration(startVersion, endVersion) {
 
         override fun migrate(database: SupportSQLiteDatabase) {
             // do nothing

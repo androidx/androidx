@@ -24,8 +24,10 @@ import javax.lang.model.element.TypeElement
 
 @SupportedAnnotationTypes("androidx.lifecycle.OnLifecycleEvent")
 class LifecycleProcessor : AbstractProcessor() {
-    override fun process(annotations: MutableSet<out TypeElement>,
-                         roundEnv: RoundEnvironment): Boolean {
+    override fun process(
+        annotations: MutableSet<out TypeElement>,
+        roundEnv: RoundEnvironment
+    ): Boolean {
         val input = collectAndVerifyInput(processingEnv, roundEnv)
         writeModels(transformToOutput(processingEnv, input), processingEnv)
         return true

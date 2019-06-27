@@ -36,28 +36,35 @@ import com.squareup.javapoet.TypeName
 /**
  * Writes the SQL query and arguments for a QueryMethod.
  */
-class QueryWriter constructor(val parameters: List<QueryParameter>,
-                              val sectionToParamMapping: List<Pair<Section, QueryParameter?>>,
-                              val query: ParsedQuery) {
+class QueryWriter constructor(
+    val parameters: List<QueryParameter>,
+    val sectionToParamMapping: List<Pair<Section, QueryParameter?>>,
+    val query: ParsedQuery
+) {
 
     constructor(queryMethod: QueryMethod) : this(queryMethod.parameters,
             queryMethod.sectionToParamMapping, queryMethod.query)
 
-    fun prepareReadAndBind(outSqlQueryName: String, outRoomSQLiteQueryVar: String,
-                           scope: CodeGenScope) {
+    fun prepareReadAndBind(
+        outSqlQueryName: String,
+        outRoomSQLiteQueryVar: String,
+        scope: CodeGenScope
+    ) {
         val listSizeVars = createSqlQueryAndArgs(outSqlQueryName, outRoomSQLiteQueryVar, scope)
         bindArgs(outRoomSQLiteQueryVar, listSizeVars, scope)
     }
 
     fun prepareQuery(
-            outSqlQueryName: String, scope: CodeGenScope): List<Pair<QueryParameter, String>> {
+        outSqlQueryName: String,
+        scope: CodeGenScope
+    ): List<Pair<QueryParameter, String>> {
         return createSqlQueryAndArgs(outSqlQueryName, null, scope)
     }
 
     private fun createSqlQueryAndArgs(
-            outSqlQueryName: String,
-            outArgsName: String?,
-            scope: CodeGenScope
+        outSqlQueryName: String,
+        outArgsName: String?,
+        scope: CodeGenScope
     ): List<Pair<QueryParameter, String>> {
         val listSizeVars = arrayListOf<Pair<QueryParameter, String>>()
         val varargParams = parameters
@@ -121,9 +128,9 @@ class QueryWriter constructor(val parameters: List<QueryParameter>,
     }
 
     fun bindArgs(
-            outArgsName: String,
-            listSizeVars: List<Pair<QueryParameter, String>>,
-            scope: CodeGenScope
+        outArgsName: String,
+        listSizeVars: List<Pair<QueryParameter, String>>,
+        scope: CodeGenScope
     ) {
         if (parameters.isEmpty()) {
             return

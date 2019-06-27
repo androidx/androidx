@@ -654,8 +654,8 @@ class FragmentAnimationTest {
         }
     }
 
-    class AnimatorFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment)
-        : StrictViewFragment(contentLayoutId) {
+    class AnimatorFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
+        StrictViewFragment(contentLayoutId) {
         var numAnimators: Int = 0
         var animation: Animation? = null
         var enter: Boolean = false

@@ -25,8 +25,8 @@ import com.squareup.javapoet.FieldSpec
 /**
  * Default binder for prepared queries.
  */
-class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?)
-    : PreparedQueryResultBinder(adapter) {
+class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?) :
+    PreparedQueryResultBinder(adapter) {
 
     override fun executeAndReturn(
         prepareQueryStmtBlock: CodeGenScope.() -> String,
