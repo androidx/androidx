@@ -105,7 +105,6 @@ public class VideoSessionService extends MediaSessionService {
         @Override
         public MediaItem onCreateMediaItem(@NonNull MediaSession session,
                 @NonNull MediaSession.ControllerInfo controller, @NonNull String mediaId) {
-            // TODO: Need to check if current media item uri is equal to the given media id.
             MediaMetadata metadata = new MediaMetadata.Builder()
                     .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
                     .build();
