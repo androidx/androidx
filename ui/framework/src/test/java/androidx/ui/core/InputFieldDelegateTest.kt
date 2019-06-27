@@ -17,27 +17,49 @@
 package androidx.ui.core
 
 import androidx.ui.graphics.Color
+import androidx.ui.input.CommitTextEditOp
+import androidx.ui.input.EditOperation
+import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.TextPainter
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class InputFieldDelegateTest {
+
+    private lateinit var delegate: InputFieldDelegate
+    private lateinit var canvas: Canvas
+    private lateinit var painter: TextPainter
+    private lateinit var processor: EditProcessor
+    private lateinit var onValueChange: (EditorState) -> Unit
+
+    @Before
+    fun setup() {
+        painter = mock()
+        canvas = mock()
+        processor = mock()
+        onValueChange = mock()
+
+        delegate = InputFieldDelegate(painter, processor, onValueChange)
+    }
+
     @Test
     fun draw_selection_test() {
-        val painter = mock<TextPainter>()
-        val canvas = mock<Canvas>()
-        val delegate = InputFieldDelegate(painter)
-
         val selection = TextRange(0, 1)
         val selectionColor = Color.Blue
 
@@ -55,10 +77,6 @@ class InputFieldDelegateTest {
 
     @Test
     fun draw_cursor_test() {
-        val painter = mock<TextPainter>()
-        val canvas = mock<Canvas>()
-        val delegate = InputFieldDelegate(painter)
-
         val cursor = TextRange(1, 1)
 
         delegate.draw(
@@ -73,10 +91,6 @@ class InputFieldDelegateTest {
 
     @Test
     fun draw_composition_test() {
-        val painter = mock<TextPainter>()
-        val canvas = mock<Canvas>()
-        val delegate = InputFieldDelegate(painter)
-
         val composition = TextRange(0, 1)
         val compositionColor = Color.Red
 
@@ -92,5 +106,37 @@ class InputFieldDelegateTest {
             eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas), any())
         verify(painter, times(1)).paint(eq(canvas), any())
         verify(painter, times(1)).paintCursor(eq(cursor.start), any())
+    }
+
+    @Test
+    fun test_on_edit_command() {
+        val ops = listOf(CommitTextEditOp("Hello, World", 1))
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
+
+        whenever(processor.onEditCommands(ops)).thenReturn(dummyEditorState)
+
+        delegate.onEditCommand(ops)
+
+        verify(onValueChange, times(1)).invoke(eq(dummyEditorState))
+    }
+
+    @Test
+    fun test_on_release() {
+        val position = PxPosition(100.px, 200.px)
+        val offset = 10
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
+
+        whenever(painter.getPositionForOffset(position.toOffset())).thenReturn(offset)
+
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        whenever(processor.onEditCommands(captor.capture())).thenReturn(dummyEditorState)
+
+        delegate.onRelease(position)
+
+        assertEquals(1, captor.allValues.size)
+        assertEquals(1, captor.firstValue.size)
+        assertTrue(captor.firstValue[0] is SetSelectionEditOp)
+        verify(onValueChange, times(1)).invoke(eq(dummyEditorState))
     }
 }
