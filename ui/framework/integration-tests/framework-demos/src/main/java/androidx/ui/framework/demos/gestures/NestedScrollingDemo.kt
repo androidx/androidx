@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ui.framework.demos
+package androidx.ui.framework.demos.gestures
 
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Children
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.setContent
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.Constraints
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Direction
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
@@ -44,10 +41,13 @@ import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
-import androidx.ui.painting.PaintingStyle
+import androidx.compose.composer
+import androidx.ui.core.CraneWrapper
 
-/* Demo app created to study the interaction of animations, gestures and semantics. */
-class ComplexGestureDetectorInteractionsDemo : Activity() {
+/**
+ * Demo app created to study some complex interactions of multiple DragGestureDetectors.
+ */
+class NestedScrollingDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -55,7 +55,11 @@ class ComplexGestureDetectorInteractionsDemo : Activity() {
                 // Outer composable that scrolls
                 Draggable {
                     RepeatingList(repititions = 3) {
-                        Container(maxHeight = 398.dp, padding = 72.dp) {
+                        SimpleContainer(
+                            width = -1.dp,
+                            height = 398.dp,
+                            padding = 72.dp
+                        ) {
                             // Inner composable that scrolls
                             Draggable {
                                 RepeatingList(repititions = 5) {
@@ -77,7 +81,7 @@ class ComplexGestureDetectorInteractionsDemo : Activity() {
  * A very simple ScrollView like implementation that allows for vertical scrolling.
  */
 @Composable
-fun Draggable(@Children children: @Composable() () -> Unit) {
+private fun Draggable(@Children children: @Composable() () -> Unit) {
     val offset = +state { 0.px }
     val maxOffset = +state { 0.px }
 
@@ -133,7 +137,7 @@ fun Draggable(@Children children: @Composable() () -> Unit) {
  * A very simple Button like implementation that visually indicates when it is being pressed.
  */
 @Composable
-fun Pressable(
+private fun Pressable(
     height: Dp
 ) {
 
@@ -179,7 +183,7 @@ fun Pressable(
  * times.
  */
 @Composable
-fun RepeatingList(repititions: Int, row: @Composable() () -> Unit) {
+private fun RepeatingList(repititions: Int, row: @Composable() () -> Unit) {
     Column {
         for (i in 1..repititions) {
             row()
@@ -191,98 +195,10 @@ fun RepeatingList(repititions: Int, row: @Composable() () -> Unit) {
 }
 
 /**
- * A simple composable that contains items within [maxHeight] and pads items by [padding].
- */
-@Composable
-fun Container(maxHeight: Dp, padding: Dp, @Children children: @Composable() () -> Unit) {
-    Layout({
-        Padding(padding) {
-            Border(color = Color(0f, 0f, 0f, .12f), width = 2.dp) {
-                children()
-            }
-        }
-    }, { measurables, constraints ->
-        val newConstraints = constraints.copy(maxHeight = maxHeight.toIntPx())
-        val placeable =
-            measurables.first().measure(newConstraints)
-        layout(newConstraints.maxWidth, newConstraints.maxHeight) {
-            placeable.place(0.ipx, 0.ipx)
-        }
-    })
-}
-
-/**
- * A simple composable that pads items by [padding].
- */
-@Composable
-fun Padding(padding: Dp, @Children children: @Composable() () -> Unit) {
-    Layout(children) { measurables, constraints ->
-        val paddingPx = padding.toIntPx()
-        val doublePadding = paddingPx * 2
-        val maxWidth = constraints.maxWidth - doublePadding
-        val maxHeight = constraints.maxHeight - doublePadding
-        val minWidth =
-            if (constraints.minWidth > maxWidth) {
-                maxWidth
-            } else {
-                constraints.minWidth
-            }
-        val minHeight =
-            if (constraints.minHeight > maxHeight) {
-                maxHeight
-            } else {
-                constraints.minHeight
-            }
-        val placeable = measurables.first().measure(
-            Constraints(minWidth, maxWidth, minHeight, maxHeight)
-        )
-        layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(paddingPx, paddingPx)
-        }
-    }
-}
-
-/**
- * A simple composable that draws a border around it's children.
- */
-@Composable
-fun Border(color: Color, width: Dp, @Children children: @Composable() () -> Unit) {
-    Layout(
-        children = {
-            children()
-            Draw { canvas, parentSize ->
-
-                val floatWidth = width.toPx().value
-
-                val backgroundPaint = Paint().apply {
-                    this.color = color
-                    style = PaintingStyle.stroke
-                    strokeWidth = floatWidth
-                }
-                canvas.drawRect(
-                    Rect(
-                        floatWidth / 2,
-                        floatWidth / 2,
-                        parentSize.width.value - floatWidth / 2 + 1,
-                        parentSize.height.value - floatWidth / 2 + 1
-                    ),
-                    backgroundPaint
-                )
-            }
-        },
-        layoutBlock = { measurables, constraints ->
-            val placeable = measurables.first().measure(constraints)
-            layout(placeable.width, placeable.height) {
-                placeable.place(0.ipx, 0.ipx)
-            }
-        })
-}
-
-/**
  * A simple composable that arranges it's children as vertical list of items.
  */
 @Composable
-fun Column(@Children children: @Composable() () -> Unit) {
+private fun Column(@Children children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         var height = 0.ipx
         val placeables = measurables.map {
@@ -309,7 +225,7 @@ fun Column(@Children children: @Composable() () -> Unit) {
  * A simple composable that creates a divider that runs from left to right.
  */
 @Composable
-fun Divider(height: Dp, color: Color) {
+private fun Divider(height: Dp, color: Color) {
     val children = @Composable {
         Draw { canvas, parentSize ->
             val backgroundPaint = Paint().apply { this.color = color }

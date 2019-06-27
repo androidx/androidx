@@ -35,14 +35,25 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
-        <activity android:name=".ComplexGestureDetectorInteractionsDemo"
+
+        <!-- Gestures -->
+        <activity android:name=".gestures.DragGestureDetectorDemo"
             android:configChanges="orientation|screenSize"
-            android:label="Gestures/Complex GestureDetector Interactions">
+            android:label="Gestures/Single GestureDetectors/DragGestureDetector">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity android:name=".gestures.NestedScrollingDemo"
+            android:configChanges="orientation|screenSize"
+            android:label="Gestures/Complex Demos/Nested Scrolling">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".MultipleCollectActivity"
             android:configChanges="orientation|screenSize"
             android:label="Layout/Multiple collects measure">

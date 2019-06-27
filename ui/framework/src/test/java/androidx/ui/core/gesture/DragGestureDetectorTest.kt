@@ -18,6 +18,7 @@ package androidx.ui.core.gesture
 
 import androidx.ui.core.Direction
 import androidx.ui.core.Duration
+import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PxPosition
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.consumeDownChange
@@ -97,7 +98,9 @@ class DragGestureDetectorTest {
             listOf(down.moveBy(Duration(milliseconds = 10), 3f, 0f))
         )
 
-        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(1)
+        // Twice because while under touch slop, DragGestureDetector checks during PostUp and
+        // PostDown
+        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(2)
     }
 
     @Test
@@ -110,7 +113,9 @@ class DragGestureDetectorTest {
             listOf(down.moveBy(Duration(milliseconds = 10), 3f, 5f))
         )
 
-        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(2)
+        // 4 times because while under touch slop, DragGestureDetector checks during PostUp and
+        // PostDown
+        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(4)
     }
 
     @Test
@@ -123,7 +128,9 @@ class DragGestureDetectorTest {
             listOf(down.moveBy(Duration(milliseconds = 10), 0f, 5f).consume(0f, 4f))
         )
 
-        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(1)
+        // Twice because while under touch slop, DragGestureDetector checks during PostUp and
+        // PostDown
+        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(2)
     }
 
     @Test
@@ -136,7 +143,9 @@ class DragGestureDetectorTest {
             listOf(down.moveBy(Duration(milliseconds = 10), 3f, 5f).consume(2f, 4f))
         )
 
-        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(2)
+        // 4 times because while under touch slop, DragGestureDetector checks during PostUp and
+        // PostDown
+        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(4)
     }
 
     @Test
@@ -153,6 +162,8 @@ class DragGestureDetectorTest {
             recognizer.pointerInputHandler.invokeOverAllPasses(listOf(move))
         }
 
+        // Once because although DragGestureDetector checks during PostUp and PostDown, slop is
+        // surpassed during PostUp, and thus isn't checked again.
         assertThat(log.filter { it.methodName == "canDrag" }).hasSize(1)
     }
 
@@ -168,7 +179,9 @@ class DragGestureDetectorTest {
             recognizer.pointerInputHandler.invokeOverAllPasses(listOf(event))
         }
 
-        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(3)
+        // 6 times because while under touch slop, DragGestureDetector checks during PostUp and
+        // PostDown
+        assertThat(log.filter { it.methodName == "canDrag" }).hasSize(6)
     }
 
     @Test
@@ -188,6 +201,8 @@ class DragGestureDetectorTest {
         event = event.moveBy(Duration(milliseconds = 10), 0f, beyondTouchSlop)
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(event))
 
+        // Once because although DragGestureDetector checks during PostUp and PostDown, slop is
+        // surpassed during PostUp, and thus isn't checked again.
         assertThat(log.filter { it.methodName == "canDrag" }).hasSize(1)
     }
 
@@ -236,9 +251,11 @@ class DragGestureDetectorTest {
             listOf(down.moveBy(Duration(milliseconds = 10), dx, dy))
         )
 
-        assertThat(log).hasSize(expectedDirections.size)
-        expectedDirections.forEach {
-            log.contains(LogItem("canDrag", direction = it))
+        // Everything here is twice because DragGestureDetector checks during PostUp and PostDown.
+        assertThat(log).hasSize(expectedDirections.size * 2)
+        expectedDirections.forEach { direction ->
+            assertThat(log.count { it == LogItem("canDrag", direction = direction) })
+                .isEqualTo(2)
         }
     }
 
@@ -255,11 +272,13 @@ class DragGestureDetectorTest {
         val down = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
         recognizer.pointerInputHandler.invokeOverAllPasses(
-            listOf(down.moveBy(
-                Duration(milliseconds = 10),
-                TestTouchSlop.toFloat(),
-                TestTouchSlop.toFloat()
-            ))
+            listOf(
+                down.moveBy(
+                    Duration(milliseconds = 10),
+                    TestTouchSlop.toFloat(),
+                    TestTouchSlop.toFloat()
+                )
+            )
         )
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(0)
@@ -275,11 +294,13 @@ class DragGestureDetectorTest {
         val down = down()
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
         recognizer.pointerInputHandler.invokeOverAllPasses(
-            listOf(down.moveBy(
-                Duration(milliseconds = 10),
-                beyondSlop,
-                beyondSlop
-            ))
+            listOf(
+                down.moveBy(
+                    Duration(milliseconds = 10),
+                    beyondSlop,
+                    beyondSlop
+                )
+            )
         )
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(0)
@@ -341,10 +362,10 @@ class DragGestureDetectorTest {
         assertThat(log.filter { it.methodName == "onDrag" }).hasSize(0)
     }
 
-    // Verify the circumstances under which onStart/OnDrag should be called.
+    // Verify the circumstances under which onStart and OnDrag should be called.
 
     @Test
-    fun pointerInputHandler_movePassedSlop_onStartAndOnDragCalledOnce() {
+    fun pointerInputHandler_movePassedSlop_onStartCalledOnceAndOnDragAtLeastOnce() {
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
         recognizer.canDrag = canDragMockTrue
         recognizer.dragObserver = MockDragObserver(log)
@@ -352,19 +373,21 @@ class DragGestureDetectorTest {
 
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
         recognizer.pointerInputHandler.invokeOverAllPasses(
-            listOf(down.moveBy(
-                Duration(milliseconds = 100),
-                beyondTouchSlop,
-                0f
-            ))
+            listOf(
+                down.moveBy(
+                    Duration(milliseconds = 100),
+                    beyondTouchSlop,
+                    0f
+                )
+            )
         )
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(1)
+        assertThat(log.filter { it.methodName == "onDrag" }).isNotEmpty()
     }
 
     @Test
-    fun pointerInputHandler_passSlopThenIntoSlopAreaThenOut_onStartCalledOnceAndOnDrag3() {
+    fun pointerInputHandler_passSlopThenInSlopAreaThenOut_onStartCalledOnceAndOnDragAtLeastOnce() {
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
         recognizer.canDrag = canDragMockTrue
         recognizer.dragObserver = MockDragObserver(log)
@@ -382,11 +405,11 @@ class DragGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(event))
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(3)
+        assertThat(log.filter { it.methodName == "onDrag" }).isNotEmpty()
     }
 
     @Test
-    fun pointerInputHandler_downConsumedMovePassedSlop_onStartAndOnDragCalledOnce() {
+    fun pointerInputHandler_downConsumedMovePassedSlop_onStartCalled1AndOnDragCalledAtLeast1() {
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
         recognizer.canDrag = canDragMockTrue
         recognizer.dragObserver = MockDragObserver(log)
@@ -394,19 +417,21 @@ class DragGestureDetectorTest {
 
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
         recognizer.pointerInputHandler.invokeOverAllPasses(
-            listOf(down.moveBy(
-                Duration(milliseconds = 100),
-                beyondTouchSlop,
-                0f
-            ))
+            listOf(
+                down.moveBy(
+                    Duration(milliseconds = 100),
+                    beyondTouchSlop,
+                    0f
+                )
+            )
         )
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(1)
+        assertThat(log.filter { it.methodName == "onDrag" }).isNotEmpty()
     }
 
     @Test
-    fun pointerInputHandler_beyondInUnsupportThenBeyondInSupport_onStartAndOnDragCalledOnce() {
+    fun pointerInputHandler_beyondInUnsupportThenBeyondInSupport_onStart1AndOnDragAtLeast1() {
         val doubleTouchSlop = (TestTouchSlop * 2).toFloat()
         val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
         recognizer.canDrag = MockCanDrag(arrayOf(Direction.UP), log)
@@ -428,7 +453,133 @@ class DragGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(change))
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(1)
+        assertThat(log.filter { it.methodName == "onDrag" }).isNotEmpty()
+    }
+
+    // Verify the circumstances under which onStart should be called, but onDrag shouldn't.
+
+    @Test
+    fun pointerInputHandler_moveBeyondSlopInOppositDirections_onStartCalled1AndOnDragNotCalled() {
+        val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
+        recognizer.canDrag = canDragMockTrue
+        recognizer.dragObserver = MockDragObserver(log)
+        val down1 = down()
+        val down2 = down()
+
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(down1, down2))
+        recognizer.pointerInputHandler.invokeOverAllPasses(
+            listOf(
+                down1.moveBy(
+                    Duration(milliseconds = 100),
+                    beyondTouchSlop,
+                    0f
+                ),
+                down2.moveBy(
+                    Duration(milliseconds = 100),
+                    -beyondTouchSlop,
+                    0f
+                )
+            )
+        )
+
+        assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
+        assertThat(log.filter { it.methodName == "onDrag" }).isEmpty()
+    }
+
+    // onDrag not called when movement averages to 0 in x and y.
+
+    @Test
+    fun pointerInputHandler_2PointsMoveInOpposite_onDragNotCalled() {
+
+        // Arrange
+
+        val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
+        recognizer.canDrag = canDragMockTrue
+        recognizer.dragObserver = MockDragObserver(log)
+
+        var pointer1 = down()
+        var pointer2 = down()
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1, pointer2))
+        pointer1 = pointer1.moveBy(
+            Duration(milliseconds = 100),
+            beyondTouchSlop,
+            0f
+        )
+        pointer2 = pointer2.moveBy(
+            Duration(milliseconds = 100),
+            beyondTouchSlop,
+            0f
+        )
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1, pointer2))
+
+        log.clear()
+
+        // Act
+
+        pointer1 = pointer1.moveBy(
+            Duration(milliseconds = 100),
+            1f,
+            1f
+        )
+        pointer2 = pointer2.moveBy(
+            Duration(milliseconds = 100),
+            -1f,
+            -1f
+        )
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1, pointer2))
+
+        assertThat(log.filter { it.methodName == "onDrag" }).isEmpty()
+    }
+
+    @Test
+    fun pointerInputHandler_3PointsMoveAverage0_onDragNotCalled() {
+
+        // Arrange
+
+        val beyondTouchSlop = (TestTouchSlop + 1).toFloat()
+        recognizer.canDrag = canDragMockTrue
+        recognizer.dragObserver = MockDragObserver(log)
+
+        val pointers = arrayListOf(down(), down(), down())
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointers)
+
+        pointers.forEachIndexed { index, pointerInputChange ->
+            pointers[index] =
+                pointerInputChange.moveBy(
+                    Duration(milliseconds = 100),
+                    beyondTouchSlop,
+                    0f
+                )
+        }
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointers)
+        log.clear()
+
+        // Act
+
+        // These movements average to no movement.
+        pointers[0] =
+            pointers[0].moveBy(
+                Duration(milliseconds = 100),
+                -1f,
+                -1f
+            )
+        pointers[1] =
+            pointers[1].moveBy(
+                Duration(milliseconds = 100),
+                1f,
+                -1f
+            )
+        pointers[2] =
+            pointers[2].moveBy(
+                Duration(milliseconds = 100),
+                0f,
+                2f
+            )
+        recognizer.pointerInputHandler.invokeOverAllPasses(pointers)
+
+        // Assert
+
+        assertThat(log.filter { it.methodName == "onDrag" }).isEmpty()
     }
 
     // onDrag called with correct values verification
@@ -473,12 +624,18 @@ class DragGestureDetectorTest {
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(change))
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
-        assertThat(onDragLog).hasSize(5)
+        // 2 onDrags per event because DragGestureDetector calls onDrag on both PostUp and PostDown.
+        assertThat(onDragLog).hasSize(10)
         assertThat(onDragLog[0].pxPosition).isEqualTo(PxPosition(11.px, 0.px))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(3.px, -5.px))
-        assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition(-3.px, 7.px))
-        assertThat(onDragLog[3].pxPosition).isEqualTo(PxPosition(6.px, 10.px))
-        assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition((-10).px, -6.px))
+        assertThat(onDragLog[1].pxPosition).isEqualTo(PxPosition(11.px, 0.px))
+        assertThat(onDragLog[2].pxPosition).isEqualTo(PxPosition(3.px, -5.px))
+        assertThat(onDragLog[3].pxPosition).isEqualTo(PxPosition(3.px, -5.px))
+        assertThat(onDragLog[4].pxPosition).isEqualTo(PxPosition(-3.px, 7.px))
+        assertThat(onDragLog[5].pxPosition).isEqualTo(PxPosition(-3.px, 7.px))
+        assertThat(onDragLog[6].pxPosition).isEqualTo(PxPosition(6.px, 10.px))
+        assertThat(onDragLog[7].pxPosition).isEqualTo(PxPosition(6.px, 10.px))
+        assertThat(onDragLog[8].pxPosition).isEqualTo(PxPosition((-10).px, -6.px))
+        assertThat(onDragLog[9].pxPosition).isEqualTo(PxPosition((-10).px, -6.px))
     }
 
     @Test
@@ -498,21 +655,26 @@ class DragGestureDetectorTest {
         var pointer1 = down()
         val pointer2 = down()
         val pointer3 = down()
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer2))
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer3))
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1, pointer2, pointer3))
 
         pointer1 = pointer1.moveBy(100.milliseconds, distance1, distance2)
 
         // Act
 
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1))
+        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(pointer1, pointer2, pointer3))
 
         // Assert
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
-        assertThat(onDragLog).hasSize(1)
+        assertThat(onDragLog).hasSize(2)
+        // 2 onDrags because DragGestureDetector calls onDrag on both PostUp and PostDown.
         assertThat(onDragLog[0].pxPosition).isEqualTo(
+            PxPosition(
+                thirdDistance1.px,
+                thirdDistance2.px
+            )
+        )
+        assertThat(onDragLog[1].pxPosition).isEqualTo(
             PxPosition(
                 thirdDistance1.px,
                 thirdDistance2.px
@@ -643,12 +805,14 @@ class DragGestureDetectorTest {
         change = change.up(20L.millisecondsToTimestamp())
         recognizer.pointerInputHandler.invokeOverAllPasses(listOf(change))
 
-        assertThat(log).hasSize(5)
+        assertThat(log).hasSize(6)
         assertThat(log[0].methodName).isEqualTo("canDrag")
         assertThat(log[1].methodName).isEqualTo("canDrag")
         assertThat(log[2].methodName).isEqualTo("onStart")
+        // 2 onDrags because DragGestureDetector calls onDrag on both PostUp and PostDown.
         assertThat(log[3].methodName).isEqualTo("onDrag")
-        assertThat(log[4].methodName).isEqualTo("onStop")
+        assertThat(log[4].methodName).isEqualTo("onDrag")
+        assertThat(log[5].methodName).isEqualTo("onStop")
     }
 
     // Verification about what events are, or aren't consumed.
@@ -756,13 +920,13 @@ class DragGestureDetectorTest {
             MockDragObserver(log, PxPosition(thirdTouchSlop.px, quarterTouchSlop.px))
 
         var change = down()
-        recognizer.pointerInputHandler.invokeOverAllPasses(listOf(change))
+        recognizer.pointerInputHandler.invoke(listOf(change), PointerEventPass.PostUp)
         change = change.moveTo(
             10L.millisecondsToTimestamp(),
             TestTouchSlop.toFloat() + 1,
             TestTouchSlop.toFloat() + 1
         )
-        val result = recognizer.pointerInputHandler.invokeOverAllPasses(listOf(change))
+        val result = recognizer.pointerInputHandler.invoke(listOf(change), PointerEventPass.PostUp)
 
         assertThat(result.first().consumed.positionChange.x.value).isEqualTo(thirdTouchSlop)
         assertThat(result.first().consumed.positionChange.y.value).isEqualTo(quarterTouchSlop)
