@@ -12,7 +12,8 @@ package androidx.navigation.testing {
     property public final kotlin.Pair<androidx.navigation.testing.TestNavigator.Destination,android.os.Bundle>! current;
   }
 
-  public static final class TestNavigator.Destination extends androidx.navigation.NavDestination {
+  public static class TestNavigator.Destination extends androidx.navigation.NavDestination {
+    ctor public TestNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination> navigator);
   }
 
   public final class TestNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.testing.TestNavigator.Destination> {
