@@ -22,7 +22,10 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
+import androidx.ui.core.Density
 import androidx.ui.core.px
+import androidx.ui.core.sp
+import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
@@ -67,6 +70,7 @@ import kotlin.math.ceil
 @SmallTest
 class ParagraphAndroidTest {
     private lateinit var fontFamily: FontFamily
+    private val defaultDensity = Density(density = 1f)
 
     @Before
     fun setup() {
@@ -80,31 +84,33 @@ class ParagraphAndroidTest {
 
     @Test
     fun draw_with_newline_and_line_break_default_values() {
-        val fontSize = 50.0f
-        for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
-            val paragraphAndroid = simpleParagraph(
-                text = text,
-                textStyle = TextStyle(
-                    fontSize = fontSize,
-                    fontFamily = fontFamily
+        withDensity(defaultDensity) {
+            val fontSize = 50.sp
+            for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
+                val paragraphAndroid = simpleParagraph(
+                    text = text,
+                    textStyle = TextStyle(
+                        fontSize = fontSize,
+                        fontFamily = fontFamily
+                    )
                 )
-            )
 
-            // 2 chars width
-            paragraphAndroid.layout(width = 2 * fontSize)
+                // 2 chars width
+                paragraphAndroid.layout(width = 2 * fontSize.toPx().value)
 
-            val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-            textPaint.textSize = fontSize
-            textPaint.typeface = TypefaceAdapter().create(fontFamily)
+                val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
+                textPaint.textSize = fontSize.toPx().value
+                textPaint.typeface = TypefaceAdapter().create(fontFamily)
 
-            val staticLayout = StaticLayoutCompat.Builder(
-                text,
-                textPaint,
-                ceil(paragraphAndroid.width).toInt()
-            )
-                .setEllipsizedWidth(ceil(paragraphAndroid.width).toInt())
-                .build()
-            assertThat(paragraphAndroid.bitmap(), equalToBitmap(staticLayout.bitmap()))
+                val staticLayout = StaticLayoutCompat.Builder(
+                    text,
+                    textPaint,
+                    ceil(paragraphAndroid.width).toInt()
+                )
+                    .setEllipsizedWidth(ceil(paragraphAndroid.width).toInt())
+                    .build()
+                assertThat(paragraphAndroid.bitmap(), equalToBitmap(staticLayout.bitmap()))
+            }
         }
     }
 
@@ -241,60 +247,66 @@ class ParagraphAndroidTest {
 
     @Test
     fun testAnnotatedString_setFontSizeOnWholeText() {
-        val text = "abcde"
-        val fontSize = 20.0f
-        val paragraphWidth = text.length * fontSize
-        val textStyle = TextStyle(fontSize = fontSize)
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val paragraphWidth = text.length * fontSize.toPx().value
+            val textStyle = TextStyle(fontSize = fontSize)
 
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
-        paragraph.layout(paragraphWidth)
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
+            )
+            paragraph.layout(paragraphWidth)
 
-        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
+            assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
+        }
     }
 
     @Test
     fun testAnnotatedString_setFontSizeOnPartText() {
-        val text = "abcde"
-        val fontSize = 20.0f
-        val paragraphWidth = text.length * fontSize
-        val textStyle = TextStyle(fontSize = fontSize)
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val paragraphWidth = text.length * fontSize.toPx().value
+            val textStyle = TextStyle(fontSize = fontSize)
 
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
-        )
-        paragraph.layout(paragraphWidth)
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
+            )
+            paragraph.layout(paragraphWidth)
 
-        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
+            assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
+        }
     }
 
     @Test
     fun testAnnotatedString_setFontSizeTwice_lastOneOverwrite() {
-        val text = "abcde"
-        val fontSize = 20.0f
-        val fontSizeOverwrite = 30.0f
-        val paragraphWidth = text.length * fontSizeOverwrite
-        val textStyle = TextStyle(fontSize = fontSize)
-        val textStyleOverwrite = TextStyle(fontSize = fontSizeOverwrite)
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 20.sp
+            val fontSizeOverwrite = 30.sp
+            val paragraphWidth = text.length * fontSizeOverwrite.toPx().value
+            val textStyle = TextStyle(fontSize = fontSize)
+            val textStyleOverwrite = TextStyle(fontSize = fontSizeOverwrite)
 
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, text.length),
-                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyles = listOf(
+                    AnnotatedString.Item(textStyle, 0, text.length),
+                    AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
+                )
             )
-        )
-        paragraph.layout(paragraphWidth)
+            paragraph.layout(paragraphWidth)
 
-        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
-        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
-        assertThat(
-            paragraph.underlyingText,
-            hasSpanOnTop(AbsoluteSizeSpan::class, 0, "abc".length)
-        )
+            assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
+            assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
+            assertThat(
+                paragraph.underlyingText,
+                hasSpanOnTop(AbsoluteSizeSpan::class, 0, "abc".length)
+            )
+        }
     }
 
     @Test
@@ -1025,91 +1037,101 @@ class ParagraphAndroidTest {
 
     @Test
     fun testEllipsis_withMaxLineEqualsNull_doesNotEllipsis() {
-        val text = "abc"
-        val fontSize = 20f
-        val paragraphWidth = (text.length - 1) * fontSize
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyle = TextStyle(
-                fontFamily = fontFamily,
-                fontSize = fontSize
-            ),
-            ellipsis = true
-        )
-        paragraph.layout(paragraphWidth)
-        for (i in 0 until paragraph.lineCount) {
-            assertFalse(paragraph.isEllipsisApplied(i))
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 20.sp
+            val paragraphWidth = (text.length - 1) * fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                textStyle = TextStyle(
+                    fontFamily = fontFamily,
+                    fontSize = fontSize
+                ),
+                ellipsis = true
+            )
+            paragraph.layout(paragraphWidth)
+            for (i in 0 until paragraph.lineCount) {
+                assertFalse(paragraph.isEllipsisApplied(i))
+            }
         }
     }
 
     @Test
     fun testEllipsis_withMaxLinesLessThanTextLines_doesEllipsis() {
-        val text = "abcde"
-        val fontSize = 100f
-        // Note that on API 21, if the next line only contains 1 character, ellipsis won't work
-        val paragraphWidth = (text.length - 1.5f) * fontSize
-        val paragraph = simpleParagraph(
-            text = text,
-            ellipsis = true,
-            maxLines = 1,
-            textStyle = TextStyle(
-                fontFamily = fontFamily,
-                fontSize = fontSize
+        withDensity(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 100.sp
+            // Note that on API 21, if the next line only contains 1 character, ellipsis won't work
+            val paragraphWidth = (text.length - 1.5f) * fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                ellipsis = true,
+                maxLines = 1,
+                textStyle = TextStyle(
+                    fontFamily = fontFamily,
+                    fontSize = fontSize
+                )
             )
-        )
-        paragraph.layout(paragraphWidth)
+            paragraph.layout(paragraphWidth)
 
-        assertTrue(paragraph.isEllipsisApplied(0))
+            assertTrue(paragraph.isEllipsisApplied(0))
+        }
     }
 
     @Test
     fun testEllipsis_withMaxLinesMoreThanTextLines_doesNotEllipsis() {
-        val text = "abc"
-        val fontSize = 100f
-        val paragraphWidth = (text.length - 1) * fontSize
-        val maxLines = ceil(text.length * fontSize / paragraphWidth).toInt()
-        val paragraph = simpleParagraph(
-            text = text,
-            ellipsis = true,
-            maxLines = maxLines,
-            textStyle = TextStyle(
-                fontFamily = fontFamily,
-                fontSize = fontSize
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 100.sp
+            val paragraphWidth = (text.length - 1) * fontSize.toPx().value
+            val maxLines = ceil(text.length * fontSize.toPx().value / paragraphWidth).toInt()
+            val paragraph = simpleParagraph(
+                text = text,
+                ellipsis = true,
+                maxLines = maxLines,
+                textStyle = TextStyle(
+                    fontFamily = fontFamily,
+                    fontSize = fontSize
+                )
             )
-        )
-        paragraph.layout(paragraphWidth)
+            paragraph.layout(paragraphWidth)
 
-        for (i in 0 until paragraph.lineCount) {
-            assertFalse(paragraph.isEllipsisApplied(i))
+            for (i in 0 until paragraph.lineCount) {
+                assertFalse(paragraph.isEllipsisApplied(i))
+            }
         }
     }
 
     @Test
     fun testTextStyle_fontSize_appliedOnTextPaint() {
-        val fontSize = 100f
-        val paragraph = simpleParagraph(
-            text = "",
-            textStyle = TextStyle(fontSize = fontSize)
-        )
-        paragraph.layout(0f)
+        withDensity(defaultDensity) {
+            val fontSize = 100.sp
+            val paragraph = simpleParagraph(
+                text = "",
+                textStyle = TextStyle(fontSize = fontSize)
+            )
+            paragraph.layout(0f)
 
-        assertThat(paragraph.textPaint.textSize, equalTo(fontSize))
+            assertThat(paragraph.textPaint.textSize, equalTo(fontSize.toPx().value))
+        }
     }
 
     @Test
     fun testTextStyle_fontSizeScale_appliedOnTextPaint() {
-        val fontSize = 100f
-        val fontSizeScale = 2f
-        val paragraph = simpleParagraph(
-            text = "",
-            textStyle = TextStyle(
-                fontSize = fontSize,
-                fontSizeScale = fontSizeScale
+        withDensity(defaultDensity) {
+            val fontSize = 100.sp
+            val fontSizeScale = 2f
+            val paragraph = simpleParagraph(
+                text = "",
+                textStyle = TextStyle(
+                    fontSize = fontSize,
+                    fontSizeScale = fontSizeScale
+                )
             )
-        )
-        paragraph.layout(0f)
+            paragraph.layout(0f)
 
-        assertThat(paragraph.textPaint.textSize, equalTo(fontSize * fontSizeScale))
+            assertThat(paragraph.textPaint.textSize, equalTo(fontSize.toPx().value * fontSizeScale))
+        }
     }
 
     @Test
@@ -1288,7 +1310,8 @@ class ParagraphAndroidTest {
                 textIndent = textIndent,
                 ellipsis = ellipsis,
                 maxLines = maxLines
-            )
+            ),
+            density = Density(density = 1f)
         )
     }
 }

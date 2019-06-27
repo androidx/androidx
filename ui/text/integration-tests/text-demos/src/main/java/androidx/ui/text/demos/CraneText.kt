@@ -46,16 +46,17 @@ import androidx.ui.painting.Shadow
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.compose.composer
+import androidx.ui.core.Sp
+import androidx.ui.core.sp
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"
 val displayTextArabic = "عرض النص"
 val displayTextHindi = "पाठ डेमो"
-val fontSize4: Float = 40.0.toFloat()
-val fontSize6: Float = 60.0.toFloat()
-val fontSize7: Float = 70.0.toFloat()
-val fontSize8: Float = 80.0.toFloat()
-val fontSize10: Float = 100.0.toFloat()
+val fontSize4: Sp = 16.sp
+val fontSize6: Sp = 20.sp
+val fontSize8: Sp = 25.sp
+val fontSize10: Sp = 30.sp
 
 @Composable
 fun TextDemo() {

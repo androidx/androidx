@@ -27,6 +27,7 @@ import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
+import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.font.FontFamily
@@ -165,55 +166,55 @@ data class MaterialTypography(
     val h1: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.w100,
-        fontSize = 96f),
+        fontSize = 96.sp),
     val h2: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.w100,
-        fontSize = 60f),
+        fontSize = 60.sp),
     val h3: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 48f),
+        fontSize = 48.sp),
     val h4: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 34f),
+        fontSize = 34.sp),
     val h5: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 24f),
+        fontSize = 24.sp),
     val h6: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.w500,
-        fontSize = 20f),
+        fontSize = 20.sp),
     val subtitle1: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 16f),
+        fontSize = 16.sp),
     val subtitle2: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.w500,
-        fontSize = 14f),
+        fontSize = 14.sp),
     val body1: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 16f),
+        fontSize = 16.sp),
     val body2: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 14f),
+        fontSize = 14.sp),
     val button: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.w500,
-        fontSize = 14f),
+        fontSize = 14.sp),
     val caption: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 12f),
+        fontSize = 12.sp),
     val overline: TextStyle = TextStyle(
         fontFamily = FontFamily("Roboto"),
         fontWeight = FontWeight.normal,
-        fontSize = 10f)
+        fontSize = 10.sp)
 )
 
 /**
@@ -255,15 +256,7 @@ fun themeColor(
 fun themeTextStyle(
     choosingBlock: MaterialTypography.() -> TextStyle
 ) = effectOf<TextStyle> {
-    var style = (+ambient(Typography)).choosingBlock()
-
-    // TODO Text is working with pixels, but we define our theme in dps, let's convert here for now.
-    // b/127345041
-    if (style.fontSize != null) {
-        style = style.copy(fontSize = +withDensity { style.fontSize!!.dp.toPx().value })
-    }
-
-    style
+    (+ambient(Typography)).choosingBlock()
 }
 
 // Shapes

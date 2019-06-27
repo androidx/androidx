@@ -16,6 +16,7 @@
 
 package androidx.ui.painting
 
+import androidx.ui.core.sp
 import androidx.ui.graphics.Color
 import androidx.ui.painting.basictypes.RenderComparison
 import com.google.common.truth.Truth.assertThat
@@ -40,7 +41,7 @@ class TextSpanTest {
 
     @Test
     fun `constructor with customized style`() {
-        val textStyle = TextStyle(fontSize = 10.0f, letterSpacing = 1.5f)
+        val textStyle = TextStyle(fontSize = 10.sp, letterSpacing = 1.5f)
         val textSpan = TextSpan(style = textStyle)
 
         assertThat(textSpan.style).isEqualTo(textStyle)
@@ -226,7 +227,7 @@ class TextSpanTest {
     @Test
     fun `compareTo with different TextStyle with different fontSize should return LAYOUT`() {
         val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle(fontSize = 10.0f)
+        val textStyle2 = TextStyle(fontSize = 10.sp)
         val textSpan1 = TextSpan(style = textStyle1)
         val textSpan2 = TextSpan(style = textStyle2)
 
@@ -256,7 +257,7 @@ class TextSpanTest {
     @Test
     fun `compareTo with different children with different fontSize should return LAYOUT`() {
         val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle(fontSize = 10.0f)
+        val textStyle2 = TextStyle(fontSize = 10.sp)
         val childTextSpan1 = TextSpan(style = textStyle1)
         val childTextSpan2 = TextSpan(style = textStyle2)
         val textSpan1 = TextSpan(children = mutableListOf(childTextSpan1))
@@ -291,7 +292,7 @@ class TextSpanTest {
 
     @Test
     fun `toAnnotatedString with includeRootStyle default value`() {
-        val textStyle = TextStyle(fontSize = 10f)
+        val textStyle = TextStyle(fontSize = 10.sp)
         val text = "Hello"
         val textSpan = TextSpan(style = textStyle, text = text)
         val annotatedString = textSpan.toAnnotatedString()
@@ -320,7 +321,7 @@ class TextSpanTest {
 
     @Test
     fun `toAnnotatedString with nested TextSpan with TextStyle`() {
-        val textStyle1 = TextStyle(fontSize = 10f)
+        val textStyle1 = TextStyle(fontSize = 10.sp)
         val text1 = "Hello"
 
         val textStyle2 = TextStyle(color = Color.Red)
@@ -363,7 +364,7 @@ class TextSpanTest {
             textStyles = listOf(Root[0, 17], Leaf1[0, 6], Inner[6, 17], leaf2[6, 12], leaf3[12, 17])
           )
          */
-        val textStyleRoot = TextStyle(fontSize = 10f)
+        val textStyleRoot = TextStyle(fontSize = 10.sp)
         val textStyleLeaf1 = TextStyle(color = Color.Blue)
         val text1 = "Lorem "
 
