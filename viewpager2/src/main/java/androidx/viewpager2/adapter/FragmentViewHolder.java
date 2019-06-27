@@ -19,6 +19,7 @@ package androidx.viewpager2.adapter;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
@@ -28,11 +29,11 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
  * {@link FragmentStateAdapter}.
  */
 public final class FragmentViewHolder extends ViewHolder {
-    private FragmentViewHolder(FrameLayout container) {
+    private FragmentViewHolder(@NonNull FrameLayout container) {
         super(container);
     }
 
-    static FragmentViewHolder create(ViewGroup parent) {
+    @NonNull static FragmentViewHolder create(@NonNull ViewGroup parent) {
         FrameLayout container = new FrameLayout(parent.getContext());
         container.setLayoutParams(
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
@@ -42,7 +43,7 @@ public final class FragmentViewHolder extends ViewHolder {
         return new FragmentViewHolder(container);
     }
 
-    FrameLayout getContainer() {
+    @NonNull FrameLayout getContainer() {
         return (FrameLayout) itemView;
     }
 }

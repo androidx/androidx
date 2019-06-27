@@ -132,6 +132,15 @@ public final class ViewPager2 extends ViewGroup {
             new CompositeOnPageChangeCallback(3);
 
     int mCurrentItem;
+    boolean mCurrentItemDirty = false;
+    private RecyclerView.AdapterDataObserver mCurrentItemDataSetChangeObserver =
+            new DataSetChangeObserver() {
+                @Override
+                public void onChanged() {
+                    mCurrentItemDirty = true;
+                }
+            };
+
     LinearLayoutManager mLayoutManager;
     private int mPendingCurrentItem = NO_POSITION;
     private Parcelable mPendingAdapterState;
@@ -426,11 +435,26 @@ public final class ViewPager2 extends ViewGroup {
      * @see RecyclerView#setAdapter(Adapter)
      */
     public void setAdapter(@Nullable @SuppressWarnings("rawtypes") Adapter adapter) {
-        mAccessibilityProvider.onDetachAdapter(mRecyclerView.getAdapter());
+        final Adapter<?> currentAdapter = mRecyclerView.getAdapter();
+        mAccessibilityProvider.onDetachAdapter(currentAdapter);
+        unregisterCurrentItemDataSetTracker(currentAdapter);
         mRecyclerView.setAdapter(adapter);
         mCurrentItem = 0;
         restorePendingState();
         mAccessibilityProvider.onAttachAdapter(adapter);
+        registerCurrentItemDataSetTracker(adapter);
+    }
+
+    private void registerCurrentItemDataSetTracker(@Nullable Adapter<?> adapter) {
+        if (adapter != null) {
+            adapter.registerAdapterDataObserver(mCurrentItemDataSetChangeObserver);
+        }
+    }
+
+    private void unregisterCurrentItemDataSetTracker(@Nullable Adapter<?> adapter) {
+        if (adapter != null) {
+            adapter.unregisterAdapterDataObserver(mCurrentItemDataSetChangeObserver);
+        }
     }
 
     @SuppressWarnings("rawtypes")
@@ -482,6 +506,43 @@ public final class ViewPager2 extends ViewGroup {
         Gravity.apply(Gravity.TOP | Gravity.START, width, height, mTmpContainerRect, mTmpChildRect);
         mRecyclerView.layout(mTmpChildRect.left, mTmpChildRect.top, mTmpChildRect.right,
                 mTmpChildRect.bottom);
+
+        if (mCurrentItemDirty) {
+            RecyclerView.ItemAnimator animator = mRecyclerView.getItemAnimator();
+            if (animator == null) {
+                updateCurrentItem();
+            } else {
+                animator.isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
+                    @Override
+                    public void onAnimationsFinished() {
+                        updateCurrentItem();
+                    }
+                });
+            }
+        }
+    }
+
+    /** Updates {@link #mCurrentItem} based on what is currently visible in the viewport. */
+    void updateCurrentItem() {
+        if (mPagerSnapHelper == null) {
+            throw new IllegalStateException("Design assumption violated.");
+        }
+
+        int snapPosition = mPagerSnapHelper.findTargetSnapPosition(mLayoutManager, 0, 0);
+
+        // Extra checks verifying assumptions
+        // TODO: remove after testing
+        View snapView1 = mPagerSnapHelper.findSnapView(mLayoutManager);
+        View snapView2 = mLayoutManager.findViewByPosition(snapPosition);
+        if (snapView1 != snapView2) {
+            throw new IllegalStateException("Design assumption violated.");
+        }
+
+        if (snapPosition != mCurrentItem) {
+            // TODO: handle fakeDrag
+            setCurrentItem(snapPosition, false);
+        }
+        mCurrentItemDirty = false;
     }
 
     int getPageSize() {
@@ -1251,10 +1312,9 @@ public final class ViewPager2 extends ViewGroup {
             ViewCompat.setImportantForAccessibility(recyclerView,
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
 
-            mAdapterDataObserver = new RecyclerView.AdapterDataObserver() {
+            mAdapterDataObserver = new DataSetChangeObserver() {
                 @Override
                 public void onChanged() {
-                    super.onChanged();
                     updatePageAccessibilityActions();
                 }
             };
@@ -1452,6 +1512,41 @@ public final class ViewPager2 extends ViewGroup {
                 info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
             }
             info.setScrollable(true);
+        }
+    }
+
+    /**
+     * Simplified {@link RecyclerView.AdapterDataObserver} for clients interested in any data-set
+     * changes regardless of their nature.
+     */
+    private abstract static class DataSetChangeObserver extends RecyclerView.AdapterDataObserver {
+        @Override
+        public abstract void onChanged();
+
+        @Override
+        public final void onItemRangeChanged(int positionStart, int itemCount) {
+            onChanged();
+        }
+
+        @Override
+        public final void onItemRangeChanged(int positionStart, int itemCount,
+                @Nullable Object payload) {
+            onChanged();
+        }
+
+        @Override
+        public final void onItemRangeInserted(int positionStart, int itemCount) {
+            onChanged();
+        }
+
+        @Override
+        public final void onItemRangeRemoved(int positionStart, int itemCount) {
+            onChanged();
+        }
+
+        @Override
+        public final void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+            onChanged();
         }
     }
 }
