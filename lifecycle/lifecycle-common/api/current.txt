@@ -1,15 +1,6 @@
 // Signature format: 3.0
 package androidx.lifecycle {
 
-  public interface DefaultLifecycleObserver extends androidx.lifecycle.LifecycleObserver {
-    method public default void onCreate(androidx.lifecycle.LifecycleOwner);
-    method public default void onDestroy(androidx.lifecycle.LifecycleOwner);
-    method public default void onPause(androidx.lifecycle.LifecycleOwner);
-    method public default void onResume(androidx.lifecycle.LifecycleOwner);
-    method public default void onStart(androidx.lifecycle.LifecycleOwner);
-    method public default void onStop(androidx.lifecycle.LifecycleOwner);
-  }
-
   public abstract class Lifecycle {
     ctor public Lifecycle();
     method @MainThread public abstract void addObserver(androidx.lifecycle.LifecycleObserver);
@@ -47,8 +38,8 @@ package androidx.lifecycle {
     method public androidx.lifecycle.Lifecycle getLifecycle();
   }
 
-  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
-    method @Deprecated public abstract androidx.lifecycle.Lifecycle.Event! value();
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
+    method public abstract androidx.lifecycle.Lifecycle.Event! value();
   }
 
 }

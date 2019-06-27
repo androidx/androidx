@@ -9,16 +9,22 @@ plugins {
     id("kotlin-android")
 }
 
+android {
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
+    }
+}
+
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0-rc01") {
         exclude group: 'androidx.annotation'
         exclude group: 'com.google.guava', module: 'listenablefuture'
     }
-    api(project(":lifecycle:lifecycle-runtime"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
+    api("androidx.lifecycle:lifecycle-runtime:2.1.0-rc01")
+    api("androidx.lifecycle:lifecycle-viewmodel:2.1.0-rc01")
     api(project(":savedstate"))
-    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

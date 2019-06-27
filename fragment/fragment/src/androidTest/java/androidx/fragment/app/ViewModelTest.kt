@@ -108,32 +108,20 @@ class ViewModelTest {
             val fragmentModel = withActivity {
                 getFragment(ViewModelActivity.FRAGMENT_TAG_1).fragmentModel
             }
-            val fragmentAndroidModel = withActivity {
-                getFragment(ViewModelActivity.FRAGMENT_TAG_1).androidModel
-            }
-            val fragmentSavedStateAndroidModel = withActivity {
-                getFragment(ViewModelActivity.FRAGMENT_TAG_1).savedStateModel
-            }
             val backStackFragmentModel = withActivity {
                 getFragment(ViewModelActivity.FRAGMENT_TAG_BACK_STACK).fragmentModel
             }
             assertThat(fragmentModel.cleared).isFalse()
-            assertThat(fragmentAndroidModel.cleared).isFalse()
-            assertThat(fragmentSavedStateAndroidModel.cleared).isFalse()
             assertThat(backStackFragmentModel.cleared).isFalse()
 
             recreate()
             // recreate shouldn't clear the ViewModels
             assertThat(fragmentModel.cleared).isFalse()
-            assertThat(fragmentAndroidModel.cleared).isFalse()
-            assertThat(fragmentSavedStateAndroidModel.cleared).isFalse()
             assertThat(backStackFragmentModel.cleared).isFalse()
 
             moveToState(Lifecycle.State.DESTROYED)
             // But destroying the Activity should
             assertThat(fragmentModel.cleared).isTrue()
-            assertThat(fragmentAndroidModel.cleared).isTrue()
-            assertThat(fragmentSavedStateAndroidModel.cleared).isTrue()
             assertThat(backStackFragmentModel.cleared).isTrue()
         }
     }
@@ -146,7 +134,10 @@ class ViewModelTest {
                     supportFragmentManager.beginTransaction().add(it, "temp").commitNow()
                 }
             }
-            val viewModelProvider = ViewModelProvider(fragment)
+            val viewModelProvider = ViewModelProvider(
+                fragment,
+                ViewModelProvider.NewInstanceFactory()
+            )
             val vm = viewModelProvider.get(TestViewModel::class.java)
             assertThat(vm.cleared).isFalse()
             onActivity { activity ->

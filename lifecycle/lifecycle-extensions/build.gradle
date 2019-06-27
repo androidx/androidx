@@ -23,14 +23,13 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
 }
 
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
     api(project(":arch:core-common"))
     api(project(":arch:core-runtime"))
-    api(project(":fragment:fragment"))
+    api(SUPPORT_FRAGMENTS, libs.support_exclude_config)
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-process"))
@@ -41,15 +40,12 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 
-    androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
-    androidTestImplementation(project(":internal-testutils"))
 }
 
 androidx {

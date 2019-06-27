@@ -66,13 +66,13 @@ public class Lifecycling {
     @NonNull
     static LifecycleEventObserver lifecycleEventObserver(Object object) {
         boolean isLifecycleEventObserver = object instanceof LifecycleEventObserver;
-        boolean isDefaultLifecycleObserver = object instanceof DefaultLifecycleObserver;
-        if (isLifecycleEventObserver && isDefaultLifecycleObserver) {
-            return new DefaultLifecycleObserverAdapter((DefaultLifecycleObserver) object,
+        boolean isFullLifecycleObserver = object instanceof FullLifecycleObserver;
+        if (isLifecycleEventObserver && isFullLifecycleObserver) {
+            return new FullLifecycleObserverAdapter((FullLifecycleObserver) object,
                     (LifecycleEventObserver) object);
         }
-        if (isDefaultLifecycleObserver) {
-            return new DefaultLifecycleObserverAdapter((DefaultLifecycleObserver) object, null);
+        if (isFullLifecycleObserver) {
+            return new FullLifecycleObserverAdapter((FullLifecycleObserver) object, null);
         }
 
         if (isLifecycleEventObserver) {

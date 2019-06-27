@@ -17,14 +17,9 @@
 package androidx.lifecycle;
 
 /**
- * Marks a class as a LifecycleObserver. It does not have any methods, instead, use either:
- * <ul>
- * <li>{@link DefaultLifecycleObserver} if you are interested only in certain events,
- * for example only in {@code ON_CREATE} and {@code ON_DESTROY};
- * <li>{@link LifecycleEventObserver} if you need to process all events in a stream-like manner.
- * </ul>
+ * Marks a class as a LifecycleObserver. It does not have any methods, instead, relies on
+ * {@link OnLifecycleEvent} annotated methods.
  * <p>
- *
  * @see Lifecycle Lifecycle - for samples and usage patterns.
  */
 @SuppressWarnings("WeakerAccess")

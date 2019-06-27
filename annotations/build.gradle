@@ -7,6 +7,9 @@ plugins {
     id("java")
 }
 
+targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_7
+
 jar {
     from sourceSets.main.output
     // Strip out typedef classes. For Android libraries, this is done

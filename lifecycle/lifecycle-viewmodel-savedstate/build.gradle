@@ -38,9 +38,10 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
-    androidTestImplementation project(":fragment:fragment"), {
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel-savedstate'
+    api project(":fragment:fragment"), {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
     }
+
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ESPRESSO_CORE)
@@ -59,4 +60,3 @@ androidx {
     description = "Android Lifecycle ViewModel"
     url = AndroidXExtension.ARCHITECTURE_URL
 }
-

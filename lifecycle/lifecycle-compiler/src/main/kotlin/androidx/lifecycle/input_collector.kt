@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.lifecycle
 
 import androidx.lifecycle.model.EventMethod

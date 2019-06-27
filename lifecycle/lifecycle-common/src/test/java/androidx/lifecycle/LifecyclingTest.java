@@ -116,7 +116,7 @@ public class LifecyclingTest {
 
     @Test
     public void fullLifecycleObserverAndAnnotations() {
-        class AnnotatedFullLifecycleObserver implements DefaultLifecycleObserver {
+        class AnnotatedFullLifecycleObserver implements FullLifecycleObserver {
             @OnLifecycleEvent(ON_ANY)
             public void onAny() {
                 throw new IllegalStateException("Annotations in FullLifecycleObserver "

@@ -21,6 +21,8 @@ import androidx.annotation.NonNull;
 /**
  * Callback interface for listening to {@link LifecycleOwner} state changes.
  * <p>
+ * If you use Java 8 language, <b>always</b> prefer it over annotations.
+ * <p>
  * If a class implements both this interface and {@link LifecycleEventObserver}, then
  * methods of {@code DefaultLifecycleObserver} will be called first, and then followed by the call
  * of {@link LifecycleEventObserver#onStateChanged(LifecycleOwner, Lifecycle.Event)}
@@ -29,7 +31,7 @@ import androidx.annotation.NonNull;
  * annotations will be ignored.
  */
 @SuppressWarnings("unused")
-public interface DefaultLifecycleObserver extends LifecycleObserver {
+public interface DefaultLifecycleObserver extends FullLifecycleObserver {
 
     /**
      * Notifies that {@code ON_CREATE} event occurred.
@@ -39,6 +41,7 @@ public interface DefaultLifecycleObserver extends LifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
+    @Override
     default void onCreate(@NonNull LifecycleOwner owner) {
     }
 
@@ -49,6 +52,7 @@ public interface DefaultLifecycleObserver extends LifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
+    @Override
     default void onStart(@NonNull LifecycleOwner owner) {
     }
 
@@ -60,6 +64,7 @@ public interface DefaultLifecycleObserver extends LifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
+    @Override
     default void onResume(@NonNull LifecycleOwner owner) {
     }
 
@@ -71,6 +76,7 @@ public interface DefaultLifecycleObserver extends LifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
+    @Override
     default void onPause(@NonNull LifecycleOwner owner) {
     }
 
@@ -82,6 +88,7 @@ public interface DefaultLifecycleObserver extends LifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
+    @Override
     default void onStop(@NonNull LifecycleOwner owner) {
     }
 
@@ -93,6 +100,7 @@ public interface DefaultLifecycleObserver extends LifecycleObserver {
      *
      * @param owner the component, whose state was changed
      */
+    @Override
     default void onDestroy(@NonNull LifecycleOwner owner) {
     }
 }
