@@ -19,26 +19,30 @@ package androidx.ui.material.surface
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.baseui.shape.border.Border
+import androidx.ui.baseui.shape.DrawShape
+import androidx.ui.baseui.shape.RectangleShape
+import androidx.ui.baseui.shape.Shape
+import androidx.ui.baseui.shape.border.DrawBorder
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
+import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
+import androidx.ui.engine.geometry.addOutline
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialColors
-import androidx.ui.material.borders.RoundedRectangleBorder
-import androidx.ui.material.borders.ShapeBorder
-import androidx.ui.material.clip.ClipPath
-import androidx.ui.material.clip.ShapeBorderClipper
-import androidx.ui.material.clip.cache.CachingClipper
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleSurface
 import androidx.ui.material.ripple.RippleSurfaceOwner
 import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.material.textColorForBackground
 import androidx.ui.material.themeColor
+import androidx.ui.painting.Path
 import androidx.ui.painting.TextStyle
 
 /**
@@ -72,41 +76,38 @@ import androidx.ui.painting.TextStyle
  *  displayed if the [elevation] is greater than zero.
  * @param color The background color. [MaterialColors.surface] is used when null
  *  is provided. Use [TransparentSurface] to have no color.
+ * @param border Optional border to draw on top of the shape.
  * @param elevation The z-coordinate at which to place this surface. This controls
  *  the size of the shadow below the surface.
  */
 @Composable
 fun Surface(
-    shape: ShapeBorder = RoundedRectangleBorder(),
+    shape: Shape = RectangleShape,
     color: Color = +themeColor { surface },
+    border: Border? = null,
     elevation: Dp = 0.dp,
     @Children children: @Composable() () -> Unit
 ) {
     SurfaceLayout {
-        CachingClipper(
-            clipper = ShapeBorderClipper(shape)) { clipper ->
-            DrawShadow(elevation = elevation, clipper = clipper)
-            ClipPath(clipper = clipper) {
-                DrawColor(color = color)
-                RippleSurface(color = color) {
-                    val textColor = +textColorForBackground(color)
-                    if (textColor != null) {
-                        CurrentTextStyleProvider(value = TextStyle(color = textColor)) {
-                            children()
-                        }
-                    } else {
-                        children()
-                    }
-                }
+        DrawShadow(shape = shape, elevation = elevation)
+        DrawShape(shape = shape, color = color)
+        Clip(shape = shape) {
+            RippleSurface(color = color) {
+                CurrentTextStyleProvider(
+                    value = TextStyle(color = +textColorForBackground(color)),
+                    children = children
+                )
             }
         }
-        DrawBorder(shape = shape)
+        if (border != null) {
+            DrawBorder(shape = shape, border = border)
+        }
     }
 }
 
 /**
  * A simple layout which just reserves a space for a [Surface].
- * It position the only child in the left top corner.
+ * It positions the only child in the left top corner.
  *
  * TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
  */
@@ -126,4 +127,23 @@ private fun SurfaceLayout(@Children children: @Composable() () -> Unit) {
             }
         }
     })
+}
+
+// Temporary.
+// TODO: Replace with an implementation using RenderNode's Outlines instead to have
+// clipping with antialiasing.
+@Composable
+private fun Clip(shape: Shape, @Children children: @Composable() () -> Unit) = with(shape) {
+    val path = +memo { Path() }
+    Draw(children = {
+        // this layout is temporary while Draw doesn't accept multiple children
+        SurfaceLayout(children)
+    }) { canvas, parentSize ->
+        path.reset()
+        path.addOutline(createOutline(parentSize))
+        canvas.save()
+        canvas.clipPath(path)
+        drawChildren()
+        canvas.restore()
+    }
 }

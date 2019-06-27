@@ -494,8 +494,9 @@ class TextPainter(
         assert(!needsLayout)
         if (start == end) return
         val selectionPath = paragraph!!.getPathForRange(start, end)
+        selectionPath.shift(offset)
         // TODO(haoyuchang): check if move this paint to parameter is better
-        canvas.drawPath(selectionPath.shift(offset), Paint().apply { this.color = color })
+        canvas.drawPath(selectionPath, Paint().apply { this.color = color })
     }
 
     /**

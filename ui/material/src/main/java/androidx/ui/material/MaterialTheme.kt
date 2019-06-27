@@ -25,14 +25,15 @@ import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.baseui.shape.Shape
+import androidx.ui.baseui.shape.corner.CornerSizes
+import androidx.ui.baseui.shape.corner.RoundedCornerShape
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.graphics.Color
-import androidx.ui.material.borders.BorderRadius
-import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
@@ -277,7 +278,7 @@ data class Shapes(
     /**
      * Shape used for [Button]
      */
-    val button: ShapeBorder
+    val button: Shape
     // TODO(Andrey): Add shapes for Card, other surfaces? will see what we need.
 )
 
@@ -297,18 +298,16 @@ val CurrentShapeAmbient = Ambient.of<Shapes> {
 fun MaterialButtonShapeTheme(@Children children: @Composable() () -> Unit) {
     val value = +withDensity {
         Shapes(
-            button = RoundedRectangleBorder(
-                borderRadius = BorderRadius.circular(4.dp.toPx().value)
-            )
+            button = RoundedCornerShape(CornerSizes(4.dp))
         )
     }
     CurrentShapeAmbient.Provider(value = value, children = children)
 }
 
 /**
- * Helps to resolve the [ShapeBorder] by applying [choosingBlock] for the [Shapes].
+ * Helps to resolve the [Shape] by applying [choosingBlock] for the [Shapes].
  */
 @CheckResult(suggest = "+")
 fun themeShape(
-    choosingBlock: Shapes.() -> ShapeBorder
-) = effectOf<ShapeBorder> { (+ambient(CurrentShapeAmbient)).choosingBlock() }
+    choosingBlock: Shapes.() -> Shape
+) = effectOf<Shape> { (+ambient(CurrentShapeAmbient)).choosingBlock() }
