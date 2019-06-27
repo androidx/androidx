@@ -70,6 +70,13 @@ import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
 /**
+ * Setting this property indicates that a build is being performed to check for forward
+ * compatibility.
+ */
+const val USE_MAX_DEP_VERSIONS = "useMaxDepVersions"
+const val BUILD_INFO_DIR = "build-info"
+
+/**
  * A plugin which enables all of the Gradle customizations for AndroidX.
  * This plugin reacts to other plugins being added and adds required and optional functionality.
  */
@@ -521,7 +528,7 @@ class AndroidXPlugin : Plugin<Project> {
                     CREATE_LIBRARY_BUILD_INFO_FILES_TASK,
                     CreateLibraryBuildInfoFileTask::class.java
                 ) {
-                    it.outputFile.set(File(project.getDistributionDirectory(),
+                    it.outputFile.set(File(project.getBuildInfoDirectory(),
                         "${project.group}_${project.name}_build_info.txt"))
                 }
                 project.rootProject.tasks.named(CREATE_LIBRARY_BUILD_INFO_FILES_TASK).configure {
