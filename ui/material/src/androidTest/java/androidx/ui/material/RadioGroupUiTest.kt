@@ -21,15 +21,9 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.test.filters.MediumTest
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxSize
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
-import androidx.ui.core.round
-import androidx.ui.core.withDensity
 import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
 import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -58,8 +52,6 @@ class RadioGroupUiTest {
     private val itemOne = "Bar"
     private val itemTwo = "Foo"
     private val itemThree = "Sap"
-
-    private val materialRadioSize = 24.dp
 
     private val unselectedRadioGroupItemSemantics = createFullSemantics(
         inMutuallyExclusiveGroup = true,
@@ -215,24 +207,10 @@ class RadioGroupUiTest {
     }
 
     private fun materialSizesTestForValue(selected: Boolean) {
-        var radioSize: PxSize? = null
-        composeTestRule.setMaterialContent {
-            Container(
-                constraints = DpConstraints(
-                    maxWidth = 5000.dp,
-                    maxHeight = 5000.dp
-                )
-            ) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    radioSize = coordinates.size
-                }) {
-                    RadioButton(selected = selected, onSelect = null)
-                }
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                RadioButton(selected = selected, onSelect = null)
             }
-        }
-        withDensity(composeTestRule.density) {
-            Truth.assertThat(radioSize?.width?.round()).isEqualTo(materialRadioSize.toIntPx())
-            Truth.assertThat(radioSize?.height?.round()).isEqualTo(materialRadioSize.toIntPx())
-        }
+            .assertIsSquareWithSize { 2.dp.toIntPx() * 2 + 20.dp.toIntPx() }
     }
 }
