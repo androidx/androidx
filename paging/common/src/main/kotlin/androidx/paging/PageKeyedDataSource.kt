@@ -17,10 +17,12 @@
 package androidx.paging
 
 import androidx.arch.core.util.Function
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.DataSource.KeyType.PAGE_KEYED
-import androidx.paging.futures.await
-import com.google.common.util.concurrent.ListenableFuture
+import androidx.paging.PageKeyedDataSource.Result
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 /**
  * Incremental data loader for page-keyed content, where requests return keys for next/previous
@@ -136,14 +138,13 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * It is always valid to pass a different amount of data than what is requested. Pass an
          * empty list if there is no more data to load.
          *
-         * @param data List of items loaded from the DataSource. If this is empty, the DataSource
-         *             is treated as empty, and no further loads will occur.
+         * @param data List of items loaded from the [DataSource]. If this is empty, the
+         * [DataSource] is treated as empty, and no further loads will occur.
          * @param position Position of the item at the front of the list. If there are `N`
-         *                 items before the items in data that can be loaded from this DataSource,
-         *                 pass `N`.
+         * items before the items in data that can be loaded from this DataSource, pass `N`.
          * @param totalCount Total number of items that may be returned from this DataSource.
-         *                   Includes the number in the initial `data` parameter as well as any
-         *                   items that can be loaded in front or behind of `data`.
+         * Includes the number in the initial `data` parameter as well as any items that can be
+         * loaded in front or behind of `data`.
          */
         abstract fun onResult(
             data: List<Value>,
@@ -164,9 +165,9 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          *
          * @param data List of items loaded from the [PageKeyedDataSource].
          * @param previousPageKey Key for page before the initial load result, or `null` if no more
-         *                        data can be loaded before.
-         * @param nextPageKey Key for page after the initial load result, or `null` if no
-         *                    more data can be loaded after.
+         * data can be loaded before.
+         * @param nextPageKey Key for page after the initial load result, or `null` if no more data
+         * can be loaded after.
          */
         abstract fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?)
 
@@ -214,8 +215,8 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          *
          * @param data List of items loaded from the PageKeyedDataSource.
          * @param adjacentPageKey Key for subsequent page load (previous page in [loadBefore] / next
-         *                        page in [loadAfter]), or `null` if there are no more pages to load
-         *                        in the current load direction.
+         * page in [loadAfter]), or `null` if there are no more pages to load in the current load
+         * direction.
          */
         abstract fun onResult(data: List<Value>, adjacentPageKey: Key?)
 
@@ -239,32 +240,22 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * @throws [IllegalArgumentException] when passed an unsupported load type.
      */
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
-    internal final override suspend fun load(params: Params<Key>): BaseResult<Value> {
-        if (params.type == LoadType.INITIAL) {
-            val initParams = LoadInitialParams<Key>(
+    internal final override suspend fun load(params: Params<Key>): BaseResult<Value> = when {
+        params.type == LoadType.INITIAL -> loadInitial(
+            LoadInitialParams(
                 params.initialLoadSize,
                 params.placeholdersEnabled
             )
-            return loadInitial(initParams).await()
-        } else {
-            // null key, return empty data
-            if (params.key == null) return BaseResult.empty()
-
-            val loadParams = LoadParams(params.key, params.pageSize)
-            when {
-                params.type == LoadType.START -> return loadBefore(loadParams).await()
-                params.type == LoadType.END -> return loadAfter(loadParams).await()
-            }
-        }
-        throw IllegalArgumentException("Unsupported type " + params.type.toString())
+        )
+        params.key == null -> BaseResult.empty()
+        params.type == LoadType.START -> loadBefore(LoadParams(params.key, params.pageSize))
+        params.type == LoadType.END -> loadAfter(LoadParams(params.key, params.pageSize))
+        else -> throw IllegalArgumentException("Unsupported type " + params.type.toString())
     }
 
-    internal fun loadInitial(
-        params: LoadInitialParams<Key>
-    ): ListenableFuture<InitialResult<Key, Value>> {
-        val future = ResolvableFuture.create<InitialResult<Key, Value>>()
-        executor.execute {
-            val callback = object : LoadInitialCallback<Key, Value>() {
+    private suspend fun loadInitial(params: LoadInitialParams<Key>) =
+        suspendCancellableCoroutine<InitialResult<Key, Value>> { cont ->
+            loadInitial(params, object : LoadInitialCallback<Key, Value>() {
                 override fun onResult(
                     data: List<Value>,
                     position: Int,
@@ -272,56 +263,30 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
                     previousPageKey: Key?,
                     nextPageKey: Key?
                 ) {
-                    future.set(
+                    val initialResult =
                         InitialResult(data, position, totalCount, previousPageKey, nextPageKey)
-                    )
+                    cont.resume(initialResult)
                 }
 
                 override fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?) {
-                    future.set(InitialResult(data, previousPageKey, nextPageKey))
+                    cont.resume(InitialResult(data, previousPageKey, nextPageKey))
                 }
 
                 override fun onError(error: Throwable) {
-                    future.setException(error)
+                    cont.resumeWithException(error)
                 }
-            }
-            loadInitial(
-                LoadInitialParams(params.requestedLoadSize, params.placeholdersEnabled),
-                callback
-            )
-        }
-        return future
-    }
-
-    private fun getFutureAsCallback(future: ResolvableFuture<Result<Key, Value>>) =
-        object : LoadCallback<Key, Value>() {
-            override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
-                future.set(Result(data, adjacentPageKey))
-            }
-
-            override fun onError(error: Throwable) {
-                future.setException(error)
-            }
+            })
         }
 
-    private fun loadBefore(params: LoadParams<Key>): ListenableFuture<Result<Key, Value>> {
-        val future = ResolvableFuture.create<Result<Key, Value>>()
-        executor.execute {
-            loadBefore(
-                LoadParams(params.key, params.requestedLoadSize),
-                getFutureAsCallback(future)
-            )
+    private suspend fun loadBefore(params: LoadParams<Key>) =
+        suspendCancellableCoroutine<Result<Key, Value>> { cont ->
+            loadBefore(params, cont.asCallback())
         }
-        return future
-    }
 
-    private fun loadAfter(params: LoadParams<Key>): ListenableFuture<Result<Key, Value>> {
-        val future = ResolvableFuture.create<Result<Key, Value>>()
-        executor.execute {
-            loadAfter(LoadParams(params.key, params.requestedLoadSize), getFutureAsCallback(future))
+    private suspend fun loadAfter(params: LoadParams<Key>) =
+        suspendCancellableCoroutine<Result<Key, Value>> { cont ->
+            loadAfter(params, cont.asCallback())
         }
-        return future
-    }
 
     /**
      * Load initial data.
@@ -357,7 +322,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * prevent further loading.
      *
      * @param params Parameters for the load, including the key for the new page, and requested load
-     *               size.
+     * size.
      * @param callback Callback that receives loaded data.
      */
     abstract fun loadBefore(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)
@@ -377,7 +342,7 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * prevent further loading.
      *
      * @param params Parameters for the load, including the key for the new page, and requested load
-     *               size.
+     * size.
      * @param callback Callback that receives loaded data.
      */
     abstract fun loadAfter(params: LoadParams<Key>, callback: LoadCallback<Key, Value>)
@@ -406,3 +371,14 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
         function: (Value) -> ToValue
     ): PageKeyedDataSource<Key, ToValue> = mapByPage(Function { list -> list.map(function) })
 }
+
+private fun <Key : Any, Value : Any> CancellableContinuation<Result<Key, Value>>.asCallback() =
+    object : PageKeyedDataSource.LoadCallback<Key, Value>() {
+        override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
+            resume(Result(data, adjacentPageKey))
+        }
+
+        override fun onError(error: Throwable) {
+            resumeWithException(error)
+        }
+    }
