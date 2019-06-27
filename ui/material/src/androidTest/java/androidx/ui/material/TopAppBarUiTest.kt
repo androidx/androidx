@@ -18,17 +18,16 @@ package androidx.ui.material
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
-import androidx.ui.layout.DpConstraints
 import com.google.common.truth.Truth
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.currentTextStyle
+import androidx.ui.core.ipx
 import androidx.ui.painting.TextStyle
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertDoesNotExist
@@ -49,32 +48,17 @@ class TopAppBarUiTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
-    private val bigConstraints = DpConstraints(
-        minWidth = 0.dp,
-        minHeight = 0.dp,
-        maxHeight = 1000.dp,
-        maxWidth = 1000.dp
-    )
-
     private val defaultHeight = 56.dp
 
     @Test
     fun topAppBarTest_ExpandsToScreen() {
-        var size: PxSize? = null
-        composeTestRule.setMaterialContent {
-            Container(constraints = bigConstraints) {
-                OnChildPositioned(onPositioned = { position ->
-                    size = position.size
-                }) {
-                    TopAppBar()
-                }
-            }
-        }
         val dm = composeTestRule.displayMetrics
-        withDensity(composeTestRule.density) {
-            Truth.assertThat(size?.height?.round()).isEqualTo(defaultHeight.toIntPx())
-            Truth.assertThat(size?.width?.value?.toInt()).isEqualTo(dm.widthPixels)
-        }
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                TopAppBar()
+            }
+            .assertHeightEqualsTo(defaultHeight)
+            .assertWidthEqualsTo { dm.widthPixels.ipx }
     }
 
     @Test
@@ -238,76 +222,45 @@ class TopAppBarUiTest {
 
     @Test
     fun topAppBarTrailingIcons_oneIcon() {
-        var trailingIconInfo: LayoutCoordinates? = null
-        composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { position ->
-                    trailingIconInfo = position
-                }) {
-                    TopAppBarTrailingIcons(icons = listOf(24.dp))
-                }
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                TopAppBarTrailingIcons(icons = listOf(24.dp))
             }
-        }
+            .assertWidthEqualsTo { 24.dp.toIntPx() + 24.dp.toIntPx() }
+
         findByTag("Trailing icon").assertIsVisible()
         assertDoesNotExist { testTag == "Overflow icon" }
-
-        withDensity(composeTestRule.density) {
-            val trailingIconExpectedWidth = 24.dp + 24.dp // icon and spacer
-            val trailingIconWidth = trailingIconInfo?.size?.width?.round()
-            Truth.assertThat(trailingIconWidth).isEqualTo(trailingIconExpectedWidth.toIntPx())
-        }
     }
 
     @Test
     fun topAppBarTrailingIcons_twoIcons() {
-        var trailingIconInfo: LayoutCoordinates? = null
-        composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { position ->
-                    trailingIconInfo = position
-                }) {
-                    TopAppBarTrailingIcons(icons = listOf(24.dp, 24.dp))
-                }
-            }
-        }
+
+        composeTestRule.setMaterialContentAndTestSizes {
+            TopAppBarTrailingIcons(icons = listOf(24.dp, 24.dp))
+        }.assertWidthEqualsTo { (24.dp.toIntPx() * 2) + (24.dp.toIntPx() * 2) }
+
         findAll { testTag == "Trailing icon" }.apply {
             forEach {
                 it.assertIsVisible()
             }
         }.assertCountEquals(2)
         assertDoesNotExist { testTag == "Overflow icon" }
-
-        withDensity(composeTestRule.density) {
-            val trailingIconExpectedWidth = (24.dp * 2) + (24.dp * 2) // icons and spacers
-            val trailingIconWidth = trailingIconInfo?.size?.width?.round()
-            Truth.assertThat(trailingIconWidth).isEqualTo(trailingIconExpectedWidth.toIntPx())
-        }
     }
 
     @Test
     fun topAppBarTrailingIcons_threeIcons() {
-        var trailingIconInfo: LayoutCoordinates? = null
-        composeTestRule.setMaterialContent {
-            Container {
-                OnChildPositioned(onPositioned = { position ->
-                    trailingIconInfo = position
-                }) {
-                    TopAppBarTrailingIcons(icons = listOf(24.dp, 24.dp, 24.dp))
-                }
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                TopAppBarTrailingIcons(icons = listOf(24.dp, 24.dp, 24.dp))
             }
-        }
+            .assertWidthEqualsTo { 24.dp.toIntPx() * 2 + 24.dp.toIntPx() * 3 + 12.dp.toIntPx() }
+        // icons and spacers + 12.dp overflow
+
         findAll { testTag == "Trailing icon" }.apply {
             forEach {
                 it.assertIsVisible()
             }
         }.assertCountEquals(2)
         findByTag("Overflow icon").assertIsVisible()
-
-        withDensity(composeTestRule.density) {
-            val trailingIconExpectedWidth = (24.dp * 2) + (24.dp * 3) + // icons and spacers
-                    12.dp // overflow
-            val trailingIconWidth = trailingIconInfo?.size?.width?.round()
-            Truth.assertThat(trailingIconWidth).isEqualTo(trailingIconExpectedWidth.toIntPx())
-        }
     }
 }

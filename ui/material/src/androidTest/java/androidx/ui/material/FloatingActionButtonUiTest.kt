@@ -16,19 +16,15 @@
 
 package androidx.ui.material
 
-import android.graphics.Bitmap
 import androidx.compose.composer
 import androidx.test.filters.MediumTest
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
-import androidx.ui.layout.Wrap
 import androidx.ui.painting.Image
 import androidx.ui.painting.ImageConfig
 import androidx.ui.test.createComposeRule
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,42 +38,23 @@ class FloatingActionButtonUiTest {
     val composeTestRule = createComposeRule()
 
     @Test
-    fun defaultFabHasSizeFromSpec() = withDensity(composeTestRule.density) {
-        var size: PxSize? = null
-
-        composeTestRule.setMaterialContent {
-            Wrap {
-                OnChildPositioned(onPositioned = { position ->
-                    size = position.size
-                }) {
-                    FloatingActionButton(icon = createImage())
-                }
+    fun defaultFabHasSizeFromSpec() {
+        composeTestRule
+            .setMaterialContentAndTestSizes {
+                FloatingActionButton(icon = createImage())
             }
-        }
-        with(size!!) {
-            val expectedSize = 56.dp.toIntPx()
-            assertThat(width.round()).isEqualTo(expectedSize)
-            assertThat(height.round()).isEqualTo(expectedSize)
-        }
+            .assertIsSquareWithSize(56.dp)
     }
 
     @Test
-    fun extendedFabHasHeightFromSpec() = withDensity(composeTestRule.density) {
-        var size: PxSize? = null
-
-        composeTestRule.setMaterialContent {
-            Wrap {
-                OnChildPositioned(onPositioned = { position ->
-                    size = position.size
-                }) {
-                    FloatingActionButton(icon = createImage(), text = "Extended")
-                }
+    fun extendedFabHasHeightFromSpec() {
+        val size = composeTestRule
+            .setMaterialContentAndCollectPixelSize {
+                FloatingActionButton(icon = createImage(), text = "Extended")
             }
-        }
-        with(size!!) {
-            val expectedSize = 48.dp.toIntPx()
-            assertThat(height.round()).isEqualTo(expectedSize)
-            assertThat(width.round().value).isAtLeast(expectedSize.value)
+        withDensity(composeTestRule.density) {
+            Truth.assertThat(size.width.round().value).isAtLeast(48.dp.toIntPx().value)
+            Truth.assertThat(size.height.round()).isEqualTo(48.dp.toIntPx())
         }
     }
 
