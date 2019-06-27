@@ -90,14 +90,30 @@ import java.util.Locale;
  * By default, the buttons inside MediaControlView will not visible unless the corresponding
  * {@link SessionCommand} is marked as allowed. For more details, refer to {@link MediaSession}.
  * <p>
- * Currently, MediaControlView animates off-screen in two steps:
- *   1) Title and bottom bars slide up and down respectively and the transport controls fade out,
- *      leaving only the progress bar at the bottom of the view.
- *   2) Progress bar slides down off-screen.
+ * <em> UI transitions : </em>
+ * Currently, MediaControlView animates UI transitions between three different modes: full,
+ * progress-bar only, and none. Full mode is where all the views are visible; Progress-bar only mode
+ * is where only the progress bar is visible and the title, transport controls and other icons are
+ * hidden; None mode is where all views are gone. The default interval between each mode is 2000ms,
+ * but it can be customized by using {@link VideoView#setMediaControlView(MediaControlView, long)}.
+ * Transitions occur based on the following logic:
+ *   1) In Full mode
+ *     a) If a touch/trackball event is received, will transition to None mode.
+ *     b) If a touch/trackball event is not received, will transition to Progress-bar only mode
+ *        after the interval.
+ *   2) In Progress-bar only mode
+ *     a) If a touch/trackball event is received, will transition to Full mode.
+ *     b) If a touch/trackball event is not received, will transition to None mode after the
+ *        interval.
+ *   3) In None mode
+ *     a) If a touch/trackball event is received, will transition to Full mode.
+ *   4) While animating, all touch/trackball event will be ignored.
+ *
  * <p>
+ * <em> Customization : </em>
  * In addition, the following customizations are supported:
- * 1) Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
- * 2) Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}
+ *   1) Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
+ *   2) Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}
  * <p>
  * <em> Displaying metadata : </em>
  * MediaControlView supports displaying metadata by calling
