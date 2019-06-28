@@ -583,7 +583,7 @@ public class MediaBrowserCompatTest {
             for (int j = i + 1; j < orderOfRemovingCallbacks.length; j++) {
                 StubSubscriptionCallback callback = subscriptionCallbacks
                         .get(orderOfRemovingCallbacks[j]);
-                callback.await(TIME_OUT_MS);
+                assertTrue(callback.await(TIME_OUT_MS));
                 assertEquals(1, callback.mChildrenLoadedWithOptionCount);
             }
 
