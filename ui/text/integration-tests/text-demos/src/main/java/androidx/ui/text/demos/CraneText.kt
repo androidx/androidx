@@ -94,6 +94,8 @@ fun TextDemo() {
                 TextDemoShadowEffect()
                 TagLine(tag = "selection")
                 TextDemoSelection()
+                TagLine(tag = "selection with string input")
+                TextDemoSelectionWithStringInput()
                 TagLine(tag = "selection in 2D Array Vertical")
                 TextDemoSelection2DArrayVertical()
                 TagLine(tag = "selection in 2D Array Horizontal")
@@ -581,6 +583,24 @@ fun TextDemoSelection() {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun TextDemoSelectionWithStringInput() {
+    val selection = +state<Selection?> { null }
+    SelectionContainer(
+        selection = selection.value,
+        onSelectionChange = { selection.value = it }) {
+        Text(
+            text = "$displayText    $displayTextChinese    $displayTextHindi",
+            style = TextStyle(
+                color = Color(0xFFFF0000.toInt()),
+                fontSize = fontSize6,
+                fontWeight = FontWeight.w200,
+                fontStyle = FontStyle.Italic
+            )
+        )
     }
 }
 
