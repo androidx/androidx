@@ -44,6 +44,7 @@ import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
+import androidx.test.filters.FlakyTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -276,6 +277,7 @@ public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBa
         assertTrue(latchForRew.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
+    @FlakyTest(bugId = 136217260)
     @Test
     public void testSetMetadataForNonMusicFile() throws Throwable {
         final String title = "BigBuckBunny";
