@@ -47,8 +47,7 @@
                 android:layout_weight="1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/checkbox_text_use_crypto"
-                android:onClick="onCheckboxClicked"/>
+                android:text="@string/checkbox_text_use_crypto" />
         <CheckBox
                 android:id="@+id/checkbox_require_confirmation"
                 android:layout_weight="1"
