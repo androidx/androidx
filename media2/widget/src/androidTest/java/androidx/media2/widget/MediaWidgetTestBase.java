@@ -29,6 +29,7 @@ import android.os.Build;
 import android.view.View;
 import android.view.WindowManager;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -56,8 +57,12 @@ public class MediaWidgetTestBase extends MediaTestBase {
     // Expected success time
     static final int WAIT_TIME_MS = 1000;
 
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
     private List<SessionPlayer> mPlayers = new ArrayList<>();
+    @GuardedBy("mLock")
     private List<MediaSession> mSessions = new ArrayList<>();
+    @GuardedBy("mLock")
     private List<MediaController> mControllers = new ArrayList<>();
 
     Context mContext;
@@ -133,9 +138,11 @@ public class MediaWidgetTestBase extends MediaTestBase {
         MediaController controller = new MediaController.Builder(mContext)
                 .setSessionToken(session.getToken())
                 .build();
-        mPlayers.add(player);
-        mSessions.add(session);
-        mControllers.add(controller);
+        synchronized (mLock) {
+            mPlayers.add(player);
+            mSessions.add(session);
+            mControllers.add(controller);
+        }
         PlayerWrapper wrapper = new PlayerWrapper(controller, mMainHandlerExecutor, callback);
         wrapper.attachCallback();
         if (item != null) {
@@ -148,7 +155,9 @@ public class MediaWidgetTestBase extends MediaTestBase {
     PlayerWrapper createPlayerWrapperOfPlayer(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item) {
         SessionPlayer player = new MediaPlayer(mContext);
-        mPlayers.add(player);
+        synchronized (mLock) {
+            mPlayers.add(player);
+        }
         PlayerWrapper wrapper = new PlayerWrapper(player, mMainHandlerExecutor, callback);
         wrapper.attachCallback();
         if (item != null) {
@@ -159,22 +168,24 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     void closeAll() {
-        for (MediaController controller : mControllers) {
-            controller.close();
-        }
-        for (MediaSession session : mSessions) {
-            session.close();
-        }
-        for (SessionPlayer player : mPlayers) {
-            try {
-                player.close();
-            } catch (Exception ex) {
-                // ignore
+        synchronized (mLock) {
+            for (MediaController controller : mControllers) {
+                controller.close();
             }
+            for (MediaSession session : mSessions) {
+                session.close();
+            }
+            for (SessionPlayer player : mPlayers) {
+                try {
+                    player.close();
+                } catch (Exception ex) {
+                    // ignore
+                }
+            }
+            mControllers.clear();
+            mSessions.clear();
+            mPlayers.clear();
         }
-        mControllers.clear();
-        mSessions.clear();
-        mPlayers.clear();
     }
 
     class DefaultPlayerCallback extends PlayerWrapper.PlayerCallback {
