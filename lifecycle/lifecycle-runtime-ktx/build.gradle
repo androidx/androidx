@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    api(project(":lifecycle:lifecycle-common"))
+    api(project(":lifecycle:lifecycle-runtime"))
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES)
     implementation(SUPPORT_ANNOTATIONS)
