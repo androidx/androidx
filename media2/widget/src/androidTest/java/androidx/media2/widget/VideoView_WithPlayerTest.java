@@ -54,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(Parameterized.class)
 @LargeTest
-public class VideoView_WithSthTest extends MediaWidgetTestBase {
+public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     @Parameterized.Parameters(name = "PlayerType={0}")
     public static List<String> getPlayerTypes() {
         return Arrays.asList(PLAYER_TYPE_MEDIA_CONTROLLER, PLAYER_TYPE_MEDIA_PLAYER);
@@ -69,7 +69,7 @@ public class VideoView_WithSthTest extends MediaWidgetTestBase {
     public ActivityTestRule<VideoViewTestActivity> mActivityRule =
             new ActivityTestRule<>(VideoViewTestActivity.class);
 
-    public VideoView_WithSthTest(String playerType) {
+    public VideoView_WithPlayerTest(String playerType) {
         mPlayerType = playerType;
     }
 
