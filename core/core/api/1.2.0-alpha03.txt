@@ -1005,30 +1005,34 @@ package androidx.core.graphics {
     method public static void setHasMipMap(android.graphics.Bitmap, boolean);
   }
 
+  public class BlendModeColorFilterCompat {
+    method public static android.graphics.ColorFilter? createBlendModeColorFilterCompat(int, androidx.core.graphics.BlendModeCompat);
+  }
+
   public enum BlendModeCompat {
     enum_constant public static final androidx.core.graphics.BlendModeCompat CLEAR;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat COLOR;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat COLOR_BURN;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat COLOR_DODGE;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat COLOR;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat COLOR_BURN;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat COLOR_DODGE;
     enum_constant public static final androidx.core.graphics.BlendModeCompat DARKEN;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat DIFFERENCE;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat DIFFERENCE;
     enum_constant public static final androidx.core.graphics.BlendModeCompat DST;
     enum_constant public static final androidx.core.graphics.BlendModeCompat DST_ATOP;
     enum_constant public static final androidx.core.graphics.BlendModeCompat DST_IN;
     enum_constant public static final androidx.core.graphics.BlendModeCompat DST_OUT;
     enum_constant public static final androidx.core.graphics.BlendModeCompat DST_OVER;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat EXCLUSION;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat HARD_LIGHT;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat HUE;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat EXCLUSION;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat HARD_LIGHT;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat HUE;
     enum_constant public static final androidx.core.graphics.BlendModeCompat LIGHTEN;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat LUMINOSITY;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat LUMINOSITY;
     enum_constant public static final androidx.core.graphics.BlendModeCompat MODULATE;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat MULTIPLY;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat MULTIPLY;
     enum_constant public static final androidx.core.graphics.BlendModeCompat OVERLAY;
     enum_constant public static final androidx.core.graphics.BlendModeCompat PLUS;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat SATURATION;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat SATURATION;
     enum_constant public static final androidx.core.graphics.BlendModeCompat SCREEN;
-    enum_constant public static final androidx.core.graphics.BlendModeCompat SOFT_LIGHT;
+    enum_constant @RequiresApi(android.os.Build.VERSION_CODES.Q) public static final androidx.core.graphics.BlendModeCompat SOFT_LIGHT;
     enum_constant public static final androidx.core.graphics.BlendModeCompat SRC;
     enum_constant public static final androidx.core.graphics.BlendModeCompat SRC_ATOP;
     enum_constant public static final androidx.core.graphics.BlendModeCompat SRC_IN;
@@ -1074,7 +1078,6 @@ package androidx.core.graphics {
   public final class PaintCompat {
     method public static boolean hasGlyph(android.graphics.Paint, String);
     method public static boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat?);
-    method public static boolean setBlendModeColorFilter(android.graphics.Paint, @ColorInt int, androidx.core.graphics.BlendModeCompat?);
   }
 
   public final class PathSegment {

@@ -172,7 +172,6 @@ package androidx.core.graphics {
   public final class PaintKt {
     ctor public PaintKt();
     method public static inline boolean setBlendMode(android.graphics.Paint, androidx.core.graphics.BlendModeCompat? blendModeCompat);
-    method public static inline boolean setBlendModeColorFilter(android.graphics.Paint, @ColorInt int color, androidx.core.graphics.BlendModeCompat? blendModeCompat);
   }
 
   public final class PathKt {

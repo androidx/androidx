@@ -19,7 +19,6 @@
 package androidx.core.graphics
 
 import android.graphics.Paint
-import androidx.annotation.ColorInt
 
 /**
  * Convenience method to configure the BlendMode of a Paint in a backward
@@ -28,20 +27,4 @@ import androidx.annotation.ColorInt
  */
 inline fun Paint.setBlendMode(blendModeCompat: BlendModeCompat?): Boolean {
     return PaintCompat.setBlendMode(this, blendModeCompat)
-}
-
-/**
- * Convenience method to configure the BlendModeColorFilter of a Paint in a backward
- * compatible way. This method falls back on PorterDuffColorFilter for API levels that
- * do not support BlendModeColorFilter. This method is a no-op if the BlendMode provided is
- * not supported on a given API level.
- *
- * Passing in null for the BlendModeCompat parameter will remove the previously configured
- * ColorFilter on the Paint
- */
-inline fun Paint.setBlendModeColorFilter(
-    @ColorInt color: Int,
-    blendModeCompat: BlendModeCompat?
-): Boolean {
-    return PaintCompat.setBlendModeColorFilter(this, color, blendModeCompat)
 }
