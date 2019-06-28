@@ -38,6 +38,7 @@ import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.currentFrame
 import androidx.compose.frames.registerCommitObserver
+import java.util.TreeSet
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidCraneView constructor(context: Context)
@@ -45,7 +46,7 @@ class AndroidCraneView constructor(context: Context)
 
     val root = LayoutNode()
     // LayoutNodes that need measure and layout, the value is true when measure is needed
-    private val relayoutNodes = mutableSetOf<LayoutNode>()
+    private val relayoutNodes = TreeSet<LayoutNode>(DepthComparator)
 
     // Map from model to DrawNodes that should be redrawn or LayoutNodes that need measuring
     private val modelToNodes = ObserverMap<Any, ComponentNode>()
@@ -59,7 +60,7 @@ class AndroidCraneView constructor(context: Context)
     // RepaintBoundaryNodes that have had their boundary changed. When using Views,
     // the size/position of a View should change during layout, so this list
     // is kept separate from dirtyRepaintBoundaryNodes.
-    private val repaintBoundaryChanges = mutableSetOf<RepaintBoundaryNode>()
+    private val repaintBoundaryChanges = TreeSet<RepaintBoundaryNode>(DepthComparator)
 
     // RepaintBoundaryNodes that are dirty and should be redrawn. This is only
     // used when RenderNodes are active in Q+. When Views are used, the View
@@ -265,7 +266,7 @@ class AndroidCraneView constructor(context: Context)
             measureIteration++
             val frame = currentFrame()
             frame.observeReads(frameReadObserver) {
-                relayoutNodes.sortedBy { it.depth }.forEach { layoutNode ->
+                relayoutNodes.forEach { layoutNode ->
                     if (layoutNode.needsRemeasure) {
                         val parent = layoutNode.parentLayoutNode
                         if (parent != null && parent.layout != null) {
@@ -281,7 +282,7 @@ class AndroidCraneView constructor(context: Context)
                         layoutNode.layout?.callLayout()
                     }
                 }
-                repaintBoundaryChanges.sortedBy { it.depth }.forEach { node ->
+                repaintBoundaryChanges.forEach { node ->
                     var bounds = node.calculateChildrenBoundingBox()
                     node.layoutX = bounds.left
                     node.layoutY = bounds.top
@@ -804,3 +805,15 @@ private class RepaintBoundaryRenderNode(
 }
 
 private val RepaintBoundaryNode.container: RepaintBoundary get() = ownerData as RepaintBoundary
+
+private val DepthComparator: Comparator<ComponentNode> = object : Comparator<ComponentNode> {
+    override fun compare(l1: ComponentNode, l2: ComponentNode): Int {
+        val depth1 = l1.depth
+        val depth2 = l2.depth
+        val depthDiff = depth1 - depth2
+        if (depthDiff != 0) {
+            return depthDiff
+        }
+        return System.identityHashCode(l1) - System.identityHashCode(l2)
+    }
+}
