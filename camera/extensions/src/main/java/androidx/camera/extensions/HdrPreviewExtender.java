@@ -19,6 +19,7 @@ package androidx.camera.extensions;
 import android.util.Log;
 
 import androidx.camera.core.PreviewConfig;
+import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 
 /**
@@ -66,7 +67,7 @@ public class HdrPreviewExtender extends PreviewExtender {
 
         VendorHdrPreviewExtender(PreviewConfig.Builder builder) {
             mImpl = new HdrPreviewExtenderImpl();
-            init(builder, mImpl);
+            init(builder, mImpl, EffectMode.HDR);
         }
     }
 

@@ -47,6 +47,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -271,6 +272,24 @@ public final class CameraXTest {
     public void canGetCameraXContext() {
         Context context = CameraX.getContext();
         assertThat(context).isNotNull();
+    }
+
+    @Test
+    public void canGetActiveUseCases_afterBindToLifecycle() {
+        FakeUseCaseConfig config0 =
+                new FakeUseCaseConfig.Builder().setTargetName("config0").build();
+        FakeUseCase fakeUseCase = new FakeUseCase(config0);
+        FakeOtherUseCaseConfig config1 =
+                new FakeOtherUseCaseConfig.Builder().setTargetName("config1").build();
+        FakeOtherUseCase fakeOtherUseCase = new FakeOtherUseCase(config1);
+
+        CameraX.bindToLifecycle(mLifecycle, fakeUseCase, fakeOtherUseCase);
+        mLifecycle.startAndResume();
+
+        Collection<UseCase> useCases = CameraX.getActiveUseCases();
+
+        assertThat(useCases.contains(fakeUseCase)).isTrue();
+        assertThat(useCases.contains(fakeOtherUseCase)).isTrue();
     }
 
     private static class CountingErrorListener implements ErrorListener {
