@@ -33,6 +33,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
@@ -47,6 +48,8 @@ import androidx.camera.extensions.BeautyImageCaptureExtender;
 import androidx.camera.extensions.BeautyPreviewExtender;
 import androidx.camera.extensions.BokehImageCaptureExtender;
 import androidx.camera.extensions.BokehPreviewExtender;
+import androidx.camera.extensions.ExtensionsErrorListener;
+import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.HdrImageCaptureExtender;
 import androidx.camera.extensions.HdrPreviewExtender;
 import androidx.camera.extensions.NightImageCaptureExtender;
@@ -337,6 +340,12 @@ public class CameraExtensionsActivity extends AppCompatActivity
 
     /** Creates all the use cases. */
     private void createUseCases() {
+        ExtensionsManager.setExtensionsErrorListener(new ExtensionsErrorListener() {
+            @Override
+            public void onError(@NonNull ExtensionsErrorCode errorCode) {
+                Log.d(TAG, "Extensions error in error code: " + errorCode);
+            }
+        });
         createImageCapture();
         createPreview();
         bindUseCases();

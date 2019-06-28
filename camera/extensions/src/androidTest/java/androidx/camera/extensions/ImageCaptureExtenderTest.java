@@ -82,7 +82,7 @@ public class ImageCaptureExtenderTest {
     public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit() {
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
-                new ImageCaptureExtender.ImageCaptureAdapter(mMockImageCaptureExtenderImpl);
+                new ImageCaptureExtender.ImageCaptureAdapter(mMockImageCaptureExtenderImpl, null);
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCaptureBundle(
                         imageCaptureAdapter).setUseCaseEventListener(
@@ -117,7 +117,7 @@ public class ImageCaptureExtenderTest {
     public void extenderLifeCycleTest_noMoreCameraEventCallbacksBeforeAndAfterInitDeInit() {
 
         ImageCaptureExtender.ImageCaptureAdapter imageCaptureAdapter =
-                new ImageCaptureExtender.ImageCaptureAdapter(mMockImageCaptureExtenderImpl);
+                new ImageCaptureExtender.ImageCaptureAdapter(mMockImageCaptureExtenderImpl, null);
         ImageCaptureConfig.Builder configBuilder =
                 new ImageCaptureConfig.Builder().setCaptureBundle(
                         imageCaptureAdapter).setUseCaseEventListener(

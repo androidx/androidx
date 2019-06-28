@@ -15,6 +15,11 @@
  */
 package androidx.camera.extensions;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureConfig;
@@ -53,6 +58,13 @@ public final class ExtensionsManager {
          */
         AUTO
     }
+
+    private static final Object ERROR_LOCK = new Object();
+
+    @GuardedBy("ERROR_LOCK")
+    private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
+    @GuardedBy("ERROR_LOCK")
+    private static volatile ExtensionsErrorListener sExtensionsErrorListener = null;
 
     /**
      * Indicates whether the camera device with the {@link LensFacing} can support the specific
@@ -118,6 +130,32 @@ public final class ExtensionsManager {
         }
 
         return extender.isExtensionAvailable();
+    }
+
+    /**
+     * Sets an {@link ExtensionsErrorListener} which will get called any time an
+     * extensions error is encountered.
+     *
+     * @param listener The {@link ExtensionsErrorListener} listener that will be run.
+     */
+    public static void setExtensionsErrorListener(@Nullable ExtensionsErrorListener listener) {
+        synchronized (ERROR_LOCK) {
+            sExtensionsErrorListener = listener;
+        }
+    }
+
+    static void postExtensionsError(ExtensionsErrorListener.ExtensionsErrorCode errorCode) {
+        synchronized (ERROR_LOCK) {
+            final ExtensionsErrorListener listenerReference = sExtensionsErrorListener;
+            if (listenerReference != null) {
+                DEFAULT_HANDLER.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listenerReference.onError(errorCode);
+                    }
+                });
+            }
+        }
     }
 
     private static boolean checkPreviewExtensionCapability(EffectMode effectMode,

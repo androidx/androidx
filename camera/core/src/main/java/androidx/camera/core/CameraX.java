@@ -430,6 +430,29 @@ public final class CameraX {
     }
 
     /**
+     * Returns currently active {@link UseCase}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public static Collection<UseCase> getActiveUseCases() {
+        Collection<UseCase> activeUseCases = null;
+
+        Collection<UseCaseGroupLifecycleController> controllers =
+                INSTANCE.mUseCaseGroupRepository.getUseCaseGroups();
+
+        for (UseCaseGroupLifecycleController controller : controllers) {
+            if (controller.getUseCaseGroup().isActive()) {
+                activeUseCases = controller.getUseCaseGroup().getUseCases();
+                break;
+            }
+        }
+
+        return activeUseCases;
+    }
+
+    /**
      * Registers the callbacks for the {@link BaseCamera} to the {@link UseCase}.
      *
      * @param cameraId the id for the {@link BaseCamera}
