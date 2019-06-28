@@ -16,6 +16,10 @@
 
 package androidx.core.graphics;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 /**
  * Compat version of {@link android.graphics.BlendMode}, usages of {@link BlendModeCompat} will
  * map to {@link android.graphics.PorterDuff.Mode} wherever possible
@@ -243,6 +247,7 @@ public enum BlendModeCompat {
      *      \end{equation}
      * </p>
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     COLOR_DODGE,
 
     /**
@@ -266,6 +271,7 @@ public enum BlendModeCompat {
      *     \end{equation}
      * </p>
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     COLOR_BURN,
 
     /**
@@ -287,6 +293,7 @@ public enum BlendModeCompat {
      *      \end{equation}
      * </p>
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     HARD_LIGHT,
 
     /**
@@ -332,6 +339,7 @@ public enum BlendModeCompat {
      *       \end{equation}
      * </p>
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     SOFT_LIGHT,
 
     /**
@@ -350,6 +358,7 @@ public enum BlendModeCompat {
      *     \end{equation}
      * </p>
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     DIFFERENCE,
 
     /**
@@ -367,6 +376,7 @@ public enum BlendModeCompat {
      *     \end{equation}
      * </p>
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     EXCLUSION,
 
     /**
@@ -378,29 +388,34 @@ public enum BlendModeCompat {
      *      C_{src} * (1 - \alpha_{dst}) + C_{dst} * (1 - \alpha_{src}) + (C_{src} * C_{dst})\)
      * </p>
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     MULTIPLY,
 
     /**
      * Replaces hue of destination with hue of source, leaving saturation
      * and luminosity unchanged.
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     HUE,
 
     /**
      * Replaces saturation of destination saturation hue of source, leaving hue and
      * luminosity unchanged.
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     SATURATION,
 
     /**
      * Replaces hue and saturation of destination with hue and saturation of source,
      * leaving luminosity unchanged.
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     COLOR,
 
     /**
      * Replaces luminosity of destination with luminosity of source, leaving hue and
      * saturation unchanged.
      */
+    @RequiresApi(Build.VERSION_CODES.Q)
     LUMINOSITY
 }
