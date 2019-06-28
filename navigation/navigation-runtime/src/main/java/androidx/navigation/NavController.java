@@ -853,21 +853,23 @@ public class NavController {
                         navOptions.isPopUpToInclusive());
             }
         }
-        NavBackStackEntry currentEntry = mBackStack.peekLast();
-        NavDestination currentDestination = currentEntry != null
-                ? currentEntry.getDestination()
-                : null;
         Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
                 node.getNavigatorName());
         Bundle finalArgs = node.addInDefaultArgs(args);
         NavDestination newDest = navigator.navigate(node, finalArgs,
                 navOptions, navigatorExtras);
         if (newDest != null) {
-            // We've successfully navigating to the new destination, which means
-            // we should pop any FloatingWindow destination off the back stack
-            // before updating it with our new destination
-            if (currentDestination instanceof FloatingWindow) {
-                popped = popBackStackInternal(currentDestination.getId(), true) || popped;
+            if (!(newDest instanceof FloatingWindow)) {
+                // We've successfully navigating to the new destination, which means
+                // we should pop any FloatingWindow destination off the back stack
+                // before updating the back stack with our new destination
+                //noinspection StatementWithEmptyBody
+                while (!mBackStack.isEmpty()
+                        && mBackStack.peekLast().getDestination() instanceof FloatingWindow
+                        && popBackStackInternal(
+                                mBackStack.peekLast().getDestination().getId(), true)) {
+                    // Keep popping
+                }
             }
             // The mGraph should always be on the back stack after you navigate()
             if (mBackStack.isEmpty()) {

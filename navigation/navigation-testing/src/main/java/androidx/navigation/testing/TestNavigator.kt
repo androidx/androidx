@@ -44,7 +44,7 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
         destination: Destination,
         args: Bundle?,
         navOptions: NavOptions?,
-        navigatorExtras: Navigator.Extras?
+        navigatorExtras: Extras?
     ) = if (navOptions != null && navOptions.shouldLaunchSingleTop() && !backStack.isEmpty() &&
             current.first.id == destination.id
         ) {
@@ -63,7 +63,7 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
     /**
      * A simple Test destination
      */
-    class Destination internal constructor(
+    open class Destination constructor(
         navigator: Navigator<out NavDestination>
     ) : NavDestination(navigator)
 }
