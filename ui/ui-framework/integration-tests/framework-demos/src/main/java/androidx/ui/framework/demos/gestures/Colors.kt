@@ -19,6 +19,10 @@ package androidx.ui.framework.demos.gestures
 import androidx.ui.graphics.Color
 import kotlin.random.Random
 
+val DefaultBackgroundColor = Color(0xffffffff.toInt())
+val PressedColor = Color(0x1f000000)
+val BorderColor = Color(0x1f000000)
+
 val Red = Color(0xFFf44336.toInt())
 val Pink = Color(0xFFe91e63.toInt())
 val Purple = Color(0xFF9c27b0.toInt())
@@ -101,4 +105,20 @@ fun List<Color>.inOrder(current: Color?, forward: Boolean): Color {
         }
 
     return this[next]
+}
+
+fun Color.over(that: Color): Color {
+
+    val a = this.getComponents()
+    val b = that.getComponents()
+
+    val result = FloatArray(4)
+
+    for (i in 0..2) {
+        result[i] = (a[i] * a[3] + (b[i] * b[3]) * (1 - a[3])) / (a[3] + b[3] * (1 - a[3]))
+    }
+
+    result[3] = a[3] + b[3] * (1 - a[3])
+
+    return Color(result[0], result[1], result[2], result[3])
 }

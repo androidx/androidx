@@ -20,7 +20,6 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.memo
@@ -36,20 +35,24 @@ import androidx.ui.temputils.delay
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
-// TODO(b/137569202): This bug tracks the note below regarding the need to eventually improve LongPressGestureDetector.
+// TODO(b/137569202): This bug tracks the note below regarding the need to eventually
+//  improve LongPressGestureDetector.
+// TODO(b/139020678): Probably has shared functionality with other press based detectors.
 /**
  * Responds to a pointer being "down" for an extended amount of time.
  *
- * Note: this is likely a temporary, naive, and flawed approach. It is not necessarily guaranteed to interoperate well
- * with forthcoming behavior related to disambiguation between multi-tap (double tap, triple tap) and tap.
+ * Note: this is likely a temporary, naive, and flawed approach. It is not necessarily guaranteed
+ * to interoperate well with forthcoming behavior related to disambiguation between multi-tap
+ * (double tap, triple tap) and tap.
  */
 @Composable
 fun LongPressGestureDetector(
     onLongPress: (PxPosition) -> Unit,
     children: @Composable() () -> Unit
 ) {
+    val coroutineContext = +ambient(CoroutineContextAmbient)
     val recognizer =
-        +memo { LongPressGestureRecognizer(+ambient(CoroutineContextAmbient)) }
+        +memo { LongPressGestureRecognizer(coroutineContext) }
     recognizer.onLongPress = onLongPress
 
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {

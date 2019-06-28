@@ -20,27 +20,26 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.core.setContent
 import androidx.compose.composer
 import androidx.ui.core.dp
-import androidx.ui.core.gesture.LongPressGestureDetector
+import androidx.ui.core.gesture.PressReleasedGestureDetector
 
 /**
- * Simple LongPressGestureDetector demo.
+ * Simple PressReleasedGestureDetector demo.
  */
-class LongPressGestureDetectorDemo : Activity() {
+class PressReleasedGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val color = +state { Colors.random() }
 
-            val onLongPress = { _: PxPosition ->
+            val onRelease = {
                 color.value = color.value.anotherRandomColor()
             }
 
-            LongPressGestureDetector(onLongPress = onLongPress) {
+            PressReleasedGestureDetector(onRelease) {
                 MatchParent {
                     DrawBox(
                         0.px,

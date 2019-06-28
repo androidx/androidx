@@ -20,11 +20,8 @@ import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.anyPositionChangeConsumed
 import androidx.ui.core.changedToDown
-import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUp
-import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.consumeDownChange
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
@@ -32,15 +29,16 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.PointerInputWrapper
 
 /**
- * This gesture detector has a callback for when a press gesture being released for the purposes of
- * firing an event in response to something like a button being pressed.
+ * This gesture detector fires a callback when a traditional press is being released.  This is
+ * generally the same thing as "onTap" or "onClick".
  *
  * More specifically, it will call [onRelease] if:
- * - The first [PointerInputChange] it receives during the [PointerEventPass.PostUp] pass has
- *   an unconsumed down change.
- * - The last [PointerInputChange]  it receives during the [PointerEventPass.PostUp] pass has
+ * - All of the first [PointerInputChange]s it receives during the [PointerEventPass.PostUp] pass
+ *   have unconsumed down changes, thus representing new set of pointers, none of which have had
+ *   their down events consumed.
+ * - The last [PointerInputChange] it receives during the [PointerEventPass.PostUp] pass has
  *   an unconsumed up change.
- * - And while it has at least one pointer touching it, no [PointerInputChange] has had any
+ * - While it has at least one pointer touching it, no [PointerInputChange] has had any
  *   movement consumed (as that would indicate that something in the heirarchy moved and this a
  *   press should be cancelled.
  *
@@ -48,6 +46,7 @@ import androidx.ui.core.PointerInputWrapper
  * [PointerEventPass.PostUp] pass if it has not already been consumed. That behavior can be changed
  * via [consumeDownOnStart].
  */
+// TODO(b/139020678): Probably has shared functionality with other press based detectors.
 @Composable
 fun PressReleasedGestureDetector(
     onRelease: (() -> Unit)? = null,
@@ -75,48 +74,43 @@ internal class PressReleaseGestureRecognizer {
      */
     var consumeDownOnStart = true
 
-    private var pointerCount = 0
-    private var shouldRespondToUp = false
+    /**
+     * True when we are primed to call [onRelease] and may be consuming all down changes.
+     */
+    private var active = false
 
     val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass ->
-            changes.map { processChange(it, pass) }
-        }
 
-    private fun processChange(
-        pointerInputChange: PointerInputChange,
-        pass: PointerEventPass
-    ): PointerInputChange {
-        var change = pointerInputChange
+            var internalChanges = changes
 
-        if (pass == PointerEventPass.InitialDown && change.changedToDownIgnoreConsumed()) {
-            pointerCount++
-        }
+            if (pass == PointerEventPass.PostUp) {
 
-        if (pass == PointerEventPass.PostUp && pointerCount == 1) {
-            if (change.changedToDown()) {
-                shouldRespondToUp = true
-                if (consumeDownOnStart) {
-                    change = change.consumeDownChange()
+                if (internalChanges.all { it.changedToDown() }) {
+                    // If we have not yet started and all of the changes changed to down, we are
+                    // starting.
+                    active = true
+                } else if (active && internalChanges.all { it.changedToUp() }) {
+                    // If we have started and all of the changes changed to up, we are stopping.
+                    active = false
+                    internalChanges = internalChanges.map { it.consumeDownChange() }
+                    onRelease?.invoke()
+                }
+
+                if (active && consumeDownOnStart) {
+                    // If we have started, we should consume the down change on all changes.
+                    internalChanges = internalChanges.map { it.consumeDownChange() }
                 }
             }
-            if (shouldRespondToUp && change.changedToUp()) {
-                onRelease?.invoke()
-                change = change.consumeDownChange()
+
+            if (pass == PointerEventPass.PostDown && active &&
+                internalChanges.any { it.anyPositionChangeConsumed() }
+            ) {
+                // On the final pass, if we have started and any of the changes had consumed
+                // position changes, we cancel.
+                active = false
             }
-        }
 
-        if (pass == PointerEventPass.PostDown && change.anyPositionChangeConsumed()) {
-            shouldRespondToUp = false
+            internalChanges
         }
-
-        if (pass == PointerEventPass.PostDown && change.changedToUpIgnoreConsumed()) {
-            pointerCount--
-            if (pointerCount == 0) {
-                shouldRespondToUp = false
-            }
-        }
-
-        return change
-    }
 }
