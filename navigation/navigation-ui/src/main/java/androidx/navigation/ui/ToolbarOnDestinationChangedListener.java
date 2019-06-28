@@ -26,6 +26,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
+import androidx.transition.TransitionManager;
 
 import java.lang.ref.WeakReference;
 
@@ -69,6 +70,9 @@ class ToolbarOnDestinationChangedListener extends
         if (toolbar != null) {
             toolbar.setNavigationIcon(icon);
             toolbar.setNavigationContentDescription(contentDescription);
+            if (icon == null) {
+                TransitionManager.beginDelayedTransition(toolbar);
+            }
         }
     }
 }

@@ -35,6 +35,7 @@ android {
 dependencies {
     api(project(":navigation:navigation-runtime"))
     api(MATERIAL)
+    implementation('androidx.transition:transition:1.0.1')
 
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
     androidTestImplementation(project(":navigation:navigation-testing"))
