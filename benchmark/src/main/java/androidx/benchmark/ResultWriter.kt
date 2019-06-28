@@ -91,6 +91,7 @@ internal object ResultWriter {
         beginObject()
             .name("name").value(report.testName)
             .name("className").value(report.className)
+            .name("totalRunTimeNs").value(report.totalRunTimeNs)
             .name("metrics").metricsObject(report)
             .name("warmupIterations").value(report.warmupIterations)
             .name("repeatIterations").value(report.repeatIterations)
