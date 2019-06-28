@@ -184,8 +184,8 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
 
     @UiThreadTest
     @Test
-    public void testAttachedMediaControlView_setPlayerOrController() throws Throwable {
-        PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerCallback(), mMediaItem);
+    public void testAttachedMediaControlView_setPlayerOrController() {
+        PlayerWrapper playerWrapper = createPlayerWrapper(new DefaultPlayerCallback(), mMediaItem);
 
         MediaControlView defaultMediaControlView = mVideoView.getMediaControlView();
         assertNotNull(defaultMediaControlView);
