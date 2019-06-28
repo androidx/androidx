@@ -87,7 +87,7 @@ import java.util.concurrent.Executor;
  * <li> If a developer wants to attach a custom {@link MediaControlView},
  * assign the custom media control widget using {@link #setMediaControlView}.
  * <li> If {@link VideoView} communicates with {@link MediaSession} by calling
- * {@link #setMediaController(MediaController)}, it will responds to media key events.
+ * {@link #setMediaController(MediaController)}, it will respond to media key events.
  * </ul>
  *
  * <p>
@@ -393,8 +393,9 @@ public class VideoView extends SelectiveLayout {
      * {@link VideoView}, the same instance will be set to {@link MediaControlView}.
      *
      * @param mediaControlView a {@link MediaControlView} instance.
-     * @param intervalMs a time interval in milliseconds until {@link VideoView} hides
-     *                   {@link MediaControlView}.
+     * @param intervalMs time interval in milliseconds until {@link MediaControlView} transitions
+     *                   into a different mode. -1 can be set to disable all UI transitions. See
+     *                   {@link MediaControlView} Javadoc Section "UI transitions" for details.
      */
     public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
         removeView(mMediaControlView);
