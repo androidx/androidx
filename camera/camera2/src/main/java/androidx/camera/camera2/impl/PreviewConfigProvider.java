@@ -19,11 +19,13 @@ package androidx.camera.camera2.impl;
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
 import android.util.Log;
+import android.util.Rational;
 import android.view.WindowManager;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.ConfigProvider;
@@ -41,6 +43,8 @@ import java.util.List;
 @RestrictTo(Scope.LIBRARY)
 public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig> {
     private static final String TAG = "PreviewConfigProvider";
+    private static final Rational DEFAULT_ASPECT_RATIO_4_3 = new Rational(4, 3);
+    private static final Rational DEFAULT_ASPECT_RATIO_3_4 = new Rational(3, 4);
 
     private final CameraFactory mCameraFactory;
     private final WindowManager mWindowManager;
@@ -89,7 +93,12 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
             }
 
             int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
+            int rotationDegrees = CameraX.getCameraInfo(defaultId).getSensorRotationDegrees(
+                    targetRotation);
+            boolean isRotateNeeded = (rotationDegrees == 90 || rotationDegrees == 270);
             builder.setTargetRotation(targetRotation);
+            builder.setTargetAspectRatio(
+                    isRotateNeeded ? DEFAULT_ASPECT_RATIO_3_4 : DEFAULT_ASPECT_RATIO_4_3);
         } catch (Exception e) {
             Log.w(TAG, "Unable to determine default lens facing for Preview.", e);
         }

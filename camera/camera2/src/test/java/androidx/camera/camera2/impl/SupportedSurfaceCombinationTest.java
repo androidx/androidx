@@ -85,6 +85,7 @@ public final class SupportedSurfaceCombinationTest {
     private static final String RAW_CAMERA_ID = "3";
     private static final String LEVEL3_CAMERA_ID = "4";
     private static final int DEFAULT_SENSOR_ORIENTATION = 90;
+    private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
     private final Size mDisplaySize = new Size(1280, 720);
     private final Size mAnalysisSize = new Size(640, 480);
     private final Size mPreviewSize = mDisplaySize;
@@ -471,6 +472,47 @@ public final class SupportedSurfaceCombinationTest {
             assertThat(resultAspectRatio).isNull();
             assertTrue(previewAspectRatio.equals(targetAspectRatio));
         }
+    }
+
+    @Test
+    public void checkDefaultAspectRatioForMixedUseCase() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+        ImageAnalysisConfig.Builder imageAnalysisConfigBuilder = new ImageAnalysisConfig.Builder();
+
+        previewConfigBuilder.setLensFacing(LensFacing.BACK);
+        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+        imageAnalysisConfigBuilder.setLensFacing(LensFacing.BACK);
+
+        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+        ImageAnalysis imageAnalysis = new ImageAnalysis(imageAnalysisConfigBuilder.build());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(preview);
+        useCases.add(imageCapture);
+        useCases.add(imageAnalysis);
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+
+        Size previewSize = suggestedResolutionMap.get(preview);
+        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture);
+        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis);
+
+        Rational previewAspectRatio = new Rational(previewSize.getWidth(), previewSize.getHeight());
+        Rational imageCaptureAspectRatio = new Rational(imageCaptureSize.getWidth(),
+                imageCaptureSize.getHeight());
+        Rational imageAnalysisAspectRatio = new Rational(imageAnalysisSize.getWidth(),
+                imageAnalysisSize.getHeight());
+
+        assertTrue(previewAspectRatio.equals(ASPECT_RATIO_4_3));
+        assertTrue(imageCaptureAspectRatio.equals(ASPECT_RATIO_4_3));
+        assertTrue(imageAnalysisAspectRatio.equals(ASPECT_RATIO_4_3));
     }
 
     @Test
