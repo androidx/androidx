@@ -394,6 +394,7 @@ limitations under the License.
     <!-- The style for borderless buttons. -->
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
         <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Medium</item>
         <item name="android:ellipsize">none</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:maxEms">@integer/car_button_max_ems</item>
