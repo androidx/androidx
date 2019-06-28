@@ -19,12 +19,13 @@ package androidx.paging
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertFails
 
 @RunWith(JUnit4::class)
 class PagedListTest {
@@ -49,7 +50,7 @@ class PagedListTest {
     private val backgroundThread = TestExecutor()
 
     @Test
-    fun createLegacy() {
+    fun createLegacy() = runBlocking {
         @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(ListDataSource(ITEMS), 100)
             .setNotifyExecutor(mainThread)
@@ -65,23 +66,24 @@ class PagedListTest {
             .setPageSize(10)
             .setEnablePlaceholders(false)
             .build()
-        val success = mutableListOf(false)
-        val future = PagedList.create(
-            ListDataSource(ITEMS),
-            GlobalScope,
-            mainThread,
-            backgroundThread,
-            backgroundThread,
-            null,
-            config,
-            0
-        )
-        future.addListener(Runnable {
-            assertEquals(ITEMS.subList(0, 30), future.get())
-            success[0] = true
-        }, backgroundThread)
-        backgroundThread.executeAll()
-        assertTrue(success[0])
+        var success = false
+        runBlocking {
+            val pagedList = PagedList.create(
+                ListDataSource(ITEMS),
+                GlobalScope,
+                mainThread,
+                backgroundThread,
+                backgroundThread,
+                null,
+                config,
+                0
+            )
+
+            backgroundThread.executeAll()
+            assertEquals(ITEMS.subList(0, 30), pagedList)
+            success = true
+        }
+        assert(success)
     }
 
     @Test
@@ -103,30 +105,29 @@ class PagedListTest {
             .setPageSize(10)
             .setEnablePlaceholders(false)
             .build()
-        val success = mutableListOf(false)
-        val future = PagedList.create(
-            dataSource,
-            GlobalScope,
-            mainThread,
-            backgroundThread,
-            backgroundThread,
-            null,
-            config,
-            0
-        )
-        future.addListener(Runnable {
-            try {
-                future.get()
-            } catch (e: Exception) {
-                success[0] = true
+        var success = false
+        assertFails {
+            runBlocking {
+                PagedList.create(
+                    dataSource,
+                    GlobalScope,
+                    mainThread,
+                    backgroundThread,
+                    backgroundThread,
+                    null,
+                    config,
+                    0
+                )
+
+                backgroundThread.executeAll()
+                success = true
             }
-        }, backgroundThread)
-        backgroundThread.executeAll()
-        assertTrue(success[0])
+        }
+        assert(!success)
     }
 
     @Test
-    fun defaults() {
+    fun defaults() = runBlocking {
         val pagedList = PagedList(
             dataSource = dataSource,
             config = config,

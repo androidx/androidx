@@ -17,9 +17,9 @@
 package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
-import androidx.paging.futures.assertFailsWithCause
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -31,6 +31,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
+import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class PageKeyedDataSourceTest {
@@ -91,18 +92,19 @@ class PageKeyedDataSourceTest {
     @Test
     fun loadFullVerify() {
         // validate paging entire ItemDataSource results in full, correctly ordered data
-        val pagedListFuture = PagedList.create(
-            ItemDataSource(),
-            GlobalScope,
-            mainThread,
-            backgroundThread,
-            backgroundThread,
-            null,
-            PagedList.Config.Builder().setPageSize(100).build(),
-            null
-        )
+        val pagedList = runBlocking {
+            PagedList.create(
+                ItemDataSource(),
+                GlobalScope,
+                mainThread,
+                backgroundThread,
+                backgroundThread,
+                null,
+                PagedList.Config.Builder().setPageSize(100).build(),
+                null
+            )
+        }
         backgroundThread.executeAll()
-        val pagedList = pagedListFuture.get()
 
         // validate initial load
         assertEquals(PAGE_MAP[INIT_KEY]!!.data, pagedList)
@@ -150,18 +152,20 @@ class PageKeyedDataSourceTest {
             }
         }
 
-        PagedList.create(
-            dataSource,
-            GlobalScope,
-            FailExecutor(),
-            DirectExecutor,
-            DirectExecutor,
-            null,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        ).get()
+        runBlocking {
+            PagedList.create(
+                dataSource,
+                GlobalScope,
+                FailExecutor(),
+                DirectExecutor,
+                DirectExecutor,
+                null,
+                PagedList.Config.Builder()
+                    .setPageSize(10)
+                    .build(),
+                ""
+            )
+        }
     }
 
     @Test
@@ -179,7 +183,7 @@ class PageKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackListTooBig() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept pos + list > totalCount
                 it.onResult(listOf("a", "b", "c"), 0, 2, null, null)
@@ -189,7 +193,7 @@ class PageKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackPositionTooLarge() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept pos + list > totalCount
                 it.onResult(listOf("a", "b"), 1, 2, null, null)
@@ -199,7 +203,7 @@ class PageKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackPositionNegative() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept negative position
                 it.onResult(listOf("a", "b", "c"), -1, 2, null, null)
@@ -209,7 +213,7 @@ class PageKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackEmptyCannotHavePlaceholders() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept empty result unless data set is empty
                 it.onResult(emptyList(), 0, 2, null, null)
@@ -254,18 +258,21 @@ class PageKeyedDataSourceTest {
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
         val executor = TestExecutor()
 
-        val pagedList = PagedList.create(
-            dataSource,
-            GlobalScope,
-            executor,
-            executor,
-            executor,
-            boundaryCallback,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        ).apply { executor.executeAll() }.get()
+        val pagedList = runBlocking {
+            PagedList.create(
+                dataSource,
+                GlobalScope,
+                executor,
+                executor,
+                executor,
+                boundaryCallback,
+                PagedList.Config.Builder()
+                    .setPageSize(10)
+                    .build(),
+                ""
+            )
+        }
+        executor.executeAll()
 
         pagedList.loadAround(0)
 
@@ -310,18 +317,21 @@ class PageKeyedDataSourceTest {
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
         val executor = TestExecutor()
 
-        val pagedList = PagedList.create(
-            dataSource,
-            GlobalScope,
-            executor,
-            executor,
-            executor,
-            boundaryCallback,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        ).apply { executor.executeAll() }.get()
+        val pagedList = runBlocking {
+            PagedList.create(
+                dataSource,
+                GlobalScope,
+                executor,
+                executor,
+                executor,
+                boundaryCallback,
+                PagedList.Config.Builder()
+                    .setPageSize(10)
+                    .build(),
+                ""
+            )
+        }
+        executor.executeAll()
 
         pagedList.loadAround(0)
 

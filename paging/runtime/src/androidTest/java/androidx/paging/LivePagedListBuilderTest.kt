@@ -121,9 +121,7 @@ class LivePagedListBuilderTest {
     fun executorBehavior() {
         // specify a background executor via builder, and verify it gets used for all loads,
         // overriding default arch IO executor
-        val livePagedList = LivePagedListBuilder(
-            MockDataSourceFactory(), 2
-        )
+        val livePagedList = LivePagedListBuilder(MockDataSourceFactory(), 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
@@ -179,20 +177,21 @@ class LivePagedListBuilderTest {
         assertNotNull(initPagedList!!)
         assertTrue(initPagedList is InitialPagedList<*, *>)
 
-        val loadStateChangedCallback =
-            { type: PagedList.LoadType, state: PagedList.LoadState, error: Throwable? ->
-                if (type == REFRESH) {
-                    loadStates.add(LoadState(type, state, error))
-                }
+        val loadStateChangedCallback: LoadStateListener = { type, state, error ->
+            if (type == REFRESH) {
+                loadStates.add(LoadState(type, state, error))
             }
+        }
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
 
         // flush loadInitial, done with passed executor
         backgroundExecutor.executeAll()
 
         assertSame(initPagedList, pagedListHolder[0])
+        // TODO: Investigate removing initial IDLE state from callback updates.
         assertEquals(
             listOf(
+                LoadState(REFRESH, IDLE, null),
                 LoadState(REFRESH, LOADING, null),
                 LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION)
             ), loadStates
@@ -208,6 +207,7 @@ class LivePagedListBuilderTest {
 
         assertEquals(
             listOf(
+                LoadState(REFRESH, IDLE, null),
                 LoadState(REFRESH, LOADING, null),
                 LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION),
                 LoadState(REFRESH, LOADING, null)
@@ -219,6 +219,7 @@ class LivePagedListBuilderTest {
         pagedListHolder[0]!!.addWeakLoadStateListener(loadStateChangedCallback)
         assertEquals(
             listOf(
+                LoadState(REFRESH, IDLE, null),
                 LoadState(REFRESH, LOADING, null),
                 LoadState(REFRESH, RETRYABLE_ERROR, RETRYABLE_EXCEPTION),
                 LoadState(REFRESH, LOADING, null),

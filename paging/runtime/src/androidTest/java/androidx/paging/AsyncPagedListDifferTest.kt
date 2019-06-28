@@ -27,6 +27,7 @@ import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -63,9 +64,9 @@ class AsyncPagedListDifferTest {
         config: PagedList.Config,
         data: List<V>,
         initialKey: Int
-    ): PagedList<V> {
+    ): PagedList<V> = runBlocking {
         @Suppress("DEPRECATION")
-        return PagedList.Builder(ListDataSource(data), config)
+        PagedList.Builder(ListDataSource(data), config)
             .setInitialKey(initialKey)
             .setNotifyExecutor(mainThread)
             .setFetchExecutor(pageLoadingThread)

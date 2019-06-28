@@ -27,6 +27,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.verifyZeroInteractions
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -172,22 +173,24 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         maxSize: Int = PagedList.Config.MAX_SIZE_UNBOUNDED,
         dataSource: DataSource<Int, Item> = TestSource(listData)
     ): ContiguousPagedList<Int, Item> {
-        val ret = PagedList.create(
-            dataSource,
-            GlobalScope,
-            mainThread,
-            backgroundThread,
-            DirectExecutor,
-            boundaryCallback,
-            PagedList.Config.Builder()
-                .setPageSize(pageSize)
-                .setInitialLoadSizeHint(initLoadSize)
-                .setPrefetchDistance(prefetchDistance)
-                .setMaxSize(maxSize)
-                .setEnablePlaceholders(placeholdersEnabled)
-                .build(),
-            initialPosition
-        ).get()
+        val ret = runBlocking {
+            PagedList.create(
+                dataSource,
+                GlobalScope,
+                mainThread,
+                backgroundThread,
+                DirectExecutor,
+                boundaryCallback,
+                PagedList.Config.Builder()
+                    .setPageSize(pageSize)
+                    .setInitialLoadSizeHint(initLoadSize)
+                    .setPrefetchDistance(prefetchDistance)
+                    .setMaxSize(maxSize)
+                    .setEnablePlaceholders(placeholdersEnabled)
+                    .build(),
+                initialPosition
+            )
+        }
         @Suppress("UNCHECKED_CAST")
         return ret as ContiguousPagedList<Int, Item>
     }

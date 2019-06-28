@@ -9,13 +9,13 @@ package androidx.paging {
 
 
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final <K, T> com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedList<T>> create(androidx.paging.DataSource<K,T> dataSource, kotlinx.coroutines.CoroutineScope coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, java.util.concurrent.Executor initialLoadExecutor, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final suspend <K, T> Object create(androidx.paging.DataSource<K,T> p, kotlinx.coroutines.CoroutineScope dataSource, java.util.concurrent.Executor coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<T>? initialLoadExecutor, androidx.paging.PagedList.Config boundaryCallback, K? config, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> key);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.paging.PagedStorage<T> getStorage();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setInitialLoadState(androidx.paging.PagedList.LoadState loadState, Throwable? error);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class PagedList.Companion {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public <K, T> com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedList<T>> create(androidx.paging.DataSource<K,T> dataSource, kotlinx.coroutines.CoroutineScope coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, java.util.concurrent.Executor initialLoadExecutor, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public suspend <K, T> Object create(androidx.paging.DataSource<K,T> dataSource, kotlinx.coroutines.CoroutineScope coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, java.util.concurrent.Executor initialLoadExecutor, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> p);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract static class PagedList.LoadStateManager {
@@ -32,20 +32,6 @@ package androidx.paging {
 
 
 
-
-}
-
-package androidx.paging.futures {
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface FutureCallback<V> {
-    method public void onError(Throwable throwable);
-    method public void onSuccess(V? value);
-  }
-
-  public final class Futures {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <V> void addCallback(com.google.common.util.concurrent.ListenableFuture<? extends V>, androidx.paging.futures.FutureCallback<? super V> callback, java.util.concurrent.Executor executor);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static <I, O> com.google.common.util.concurrent.ListenableFuture<O> transform(com.google.common.util.concurrent.ListenableFuture<? extends I>, androidx.arch.core.util.Function<? super I,? extends O> function, java.util.concurrent.Executor executor);
-  }
 
 }
 

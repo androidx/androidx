@@ -17,7 +17,6 @@
 package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
-import androidx.paging.futures.assertFailsWithCause
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.GlobalScope
@@ -31,6 +30,7 @@ import org.junit.runners.JUnit4
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
+import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class ItemKeyedDataSourceTest {
@@ -312,18 +312,20 @@ class ItemKeyedDataSourceTest {
             }
         }
 
-        PagedList.create(
-            dataSource,
-            GlobalScope,
-            FailExecutor(),
-            DirectExecutor,
-            DirectExecutor,
-            null,
-            PagedList.Config.Builder()
-                .setPageSize(10)
-                .build(),
-            ""
-        ).get()
+        runBlocking {
+            PagedList.create(
+                dataSource,
+                GlobalScope,
+                FailExecutor(),
+                DirectExecutor,
+                DirectExecutor,
+                null,
+                PagedList.Config.Builder()
+                    .setPageSize(10)
+                    .build(),
+                ""
+            )
+        }
     }
 
     @Test
@@ -341,7 +343,7 @@ class ItemKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackListTooBig() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept pos + list > totalCount
                 it.onResult(listOf("a", "b", "c"), 0, 2)
@@ -351,7 +353,7 @@ class ItemKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackPositionTooLarge() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept pos + list > totalCount
                 it.onResult(listOf("a", "b"), 1, 2)
@@ -361,7 +363,7 @@ class ItemKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackPositionNegative() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept negative position
                 it.onResult(listOf("a", "b", "c"), -1, 2)
@@ -371,7 +373,7 @@ class ItemKeyedDataSourceTest {
 
     @Test
     fun loadInitialCallbackEmptyCannotHavePlaceholders() {
-        assertFailsWithCause<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             performLoadInitial {
                 // LoadInitialCallback can't accept empty result unless data set is empty
                 it.onResult(emptyList(), 0, 2)
