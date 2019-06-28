@@ -163,7 +163,7 @@ public class VideoView extends SelectiveLayout {
     private final VideoViewInterface.SurfaceListener mSurfaceListener =
             new VideoViewInterface.SurfaceListener() {
         @Override
-        public void onSurfaceCreated(View view, int width, int height) {
+        public void onSurfaceCreated(@NonNull View view, int width, int height) {
             if (DEBUG) {
                 Log.d(TAG, "onSurfaceCreated()"
                         + ", width/height: " + width + "/" + height
@@ -175,14 +175,14 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        public void onSurfaceDestroyed(View view) {
+        public void onSurfaceDestroyed(@NonNull View view) {
             if (DEBUG) {
                 Log.d(TAG, "onSurfaceDestroyed(). " + view.toString());
             }
         }
 
         @Override
-        public void onSurfaceChanged(View view, int width, int height) {
+        public void onSurfaceChanged(@NonNull View view, int width, int height) {
             if (DEBUG) {
                 Log.d(TAG, "onSurfaceChanged(). width/height: " + width + "/" + height
                         + ", " + view.toString());
@@ -190,7 +190,7 @@ public class VideoView extends SelectiveLayout {
         }
 
         @Override
-        public void onSurfaceTakeOverDone(VideoViewInterface view) {
+        public void onSurfaceTakeOverDone(@NonNull VideoViewInterface view) {
             if (view != mTargetView) {
                 if (DEBUG) {
                     Log.d(TAG, "onSurfaceTakeOverDone(). view is not targetView. ignore.: " + view);
