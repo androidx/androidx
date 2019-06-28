@@ -43,7 +43,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -81,7 +80,7 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
 
     @Test
     public void testPlayVideo() throws Throwable {
-        PlayerCallback callback = new PlayerCallback();
+        DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem);
         setPlayerWrapper(playerWrapper);
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -104,7 +103,7 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
                 .build();
         afd.close();
 
-        PlayerCallback callback = new PlayerCallback();
+        DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, item);
         setPlayerWrapper(playerWrapper);
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -119,7 +118,7 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
 
-        PlayerCallback callback = new PlayerCallback();
+        DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem);
         setPlayerWrapper(playerWrapper);
 
@@ -147,7 +146,7 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
 
-        PlayerCallback callback = new PlayerCallback();
+        DefaultPlayerCallback callback = new DefaultPlayerCallback();
         PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem);
         setPlayerWrapper(playerWrapper);
 
@@ -232,29 +231,6 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
                 }
             }
         });
-    }
-
-    private class PlayerCallback extends PlayerWrapper.PlayerCallback {
-        private CountDownLatch mItemLatch = new CountDownLatch(1);
-        private CountDownLatch mPausedLatch = new CountDownLatch(1);
-        private CountDownLatch mPlayingLatch = new CountDownLatch(1);
-
-        @Override
-        void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
-                @Nullable MediaItem item) {
-            if (item != null) {
-                mItemLatch.countDown();
-            }
-        }
-
-        @Override
-        void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-            if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                mPausedLatch.countDown();
-            } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
-                mPlayingLatch.countDown();
-            }
-        }
     }
 
     abstract PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
