@@ -18,6 +18,8 @@ package androidx.media2.widget;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 interface VideoViewInterface {
     /**
      * Assigns the view's surface to the given PlayerWrapper instance.
@@ -53,9 +55,9 @@ interface VideoViewInterface {
      * a listener has been registered via {@link #setSurfaceListener(SurfaceListener)}.
      */
     interface SurfaceListener {
-        void onSurfaceCreated(View view, int width, int height);
-        void onSurfaceDestroyed(View view);
-        void onSurfaceChanged(View view, int width, int height);
-        void onSurfaceTakeOverDone(VideoViewInterface view);
+        void onSurfaceCreated(@NonNull View view, int width, int height);
+        void onSurfaceDestroyed(@NonNull View view);
+        void onSurfaceChanged(@NonNull View view, int width, int height);
+        void onSurfaceTakeOverDone(@NonNull VideoViewInterface view);
     }
 }
