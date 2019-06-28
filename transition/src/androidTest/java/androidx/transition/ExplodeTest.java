@@ -60,36 +60,41 @@ public class ExplodeTest extends BaseTransitionTest {
         mGreenSquare = new TranslationView(context);
         mBlueSquare = new TranslationView(context);
         mYellowSquare = new TranslationView(context);
-        rule.runOnUiThread(() -> {
-            final FrameLayout frame = new FrameLayout(rule.getActivity());
-            mRedSquare.setBackgroundColor(Color.RED);
-            frame.addView(mRedSquare,
-                    new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.TOP));
-            mGreenSquare.setBackgroundColor(Color.GREEN);
-            frame.addView(mGreenSquare,
-                    new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.TOP));
-            mBlueSquare.setBackgroundColor(Color.BLUE);
-            frame.addView(mBlueSquare,
-                    new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.BOTTOM));
-            mYellowSquare.setBackgroundColor(Color.YELLOW);
-            frame.addView(mYellowSquare,
-                    new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.BOTTOM));
-            mRoot.addView(frame,
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.MATCH_PARENT);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final FrameLayout frame = new FrameLayout(rule.getActivity());
+                mRedSquare.setBackgroundColor(Color.RED);
+                frame.addView(mRedSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.TOP));
+                mGreenSquare.setBackgroundColor(Color.GREEN);
+                frame.addView(mGreenSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.TOP));
+                mBlueSquare.setBackgroundColor(Color.BLUE);
+                frame.addView(mBlueSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.RIGHT | Gravity.BOTTOM));
+                mYellowSquare.setBackgroundColor(Color.YELLOW);
+                frame.addView(mYellowSquare,
+                        new FrameLayout.LayoutParams(100, 100, Gravity.LEFT | Gravity.BOTTOM));
+                mRoot.addView(frame,
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.MATCH_PARENT);
+            }
         });
     }
 
     @Test
     public void testExplode() throws Throwable {
-        rule.runOnUiThread(() -> {
-            TransitionManager.beginDelayedTransition(mRoot, mTransition);
-            mRedSquare.setVisibility(View.INVISIBLE);
-            mGreenSquare.setVisibility(View.INVISIBLE);
-            mBlueSquare.setVisibility(View.INVISIBLE);
-            mYellowSquare.setVisibility(View.INVISIBLE);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(mRoot, mTransition);
+                mRedSquare.setVisibility(View.INVISIBLE);
+                mGreenSquare.setVisibility(View.INVISIBLE);
+                mBlueSquare.setVisibility(View.INVISIBLE);
+                mYellowSquare.setVisibility(View.INVISIBLE);
+            }
         });
-
         waitForStart();
         assertThat(mRedSquare, hasVisibility(View.VISIBLE));
         assertThat(mGreenSquare, hasVisibility(View.VISIBLE));
@@ -117,19 +122,25 @@ public class ExplodeTest extends BaseTransitionTest {
 
     @Test
     public void testImplode() throws Throwable {
-        rule.runOnUiThread(() -> {
-            mRedSquare.setVisibility(View.INVISIBLE);
-            mGreenSquare.setVisibility(View.INVISIBLE);
-            mBlueSquare.setVisibility(View.INVISIBLE);
-            mYellowSquare.setVisibility(View.INVISIBLE);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRedSquare.setVisibility(View.INVISIBLE);
+                mGreenSquare.setVisibility(View.INVISIBLE);
+                mBlueSquare.setVisibility(View.INVISIBLE);
+                mYellowSquare.setVisibility(View.INVISIBLE);
+            }
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
-        rule.runOnUiThread(() -> {
-            TransitionManager.beginDelayedTransition(mRoot, mTransition);
-            mRedSquare.setVisibility(View.VISIBLE);
-            mGreenSquare.setVisibility(View.VISIBLE);
-            mBlueSquare.setVisibility(View.VISIBLE);
-            mYellowSquare.setVisibility(View.VISIBLE);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(mRoot, mTransition);
+                mRedSquare.setVisibility(View.VISIBLE);
+                mGreenSquare.setVisibility(View.VISIBLE);
+                mBlueSquare.setVisibility(View.VISIBLE);
+                mYellowSquare.setVisibility(View.VISIBLE);
+            }
         });
 
         waitForStart();
