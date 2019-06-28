@@ -47,6 +47,7 @@ import org.junit.Before;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -126,7 +127,9 @@ public class MediaWidgetTestBase extends MediaTestBase {
         prepareLooper();
 
         SessionPlayer player = new MediaPlayer(mContext);
-        MediaSession session = new MediaSession.Builder(mContext, player).build();
+        MediaSession session = new MediaSession.Builder(mContext, player)
+                .setId(UUID.randomUUID().toString())
+                .build();
         MediaController controller = new MediaController.Builder(mContext)
                 .setSessionToken(session.getToken())
                 .build();
@@ -172,5 +175,28 @@ public class MediaWidgetTestBase extends MediaTestBase {
         mControllers.clear();
         mSessions.clear();
         mPlayers.clear();
+    }
+
+    class DefaultPlayerCallback extends PlayerWrapper.PlayerCallback {
+        CountDownLatch mItemLatch = new CountDownLatch(1);
+        CountDownLatch mPausedLatch = new CountDownLatch(1);
+        CountDownLatch mPlayingLatch = new CountDownLatch(1);
+
+        @Override
+        void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
+                @Nullable MediaItem item) {
+            if (item != null) {
+                mItemLatch.countDown();
+            }
+        }
+
+        @Override
+        void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
+            if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
+                mPausedLatch.countDown();
+            } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
+                mPlayingLatch.countDown();
+            }
+        }
     }
 }

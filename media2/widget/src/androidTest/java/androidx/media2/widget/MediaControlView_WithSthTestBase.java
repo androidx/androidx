@@ -161,6 +161,56 @@ public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBa
     }
 
     @Test
+    public void testSetPlayerAndController_MultipleTimes() throws Throwable {
+        DefaultPlayerCallback callback1 = new DefaultPlayerCallback();
+        PlayerWrapper wrapper1 = createPlayerWrapper(callback1, mFileSchemeMediaItem);
+        assertTrue(callback1.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        DefaultPlayerCallback callback2 = new DefaultPlayerCallback();
+        PlayerWrapper wrapper2 = createPlayerWrapperOfPlayer(callback2, mFileSchemeMediaItem);
+        assertTrue(callback2.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        DefaultPlayerCallback callback3 = new DefaultPlayerCallback();
+        PlayerWrapper wrapper3 = createPlayerWrapperOfController(callback3, mFileSchemeMediaItem);
+        assertTrue(callback3.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        DefaultPlayerCallback callback4 = new DefaultPlayerCallback();
+        PlayerWrapper wrapper4 = createPlayerWrapper(callback4, mFileSchemeMediaItem);
+        assertTrue(callback4.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+
+        setPlayerWrapper(wrapper1);
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed())).perform(click());
+        assertTrue(callback1.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, callback2.mPlayingLatch.getCount());
+        assertEquals(1, callback3.mPlayingLatch.getCount());
+        assertEquals(1, callback4.mPlayingLatch.getCount());
+        callback1.mPlayingLatch = new CountDownLatch(1);
+
+        setPlayerWrapper(wrapper2);
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed())).perform(click());
+        assertTrue(callback2.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, callback1.mPlayingLatch.getCount());
+        assertEquals(1, callback3.mPlayingLatch.getCount());
+        assertEquals(1, callback4.mPlayingLatch.getCount());
+        callback2.mPlayingLatch = new CountDownLatch(1);
+
+        setPlayerWrapper(wrapper3);
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed())).perform(click());
+        assertTrue(callback3.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, callback1.mPlayingLatch.getCount());
+        assertEquals(1, callback2.mPlayingLatch.getCount());
+        assertEquals(1, callback4.mPlayingLatch.getCount());
+        callback3.mPlayingLatch = new CountDownLatch(1);
+
+        setPlayerWrapper(wrapper4);
+        onView(allOf(withId(R.id.pause), isCompletelyDisplayed())).perform(click());
+        assertTrue(callback4.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, callback1.mPlayingLatch.getCount());
+        assertEquals(1, callback2.mPlayingLatch.getCount());
+        assertEquals(1, callback3.mPlayingLatch.getCount());
+    }
+
+    @Test
     public void testFfwdButtonClick() throws Throwable {
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
