@@ -17,7 +17,6 @@
 package androidx.ui.baseui.shape.corner
 
 import androidx.ui.baseui.shape.Shape
-import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Px
 import androidx.ui.core.PxSize
 import androidx.ui.core.toRect
@@ -34,7 +33,7 @@ data class RoundedCornerShape(
     val corners: CornerSizes
 ) : CornerBasedShape(corners) {
 
-    override fun DensityReceiver.createOutline(corners: PxCornerSizes, size: PxSize) =
+    override fun createOutline(corners: PxCornerSizes, size: PxSize) =
         Outline.Rounded(
             RRect(
                 rect = size.toRect(),

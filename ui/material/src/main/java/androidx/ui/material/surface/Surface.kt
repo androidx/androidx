@@ -133,14 +133,14 @@ private fun SurfaceLayout(@Children children: @Composable() () -> Unit) {
 // TODO: Replace with an implementation using RenderNode's Outlines instead to have
 // clipping with antialiasing.
 @Composable
-private fun Clip(shape: Shape, @Children children: @Composable() () -> Unit) = with(shape) {
+private fun Clip(shape: Shape, @Children children: @Composable() () -> Unit) {
     val path = +memo { Path() }
     Draw(children = {
         // this layout is temporary while Draw doesn't accept multiple children
         SurfaceLayout(children)
     }) { canvas, parentSize ->
         path.reset()
-        path.addOutline(createOutline(parentSize))
+        path.addOutline(shape.createOutline(parentSize, density))
         canvas.save()
         canvas.clipPath(path)
         drawChildren()

@@ -55,7 +55,7 @@ package androidx.ui.baseui.shape {
   public final class GenericShape implements androidx.ui.baseui.shape.Shape {
     ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
     method public androidx.ui.baseui.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
-    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
+    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
   }
 
   public final class RectangleShapeKt {
@@ -64,7 +64,7 @@ package androidx.ui.baseui.shape {
   }
 
   public interface Shape {
-    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
+    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
   }
 
 }
@@ -96,35 +96,39 @@ package androidx.ui.baseui.shape.corner {
 
   public abstract class CornerBasedShape implements androidx.ui.baseui.shape.Shape {
     ctor public CornerBasedShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public final androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.core.PxSize size);
-    method public abstract androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.DensityReceiver, androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
+    method public final androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
+    method public abstract androidx.ui.engine.geometry.Outline createOutline(androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
+  }
+
+  public interface CornerSize {
+    method public androidx.ui.core.Px toPx(androidx.ui.core.PxSize shapeSize, androidx.ui.core.Density density);
   }
 
   public final class CornerSizeKt {
     ctor public CornerSizeKt();
-    method public static kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> CornerSize(androidx.ui.core.Dp size);
-    method public static kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> CornerSize(androidx.ui.core.Px size);
-    method public static kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> CornerSize(@FloatRange(from=0.0, to=50.0) float percent);
-    method public static kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> CornerSize(@IntRange(from=0, to=50) int percent);
-    method public static kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> getZeroCornerSize();
+    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(androidx.ui.core.Dp size);
+    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(androidx.ui.core.Px size);
+    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(@IntRange(from=0, to=50) int percent);
+    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(@FloatRange(from=0.0, to=50.0) float percent);
+    method public static androidx.ui.baseui.shape.corner.CornerSize getZeroCornerSize();
   }
 
   public final class CornerSizes {
-    ctor public CornerSizes(kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> topLeft, kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> topRight, kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> bottomRight, kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> bottomLeft);
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> component1();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> component2();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> component3();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> component4();
-    method public androidx.ui.baseui.shape.corner.CornerSizes copy(kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> topLeft, kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> topRight, kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> bottomRight, kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> bottomLeft);
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> getBottomLeft();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> getBottomRight();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> getTopLeft();
-    method public kotlin.jvm.functions.Function2<androidx.ui.core.DensityReceiver,androidx.ui.core.PxSize,androidx.ui.core.Px> getTopRight();
+    ctor public CornerSizes(androidx.ui.baseui.shape.corner.CornerSize topLeft, androidx.ui.baseui.shape.corner.CornerSize topRight, androidx.ui.baseui.shape.corner.CornerSize bottomRight, androidx.ui.baseui.shape.corner.CornerSize bottomLeft);
+    method public androidx.ui.baseui.shape.corner.CornerSize component1();
+    method public androidx.ui.baseui.shape.corner.CornerSize component2();
+    method public androidx.ui.baseui.shape.corner.CornerSize component3();
+    method public androidx.ui.baseui.shape.corner.CornerSize component4();
+    method public androidx.ui.baseui.shape.corner.CornerSizes copy(androidx.ui.baseui.shape.corner.CornerSize topLeft, androidx.ui.baseui.shape.corner.CornerSize topRight, androidx.ui.baseui.shape.corner.CornerSize bottomRight, androidx.ui.baseui.shape.corner.CornerSize bottomLeft);
+    method public androidx.ui.baseui.shape.corner.CornerSize getBottomLeft();
+    method public androidx.ui.baseui.shape.corner.CornerSize getBottomRight();
+    method public androidx.ui.baseui.shape.corner.CornerSize getTopLeft();
+    method public androidx.ui.baseui.shape.corner.CornerSize getTopRight();
   }
 
   public final class CornerSizesKt {
     ctor public CornerSizesKt();
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> allCornersSize);
+    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.baseui.shape.corner.CornerSize allCornersSize);
     method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.core.Dp size);
     method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.core.Px size);
     method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(int percent);
@@ -148,7 +152,7 @@ package androidx.ui.baseui.shape.corner {
 
   public final class PxCornerSizesKt {
     ctor public PxCornerSizesKt();
-    method public static androidx.ui.baseui.shape.corner.PxCornerSizes PxCornerSizes(androidx.ui.core.DensityReceiver, androidx.ui.baseui.shape.corner.CornerSizes corners, androidx.ui.core.PxSize size);
+    method public static androidx.ui.baseui.shape.corner.PxCornerSizes PxCornerSizes(androidx.ui.baseui.shape.corner.CornerSizes corners, androidx.ui.core.PxSize size, androidx.ui.core.Density density);
     method public static boolean isEmpty(androidx.ui.baseui.shape.corner.PxCornerSizes);
   }
 
@@ -156,13 +160,13 @@ package androidx.ui.baseui.shape.corner {
     ctor public RoundedCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
     method public androidx.ui.baseui.shape.corner.CornerSizes component1();
     method public androidx.ui.baseui.shape.corner.RoundedCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public androidx.ui.engine.geometry.Outline.Rounded createOutline(androidx.ui.core.DensityReceiver, androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
+    method public androidx.ui.engine.geometry.Outline.Rounded createOutline(androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
     method public androidx.ui.baseui.shape.corner.CornerSizes getCorners();
   }
 
   public final class RoundedCornerShapeKt {
     ctor public RoundedCornerShapeKt();
-    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape RoundedCornerShape(kotlin.jvm.functions.Function2<? super androidx.ui.core.DensityReceiver,? super androidx.ui.core.PxSize,androidx.ui.core.Px> corner);
+    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape RoundedCornerShape(androidx.ui.baseui.shape.corner.CornerSize corner);
     method public static androidx.ui.baseui.shape.corner.RoundedCornerShape getCircleShape();
   }
 
@@ -634,7 +638,7 @@ package androidx.ui.material.shape {
     ctor public CutCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
     method public androidx.ui.baseui.shape.corner.CornerSizes component1();
     method public androidx.ui.material.shape.CutCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public androidx.ui.engine.geometry.Outline.Generic createOutline(androidx.ui.core.DensityReceiver, androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
+    method public androidx.ui.engine.geometry.Outline.Generic createOutline(androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
     method public androidx.ui.baseui.shape.corner.CornerSizes getCorners();
   }
 

@@ -16,7 +16,7 @@
 
 package androidx.ui.baseui.shape
 
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.engine.geometry.Outline
 
@@ -26,8 +26,9 @@ import androidx.ui.engine.geometry.Outline
 interface Shape {
     /**
      * @param size the size of the shape boundary.
+     * @param density the current density of the screen.
      *
      * @return [Outline] of this shape for the given [size].
      */
-    fun DensityReceiver.createOutline(size: PxSize): Outline
+    fun createOutline(size: PxSize, density: Density): Outline
 }

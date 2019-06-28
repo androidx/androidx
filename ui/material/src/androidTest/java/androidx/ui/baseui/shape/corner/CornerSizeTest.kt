@@ -21,7 +21,6 @@ import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.core.px
-import androidx.ui.core.withDensity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,32 +34,47 @@ class CornerSizeTest {
     private val size = PxSize(150.px, 300.px)
 
     @Test
-    fun pxCorners() = withDensity(density) {
+    fun pxCorners() {
         val corner = CornerSize(24.px)
-        assertThat(corner(size)).isEqualTo(24.px)
+        assertThat(corner.toPx(size, density)).isEqualTo(24.px)
     }
 
     @Test
-    fun dpCorners() = withDensity(density) {
+    fun dpCorners() {
         val corner = CornerSize(5.dp)
-        assertThat(corner(size)).isEqualTo(12.5.px)
+        assertThat(corner.toPx(size, density)).isEqualTo(12.5.px)
     }
 
     @Test
-    fun intPercentCorners() = withDensity(density) {
+    fun intPercentCorners() {
         val corner = CornerSize(15)
-        assertThat(corner(size)).isEqualTo(22.5.px)
+        assertThat(corner.toPx(size, density)).isEqualTo(22.5.px)
     }
 
     @Test
-    fun floatPercentCorners() = withDensity(density) {
+    fun floatPercentCorners() {
         val corner = CornerSize(21.6f)
-        assertThat(corner(PxSize(1000.px, 120.px))).isEqualTo(25.92.px)
+        assertThat(corner.toPx(PxSize(1000.px, 120.px), density)).isEqualTo(25.92.px)
     }
 
     @Test
-    fun zeroCorners() = withDensity(density) {
+    fun zeroCorners() {
         val corner = ZeroCornerSize
-        assertThat(corner(size)).isEqualTo(0.px)
+        assertThat(corner.toPx(size, density)).isEqualTo(0.px)
+    }
+
+    @Test
+    fun pxCornersAreEquals() {
+        assertThat(CornerSize(24.px)).isEqualTo(CornerSize(24.px))
+    }
+
+    @Test
+    fun dpCornersAreEquals() {
+        assertThat(CornerSize(8.dp)).isEqualTo(CornerSize(8.dp))
+    }
+
+    @Test
+    fun percentCornersAreEquals() {
+        assertThat(CornerSize(20f)).isEqualTo(CornerSize(20))
     }
 }

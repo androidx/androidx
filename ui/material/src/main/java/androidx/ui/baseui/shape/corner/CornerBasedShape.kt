@@ -17,7 +17,7 @@
 package androidx.ui.baseui.shape.corner
 
 import androidx.ui.baseui.shape.Shape
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Outline
@@ -33,8 +33,8 @@ abstract class CornerBasedShape(
     private val corners: CornerSizes
 ) : Shape {
 
-    final override fun DensityReceiver.createOutline(size: PxSize): Outline {
-        val corners = PxCornerSizes(corners, size)
+    final override fun createOutline(size: PxSize, density: Density): Outline {
+        val corners = PxCornerSizes(corners, size, density)
         return if (corners.isEmpty()) {
             Outline.Rectangle(size.toRect())
         } else {
@@ -48,5 +48,5 @@ abstract class CornerBasedShape(
      *
      * @return [Outline] of this shape for the given [size].
      */
-    abstract fun DensityReceiver.createOutline(corners: PxCornerSizes, size: PxSize): Outline
+    abstract fun createOutline(corners: PxCornerSizes, size: PxSize): Outline
 }
