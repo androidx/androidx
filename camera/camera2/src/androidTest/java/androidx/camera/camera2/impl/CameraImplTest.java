@@ -53,7 +53,6 @@ import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -74,6 +73,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Contains tests for {@link androidx.camera.camera2.impl.Camera} internal implementation.
  */
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class CameraImplTest {
     private static final CameraX.LensFacing DEFAULT_LENS_FACING = CameraX.LensFacing.BACK;
@@ -233,7 +233,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void addOnline_OneUseCase() {
         blockHandler();
 
@@ -252,7 +251,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void addOnline_SameUseCases() {
         blockHandler();
 
@@ -269,7 +267,6 @@ public class CameraImplTest {
 
 
     @Test
-    @MediumTest
     public void addOnline_alreadyOnline() {
         blockHandler();
 
@@ -299,7 +296,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void addOnline_twoUseCases() {
         blockHandler();
 
@@ -323,7 +319,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void addOnline_fromPendingOffline() {
         blockHandler();
 
@@ -353,7 +348,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void removeOnline_notOnline() {
         blockHandler();
 
@@ -370,7 +364,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void removeOnline_fromPendingOnline() {
         blockHandler();
 
@@ -388,7 +381,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void removeOnline_fromOnlineUseCases() {
         blockHandler();
 
@@ -424,7 +416,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void removeOnline_twoSameUseCase() {
         blockHandler();
 
@@ -452,7 +443,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void onlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount() {
         blockHandler();
 
@@ -481,7 +471,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @MediumTest
     public void onlineUseCase_changeSurface_onUseCaseReset_correctAttachCount() {
         blockHandler();
 
@@ -509,7 +498,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @LargeTest
     public void onlineUseCase_changeSurface_onUseCaseActive_correctAttachCount() {
         blockHandler();
 
@@ -539,7 +527,6 @@ public class CameraImplTest {
 
 
     @Test
-    @MediumTest
     public void offlineUseCase_changeSurface_onUseCaseUpdated_correctAttachCount() {
         blockHandler();
 
@@ -578,7 +565,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @LargeTest
     public void pendingSingleRequestRunSucessfully_whenAnotherUseCaseOnline()
             throws InterruptedException {
 
@@ -622,7 +608,6 @@ public class CameraImplTest {
     }
 
     @Test
-    @LargeTest
     public void pendingSingleRequestSkipped_whenTheUseCaseIsRemoved()
             throws InterruptedException {
 
