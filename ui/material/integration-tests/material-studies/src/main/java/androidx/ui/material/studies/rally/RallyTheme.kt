@@ -27,6 +27,7 @@ import androidx.ui.painting.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.sp
 
 val rallyGreen = Color(0xFF1EB980.toInt())
 val rallyDarkGreen = Color(0xFF045D56.toInt())
@@ -45,43 +46,43 @@ fun RallyTheme(@Children children: @Composable() () -> Unit) {
     val typography = MaterialTypography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w100,
-            fontSize = 96f),
+            fontSize = 96.sp),
         h2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w100,
-            fontSize = 60f),
+            fontSize = 60.sp),
         h3 = TextStyle(fontFamily = FontFamily("Eczar"),
             fontWeight = FontWeight.w500,
-            fontSize = 48f),
+            fontSize = 48.sp),
         h4 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w700,
-            fontSize = 34f),
+            fontSize = 34.sp),
         h5 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w700,
-            fontSize = 24f),
+            fontSize = 24.sp),
         h6 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w700,
-            fontSize = 20f),
+            fontSize = 20.sp),
         subtitle1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w700,
-            fontSize = 16f),
+            fontSize = 16.sp),
         subtitle2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w500,
-            fontSize = 14f),
+            fontSize = 14.sp),
         body1 = TextStyle(fontFamily = FontFamily("Eczar"),
             fontWeight = FontWeight.w700,
-            fontSize = 16f),
+            fontSize = 16.sp),
         body2 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w200,
-            fontSize = 14f),
+            fontSize = 14.sp),
         button = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w800,
-            fontSize = 14f),
+            fontSize = 14.sp),
         caption = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w500,
-            fontSize = 12f),
+            fontSize = 12.sp),
         overline = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
             fontWeight = FontWeight.w500,
-            fontSize = 10f)
+            fontSize = 10.sp)
 
     )
     MaterialTheme(colors = colors, typography = typography) {

@@ -33,6 +33,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
@@ -50,7 +51,7 @@ class AnimatableSeekBar : Activity() {
             CraneWrapper {
                 Column {
                     Padding(40.dp) {
-                        Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 80f))
+                        Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 8.sp))
                     }
 
                     Padding(left = 10.dp, right = 10.dp, bottom = 30.dp) {

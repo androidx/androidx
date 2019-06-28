@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.core.Density
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.TextStyle
 import com.nhaarman.mockitokotlin2.mock
@@ -125,10 +126,13 @@ class ParagraphTest {
     }
 
     private fun createParagraph(paragraphStyle: ParagraphStyle): Paragraph {
-        return Paragraph(text = "",
+        return Paragraph(
+            text = "",
             style = TextStyle(),
             paragraphStyle = paragraphStyle,
-            textStyles = listOf())
+            textStyles = listOf(),
+            density = Density(density = 1f)
+        )
     }
 
     private fun createParagraphStyle(): ParagraphStyle {

@@ -191,8 +191,12 @@ fun Text(
     // TODO(Migration/siyamed): This is temporary and should be removed when resource
     //  system is resolved.
     val context = composer.composer.context
+    val density = +ambientDensity()
+
     mergedStyle.fontFamily?.context = context
-    text.textStyles.forEach { it.style.fontFamily?.context = context }
+    text.textStyles.forEach {
+        it.style.fontFamily?.context = context
+    }
 
     Semantics(label = text.text) {
         val textPainter = +memo(
@@ -202,7 +206,8 @@ fun Text(
             softWrap,
             overflow,
             textScaleFactor,
-            maxLines
+            maxLines,
+            density
         ) {
             TextPainter(
                 text = text,
@@ -211,7 +216,8 @@ fun Text(
                 softWrap = softWrap,
                 overflow = overflow,
                 textScaleFactor = textScaleFactor,
-                maxLines = maxLines
+                maxLines = maxLines,
+                density = density
             )
         }
 
@@ -239,7 +245,8 @@ fun Text(
             softWrap,
             overflow,
             textScaleFactor,
-            maxLines
+            maxLines,
+            density
         ) {
             val id = registrar.subscribe(
                 object : TextSelectionHandler {

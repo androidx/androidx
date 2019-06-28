@@ -16,6 +16,8 @@
 
 package androidx.ui.painting
 
+import androidx.ui.core.Sp
+import androidx.ui.core.sp
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
@@ -58,7 +60,7 @@ import androidx.ui.painting.basictypes.RenderComparison
  */
 data class TextStyle(
     val color: Color? = null,
-    val fontSize: Float? = null,
+    val fontSize: Sp? = null,
     val fontSizeScale: Float? = null,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
@@ -74,7 +76,6 @@ data class TextStyle(
     val decoration: TextDecoration? = null,
     val shadow: Shadow? = null
 ) {
-
     /**
      * Returns a new text style that is a combination of this style and the given [other] style.
      *
@@ -122,6 +123,13 @@ data class TextStyle(
             val start = a ?: default
             val end = b ?: default
             return lerp(start, end, t)
+        }
+
+        private fun lerpSp(a: Sp?, b: Sp?, t: Float, default: Sp = 0f.sp): Sp? {
+            if (a == null && b == null) return null
+            val start = a ?: default
+            val end = b ?: default
+            return androidx.ui.core.lerp(start, end, t)
         }
 
         private fun <T> lerpDiscrete(a: T?, b: T?, t: Float): T? = if (t < 0.5) a else b
@@ -180,7 +188,7 @@ data class TextStyle(
             return TextStyle(
                 color = lerpColor(a.color, b.color, t),
                 fontFamily = lerpDiscrete(a.fontFamily, b.fontFamily, t),
-                fontSize = lerpFloat(a.fontSize, b.fontSize, t),
+                fontSize = lerpSp(a.fontSize, b.fontSize, t),
                 fontSizeScale = lerpFloat(a.fontSizeScale, b.fontSizeScale, t, 1f),
                 fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),
                 fontStyle = lerpDiscrete(a.fontStyle, b.fontStyle, t),
@@ -204,28 +212,6 @@ data class TextStyle(
                 )
             )
         }
-    }
-
-    /** The style information for text runs, encoded for use by ui. */
-    internal fun getTextStyle(textScaleFactor: Float = 1.0f): androidx.ui.engine.text.TextStyle {
-        return androidx.ui.engine.text.TextStyle(
-            color = color,
-            decoration = decoration,
-            fontWeight = fontWeight,
-            fontStyle = fontStyle,
-            fontSynthesis = fontSynthesis,
-            fontFeatureSettings = fontFeatureSettings,
-            fontFamily = fontFamily,
-            fontSize = if (fontSize == null) null else (fontSize * textScaleFactor),
-            fontSizeScale = fontSizeScale,
-            letterSpacing = letterSpacing,
-            wordSpacing = wordSpacing,
-            baselineShift = baselineShift,
-            textGeometricTransform = textGeometricTransform,
-            locale = locale,
-            background = background,
-            shadow = shadow
-        )
     }
 
     /**

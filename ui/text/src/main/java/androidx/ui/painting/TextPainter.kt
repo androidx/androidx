@@ -20,10 +20,13 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
+import androidx.ui.core.Density
 import androidx.ui.core.IntPxSize
+import androidx.ui.core.Sp
 import androidx.ui.core.constrain
 import androidx.ui.core.px
 import androidx.ui.core.round
+import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -41,7 +44,7 @@ import kotlin.math.ceil
 private val DefaultTextAlign: TextAlign = TextAlign.Start
 private val DefaultTextDirection: TextDirection = TextDirection.Ltr
 /** The default font size if none is specified. */
-private const val DefaultFontSize: Float = 14.0f
+private val DefaultFontSize: Sp = 14.sp
 
 /**
  * Unfortunately, using full precision floating point here causes bad layouts because floating
@@ -108,7 +111,8 @@ class TextPainter(
     maxLines: Int? = null,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.Clip,
-    locale: Locale? = null
+    locale: Locale? = null,
+    val density: Density
 ) {
     init {
         assert(maxLines == null || maxLines > 0)
@@ -210,7 +214,11 @@ class TextPainter(
         }
 
     private fun createTextStyle(): TextStyle {
-        return textStyle.copy(fontSize = (textStyle.fontSize ?: DefaultFontSize) * textScaleFactor)
+        return textStyle.copy(
+            fontSize = (textStyle.fontSize ?: DefaultFontSize).times(
+                textScaleFactor
+            )
+        )
     }
 
     internal fun createParagraphStyle(): ParagraphStyle {
@@ -243,7 +251,8 @@ class TextPainter(
                     style = createTextStyle(),
                     // direction doesn't matter, text is just a space
                     paragraphStyle = createParagraphStyle(),
-                    textStyles = listOf()
+                    textStyles = listOf(),
+                    density = density
                 )
                 layoutTemplate?.layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))
             }
@@ -359,7 +368,8 @@ class TextPainter(
                 text = text!!.text,
                 style = createTextStyle(),
                 paragraphStyle = createParagraphStyle(),
-                textStyles = text!!.textStyles)
+                textStyles = text!!.textStyles,
+                density = density)
         }
         lastMinWidth = minWidth
         lastMaxWidth = finalMaxWidth
@@ -393,7 +403,8 @@ class TextPainter(
                 text = AnnotatedString(text = "\u2026", textStyles = listOf()),
                 style = textStyle,
                 paragraphStyle = paragraphStyle,
-                textScaleFactor = textScaleFactor
+                textScaleFactor = textScaleFactor,
+                density = density
             )
             fadeSizePainter.layoutText()
             val fadeWidth = fadeSizePainter.paragraph!!.width

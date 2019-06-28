@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.core.Density
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.platform.ParagraphAndroid
@@ -36,7 +37,8 @@ class Paragraph internal constructor(
     private val text: String,
     style: TextStyle,
     paragraphStyle: ParagraphStyle,
-    textStyles: List<AnnotatedString.Item<TextStyle>>
+    textStyles: List<AnnotatedString.Item<TextStyle>>,
+    density: Density
 ) {
     private var needsLayout = true
     /** increased visibility for testing **/
@@ -102,7 +104,8 @@ class Paragraph internal constructor(
             text = text,
             style = style,
             paragraphStyle = paragraphStyle,
-            textStyles = textStyles
+            textStyles = textStyles,
+            density = density
         )
     }
 
