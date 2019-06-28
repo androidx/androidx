@@ -294,13 +294,16 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
             final boolean withChangingSize,
             final boolean noMatrixChangeExpected) throws Throwable {
         final ImageView imageView = enterImageViewScene(startScale, customImage, applyPadding);
-        rule.runOnUiThread(() -> {
-            TransitionManager.beginDelayedTransition(mRoot, mChangeImageTransform);
-            if (withChangingSize) {
-                imageView.getLayoutParams().height /= 2;
-                imageView.requestLayout();
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(mRoot, mChangeImageTransform);
+                if (withChangingSize) {
+                    imageView.getLayoutParams().height /= 2;
+                    imageView.requestLayout();
+                }
+                imageView.setScaleType(endScale);
             }
-            imageView.setScaleType(endScale);
         });
         if (noMatrixChangeExpected) {
             verify(mListener, never()).onTransitionStart(any(Transition.class));
