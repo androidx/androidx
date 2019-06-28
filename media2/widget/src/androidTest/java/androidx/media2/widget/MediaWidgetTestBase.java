@@ -54,6 +54,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public class MediaWidgetTestBase extends MediaTestBase {
+    static final String PLAYER_TYPE_MEDIA_CONTROLLER = "MediaController";
+    static final String PLAYER_TYPE_MEDIA_PLAYER = "MediaPlayer";
+
     // Expected success time
     static final int WAIT_TIME_MS = 1000;
 
@@ -165,6 +168,18 @@ public class MediaWidgetTestBase extends MediaTestBase {
             player.prepare();
         }
         return wrapper;
+    }
+
+    PlayerWrapper createPlayerWrapperOfType(@NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable MediaItem item,
+            @NonNull String playerType) {
+        if (PLAYER_TYPE_MEDIA_CONTROLLER.equals(playerType)) {
+            return createPlayerWrapperOfController(callback, item);
+        } else if (PLAYER_TYPE_MEDIA_PLAYER.equals(playerType)) {
+            return createPlayerWrapperOfPlayer(callback, item);
+        } else {
+            throw new IllegalArgumentException("unknown playerType " + playerType);
+        }
     }
 
     void closeAll() {

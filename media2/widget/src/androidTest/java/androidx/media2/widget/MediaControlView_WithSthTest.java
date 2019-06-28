@@ -44,25 +44,36 @@ import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Base class for testing {@link MediaControlView} with a {@link SessionPlayer} or
- * {@link MediaController}.
+ * Test {@link MediaControlView} with a {@link SessionPlayer} or a {@link MediaController}.
  */
-public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBase {
+@RunWith(Parameterized.class)
+@LargeTest
+public class MediaControlView_WithSthTest extends MediaWidgetTestBase {
+    @Parameterized.Parameters(name = "PlayerType={0}")
+    public static List<String> getPlayerTypes() {
+        return Arrays.asList(PLAYER_TYPE_MEDIA_CONTROLLER, PLAYER_TYPE_MEDIA_PLAYER);
+    }
+
     private static final long FFWD_MS = 30000L;
     private static final long REW_MS = 10000L;
 
+    private String mPlayerType;
     private MediaControlViewTestActivity mActivity;
     private MediaControlView mMediaControlView;
     private MediaItem mFileSchemeMediaItem;
@@ -70,6 +81,10 @@ public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBa
     @Rule
     public ActivityTestRule<MediaControlViewTestActivity> mActivityRule =
             new ActivityTestRule<>(MediaControlViewTestActivity.class);
+
+    public MediaControlView_WithSthTest(String playerType) {
+        mPlayerType = playerType;
+    }
 
     @Before
     public void setup() throws Throwable {
@@ -447,6 +462,8 @@ public abstract class MediaControlView_WithSthTestBase extends MediaWidgetTestBa
         });
     }
 
-    abstract PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item);
+    private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable MediaItem item) {
+        return createPlayerWrapperOfType(callback, item, mPlayerType);
+    }
 }

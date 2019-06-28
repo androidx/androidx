@@ -35,21 +35,32 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
-import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Base class for testing {@link VideoView} with a {@link SessionPlayer} or
- * {@link MediaController}.
+ * Test {@link VideoView} with a {@link SessionPlayer} or a {@link MediaController}.
  */
-public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
+@RunWith(Parameterized.class)
+@LargeTest
+public class VideoView_WithSthTest extends MediaWidgetTestBase {
+    @Parameterized.Parameters(name = "PlayerType={0}")
+    public static List<String> getPlayerTypes() {
+        return Arrays.asList(PLAYER_TYPE_MEDIA_CONTROLLER, PLAYER_TYPE_MEDIA_PLAYER);
+    }
+
+    private String mPlayerType;
     private Activity mActivity;
     private VideoView mVideoView;
     private MediaItem mMediaItem;
@@ -57,6 +68,10 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
     @Rule
     public ActivityTestRule<VideoViewTestActivity> mActivityRule =
             new ActivityTestRule<>(VideoViewTestActivity.class);
+
+    public VideoView_WithSthTest(String playerType) {
+        mPlayerType = playerType;
+    }
 
     @Before
     public void setup() throws Throwable {
@@ -182,42 +197,48 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
                 .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_TEXTUREVIEW);
     }
 
-    @UiThreadTest
+    // @UiThreadTest will be ignored by Parameterized test runner (b/30746303)
     @Test
-    public void testAttachedMediaControlView_setPlayerOrController() {
-        PlayerWrapper playerWrapper = createPlayerWrapper(new DefaultPlayerCallback(), mMediaItem);
+    public void testAttachedMediaControlView_setPlayerOrController() throws Throwable {
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                PlayerWrapper playerWrapper = createPlayerWrapper(new DefaultPlayerCallback(),
+                        mMediaItem);
 
-        MediaControlView defaultMediaControlView = mVideoView.getMediaControlView();
-        assertNotNull(defaultMediaControlView);
-        try {
-            if (playerWrapper.mPlayer != null) {
-                defaultMediaControlView.setPlayer(playerWrapper.mPlayer);
-            } else if (playerWrapper.mController != null) {
-                defaultMediaControlView.setMediaController(playerWrapper.mController);
-            } else {
-                fail("playerWrapper doesn't have neither mPlayer or mController");
-            }
-            fail("setPlayer or setMediaController should not be allowed "
-                    + "for MediaControlView attached to VideoView");
-        } catch (IllegalStateException ex) {
-            // expected
-        }
+                MediaControlView defaultMediaControlView = mVideoView.getMediaControlView();
+                assertNotNull(defaultMediaControlView);
+                try {
+                    if (playerWrapper.mPlayer != null) {
+                        defaultMediaControlView.setPlayer(playerWrapper.mPlayer);
+                    } else if (playerWrapper.mController != null) {
+                        defaultMediaControlView.setMediaController(playerWrapper.mController);
+                    } else {
+                        fail("playerWrapper doesn't have neither mPlayer or mController");
+                    }
+                    fail("setPlayer or setMediaController should not be allowed "
+                            + "for MediaControlView attached to VideoView");
+                } catch (IllegalStateException ex) {
+                    // expected
+                }
 
-        MediaControlView newMediaControlView = new MediaControlView(mContext);
-        mVideoView.setMediaControlView(newMediaControlView, -1);
-        try {
-            if (playerWrapper.mPlayer != null) {
-                newMediaControlView.setPlayer(playerWrapper.mPlayer);
-            } else if (playerWrapper.mController != null) {
-                newMediaControlView.setMediaController(playerWrapper.mController);
-            } else {
-                fail("playerWrapper doesn't have neither mPlayer or mController");
+                MediaControlView newMediaControlView = new MediaControlView(mContext);
+                mVideoView.setMediaControlView(newMediaControlView, -1);
+                try {
+                    if (playerWrapper.mPlayer != null) {
+                        newMediaControlView.setPlayer(playerWrapper.mPlayer);
+                    } else if (playerWrapper.mController != null) {
+                        newMediaControlView.setMediaController(playerWrapper.mController);
+                    } else {
+                        fail("playerWrapper doesn't have neither mPlayer or mController");
+                    }
+                    fail("setPlayer or setMediaController should not be allowed "
+                            + "for MediaControlView attached to VideoView");
+                } catch (IllegalStateException ex) {
+                    // expected
+                }
             }
-            fail("setPlayer or setMediaController should not be allowed "
-                    + "for MediaControlView attached to VideoView");
-        } catch (IllegalStateException ex) {
-            // expected
-        }
+        });
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
@@ -233,6 +254,8 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
         });
     }
 
-    abstract PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item);
+    private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable MediaItem item) {
+        return createPlayerWrapperOfType(callback, item, mPlayerType);
+    }
 }
