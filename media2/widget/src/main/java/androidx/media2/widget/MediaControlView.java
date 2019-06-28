@@ -155,6 +155,8 @@ public class MediaControlView extends ViewGroup {
     private static final int SEEK_POSITION_NOT_SET = -1;
     private static final String RESOURCE_EMPTY = "";
 
+    private boolean mIsAttachedToVideoView = false;
+
     Resources mResources;
     PlayerWrapper mPlayer;
     OnFullScreenListener mOnFullScreenListener;
@@ -274,6 +276,10 @@ public class MediaControlView extends ViewGroup {
      * Setting a MediaController will unset any MediaController or SessionPlayer
      * that was previously set.
      * <p>
+     * It will throw {@link IllegalStateException} if this MediaControlView belongs to
+     * a {@link VideoView} by {@link androidx.media2.widget.R.attr#enableControlView} or
+     * by {@link VideoView#setMediaControlView}. Use {@link VideoView#setMediaController} instead.
+     * <p>
      * Note that MediaControlView allows controlling playback through its UI components, but calling
      * the corresponding methods (e.g. {@link MediaController#play()},
      * {@link MediaController#pause()}) will work as well.
@@ -285,6 +291,13 @@ public class MediaControlView extends ViewGroup {
         if (controller == null) {
             throw new NullPointerException("controller must not be null");
         }
+        if (mIsAttachedToVideoView) {
+            throw new IllegalStateException("It's attached to VideoView. Use VideoView's method.");
+        }
+        setMediaControllerInternal(controller);
+    }
+
+    void setMediaControllerInternal(@NonNull MediaController controller) {
         if (mPlayer != null) {
             mPlayer.detachCallback();
         }
@@ -300,6 +313,10 @@ public class MediaControlView extends ViewGroup {
      * Setting a SessionPlayer will unset any MediaController or SessionPlayer
      * that was previously set.
      * <p>
+     * It will throw {@link IllegalStateException} if this MediaControlView belongs to
+     * a {@link VideoView} by {@link androidx.media2.widget.R.attr#enableControlView} or
+     * by {@link VideoView#setMediaControlView}. Use {@link VideoView#setPlayer} instead.
+     * <p>
      * Note that MediaControlView allows controlling playback through its UI components, but calling
      * the corresponding methods (e.g. {@link SessionPlayer#play()}, {@link SessionPlayer#pause()})
      * will work as well.
@@ -311,6 +328,13 @@ public class MediaControlView extends ViewGroup {
         if (player == null) {
             throw new NullPointerException("player must not be null");
         }
+        if (mIsAttachedToVideoView) {
+            throw new IllegalStateException("It's attached to VideoView. Use VideoView's method.");
+        }
+        setPlayerInternal(player);
+    }
+
+    void setPlayerInternal(@NonNull SessionPlayer player) {
         if (mPlayer != null) {
             mPlayer.detachCallback();
         }
@@ -583,6 +607,10 @@ public class MediaControlView extends ViewGroup {
         if (mPlayer != null) {
             mPlayer.detachCallback();
         }
+    }
+
+    void setAttachedToVideoView(boolean attached) {
+        mIsAttachedToVideoView = attached;
     }
 
     ///////////////////////////////////////////////////

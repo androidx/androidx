@@ -17,7 +17,9 @@
 package androidx.media2.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -33,6 +35,7 @@ import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -178,6 +181,44 @@ public abstract class VideoView_WithSthTestBase extends MediaWidgetTestBase {
         });
         verify(mockViewTypeListener, timeout(WAIT_TIME_MS))
                 .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_TEXTUREVIEW);
+    }
+
+    @UiThreadTest
+    @Test
+    public void testAttachedMediaControlView_setPlayerOrController() throws Throwable {
+        PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerCallback(), mMediaItem);
+
+        MediaControlView defaultMediaControlView = mVideoView.getMediaControlView();
+        assertNotNull(defaultMediaControlView);
+        try {
+            if (playerWrapper.mPlayer != null) {
+                defaultMediaControlView.setPlayer(playerWrapper.mPlayer);
+            } else if (playerWrapper.mController != null) {
+                defaultMediaControlView.setMediaController(playerWrapper.mController);
+            } else {
+                fail("playerWrapper doesn't have neither mPlayer or mController");
+            }
+            fail("setPlayer or setMediaController should not be allowed "
+                    + "for MediaControlView attached to VideoView");
+        } catch (IllegalStateException ex) {
+            // expected
+        }
+
+        MediaControlView newMediaControlView = new MediaControlView(mContext);
+        mVideoView.setMediaControlView(newMediaControlView, -1);
+        try {
+            if (playerWrapper.mPlayer != null) {
+                newMediaControlView.setPlayer(playerWrapper.mPlayer);
+            } else if (playerWrapper.mController != null) {
+                newMediaControlView.setMediaController(playerWrapper.mController);
+            } else {
+                fail("playerWrapper doesn't have neither mPlayer or mController");
+            }
+            fail("setPlayer or setMediaController should not be allowed "
+                    + "for MediaControlView attached to VideoView");
+        } catch (IllegalStateException ex) {
+            // expected
+        }
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
