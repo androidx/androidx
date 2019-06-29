@@ -24,8 +24,8 @@ import java.lang.annotation.Target;
  * Declares an index on an Entity.
  * see: <a href="https://sqlite.org/lang_createindex.html">SQLite Index Documentation</a>
  * <p>
- * Adding an index usually speeds up your select queries but will slow down other queries like
- * insert or update. You should be careful when adding indices to ensure that this additional cost
+ * Adding an index usually speeds up your SELECT queries but will slow down other queries like
+ * INSERT or UPDATE. You should be careful when adding indices to ensure that this additional cost
  * is worth the gain.
  * <p>
  * There are 2 ways to define an index in an {@link Entity}. You can either set

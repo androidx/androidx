@@ -27,24 +27,49 @@ import java.lang.annotation.Target;
  * The implementation of the method will insert its parameters into the database.
  * <p>
  * All of the parameters of the Insert method must either be classes annotated with {@link Entity}
- * or collections/array of it. However if the target entity is specified via {@link #entity()} then
- * the parameters can be of arbitrary POJO types that will be interpreted as partial entities.
+ * or collections/array of it.
  * <p>
  * Example:
  * <pre>
  * {@literal @}Dao
- * public interface MyDao {
- *     {@literal @}Insert(onConflict = OnConflictStrategy.REPLACE)
- *     public void insertUsers(User... users);
+ * public interface MusicDao {
+ *   {@literal @}Insert(onConflict = OnConflictStrategy.REPLACE)
+ *   public void insertSongs(Song... songs);
  *
- *     {@literal @}Insert
- *     public void insertBoth(User user1, User user2);
+ *   {@literal @}Insert
+ *   public void insertBoth(Song song1, Song song2);
  *
- *     {@literal @}Insert
- *     public void insertWithFriends(User user, List&lt;User&gt; friends);
+ *   {@literal @}Insert
+ *   public void insertAlbumWithSongs(Album album, List&lt;Song&gt; songs);
+ * }
+ * </pre>
+ * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * POJO types that will be interpreted as partial entities. For example:
+ * <pre>
+ * {@literal @}Entity
+ * public class Playlist {
+ *   {@literal @}PrimaryKey(autoGenerate = true)
+ *   long playlistId;
+ *   String name;
+ *   {@literal @}Nullable
+ *   String description
+ *   {@literal @}ColumnInfo(defaultValue = "normal")
+ *   String category;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String createdTime;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String lastModifiedTime;
+ * }
  *
- *     {@literal @}Insert(entity = User.class)
- *     public void insertUsername(Username username);
+ * public class NameAndDescription {
+ *   String name;
+ *   String description
+ * }
+ *
+ * {@literal @}Dao
+ * public interface PlaylistDao {
+ *   {@literal @}Insert(entity = Playlist.class)
+ *   public void insertNewPlaylist(NameAndDescription nameDescription);
  * }
  * </pre>
  *
