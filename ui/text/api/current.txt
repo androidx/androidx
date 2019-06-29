@@ -344,16 +344,20 @@ package androidx.ui.painting {
   }
 
   public final class TextPainter {
-    ctor public TextPainter(androidx.ui.painting.AnnotatedString? text, androidx.ui.painting.TextStyle? style, androidx.ui.painting.ParagraphStyle? paragraphStyle, float textScaleFactor, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale, androidx.ui.core.Density density);
+    ctor public TextPainter(androidx.ui.painting.AnnotatedString? text, androidx.ui.painting.TextStyle? style, androidx.ui.painting.ParagraphStyle? paragraphStyle, Integer? maxLines, boolean softWrap, androidx.ui.rendering.paragraph.TextOverflow overflow, androidx.ui.engine.window.Locale? locale, androidx.ui.core.Density density);
     method public androidx.ui.core.Density getDensity();
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
+    method public androidx.ui.engine.window.Locale? getLocale();
     method public float getMaxIntrinsicWidth();
+    method public Integer? getMaxLines();
     method public float getMinIntrinsicWidth();
+    method public androidx.ui.rendering.paragraph.TextOverflow getOverflow();
     method public androidx.ui.painting.ParagraphStyle? getParagraphStyle();
     method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getPreferredLineHeight();
     method public androidx.ui.engine.geometry.Size getSize();
+    method public boolean getSoftWrap();
     method public androidx.ui.painting.TextStyle? getStyle();
     method public androidx.ui.painting.AnnotatedString? getText();
     method public float getWidth();
