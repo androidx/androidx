@@ -9,7 +9,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":appcompat"))
+    api("androidx.appcompat:appcompat:1.1.0-rc01")
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     // TODO: change to 1.1.0-alpha04 after release
