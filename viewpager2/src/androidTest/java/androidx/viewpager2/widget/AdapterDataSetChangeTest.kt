@@ -42,7 +42,7 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
         val startAt: Int = 0,
         val actions: List<Action>,
         val expectedFinalCurrentItem: Int,
-        val expectedFinalPageText: String
+        val expectedFinalPageText: String?
     )
 
     companion object {
@@ -80,12 +80,14 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
         animationLatch.await(1, SECONDS)
 
         // Wait until VP2 has stabilized
-        PollingCheck.waitFor(1000) { test.viewPager.currentCompletelyVisibleItem != -1 }
+        if (adapter.itemCount > 0) {
+            PollingCheck.waitFor(1000) { test.viewPager.currentCompletelyVisibleItem != -1 }
+        }
 
         assertThat(
             "Not displaying index ${config.expectedFinalCurrentItem}",
             test.viewPager.currentCompletelyVisibleItem,
-            equalTo(config.expectedFinalCurrentItem)
+            equalTo(if (adapter.itemCount == 0) -1 else config.expectedFinalCurrentItem)
         )
         test.assertBasicState(config.expectedFinalCurrentItem, config.expectedFinalPageText)
     }
@@ -294,13 +296,12 @@ private fun createTestSet(): List<TestConfig> {
             expectedFinalCurrentItem = lastPage - 2,
             expectedFinalPageText = "${lastPage - 2}"
         ),
-        // TODO: fix empty adapter & adjust assertions for empty adapter
-//        TestConfig(
-//            startAt = lastPage,
-//            actions = listOf(RemoveRange(0, pageCount)),
-//            expectedFinalCurrentItem = 0,
-//            expectedFinalPageText = ""
-//        ),
+        TestConfig(
+            startAt = lastPage,
+            actions = listOf(RemoveRange(0, pageCount)),
+            expectedFinalCurrentItem = 0,
+            expectedFinalPageText = null
+        ),
 
         // Replace all contents at once
         TestConfig(
@@ -315,13 +316,12 @@ private fun createTestSet(): List<TestConfig> {
             expectedFinalCurrentItem = 0,
             expectedFinalPageText = "10"
         ),
-        // TODO: fix empty adapter & adjust assertions for empty adapter
-//        TestConfig(
-//            startAt = lastPage,
-//            actions = listOf(ReplaceWith(listOf())),
-//            expectedFinalCurrentItem = 0,
-//            expectedFinalPageText = ""
-//        ),
+        TestConfig(
+            startAt = lastPage,
+            actions = listOf(ReplaceWith(listOf())),
+            expectedFinalCurrentItem = 0,
+            expectedFinalPageText = null
+        ),
 
         // "Trivial" cases from random tests
         TestConfig(
