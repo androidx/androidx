@@ -17,6 +17,7 @@
 package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
+import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintResult
@@ -28,7 +29,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ExperimentalDetectorTest {
 
-    private fun checkJava(vararg testFiles: TestFile): TestLintResult {
+    private fun check(vararg testFiles: TestFile): TestLintResult {
         return lint()
             .files(
                 EXPERIMENTAL_JAVA,
@@ -50,11 +51,11 @@ class ExperimentalDetectorTest {
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaExperimentalFromJava.java:24: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         DateProvider dateProvider = new DateProvider();
                                     ~~~~~~~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromJava.java:25: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
@@ -62,7 +63,7 @@ src/sample/UseJavaExperimentalFromJava.java:25: Error: This declaration is exper
     """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        checkJava(*input).expect(expected)
+        check(*input).expect(expected)
     }
 
     @Test
@@ -75,27 +76,19 @@ src/sample/UseJavaExperimentalFromJava.java:25: Error: This declaration is exper
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseJavaExperimentalFromKt.kt:24: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromKt.kt:27: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         val dateProvider = DateProvider()
                            ~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromKt.kt:25: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseJavaExperimentalFromKt.kt:28: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
         return dateProvider.date
                             ~~~~
-src/sample/UseJavaExperimentalFromKt.kt:36: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
-        val dateProvider = DateProvider()
-                           ~~~~~~~~~~~~
-src/sample/UseJavaExperimentalFromKt.kt:37: Error: This declaration is experimental and its usage should be marked with
-'@sample.ExperimentalDateTime' or '@UseExperimental(sample.ExperimentalDateTime.class)' [UnsafeExperimentalUsageError]
-        return dateProvider.date
-                            ~~~~
-4 errors, 0 warnings
+2 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        checkJava(*input).expect(expected)
+        check(*input).expect(expected)
     }
 
     @Test
@@ -109,11 +102,11 @@ src/sample/UseJavaExperimentalFromKt.kt:37: Error: This declaration is experimen
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/sample/UseKtExperimentalFromJava.java:24: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:27: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         DateProviderKt dateProvider = new DateProviderKt();
                                       ~~~~~~~~~~~~~~~~~~~~
-src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experimental and its usage should be marked with
+src/sample/UseKtExperimentalFromJava.java:28: Error: This declaration is experimental and its usage should be marked with
 '@sample.ExperimentalDateTimeKt' or '@UseExperimental(sample.ExperimentalDateTimeKt.class)' [UnsafeExperimentalUsageError]
         return dateProvider.getDate();
                             ~~~~~~~
@@ -121,7 +114,67 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        checkJava(*input).expect(expected)
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun useJavaPackageFromJava() {
+        val input = arrayOf(
+            SAMPLE_FOO_PACKAGE_INFO,
+            javaSample("sample.foo.Bar"),
+            javaSample("sample.foo.ExperimentalPackage"),
+            javaSample("sample.UseJavaPackageFromJava")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/UseJavaPackageFromJava.java:30: Error: This declaration is experimental and its usage should be marked with
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+        Bar bar = new Bar();
+                  ~~~~~~~~~
+src/sample/UseJavaPackageFromJava.java:31: Error: This declaration is experimental and its usage should be marked with
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+        bar.baz();
+            ~~~
+src/sample/UseJavaPackageFromJava.java:54: Error: This declaration is experimental and its usage should be marked with
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+        callPackageExperimental();
+        ~~~~~~~~~~~~~~~~~~~~~~~
+3 errors, 0 warnings
+    """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun useJavaPackageFromKt() {
+        val input = arrayOf(
+            SAMPLE_FOO_PACKAGE_INFO,
+            javaSample("sample.foo.Bar"),
+            javaSample("sample.foo.ExperimentalPackage"),
+            ktSample("sample.UseJavaPackageFromKt")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/sample/UseJavaPackageFromKt.kt:30: Error: This declaration is experimental and its usage should be marked with
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+        val bar = Bar()
+                  ~~~
+src/sample/UseJavaPackageFromKt.kt:31: Error: This declaration is experimental and its usage should be marked with
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+        bar.baz()
+            ~~~
+src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental and its usage should be marked with
+'@sample.foo.ExperimentalPackage' or '@UseExperimental(sample.foo.ExperimentalPackage.class)' [UnsafeExperimentalUsageError]
+        callPackageExperimental()
+        ~~~~~~~~~~~~~~~~~~~~~~~
+3 errors, 0 warnings
+    """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
     }
 
     /**
@@ -138,9 +191,14 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
         return kotlin(javaClass.getResource("/java/${className.replace('.','/')}.kt").readText())
     }
 
+    /* ktlint-disable max-line-length */
     companion object {
-        /* ktlint-disable max-line-length */
-        // The contents of Experimental.java from the experimental annotation library.
+        /**
+         * [TestFile] containing Experimental.java from the experimental annotation library.
+         *
+         * This is a workaround for IntelliJ failing to recognize source files if they are also
+         * included as resources.
+         */
         val EXPERIMENTAL_JAVA: TestFile = java("""
             package androidx.annotation.experimental;
 
@@ -162,7 +220,12 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
             }
         """.trimIndent())
 
-        // The contents of UseExperimental.java from the experimental annotation library.
+        /**
+         * [TestFile] containing UseExperimental.java from the experimental annotation library.
+         *
+         * This is a workaround for IntelliJ failing to recognize source files if they are also
+         * included as resources.
+         */
         val USE_EXPERIMENTAL_JAVA: TestFile = java("""
             package androidx.annotation.experimental;
 
@@ -183,7 +246,12 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
             }
         """.trimIndent())
 
-        // The contents of Experimental.kt from the Kotlin standard library.
+        /**
+         * [TestFile] containing Experimental.kt from the Kotlin standard library.
+         *
+         * This is a workaround for the Kotlin standard library used by the Lint test harness not
+         * including the Experimental annotation by default.
+         */
         val EXPERIMENTAL_KT: TestFile = kotlin("""
             package kotlin
 
@@ -222,6 +290,23 @@ src/sample/UseKtExperimentalFromJava.java:25: Error: This declaration is experim
                 vararg val markerClass: KClass<out Annotation>
             )
         """.trimIndent())
-        /* ktlint-enable max-line-length */
+
+        /**
+         * [TestFile] containing the package-level annotation for the sample.foo package.
+         *
+         * This is a workaround for b/136184987 where package-level annotations cannot be loaded
+         * from source code. This is generated from a single-class JAR using toBase64gzip(File).
+         */
+        val SAMPLE_FOO_PACKAGE_INFO: TestFile = base64gzip("libs/sample.foo.package-info.jar", "" +
+                "H4sIAAAAAAAAAAvwZmYRYWDg4GBgYFBkYGguSJ4HZB0EYlkGQYbixNyCnFT9" +
+                "tPx8/YLE5OzE9FTdzLy0fL3knMTi4tAQXgZ2BiTg22vI1+Qg4pIe6Lh2y8VD" +
+                "x7hfmJWFic2aMSPjCwv3zwlHn+o3tlaYcfM/WNijwRt8RuSz0ed/NvEMZhKs" +
+                "HEw8rMfMo0UFZbcoNmauW7TbK2Op5bbXIVe9EgrX3njZ0xfzOqi9rezMNc3l" +
+                "utOZTgev3HRnQs/aqb/d/VybNwU/u6SXy/pMdtFufYOfth6LLSY+N1h64iwD" +
+                "I/9amy//7h1f4Lk/s+YBdwCKT3+yX33NA2QJgNwN9Kmva4ijrqefm35iXl5+" +
+                "SWJJZn6ebmpFQWpRZm5qXklijm5OZl4J0PMlqelFENmS1OKS4vii1JzUxOJU" +
+                "vez8EqCK+Nz8lNKcVIyQSU5ISEgD4pakOoYAb0YmEQZcYc7JgAoIxAArxB50" +
+                "M1F9h2zmK5AIdf0KdwMrG4hmAsIbQLqIEcQDAGCtt2pgAgAA")
     }
+    /* ktlint-enable max-line-length */
 }

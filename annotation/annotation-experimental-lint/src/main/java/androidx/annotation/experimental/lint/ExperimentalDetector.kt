@@ -32,6 +32,7 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UClass
+import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UNamedExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
@@ -214,5 +215,8 @@ private val UNamedExpression?.simpleName: String? get() = this?.let {
 /**
  * Returns the fully-qualified class name for a given attribute value, if any.
  */
-private fun UNamedExpression?.getFullyQualifiedName(context: JavaContext): String? =
-    this?.let { (evaluate() as? PsiClassType)?.let { context.evaluator.getQualifiedName(it) } }
+private fun UNamedExpression?.getFullyQualifiedName(context: JavaContext): String? {
+    val exp = this?.expression
+    val type = if (exp is UClassLiteralExpression) exp.type else exp?.evaluate()
+    return (type as? PsiClassType)?.let { context.evaluator.getQualifiedName(it) }
+}
