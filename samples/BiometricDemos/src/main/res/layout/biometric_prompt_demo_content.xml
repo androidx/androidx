@@ -21,6 +21,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/host_type_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/button_enable_biometric_with_crypto"
         android:layout_width="match_parent"

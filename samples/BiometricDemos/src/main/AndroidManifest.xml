@@ -41,7 +41,7 @@
             android:hardwareAccelerated="true"
             android:testOnly="false">
 
-        <activity android:name="BiometricPromptDemo"
+        <activity android:name=".BiometricPromptDemo"
                   android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,6 +49,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".BiometricPromptDemoActivityHost"
+            android:theme="@style/AppTheme" />
+
+        <activity android:name=".BiometricPromptDemoFragmentHostActivity"
+            android:theme="@style/AppTheme" />
 
     </application>
 
