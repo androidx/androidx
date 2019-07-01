@@ -30,11 +30,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.os.RemoteException;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -287,11 +285,6 @@ public final class SessionToken implements VersionedParcelable {
 
         // Try retrieving media2 token by connecting to the session.
         final MediaControllerCompat controller = createMediaControllerCompat(context, compatToken);
-        if (controller == null) {
-            // This case cannot happen. (b/132924797)
-            Log.e(TAG, "Failed to create session token2.");
-            return;
-        }
 
         final String packageName = controller.getPackageName();
         final int uid = getUid(context.getPackageManager(), packageName);
@@ -415,16 +408,7 @@ public final class SessionToken implements VersionedParcelable {
 
     private static MediaControllerCompat createMediaControllerCompat(Context context,
             MediaSessionCompat.Token sessionToken) {
-        try {
-            return new MediaControllerCompat(context, sessionToken);
-        } catch (RemoteException e) {
-            // This case cannot happen.
-            // The constructor of MediaControllerCompat specifies 'throws RemoteException',
-            // but actually it doesn't throw any exception.
-            // TODO(b/132924797): Remove this method when the constructor API is changed.
-            Log.e(TAG, "Failed to create MediaControllerCompat object.", e);
-            return null;
-        }
+        return new MediaControllerCompat(context, sessionToken);
     }
 
     /**

@@ -208,7 +208,7 @@ package android.support.v4.media.session {
 
   public final class MediaControllerCompat {
     ctor public MediaControllerCompat(android.content.Context!, android.support.v4.media.session.MediaSessionCompat);
-    ctor public MediaControllerCompat(android.content.Context!, android.support.v4.media.session.MediaSessionCompat.Token) throws android.os.RemoteException;
+    ctor public MediaControllerCompat(android.content.Context!, android.support.v4.media.session.MediaSessionCompat.Token);
     method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat!);
     method public void addQueueItem(android.support.v4.media.MediaDescriptionCompat!, int);
     method public void adjustVolume(int, int);
