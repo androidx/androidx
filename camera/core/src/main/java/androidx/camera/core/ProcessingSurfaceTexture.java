@@ -65,6 +65,8 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
     @GuardedBy("mLock")
     final Surface mInputSurface;
 
+    private final Handler mImageReaderHandler;
+
     // Maximum number of images in the input ImageReader
     private static final int MAX_IMAGES = 2;
 
@@ -106,10 +108,8 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
 
         mResolution = new Size(width, height);
 
-        Handler imageReaderHandler;
-
         if (handler != null) {
-            imageReaderHandler = handler;
+            mImageReaderHandler = handler;
         } else {
             Looper looper = Looper.myLooper();
 
@@ -119,7 +119,7 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
                                 + "created on a thread with a Looper.");
             }
 
-            imageReaderHandler = new Handler(looper);
+            mImageReaderHandler = new Handler(looper);
         }
 
         // input
@@ -128,8 +128,8 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
                 height,
                 format,
                 MAX_IMAGES,
-                imageReaderHandler);
-        mInputImageReader.setOnImageAvailableListener(mTransformedListener, handler);
+                mImageReaderHandler);
+        mInputImageReader.setOnImageAvailableListener(mTransformedListener, mImageReaderHandler);
         mInputSurface = mInputImageReader.getSurface();
         mCameraCaptureCallback = mInputImageReader.getCameraCaptureCallback();
 
@@ -229,6 +229,23 @@ final class ProcessingSurfaceTexture extends DeferrableSurface {
             mSurfaceTextureSurface = null;
 
             mClosed = true;
+
+            // Remove the previous listener so that if an image is queued it will not be processed
+            mInputImageReader.setOnImageAvailableListener(
+                    new ImageReaderProxy.OnImageAvailableListener() {
+                        @Override
+                        public void onImageAvailable(ImageReaderProxy imageReaderProxy) {
+                            try (ImageProxy image = imageReaderProxy.acquireLatestImage()) {
+                                // Do nothing with image since simply emptying the queue
+                            } catch (IllegalStateException e) {
+                                // This might be thrown because mInputImageReader.close() might be
+                                // called on another thread. However, we can ignore because we are
+                                // simply emptying the queue.
+                            }
+                        }
+                    },
+                    mImageReaderHandler
+            );
 
             // Need to wait for Surface has been detached before closing it
             setOnSurfaceDetachedListener(CameraXExecutors.directExecutor(),
