@@ -16,7 +16,7 @@
 
 package androidx.ui.baseui.shape.corner
 
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.Density
 import androidx.ui.core.Px
 import androidx.ui.core.PxSize
 import androidx.ui.core.px
@@ -51,17 +51,19 @@ data class PxCornerSizes(
 /**
  * @param corners define all four corner sizes
  * @param size the size of the shape
+ * @param density the current density of the screen.
  *
  * @return resolved [PxCornerSizes].
  */
-/*inline*/ fun DensityReceiver.PxCornerSizes(
+/*inline*/ fun PxCornerSizes(
     corners: CornerSizes,
-    size: PxSize
+    size: PxSize,
+    density: Density
 ): PxCornerSizes = with(corners) {
     PxCornerSizes(
-        topLeft = topLeft(size),
-        topRight = topRight(size),
-        bottomRight = bottomRight(size),
-        bottomLeft = bottomLeft(size)
+        topLeft = topLeft.toPx(size, density),
+        topRight = topRight.toPx(size, density),
+        bottomRight = bottomRight.toPx(size, density),
+        bottomLeft = bottomLeft.toPx(size, density)
     )
 }

@@ -19,7 +19,6 @@ package androidx.ui.material.shape
 import androidx.ui.baseui.shape.corner.CornerBasedShape
 import androidx.ui.baseui.shape.corner.CornerSizes
 import androidx.ui.baseui.shape.corner.PxCornerSizes
-import androidx.ui.core.DensityReceiver
 import androidx.ui.core.PxSize
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.painting.Path
@@ -34,7 +33,7 @@ data class CutCornerShape(
     val corners: CornerSizes
 ) : CornerBasedShape(corners) {
 
-    override fun DensityReceiver.createOutline(corners: PxCornerSizes, size: PxSize) =
+    override fun createOutline(corners: PxCornerSizes, size: PxSize) =
         Outline.Generic(Path().apply {
             var cornerSize = corners.topLeft.value
             moveTo(0f, cornerSize)

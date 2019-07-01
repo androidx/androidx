@@ -36,10 +36,7 @@ import androidx.ui.painting.Paint
  * @param color the [Color] to use for filling the shape.
  */
 @Composable
-fun DrawShape(
-    shape: Shape,
-    color: Color
-) {
+fun DrawShape(shape: Shape, color: Color) {
     DrawShape(shape = shape, brush = +memo(color) { SolidColor(color) })
 }
 
@@ -50,16 +47,14 @@ fun DrawShape(
  * @param brush the [Brush] to use for filling the shape.
  */
 @Composable
-fun DrawShape(
-    shape: Shape,
-    brush: Brush
-) = with(shape) {
+fun DrawShape(shape: Shape, brush: Brush) {
     with(+memo { DrawShapeCacheHolder() }) {
         lastShape = shape
         Draw { canvas, parentSize ->
             brush.applyBrush(paint)
             lastParentSize = parentSize
-            val outline = lastOutline ?: createOutline(parentSize).also { lastOutline = it }
+            val outline =
+                lastOutline ?: shape.createOutline(parentSize, density).also { lastOutline = it }
             canvas.drawOutline(outline, paint)
         }
     }

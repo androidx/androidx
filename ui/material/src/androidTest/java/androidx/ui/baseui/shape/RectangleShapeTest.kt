@@ -21,9 +21,8 @@ import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.core.px
 import androidx.ui.core.toRect
-import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Outline
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -36,14 +35,12 @@ class RectangleShapeTest {
     private val size = PxSize(100.px, 150.px)
 
     @Test
-    fun rectangularShapeWithCorrectSize() {
+    fun rectangleShapeWithCorrectSize() {
         val rectangular = RectangleShape
 
         val outline = rectangular.toOutline() as Outline.Rectangle
-        Truth.assertThat(outline.rect).isEqualTo(size.toRect())
+        assertThat(outline.rect).isEqualTo(size.toRect())
     }
 
-    private fun Shape.toOutline() = withDensity(density) {
-        createOutline(size)
-    }
+    private fun Shape.toOutline() = createOutline(size, density)
 }
