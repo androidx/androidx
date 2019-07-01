@@ -68,7 +68,6 @@ class SystemJobInfoConverter {
      */
     JobInfo convert(WorkSpec workSpec, int jobId) {
         Constraints constraints = workSpec.constraints;
-        // TODO(janclarin): Support newer required network types if unsupported by API version.
         int jobInfoNetworkType = convertNetworkType(constraints.getRequiredNetworkType());
         PersistableBundle extras = new PersistableBundle();
         extras.putString(EXTRA_WORK_SPEC_ID, workSpec.id);
