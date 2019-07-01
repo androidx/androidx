@@ -16,12 +16,11 @@
 
 package com.example.android.biometric;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.RadioGroup;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 
 /**
@@ -32,51 +31,23 @@ import androidx.fragment.app.FragmentActivity;
  * the authentication attempt.
  */
 public class BiometricPromptDemo extends FragmentActivity {
-
-    private BiometricPromptDemoController mController;
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.fragment_activity);
-        final Button createKeysButton = findViewById(R.id.button_enable_biometric_with_crypto);
-        final Button authenticateButton = findViewById(R.id.button_authenticate);
-        final Button canAuthenticateButton = findViewById(R.id.can_authenticate);
-        final CheckBox useCryptoCheckbox = findViewById(R.id.checkbox_use_crypto);
-        final CheckBox confirmationRequiredCheckbox = findViewById(
-                R.id.checkbox_require_confirmation);
-        final CheckBox deviceCredentialAllowedCheckbox = findViewById(
-                R.id.checkbox_enable_fallback);
-        final RadioGroup radioGroup = findViewById(R.id.radio_group);
-
-        mController = new BiometricPromptDemoController(
-                this,
-                createKeysButton,
-                authenticateButton,
-                canAuthenticateButton,
-                useCryptoCheckbox,
-                confirmationRequiredCheckbox,
-                deviceCredentialAllowedCheckbox,
-                radioGroup);
-        mController.init(savedInstanceState);
+        setContentView(R.layout.biometric_prompt_demo);
+        final Button hostInActivityButton = findViewById(R.id.host_in_activity_button);
+        final Button hostInFragmentButton = findViewById(R.id.host_in_fragment_button);
+        hostInActivityButton.setOnClickListener(view -> launchActivityHost());
+        hostInFragmentButton.setOnClickListener(view -> launchFragmentHost());
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mController.onResume();
+    private void launchActivityHost() {
+        Intent intent = new Intent(this, BiometricPromptDemoActivityHost.class);
+        startActivity(intent);
     }
 
-    @Override
-    protected void onPause() {
-        mController.onPause();
-        super.onPause();
-    }
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        mController.onSaveInstanceState(outState);
+    private void launchFragmentHost() {
+        Intent intent = new Intent(this, BiometricPromptDemoFragmentHostActivity.class);
+        startActivity(intent);
     }
 }
