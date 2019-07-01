@@ -159,9 +159,9 @@ object ProcessorErrors {
             " attempts to perform a query. This restrictions prevents such situation from" +
             " occurring."
 
-    val TRANSACTION_MISSING_ON_RELATION = "The return value includes a Pojo with a @Relation." +
+    val TRANSACTION_MISSING_ON_RELATION = "The return value includes a POJO with a @Relation." +
             " It is usually desired to annotate this method with @Transaction to avoid" +
-            " possibility of inconsistent results between the Pojo and its relations. See " +
+            " possibility of inconsistent results between the POJO and its relations. See " +
             TRANSACTION_REFERENCE_DOCS + " for details."
 
     val CANNOT_FIND_ENTITY_FOR_SHORTCUT_QUERY_PARAMETER = "Type of the parameter must be a class " +
@@ -578,7 +578,7 @@ object ProcessorErrors {
     }
 
     val MISSING_POJO_CONSTRUCTOR = """
-            Entities and Pojos must have a usable public constructor. You can have an empty
+            Entities and POJOs must have a usable public constructor. You can have an empty
             constructor or a constructor whose parameters match the fields (by name and type).
             """.trim()
 
@@ -614,7 +614,7 @@ object ProcessorErrors {
     fun rawQueryBadEntity(typeName: TypeName): String {
         return """
             observedEntities field in RawQuery must either reference a class that is annotated
-            with @Entity or it should reference a Pojo that either contains @Embedded fields that
+            with @Entity or it should reference a POJO that either contains @Embedded fields that
             are annotated with @Entity or @Relation fields.
             $typeName does not have these properties, did you mean another class?
             """.trim()

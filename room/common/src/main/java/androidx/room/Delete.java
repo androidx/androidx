@@ -27,29 +27,46 @@ import java.lang.annotation.Target;
  * The implementation of the method will delete its parameters from the database.
  * <p>
  * All of the parameters of the Delete method must either be classes annotated with {@link Entity}
- * or collections/array of it. However if the target entity is specified via {@link #entity()} then
- * the parameters can be of arbitrary POJO types that will be interpreted as partial entities.
+ * or collections/array of it.
  * <p>
  * Example:
  * <pre>
  * {@literal @}Dao
- * public interface MyDao {
+ * public interface MusicDao {
  *     {@literal @}Delete
- *     public void deleteUsers(User... users);
+ *     public void deleteSongs(Song... songs);
  *
  *     {@literal @}Delete
- *     public void deleteAll(User user1, User user2);
+ *     public void deleteAlbumAndSongs(Album album, List&lt;Song&gt; songs);
+ * }
+ * </pre>
+ * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * POJO types that will be interpreted as partial entities. For example:
+ * <pre>
+ * {@literal @}Entity
+ * public class Playlist {
+ *   {@literal @}PrimaryKey
+ *   long playlistId;
+ *   long ownerId;
+ *   String name;
+ *   {@literal @}ColumnInfo(defaultValue = "normal")
+ *   String category;
+ * }
  *
- *     {@literal @}Delete
- *     public void deleteWithFriends(User user, List&lt;User&gt; friends);
+ * public class OwnerIdAndCategory {
+ *   long ownerId;
+ *   String category;
+ * }
  *
- *     {@literal @}Delete(entity = User.class)
- *     public void deleteViaUsername(Username username);
+ * {@literal @}Dao
+ * public interface PlaylistDao {
+ *   {@literal @}Delete(entity = Playlist.class)
+ *   public void deleteByOwnerIdAndCategory(OwnerIdAndCategory... idCategory);
  * }
  * </pre>
  *
  * @see Insert
- * @see Query
+ * @see Update
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.CLASS)

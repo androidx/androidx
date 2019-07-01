@@ -26,18 +26,47 @@ import java.lang.annotation.RetentionPolicy;
  * database.
  * <p>
  * All of the parameters of the Update method must either be classes annotated with {@link Entity}
- * or collections/array of it. However if the target entity is specified via {@link #entity()} then
- * the parameters can be of arbitrary POJO types that will be interpreted as partial entities.
+ * or collections/array of it.
  * <p>
  * Example:
  * <pre>
  * {@literal @}Dao
- * public interface MyDao {
+ * public interface MusicDao {
  *     {@literal @}Update
- *     public void updateUsers(User... users);
+ *     public void updateSong(Song);
  *
- *     {@literal @}Update(entity = User.class)
- *     public void updateUsername(Username username);
+ *     {@literal @}Update
+ *     public int updateSongs(List&lt;Song&gt; songs);
+ * }
+ * </pre>
+ * If the target entity is specified via {@link #entity()} then the parameters can be of arbitrary
+ * POJO types that will be interpreted as partial entities. For example:
+ * <pre>
+ * {@literal @}Entity
+ * public class Playlist {
+ *   {@literal @}PrimaryKey(autoGenerate = true)
+ *   long playlistId;
+ *   String name;
+ *   {@literal @}ColumnInfo(defaultValue = "")
+ *   String description
+ *   {@literal @}ColumnInfo(defaultValue = "normal")
+ *   String category;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String createdTime;
+ *   {@literal @}ColumnInfo(defaultValue = "CURRENT_TIMESTAMP")
+ *   String lastModifiedTime;
+ * }
+ *
+ * public class PlaylistCategory {
+ *   long playlistId;
+ *   String category;
+ *   String lastModifiedTime
+ * }
+ *
+ * {@literal @}Dao
+ * public interface PlaylistDao {
+ *   {@literal @}Update(entity = Playlist.class)
+ *   public void updateCategory(PlaylistCategory... category);
  * }
  * </pre>
  *
