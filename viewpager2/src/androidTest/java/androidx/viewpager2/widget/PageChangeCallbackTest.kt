@@ -54,7 +54,6 @@ import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors.newSingleThreadExecutor
 import java.util.concurrent.TimeUnit.SECONDS
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.roundToInt
 
 @RunWith(Parameterized::class)
@@ -1035,12 +1034,8 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     }
 
     private fun ViewPager2.waitUntilSnappedOnTargetByPolling(targetPage: Int) {
-        val targetReached = AtomicBoolean(false)
         PollingCheck.waitFor(2000) {
-            post {
-                targetReached.set(targetPage == currentCompletelyVisibleItem)
-            }
-            targetReached.get()
+            currentCompletelyVisibleItem == targetPage
         }
     }
 

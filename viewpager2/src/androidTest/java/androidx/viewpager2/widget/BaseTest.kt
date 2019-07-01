@@ -440,8 +440,12 @@ open class BaseTest {
 
     val ViewPager2.currentCompletelyVisibleItem: Int
         get() {
-            return (recyclerView.layoutManager as LinearLayoutManager)
-                .findFirstCompletelyVisibleItemPosition()
+            var position = RecyclerView.NO_POSITION
+            activityTestRule.runOnUiThread {
+                position = (recyclerView.layoutManager as LinearLayoutManager)
+                    .findFirstCompletelyVisibleItemPosition()
+            }
+            return position
         }
 
     /**
