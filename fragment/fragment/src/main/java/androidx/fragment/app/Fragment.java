@@ -159,7 +159,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     FragmentManagerImpl mFragmentManager;
 
     // Host this fragment is attached to.
-    FragmentHostCallback mHost;
+    FragmentHostCallback<?> mHost;
 
     // Private fragment manager for child fragments inside of this one.
     @NonNull
@@ -568,6 +568,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return super.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
