@@ -26,6 +26,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.widget.Toolbar;
 import androidx.navigation.NavController;
 import androidx.navigation.NavDestination;
+import androidx.transition.TransitionManager;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
@@ -81,6 +82,9 @@ class CollapsingToolbarOnDestinationChangedListener
         if (toolbar != null) {
             toolbar.setNavigationIcon(icon);
             toolbar.setNavigationContentDescription(contentDescription);
+            if (icon == null) {
+                TransitionManager.beginDelayedTransition(toolbar);
+            }
         }
     }
 }
