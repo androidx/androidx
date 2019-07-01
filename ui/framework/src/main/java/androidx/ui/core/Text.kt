@@ -15,6 +15,7 @@
  */
 package androidx.ui.core
 
+import android.annotation.SuppressLint
 import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
@@ -76,14 +77,14 @@ fun Text(
     softWrap: Boolean = DefaultSoftWrap,
     /** How visual overflow should be handled. */
     overflow: TextOverflow = DefaultOverflow,
-    /** The number of font pixels for each logical pixel. */
-    textScaleFactor: Float = 1.0f,
     /**
      *  An optional maximum number of lines for the text to span, wrapping if necessary.
      *  If the text exceeds the given number of lines, it will be truncated according to [overflow]
      *  and [softWrap].
      *  The value may be null. If it is not null, then it must be greater than zero.
      */
+    // TODO(siyamed): remove suppress
+    @SuppressLint("AutoBoxing")
     maxLines: Int? = DefaultMaxLines,
     /**
      *  The color used to draw selected region.
@@ -105,7 +106,6 @@ fun Text(
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
-        textScaleFactor = textScaleFactor,
         maxLines = maxLines,
         selectionColor = selectionColor
     )
@@ -124,7 +124,8 @@ fun Text(
     paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
     overflow: TextOverflow = DefaultOverflow,
-    textScaleFactor: Float = 1.0f,
+    // TODO(siyamed): remove suppress
+    @SuppressLint("AutoBoxing")
     maxLines: Int? = DefaultMaxLines,
     selectionColor: Color = DefaultSelectionColor
 ) {
@@ -134,7 +135,6 @@ fun Text(
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
         overflow = overflow,
-        textScaleFactor = textScaleFactor,
         maxLines = maxLines,
         selectionColor = selectionColor
     )
@@ -167,14 +167,14 @@ fun Text(
     softWrap: Boolean = DefaultSoftWrap,
     /** How visual overflow should be handled. */
     overflow: TextOverflow = DefaultOverflow,
-    /** The number of font pixels for each logical pixel. */
-    textScaleFactor: Float = 1.0f,
     /**
      *  An optional maximum number of lines for the text to span, wrapping if necessary.
      *  If the text exceeds the given number of lines, it will be truncated according to [overflow]
      *  and [softWrap].
      *  The value may be null. If it is not null, then it must be greater than zero.
      */
+    // TODO(siyamed): remove suppress
+    @SuppressLint("AutoBoxing")
     maxLines: Int? = DefaultMaxLines,
     /**
      *  The color used to draw selected region.
@@ -205,7 +205,6 @@ fun Text(
             paragraphStyle,
             softWrap,
             overflow,
-            textScaleFactor,
             maxLines,
             density
         ) {
@@ -215,7 +214,6 @@ fun Text(
                 paragraphStyle = paragraphStyle,
                 softWrap = softWrap,
                 overflow = overflow,
-                textScaleFactor = textScaleFactor,
                 maxLines = maxLines,
                 density = density
             )
@@ -244,7 +242,6 @@ fun Text(
             paragraphStyle,
             softWrap,
             overflow,
-            textScaleFactor,
             maxLines,
             density
         ) {
