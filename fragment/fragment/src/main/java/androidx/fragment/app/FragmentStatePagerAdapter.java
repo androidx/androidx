@@ -102,8 +102,8 @@ public abstract class FragmentStatePagerAdapter extends PagerAdapter {
     private final int mBehavior;
     private FragmentTransaction mCurTransaction = null;
 
-    private ArrayList<Fragment.SavedState> mSavedState = new ArrayList<Fragment.SavedState>();
-    private ArrayList<Fragment> mFragments = new ArrayList<Fragment>();
+    private ArrayList<Fragment.SavedState> mSavedState = new ArrayList<>();
+    private ArrayList<Fragment> mFragments = new ArrayList<>();
     private Fragment mCurrentPrimaryItem = null;
 
     /**

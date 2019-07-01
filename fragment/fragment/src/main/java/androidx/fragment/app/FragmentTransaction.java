@@ -452,8 +452,8 @@ public abstract class FragmentTransaction {
                         + " sharedElements");
             }
             if (mSharedElementSourceNames == null) {
-                mSharedElementSourceNames = new ArrayList<String>();
-                mSharedElementTargetNames = new ArrayList<String>();
+                mSharedElementSourceNames = new ArrayList<>();
+                mSharedElementTargetNames = new ArrayList<>();
             } else if (mSharedElementTargetNames.contains(name)) {
                 throw new IllegalArgumentException("A shared element with the target name '"
                         + name + "' has already been added to the transaction.");
