@@ -16,7 +16,6 @@ package androidx.fragment.app {
     method public final void validateRequestPermissionsRequestCode(int);
   }
 
-
   public abstract class FragmentManager {
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.fragment.app.FragmentTransaction openTransaction();
   }
