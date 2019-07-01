@@ -21,6 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.baseui.Clickable
+import androidx.ui.baseui.shape.Shape
+import androidx.ui.baseui.shape.border.Border
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
 import androidx.ui.core.Text
@@ -29,8 +31,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.material.borders.BorderStyle
-import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.TextStyle
@@ -60,22 +60,24 @@ import androidx.ui.painting.TextStyle
  * @param onClick Will be called when user clicked on the button. The button will be disabled
  *  when it is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
- *  the [Shapes.button] from [CurrentShapeAmbient].
+ *  the [Shapes.button] value from the theme.
  * @param color The background color. [MaterialColors.primary] is used when null
  *  is provided. Provide [Color.Transparent] to have no color.
+ * @param border Optional border to draw on top of the shape.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
 @Composable
 fun Button(
     onClick: (() -> Unit)? = null,
-    shape: ShapeBorder = +themeShape { button },
+    shape: Shape = +themeShape { button },
     color: Color = +themeColor { primary },
+    border: Border? = null,
     elevation: Dp = 0.dp,
     @Children children: @Composable() () -> Unit
 ) {
     val textStyle = +themeTextStyle { button }
-    Surface(shape = shape, color = color, elevation = elevation) {
+    Surface(shape = shape, color = color, border = border, elevation = elevation) {
         CurrentTextStyleProvider(value = textStyle) {
             val clickableChildren = @Composable {
                 Clickable(onClick = onClick) {
@@ -117,9 +119,10 @@ fun Button(
  * @param onClick Will be called when user clicked on the button. The button will be disabled
  *  when it is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
- *  the [Shapes.button] from [CurrentShapeAmbient].
+ *  the [Shapes.button] value from the theme.
  * @param color The background color. [MaterialColors.primary] is used when null
  *  is provided. Use [TransparentButton] to have no color.
+ * @param border Optional border to draw on top of the shape.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -128,13 +131,20 @@ fun Button(
     text: String,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    shape: ShapeBorder = +themeShape { button },
+    shape: Shape = +themeShape { button },
     color: Color = +themeColor { primary },
+    border: Border? = null,
     elevation: Dp = 0.dp
 ) {
-    val hasBackground = color.alpha > 0 || shape.borderStyle != BorderStyle.None
+    val hasBackground = color.alpha > 0 || border != null
     val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
-    Button(onClick = onClick, elevation = elevation, color = color, shape = shape) {
+    Button(
+        onClick = onClick,
+        elevation = elevation,
+        color = color,
+        border = border,
+        shape = shape
+    ) {
         val constraints = DpConstraints
             .tightConstraintsForHeight(ButtonHeight)
             .copy(minWidth = ButtonMinWidth)
@@ -161,6 +171,7 @@ fun Button(
  *  when it is null.
  * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
  *  the [Shapes.button] from [CurrentShapeAmbient].
+ * @param border Optional border to draw on top of the shape.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
  */
@@ -169,7 +180,8 @@ fun TransparentButton(
     text: String,
     textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    shape: ShapeBorder = +themeShape { button },
+    shape: Shape = +themeShape { button },
+    border: Border? = null,
     elevation: Dp = 0.dp
 ) {
     val finalTextStyle = TextStyle(color = +themeColor { primary }).merge(textStyle)
@@ -179,6 +191,7 @@ fun TransparentButton(
         shape = shape,
         elevation = elevation,
         textStyle = finalTextStyle,
+        border = border,
         color = Color.Transparent)
 }
 

@@ -861,8 +861,8 @@ package androidx.ui.engine.geometry {
 
   public final class OutlineKt {
     ctor public OutlineKt();
+    method public static void addOutline(androidx.ui.painting.Path, androidx.ui.engine.geometry.Outline outline);
     method public static void drawOutline(androidx.ui.painting.Canvas, androidx.ui.engine.geometry.Outline outline, androidx.ui.painting.Paint paint);
-    method public static androidx.ui.painting.Path toPath(androidx.ui.engine.geometry.Outline);
   }
 
   public final class RRect {
@@ -1582,7 +1582,7 @@ package androidx.ui.painting {
     method public void _addRect(float left, float top, float right, float bottom);
     method public void addArc(androidx.ui.engine.geometry.Rect oval, float startAngle, float sweepAngle);
     method public void addOval(androidx.ui.engine.geometry.Rect oval);
-    method public void addPath(androidx.ui.painting.Path path, androidx.ui.engine.geometry.Offset offset, androidx.ui.vectormath64.Matrix4? matrix = null);
+    method public void addPath(androidx.ui.painting.Path path, androidx.ui.engine.geometry.Offset offset = Offset.zero, androidx.ui.vectormath64.Matrix4? matrix = null);
     method public void addPolygon(java.util.List<androidx.ui.engine.geometry.Offset> points, boolean close);
     method public void addRRect(androidx.ui.engine.geometry.RRect rrect);
     method public void addRect(androidx.ui.engine.geometry.Rect rect);
@@ -1609,7 +1609,7 @@ package androidx.ui.painting {
     method public void relativeQuadraticBezierTo(float x1, float y1, float x2, float y2);
     method public void reset();
     method public void setFillType(androidx.ui.painting.PathFillType value);
-    method public androidx.ui.painting.Path shift(androidx.ui.engine.geometry.Offset offset);
+    method public void shift(androidx.ui.engine.geometry.Offset offset);
     method public android.graphics.Path toFrameworkPath();
     method public androidx.ui.painting.Path transform(androidx.ui.vectormath64.Matrix4 matrix);
     property public final boolean isConvex;

@@ -16,33 +16,33 @@
 
 package androidx.ui.material.demos
 
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
+import androidx.ui.baseui.shape.border.Border
+import androidx.ui.baseui.shape.corner.CornerSizes
+import androidx.ui.baseui.shape.corner.RoundedCornerShape
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.dp
 import androidx.ui.core.Text
+import androidx.ui.core.dp
+import androidx.ui.core.px
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
-import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.Padding
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.borders.BorderRadius
-import androidx.ui.material.borders.BorderSide
-import androidx.ui.material.borders.RoundedRectangleBorder
+import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
-import androidx.ui.graphics.Color
-import androidx.compose.Composable
-import androidx.compose.unaryPlus
-import androidx.compose.composer
-import androidx.ui.material.ripple.Ripple
 
 @Composable
 fun RippleDemo() {
     CraneWrapper {
         MaterialTheme {
-            Container(padding = EdgeInsets(50.dp)) {
-                val shape = RoundedRectangleBorder(
-                    side = BorderSide(Color(0x80000000.toInt())),
-                    borderRadius = BorderRadius.circular(100f)
-                )
-                Card(shape = shape) {
+            Padding(padding = 50.dp) {
+                Card(
+                    shape = RoundedCornerShape(CornerSizes(100.px)),
+                    border = Border(Color(0x80000000.toInt()), 1.dp)
+                ) {
                     Ripple(bounded = true) {
                         Container(expanded = true) {
                             Ripple(bounded = true) {

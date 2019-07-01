@@ -403,7 +403,7 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
      * after the matrix is translated by the given offset. The matrix is a 4x4
      * matrix stored in column major order.
      */
-    fun addPath(path: Path, offset: Offset, matrix: Matrix4? = null) {
+    fun addPath(path: Path, offset: Offset = Offset.zero, matrix: Matrix4? = null) {
         if (matrix != null) {
             // TODO(Migration/njawad: update logic to convert Matrix4 -> framework
             // Matrix when ported)
@@ -509,15 +509,12 @@ class Path(private val internalPath: android.graphics.Path = android.graphics.Pa
     }
 
     /**
-     * Returns a copy of the path with all the segments of every
-     * subpath translated by the given offset.
+     * Translates all the segments of every subpath by the given offset.
      */
-    fun shift(offset: Offset): Path {
-        return clone().apply {
-            mMatrix.reset()
-            mMatrix.setTranslate(offset.dx, offset.dy)
-            internalPath.transform(mMatrix)
-        }
+    fun shift(offset: Offset) {
+        mMatrix.reset()
+        mMatrix.setTranslate(offset.dx, offset.dy)
+        internalPath.transform(mMatrix)
     }
 
     /**

@@ -44,12 +44,12 @@ sealed class Outline {
 }
 
 /**
- * Converts an [Outline] to a [Path].
+ * Adds the [outline] to the [Path].
  */
-fun Outline.toPath(): Path = when (this) {
-    is Outline.Rectangle -> Path().apply { addRect(rect) }
-    is Outline.Rounded -> Path().apply { addRRect(rrect) }
-    is Outline.Generic -> path
+fun Path.addOutline(outline: Outline) = when (outline) {
+    is Outline.Rectangle -> addRect(outline.rect)
+    is Outline.Rounded -> addRRect(outline.rrect)
+    is Outline.Generic -> addPath(outline.path)
 }
 
 /**
