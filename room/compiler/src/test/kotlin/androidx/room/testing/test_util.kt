@@ -25,6 +25,7 @@ import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.processor.DatabaseViewProcessor
+import androidx.room.processor.QueryInterpreter
 import androidx.room.solver.CodeGenScope
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -168,6 +169,16 @@ fun simpleRun(
 fun loadJavaCode(fileName: String, qName: String): JavaFileObject {
     val contents = File("src/test/data/$fileName").readText(Charsets.UTF_8)
     return JavaFileObjects.forSourceString(qName, contents)
+}
+
+fun createInterpreterFromEntitiesAndViews(invocation: TestInvocation): QueryInterpreter {
+    val entities = invocation.roundEnv.getElementsAnnotatedWith(Entity::class.java).map {
+        TableEntityProcessor(invocation.context, MoreElements.asType(it)).process()
+    }
+    val views = invocation.roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
+        DatabaseViewProcessor(invocation.context, MoreElements.asType(it)).process()
+    }
+    return QueryInterpreter(entities + views)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {

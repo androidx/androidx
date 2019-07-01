@@ -30,6 +30,7 @@ import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
 import compileLibrarySource
+import createInterpreterFromEntitiesAndViews
 import createVerifierFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -169,7 +170,10 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             """) { dao, invocation ->
             val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
                     .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
-            val daoProcessor = DaoProcessor(invocation.context, dao.element, dbType, null)
+            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
+            val daoProcessor =
+                DaoProcessor(invocation.context, dao.element, dbType, null, queryInterpreter)
+
             assertThat(daoProcessor.context.logger
                     .suppressedWarnings, `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
 
@@ -178,6 +182,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                         baseContext = daoProcessor.context,
                         containing = MoreTypes.asDeclared(dao.element.asType()),
                         executableElement = it.element,
+                        queryInterpreter = queryInterpreter,
                         dbVerifier = null).context.logger.suppressedWarnings,
                         `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
             }
@@ -196,7 +201,9 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             """) { dao, invocation ->
             val dbType = MoreTypes.asDeclared(invocation.context.processingEnv.elementUtils
                     .getTypeElement(RoomTypeNames.ROOM_DB.toString()).asType())
-            val daoProcessor = DaoProcessor(invocation.context, dao.element, dbType, null)
+            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
+            val daoProcessor =
+                DaoProcessor(invocation.context, dao.element, dbType, null, queryInterpreter)
             assertThat(daoProcessor.context.logger
                     .suppressedWarnings, `is`(setOf(Warning.CURSOR_MISMATCH)))
 
@@ -205,6 +212,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                         baseContext = daoProcessor.context,
                         containing = MoreTypes.asDeclared(dao.element.asType()),
                         executableElement = it.element,
+                        queryInterpreter = queryInterpreter,
                         dbVerifier = null).context.logger.suppressedWarnings,
                         `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH)))
             }
@@ -322,8 +330,9 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                                     invocation.context.processingEnv.elementUtils
                                             .getTypeElement(RoomTypeNames.ROOM_DB.toString())
                                             .asType())
+                            val queryInterpreter = createInterpreterFromEntitiesAndViews(invocation)
                             val parser = DaoProcessor(invocation.context,
-                                    MoreElements.asType(dao), dbType, dbVerifier)
+                                    MoreElements.asType(dao), dbType, dbVerifier, queryInterpreter)
 
                             val parsedDao = parser.process()
                             handler(parsedDao, invocation)

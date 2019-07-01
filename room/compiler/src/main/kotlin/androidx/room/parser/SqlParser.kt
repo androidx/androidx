@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.CharStreams
 import org.antlr.v4.runtime.CommonTokenStream
 import org.antlr.v4.runtime.RecognitionException
 import org.antlr.v4.runtime.Recognizer
+import org.antlr.v4.runtime.RuleContext
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
 import javax.annotation.processing.ProcessingEnvironment
@@ -35,7 +36,9 @@ class QueryVisitor(
     statement: ParseTree,
     private val forRuntimeQuery: Boolean
 ) : SQLiteBaseVisitor<Void?>() {
-    private val bindingExpressions = arrayListOf<TerminalNode>()
+    private val resultColumns = arrayListOf<SectionInfo>()
+    private val explicitColumns = arrayListOf<String>()
+    private val bindingExpressions = arrayListOf<SectionInfo>()
     // table name alias mappings
     private val tableNames = mutableSetOf<Table>()
     private val withClauseNames = mutableSetOf<String>()
@@ -69,22 +72,74 @@ class QueryVisitor(
         }
     }
 
+    override fun visitResult_column(ctx: SQLiteParser.Result_columnContext?): Void? {
+        fun addProjectionSection(c: SQLiteParser.Result_columnContext, p: Section.Projection) {
+            resultColumns.add(
+                SectionInfo(
+                    Position(c.start.line - 1, c.start.charPositionInLine),
+                    Position(c.stop.line - 1, c.stop.charPositionInLine + c.stop.text.length),
+                    p
+                )
+            )
+        }
+        ctx?.let { c ->
+            // Result columns (only in top-level SELECT)
+            if (c.parent.isCoreSelect) {
+                when {
+                    c.text == "*" -> {
+                        addProjectionSection(c, Section.Projection.All)
+                    }
+                    c.table_name() != null -> {
+                        addProjectionSection(
+                            c, Section.Projection.Table(
+                                c.table_name().text.trim('`'),
+                                original.substring(c.start.startIndex, c.stop.stopIndex + 1)
+                            )
+                        )
+                    }
+                    c.column_alias() != null -> {
+                        explicitColumns.add(c.column_alias().text.trim('`'))
+                    }
+                    else -> {
+                        explicitColumns.add(c.text.trim('`'))
+                    }
+                }
+            }
+        }
+        return super.visitResult_column(ctx)
+    }
+
     override fun visitExpr(ctx: SQLiteParser.ExprContext): Void? {
         val bindParameter = ctx.BIND_PARAMETER()
         if (bindParameter != null) {
-            bindingExpressions.add(bindParameter)
+            bindingExpressions.add(
+                SectionInfo(
+                    Position(
+                        bindParameter.symbol.line - 1,
+                        bindParameter.symbol.charPositionInLine
+                    ),
+                    Position(
+                        bindParameter.symbol.line - 1,
+                        bindParameter.symbol.charPositionInLine + bindParameter.text.length
+                    ),
+                    Section.BindVar(bindParameter.text)
+                )
+            )
         }
         return super.visitExpr(ctx)
     }
 
     fun createParsedQuery(): ParsedQuery {
         return ParsedQuery(
-                original = original,
-                type = queryType,
-                inputs = bindingExpressions.sortedBy { it.sourceInterval.a },
-                tables = tableNames,
-                syntaxErrors = syntaxErrors,
-                runtimeQueryPlaceholder = forRuntimeQuery)
+            original = original,
+            type = queryType,
+            projections = resultColumns.toList(),
+            explicitColumns = explicitColumns.toList(),
+            inputs = bindingExpressions.toList(),
+            tables = tableNames,
+            syntaxErrors = syntaxErrors,
+            runtimeQueryPlaceholder = forRuntimeQuery
+        )
     }
 
     override fun visitCommon_table_expression(
@@ -102,9 +157,12 @@ class QueryVisitor(
         if (tableName != null) {
             val tableAlias = ctx.table_alias()?.text
             if (tableName !in withClauseNames) {
-                tableNames.add(Table(
+                tableNames.add(
+                    Table(
                         unescapeIdentifier(tableName),
-                        unescapeIdentifier(tableAlias ?: tableName)))
+                        unescapeIdentifier(tableAlias ?: tableName)
+                    )
+                )
             }
         }
         return super.visitTable_or_subquery(ctx)
@@ -124,6 +182,22 @@ class QueryVisitor(
         private val ESCAPE_LITERALS = listOf("\"", "'", "`")
     }
 }
+
+/**
+ * Returns the parent of this [RuleContext] recursively as a [Sequence].
+ */
+private fun RuleContext.ancestors(): Sequence<RuleContext> = generateSequence(parent) { c ->
+    c.parent
+}
+
+/**
+ * Whether this [RuleContext] is the top SELECT statement.
+ */
+private val RuleContext.isCoreSelect: Boolean
+    get() {
+        return this is SQLiteParser.Select_or_valuesContext &&
+                ancestors().none { it is SQLiteParser.Select_or_valuesContext }
+    }
 
 class SqlParser {
     companion object {
@@ -151,41 +225,61 @@ class SqlParser {
                 val statementList = parsed.sql_stmt_list()
                 if (statementList.isEmpty()) {
                     syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
-                    return ParsedQuery(input, QueryType.UNKNOWN, emptyList(), emptySet(),
-                            listOf(ParserErrors.NOT_ONE_QUERY), false)
+                    return ParsedQuery(
+                        original = input,
+                        type = QueryType.UNKNOWN,
+                        projections = emptyList(),
+                        explicitColumns = emptyList(),
+                        inputs = emptyList(),
+                        tables = emptySet(),
+                        syntaxErrors = listOf(ParserErrors.NOT_ONE_QUERY),
+                        runtimeQueryPlaceholder = false
+                    )
                 }
                 val statements = statementList.first().children
-                        .filter { it is SQLiteParser.Sql_stmtContext }
+                    .filter { it is SQLiteParser.Sql_stmtContext }
                 if (statements.size != 1) {
                     syntaxErrors.add(ParserErrors.NOT_ONE_QUERY)
                 }
                 val statement = statements.first()
                 return QueryVisitor(
-                        original = input,
-                        syntaxErrors = syntaxErrors,
-                        statement = statement,
-                        forRuntimeQuery = false).createParsedQuery()
+                    original = input,
+                    syntaxErrors = syntaxErrors,
+                    statement = statement,
+                    forRuntimeQuery = false
+                ).createParsedQuery()
             } catch (antlrError: RuntimeException) {
-                return ParsedQuery(input, QueryType.UNKNOWN, emptyList(), emptySet(),
-                        listOf("unknown error while parsing $input : ${antlrError.message}"),
-                        false)
+                return ParsedQuery(
+                    original = input,
+                    type = QueryType.UNKNOWN,
+                    projections = emptyList(),
+                    explicitColumns = emptyList(),
+                    inputs = emptyList(),
+                    tables = emptySet(),
+                    syntaxErrors = listOf(
+                        "unknown error while parsing $input : ${antlrError.message}"
+                    ),
+                    runtimeQueryPlaceholder = false
+                )
             }
         }
 
         fun isValidIdentifier(input: String): Boolean =
-                input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
+            input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
 
         /**
          * creates a dummy select query for raw queries that queries the given list of tables.
          */
         fun rawQueryForTables(tableNames: Set<String>): ParsedQuery {
             return ParsedQuery(
-                    original = "raw query",
-                    type = QueryType.UNKNOWN,
-                    inputs = emptyList(),
-                    tables = tableNames.map { Table(name = it, alias = it) }.toSet(),
-                    syntaxErrors = emptyList(),
-                    runtimeQueryPlaceholder = true
+                original = "raw query",
+                type = QueryType.UNKNOWN,
+                projections = emptyList(),
+                explicitColumns = emptyList(),
+                inputs = emptyList(),
+                tables = tableNames.map { Table(name = it, alias = it) }.toSet(),
+                syntaxErrors = emptyList(),
+                runtimeQueryPlaceholder = true
             )
         }
     }
@@ -216,11 +310,16 @@ enum class SQLTypeAffinity {
         val typeUtils = env.typeUtils
         return when (this) {
             TEXT -> listOf(env.elementUtils.getTypeElement("java.lang.String").asType())
-            INTEGER -> withBoxedTypes(env, TypeKind.INT, TypeKind.BYTE, TypeKind.CHAR,
-                    TypeKind.LONG, TypeKind.SHORT)
+            INTEGER -> withBoxedTypes(
+                env, TypeKind.INT, TypeKind.BYTE, TypeKind.CHAR,
+                TypeKind.LONG, TypeKind.SHORT
+            )
             REAL -> withBoxedTypes(env, TypeKind.DOUBLE, TypeKind.FLOAT)
-            BLOB -> listOf(typeUtils.getArrayType(
-                    typeUtils.getPrimitiveType(TypeKind.BYTE)))
+            BLOB -> listOf(
+                typeUtils.getArrayType(
+                    typeUtils.getPrimitiveType(TypeKind.BYTE)
+                )
+            )
             else -> emptyList()
         }
     }

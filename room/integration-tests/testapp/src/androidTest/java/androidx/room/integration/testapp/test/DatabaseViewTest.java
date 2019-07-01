@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -157,6 +158,12 @@ public class DatabaseViewTest {
             this.departmentId = departmentId;
             this.name = name;
         }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return name + " (" + id + ", " + departmentId + ")";
+        }
     }
 
     @Entity
@@ -179,6 +186,27 @@ public class DatabaseViewTest {
         public String name;
         public long departmentId;
         public String departmentName;
+    }
+
+    @DatabaseView(
+            "SELECT * FROM Team "
+                    + "INNER JOIN Department AS department_ "
+                    + "ON Team.departmentId = department_.id"
+    )
+    static class TeamDetail2 {
+        @Embedded
+        public Team team;
+        @Embedded(prefix = "department_")
+        public Department department;
+    }
+
+    @DatabaseView("SELECT * FROM TeamDetail AS first_, TeamDetail AS second_ "
+            + "WHERE first_.id <> second_.id")
+    static class TeamPair {
+        @Embedded(prefix = "first_")
+        public TeamDetail first;
+        @Embedded(prefix = "second_")
+        public TeamDetail second;
     }
 
     @Dao
@@ -213,6 +241,12 @@ public class DatabaseViewTest {
         @Transaction
         @Query("SELECT * FROM TeamDetail WHERE id = :id")
         TeamWithMembers withMembers(long id);
+
+        @Query("SELECT * FROM TeamDetail2 WHERE id = :id")
+        TeamDetail2 detail2ById(long id);
+
+        @Query("SELECT * FROM TeamPair WHERE first_id = :id")
+        List<TeamPair> roundRobinById(long id);
     }
 
     @Dao
@@ -232,6 +266,8 @@ public class DatabaseViewTest {
             },
             views = {
                     TeamDetail.class,
+                    TeamDetail2.class,
+                    TeamPair.class,
                     EmployeeWithManager.class,
                     EmployeeDetail.class,
             },
@@ -390,5 +426,34 @@ public class DatabaseViewTest {
     @SuppressWarnings("unchecked")
     private static <T> void resetMock(T mock) {
         reset(mock);
+    }
+
+    @Test
+    @MediumTest
+    public void expandProjection() {
+        final CompanyDatabase db = getDatabase();
+        db.department().insert(new Department(3L, "Sales"));
+        db.team().insert(new Team(5L, 3L, "Books"));
+        final TeamDetail2 detail = db.team().detail2ById(5L);
+        assertThat(detail.team.id, is(equalTo(5L)));
+        assertThat(detail.team.name, is(equalTo("Books")));
+        assertThat(detail.team.departmentId, is(equalTo(3L)));
+        assertThat(detail.department.id, is(equalTo(3L)));
+        assertThat(detail.department.name, is(equalTo("Sales")));
+    }
+
+    @Test
+    @MediumTest
+    public void expandProjection_embedView() {
+        final CompanyDatabase db = getDatabase();
+        db.department().insert(new Department(3L, "Sales"));
+        db.team().insert(new Team(5L, 3L, "Books"));
+        db.team().insert(new Team(7L, 3L, "Toys"));
+        List<TeamPair> pairs = db.team().roundRobinById(5L);
+        assertThat(pairs, hasSize(1));
+        assertThat(pairs.get(0).first.name, is(equalTo("Books")));
+        assertThat(pairs.get(0).first.departmentName, is(equalTo("Sales")));
+        assertThat(pairs.get(0).second.name, is(equalTo("Toys")));
+        assertThat(pairs.get(0).second.departmentName, is(equalTo("Sales")));
     }
 }
