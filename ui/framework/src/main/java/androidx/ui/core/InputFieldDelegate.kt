@@ -22,6 +22,7 @@ import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
 import androidx.ui.input.SetSelectionEditOp
+import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.TextPainter
 
@@ -101,9 +102,8 @@ internal class InputFieldDelegate(
      *
      * @param position The event position in widget coordinate.
      */
-    fun onPress(position: PxPosition) {
-        // TODO(nona): Implement this function
-        Log.d("InputFieldDelegate", "onPress: $position")
+    fun onPress(textInputService: TextInputService?) {
+        textInputService?.showSoftwareKeyboard()
     }
 
     /**
