@@ -58,7 +58,6 @@ import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.common.MediaBrowserConstants;
 import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.versionedparcelable.ParcelUtils;
@@ -448,7 +447,6 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     }
 
     @Test
-    @FlakyTest(bugId = 118671770)
     public void testOnChildrenChanged_notCalledWhenNotSubscribed() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
