@@ -87,8 +87,6 @@ fun TextDemo() {
                 TextDemoTextAlign()
                 TagLine(tag = "softWrap: on and off")
                 TextDemoSoftWrap()
-                TagLine(tag = "textScaleFactor: default and 2.0")
-                TextDemoTextScaleFactor()
                 TagLine(tag = "TextOverFlow: Fade")
                 TexDemoTextOverflowFade()
                 TagLine(tag = "shadow")
@@ -488,27 +486,6 @@ fun TextDemoSoftWrap() {
 }
 
 // TODO(Migration/qqd): Impelement text demo for overflow and maxLines.
-@Composable
-fun TextDemoOverflow() {
-}
-
-@Composable
-fun TextDemoMaxLines() {
-}
-
-@Composable
-fun TextDemoTextScaleFactor() {
-    // This group of text widgets show the different textScaleFactor.
-    Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-        Text {
-            Span(text = displayText, style = TextStyle(fontSize = fontSize8))
-        }
-
-        Text(textScaleFactor = 2.0f) {
-            Span(text = displayText, style = TextStyle(fontSize = fontSize8))
-        }
-    }
-}
 
 @Composable
 fun TexDemoTextOverflowFade() {

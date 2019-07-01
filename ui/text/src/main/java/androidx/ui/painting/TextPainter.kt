@@ -84,9 +84,6 @@ internal fun applyFloatingPointHack(layoutValue: Float): Float {
  * @param paragraphStyle Style configuration that applies only to paragraphs such as text alignment,
  * or text direction.
  *
- * @param textScaleFactor The number of font pixels for each logical pixel.
- *   After this is set, you must call [layout] before the next call to [paint].
- *
  * @param maxLines An optional maximum number of lines for the text to span, wrapping if necessary.
  *   If the text exceeds the given number of lines, it is truncated such that subsequent lines are
  *   dropped.
@@ -107,11 +104,10 @@ class TextPainter(
     text: AnnotatedString? = null,
     val style: TextStyle? = null,
     val paragraphStyle: androidx.ui.painting.ParagraphStyle? = null,
-    textScaleFactor: Float = 1.0f,
-    maxLines: Int? = null,
-    softWrap: Boolean = true,
-    overflow: TextOverflow = TextOverflow.Clip,
-    locale: Locale? = null,
+    val maxLines: Int? = null,
+    val softWrap: Boolean = true,
+    val overflow: TextOverflow = TextOverflow.Clip,
+    val locale: Locale? = null,
     val density: Density
 ) {
     init {
@@ -139,7 +135,6 @@ class TextPainter(
     private var lastMinWidth: Float = 0.0f
     private var lastMaxWidth: Float = 0.0f
 
-    // TODO(siyamed) make arguments below immutable
     @RestrictTo(LIBRARY_GROUP)
     var text: AnnotatedString? = text
         set(value) {
@@ -152,72 +147,15 @@ class TextPainter(
     internal val textStyle: TextStyle
         get() = style ?: TextStyle()
 
-    internal var textAlign: TextAlign =
+    internal val textAlign: TextAlign =
         if (paragraphStyle?.textAlign != null) paragraphStyle.textAlign else DefaultTextAlign
-        set(value) {
-            if (field == value) return
-            field = value
-            paragraph = null
-            needsLayout = true
-        }
 
-    internal var textDirection: TextDirection? =
+    internal val textDirection: TextDirection? =
         paragraphStyle?.textDirection ?: DefaultTextDirection
-        set(value) {
-            if (field == value) return
-            field = value
-            paragraph = null
-            layoutTemplate = null // Shouldn't really matter, but for strict correctness...
-            needsLayout = true
-        }
-
-    internal var textScaleFactor: Float = textScaleFactor
-        set(value) {
-            if (field == value) return
-            field = value
-            paragraph = null
-            layoutTemplate = null
-            needsLayout = true
-        }
-
-    internal var maxLines: Int? = maxLines
-        set(value) {
-            assert(value == null || value > 0)
-            if (field == value) return
-            field = value
-            paragraph = null
-            needsLayout = true
-        }
-
-    internal var softWrap: Boolean = softWrap
-        set(value) {
-            if (field == value) return
-            field = value
-            paragraph = null
-            needsLayout = true
-        }
-
-    internal var overflow: TextOverflow? = overflow
-        set(value) {
-            if (field == value) return
-            field = value
-            paragraph = null
-            needsLayout = true
-        }
-
-    internal var locale: Locale? = locale
-        set(value) {
-            if (field == value) return
-            field = value
-            paragraph = null
-            needsLayout = true
-        }
 
     private fun createTextStyle(): TextStyle {
         return textStyle.copy(
-            fontSize = (textStyle.fontSize ?: DefaultFontSize).times(
-                textScaleFactor
-            )
+            fontSize = (textStyle.fontSize ?: DefaultFontSize)
         )
     }
 
@@ -403,7 +341,6 @@ class TextPainter(
                 text = AnnotatedString(text = "\u2026", textStyles = listOf()),
                 style = textStyle,
                 paragraphStyle = paragraphStyle,
-                textScaleFactor = textScaleFactor,
                 density = density
             )
             fadeSizePainter.layoutText()

@@ -53,5 +53,4 @@ data class ParagraphStyle constructor(
     val lineHeight: Float? = null,
     val maxLines: Int? = null,
     val ellipsis: Boolean? = null
-    // TODO(siyamed) add fontScaleFactor and use it in Paragraph
 )

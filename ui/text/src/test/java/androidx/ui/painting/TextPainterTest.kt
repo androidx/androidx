@@ -41,7 +41,6 @@ class TextPainterTest() {
         assertThat(textPainter.text).isNull()
         assertThat(textPainter.textAlign).isEqualTo(TextAlign.Start)
         assertThat(textPainter.textDirection).isEqualTo(TextDirection.Ltr)
-        assertThat(textPainter.textScaleFactor).isEqualTo(1.0f)
         assertThat(textPainter.maxLines).isNull()
         assertThat(textPainter.overflow).isEqualTo(TextOverflow.Clip)
         assertThat(textPainter.locale).isNull()
@@ -73,15 +72,6 @@ class TextPainterTest() {
         )
 
         assertThat(textPainter.textDirection).isEqualTo(TextDirection.Rtl)
-    }
-
-    @Test
-    fun `constructor with customized textScaleFactor`() {
-        val scaleFactor = 2.0f
-
-        val textPainter = TextPainter(textScaleFactor = scaleFactor, density = density)
-
-        assertThat(textPainter.textScaleFactor).isEqualTo(scaleFactor)
     }
 
     @Test
@@ -124,80 +114,7 @@ class TextPainterTest() {
     }
 
     @Test
-    fun `textAlign setter`() {
-        val textPainter = TextPainter(density = density)
-
-        textPainter.textAlign = TextAlign.Left
-
-        assertThat(textPainter.textAlign).isEqualTo(TextAlign.Left)
-        assertThat(textPainter.paragraph).isNull()
-        assertThat(textPainter.needsLayout).isTrue()
-    }
-
-    @Test
-    fun `textDirection setter`() {
-        val textPainter = TextPainter(density = density)
-
-        textPainter.textDirection = TextDirection.Rtl
-
-        assertThat(textPainter.textDirection).isEqualTo(TextDirection.Rtl)
-        assertThat(textPainter.paragraph).isNull()
-        assertThat(textPainter.layoutTemplate).isNull()
-        assertThat(textPainter.needsLayout).isTrue()
-    }
-
-    @Test
-    fun `textScaleFactor setter`() {
-        val textPainter = TextPainter(density = density)
-        val scaleFactor = 3.0f
-
-        textPainter.textScaleFactor = scaleFactor
-
-        assertThat(textPainter.textScaleFactor).isEqualTo(scaleFactor)
-        assertThat(textPainter.paragraph).isNull()
-        assertThat(textPainter.layoutTemplate).isNull()
-        assertThat(textPainter.needsLayout).isTrue()
-    }
-
-    @Test
-    fun `maxLines setter`() {
-        val textPainter = TextPainter(density = density)
-        val maxLines = 5
-
-        textPainter.maxLines = maxLines
-
-        assertThat(textPainter.maxLines).isEqualTo(maxLines)
-        assertThat(textPainter.paragraph).isNull()
-        assertThat(textPainter.needsLayout).isTrue()
-    }
-
-    @Test
-    fun `overflow setter`() {
-        val textPainter = TextPainter(density = density)
-        val overflow = TextOverflow.Ellipsis
-
-        textPainter.overflow = overflow
-
-        assertThat(textPainter.overflow).isEqualTo(overflow)
-        assertThat(textPainter.paragraph).isNull()
-        assertThat(textPainter.needsLayout).isTrue()
-    }
-
-    @Test
-    fun `locale setter`() {
-        val textPainter = TextPainter(density = density)
-        val locale = Locale("en", "US")
-
-        textPainter.locale = locale
-
-        assertThat(textPainter.locale).isEqualTo(locale)
-        assertThat(textPainter.paragraph).isNull()
-        assertThat(textPainter.needsLayout).isTrue()
-    }
-
-    @Test
     fun `createParagraphStyle without TextStyle in AnnotatedText`() {
-        val scaleFactor = 3.0f
         val maxLines = 5
         val overflow = TextOverflow.Ellipsis
         val locale = Locale("en", "US")
@@ -208,7 +125,6 @@ class TextPainterTest() {
                 textAlign = TextAlign.Center,
                 textDirection = TextDirection.Rtl
             ),
-            textScaleFactor = scaleFactor,
             maxLines = maxLines,
             overflow = overflow,
             locale = locale,
@@ -226,7 +142,6 @@ class TextPainterTest() {
     @Test
     fun `createParagraphStyle with defaultTextDirection`() {
         val fontSize = 15.sp
-        val scaleFactor = 3.0f
         val maxLines = 5
         val overflow = TextOverflow.Ellipsis
         val locale = Locale("en", "US")
@@ -239,7 +154,6 @@ class TextPainterTest() {
                 textAlign = TextAlign.Center,
                 textDirection = TextDirection.Rtl
             ),
-            textScaleFactor = scaleFactor,
             maxLines = maxLines,
             overflow = overflow,
             locale = locale,
