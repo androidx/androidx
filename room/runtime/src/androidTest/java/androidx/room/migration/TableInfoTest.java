@@ -112,6 +112,18 @@ public class TableInfoTest {
                 Collections.<TableInfo.ForeignKey>emptySet())));
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
+    public void defaultValue_oldConstructor() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT DEFAULT blah)");
+        TableInfo info = TableInfo.read(mDb, "foo");
+        assertThat(info, is(new TableInfo(
+                "foo",
+                toMap(new TableInfo.Column("name", "TEXT", false, 0)),
+                Collections.<TableInfo.ForeignKey>emptySet())));
+    }
+
     @Test
     public void foreignKey() {
         mDb = createDatabase(
