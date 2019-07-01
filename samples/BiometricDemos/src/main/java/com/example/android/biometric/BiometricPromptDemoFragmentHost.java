@@ -16,6 +16,7 @@
 
 package com.example.android.biometric;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,14 @@ import androidx.fragment.app.DialogFragment;
  */
 public class BiometricPromptDemoFragmentHost extends DialogFragment {
 
+    private Context mContext;
     private BiometricPromptDemoController mController;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mContext = context;
+    }
 
     @Nullable
     @Override
@@ -57,6 +65,7 @@ public class BiometricPromptDemoFragmentHost extends DialogFragment {
         final RadioGroup radioGroup = view.findViewById(R.id.radio_group);
 
         mController = new BiometricPromptDemoFragmentController(
+                mContext,
                 this,
                 createKeysButton,
                 authenticateButton,

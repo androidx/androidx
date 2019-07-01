@@ -11,7 +11,8 @@ package androidx.biometric {
   }
 
   public class BiometricPrompt {
-    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, java.util.concurrent.Executor, androidx.biometric.BiometricPrompt.AuthenticationCallback);
+    ctor public BiometricPrompt(androidx.fragment.app.FragmentActivity, androidx.biometric.BiometricPrompt.AuthenticationCallback, java.util.concurrent.Executor);
+    ctor public BiometricPrompt(androidx.fragment.app.Fragment, androidx.biometric.BiometricPrompt.AuthenticationCallback, java.util.concurrent.Executor);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo, androidx.biometric.BiometricPrompt.CryptoObject);
     method public void authenticate(androidx.biometric.BiometricPrompt.PromptInfo);
     method public void cancelAuthentication();
