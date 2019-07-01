@@ -318,12 +318,12 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                 scope.builder().apply {
                     when (field.setter.callType) {
                         CallType.FIELD -> {
-                            reader.readFromCursor("$ownerVar.${field.getter.name}", cursorVar,
+                            reader.readFromCursor("$ownerVar.${field.setter.name}", cursorVar,
                                     indexVar, scope)
                         }
                         CallType.METHOD -> {
                             val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
-                            addStatement("final $T $L", field.getter.type.typeName(), tmpField)
+                            addStatement("final $T $L", field.setter.type.typeName(), tmpField)
                             reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
                             addStatement("$L.$L($L)", ownerVar, field.setter.name, tmpField)
                         }

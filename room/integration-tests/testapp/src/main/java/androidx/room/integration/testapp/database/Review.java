@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,34 +16,29 @@
 
 package androidx.room.integration.testapp.database;
 
-import androidx.room.Dao;
-import androidx.room.Insert;
-import androidx.room.Query;
-
-import java.util.List;
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
 
 /**
- * Simple Product DAO.
+ * A products review.
  */
-@Dao
-public interface ProductDao {
+@Entity
+public class Review {
 
-    /**
-     * Insert the product.
-     */
-    @Insert
-    void insert(Product product);
+    @PrimaryKey
+    int mReviewId;
+    int mProductId;
+    int mRating;
 
-    /**
-     * Insert a review.
-     */
-    @Insert
-    void addReview(Review review);
+    public int getReviewId() {
+        return mReviewId;
+    }
 
-    /**
-     * Query a products reviews.
-     */
-    @Query("SELECT * FROM Review WHERE mProductId = :productId")
-    List<Review> getProductReviews(int productId);
+    public int getProductId() {
+        return mProductId;
+    }
 
+    public int getRating() {
+        return mRating;
+    }
 }
