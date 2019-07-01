@@ -25,13 +25,13 @@ import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.baseui.shape.Shape
 import androidx.ui.baseui.shape.corner.CornerSizes
 import androidx.ui.baseui.shape.corner.RoundedCornerShape
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
+import androidx.ui.engine.geometry.Shape
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.FontFamily
 import androidx.ui.graphics.Color

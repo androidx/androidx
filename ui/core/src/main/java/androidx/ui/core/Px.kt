@@ -400,7 +400,15 @@ inline class PxInverse(val value: Float) {
 /**
  * A two dimensional size using [Px] for units
  */
-data class PxSize(val width: Px, val height: Px)
+data class PxSize(val width: Px, val height: Px) {
+
+    companion object {
+        /**
+         * [PxSize] with zero values.
+         */
+        val Zero = PxSize(0.px, 0.px)
+    }
+}
 
 /**
  * Returns the [PxPosition] of the center of the rect from the point of [0, 0]

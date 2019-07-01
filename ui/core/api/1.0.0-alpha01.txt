@@ -580,6 +580,12 @@ package androidx.ui.core {
     method public androidx.ui.core.PxSize copy(androidx.ui.core.Px width, androidx.ui.core.Px height);
     method public androidx.ui.core.Px getHeight();
     method public androidx.ui.core.Px getWidth();
+    field public static final androidx.ui.core.PxSize.Companion! Companion;
+  }
+
+  public static final class PxSize.Companion {
+    method public androidx.ui.core.PxSize getZero();
+    property public final androidx.ui.core.PxSize Zero;
   }
 
   public final inline class PxSquared {
@@ -1028,6 +1034,10 @@ package androidx.ui.engine.geometry {
   public final class RectKt {
     ctor public RectKt();
     method public static androidx.ui.engine.geometry.Rect lerp(androidx.ui.engine.geometry.Rect a, androidx.ui.engine.geometry.Rect b, float t);
+  }
+
+  public interface Shape {
+    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
   }
 
   public class Size implements androidx.ui.engine.geometry.OffsetBase {

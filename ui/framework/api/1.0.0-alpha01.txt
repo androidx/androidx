@@ -1,6 +1,11 @@
 // Signature format: 3.0
 package androidx.ui.core {
 
+  public final class ClipKt {
+    ctor public ClipKt();
+    method public static void Clip(androidx.ui.engine.geometry.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class ComplexLayoutReceiver {
     method public void layout(kotlin.jvm.functions.Function3<? super androidx.ui.core.LayoutBlockReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.Constraints,kotlin.Unit> layoutBlock);
     method public void maxIntrinsicHeight(kotlin.jvm.functions.Function3<? super androidx.ui.core.IntrinsicMeasurementsReceiver,? super java.util.List<? extends androidx.ui.core.Measurable>,? super androidx.ui.core.IntPx,androidx.ui.core.IntPx> maxIntrinsicHeightBlock);

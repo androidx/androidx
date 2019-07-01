@@ -20,12 +20,12 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.baseui.shape.Shape
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.geometry.Shape
 import androidx.ui.engine.geometry.addOutline
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path

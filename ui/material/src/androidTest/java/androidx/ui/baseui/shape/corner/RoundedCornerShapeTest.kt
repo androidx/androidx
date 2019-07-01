@@ -17,7 +17,6 @@
 package androidx.ui.baseui.shape.corner
 
 import androidx.test.filters.SmallTest
-import androidx.ui.baseui.shape.Shape
 import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
@@ -26,6 +25,7 @@ import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius
+import androidx.ui.engine.geometry.Shape
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
