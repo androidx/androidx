@@ -17,13 +17,13 @@ package androidx.navigation.fragment {
   }
 
   public static final class FragmentNavigator.Extras implements androidx.navigation.Navigator.Extras {
-    method public java.util.Map<android.view.View,java.lang.String> getSharedElements();
+    method public java.util.Map<android.view.View!,java.lang.String!> getSharedElements();
   }
 
   public static final class FragmentNavigator.Extras.Builder {
     ctor public FragmentNavigator.Extras.Builder();
     method public androidx.navigation.fragment.FragmentNavigator.Extras.Builder addSharedElement(android.view.View, String);
-    method public androidx.navigation.fragment.FragmentNavigator.Extras.Builder addSharedElements(java.util.Map<android.view.View,java.lang.String>);
+    method public androidx.navigation.fragment.FragmentNavigator.Extras.Builder addSharedElements(java.util.Map<android.view.View!,java.lang.String!>);
     method public androidx.navigation.fragment.FragmentNavigator.Extras build();
   }
 

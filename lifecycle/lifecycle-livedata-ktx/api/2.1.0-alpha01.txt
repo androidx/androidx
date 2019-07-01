@@ -3,9 +3,9 @@ package androidx.lifecycle {
 
   public final class TransformationsKt {
     ctor public TransformationsKt();
-    method public static <X> androidx.lifecycle.LiveData<X> distinctUntilChanged(androidx.lifecycle.LiveData<X>);
-    method public static <X, Y> androidx.lifecycle.LiveData<Y> map(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<? super X,? extends Y> transform);
-    method public static <X, Y> androidx.lifecycle.LiveData<Y> switchMap(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<? super X,? extends androidx.lifecycle.LiveData<Y>> transform);
+    method public static inline <X> androidx.lifecycle.LiveData<X> distinctUntilChanged(androidx.lifecycle.LiveData<X>);
+    method public static inline <X, Y> androidx.lifecycle.LiveData<Y> map(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<? super X,? extends Y> transform);
+    method public static inline <X, Y> androidx.lifecycle.LiveData<Y> switchMap(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<? super X,? extends androidx.lifecycle.LiveData<Y>> transform);
   }
 
 }

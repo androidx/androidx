@@ -1,1 +1,10 @@
 // Signature format: 3.0
+package androidx.lifecycle {
+
+  public final class LiveDataKt {
+    ctor public LiveDataKt();
+    method @MainThread public static inline <T> androidx.lifecycle.Observer<T> observe(androidx.lifecycle.LiveData<T>, androidx.lifecycle.LifecycleOwner owner, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onChanged);
+  }
+
+}
+

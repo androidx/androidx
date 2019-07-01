@@ -63,7 +63,7 @@ package androidx.navigation {
     property public final CharSequence? label;
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface NavDestinationDsl {
+  @kotlin.DslMarker public @interface NavDestinationDsl {
   }
 
   @androidx.navigation.NavDestinationDsl public final class NavGraphBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.NavGraph> {
@@ -107,7 +107,7 @@ package androidx.navigation {
     method public static androidx.navigation.NavOptions navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface NavOptionsDsl {
+  @kotlin.DslMarker public @interface NavOptionsDsl {
   }
 
   public final class NavigatorProviderKt {

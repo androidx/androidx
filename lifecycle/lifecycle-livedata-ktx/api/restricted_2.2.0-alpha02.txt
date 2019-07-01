@@ -1,1 +1,29 @@
 // Signature format: 3.0
+package androidx.lifecycle {
+
+  public final class CoroutineLiveDataApi26Kt {
+    ctor public CoroutineLiveDataApi26Kt();
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, java.time.Duration timeout, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+  public final class CoroutineLiveDataKt {
+    ctor public CoroutineLiveDataKt();
+    method public static <T> androidx.lifecycle.LiveData<T> liveData(kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, long timeoutInMs = 5000L, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+  public interface LiveDataScope<T> {
+    method public suspend Object! emit(T? value, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method public suspend Object emitSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.Continuation<? super kotlinx.coroutines.DisposableHandle> p);
+    method public T? getLatestValue();
+    property public abstract T? latestValue;
+  }
+
+  public final class TransformationsKt {
+    ctor public TransformationsKt();
+    method public static inline <X> androidx.lifecycle.LiveData<X> distinctUntilChanged(androidx.lifecycle.LiveData<X>);
+    method public static inline <X, Y> androidx.lifecycle.LiveData<Y> map(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<? super X,? extends Y> transform);
+    method public static inline <X, Y> androidx.lifecycle.LiveData<Y> switchMap(androidx.lifecycle.LiveData<X>, kotlin.jvm.functions.Function1<? super X,? extends androidx.lifecycle.LiveData<Y>> transform);
+  }
+
+}
+

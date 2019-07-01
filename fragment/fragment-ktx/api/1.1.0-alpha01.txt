@@ -3,9 +3,9 @@ package androidx.fragment.app {
 
   public final class FragmentManagerKt {
     ctor public FragmentManagerKt();
-    method public static void commit(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
-    method public static void commitNow(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
-    method @Deprecated public static void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method public static inline void commit(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method public static inline void commitNow(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method @Deprecated public static inline void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
   }
 
   public final class FragmentViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
@@ -17,6 +17,7 @@ package androidx.fragment.app {
 
   public final class FragmentViewModelLazyKt {
     ctor public FragmentViewModelLazyKt();
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.fragment.app.Fragment, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
   }
 
 }

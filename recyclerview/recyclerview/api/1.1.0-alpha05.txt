@@ -446,7 +446,6 @@ package androidx.recyclerview.widget {
     method public void setViewCacheExtension(androidx.recyclerview.widget.RecyclerView.ViewCacheExtension?);
     method public void smoothScrollBy(@Px int, @Px int);
     method public void smoothScrollBy(@Px int, @Px int, android.view.animation.Interpolator?);
-    method public void smoothScrollBy(@Px int, @Px int, android.view.animation.Interpolator?, int);
     method public void smoothScrollToPosition(int);
     method public boolean startNestedScroll(int, int);
     method public void stopNestedScroll(int);
@@ -462,7 +461,6 @@ package androidx.recyclerview.widget {
     field public static final int SCROLL_STATE_SETTLING = 2; // 0x2
     field public static final int TOUCH_SLOP_DEFAULT = 0; // 0x0
     field public static final int TOUCH_SLOP_PAGING = 1; // 0x1
-    field public static final int UNDEFINED_DURATION = -2147483648; // 0x80000000
     field public static final int VERTICAL = 1; // 0x1
   }
 

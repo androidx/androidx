@@ -4,14 +4,14 @@ package androidx.navigation.ui {
   public final class AppBarConfiguration {
     method public androidx.drawerlayout.widget.DrawerLayout? getDrawerLayout();
     method public androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener? getFallbackOnNavigateUpListener();
-    method public java.util.Set<java.lang.Integer> getTopLevelDestinations();
+    method public java.util.Set<java.lang.Integer!> getTopLevelDestinations();
   }
 
   public static final class AppBarConfiguration.Builder {
     ctor public AppBarConfiguration.Builder(androidx.navigation.NavGraph);
     ctor public AppBarConfiguration.Builder(android.view.Menu);
     ctor public AppBarConfiguration.Builder(int...);
-    ctor public AppBarConfiguration.Builder(java.util.Set<java.lang.Integer>);
+    ctor public AppBarConfiguration.Builder(java.util.Set<java.lang.Integer!>);
     method public androidx.navigation.ui.AppBarConfiguration build();
     method public androidx.navigation.ui.AppBarConfiguration.Builder setDrawerLayout(androidx.drawerlayout.widget.DrawerLayout?);
     method public androidx.navigation.ui.AppBarConfiguration.Builder setFallbackOnNavigateUpListener(androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener?);

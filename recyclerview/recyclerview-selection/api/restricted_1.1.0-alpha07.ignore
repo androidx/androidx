@@ -23,5 +23,3 @@ AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#startRange
 
 RemovedClass: androidx.recyclerview.selection.AutoScroller:
     Removed class androidx.recyclerview.selection.AutoScroller
-RemovedClass: androidx.recyclerview.selection.EventBridge:
-    Removed class androidx.recyclerview.selection.EventBridge

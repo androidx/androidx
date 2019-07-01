@@ -1,1 +1,102 @@
 // Signature format: 3.0
+package androidx.loader.app {
+
+  public abstract class LoaderManager {
+    ctor public LoaderManager();
+    method @MainThread public abstract void destroyLoader(int);
+    method @Deprecated public abstract void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
+    method public static void enableDebugLogging(boolean);
+    method public static <T extends androidx.lifecycle.LifecycleOwner & androidx.lifecycle.ViewModelStoreOwner> androidx.loader.app.LoaderManager getInstance(T);
+    method public abstract <D> androidx.loader.content.Loader<D!>? getLoader(int);
+    method public boolean hasRunningLoaders();
+    method @MainThread public abstract <D> androidx.loader.content.Loader<D!> initLoader(int, android.os.Bundle?, androidx.loader.app.LoaderManager.LoaderCallbacks<D!>);
+    method public abstract void markForRedelivery();
+    method @MainThread public abstract <D> androidx.loader.content.Loader<D!> restartLoader(int, android.os.Bundle?, androidx.loader.app.LoaderManager.LoaderCallbacks<D!>);
+  }
+
+  public static interface LoaderManager.LoaderCallbacks<D> {
+    method @MainThread public androidx.loader.content.Loader<D!> onCreateLoader(int, android.os.Bundle?);
+    method @MainThread public void onLoadFinished(androidx.loader.content.Loader<D!>, D!);
+    method @MainThread public void onLoaderReset(androidx.loader.content.Loader<D!>);
+  }
+
+}
+
+package androidx.loader.content {
+
+  public abstract class AsyncTaskLoader<D> extends androidx.loader.content.Loader<D> {
+    ctor public AsyncTaskLoader(android.content.Context);
+    method public void cancelLoadInBackground();
+    method protected java.util.concurrent.Executor getExecutor();
+    method public boolean isLoadInBackgroundCanceled();
+    method public abstract D? loadInBackground();
+    method public void onCanceled(D?);
+    method protected D? onLoadInBackground();
+    method public void setUpdateThrottle(long);
+  }
+
+  public class CursorLoader extends androidx.loader.content.AsyncTaskLoader<android.database.Cursor> {
+    ctor public CursorLoader(android.content.Context);
+    ctor public CursorLoader(android.content.Context, android.net.Uri, String![]?, String?, String![]?, String?);
+    method public void deliverResult(android.database.Cursor!);
+    method public String![]? getProjection();
+    method public String? getSelection();
+    method public String![]? getSelectionArgs();
+    method public String? getSortOrder();
+    method public android.net.Uri getUri();
+    method public android.database.Cursor! loadInBackground();
+    method public void onCanceled(android.database.Cursor!);
+    method public void setProjection(String![]?);
+    method public void setSelection(String?);
+    method public void setSelectionArgs(String![]?);
+    method public void setSortOrder(String?);
+    method public void setUri(android.net.Uri);
+  }
+
+  public class Loader<D> {
+    ctor public Loader(android.content.Context);
+    method @MainThread public void abandon();
+    method @MainThread public boolean cancelLoad();
+    method public void commitContentChanged();
+    method public String dataToString(D?);
+    method @MainThread public void deliverCancellation();
+    method @MainThread public void deliverResult(D?);
+    method @Deprecated public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
+    method @MainThread public void forceLoad();
+    method public android.content.Context getContext();
+    method public int getId();
+    method public boolean isAbandoned();
+    method public boolean isReset();
+    method public boolean isStarted();
+    method @MainThread protected void onAbandon();
+    method @MainThread protected boolean onCancelLoad();
+    method @MainThread public void onContentChanged();
+    method @MainThread protected void onForceLoad();
+    method @MainThread protected void onReset();
+    method @MainThread protected void onStartLoading();
+    method @MainThread protected void onStopLoading();
+    method @MainThread public void registerListener(int, androidx.loader.content.Loader.OnLoadCompleteListener<D!>);
+    method @MainThread public void registerOnLoadCanceledListener(androidx.loader.content.Loader.OnLoadCanceledListener<D!>);
+    method @MainThread public void reset();
+    method public void rollbackContentChanged();
+    method @MainThread public final void startLoading();
+    method @MainThread public void stopLoading();
+    method public boolean takeContentChanged();
+    method @MainThread public void unregisterListener(androidx.loader.content.Loader.OnLoadCompleteListener<D!>);
+    method @MainThread public void unregisterOnLoadCanceledListener(androidx.loader.content.Loader.OnLoadCanceledListener<D!>);
+  }
+
+  public final class Loader.ForceLoadContentObserver extends android.database.ContentObserver {
+    ctor public Loader.ForceLoadContentObserver();
+  }
+
+  public static interface Loader.OnLoadCanceledListener<D> {
+    method public void onLoadCanceled(androidx.loader.content.Loader<D!>);
+  }
+
+  public static interface Loader.OnLoadCompleteListener<D> {
+    method public void onLoadComplete(androidx.loader.content.Loader<D!>, D?);
+  }
+
+}
+

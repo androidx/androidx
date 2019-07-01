@@ -19,7 +19,7 @@ package androidx.concurrent.futures {
   }
 
   public final class ResolvableFuture<V> extends androidx.concurrent.futures.AbstractResolvableFuture<V> {
-    method public static <V> androidx.concurrent.futures.ResolvableFuture<V>! create();
+    method public static <V> androidx.concurrent.futures.ResolvableFuture<V!>! create();
     method public boolean set(V?);
     method public boolean setException(Throwable!);
     method public boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);

@@ -9,16 +9,15 @@ package androidx.slice {
     method public long getLastUpdatedTime();
     method public int getLoadingState();
     method public androidx.slice.core.SliceAction? getPrimaryAction();
-    method public androidx.core.util.Pair<java.lang.Integer,java.lang.Integer>? getRange();
+    method public androidx.core.util.Pair<java.lang.Integer!,java.lang.Integer!>? getRange();
     method public int getRangeValue();
-    method public java.util.List<androidx.slice.core.SliceAction>? getSliceActions();
-    method public java.util.List<java.lang.String>? getSliceKeywords();
+    method public java.util.List<androidx.slice.core.SliceAction!>? getSliceActions();
+    method public java.util.List<java.lang.String!>? getSliceKeywords();
     method public CharSequence? getSubtitle();
     method public CharSequence? getSummary();
     method public CharSequence? getTitle();
-    method public java.util.List<androidx.slice.core.SliceAction>! getToggles();
+    method public java.util.List<androidx.slice.core.SliceAction!>! getToggles();
     method public boolean hasLargeMode();
-    method public boolean isCachedSlice();
     method public boolean isErrorSlice();
     method public boolean isPermissionSlice();
     method public boolean sendInputRangeAction(int) throws android.app.PendingIntent.CanceledException;
@@ -61,7 +60,7 @@ package androidx.slice {
     method public abstract androidx.slice.Slice? bindSlice(android.net.Uri);
     method public abstract androidx.slice.Slice? bindSlice(android.content.Intent);
     method public static androidx.slice.SliceViewManager getInstance(android.content.Context);
-    method @WorkerThread public abstract java.util.Collection<android.net.Uri> getSliceDescendants(android.net.Uri);
+    method @WorkerThread public abstract java.util.Collection<android.net.Uri!> getSliceDescendants(android.net.Uri);
     method public abstract android.net.Uri? mapIntentToUri(android.content.Intent);
     method public abstract void pinSlice(android.net.Uri);
     method public abstract void registerSliceCallback(android.net.Uri, androidx.slice.SliceViewManager.SliceCallback);
@@ -109,15 +108,9 @@ package androidx.slice.widget {
   }
 
   @RequiresApi(19) public final class SliceLiveData {
-    method public static androidx.slice.widget.SliceLiveData.CachedSliceLiveData fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener!);
-    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromIntent(android.content.Context, android.content.Intent);
-    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener!);
-    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromUri(android.content.Context, android.net.Uri);
-  }
-
-  public static class SliceLiveData.CachedSliceLiveData extends androidx.lifecycle.LiveData<androidx.slice.Slice> {
-    method public void goLive();
-    method public void parseStream();
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromIntent(android.content.Context, android.content.Intent);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener!);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromUri(android.content.Context, android.net.Uri);
   }
 
   public static interface SliceLiveData.OnErrorListener {
@@ -128,7 +121,7 @@ package androidx.slice.widget {
     field public static final int ERROR_UNKNOWN = 0; // 0x0
   }
 
-  @IntDef({androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_UNKNOWN, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_STRUCTURE_CHANGED, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_INVALID_INPUT}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceLiveData.OnErrorListener.ErrorType {
+  @IntDef({androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_UNKNOWN, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_STRUCTURE_CHANGED, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, androidx.slice.widget.SliceLiveData.OnErrorListener.ERROR_INVALID_INPUT}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface SliceLiveData.OnErrorListener.ErrorType {
   }
 
   @RequiresApi(19) public class SliceView extends android.view.ViewGroup implements androidx.lifecycle.Observer<androidx.slice.Slice> android.view.View.OnClickListener {
@@ -138,7 +131,7 @@ package androidx.slice.widget {
     ctor @RequiresApi(21) public SliceView(android.content.Context!, android.util.AttributeSet!, int, int);
     method public int getMode();
     method public androidx.slice.Slice? getSlice();
-    method public java.util.List<androidx.slice.core.SliceAction>? getSliceActions();
+    method public java.util.List<androidx.slice.core.SliceAction!>? getSliceActions();
     method public boolean isScrollable();
     method public void onChanged(androidx.slice.Slice?);
     method public void onClick(android.view.View!);
@@ -147,7 +140,7 @@ package androidx.slice.widget {
     method public void setOnSliceActionListener(androidx.slice.widget.SliceView.OnSliceActionListener?);
     method public void setScrollable(boolean);
     method public void setSlice(androidx.slice.Slice?);
-    method public void setSliceActions(java.util.List<androidx.slice.core.SliceAction>?);
+    method public void setSliceActions(java.util.List<androidx.slice.core.SliceAction!>?);
     field public static final int MODE_LARGE = 2; // 0x2
     field public static final int MODE_SHORTCUT = 3; // 0x3
     field public static final int MODE_SMALL = 1; // 0x1

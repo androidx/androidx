@@ -1,1 +1,10 @@
 // Signature format: 3.0
+package androidx.activity {
+
+  public final class ActivityViewModelLazyKt {
+    ctor public ActivityViewModelLazyKt();
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.activity.ComponentActivity, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
+  }
+
+}
+

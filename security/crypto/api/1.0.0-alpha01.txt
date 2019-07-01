@@ -21,13 +21,13 @@ package androidx.security.crypto {
     method public boolean contains(String?);
     method public static android.content.SharedPreferences create(String, String, android.content.Context, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) throws java.security.GeneralSecurityException, java.io.IOException;
     method public android.content.SharedPreferences.Editor edit();
-    method public java.util.Map<java.lang.String,?> getAll();
+    method public java.util.Map<java.lang.String!,?> getAll();
     method public boolean getBoolean(String?, boolean);
     method public float getFloat(String?, float);
     method public int getInt(String?, int);
     method public long getLong(String?, long);
     method public String? getString(String?, String?);
-    method public java.util.Set<java.lang.String>? getStringSet(String?, java.util.Set<java.lang.String>?);
+    method public java.util.Set<java.lang.String!>? getStringSet(String?, java.util.Set<java.lang.String!>?);
     method public void registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener);
     method public void unregisterOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener);
   }

@@ -42,7 +42,7 @@ package androidx.navigation {
     method public final void addArgument(String, androidx.navigation.NavArgument);
     method public final void addDeepLink(String);
     method public final androidx.navigation.NavAction? getAction(@IdRes int);
-    method public final java.util.Map<java.lang.String,androidx.navigation.NavArgument> getArguments();
+    method public final java.util.Map<java.lang.String!,androidx.navigation.NavArgument!> getArguments();
     method @IdRes public final int getId();
     method public final CharSequence? getLabel();
     method public final String getNavigatorName();
@@ -70,12 +70,12 @@ package androidx.navigation {
     ctor public NavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph>);
     method public final void addAll(androidx.navigation.NavGraph);
     method public final void addDestination(androidx.navigation.NavDestination);
-    method public final void addDestinations(java.util.Collection<androidx.navigation.NavDestination>);
-    method public final void addDestinations(androidx.navigation.NavDestination...);
+    method public final void addDestinations(java.util.Collection<androidx.navigation.NavDestination!>);
+    method public final void addDestinations(androidx.navigation.NavDestination!...);
     method public final void clear();
     method public final androidx.navigation.NavDestination? findNode(@IdRes int);
     method @IdRes public final int getStartDestination();
-    method public final java.util.Iterator<androidx.navigation.NavDestination> iterator();
+    method public final java.util.Iterator<androidx.navigation.NavDestination!> iterator();
     method public final void remove(androidx.navigation.NavDestination);
     method public final void setStartDestination(@IdRes int);
   }
@@ -115,33 +115,33 @@ package androidx.navigation {
     method public boolean isNullableAllowed();
     method public abstract T parseValue(String);
     method public abstract void put(android.os.Bundle, String, T?);
-    field public static final androidx.navigation.NavType<boolean[]> BoolArrayType;
-    field public static final androidx.navigation.NavType<java.lang.Boolean> BoolType;
-    field public static final androidx.navigation.NavType<float[]> FloatArrayType;
-    field public static final androidx.navigation.NavType<java.lang.Float> FloatType;
-    field public static final androidx.navigation.NavType<int[]> IntArrayType;
-    field public static final androidx.navigation.NavType<java.lang.Integer> IntType;
-    field public static final androidx.navigation.NavType<long[]> LongArrayType;
-    field public static final androidx.navigation.NavType<java.lang.Long> LongType;
-    field public static final androidx.navigation.NavType<java.lang.Integer> ReferenceType;
-    field public static final androidx.navigation.NavType<java.lang.String[]> StringArrayType;
-    field public static final androidx.navigation.NavType<java.lang.String> StringType;
+    field public static final androidx.navigation.NavType<boolean[]!> BoolArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Boolean!> BoolType;
+    field public static final androidx.navigation.NavType<float[]!> FloatArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Float!> FloatType;
+    field public static final androidx.navigation.NavType<int[]!> IntArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Integer!> IntType;
+    field public static final androidx.navigation.NavType<long[]!> LongArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Long!> LongType;
+    field public static final androidx.navigation.NavType<java.lang.Integer!> ReferenceType;
+    field public static final androidx.navigation.NavType<java.lang.String![]!> StringArrayType;
+    field public static final androidx.navigation.NavType<java.lang.String!> StringType;
   }
 
   public static final class NavType.EnumType<D extends java.lang.Enum> extends androidx.navigation.NavType.SerializableType<D> {
-    ctor public NavType.EnumType(Class<D>);
+    ctor public NavType.EnumType(Class<D!>);
   }
 
   public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]> {
-    ctor public NavType.ParcelableArrayType(Class<D>);
-    method public D[]? get(android.os.Bundle, String);
+    ctor public NavType.ParcelableArrayType(Class<D!>);
+    method public D![]? get(android.os.Bundle, String);
     method public String getName();
-    method public D[] parseValue(String);
-    method public void put(android.os.Bundle, String, D[]?);
+    method public D![] parseValue(String);
+    method public void put(android.os.Bundle, String, D![]?);
   }
 
   public static final class NavType.ParcelableType<D> extends androidx.navigation.NavType<D> {
-    ctor public NavType.ParcelableType(Class<D>);
+    ctor public NavType.ParcelableType(Class<D!>);
     method public D? get(android.os.Bundle, String);
     method public String getName();
     method public D parseValue(String);
@@ -149,15 +149,15 @@ package androidx.navigation {
   }
 
   public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]> {
-    ctor public NavType.SerializableArrayType(Class<D>);
-    method public D[]? get(android.os.Bundle, String);
+    ctor public NavType.SerializableArrayType(Class<D!>);
+    method public D![]? get(android.os.Bundle, String);
     method public String getName();
-    method public D[] parseValue(String);
-    method public void put(android.os.Bundle, String, D[]?);
+    method public D![] parseValue(String);
+    method public void put(android.os.Bundle, String, D![]?);
   }
 
   public static class NavType.SerializableType<D extends java.io.Serializable> extends androidx.navigation.NavType<D> {
-    ctor public NavType.SerializableType(Class<D>);
+    ctor public NavType.SerializableType(Class<D!>);
     method public D? get(android.os.Bundle, String);
     method public String getName();
     method public D parseValue(String);
@@ -184,7 +184,7 @@ package androidx.navigation {
     ctor public NavigatorProvider();
     method public final androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
     method @CallSuper public androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(String, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
-    method public final <T extends androidx.navigation.Navigator<?>> T getNavigator(Class<T>);
+    method public final <T extends androidx.navigation.Navigator<?>> T getNavigator(Class<T!>);
     method @CallSuper public <T extends androidx.navigation.Navigator<?>> T getNavigator(String);
   }
 

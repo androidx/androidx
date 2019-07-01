@@ -1,1 +1,193 @@
 // Signature format: 3.0
+package androidx.navigation {
+
+  public final class ActionOnlyNavDirections implements androidx.navigation.NavDirections {
+    ctor public ActionOnlyNavDirections(int);
+    method public int getActionId();
+    method public android.os.Bundle getArguments();
+  }
+
+  public final class NavAction {
+    ctor public NavAction(@IdRes int);
+    ctor public NavAction(@IdRes int, androidx.navigation.NavOptions?);
+    ctor public NavAction(@IdRes int, androidx.navigation.NavOptions?, android.os.Bundle?);
+    method public android.os.Bundle? getDefaultArguments();
+    method public int getDestinationId();
+    method public androidx.navigation.NavOptions? getNavOptions();
+    method public void setDefaultArguments(android.os.Bundle?);
+    method public void setNavOptions(androidx.navigation.NavOptions?);
+  }
+
+  public interface NavArgs {
+  }
+
+  public final class NavArgument {
+    method public Object? getDefaultValue();
+    method public androidx.navigation.NavType<?> getType();
+    method public boolean isDefaultValuePresent();
+    method public boolean isNullable();
+  }
+
+  public static final class NavArgument.Builder {
+    ctor public NavArgument.Builder();
+    method public androidx.navigation.NavArgument build();
+    method public androidx.navigation.NavArgument.Builder setDefaultValue(Object?);
+    method public androidx.navigation.NavArgument.Builder setIsNullable(boolean);
+    method public androidx.navigation.NavArgument.Builder setType(androidx.navigation.NavType<?>);
+  }
+
+  public class NavDestination {
+    ctor public NavDestination(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
+    ctor public NavDestination(String);
+    method public final void addArgument(String, androidx.navigation.NavArgument);
+    method public final void addDeepLink(String);
+    method public final androidx.navigation.NavAction? getAction(@IdRes int);
+    method public final java.util.Map<java.lang.String!,androidx.navigation.NavArgument!> getArguments();
+    method @IdRes public final int getId();
+    method public final CharSequence? getLabel();
+    method public final String getNavigatorName();
+    method public final androidx.navigation.NavGraph? getParent();
+    method public boolean hasDeepLink(android.net.Uri);
+    method @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet);
+    method protected static <C> Class<? extends C> parseClassFromName(android.content.Context, String, Class<? extends C>);
+    method public final void putAction(@IdRes int, @IdRes int);
+    method public final void putAction(@IdRes int, androidx.navigation.NavAction);
+    method public final void removeAction(@IdRes int);
+    method public final void removeArgument(String);
+    method public final void setId(@IdRes int);
+    method public final void setLabel(CharSequence?);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface NavDestination.ClassType {
+    method public abstract Class value();
+  }
+
+  public interface NavDirections {
+    method @IdRes public int getActionId();
+    method public android.os.Bundle getArguments();
+  }
+
+  public class NavGraph extends androidx.navigation.NavDestination implements java.lang.Iterable<androidx.navigation.NavDestination> {
+    ctor public NavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph>);
+    method public final void addAll(androidx.navigation.NavGraph);
+    method public final void addDestination(androidx.navigation.NavDestination);
+    method public final void addDestinations(java.util.Collection<androidx.navigation.NavDestination!>);
+    method public final void addDestinations(androidx.navigation.NavDestination!...);
+    method public final void clear();
+    method public final androidx.navigation.NavDestination? findNode(@IdRes int);
+    method @IdRes public final int getStartDestination();
+    method public final java.util.Iterator<androidx.navigation.NavDestination!> iterator();
+    method public final void remove(androidx.navigation.NavDestination);
+    method public final void setStartDestination(@IdRes int);
+  }
+
+  @androidx.navigation.Navigator.Name("navigation") public class NavGraphNavigator extends androidx.navigation.Navigator<androidx.navigation.NavGraph> {
+    ctor public NavGraphNavigator(androidx.navigation.NavigatorProvider);
+    method public androidx.navigation.NavGraph createDestination();
+    method public androidx.navigation.NavDestination? navigate(androidx.navigation.NavGraph, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public boolean popBackStack();
+  }
+
+  public final class NavOptions {
+    method @AnimRes @AnimatorRes public int getEnterAnim();
+    method @AnimRes @AnimatorRes public int getExitAnim();
+    method @AnimRes @AnimatorRes public int getPopEnterAnim();
+    method @AnimRes @AnimatorRes public int getPopExitAnim();
+    method @IdRes public int getPopUpTo();
+    method public boolean isPopUpToInclusive();
+    method public boolean shouldLaunchSingleTop();
+  }
+
+  public static final class NavOptions.Builder {
+    ctor public NavOptions.Builder();
+    method public androidx.navigation.NavOptions build();
+    method public androidx.navigation.NavOptions.Builder setEnterAnim(@AnimRes @AnimatorRes int);
+    method public androidx.navigation.NavOptions.Builder setExitAnim(@AnimRes @AnimatorRes int);
+    method public androidx.navigation.NavOptions.Builder setLaunchSingleTop(boolean);
+    method public androidx.navigation.NavOptions.Builder setPopEnterAnim(@AnimRes @AnimatorRes int);
+    method public androidx.navigation.NavOptions.Builder setPopExitAnim(@AnimRes @AnimatorRes int);
+    method public androidx.navigation.NavOptions.Builder setPopUpTo(@IdRes int, boolean);
+  }
+
+  public abstract class NavType<T> {
+    method public static androidx.navigation.NavType<?> fromArgType(String?, String?);
+    method public abstract T? get(android.os.Bundle, String);
+    method public abstract String getName();
+    method public boolean isNullableAllowed();
+    method public abstract T parseValue(String);
+    method public abstract void put(android.os.Bundle, String, T?);
+    field public static final androidx.navigation.NavType<boolean[]!> BoolArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Boolean!> BoolType;
+    field public static final androidx.navigation.NavType<float[]!> FloatArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Float!> FloatType;
+    field public static final androidx.navigation.NavType<int[]!> IntArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Integer!> IntType;
+    field public static final androidx.navigation.NavType<long[]!> LongArrayType;
+    field public static final androidx.navigation.NavType<java.lang.Long!> LongType;
+    field public static final androidx.navigation.NavType<java.lang.Integer!> ReferenceType;
+    field public static final androidx.navigation.NavType<java.lang.String![]!> StringArrayType;
+    field public static final androidx.navigation.NavType<java.lang.String!> StringType;
+  }
+
+  public static final class NavType.EnumType<D extends java.lang.Enum> extends androidx.navigation.NavType.SerializableType<D> {
+    ctor public NavType.EnumType(Class<D!>);
+  }
+
+  public static final class NavType.ParcelableArrayType<D extends android.os.Parcelable> extends androidx.navigation.NavType<D[]> {
+    ctor public NavType.ParcelableArrayType(Class<D!>);
+    method public D![]? get(android.os.Bundle, String);
+    method public String getName();
+    method public D![] parseValue(String);
+    method public void put(android.os.Bundle, String, D![]?);
+  }
+
+  public static final class NavType.ParcelableType<D> extends androidx.navigation.NavType<D> {
+    ctor public NavType.ParcelableType(Class<D!>);
+    method public D? get(android.os.Bundle, String);
+    method public String getName();
+    method public D parseValue(String);
+    method public void put(android.os.Bundle, String, D?);
+  }
+
+  public static final class NavType.SerializableArrayType<D extends java.io.Serializable> extends androidx.navigation.NavType<D[]> {
+    ctor public NavType.SerializableArrayType(Class<D!>);
+    method public D![]? get(android.os.Bundle, String);
+    method public String getName();
+    method public D![] parseValue(String);
+    method public void put(android.os.Bundle, String, D![]?);
+  }
+
+  public static class NavType.SerializableType<D extends java.io.Serializable> extends androidx.navigation.NavType<D> {
+    ctor public NavType.SerializableType(Class<D!>);
+    method public D? get(android.os.Bundle, String);
+    method public String getName();
+    method public D parseValue(String);
+    method public void put(android.os.Bundle, String, D?);
+  }
+
+  public abstract class Navigator<D extends androidx.navigation.NavDestination> {
+    ctor public Navigator();
+    method public abstract D createDestination();
+    method public abstract androidx.navigation.NavDestination? navigate(D, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
+    method public void onRestoreState(android.os.Bundle);
+    method public android.os.Bundle? onSaveState();
+    method public abstract boolean popBackStack();
+  }
+
+  public static interface Navigator.Extras {
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public static @interface Navigator.Name {
+    method public abstract String value();
+  }
+
+  public class NavigatorProvider {
+    ctor public NavigatorProvider();
+    method public final androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
+    method @CallSuper public androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>? addNavigator(String, androidx.navigation.Navigator<? extends androidx.navigation.NavDestination>);
+    method public final <T extends androidx.navigation.Navigator<?>> T getNavigator(Class<T!>);
+    method @CallSuper public <T extends androidx.navigation.Navigator<?>> T getNavigator(String);
+  }
+
+}
+

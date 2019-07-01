@@ -1,1 +1,45 @@
 // Signature format: 3.0
+package androidx.autofill {
+
+  public final class HintConstants {
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_DAY = "birthDateDay";
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_FULL = "birthDateFull";
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_MONTH = "birthDateMonth";
+    field public static final String AUTOFILL_HINT_BIRTH_DATE_YEAR = "birthDateYear";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE = "creditCardExpirationDate";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY = "creditCardExpirationDay";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH = "creditCardExpirationMonth";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR = "creditCardExpirationYear";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_NUMBER = "creditCardNumber";
+    field public static final String AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE = "creditCardSecurityCode";
+    field public static final String AUTOFILL_HINT_EMAIL_ADDRESS = "emailAddress";
+    field public static final String AUTOFILL_HINT_GENDER = "gender";
+    field @Deprecated public static final String AUTOFILL_HINT_NAME = "name";
+    field public static final String AUTOFILL_HINT_NEW_PASSWORD = "newPassword";
+    field public static final String AUTOFILL_HINT_NEW_USERNAME = "newUsername";
+    field public static final String AUTOFILL_HINT_PASSWORD = "password";
+    field public static final String AUTOFILL_HINT_PERSON_NAME = "personName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_FAMILY = "personFamilyName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_GIVEN = "personGivenName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_MIDDLE = "personMiddleName";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_MIDDLE_INITIAL = "personMiddleInitial";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_PREFIX = "personNamePrefix";
+    field public static final String AUTOFILL_HINT_PERSON_NAME_SUFFIX = "personNameSuffix";
+    field @Deprecated public static final String AUTOFILL_HINT_PHONE = "phone";
+    field public static final String AUTOFILL_HINT_PHONE_COUNTRY_CODE = "phoneCountryCode";
+    field public static final String AUTOFILL_HINT_PHONE_NATIONAL = "phoneNational";
+    field public static final String AUTOFILL_HINT_PHONE_NUMBER = "phoneNumber";
+    field public static final String AUTOFILL_HINT_PHONE_NUMBER_DEVICE = "phoneNumberDevice";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS = "postalAddress";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY = "addressCountry";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_ADDRESS = "extendedAddress";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_POSTAL_CODE = "extendedPostalCode";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_LOCALITY = "addressLocality";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_REGION = "addressRegion";
+    field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS = "streetAddress";
+    field public static final String AUTOFILL_HINT_POSTAL_CODE = "postalCode";
+    field public static final String AUTOFILL_HINT_USERNAME = "username";
+  }
+
+}
+

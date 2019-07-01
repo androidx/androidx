@@ -1,7 +1,21 @@
 // Signature format: 3.0
 package androidx.lifecycle {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ReportFragment {
+  public class LifecycleRegistry extends androidx.lifecycle.Lifecycle {
+    ctor public LifecycleRegistry(androidx.lifecycle.LifecycleOwner);
+    method public void addObserver(androidx.lifecycle.LifecycleObserver);
+    method public androidx.lifecycle.Lifecycle.State getCurrentState();
+    method public int getObserverCount();
+    method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event);
+    method @MainThread public void markState(androidx.lifecycle.Lifecycle.State);
+    method public void removeObserver(androidx.lifecycle.LifecycleObserver);
+  }
+
+  @Deprecated public interface LifecycleRegistryOwner extends androidx.lifecycle.LifecycleOwner {
+    method @Deprecated public androidx.lifecycle.LifecycleRegistry getLifecycle();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ReportFragment extends android.app.Fragment {
     ctor public ReportFragment();
     method public static void injectIfNeededIn(android.app.Activity!);
     method public void onActivityCreated(android.os.Bundle!);

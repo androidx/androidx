@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.wear.widget.SwipeDismissFrameLayout:
+    Public class androidx.wear.widget.SwipeDismissFrameLayout stripped of unavailable superclass androidx.wear.widget.SwipeDismissLayout

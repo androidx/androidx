@@ -187,12 +187,6 @@ package androidx.fragment.app {
     method public abstract boolean onHasView();
   }
 
-  public class FragmentContainerView extends android.widget.FrameLayout {
-    ctor public FragmentContainerView(android.content.Context);
-    ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?);
-    ctor public FragmentContainerView(android.content.Context, android.util.AttributeSet?, int);
-  }
-
   public class FragmentController {
     method public void attachHost(androidx.fragment.app.Fragment?);
     method public static androidx.fragment.app.FragmentController createController(androidx.fragment.app.FragmentHostCallback<?>);

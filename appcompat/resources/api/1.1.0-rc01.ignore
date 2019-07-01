@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat:
+    Public class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat stripped of unavailable superclass androidx.appcompat.graphics.drawable.StateListDrawable

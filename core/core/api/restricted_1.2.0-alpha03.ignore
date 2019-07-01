@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+ChangedStatic: androidx.core.content.pm.ShortcutManagerCompat#removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String>):
+    Method androidx.core.content.pm.ShortcutManagerCompat.removeDynamicShortcuts has changed 'static' qualifier
+
+
 ChangedType: androidx.core.graphics.TypefaceCompatApi26Impl#mFontFamily:
     Field androidx.core.graphics.TypefaceCompatApi26Impl.mFontFamily has changed type from java.lang.Class to java.lang.Class<?>
 ChangedType: androidx.core.graphics.TypefaceCompatApi26Impl#mFontFamilyCtor:

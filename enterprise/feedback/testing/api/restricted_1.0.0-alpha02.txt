@@ -1,1 +1,18 @@
 // Signature format: 3.0
+package androidx.enterprise.feedback {
+
+  public class FakeKeyedAppStatesReporter extends androidx.enterprise.feedback.KeyedAppStatesReporter {
+    method public java.util.List<androidx.enterprise.feedback.KeyedAppState!> getKeyedAppStates();
+    method public java.util.Map<java.lang.String!,androidx.enterprise.feedback.KeyedAppState!> getKeyedAppStatesByKey();
+    method public int getNumberOfUploads();
+    method public java.util.List<androidx.enterprise.feedback.KeyedAppState!> getOnDeviceKeyedAppStates();
+    method public java.util.Map<java.lang.String!,androidx.enterprise.feedback.KeyedAppState!> getOnDeviceKeyedAppStatesByKey();
+    method public java.util.List<androidx.enterprise.feedback.KeyedAppState!> getUploadedKeyedAppStates();
+    method public java.util.Map<java.lang.String!,androidx.enterprise.feedback.KeyedAppState!> getUploadedKeyedAppStatesByKey();
+    method public void reset();
+    method public void setStates(java.util.Collection<androidx.enterprise.feedback.KeyedAppState!>);
+    method public void setStatesImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState!>);
+  }
+
+}
+

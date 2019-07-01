@@ -1,14 +1,19 @@
 // Signature format: 3.0
 package androidx.lifecycle {
 
+  public class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner get();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ProcessLifecycleOwnerInitializer extends android.content.ContentProvider {
     ctor public ProcessLifecycleOwnerInitializer();
-    method public int delete(android.net.Uri, String!, String[]!);
+    method public int delete(android.net.Uri, String!, String![]!);
     method public String? getType(android.net.Uri);
     method public android.net.Uri? insert(android.net.Uri, android.content.ContentValues!);
     method public boolean onCreate();
-    method public android.database.Cursor? query(android.net.Uri, String[]!, String!, String[]!, String!);
-    method public int update(android.net.Uri, android.content.ContentValues!, String!, String[]!);
+    method public android.database.Cursor? query(android.net.Uri, String![]!, String!, String![]!, String!);
+    method public int update(android.net.Uri, android.content.ContentValues!, String!, String![]!);
   }
 
 }

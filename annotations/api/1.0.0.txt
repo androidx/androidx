@@ -124,7 +124,7 @@ package androidx.annotation {
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface PluralsRes {
   }
 
-  @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) @Dimension(unit=androidx.annotation.Dimension.PX) public @interface Px {
+  @Dimension(unit=androidx.annotation.Dimension.PX) @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface Px {
   }
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.LOCAL_VARIABLE}) public @interface RawRes {
@@ -159,7 +159,7 @@ package androidx.annotation {
     method public abstract androidx.annotation.RestrictTo.Scope[] value();
   }
 
-  public static enum RestrictTo.Scope {
+  public enum RestrictTo.Scope {
     enum_constant @Deprecated public static final androidx.annotation.RestrictTo.Scope GROUP_ID;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY_GROUP;

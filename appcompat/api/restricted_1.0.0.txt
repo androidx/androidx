@@ -2,47 +2,359 @@
 package androidx.appcompat.app {
 
   public abstract class ActionBar {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean closeOptionsMenu();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean collapseActionView();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void dispatchMenuVisibilityChanged(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean invalidateOptionsMenu();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isTitleTruncated();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void onConfigurationChanged(android.content.res.Configuration!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean onKeyShortcut(int, android.view.KeyEvent!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean onMenuKeyEvent(android.view.KeyEvent!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean openOptionsMenu();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setDefaultDisplayHomeAsUpEnabled(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setShowHideAnimationEnabled(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setWindowTitle(CharSequence!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.appcompat.view.ActionMode! startActionMode(androidx.appcompat.view.ActionMode.Callback!);
+    ctor public ActionBar();
+    method public abstract void addOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener!);
+    method @Deprecated public abstract void addTab(androidx.appcompat.app.ActionBar.Tab!);
+    method @Deprecated public abstract void addTab(androidx.appcompat.app.ActionBar.Tab!, boolean);
+    method @Deprecated public abstract void addTab(androidx.appcompat.app.ActionBar.Tab!, int);
+    method @Deprecated public abstract void addTab(androidx.appcompat.app.ActionBar.Tab!, int, boolean);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean closeOptionsMenu();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean collapseActionView();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void dispatchMenuVisibilityChanged(boolean);
+    method public abstract android.view.View! getCustomView();
+    method @androidx.appcompat.app.ActionBar.DisplayOptions public abstract int getDisplayOptions();
+    method public float getElevation();
+    method public abstract int getHeight();
+    method public int getHideOffset();
+    method @Deprecated public abstract int getNavigationItemCount();
+    method @Deprecated @androidx.appcompat.app.ActionBar.NavigationMode public abstract int getNavigationMode();
+    method @Deprecated public abstract int getSelectedNavigationIndex();
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab? getSelectedTab();
+    method public abstract CharSequence? getSubtitle();
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! getTabAt(int);
+    method @Deprecated public abstract int getTabCount();
+    method public android.content.Context! getThemedContext();
+    method public abstract CharSequence? getTitle();
+    method public abstract void hide();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean invalidateOptionsMenu();
+    method public boolean isHideOnContentScrollEnabled();
+    method public abstract boolean isShowing();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isTitleTruncated();
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! newTab();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onConfigurationChanged(android.content.res.Configuration!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean onKeyShortcut(int, android.view.KeyEvent!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean onMenuKeyEvent(android.view.KeyEvent!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean openOptionsMenu();
+    method @Deprecated public abstract void removeAllTabs();
+    method public abstract void removeOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener!);
+    method @Deprecated public abstract void removeTab(androidx.appcompat.app.ActionBar.Tab!);
+    method @Deprecated public abstract void removeTabAt(int);
+    method @Deprecated public abstract void selectTab(androidx.appcompat.app.ActionBar.Tab!);
+    method public abstract void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method public abstract void setCustomView(android.view.View!);
+    method public abstract void setCustomView(android.view.View!, androidx.appcompat.app.ActionBar.LayoutParams!);
+    method public abstract void setCustomView(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setDefaultDisplayHomeAsUpEnabled(boolean);
+    method public abstract void setDisplayHomeAsUpEnabled(boolean);
+    method public abstract void setDisplayOptions(@androidx.appcompat.app.ActionBar.DisplayOptions int);
+    method public abstract void setDisplayOptions(@androidx.appcompat.app.ActionBar.DisplayOptions int, @androidx.appcompat.app.ActionBar.DisplayOptions int);
+    method public abstract void setDisplayShowCustomEnabled(boolean);
+    method public abstract void setDisplayShowHomeEnabled(boolean);
+    method public abstract void setDisplayShowTitleEnabled(boolean);
+    method public abstract void setDisplayUseLogoEnabled(boolean);
+    method public void setElevation(float);
+    method public void setHideOffset(int);
+    method public void setHideOnContentScrollEnabled(boolean);
+    method public void setHomeActionContentDescription(CharSequence?);
+    method public void setHomeActionContentDescription(@StringRes int);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable?);
+    method public void setHomeAsUpIndicator(@DrawableRes int);
+    method public void setHomeButtonEnabled(boolean);
+    method public abstract void setIcon(@DrawableRes int);
+    method public abstract void setIcon(android.graphics.drawable.Drawable!);
+    method @Deprecated public abstract void setListNavigationCallbacks(android.widget.SpinnerAdapter!, androidx.appcompat.app.ActionBar.OnNavigationListener!);
+    method public abstract void setLogo(@DrawableRes int);
+    method public abstract void setLogo(android.graphics.drawable.Drawable!);
+    method @Deprecated public abstract void setNavigationMode(@androidx.appcompat.app.ActionBar.NavigationMode int);
+    method @Deprecated public abstract void setSelectedNavigationItem(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setShowHideAnimationEnabled(boolean);
+    method public void setSplitBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method public void setStackedBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method public abstract void setSubtitle(CharSequence!);
+    method public abstract void setSubtitle(int);
+    method public abstract void setTitle(CharSequence!);
+    method public abstract void setTitle(@StringRes int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setWindowTitle(CharSequence!);
+    method public abstract void show();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.appcompat.view.ActionMode! startActionMode(androidx.appcompat.view.ActionMode.Callback!);
+    field public static final int DISPLAY_HOME_AS_UP = 4; // 0x4
+    field public static final int DISPLAY_SHOW_CUSTOM = 16; // 0x10
+    field public static final int DISPLAY_SHOW_HOME = 2; // 0x2
+    field public static final int DISPLAY_SHOW_TITLE = 8; // 0x8
+    field public static final int DISPLAY_USE_LOGO = 1; // 0x1
+    field @Deprecated public static final int NAVIGATION_MODE_LIST = 1; // 0x1
+    field @Deprecated public static final int NAVIGATION_MODE_STANDARD = 0; // 0x0
+    field @Deprecated public static final int NAVIGATION_MODE_TABS = 2; // 0x2
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface ActionBar.DisplayOptions {
+  @IntDef(flag=true, value={androidx.appcompat.app.ActionBar.DISPLAY_USE_LOGO, androidx.appcompat.app.ActionBar.DISPLAY_SHOW_HOME, androidx.appcompat.app.ActionBar.DISPLAY_HOME_AS_UP, androidx.appcompat.app.ActionBar.DISPLAY_SHOW_TITLE, androidx.appcompat.app.ActionBar.DISPLAY_SHOW_CUSTOM}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ActionBar.DisplayOptions {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface ActionBar.NavigationMode {
+  public static class ActionBar.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public ActionBar.LayoutParams(android.content.Context, android.util.AttributeSet!);
+    ctor public ActionBar.LayoutParams(int, int);
+    ctor public ActionBar.LayoutParams(int, int, int);
+    ctor public ActionBar.LayoutParams(int);
+    ctor public ActionBar.LayoutParams(androidx.appcompat.app.ActionBar.LayoutParams!);
+    ctor public ActionBar.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    field public int gravity;
+  }
+
+  @IntDef({androidx.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, androidx.appcompat.app.ActionBar.NAVIGATION_MODE_LIST, androidx.appcompat.app.ActionBar.NAVIGATION_MODE_TABS}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ActionBar.NavigationMode {
+  }
+
+  public static interface ActionBar.OnMenuVisibilityListener {
+    method public void onMenuVisibilityChanged(boolean);
+  }
+
+  @Deprecated public static interface ActionBar.OnNavigationListener {
+    method @Deprecated public boolean onNavigationItemSelected(int, long);
+  }
+
+  @Deprecated public abstract static class ActionBar.Tab {
+    ctor @Deprecated public ActionBar.Tab();
+    method @Deprecated public abstract CharSequence! getContentDescription();
+    method @Deprecated public abstract android.view.View! getCustomView();
+    method @Deprecated public abstract android.graphics.drawable.Drawable! getIcon();
+    method @Deprecated public abstract int getPosition();
+    method @Deprecated public abstract Object! getTag();
+    method @Deprecated public abstract CharSequence! getText();
+    method @Deprecated public abstract void select();
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setContentDescription(@StringRes int);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setContentDescription(CharSequence!);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setCustomView(android.view.View!);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setCustomView(int);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setIcon(android.graphics.drawable.Drawable!);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setIcon(@DrawableRes int);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setTabListener(androidx.appcompat.app.ActionBar.TabListener!);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setTag(Object!);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setText(CharSequence!);
+    method @Deprecated public abstract androidx.appcompat.app.ActionBar.Tab! setText(int);
+    field @Deprecated public static final int INVALID_POSITION = -1; // 0xffffffff
+  }
+
+  @Deprecated public static interface ActionBar.TabListener {
+    method @Deprecated public void onTabReselected(androidx.appcompat.app.ActionBar.Tab!, androidx.fragment.app.FragmentTransaction!);
+    method @Deprecated public void onTabSelected(androidx.appcompat.app.ActionBar.Tab!, androidx.fragment.app.FragmentTransaction!);
+    method @Deprecated public void onTabUnselected(androidx.appcompat.app.ActionBar.Tab!, androidx.fragment.app.FragmentTransaction!);
+  }
+
+  public class ActionBarDrawerToggle implements androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
+    ctor public ActionBarDrawerToggle(android.app.Activity!, androidx.drawerlayout.widget.DrawerLayout!, @StringRes int, @StringRes int);
+    ctor public ActionBarDrawerToggle(android.app.Activity!, androidx.drawerlayout.widget.DrawerLayout!, androidx.appcompat.widget.Toolbar!, @StringRes int, @StringRes int);
+    method public androidx.appcompat.graphics.drawable.DrawerArrowDrawable getDrawerArrowDrawable();
+    method public android.view.View.OnClickListener! getToolbarNavigationClickListener();
+    method public boolean isDrawerIndicatorEnabled();
+    method public boolean isDrawerSlideAnimationEnabled();
+    method public void onConfigurationChanged(android.content.res.Configuration!);
+    method public void onDrawerClosed(android.view.View!);
+    method public void onDrawerOpened(android.view.View!);
+    method public void onDrawerSlide(android.view.View!, float);
+    method public void onDrawerStateChanged(int);
+    method public boolean onOptionsItemSelected(android.view.MenuItem!);
+    method public void setDrawerArrowDrawable(androidx.appcompat.graphics.drawable.DrawerArrowDrawable);
+    method public void setDrawerIndicatorEnabled(boolean);
+    method public void setDrawerSlideAnimationEnabled(boolean);
+    method public void setHomeAsUpIndicator(android.graphics.drawable.Drawable!);
+    method public void setHomeAsUpIndicator(int);
+    method public void setToolbarNavigationClickListener(android.view.View.OnClickListener!);
+    method public void syncState();
+  }
+
+  public static interface ActionBarDrawerToggle.Delegate {
+    method public android.content.Context! getActionBarThemedContext();
+    method public android.graphics.drawable.Drawable! getThemeUpIndicator();
+    method public boolean isNavigationVisible();
+    method public void setActionBarDescription(@StringRes int);
+    method public void setActionBarUpIndicator(android.graphics.drawable.Drawable!, @StringRes int);
+  }
+
+  public static interface ActionBarDrawerToggle.DelegateProvider {
+    method public androidx.appcompat.app.ActionBarDrawerToggle.Delegate? getDrawerToggleDelegate();
+  }
+
+  public class AlertDialog extends androidx.appcompat.app.AppCompatDialog implements android.content.DialogInterface {
+    ctor protected AlertDialog(android.content.Context);
+    ctor protected AlertDialog(android.content.Context, @StyleRes int);
+    ctor protected AlertDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener?);
+    method public android.widget.Button! getButton(int);
+    method public android.widget.ListView! getListView();
+    method public void setButton(int, CharSequence!, android.os.Message!);
+    method public void setButton(int, CharSequence!, android.content.DialogInterface.OnClickListener!);
+    method public void setButton(int, CharSequence!, android.graphics.drawable.Drawable!, android.content.DialogInterface.OnClickListener!);
+    method public void setCustomTitle(android.view.View!);
+    method public void setIcon(int);
+    method public void setIcon(android.graphics.drawable.Drawable!);
+    method public void setIconAttribute(int);
+    method public void setMessage(CharSequence!);
+    method public void setView(android.view.View!);
+    method public void setView(android.view.View!, int, int, int, int);
   }
 
   public static class AlertDialog.Builder {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.appcompat.app.AlertDialog.Builder! setRecycleOnMeasureEnabled(boolean);
-    method @Deprecated @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.appcompat.app.AlertDialog.Builder! setView(android.view.View!, int, int, int, int);
+    ctor public AlertDialog.Builder(android.content.Context);
+    ctor public AlertDialog.Builder(android.content.Context, @StyleRes int);
+    method public androidx.appcompat.app.AlertDialog! create();
+    method public android.content.Context getContext();
+    method public androidx.appcompat.app.AlertDialog.Builder! setAdapter(android.widget.ListAdapter!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setCancelable(boolean);
+    method public androidx.appcompat.app.AlertDialog.Builder! setCursor(android.database.Cursor!, android.content.DialogInterface.OnClickListener!, String!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setCustomTitle(android.view.View?);
+    method public androidx.appcompat.app.AlertDialog.Builder! setIcon(@DrawableRes int);
+    method public androidx.appcompat.app.AlertDialog.Builder! setIcon(android.graphics.drawable.Drawable?);
+    method public androidx.appcompat.app.AlertDialog.Builder! setIconAttribute(@AttrRes int);
+    method @Deprecated public androidx.appcompat.app.AlertDialog.Builder! setInverseBackgroundForced(boolean);
+    method public androidx.appcompat.app.AlertDialog.Builder! setItems(@ArrayRes int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setItems(CharSequence![]!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMessage(@StringRes int);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMessage(CharSequence?);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(@ArrayRes int, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(CharSequence![]!, boolean[]!, android.content.DialogInterface.OnMultiChoiceClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setMultiChoiceItems(android.database.Cursor!, String!, String!, android.content.DialogInterface.OnMultiChoiceClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(@StringRes int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButton(CharSequence!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setNegativeButtonIcon(android.graphics.drawable.Drawable!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setNeutralButton(@StringRes int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setNeutralButton(CharSequence!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setNeutralButtonIcon(android.graphics.drawable.Drawable!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setOnCancelListener(android.content.DialogInterface.OnCancelListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setOnDismissListener(android.content.DialogInterface.OnDismissListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setOnKeyListener(android.content.DialogInterface.OnKeyListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButton(@StringRes int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButton(CharSequence!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setPositiveButtonIcon(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.appcompat.app.AlertDialog.Builder! setRecycleOnMeasureEnabled(boolean);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(@ArrayRes int, int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.database.Cursor!, int, String!, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(CharSequence![]!, int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setSingleChoiceItems(android.widget.ListAdapter!, int, android.content.DialogInterface.OnClickListener!);
+    method public androidx.appcompat.app.AlertDialog.Builder! setTitle(@StringRes int);
+    method public androidx.appcompat.app.AlertDialog.Builder! setTitle(CharSequence?);
+    method public androidx.appcompat.app.AlertDialog.Builder! setView(int);
+    method public androidx.appcompat.app.AlertDialog.Builder! setView(android.view.View!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.appcompat.app.AlertDialog.Builder! setView(android.view.View!, int, int, int, int);
+    method public androidx.appcompat.app.AlertDialog! show();
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface AppCompatDelegate.NightMode {
+  public class AppCompatActivity extends androidx.fragment.app.FragmentActivity implements androidx.appcompat.app.ActionBarDrawerToggle.DelegateProvider androidx.appcompat.app.AppCompatCallback androidx.core.app.TaskStackBuilder.SupportParentable {
+    ctor public AppCompatActivity();
+    method public androidx.appcompat.app.AppCompatDelegate getDelegate();
+    method public androidx.appcompat.app.ActionBarDrawerToggle.Delegate? getDrawerToggleDelegate();
+    method public androidx.appcompat.app.ActionBar? getSupportActionBar();
+    method public android.content.Intent? getSupportParentActivityIntent();
+    method public void onCreateSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
+    method public final boolean onMenuItemSelected(int, android.view.MenuItem!);
+    method public void onPrepareSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
+    method @CallSuper public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode);
+    method @CallSuper public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode);
+    method @Deprecated public void onSupportContentChanged();
+    method public boolean onSupportNavigateUp();
+    method public androidx.appcompat.view.ActionMode? onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback);
+    method public void setSupportActionBar(androidx.appcompat.widget.Toolbar?);
+    method @Deprecated public void setSupportProgress(int);
+    method @Deprecated public void setSupportProgressBarIndeterminate(boolean);
+    method @Deprecated public void setSupportProgressBarIndeterminateVisibility(boolean);
+    method @Deprecated public void setSupportProgressBarVisibility(boolean);
+    method public androidx.appcompat.view.ActionMode? startSupportActionMode(androidx.appcompat.view.ActionMode.Callback);
+    method public void supportInvalidateOptionsMenu();
+    method public void supportNavigateUpTo(android.content.Intent);
+    method public boolean supportRequestWindowFeature(int);
+    method public boolean supportShouldUpRecreateTask(android.content.Intent);
   }
 
-  public class AppCompatDialog implements androidx.appcompat.app.AppCompatCallback {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void invalidateOptionsMenu();
+  public interface AppCompatCallback {
+    method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
+    method public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode!);
+    method public androidx.appcompat.view.ActionMode? onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback!);
   }
 
-  public class AppCompatDialogFragment {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setupDialog(android.app.Dialog!, int);
+  public abstract class AppCompatDelegate {
+    method public abstract void addContentView(android.view.View!, android.view.ViewGroup.LayoutParams!);
+    method public abstract boolean applyDayNight();
+    method public static androidx.appcompat.app.AppCompatDelegate! create(android.app.Activity!, androidx.appcompat.app.AppCompatCallback!);
+    method public static androidx.appcompat.app.AppCompatDelegate! create(android.app.Dialog!, androidx.appcompat.app.AppCompatCallback!);
+    method public static androidx.appcompat.app.AppCompatDelegate! create(android.content.Context!, android.view.Window!, androidx.appcompat.app.AppCompatCallback!);
+    method public abstract android.view.View! createView(android.view.View?, String!, android.content.Context, android.util.AttributeSet);
+    method public abstract <T extends android.view.View> T! findViewById(@IdRes int);
+    method @androidx.appcompat.app.AppCompatDelegate.NightMode public static int getDefaultNightMode();
+    method public abstract androidx.appcompat.app.ActionBarDrawerToggle.Delegate? getDrawerToggleDelegate();
+    method public abstract android.view.MenuInflater! getMenuInflater();
+    method public abstract androidx.appcompat.app.ActionBar? getSupportActionBar();
+    method public abstract boolean hasWindowFeature(int);
+    method public abstract void installViewFactory();
+    method public abstract void invalidateOptionsMenu();
+    method public static boolean isCompatVectorFromResourcesEnabled();
+    method public abstract boolean isHandleNativeActionModesEnabled();
+    method public abstract void onConfigurationChanged(android.content.res.Configuration!);
+    method public abstract void onCreate(android.os.Bundle!);
+    method public abstract void onDestroy();
+    method public abstract void onPostCreate(android.os.Bundle!);
+    method public abstract void onPostResume();
+    method public abstract void onSaveInstanceState(android.os.Bundle!);
+    method public abstract void onStart();
+    method public abstract void onStop();
+    method public abstract boolean requestWindowFeature(int);
+    method public static void setCompatVectorFromResourcesEnabled(boolean);
+    method public abstract void setContentView(android.view.View!);
+    method public abstract void setContentView(@LayoutRes int);
+    method public abstract void setContentView(android.view.View!, android.view.ViewGroup.LayoutParams!);
+    method public static void setDefaultNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
+    method public abstract void setHandleNativeActionModesEnabled(boolean);
+    method public abstract void setLocalNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
+    method public abstract void setSupportActionBar(androidx.appcompat.widget.Toolbar?);
+    method public abstract void setTitle(CharSequence?);
+    method public abstract androidx.appcompat.view.ActionMode? startSupportActionMode(androidx.appcompat.view.ActionMode.Callback);
+    field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
+    field public static final int FEATURE_SUPPORT_ACTION_BAR = 108; // 0x6c
+    field public static final int FEATURE_SUPPORT_ACTION_BAR_OVERLAY = 109; // 0x6d
+    field public static final int MODE_NIGHT_AUTO = 0; // 0x0
+    field public static final int MODE_NIGHT_FOLLOW_SYSTEM = -1; // 0xffffffff
+    field public static final int MODE_NIGHT_NO = 1; // 0x1
+    field public static final int MODE_NIGHT_YES = 2; // 0x2
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WindowDecorActionBar extends androidx.appcompat.app.ActionBar implements androidx.appcompat.widget.ActionBarOverlayLayout.ActionBarVisibilityCallback {
+  @IntDef({androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AppCompatDelegate.NightMode {
+  }
+
+  public class AppCompatDialog extends android.app.Dialog implements androidx.appcompat.app.AppCompatCallback {
+    ctor public AppCompatDialog(android.content.Context!);
+    ctor public AppCompatDialog(android.content.Context!, int);
+    ctor protected AppCompatDialog(android.content.Context!, boolean, android.content.DialogInterface.OnCancelListener!);
+    method public androidx.appcompat.app.AppCompatDelegate! getDelegate();
+    method public androidx.appcompat.app.ActionBar! getSupportActionBar();
+    method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
+    method public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode!);
+    method public androidx.appcompat.view.ActionMode? onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback!);
+    method public boolean supportRequestWindowFeature(int);
+  }
+
+  public class AppCompatDialogFragment extends androidx.fragment.app.DialogFragment {
+    ctor public AppCompatDialogFragment();
+  }
+
+  public class AppCompatViewInflater {
+    ctor public AppCompatViewInflater();
+    method protected androidx.appcompat.widget.AppCompatAutoCompleteTextView createAutoCompleteTextView(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatButton createButton(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatCheckBox createCheckBox(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatCheckedTextView createCheckedTextView(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatEditText createEditText(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatImageButton createImageButton(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatImageView createImageView(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView createMultiAutoCompleteTextView(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatRadioButton createRadioButton(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatRatingBar createRatingBar(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatSeekBar createSeekBar(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatSpinner createSpinner(android.content.Context!, android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.AppCompatTextView createTextView(android.content.Context!, android.util.AttributeSet!);
+    method protected android.view.View? createView(android.content.Context!, String!, android.util.AttributeSet!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WindowDecorActionBar extends androidx.appcompat.app.ActionBar implements androidx.appcompat.widget.ActionBarOverlayLayout.ActionBarVisibilityCallback {
     ctor public WindowDecorActionBar(android.app.Activity!, boolean);
     ctor public WindowDecorActionBar(android.app.Dialog!);
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public WindowDecorActionBar(android.view.View!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public WindowDecorActionBar(android.view.View!);
     method public void addOnMenuVisibilityListener(androidx.appcompat.app.ActionBar.OnMenuVisibilityListener!);
     method public void addTab(androidx.appcompat.app.ActionBar.Tab!);
     method public void addTab(androidx.appcompat.app.ActionBar.Tab!, int);
@@ -104,7 +416,7 @@ package androidx.appcompat.app {
     method public void showForSystem();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WindowDecorActionBar.ActionModeImpl extends androidx.appcompat.view.ActionMode implements androidx.appcompat.view.menu.MenuBuilder.Callback {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WindowDecorActionBar.ActionModeImpl extends androidx.appcompat.view.ActionMode implements androidx.appcompat.view.menu.MenuBuilder.Callback {
     ctor public WindowDecorActionBar.ActionModeImpl(android.content.Context!, androidx.appcompat.view.ActionMode.Callback!);
     method public boolean dispatchOnCreate();
     method public void finish();
@@ -126,7 +438,7 @@ package androidx.appcompat.app {
     method public void setTitle(int);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WindowDecorActionBar.TabImpl extends androidx.appcompat.app.ActionBar.Tab {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WindowDecorActionBar.TabImpl extends androidx.appcompat.app.ActionBar.Tab {
     ctor public WindowDecorActionBar.TabImpl();
     method public androidx.appcompat.app.ActionBar.TabListener! getCallback();
     method public CharSequence! getContentDescription();
@@ -151,54 +463,93 @@ package androidx.appcompat.app {
 
 }
 
+package androidx.appcompat.content.res {
+
+  public final class AppCompatResources {
+    method public static android.content.res.ColorStateList! getColorStateList(android.content.Context, @ColorRes int);
+    method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
+  }
+
+}
+
 package androidx.appcompat.graphics.drawable {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class DrawableWrapper {
+  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
+    ctor public AnimatedStateListDrawableCompat();
+    method public void addState(int[], android.graphics.drawable.Drawable, int);
+    method public void addState(int[]!, android.graphics.drawable.Drawable!);
+    method public <T extends android.graphics.drawable.Drawable & android.graphics.drawable.Animatable> void addTransition(int, int, T, boolean);
+    method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat? create(android.content.Context, @DrawableRes int, android.content.res.Resources.Theme?);
+    method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat! createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void draw(android.graphics.Canvas);
+    method public final android.graphics.drawable.Drawable.ConstantState! getConstantState();
+    method public int getOpacity();
+    method public void inflate(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, Runnable, long);
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method protected void setConstantState(androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState);
+    method public void setDither(boolean);
+    method public void setEnterFadeDuration(int);
+    method public void setExitFadeDuration(int);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, Runnable);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class DrawableWrapper extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
     ctor public DrawableWrapper(android.graphics.drawable.Drawable!);
     method public void draw(android.graphics.Canvas!);
-    method public int getChangingConfigurations();
-    method public android.graphics.drawable.Drawable! getCurrent();
-    method public int getIntrinsicHeight();
-    method public int getIntrinsicWidth();
-    method public int getMinimumHeight();
-    method public int getMinimumWidth();
     method public int getOpacity();
-    method public boolean getPadding(android.graphics.Rect!);
-    method public int[]! getState();
-    method public android.graphics.Region! getTransparentRegion();
     method public android.graphics.drawable.Drawable! getWrappedDrawable();
     method public void invalidateDrawable(android.graphics.drawable.Drawable!);
-    method public boolean isAutoMirrored();
-    method public boolean isStateful();
-    method public void jumpToCurrentState();
-    method protected void onBoundsChange(android.graphics.Rect!);
-    method protected boolean onLevelChange(int);
     method public void scheduleDrawable(android.graphics.drawable.Drawable!, Runnable!, long);
     method public void setAlpha(int);
-    method public void setAutoMirrored(boolean);
-    method public void setChangingConfigurations(int);
     method public void setColorFilter(android.graphics.ColorFilter!);
     method public void setDither(boolean);
-    method public void setFilterBitmap(boolean);
-    method public void setHotspot(float, float);
-    method public void setHotspotBounds(int, int, int, int);
-    method public boolean setState(int[]!);
-    method public void setTint(int);
-    method public void setTintList(android.content.res.ColorStateList!);
-    method public void setTintMode(android.graphics.PorterDuff.Mode!);
-    method public boolean setVisible(boolean, boolean);
     method public void setWrappedDrawable(android.graphics.drawable.Drawable!);
     method public void unscheduleDrawable(android.graphics.drawable.Drawable!, Runnable!);
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface DrawerArrowDrawable.ArrowDirection {
+  public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {
+    ctor public DrawerArrowDrawable(android.content.Context!);
+    method public void draw(android.graphics.Canvas!);
+    method public float getArrowHeadLength();
+    method public float getArrowShaftLength();
+    method public float getBarLength();
+    method public float getBarThickness();
+    method @ColorInt public int getColor();
+    method @androidx.appcompat.graphics.drawable.DrawerArrowDrawable.ArrowDirection public int getDirection();
+    method public float getGapSize();
+    method public int getOpacity();
+    method public final android.graphics.Paint! getPaint();
+    method @FloatRange(from=0.0, to=1.0) public float getProgress();
+    method public boolean isSpinEnabled();
+    method public void setAlpha(int);
+    method public void setArrowHeadLength(float);
+    method public void setArrowShaftLength(float);
+    method public void setBarLength(float);
+    method public void setBarThickness(float);
+    method public void setColor(@ColorInt int);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setDirection(@androidx.appcompat.graphics.drawable.DrawerArrowDrawable.ArrowDirection int);
+    method public void setGapSize(float);
+    method public void setProgress(@FloatRange(from=0.0, to=1.0) float);
+    method public void setSpinEnabled(boolean);
+    method public void setVerticalMirror(boolean);
+    field public static final int ARROW_DIRECTION_END = 3; // 0x3
+    field public static final int ARROW_DIRECTION_LEFT = 0; // 0x0
+    field public static final int ARROW_DIRECTION_RIGHT = 1; // 0x1
+    field public static final int ARROW_DIRECTION_START = 2; // 0x2
+  }
+
+  @IntDef({androidx.appcompat.graphics.drawable.DrawerArrowDrawable.ARROW_DIRECTION_LEFT, androidx.appcompat.graphics.drawable.DrawerArrowDrawable.ARROW_DIRECTION_RIGHT, androidx.appcompat.graphics.drawable.DrawerArrowDrawable.ARROW_DIRECTION_START, androidx.appcompat.graphics.drawable.DrawerArrowDrawable.ARROW_DIRECTION_END}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface DrawerArrowDrawable.ArrowDirection {
   }
 
 }
 
 package androidx.appcompat.text {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class AllCapsTransformationMethod {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class AllCapsTransformationMethod implements android.text.method.TransformationMethod {
     ctor public AllCapsTransformationMethod(android.content.Context!);
     method public CharSequence! getTransformation(CharSequence!, android.view.View!);
     method public void onFocusChanged(android.view.View!, CharSequence!, boolean, int, android.graphics.Rect!);
@@ -208,7 +559,7 @@ package androidx.appcompat.text {
 
 package androidx.appcompat.view {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ActionBarPolicy {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ActionBarPolicy {
     method public boolean enableHomeButtonByDefault();
     method public static androidx.appcompat.view.ActionBarPolicy! get(android.content.Context!);
     method public int getEmbeddedMenuWidthLimit();
@@ -220,10 +571,49 @@ package androidx.appcompat.view {
   }
 
   public abstract class ActionMode {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isUiFocusable();
+    ctor public ActionMode();
+    method public abstract void finish();
+    method public abstract android.view.View! getCustomView();
+    method public abstract android.view.Menu! getMenu();
+    method public abstract android.view.MenuInflater! getMenuInflater();
+    method public abstract CharSequence! getSubtitle();
+    method public Object! getTag();
+    method public abstract CharSequence! getTitle();
+    method public boolean getTitleOptionalHint();
+    method public abstract void invalidate();
+    method public boolean isTitleOptional();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isUiFocusable();
+    method public abstract void setCustomView(android.view.View!);
+    method public abstract void setSubtitle(CharSequence!);
+    method public abstract void setSubtitle(int);
+    method public void setTag(Object!);
+    method public abstract void setTitle(CharSequence!);
+    method public abstract void setTitle(int);
+    method public void setTitleOptionalHint(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class StandaloneActionMode extends androidx.appcompat.view.ActionMode implements androidx.appcompat.view.menu.MenuBuilder.Callback {
+  public static interface ActionMode.Callback {
+    method public boolean onActionItemClicked(androidx.appcompat.view.ActionMode!, android.view.MenuItem!);
+    method public boolean onCreateActionMode(androidx.appcompat.view.ActionMode!, android.view.Menu!);
+    method public void onDestroyActionMode(androidx.appcompat.view.ActionMode!);
+    method public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode!, android.view.Menu!);
+  }
+
+  public interface CollapsibleActionView {
+    method public void onActionViewCollapsed();
+    method public void onActionViewExpanded();
+  }
+
+  public class ContextThemeWrapper extends android.content.ContextWrapper {
+    ctor public ContextThemeWrapper();
+    ctor public ContextThemeWrapper(android.content.Context!, @StyleRes int);
+    ctor public ContextThemeWrapper(android.content.Context!, android.content.res.Resources.Theme!);
+    method public void applyOverrideConfiguration(android.content.res.Configuration!);
+    method public int getThemeResId();
+    method protected void onApplyThemeResource(android.content.res.Resources.Theme!, int, boolean);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class StandaloneActionMode extends androidx.appcompat.view.ActionMode implements androidx.appcompat.view.menu.MenuBuilder.Callback {
     ctor public StandaloneActionMode(android.content.Context!, androidx.appcompat.widget.ActionBarContextView!, androidx.appcompat.view.ActionMode.Callback!, boolean);
     method public void finish();
     method public android.view.View! getCustomView();
@@ -244,28 +634,23 @@ package androidx.appcompat.view {
     method public void setTitle(int);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SupportActionModeWrapper {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SupportActionModeWrapper extends android.view.ActionMode {
     ctor public SupportActionModeWrapper(android.content.Context!, androidx.appcompat.view.ActionMode!);
     method public void finish();
     method public android.view.View! getCustomView();
     method public android.view.Menu! getMenu();
     method public android.view.MenuInflater! getMenuInflater();
     method public CharSequence! getSubtitle();
-    method public Object! getTag();
     method public CharSequence! getTitle();
-    method public boolean getTitleOptionalHint();
     method public void invalidate();
-    method public boolean isTitleOptional();
     method public void setCustomView(android.view.View!);
     method public void setSubtitle(CharSequence!);
     method public void setSubtitle(int);
-    method public void setTag(Object!);
     method public void setTitle(CharSequence!);
     method public void setTitle(int);
-    method public void setTitleOptionalHint(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class SupportActionModeWrapper.CallbackWrapper implements androidx.appcompat.view.ActionMode.Callback {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class SupportActionModeWrapper.CallbackWrapper implements androidx.appcompat.view.ActionMode.Callback {
     ctor public SupportActionModeWrapper.CallbackWrapper(android.content.Context!, android.view.ActionMode.Callback!);
     method public android.view.ActionMode! getActionModeWrapper(androidx.appcompat.view.ActionMode!);
     method public boolean onActionItemClicked(androidx.appcompat.view.ActionMode!, android.view.MenuItem!);
@@ -274,12 +659,11 @@ package androidx.appcompat.view {
     method public boolean onPrepareActionMode(androidx.appcompat.view.ActionMode!, android.view.Menu!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SupportMenuInflater {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SupportMenuInflater extends android.view.MenuInflater {
     ctor public SupportMenuInflater(android.content.Context!);
-    method public void inflate(@LayoutRes int, android.view.Menu!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ViewPropertyAnimatorCompatSet {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ViewPropertyAnimatorCompatSet {
     ctor public ViewPropertyAnimatorCompatSet();
     method public void cancel();
     method public androidx.appcompat.view.ViewPropertyAnimatorCompatSet! play(androidx.core.view.ViewPropertyAnimatorCompat!);
@@ -290,7 +674,7 @@ package androidx.appcompat.view {
     method public void start();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class WindowCallbackWrapper {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WindowCallbackWrapper implements android.view.Window.Callback {
     ctor public WindowCallbackWrapper(android.view.Window.Callback!);
     method public boolean dispatchGenericMotionEvent(android.view.MotionEvent!);
     method public boolean dispatchKeyEvent(android.view.KeyEvent!);
@@ -308,9 +692,7 @@ package androidx.appcompat.view {
     method public boolean onMenuItemSelected(int, android.view.MenuItem!);
     method public boolean onMenuOpened(int, android.view.Menu!);
     method public void onPanelClosed(int, android.view.Menu!);
-    method @RequiresApi(26) public void onPointerCaptureChanged(boolean);
     method public boolean onPreparePanel(int, android.view.View!, android.view.Menu!);
-    method @RequiresApi(24) public void onProvideKeyboardShortcuts(java.util.List<android.view.KeyboardShortcutGroup>!, android.view.Menu!, int);
     method @RequiresApi(23) public boolean onSearchRequested(android.view.SearchEvent!);
     method public boolean onSearchRequested();
     method public void onWindowAttributesChanged(android.view.WindowManager.LayoutParams!);
@@ -323,30 +705,24 @@ package androidx.appcompat.view {
 
 package androidx.appcompat.view.menu {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ActionMenuItem {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ActionMenuItem implements androidx.core.internal.view.SupportMenuItem {
     ctor public ActionMenuItem(android.content.Context!, int, int, int, int, CharSequence!);
     method public boolean collapseActionView();
     method public boolean expandActionView();
     method public android.view.ActionProvider! getActionProvider();
     method public android.view.View! getActionView();
-    method public int getAlphabeticModifiers();
     method public char getAlphabeticShortcut();
-    method public CharSequence! getContentDescription();
     method public int getGroupId();
     method public android.graphics.drawable.Drawable! getIcon();
-    method public android.content.res.ColorStateList! getIconTintList();
-    method public android.graphics.PorterDuff.Mode! getIconTintMode();
     method public android.content.Intent! getIntent();
     method public int getItemId();
     method public android.view.ContextMenu.ContextMenuInfo! getMenuInfo();
-    method public int getNumericModifiers();
     method public char getNumericShortcut();
     method public int getOrder();
     method public android.view.SubMenu! getSubMenu();
     method public androidx.core.view.ActionProvider! getSupportActionProvider();
     method public CharSequence! getTitle();
     method public CharSequence! getTitleCondensed();
-    method public CharSequence! getTooltipText();
     method public boolean hasSubMenu();
     method public boolean invoke();
     method public boolean isActionViewExpanded();
@@ -358,7 +734,6 @@ package androidx.appcompat.view.menu {
     method public androidx.core.internal.view.SupportMenuItem! setActionView(android.view.View!);
     method public androidx.core.internal.view.SupportMenuItem! setActionView(int);
     method public android.view.MenuItem! setAlphabeticShortcut(char);
-    method public android.view.MenuItem! setAlphabeticShortcut(char, int);
     method public android.view.MenuItem! setCheckable(boolean);
     method public android.view.MenuItem! setChecked(boolean);
     method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
@@ -366,15 +741,11 @@ package androidx.appcompat.view.menu {
     method public androidx.appcompat.view.menu.ActionMenuItem! setExclusiveCheckable(boolean);
     method public android.view.MenuItem! setIcon(android.graphics.drawable.Drawable!);
     method public android.view.MenuItem! setIcon(int);
-    method public android.view.MenuItem! setIconTintList(android.content.res.ColorStateList?);
-    method public android.view.MenuItem! setIconTintMode(android.graphics.PorterDuff.Mode!);
     method public android.view.MenuItem! setIntent(android.content.Intent!);
     method public android.view.MenuItem! setNumericShortcut(char);
-    method public android.view.MenuItem! setNumericShortcut(char, int);
     method public android.view.MenuItem! setOnActionExpandListener(android.view.MenuItem.OnActionExpandListener!);
     method public android.view.MenuItem! setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
     method public android.view.MenuItem! setShortcut(char, char);
-    method public android.view.MenuItem! setShortcut(char, char, int, int);
     method public void setShowAsAction(int);
     method public androidx.core.internal.view.SupportMenuItem! setShowAsActionFlags(int);
     method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
@@ -385,7 +756,7 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! setVisible(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ActionMenuItemView extends androidx.appcompat.widget.AppCompatTextView implements androidx.appcompat.widget.ActionMenuView.ActionMenuChildView androidx.appcompat.view.menu.MenuView.ItemView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ActionMenuItemView extends androidx.appcompat.widget.AppCompatTextView implements androidx.appcompat.widget.ActionMenuView.ActionMenuChildView androidx.appcompat.view.menu.MenuView.ItemView android.view.View.OnClickListener {
     ctor public ActionMenuItemView(android.content.Context!);
     ctor public ActionMenuItemView(android.content.Context!, android.util.AttributeSet!);
     ctor public ActionMenuItemView(android.content.Context!, android.util.AttributeSet!, int);
@@ -396,15 +767,12 @@ package androidx.appcompat.view.menu {
     method public boolean needsDividerBefore();
     method public void onClick(android.view.View!);
     method public void onConfigurationChanged(android.content.res.Configuration!);
-    method public void onRestoreInstanceState(android.os.Parcelable!);
-    method public boolean onTouchEvent(android.view.MotionEvent!);
     method public boolean prefersCondensedTitle();
     method public void setCheckable(boolean);
     method public void setChecked(boolean);
     method public void setExpandedFormat(boolean);
     method public void setIcon(android.graphics.drawable.Drawable!);
     method public void setItemInvoker(androidx.appcompat.view.menu.MenuBuilder.ItemInvoker!);
-    method public void setPadding(int, int, int, int);
     method public void setPopupCallback(androidx.appcompat.view.menu.ActionMenuItemView.PopupCallback!);
     method public void setShortcut(boolean, char);
     method public void setTitle(CharSequence!);
@@ -416,7 +784,7 @@ package androidx.appcompat.view.menu {
     method public abstract androidx.appcompat.view.menu.ShowableListMenu! getPopup();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class BaseMenuPresenter implements androidx.appcompat.view.menu.MenuPresenter {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class BaseMenuPresenter implements androidx.appcompat.view.menu.MenuPresenter {
     ctor public BaseMenuPresenter(android.content.Context!, int, int);
     method protected void addItemView(android.view.View!, int);
     method public abstract void bindItemView(androidx.appcompat.view.menu.MenuItemImpl!, androidx.appcompat.view.menu.MenuView.ItemView!);
@@ -444,24 +812,21 @@ package androidx.appcompat.view.menu {
     field protected android.view.LayoutInflater! mSystemInflater;
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class ExpandedMenuView implements androidx.appcompat.view.menu.MenuBuilder.ItemInvoker androidx.appcompat.view.menu.MenuView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ExpandedMenuView extends android.widget.ListView implements android.widget.AdapterView.OnItemClickListener androidx.appcompat.view.menu.MenuBuilder.ItemInvoker androidx.appcompat.view.menu.MenuView {
     ctor public ExpandedMenuView(android.content.Context!, android.util.AttributeSet!);
     ctor public ExpandedMenuView(android.content.Context!, android.util.AttributeSet!, int);
     method public int getWindowAnimations();
     method public void initialize(androidx.appcompat.view.menu.MenuBuilder!);
     method public boolean invokeItem(androidx.appcompat.view.menu.MenuItemImpl!);
-    method protected void onDetachedFromWindow();
     method public void onItemClick(android.widget.AdapterView!, android.view.View!, int, long);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ListMenuItemView implements androidx.appcompat.view.menu.MenuView.ItemView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ListMenuItemView extends android.widget.LinearLayout implements android.widget.AbsListView.SelectionBoundsAdjuster androidx.appcompat.view.menu.MenuView.ItemView {
     ctor public ListMenuItemView(android.content.Context!, android.util.AttributeSet!);
     ctor public ListMenuItemView(android.content.Context!, android.util.AttributeSet!, int);
     method public void adjustListItemSelectionBounds(android.graphics.Rect!);
     method public androidx.appcompat.view.menu.MenuItemImpl! getItemData();
     method public void initialize(androidx.appcompat.view.menu.MenuItemImpl!, int);
-    method protected void onFinishInflate();
-    method protected void onMeasure(int, int);
     method public boolean prefersCondensedTitle();
     method public void setCheckable(boolean);
     method public void setChecked(boolean);
@@ -473,7 +838,7 @@ package androidx.appcompat.view.menu {
     method public boolean showsIcon();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ListMenuPresenter implements androidx.appcompat.view.menu.MenuPresenter {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ListMenuPresenter implements android.widget.AdapterView.OnItemClickListener androidx.appcompat.view.menu.MenuPresenter {
     ctor public ListMenuPresenter(android.content.Context!, int);
     ctor public ListMenuPresenter(int, int);
     method public boolean collapseItemActionView(androidx.appcompat.view.menu.MenuBuilder!, androidx.appcompat.view.menu.MenuItemImpl!);
@@ -497,7 +862,7 @@ package androidx.appcompat.view.menu {
     field public static final String VIEWS_TAG = "android:menu:list";
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MenuAdapter {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MenuAdapter extends android.widget.BaseAdapter {
     ctor public MenuAdapter(androidx.appcompat.view.menu.MenuBuilder!, android.view.LayoutInflater!, boolean, int);
     method public androidx.appcompat.view.menu.MenuBuilder! getAdapterMenu();
     method public int getCount();
@@ -505,17 +870,16 @@ package androidx.appcompat.view.menu {
     method public androidx.appcompat.view.menu.MenuItemImpl! getItem(int);
     method public long getItemId(int);
     method public android.view.View! getView(int, android.view.View!, android.view.ViewGroup!);
-    method public void notifyDataSetChanged();
     method public void setForceShowIcon(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MenuBuilder {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MenuBuilder implements androidx.core.internal.view.SupportMenu {
     ctor public MenuBuilder(android.content.Context!);
     method public android.view.MenuItem! add(CharSequence!);
     method public android.view.MenuItem! add(int);
     method public android.view.MenuItem! add(int, int, int, CharSequence!);
     method public android.view.MenuItem! add(int, int, int, int);
-    method public int addIntentOptions(int, int, int, android.content.ComponentName!, android.content.Intent[]!, android.content.Intent!, int, android.view.MenuItem[]!);
+    method public int addIntentOptions(int, int, int, android.content.ComponentName!, android.content.Intent![]!, android.content.Intent!, int, android.view.MenuItem![]!);
     method protected android.view.MenuItem! addInternal(int, int, int, CharSequence!);
     method public void addMenuPresenter(androidx.appcompat.view.menu.MenuPresenter!);
     method public void addMenuPresenter(androidx.appcompat.view.menu.MenuPresenter!, android.content.Context!);
@@ -536,7 +900,7 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! findItem(int);
     method public int findItemIndex(int);
     method public void flagActionItems();
-    method public java.util.ArrayList<androidx.appcompat.view.menu.MenuItemImpl>! getActionItems();
+    method public java.util.ArrayList<androidx.appcompat.view.menu.MenuItemImpl!>! getActionItems();
     method protected String! getActionViewStatesKey();
     method public android.content.Context! getContext();
     method public androidx.appcompat.view.menu.MenuItemImpl! getExpandedItem();
@@ -544,9 +908,9 @@ package androidx.appcompat.view.menu {
     method public CharSequence! getHeaderTitle();
     method public android.view.View! getHeaderView();
     method public android.view.MenuItem! getItem(int);
-    method public java.util.ArrayList<androidx.appcompat.view.menu.MenuItemImpl>! getNonActionItems();
+    method public java.util.ArrayList<androidx.appcompat.view.menu.MenuItemImpl!>! getNonActionItems();
     method public androidx.appcompat.view.menu.MenuBuilder! getRootMenu();
-    method public java.util.ArrayList<androidx.appcompat.view.menu.MenuItemImpl> getVisibleItems();
+    method public java.util.ArrayList<androidx.appcompat.view.menu.MenuItemImpl!> getVisibleItems();
     method public boolean hasVisibleItems();
     method public boolean isGroupDividerEnabled();
     method public boolean isShortcutKey(int, android.view.KeyEvent!);
@@ -568,7 +932,6 @@ package androidx.appcompat.view.menu {
     method public void setCurrentMenuInfo(android.view.ContextMenu.ContextMenuInfo!);
     method public androidx.appcompat.view.menu.MenuBuilder! setDefaultShowAsAction(int);
     method public void setGroupCheckable(int, boolean, boolean);
-    method public void setGroupDividerEnabled(boolean);
     method public void setGroupEnabled(int, boolean);
     method public void setGroupVisible(int, boolean);
     method protected androidx.appcompat.view.menu.MenuBuilder! setHeaderIconInt(android.graphics.drawable.Drawable!);
@@ -585,32 +948,27 @@ package androidx.appcompat.view.menu {
     method public void stopDispatchingItemsChanged();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static interface MenuBuilder.Callback {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface MenuBuilder.Callback {
     method public boolean onMenuItemSelected(androidx.appcompat.view.menu.MenuBuilder!, android.view.MenuItem!);
     method public void onMenuModeChange(androidx.appcompat.view.menu.MenuBuilder!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static interface MenuBuilder.ItemInvoker {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface MenuBuilder.ItemInvoker {
     method public boolean invokeItem(androidx.appcompat.view.menu.MenuItemImpl!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class MenuItemImpl {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MenuItemImpl implements androidx.core.internal.view.SupportMenuItem {
     method public void actionFormatChanged();
     method public boolean collapseActionView();
     method public boolean expandActionView();
     method public android.view.ActionProvider! getActionProvider();
     method public android.view.View! getActionView();
-    method public int getAlphabeticModifiers();
     method public char getAlphabeticShortcut();
-    method public CharSequence! getContentDescription();
     method public int getGroupId();
     method public android.graphics.drawable.Drawable! getIcon();
-    method public android.content.res.ColorStateList! getIconTintList();
-    method public android.graphics.PorterDuff.Mode! getIconTintMode();
     method public android.content.Intent! getIntent();
     method @android.view.ViewDebug.CapturedViewProperty public int getItemId();
     method public android.view.ContextMenu.ContextMenuInfo! getMenuInfo();
-    method public int getNumericModifiers();
     method public char getNumericShortcut();
     method public int getOrder();
     method public int getOrdering();
@@ -618,7 +976,6 @@ package androidx.appcompat.view.menu {
     method public androidx.core.view.ActionProvider! getSupportActionProvider();
     method @android.view.ViewDebug.CapturedViewProperty public CharSequence! getTitle();
     method public CharSequence! getTitleCondensed();
-    method public CharSequence! getTooltipText();
     method public boolean hasCollapsibleActionView();
     method public boolean hasSubMenu();
     method public boolean invoke();
@@ -636,7 +993,6 @@ package androidx.appcompat.view.menu {
     method public androidx.core.internal.view.SupportMenuItem! setActionView(int);
     method public void setActionViewExpanded(boolean);
     method public android.view.MenuItem! setAlphabeticShortcut(char);
-    method public android.view.MenuItem! setAlphabeticShortcut(char, int);
     method public android.view.MenuItem! setCallback(Runnable!);
     method public android.view.MenuItem! setCheckable(boolean);
     method public android.view.MenuItem! setChecked(boolean);
@@ -645,16 +1001,12 @@ package androidx.appcompat.view.menu {
     method public void setExclusiveCheckable(boolean);
     method public android.view.MenuItem! setIcon(android.graphics.drawable.Drawable!);
     method public android.view.MenuItem! setIcon(int);
-    method public android.view.MenuItem! setIconTintList(android.content.res.ColorStateList?);
-    method public android.view.MenuItem! setIconTintMode(android.graphics.PorterDuff.Mode!);
     method public android.view.MenuItem! setIntent(android.content.Intent!);
     method public void setIsActionButton(boolean);
     method public android.view.MenuItem! setNumericShortcut(char);
-    method public android.view.MenuItem! setNumericShortcut(char, int);
     method public android.view.MenuItem! setOnActionExpandListener(android.view.MenuItem.OnActionExpandListener!);
     method public android.view.MenuItem! setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
     method public android.view.MenuItem! setShortcut(char, char);
-    method public android.view.MenuItem! setShortcut(char, char, int, int);
     method public void setShowAsAction(int);
     method public androidx.core.internal.view.SupportMenuItem! setShowAsActionFlags(int);
     method public void setSubMenu(androidx.appcompat.view.menu.SubMenuBuilder!);
@@ -666,31 +1018,24 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! setVisible(boolean);
     method public boolean shouldShowIcon();
     method public boolean showsTextAsAction();
-    method public String toString();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MenuItemWrapperICS {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MenuItemWrapperICS implements android.view.MenuItem {
     method public boolean collapseActionView();
     method public boolean expandActionView();
     method public android.view.ActionProvider! getActionProvider();
     method public android.view.View! getActionView();
-    method public int getAlphabeticModifiers();
     method public char getAlphabeticShortcut();
-    method public CharSequence! getContentDescription();
     method public int getGroupId();
     method public android.graphics.drawable.Drawable! getIcon();
-    method public android.content.res.ColorStateList! getIconTintList();
-    method public android.graphics.PorterDuff.Mode! getIconTintMode();
     method public android.content.Intent! getIntent();
     method public int getItemId();
     method public android.view.ContextMenu.ContextMenuInfo! getMenuInfo();
-    method public int getNumericModifiers();
     method public char getNumericShortcut();
     method public int getOrder();
     method public android.view.SubMenu! getSubMenu();
     method public CharSequence! getTitle();
     method public CharSequence! getTitleCondensed();
-    method public CharSequence! getTooltipText();
     method public boolean hasSubMenu();
     method public boolean isActionViewExpanded();
     method public boolean isCheckable();
@@ -701,33 +1046,26 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! setActionView(android.view.View!);
     method public android.view.MenuItem! setActionView(int);
     method public android.view.MenuItem! setAlphabeticShortcut(char);
-    method public android.view.MenuItem! setAlphabeticShortcut(char, int);
     method public android.view.MenuItem! setCheckable(boolean);
     method public android.view.MenuItem! setChecked(boolean);
-    method public android.view.MenuItem! setContentDescription(CharSequence!);
     method public android.view.MenuItem! setEnabled(boolean);
     method public void setExclusiveCheckable(boolean);
     method public android.view.MenuItem! setIcon(android.graphics.drawable.Drawable!);
     method public android.view.MenuItem! setIcon(int);
-    method public android.view.MenuItem! setIconTintList(android.content.res.ColorStateList!);
-    method public android.view.MenuItem! setIconTintMode(android.graphics.PorterDuff.Mode!);
     method public android.view.MenuItem! setIntent(android.content.Intent!);
     method public android.view.MenuItem! setNumericShortcut(char);
-    method public android.view.MenuItem! setNumericShortcut(char, int);
     method public android.view.MenuItem! setOnActionExpandListener(android.view.MenuItem.OnActionExpandListener!);
     method public android.view.MenuItem! setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
     method public android.view.MenuItem! setShortcut(char, char);
-    method public android.view.MenuItem! setShortcut(char, char, int, int);
     method public void setShowAsAction(int);
     method public android.view.MenuItem! setShowAsActionFlags(int);
     method public android.view.MenuItem! setTitle(CharSequence!);
     method public android.view.MenuItem! setTitle(int);
     method public android.view.MenuItem! setTitleCondensed(CharSequence!);
-    method public android.view.MenuItem! setTooltipText(CharSequence!);
     method public android.view.MenuItem! setVisible(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MenuPopupHelper {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MenuPopupHelper {
     ctor public MenuPopupHelper(android.content.Context, androidx.appcompat.view.menu.MenuBuilder);
     ctor public MenuPopupHelper(android.content.Context, androidx.appcompat.view.menu.MenuBuilder, android.view.View);
     ctor public MenuPopupHelper(android.content.Context, androidx.appcompat.view.menu.MenuBuilder, android.view.View, boolean, @AttrRes int);
@@ -749,7 +1087,7 @@ package androidx.appcompat.view.menu {
     method public boolean tryShow(int, int);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface MenuPresenter {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface MenuPresenter {
     method public boolean collapseItemActionView(androidx.appcompat.view.menu.MenuBuilder!, androidx.appcompat.view.menu.MenuItemImpl!);
     method public boolean expandItemActionView(androidx.appcompat.view.menu.MenuBuilder!, androidx.appcompat.view.menu.MenuItemImpl!);
     method public boolean flagActionItems();
@@ -769,7 +1107,7 @@ package androidx.appcompat.view.menu {
     method public boolean onOpenSubMenu(androidx.appcompat.view.menu.MenuBuilder!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface MenuView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface MenuView {
     method public int getWindowAnimations();
     method public void initialize(androidx.appcompat.view.menu.MenuBuilder!);
   }
@@ -787,20 +1125,20 @@ package androidx.appcompat.view.menu {
     method public boolean showsIcon();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class MenuWrapperFactory {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class MenuWrapperFactory {
     method public static android.view.Menu! wrapSupportMenu(android.content.Context!, androidx.core.internal.view.SupportMenu!);
     method public static android.view.MenuItem! wrapSupportMenuItem(android.content.Context!, androidx.core.internal.view.SupportMenuItem!);
     method public static android.view.SubMenu! wrapSupportSubMenu(android.content.Context!, androidx.core.internal.view.SupportSubMenu!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface ShowableListMenu {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface ShowableListMenu {
     method public void dismiss();
     method public android.widget.ListView! getListView();
     method public boolean isShowing();
     method public void show();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SubMenuBuilder extends androidx.appcompat.view.menu.MenuBuilder {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SubMenuBuilder extends androidx.appcompat.view.menu.MenuBuilder implements android.view.SubMenu {
     ctor public SubMenuBuilder(android.content.Context!, androidx.appcompat.view.menu.MenuBuilder!, androidx.appcompat.view.menu.MenuItemImpl!);
     method public String! getActionViewStatesKey();
     method public android.view.MenuItem! getItem();
@@ -819,30 +1157,21 @@ package androidx.appcompat.view.menu {
 
 package androidx.appcompat.widget {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ActionBarContainer {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ActionBarContainer extends android.widget.FrameLayout {
     ctor public ActionBarContainer(android.content.Context!);
     ctor public ActionBarContainer(android.content.Context!, android.util.AttributeSet!);
-    method protected void drawableStateChanged();
     method public android.view.View! getTabContainer();
-    method public void jumpDrawablesToCurrentState();
     method public void onFinishInflate();
-    method public boolean onHoverEvent(android.view.MotionEvent!);
-    method public boolean onInterceptTouchEvent(android.view.MotionEvent!);
     method public void onLayout(boolean, int, int, int, int);
     method public void onMeasure(int, int);
-    method public boolean onTouchEvent(android.view.MotionEvent!);
     method public void setPrimaryBackground(android.graphics.drawable.Drawable!);
     method public void setSplitBackground(android.graphics.drawable.Drawable!);
     method public void setStackedBackground(android.graphics.drawable.Drawable!);
     method public void setTabContainer(androidx.appcompat.widget.ScrollingTabContainerView!);
     method public void setTransitioning(boolean);
-    method public void setVisibility(int);
-    method public android.view.ActionMode! startActionModeForChild(android.view.View!, android.view.ActionMode.Callback!);
-    method public android.view.ActionMode! startActionModeForChild(android.view.View!, android.view.ActionMode.Callback!, int);
-    method protected boolean verifyDrawable(android.graphics.drawable.Drawable!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ActionBarContextView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ActionBarContextView extends android.view.ViewGroup {
     ctor public ActionBarContextView(android.content.Context!);
     ctor public ActionBarContextView(android.content.Context!, android.util.AttributeSet!);
     ctor public ActionBarContextView(android.content.Context!, android.util.AttributeSet!, int);
@@ -850,8 +1179,6 @@ package androidx.appcompat.widget {
     method public boolean canShowOverflowMenu();
     method public void closeMode();
     method public void dismissPopupMenus();
-    method protected android.view.ViewGroup.LayoutParams! generateDefaultLayoutParams();
-    method public android.view.ViewGroup.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
     method public int getAnimatedVisibility();
     method public int getContentHeight();
     method public CharSequence! getSubtitle();
@@ -864,36 +1191,25 @@ package androidx.appcompat.widget {
     method public boolean isTitleOptional();
     method public void killMode();
     method public void onDetachedFromWindow();
-    method public boolean onHoverEvent(android.view.MotionEvent!);
-    method public void onInitializeAccessibilityEvent(android.view.accessibility.AccessibilityEvent!);
-    method protected void onLayout(boolean, int, int, int, int);
-    method protected void onMeasure(int, int);
-    method public boolean onTouchEvent(android.view.MotionEvent!);
     method public void postShowOverflowMenu();
     method public void setContentHeight(int);
     method public void setCustomView(android.view.View!);
     method public void setSubtitle(CharSequence!);
     method public void setTitle(CharSequence!);
     method public void setTitleOptional(boolean);
-    method public void setVisibility(int);
     method public androidx.core.view.ViewPropertyAnimatorCompat! setupAnimatorToVisibility(int, long);
-    method public boolean shouldDelayChildPressedState();
     method public boolean showOverflowMenu();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ActionBarOverlayLayout implements androidx.appcompat.widget.DecorContentParent {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ActionBarOverlayLayout extends android.view.ViewGroup implements androidx.appcompat.widget.DecorContentParent androidx.core.view.NestedScrollingParent {
     ctor public ActionBarOverlayLayout(android.content.Context!);
     ctor public ActionBarOverlayLayout(android.content.Context!, android.util.AttributeSet!);
     method public boolean canShowOverflowMenu();
-    method protected boolean checkLayoutParams(android.view.ViewGroup.LayoutParams!);
     method public void dismissPopups();
-    method public void draw(android.graphics.Canvas!);
     method protected boolean fitSystemWindows(android.graphics.Rect!);
     method protected androidx.appcompat.widget.ActionBarOverlayLayout.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.ActionBarOverlayLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
-    method protected android.view.ViewGroup.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
     method public int getActionBarHideOffset();
-    method public int getNestedScrollAxes();
     method public CharSequence! getTitle();
     method public boolean hasIcon();
     method public boolean hasLogo();
@@ -903,21 +1219,8 @@ package androidx.appcompat.widget {
     method public boolean isInOverlayMode();
     method public boolean isOverflowMenuShowPending();
     method public boolean isOverflowMenuShowing();
-    method protected void onConfigurationChanged(android.content.res.Configuration!);
-    method protected void onDetachedFromWindow();
-    method protected void onLayout(boolean, int, int, int, int);
-    method protected void onMeasure(int, int);
-    method public boolean onNestedFling(android.view.View!, float, float, boolean);
-    method public boolean onNestedPreFling(android.view.View!, float, float);
-    method public void onNestedPreScroll(android.view.View!, int, int, int[]!);
-    method public void onNestedScroll(android.view.View!, int, int, int, int);
-    method public void onNestedScrollAccepted(android.view.View!, android.view.View!, int);
-    method public boolean onStartNestedScroll(android.view.View!, android.view.View!, int);
-    method public void onStopNestedScroll(android.view.View!);
-    method public void onWindowSystemUiVisibilityChanged(int);
-    method protected void onWindowVisibilityChanged(int);
-    method public void restoreToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
-    method public void saveToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
+    method public void restoreToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
+    method public void saveToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
     method public void setActionBarHideOffset(int);
     method public void setActionBarVisibilityCallback(androidx.appcompat.widget.ActionBarOverlayLayout.ActionBarVisibilityCallback!);
     method public void setHasNonEmbeddedTabs(boolean);
@@ -932,7 +1235,6 @@ package androidx.appcompat.widget {
     method public void setUiOptions(int);
     method public void setWindowCallback(android.view.Window.Callback!);
     method public void setWindowTitle(CharSequence!);
-    method public boolean shouldDelayChildPressedState();
     method public boolean showOverflowMenu();
   }
 
@@ -945,7 +1247,7 @@ package androidx.appcompat.widget {
     method public void showForSystem();
   }
 
-  public static class ActionBarOverlayLayout.LayoutParams {
+  public static class ActionBarOverlayLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
     ctor public ActionBarOverlayLayout.LayoutParams(android.content.Context!, android.util.AttributeSet!);
     ctor public ActionBarOverlayLayout.LayoutParams(int, int);
     ctor public ActionBarOverlayLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
@@ -953,85 +1255,129 @@ package androidx.appcompat.widget {
   }
 
   public class ActionMenuView extends androidx.appcompat.widget.LinearLayoutCompat implements androidx.appcompat.view.menu.MenuBuilder.ItemInvoker androidx.appcompat.view.menu.MenuView {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.appcompat.widget.ActionMenuView.LayoutParams! generateOverflowButtonLayoutParams();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getWindowAnimations();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected boolean hasSupportDividerBeforeChildAt(int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void initialize(androidx.appcompat.view.menu.MenuBuilder!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean invokeItem(androidx.appcompat.view.menu.MenuItemImpl!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isOverflowMenuShowPending();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isOverflowReserved();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.appcompat.view.menu.MenuBuilder! peekMenu();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setExpandedActionViewsExclusive(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setMenuCallbacks(androidx.appcompat.view.menu.MenuPresenter.Callback!, androidx.appcompat.view.menu.MenuBuilder.Callback!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setOverflowReserved(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setPresenter(androidx.appcompat.widget.ActionMenuPresenter!);
+    ctor public ActionMenuView(android.content.Context!);
+    ctor public ActionMenuView(android.content.Context!, android.util.AttributeSet!);
+    method public void dismissPopupMenus();
+    method protected androidx.appcompat.widget.ActionMenuView.LayoutParams! generateDefaultLayoutParams();
+    method public androidx.appcompat.widget.ActionMenuView.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.ActionMenuView.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.appcompat.widget.ActionMenuView.LayoutParams! generateOverflowButtonLayoutParams();
+    method public android.view.Menu! getMenu();
+    method public android.graphics.drawable.Drawable? getOverflowIcon();
+    method public int getPopupTheme();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getWindowAnimations();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected boolean hasSupportDividerBeforeChildAt(int);
+    method public boolean hideOverflowMenu();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void initialize(androidx.appcompat.view.menu.MenuBuilder!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean invokeItem(androidx.appcompat.view.menu.MenuItemImpl!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isOverflowMenuShowPending();
+    method public boolean isOverflowMenuShowing();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isOverflowReserved();
+    method public void onConfigurationChanged(android.content.res.Configuration!);
+    method public void onDetachedFromWindow();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.appcompat.view.menu.MenuBuilder! peekMenu();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setExpandedActionViewsExclusive(boolean);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setMenuCallbacks(androidx.appcompat.view.menu.MenuPresenter.Callback!, androidx.appcompat.view.menu.MenuBuilder.Callback!);
+    method public void setOnMenuItemClickListener(androidx.appcompat.widget.ActionMenuView.OnMenuItemClickListener!);
+    method public void setOverflowIcon(android.graphics.drawable.Drawable?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setOverflowReserved(boolean);
+    method public void setPopupTheme(@StyleRes int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setPresenter(androidx.appcompat.widget.ActionMenuPresenter!);
+    method public boolean showOverflowMenu();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static interface ActionMenuView.ActionMenuChildView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface ActionMenuView.ActionMenuChildView {
     method public boolean needsDividerAfter();
     method public boolean needsDividerBefore();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ActivityChooserView {
+  public static class ActionMenuView.LayoutParams extends androidx.appcompat.widget.LinearLayoutCompat.LayoutParams {
+    ctor public ActionMenuView.LayoutParams(android.content.Context!, android.util.AttributeSet!);
+    ctor public ActionMenuView.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public ActionMenuView.LayoutParams(androidx.appcompat.widget.ActionMenuView.LayoutParams!);
+    ctor public ActionMenuView.LayoutParams(int, int);
+    field @android.view.ViewDebug.ExportedProperty public int cellsUsed;
+    field @android.view.ViewDebug.ExportedProperty public boolean expandable;
+    field @android.view.ViewDebug.ExportedProperty public int extraPixels;
+    field @android.view.ViewDebug.ExportedProperty public boolean isOverflowButton;
+    field @android.view.ViewDebug.ExportedProperty public boolean preventEdgeOffset;
+  }
+
+  public static interface ActionMenuView.OnMenuItemClickListener {
+    method public boolean onMenuItemClick(android.view.MenuItem!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ActivityChooserView extends android.view.ViewGroup {
     ctor public ActivityChooserView(android.content.Context!);
     ctor public ActivityChooserView(android.content.Context!, android.util.AttributeSet!);
     ctor public ActivityChooserView(android.content.Context!, android.util.AttributeSet!, int);
     method public boolean dismissPopup();
     method public androidx.appcompat.widget.ActivityChooserModel! getDataModel();
     method public boolean isShowingPopup();
-    method protected void onAttachedToWindow();
-    method protected void onDetachedFromWindow();
-    method protected void onLayout(boolean, int, int, int, int);
-    method protected void onMeasure(int, int);
     method public void setActivityChooserModel(androidx.appcompat.widget.ActivityChooserModel!);
     method public void setDefaultActionButtonContentDescription(int);
     method public void setExpandActivityOverflowButtonContentDescription(int);
     method public void setExpandActivityOverflowButtonDrawable(android.graphics.drawable.Drawable!);
     method public void setInitialActivityCount(int);
     method public void setOnDismissListener(android.widget.PopupWindow.OnDismissListener!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setProvider(androidx.core.view.ActionProvider!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setProvider(androidx.core.view.ActionProvider!);
     method public boolean showPopup();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class ActivityChooserView.InnerLayout {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class ActivityChooserView.InnerLayout extends android.widget.LinearLayout {
     ctor public ActivityChooserView.InnerLayout(android.content.Context!, android.util.AttributeSet!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class AlertDialogLayout extends androidx.appcompat.widget.LinearLayoutCompat {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class AlertDialogLayout extends androidx.appcompat.widget.LinearLayoutCompat {
     ctor public AlertDialogLayout(android.content.Context?);
     ctor public AlertDialogLayout(android.content.Context?, android.util.AttributeSet?);
   }
 
-  public class AppCompatAutoCompleteTextView {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
+    ctor public AppCompatAutoCompleteTextView(android.content.Context!);
+    ctor public AppCompatAutoCompleteTextView(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatAutoCompleteTextView(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatButton {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeMaxTextSize();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeMinTextSize();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeStepGranularity();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int[]! getAutoSizeTextAvailableSizes();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeTextType();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setAutoSizeTextTypeWithDefaults(int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatButton extends android.widget.Button implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView {
+    ctor public AppCompatButton(android.content.Context!);
+    ctor public AppCompatButton(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatButton(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method public void setSupportAllCaps(boolean);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatCheckBox {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportButtonTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportButtonTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.core.widget.TintableCompoundButton {
+    ctor public AppCompatCheckBox(android.content.Context!);
+    ctor public AppCompatCheckBox(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatCheckBox(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportButtonTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class AppCompatDrawableManager {
+  public class AppCompatCheckedTextView extends android.widget.CheckedTextView {
+    ctor public AppCompatCheckedTextView(android.content.Context!);
+    ctor public AppCompatCheckedTextView(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatCheckedTextView(android.content.Context!, android.util.AttributeSet!, int);
+    method public void setTextAppearance(android.content.Context!, int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class AppCompatDrawableManager {
     ctor public AppCompatDrawableManager();
     method public static androidx.appcompat.widget.AppCompatDrawableManager! get();
     method public android.graphics.drawable.Drawable! getDrawable(android.content.Context, @DrawableRes int);
@@ -1039,108 +1385,132 @@ package androidx.appcompat.widget {
     method public void onConfigurationChanged(android.content.Context);
   }
 
-  public class AppCompatEditText {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatEditText extends android.widget.EditText implements androidx.core.view.TintableBackgroundView {
+    ctor public AppCompatEditText(android.content.Context!);
+    ctor public AppCompatEditText(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatEditText(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatImageButton {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportImageTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportImageTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatImageButton extends android.widget.ImageButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+    ctor public AppCompatImageButton(android.content.Context!);
+    ctor public AppCompatImageButton(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatImageButton(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportImageTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class AppCompatImageHelper {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class AppCompatImageHelper {
     ctor public AppCompatImageHelper(android.widget.ImageView!);
     method public void loadFromAttributes(android.util.AttributeSet!, int);
     method public void setImageResource(int);
   }
 
-  public class AppCompatImageView {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportImageTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportImageTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatImageView extends android.widget.ImageView implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableImageSourceView {
+    ctor public AppCompatImageView(android.content.Context!);
+    ctor public AppCompatImageView(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatImageView(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportImageTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportImageTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatMultiAutoCompleteTextView {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.core.view.TintableBackgroundView {
+    ctor public AppCompatMultiAutoCompleteTextView(android.content.Context!);
+    ctor public AppCompatMultiAutoCompleteTextView(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatMultiAutoCompleteTextView(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatRadioButton {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportButtonTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportButtonTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.widget.TintableCompoundButton {
+    ctor public AppCompatRadioButton(android.content.Context!);
+    ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportButtonTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatSpinner {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatRatingBar extends android.widget.RatingBar {
+    ctor public AppCompatRatingBar(android.content.Context!);
+    ctor public AppCompatRatingBar(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatRatingBar(android.content.Context!, android.util.AttributeSet!, int);
   }
 
-  public class AppCompatTextView {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeMaxTextSize();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeMinTextSize();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeStepGranularity();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int[]! getAutoSizeTextAvailableSizes();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getAutoSizeTextType();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.content.res.ColorStateList? getSupportBackgroundTintList();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setAutoSizeTextTypeWithDefaults(int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+  public class AppCompatSeekBar extends android.widget.SeekBar {
+    ctor public AppCompatSeekBar(android.content.Context!);
+    ctor public AppCompatSeekBar(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatSeekBar(android.content.Context!, android.util.AttributeSet!, int);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ButtonBarLayout {
+  public class AppCompatSpinner extends android.widget.Spinner implements androidx.core.view.TintableBackgroundView {
+    ctor public AppCompatSpinner(android.content.Context!);
+    ctor public AppCompatSpinner(android.content.Context!, int);
+    ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!, int, int);
+    ctor public AppCompatSpinner(android.content.Context!, android.util.AttributeSet!, int, int, android.content.res.Resources.Theme!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+  }
+
+  public class AppCompatTextView extends android.widget.TextView implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView {
+    ctor public AppCompatTextView(android.content.Context!);
+    ctor public AppCompatTextView(android.content.Context!, android.util.AttributeSet!);
+    ctor public AppCompatTextView(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method public androidx.core.text.PrecomputedTextCompat.Params getTextMetricsParamsCompat();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method public void setPrecomputedText(androidx.core.text.PrecomputedTextCompat);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method public void setTextAppearance(android.content.Context!, int);
+    method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat!>);
+    method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ButtonBarLayout extends android.widget.LinearLayout {
     ctor public ButtonBarLayout(android.content.Context!, android.util.AttributeSet!);
-    method public int getMinimumHeight();
-    method protected void onMeasure(int, int);
     method public void setAllowStacking(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class ContentFrameLayout {
-    ctor public ContentFrameLayout(android.content.Context!);
-    ctor public ContentFrameLayout(android.content.Context!, android.util.AttributeSet!);
-    ctor public ContentFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void dispatchFitSystemWindows(android.graphics.Rect!);
-    method public android.util.TypedValue! getFixedHeightMajor();
-    method public android.util.TypedValue! getFixedHeightMinor();
-    method public android.util.TypedValue! getFixedWidthMajor();
-    method public android.util.TypedValue! getFixedWidthMinor();
-    method public android.util.TypedValue! getMinWidthMajor();
-    method public android.util.TypedValue! getMinWidthMinor();
-    method protected void onAttachedToWindow();
-    method protected void onDetachedFromWindow();
-    method protected void onMeasure(int, int);
-    method public void setAttachListener(androidx.appcompat.widget.ContentFrameLayout.OnAttachListener!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setDecorPadding(int, int, int, int);
-  }
 
   public static interface ContentFrameLayout.OnAttachListener {
     method public void onAttachedFromWindow();
     method public void onDetachedFromWindow();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface DecorContentParent {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface DecorContentParent {
     method public boolean canShowOverflowMenu();
     method public void dismissPopups();
     method public CharSequence! getTitle();
@@ -1150,8 +1520,8 @@ package androidx.appcompat.widget {
     method public void initFeature(int);
     method public boolean isOverflowMenuShowPending();
     method public boolean isOverflowMenuShowing();
-    method public void restoreToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
-    method public void saveToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
+    method public void restoreToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
+    method public void saveToolbarHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
     method public void setIcon(int);
     method public void setIcon(android.graphics.drawable.Drawable!);
     method public void setLogo(int);
@@ -1163,7 +1533,7 @@ package androidx.appcompat.widget {
     method public boolean showOverflowMenu();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface DecorToolbar {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface DecorToolbar {
     method public void animateToVisibility(int);
     method public boolean canShowOverflowMenu();
     method public void collapseActionView();
@@ -1190,8 +1560,8 @@ package androidx.appcompat.widget {
     method public boolean isOverflowMenuShowPending();
     method public boolean isOverflowMenuShowing();
     method public boolean isTitleTruncated();
-    method public void restoreHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
-    method public void saveHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
+    method public void restoreHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
+    method public void saveHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
     method public void setCollapsible(boolean);
     method public void setCustomView(android.view.View!);
@@ -1223,36 +1593,34 @@ package androidx.appcompat.widget {
     method public boolean showOverflowMenu();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class DialogTitle {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class DialogTitle extends android.widget.TextView {
     ctor public DialogTitle(android.content.Context!, android.util.AttributeSet!, int);
     ctor public DialogTitle(android.content.Context!, android.util.AttributeSet!);
     ctor public DialogTitle(android.content.Context!);
-    method protected void onMeasure(int, int);
-    method public void setCustomSelectionActionModeCallback(android.view.ActionMode.Callback!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class DrawableUtils {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class DrawableUtils {
     method public static boolean canSafelyMutateDrawable(android.graphics.drawable.Drawable);
     method public static android.graphics.Rect! getOpticalBounds(android.graphics.drawable.Drawable!);
     method public static android.graphics.PorterDuff.Mode! parseTintMode(int, android.graphics.PorterDuff.Mode!);
     field public static final android.graphics.Rect! INSETS_NONE;
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class FitWindowsFrameLayout implements androidx.appcompat.widget.FitWindowsViewGroup {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class FitWindowsFrameLayout extends android.widget.FrameLayout implements androidx.appcompat.widget.FitWindowsViewGroup {
     ctor public FitWindowsFrameLayout(android.content.Context!);
     ctor public FitWindowsFrameLayout(android.content.Context!, android.util.AttributeSet!);
     method protected boolean fitSystemWindows(android.graphics.Rect!);
     method public void setOnFitSystemWindowsListener(androidx.appcompat.widget.FitWindowsViewGroup.OnFitSystemWindowsListener!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class FitWindowsLinearLayout implements androidx.appcompat.widget.FitWindowsViewGroup {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class FitWindowsLinearLayout extends android.widget.LinearLayout implements androidx.appcompat.widget.FitWindowsViewGroup {
     ctor public FitWindowsLinearLayout(android.content.Context!);
     ctor public FitWindowsLinearLayout(android.content.Context!, android.util.AttributeSet!);
     method protected boolean fitSystemWindows(android.graphics.Rect!);
     method public void setOnFitSystemWindowsListener(androidx.appcompat.widget.FitWindowsViewGroup.OnFitSystemWindowsListener!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface FitWindowsViewGroup {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface FitWindowsViewGroup {
     method public void setOnFitSystemWindowsListener(androidx.appcompat.widget.FitWindowsViewGroup.OnFitSystemWindowsListener!);
   }
 
@@ -1260,7 +1628,7 @@ package androidx.appcompat.widget {
     method public void onFitSystemWindows(android.graphics.Rect!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class ForwardingListener {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class ForwardingListener implements android.view.View.OnAttachStateChangeListener android.view.View.OnTouchListener {
     ctor public ForwardingListener(android.view.View!);
     method public abstract androidx.appcompat.view.menu.ShowableListMenu! getPopup();
     method protected boolean onForwardingStarted();
@@ -1270,35 +1638,132 @@ package androidx.appcompat.widget {
     method public void onViewDetachedFromWindow(android.view.View!);
   }
 
-  public class LinearLayoutCompat {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getDividerWidth();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) protected boolean hasDividerBeforeChildAt(int);
+  public class LinearLayoutCompat extends android.view.ViewGroup {
+    ctor public LinearLayoutCompat(android.content.Context!);
+    ctor public LinearLayoutCompat(android.content.Context!, android.util.AttributeSet!);
+    ctor public LinearLayoutCompat(android.content.Context!, android.util.AttributeSet!, int);
+    method protected androidx.appcompat.widget.LinearLayoutCompat.LayoutParams! generateDefaultLayoutParams();
+    method public androidx.appcompat.widget.LinearLayoutCompat.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.LinearLayoutCompat.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
+    method public int getBaselineAlignedChildIndex();
+    method public android.graphics.drawable.Drawable! getDividerDrawable();
+    method public int getDividerPadding();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public int getDividerWidth();
+    method public int getGravity();
+    method @androidx.appcompat.widget.LinearLayoutCompat.OrientationMode public int getOrientation();
+    method @androidx.appcompat.widget.LinearLayoutCompat.DividerMode public int getShowDividers();
+    method public float getWeightSum();
+    method public boolean isBaselineAligned();
+    method public boolean isMeasureWithLargestChildEnabled();
+    method public void setBaselineAligned(boolean);
+    method public void setBaselineAlignedChildIndex(int);
+    method public void setDividerDrawable(android.graphics.drawable.Drawable!);
+    method public void setDividerPadding(int);
+    method public void setGravity(int);
+    method public void setHorizontalGravity(int);
+    method public void setMeasureWithLargestChildEnabled(boolean);
+    method public void setOrientation(@androidx.appcompat.widget.LinearLayoutCompat.OrientationMode int);
+    method public void setShowDividers(@androidx.appcompat.widget.LinearLayoutCompat.DividerMode int);
+    method public void setVerticalGravity(int);
+    method public void setWeightSum(float);
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int SHOW_DIVIDER_BEGINNING = 1; // 0x1
+    field public static final int SHOW_DIVIDER_END = 4; // 0x4
+    field public static final int SHOW_DIVIDER_MIDDLE = 2; // 0x2
+    field public static final int SHOW_DIVIDER_NONE = 0; // 0x0
+    field public static final int VERTICAL = 1; // 0x1
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface LinearLayoutCompat.DividerMode {
+  @IntDef(flag=true, value={androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_NONE, androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_BEGINNING, androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_MIDDLE, androidx.appcompat.widget.LinearLayoutCompat.SHOW_DIVIDER_END}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface LinearLayoutCompat.DividerMode {
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface LinearLayoutCompat.OrientationMode {
+  public static class LinearLayoutCompat.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public LinearLayoutCompat.LayoutParams(android.content.Context!, android.util.AttributeSet!);
+    ctor public LinearLayoutCompat.LayoutParams(int, int);
+    ctor public LinearLayoutCompat.LayoutParams(int, int, float);
+    ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    ctor public LinearLayoutCompat.LayoutParams(androidx.appcompat.widget.LinearLayoutCompat.LayoutParams!);
+    field public int gravity;
+    field public float weight;
+  }
+
+  @IntDef({androidx.appcompat.widget.LinearLayoutCompat.HORIZONTAL, androidx.appcompat.widget.LinearLayoutCompat.VERTICAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface LinearLayoutCompat.OrientationMode {
   }
 
   public class ListPopupWindow implements androidx.appcompat.view.menu.ShowableListMenu {
+    ctor public ListPopupWindow(android.content.Context);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet?);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet?, @AttrRes int);
+    ctor public ListPopupWindow(android.content.Context, android.util.AttributeSet?, @AttrRes int, @StyleRes int);
+    method public void clearListSelection();
+    method public android.view.View.OnTouchListener! createDragToOpenListener(android.view.View!);
     method public void dismiss();
+    method public android.view.View? getAnchorView();
+    method @StyleRes public int getAnimationStyle();
+    method public android.graphics.drawable.Drawable? getBackground();
+    method public int getHeight();
+    method public int getHorizontalOffset();
+    method public int getInputMethodMode();
     method public android.widget.ListView? getListView();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isDropDownAlwaysVisible();
+    method public int getPromptPosition();
+    method public Object? getSelectedItem();
+    method public long getSelectedItemId();
+    method public int getSelectedItemPosition();
+    method public android.view.View? getSelectedView();
+    method public int getSoftInputMode();
+    method public int getVerticalOffset();
+    method public int getWidth();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isDropDownAlwaysVisible();
+    method public boolean isInputMethodNotNeeded();
+    method public boolean isModal();
     method public boolean isShowing();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setDropDownAlwaysVisible(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setEpicenterBounds(android.graphics.Rect!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setForceIgnoreOutsideTouch(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setOverlapAnchor(boolean);
+    method public boolean onKeyDown(int, android.view.KeyEvent);
+    method public boolean onKeyPreIme(int, android.view.KeyEvent);
+    method public boolean onKeyUp(int, android.view.KeyEvent);
+    method public boolean performItemClick(int);
+    method public void postShow();
+    method public void setAdapter(android.widget.ListAdapter?);
+    method public void setAnchorView(android.view.View?);
+    method public void setAnimationStyle(@StyleRes int);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method public void setContentWidth(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setDropDownAlwaysVisible(boolean);
+    method public void setDropDownGravity(int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setEpicenterBounds(android.graphics.Rect!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setForceIgnoreOutsideTouch(boolean);
+    method public void setHeight(int);
+    method public void setHorizontalOffset(int);
+    method public void setInputMethodMode(int);
+    method public void setListSelector(android.graphics.drawable.Drawable!);
+    method public void setModal(boolean);
+    method public void setOnDismissListener(android.widget.PopupWindow.OnDismissListener?);
+    method public void setOnItemClickListener(android.widget.AdapterView.OnItemClickListener?);
+    method public void setOnItemSelectedListener(android.widget.AdapterView.OnItemSelectedListener?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setOverlapAnchor(boolean);
+    method public void setPromptPosition(int);
+    method public void setPromptView(android.view.View?);
+    method public void setSelection(int);
+    method public void setSoftInputMode(int);
+    method public void setVerticalOffset(int);
+    method public void setWidth(int);
+    method public void setWindowLayoutType(int);
     method public void show();
+    field public static final int INPUT_METHOD_FROM_FOCUSABLE = 0; // 0x0
+    field public static final int INPUT_METHOD_NEEDED = 1; // 0x1
+    field public static final int INPUT_METHOD_NOT_NEEDED = 2; // 0x2
+    field public static final int MATCH_PARENT = -1; // 0xffffffff
+    field public static final int POSITION_PROMPT_ABOVE = 0; // 0x0
+    field public static final int POSITION_PROMPT_BELOW = 1; // 0x1
+    field public static final int WRAP_CONTENT = -2; // 0xfffffffe
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface MenuItemHoverListener {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface MenuItemHoverListener {
     method public void onItemHoverEnter(androidx.appcompat.view.menu.MenuBuilder, android.view.MenuItem);
     method public void onItemHoverExit(androidx.appcompat.view.menu.MenuBuilder, android.view.MenuItem);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MenuPopupWindow extends androidx.appcompat.widget.ListPopupWindow implements androidx.appcompat.widget.MenuItemHoverListener {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MenuPopupWindow extends androidx.appcompat.widget.ListPopupWindow implements androidx.appcompat.widget.MenuItemHoverListener {
     ctor public MenuPopupWindow(android.content.Context!, android.util.AttributeSet!, int, int);
     method public void onItemHoverEnter(androidx.appcompat.view.menu.MenuBuilder, android.view.MenuItem);
     method public void onItemHoverExit(androidx.appcompat.view.menu.MenuBuilder, android.view.MenuItem);
@@ -1308,31 +1773,48 @@ package androidx.appcompat.widget {
     method public void setTouchModal(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class MenuPopupWindow.MenuDropDownListView {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class MenuPopupWindow.MenuDropDownListView extends android.widget.ListView {
     ctor public MenuPopupWindow.MenuDropDownListView(android.content.Context!, boolean);
     method public void clearSelection();
-    method public boolean hasFocus();
-    method public boolean hasWindowFocus();
-    method public boolean isFocused();
-    method public boolean isInTouchMode();
     method public int lookForSelectablePosition(int, boolean);
     method public int measureHeightOfChildrenCompat(int, int, int, int, int);
     method public boolean onForwardedEvent(android.view.MotionEvent!, int);
-    method public boolean onHoverEvent(android.view.MotionEvent!);
-    method public boolean onKeyDown(int, android.view.KeyEvent!);
-    method public boolean onTouchEvent(android.view.MotionEvent!);
     method public void setHoverListener(androidx.appcompat.widget.MenuItemHoverListener!);
-    method public void setSelector(android.graphics.drawable.Drawable!);
+    field public static final int INVALID_POSITION = -1; // 0xffffffff
+    field public static final int NO_POSITION = -1; // 0xffffffff
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ScrollingTabContainerView {
+  public class PopupMenu {
+    ctor public PopupMenu(android.content.Context, android.view.View);
+    ctor public PopupMenu(android.content.Context, android.view.View, int);
+    ctor public PopupMenu(android.content.Context, android.view.View, int, @AttrRes int, @StyleRes int);
+    method public void dismiss();
+    method public android.view.View.OnTouchListener getDragToOpenListener();
+    method public int getGravity();
+    method public android.view.Menu getMenu();
+    method public android.view.MenuInflater getMenuInflater();
+    method public void inflate(@MenuRes int);
+    method public void setGravity(int);
+    method public void setOnDismissListener(androidx.appcompat.widget.PopupMenu.OnDismissListener?);
+    method public void setOnMenuItemClickListener(androidx.appcompat.widget.PopupMenu.OnMenuItemClickListener?);
+    method public void show();
+  }
+
+  public static interface PopupMenu.OnDismissListener {
+    method public void onDismiss(androidx.appcompat.widget.PopupMenu!);
+  }
+
+  public static interface PopupMenu.OnMenuItemClickListener {
+    method public boolean onMenuItemClick(android.view.MenuItem!);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ScrollingTabContainerView extends android.widget.HorizontalScrollView implements android.widget.AdapterView.OnItemSelectedListener {
     ctor public ScrollingTabContainerView(android.content.Context!);
     method public void addTab(androidx.appcompat.app.ActionBar.Tab!, boolean);
     method public void addTab(androidx.appcompat.app.ActionBar.Tab!, int, boolean);
     method public void animateToTab(int);
     method public void animateToVisibility(int);
     method public void onAttachedToWindow();
-    method protected void onConfigurationChanged(android.content.res.Configuration!);
     method public void onDetachedFromWindow();
     method public void onItemSelected(android.widget.AdapterView<?>!, android.view.View!, int, long);
     method public void onMeasure(int, int);
@@ -1347,41 +1829,134 @@ package androidx.appcompat.widget {
     field protected android.view.ViewPropertyAnimator! mVisibilityAnim;
   }
 
-  protected class ScrollingTabContainerView.VisibilityAnimListener {
+  protected class ScrollingTabContainerView.VisibilityAnimListener extends android.animation.AnimatorListenerAdapter {
     ctor protected ScrollingTabContainerView.VisibilityAnimListener();
-    method public void onAnimationCancel(android.animation.Animator!);
-    method public void onAnimationEnd(android.animation.Animator!);
-    method public void onAnimationStart(android.animation.Animator!);
     method public androidx.appcompat.widget.ScrollingTabContainerView.VisibilityAnimListener! withFinalVisibility(android.view.ViewPropertyAnimator!, int);
   }
 
   public class SearchView extends androidx.appcompat.widget.LinearLayoutCompat implements androidx.appcompat.view.CollapsibleActionView {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setAppSearchData(android.os.Bundle!);
+    ctor public SearchView(android.content.Context!);
+    ctor public SearchView(android.content.Context!, android.util.AttributeSet!);
+    ctor public SearchView(android.content.Context!, android.util.AttributeSet!, int);
+    method public int getImeOptions();
+    method public int getInputType();
+    method public int getMaxWidth();
+    method public CharSequence! getQuery();
+    method public CharSequence? getQueryHint();
+    method public androidx.cursoradapter.widget.CursorAdapter! getSuggestionsAdapter();
+    method public boolean isIconfiedByDefault();
+    method public boolean isIconified();
+    method public boolean isQueryRefinementEnabled();
+    method public boolean isSubmitButtonEnabled();
+    method public void onActionViewCollapsed();
+    method public void onActionViewExpanded();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setAppSearchData(android.os.Bundle!);
+    method public void setIconified(boolean);
+    method public void setIconifiedByDefault(boolean);
+    method public void setImeOptions(int);
+    method public void setInputType(int);
+    method public void setMaxWidth(int);
+    method public void setOnCloseListener(androidx.appcompat.widget.SearchView.OnCloseListener!);
+    method public void setOnQueryTextFocusChangeListener(android.view.View.OnFocusChangeListener!);
+    method public void setOnQueryTextListener(androidx.appcompat.widget.SearchView.OnQueryTextListener!);
+    method public void setOnSearchClickListener(android.view.View.OnClickListener!);
+    method public void setOnSuggestionListener(androidx.appcompat.widget.SearchView.OnSuggestionListener!);
+    method public void setQuery(CharSequence!, boolean);
+    method public void setQueryHint(CharSequence?);
+    method public void setQueryRefinementEnabled(boolean);
+    method public void setSearchableInfo(android.app.SearchableInfo!);
+    method public void setSubmitButtonEnabled(boolean);
+    method public void setSuggestionsAdapter(androidx.cursoradapter.widget.CursorAdapter!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class SearchView.SearchAutoComplete extends androidx.appcompat.widget.AppCompatAutoCompleteTextView {
+  public static interface SearchView.OnCloseListener {
+    method public boolean onClose();
+  }
+
+  public static interface SearchView.OnQueryTextListener {
+    method public boolean onQueryTextChange(String!);
+    method public boolean onQueryTextSubmit(String!);
+  }
+
+  public static interface SearchView.OnSuggestionListener {
+    method public boolean onSuggestionClick(int);
+    method public boolean onSuggestionSelect(int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class SearchView.SearchAutoComplete extends androidx.appcompat.widget.AppCompatAutoCompleteTextView {
     ctor public SearchView.SearchAutoComplete(android.content.Context!);
     ctor public SearchView.SearchAutoComplete(android.content.Context!, android.util.AttributeSet!);
     ctor public SearchView.SearchAutoComplete(android.content.Context!, android.util.AttributeSet!, int);
-    method public boolean enoughToFilter();
-    method protected void onFinishInflate();
-    method protected void onFocusChanged(boolean, int, android.graphics.Rect!);
-    method public boolean onKeyPreIme(int, android.view.KeyEvent!);
-    method public void onWindowFocusChanged(boolean);
-    method public void performCompletion();
-    method protected void replaceText(CharSequence!);
-    method public void setThreshold(int);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class TintContextWrapper {
-    method public android.content.res.AssetManager! getAssets();
-    method public android.content.res.Resources! getResources();
-    method public android.content.res.Resources.Theme! getTheme();
-    method public void setTheme(int);
+  public class ShareActionProvider extends androidx.core.view.ActionProvider {
+    ctor public ShareActionProvider(android.content.Context!);
+    method public android.view.View! onCreateActionView();
+    method public void setOnShareTargetSelectedListener(androidx.appcompat.widget.ShareActionProvider.OnShareTargetSelectedListener!);
+    method public void setShareHistoryFileName(String!);
+    method public void setShareIntent(android.content.Intent!);
+    field public static final String DEFAULT_SHARE_HISTORY_FILE_NAME = "share_history.xml";
+  }
+
+  public static interface ShareActionProvider.OnShareTargetSelectedListener {
+    method public boolean onShareTargetSelected(androidx.appcompat.widget.ShareActionProvider!, android.content.Intent!);
+  }
+
+  public class SwitchCompat extends android.widget.CompoundButton {
+    ctor public SwitchCompat(android.content.Context!);
+    ctor public SwitchCompat(android.content.Context!, android.util.AttributeSet!);
+    ctor public SwitchCompat(android.content.Context!, android.util.AttributeSet!, int);
+    method public boolean getShowText();
+    method public boolean getSplitTrack();
+    method public int getSwitchMinWidth();
+    method public int getSwitchPadding();
+    method public CharSequence! getTextOff();
+    method public CharSequence! getTextOn();
+    method public android.graphics.drawable.Drawable! getThumbDrawable();
+    method public int getThumbTextPadding();
+    method public android.content.res.ColorStateList? getThumbTintList();
+    method public android.graphics.PorterDuff.Mode? getThumbTintMode();
+    method public android.graphics.drawable.Drawable! getTrackDrawable();
+    method public android.content.res.ColorStateList? getTrackTintList();
+    method public android.graphics.PorterDuff.Mode? getTrackTintMode();
+    method public void onMeasure(int, int);
+    method public void setShowText(boolean);
+    method public void setSplitTrack(boolean);
+    method public void setSwitchMinWidth(int);
+    method public void setSwitchPadding(int);
+    method public void setSwitchTextAppearance(android.content.Context!, int);
+    method public void setSwitchTypeface(android.graphics.Typeface!, int);
+    method public void setSwitchTypeface(android.graphics.Typeface!);
+    method public void setTextOff(CharSequence!);
+    method public void setTextOn(CharSequence!);
+    method public void setThumbDrawable(android.graphics.drawable.Drawable!);
+    method public void setThumbResource(int);
+    method public void setThumbTextPadding(int);
+    method public void setThumbTintList(android.content.res.ColorStateList?);
+    method public void setThumbTintMode(android.graphics.PorterDuff.Mode?);
+    method public void setTrackDrawable(android.graphics.drawable.Drawable!);
+    method public void setTrackResource(int);
+    method public void setTrackTintList(android.content.res.ColorStateList?);
+    method public void setTrackTintMode(android.graphics.PorterDuff.Mode?);
+  }
+
+  public interface ThemedSpinnerAdapter extends android.widget.SpinnerAdapter {
+    method public android.content.res.Resources.Theme? getDropDownViewTheme();
+    method public void setDropDownViewTheme(android.content.res.Resources.Theme?);
+  }
+
+  public static final class ThemedSpinnerAdapter.Helper {
+    ctor public ThemedSpinnerAdapter.Helper(android.content.Context);
+    method public android.view.LayoutInflater getDropDownViewInflater();
+    method public android.content.res.Resources.Theme? getDropDownViewTheme();
+    method public void setDropDownViewTheme(android.content.res.Resources.Theme?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TintContextWrapper extends android.content.ContextWrapper {
     method public static android.content.Context! wrap(android.content.Context);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class TintTypedArray {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TintTypedArray {
     method public boolean getBoolean(int, boolean);
     method @RequiresApi(21) public int getChangingConfigurations();
     method public int getColor(int, int);
@@ -1406,7 +1981,7 @@ package androidx.appcompat.widget {
     method public android.content.res.Resources! getResources();
     method public String! getString(int);
     method public CharSequence! getText(int);
-    method public CharSequence[]! getTextArray(int);
+    method public CharSequence![]! getTextArray(int);
     method public int getType(int);
     method public boolean getValue(int, android.util.TypedValue!);
     method public boolean hasValue(int);
@@ -1418,17 +1993,104 @@ package androidx.appcompat.widget {
     method public void recycle();
   }
 
-  public class Toolbar {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean canShowOverflowMenu();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.appcompat.widget.DecorToolbar! getWrapper();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isOverflowMenuShowPending();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isTitleTruncated();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setCollapsible(boolean);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setMenu(androidx.appcompat.view.menu.MenuBuilder!, androidx.appcompat.widget.ActionMenuPresenter!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setMenuCallbacks(androidx.appcompat.view.menu.MenuPresenter.Callback!, androidx.appcompat.view.menu.MenuBuilder.Callback!);
+  public class Toolbar extends android.view.ViewGroup {
+    ctor public Toolbar(android.content.Context!);
+    ctor public Toolbar(android.content.Context!, android.util.AttributeSet?);
+    ctor public Toolbar(android.content.Context!, android.util.AttributeSet?, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean canShowOverflowMenu();
+    method public void collapseActionView();
+    method public void dismissPopupMenus();
+    method protected androidx.appcompat.widget.Toolbar.LayoutParams! generateDefaultLayoutParams();
+    method public androidx.appcompat.widget.Toolbar.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
+    method protected androidx.appcompat.widget.Toolbar.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
+    method public int getContentInsetEnd();
+    method public int getContentInsetEndWithActions();
+    method public int getContentInsetLeft();
+    method public int getContentInsetRight();
+    method public int getContentInsetStart();
+    method public int getContentInsetStartWithNavigation();
+    method public int getCurrentContentInsetEnd();
+    method public int getCurrentContentInsetLeft();
+    method public int getCurrentContentInsetRight();
+    method public int getCurrentContentInsetStart();
+    method public android.graphics.drawable.Drawable! getLogo();
+    method public CharSequence! getLogoDescription();
+    method public android.view.Menu! getMenu();
+    method public CharSequence? getNavigationContentDescription();
+    method public android.graphics.drawable.Drawable? getNavigationIcon();
+    method public android.graphics.drawable.Drawable? getOverflowIcon();
+    method public int getPopupTheme();
+    method public CharSequence! getSubtitle();
+    method public CharSequence! getTitle();
+    method public int getTitleMarginBottom();
+    method public int getTitleMarginEnd();
+    method public int getTitleMarginStart();
+    method public int getTitleMarginTop();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.appcompat.widget.DecorToolbar! getWrapper();
+    method public boolean hasExpandedActionView();
+    method public boolean hideOverflowMenu();
+    method public void inflateMenu(@MenuRes int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isOverflowMenuShowPending();
+    method public boolean isOverflowMenuShowing();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean isTitleTruncated();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setCollapsible(boolean);
+    method public void setContentInsetEndWithActions(int);
+    method public void setContentInsetStartWithNavigation(int);
+    method public void setContentInsetsAbsolute(int, int);
+    method public void setContentInsetsRelative(int, int);
+    method public void setLogo(@DrawableRes int);
+    method public void setLogo(android.graphics.drawable.Drawable!);
+    method public void setLogoDescription(@StringRes int);
+    method public void setLogoDescription(CharSequence!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setMenu(androidx.appcompat.view.menu.MenuBuilder!, androidx.appcompat.widget.ActionMenuPresenter!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setMenuCallbacks(androidx.appcompat.view.menu.MenuPresenter.Callback!, androidx.appcompat.view.menu.MenuBuilder.Callback!);
+    method public void setNavigationContentDescription(@StringRes int);
+    method public void setNavigationContentDescription(CharSequence?);
+    method public void setNavigationIcon(@DrawableRes int);
+    method public void setNavigationIcon(android.graphics.drawable.Drawable?);
+    method public void setNavigationOnClickListener(android.view.View.OnClickListener!);
+    method public void setOnMenuItemClickListener(androidx.appcompat.widget.Toolbar.OnMenuItemClickListener!);
+    method public void setOverflowIcon(android.graphics.drawable.Drawable?);
+    method public void setPopupTheme(@StyleRes int);
+    method public void setSubtitle(@StringRes int);
+    method public void setSubtitle(CharSequence!);
+    method public void setSubtitleTextAppearance(android.content.Context!, @StyleRes int);
+    method public void setSubtitleTextColor(@ColorInt int);
+    method public void setTitle(@StringRes int);
+    method public void setTitle(CharSequence!);
+    method public void setTitleMargin(int, int, int, int);
+    method public void setTitleMarginBottom(int);
+    method public void setTitleMarginEnd(int);
+    method public void setTitleMarginStart(int);
+    method public void setTitleMarginTop(int);
+    method public void setTitleTextAppearance(android.content.Context!, @StyleRes int);
+    method public void setTitleTextColor(@ColorInt int);
+    method public boolean showOverflowMenu();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ToolbarWidgetWrapper implements androidx.appcompat.widget.DecorToolbar {
+  public static class Toolbar.LayoutParams extends androidx.appcompat.app.ActionBar.LayoutParams {
+    ctor public Toolbar.LayoutParams(android.content.Context, android.util.AttributeSet!);
+    ctor public Toolbar.LayoutParams(int, int);
+    ctor public Toolbar.LayoutParams(int, int, int);
+    ctor public Toolbar.LayoutParams(int);
+    ctor public Toolbar.LayoutParams(androidx.appcompat.widget.Toolbar.LayoutParams!);
+    ctor public Toolbar.LayoutParams(androidx.appcompat.app.ActionBar.LayoutParams!);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    ctor public Toolbar.LayoutParams(android.view.ViewGroup.LayoutParams!);
+  }
+
+  public static interface Toolbar.OnMenuItemClickListener {
+    method public boolean onMenuItemClick(android.view.MenuItem!);
+  }
+
+  public static class Toolbar.SavedState extends androidx.customview.view.AbsSavedState {
+    ctor public Toolbar.SavedState(android.os.Parcel!);
+    ctor public Toolbar.SavedState(android.os.Parcel!, ClassLoader!);
+    ctor public Toolbar.SavedState(android.os.Parcelable!);
+    field public static final android.os.Parcelable.Creator<androidx.appcompat.widget.Toolbar.SavedState!>! CREATOR;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ToolbarWidgetWrapper implements androidx.appcompat.widget.DecorToolbar {
     ctor public ToolbarWidgetWrapper(androidx.appcompat.widget.Toolbar!, boolean);
     ctor public ToolbarWidgetWrapper(androidx.appcompat.widget.Toolbar!, boolean, int, int);
     method public void animateToVisibility(int);
@@ -1457,8 +2119,8 @@ package androidx.appcompat.widget {
     method public boolean isOverflowMenuShowPending();
     method public boolean isOverflowMenuShowing();
     method public boolean isTitleTruncated();
-    method public void restoreHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
-    method public void saveHierarchyState(android.util.SparseArray<android.os.Parcelable>!);
+    method public void restoreHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
+    method public void saveHierarchyState(android.util.SparseArray<android.os.Parcelable!>!);
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
     method public void setCollapsible(boolean);
     method public void setCustomView(android.view.View!);
@@ -1490,43 +2152,43 @@ package androidx.appcompat.widget {
     method public boolean showOverflowMenu();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class VectorEnabledTintResources {
+  public class TooltipCompat {
+    method public static void setTooltipText(android.view.View, CharSequence?);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class VectorEnabledTintResources extends android.content.res.Resources {
     ctor public VectorEnabledTintResources(android.content.Context, android.content.res.Resources);
-    method public android.graphics.drawable.Drawable! getDrawable(int);
+    method public android.graphics.drawable.Drawable! getDrawable(int) throws android.content.res.Resources.NotFoundException;
     method public static boolean isCompatVectorFromResourcesEnabled();
     method public static void setCompatVectorFromResourcesEnabled(boolean);
     method public static boolean shouldBeUsed();
     field public static final int MAX_SDK_WHERE_REQUIRED = 20; // 0x14
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class ViewStubCompat {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class ViewStubCompat extends android.view.View {
     ctor public ViewStubCompat(android.content.Context!, android.util.AttributeSet!);
     ctor public ViewStubCompat(android.content.Context!, android.util.AttributeSet!, int);
-    method protected void dispatchDraw(android.graphics.Canvas!);
-    method public void draw(android.graphics.Canvas!);
     method public int getInflatedId();
     method public android.view.LayoutInflater! getLayoutInflater();
     method public int getLayoutResource();
     method public android.view.View! inflate();
-    method protected void onMeasure(int, int);
     method public void setInflatedId(int);
     method public void setLayoutInflater(android.view.LayoutInflater!);
     method public void setLayoutResource(int);
     method public void setOnInflateListener(androidx.appcompat.widget.ViewStubCompat.OnInflateListener!);
-    method public void setVisibility(int);
   }
 
   public static interface ViewStubCompat.OnInflateListener {
     method public void onInflate(androidx.appcompat.widget.ViewStubCompat!, android.view.View!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ViewUtils {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ViewUtils {
     method public static void computeFitSystemWindows(android.view.View!, android.graphics.Rect!, android.graphics.Rect!);
     method public static boolean isLayoutRtl(android.view.View!);
     method public static void makeOptionalFitsSystemWindows(android.view.View!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface WithHint {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface WithHint {
     method public CharSequence? getHint();
   }
 

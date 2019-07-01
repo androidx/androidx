@@ -18,7 +18,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Destination.Builder setEta(java.time.ZonedDateTime?);
     method public androidx.car.cluster.navigation.Destination.Builder setLocation(androidx.car.cluster.navigation.LatLng?);
     method public androidx.car.cluster.navigation.Destination.Builder setTitle(String);
-    method public androidx.car.cluster.navigation.Destination.Builder setTraffic(androidx.car.cluster.navigation.Destination.Traffic, androidx.car.cluster.navigation.Destination.Traffic...);
+    method public androidx.car.cluster.navigation.Destination.Builder setTraffic(androidx.car.cluster.navigation.Destination.Traffic, androidx.car.cluster.navigation.Destination.Traffic!...);
   }
 
   public enum Destination.Traffic {
@@ -60,7 +60,7 @@ package androidx.car.cluster.navigation {
   }
 
   public final class Lane implements androidx.versionedparcelable.VersionedParcelable {
-    method public java.util.List<androidx.car.cluster.navigation.LaneDirection> getDirections();
+    method public java.util.List<androidx.car.cluster.navigation.LaneDirection!> getDirections();
   }
 
   public static final class Lane.Builder {
@@ -78,7 +78,7 @@ package androidx.car.cluster.navigation {
     ctor public LaneDirection.Builder();
     method public androidx.car.cluster.navigation.LaneDirection build();
     method public androidx.car.cluster.navigation.LaneDirection.Builder setHighlighted(boolean);
-    method public androidx.car.cluster.navigation.LaneDirection.Builder setShape(androidx.car.cluster.navigation.LaneDirection.Shape, androidx.car.cluster.navigation.LaneDirection.Shape...);
+    method public androidx.car.cluster.navigation.LaneDirection.Builder setShape(androidx.car.cluster.navigation.LaneDirection.Shape, androidx.car.cluster.navigation.LaneDirection.Shape!...);
   }
 
   public enum LaneDirection.Shape {
@@ -111,7 +111,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Maneuver build();
     method public androidx.car.cluster.navigation.Maneuver.Builder setIcon(androidx.car.cluster.navigation.ImageReference?);
     method public androidx.car.cluster.navigation.Maneuver.Builder setRoundaboutExitNumber(int);
-    method public androidx.car.cluster.navigation.Maneuver.Builder setType(androidx.car.cluster.navigation.Maneuver.Type, androidx.car.cluster.navigation.Maneuver.Type...);
+    method public androidx.car.cluster.navigation.Maneuver.Builder setType(androidx.car.cluster.navigation.Maneuver.Type, androidx.car.cluster.navigation.Maneuver.Type!...);
   }
 
   public enum Maneuver.Type {
@@ -174,9 +174,9 @@ package androidx.car.cluster.navigation {
   public final class NavigationState implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.car.cluster.navigation.NavigationState! fromParcelable(android.os.Parcelable?);
     method public androidx.car.cluster.navigation.Segment? getCurrentSegment();
-    method public java.util.List<androidx.car.cluster.navigation.Destination> getDestinations();
+    method public java.util.List<androidx.car.cluster.navigation.Destination!> getDestinations();
     method public androidx.car.cluster.navigation.NavigationState.ServiceStatus getServiceStatus();
-    method public java.util.List<androidx.car.cluster.navigation.Step> getSteps();
+    method public java.util.List<androidx.car.cluster.navigation.Step!> getSteps();
     method public android.os.Parcelable toParcelable();
   }
 
@@ -186,7 +186,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.NavigationState.Builder addStep(androidx.car.cluster.navigation.Step);
     method public androidx.car.cluster.navigation.NavigationState build();
     method public androidx.car.cluster.navigation.NavigationState.Builder setCurrentSegment(androidx.car.cluster.navigation.Segment?);
-    method public androidx.car.cluster.navigation.NavigationState.Builder setServiceStatus(androidx.car.cluster.navigation.NavigationState.ServiceStatus, androidx.car.cluster.navigation.NavigationState.ServiceStatus...);
+    method public androidx.car.cluster.navigation.NavigationState.Builder setServiceStatus(androidx.car.cluster.navigation.NavigationState.ServiceStatus, androidx.car.cluster.navigation.NavigationState.ServiceStatus!...);
   }
 
   public enum NavigationState.ServiceStatus {
@@ -195,7 +195,7 @@ package androidx.car.cluster.navigation {
   }
 
   public class RichText implements androidx.versionedparcelable.VersionedParcelable {
-    method public java.util.List<androidx.car.cluster.navigation.RichTextElement> getElements();
+    method public java.util.List<androidx.car.cluster.navigation.RichTextElement!> getElements();
     method public String getText();
   }
 
@@ -225,7 +225,7 @@ package androidx.car.cluster.navigation {
   public final class Step implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.car.cluster.navigation.RichText? getCue();
     method public androidx.car.cluster.navigation.Distance? getDistance();
-    method public java.util.List<androidx.car.cluster.navigation.Lane> getLanes();
+    method public java.util.List<androidx.car.cluster.navigation.Lane!> getLanes();
     method public androidx.car.cluster.navigation.ImageReference? getLanesImage();
     method public androidx.car.cluster.navigation.Maneuver? getManeuver();
   }
