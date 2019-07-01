@@ -16,38 +16,28 @@
 
 package androidx.ui.material.surface
 
-import androidx.ui.core.Dp
-import androidx.ui.core.Draw
-import androidx.ui.core.dp
-import androidx.ui.material.clip.CustomClipper
-import androidx.ui.painting.Path
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.baseui.shape.Shape
+import androidx.ui.core.Dp
+import androidx.ui.core.dp
 
 /**
  * Draws the shadow. The [elevation] defines the visual dept of the physical object.
- * The physical object has a shape specified by [clipper].
+ * The physical object has a shape specified by [shape].
  *
- * TODO("Andrey: Find the proper module and package for it")
+ * TODO("Andrey: Replace with the real implementation based on RenderNode's elevation")
  *
  * @param elevation The z-coordinate at which to place this physical object.
- * @param clipper Defines a shape of the physical object
+ * @param shape Defines a shape of the physical object
  */
 @Composable
 fun DrawShadow(
     elevation: Dp,
     @Suppress("UNUSED_PARAMETER")
-    clipper: CustomClipper<Path>
+    shape: Shape
 ) {
     if (elevation != 0.dp) {
-        Draw { _, _ ->
-            TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
-//            canvas.drawShadow(
-//                clipper.getClip(parentSize, density),
-//                shadowColor,
-//                elevation,
-//                color.alpha != 0xFF
-//            )
-        }
+        TODO("Shadows are not yet supported")
     }
 }

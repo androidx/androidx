@@ -17,10 +17,14 @@
 package androidx.ui.material.demos
 
 import android.util.Log
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.unaryPlus
+import androidx.ui.baseui.shape.border.Border
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.core.withDensity
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.MainAxisAlignment
@@ -28,15 +32,8 @@ import androidx.ui.layout.Padding
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TransparentButton
-import androidx.ui.material.borders.BorderRadius
-import androidx.ui.material.borders.BorderSide
-import androidx.ui.material.borders.RoundedRectangleBorder
 import androidx.ui.material.themeColor
 import androidx.ui.material.themeTextStyle
-import androidx.ui.graphics.Color
-import androidx.compose.Composable
-import androidx.compose.unaryPlus
-import androidx.compose.composer
 
 @Composable
 fun ButtonDemo() {
@@ -53,19 +50,11 @@ fun ButtonDemo() {
                         color = +themeColor { secondary },
                         text = "SECONDARY COLOR")
 
-                    val outlinedShape = +withDensity {
-                        RoundedRectangleBorder(
-                            side = BorderSide(Color(0xFF888888.toInt())),
-                            // TODO(Andrey): Could shapes be more declarative, so we will copy
-                            // the current default shape and just apply a new border color and
-                            // not be forced to redefine the borderRadius as well?
-                            borderRadius = BorderRadius.circular(
-                                4.dp.toPx().value
-                            )
-                        )
-                    }
-
-                    TransparentButton(onClick = onClick, shape = outlinedShape, text = "OUTLINED")
+                    TransparentButton(
+                        onClick = onClick,
+                        border = Border(Color(0xFF888888.toInt()), 1.dp),
+                        text = "OUTLINED"
+                    )
 
                     val customColor = Color(0xFFFFFF00.toInt())
                     Button(

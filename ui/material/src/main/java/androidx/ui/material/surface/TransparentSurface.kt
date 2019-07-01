@@ -16,13 +16,13 @@
 
 package androidx.ui.material.surface
 
-import androidx.ui.material.borders.RoundedRectangleBorder
-import androidx.ui.material.borders.ShapeBorder
-import androidx.ui.material.ripple.RippleEffect
-import androidx.ui.graphics.Color
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.baseui.shape.RectangleShape
+import androidx.ui.baseui.shape.Shape
+import androidx.ui.graphics.Color
+import androidx.ui.material.ripple.RippleEffect
 
 /**
  * A transparent [Surface] that draws [RippleEffect]s.
@@ -37,7 +37,7 @@ import androidx.compose.composer
  */
 @Composable
 fun TransparentSurface(
-    shape: ShapeBorder = RoundedRectangleBorder(),
+    shape: Shape = RectangleShape,
     @Children children: @Composable() () -> Unit
 ) {
     Surface(shape = shape, children = children, color = Color.Transparent)
