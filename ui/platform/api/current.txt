@@ -331,6 +331,10 @@ package androidx.ui.core.input {
     ctor public RecordingInputConnectionKt();
   }
 
+  public final class TextInputServiceAndroidKt {
+    ctor public TextInputServiceAndroidKt();
+  }
+
 }
 
 package androidx.ui.core.pointerinput {
