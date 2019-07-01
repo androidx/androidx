@@ -28,6 +28,7 @@ import androidx.ui.layout.VerticalScroller
 import androidx.ui.painting.TextStyle
 import androidx.compose.composer
 import androidx.compose.setContent
+import androidx.ui.core.sp
 
 class ScrollerActivity : Activity() {
     val phrases = listOf(
@@ -67,7 +68,7 @@ class ScrollerActivity : Activity() {
         super.onCreate(savedInstanceState)
         val density = Density(this)
         withDensity(density) {
-            val style = TextStyle(fontSize = 30.dp.toPx().value)
+            val style = TextStyle(fontSize = 30.sp)
             setContent {
                 CraneWrapper {
                     Padding(padding = 10.dp) {

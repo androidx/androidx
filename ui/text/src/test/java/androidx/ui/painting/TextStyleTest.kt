@@ -17,6 +17,7 @@
 package androidx.ui.painting
 
 import androidx.ui.core.px
+import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
@@ -64,7 +65,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized fontSize`() {
-        val fontSize = 18.0f
+        val fontSize = 18.sp
 
         val textStyle = TextStyle(fontSize = fontSize)
 
@@ -209,7 +210,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontSize is null should use this' fontSize`() {
-        val fontSize = 3.5f
+        val fontSize = 3.5.sp
         val textStyle = TextStyle(fontSize = fontSize)
         val otherTextStyle = TextStyle()
 
@@ -220,8 +221,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontSize is set should use other's fontSize`() {
-        val fontSize = 3.5f
-        val otherFontSize = 8.7f
+        val fontSize = 3.5.sp
+        val otherFontSize = 8.7.sp
         val textStyle = TextStyle(fontSize = fontSize)
         val otherTextStyle = TextStyle(fontSize = otherFontSize)
 
@@ -622,7 +623,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontSize with a is Null and t is smaller than half`() {
-        val fontSize = 8.0f
+        val fontSize = 8.sp
         val t = 0.3f
         val textStyle = TextStyle(fontSize = fontSize)
 
@@ -633,7 +634,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontSize with a is Null and t is larger than half`() {
-        val fontSize = 8.0f
+        val fontSize = 8.sp
         val t = 0.8f
         val textStyle = TextStyle(fontSize = fontSize)
 
@@ -644,7 +645,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontSize with b is Null and t is smaller than half`() {
-        val fontSize = 8.0f
+        val fontSize = 8.sp
         val t = 0.3f
         val textStyle = TextStyle(fontSize = fontSize)
 
@@ -655,7 +656,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontSize with b is Null and t is larger than half`() {
-        val fontSize = 8.0f
+        val fontSize = 8.sp
         val t = 0.8f
         val textStyle = TextStyle(fontSize = fontSize)
 
@@ -666,8 +667,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontSize with a and b are not Null`() {
-        val fontSize1 = 8.0f
-        val fontSize2 = 16.0f
+        val fontSize1 = 8.sp
+        val fontSize2 = 16.sp
         val t = 0.8f
         val textStyle1 = TextStyle(fontSize = fontSize1)
         val textStyle2 = TextStyle(fontSize = fontSize2)
@@ -675,7 +676,7 @@ class TextStyleTest {
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
         // a + (b - a) * t = 8.0f + (16.0f  - 8.0f) * 0.8f = 14.4f
-        assertThat(newTextStyle?.fontSize).isEqualTo(14.4f)
+        assertThat(newTextStyle?.fontSize).isEqualTo(14.4.sp)
     }
 
     @Test
@@ -1422,42 +1423,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `getTextStyle`() {
-        val fontSize = 10.0f
-        val color = Color(0xFF00FF00.toInt())
-        val fontSynthesis = FontSynthesis.Style
-        val fontFeatureSettings = "\"kern\" 0"
-        val baselineShift = BaselineShift.Superscript
-        val textStyle = TextStyle(
-            fontSize = fontSize,
-            fontWeight = FontWeight.w800,
-            color = color,
-            fontSynthesis = fontSynthesis,
-            fontFeatureSettings = fontFeatureSettings,
-            baselineShift = baselineShift
-        )
-
-        assertThat(textStyle.fontFamily).isNull()
-        assertThat(textStyle.fontSize).isEqualTo(fontSize)
-        assertThat(textStyle.fontWeight).isEqualTo(FontWeight.w800)
-        assertThat(textStyle.color).isEqualTo(color)
-        assertThat(textStyle.fontFeatureSettings).isEqualTo(fontFeatureSettings)
-
-        val newTextStyle = textStyle.getTextStyle()
-
-        assertThat(newTextStyle).isEqualTo(
-            androidx.ui.engine.text.TextStyle(
-                color = color,
-                fontWeight = FontWeight.w800,
-                fontSize = fontSize,
-                fontSynthesis = fontSynthesis,
-                fontFeatureSettings = fontFeatureSettings,
-                baselineShift = baselineShift
-            )
-        )
-    }
-
-    @Test
     fun `compareTo with same textStyle returns IDENTICAL`() {
         val textStyle = TextStyle()
 
@@ -1474,7 +1439,7 @@ class TextStyleTest {
 
     @Test
     fun `compareTo textStyle with different layout returns LAYOUT`() {
-        val fontSize = 10.0f
+        val fontSize = 10.sp
         val bgColor = Color(0xFFFFFF00.toInt())
         val fontFeatureSettings = "\"kern\" 0"
 
@@ -1501,7 +1466,7 @@ class TextStyleTest {
             )
         ).isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(fontSize = 20.0f)))
+        assertThat(textStyle.compareTo(textStyle.copy(fontSize = 20.sp)))
             .isEqualTo(RenderComparison.LAYOUT)
 
         assertThat(textStyle.compareTo(textStyle.copy(fontWeight = FontWeight.w100)))
@@ -1535,7 +1500,7 @@ class TextStyleTest {
 
     @Test
     fun `compareTo textStyle with different paint returns paint`() {
-        val fontSize = 10.0f
+        val fontSize = 10.sp
         val color1 = Color(0xFF00FF00.toInt())
         val color2 = Color(0x00FFFF00)
 

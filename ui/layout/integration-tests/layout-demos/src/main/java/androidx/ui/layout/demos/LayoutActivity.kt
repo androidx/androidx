@@ -36,7 +36,7 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.setContent
-import androidx.ui.core.Span
+import androidx.ui.core.sp
 
 class LayoutActivity : Activity() {
 
@@ -72,7 +72,7 @@ fun LayoutDemo() {
         mainAxisAlignment = MainAxisAlignment.Start,
         crossAxisAlignment = CrossAxisAlignment.Start
     ) {
-        Text(text = "Row", style = TextStyle(fontSize = 48f))
+        Text(text = "Row", style = TextStyle(fontSize = 48.sp))
         ContainerWithBackground(width = ExampleSize, color = lightGrey) {
             Row {
                 PurpleSquare()
@@ -108,7 +108,7 @@ fun LayoutDemo() {
             }
         }
         HeightSpacer(height = 24.dp)
-        Text(text = "Column", style = TextStyle(fontSize = 48f))
+        Text(text = "Column", style = TextStyle(fontSize = 48.sp))
         Row {
             ContainerWithBackground(height = ExampleSize, color = lightGrey) {
                 Column {
