@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+ChangedType: androidx.transition.Transition#getTargetTypes():
+    Method androidx.transition.Transition.getTargetTypes has changed return type from java.util.List<java.lang.Class> to java.util.List<java.lang.Class<?>>
