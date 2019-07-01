@@ -278,7 +278,6 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * Perform initialization of all fragments.
      */
-    @SuppressWarnings("deprecation")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         mFragments.attachHost(null /*parent*/);

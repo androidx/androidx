@@ -104,6 +104,7 @@ public class FragmentTabHost extends TabHost
             out.writeString(curTab);
         }
 
+        @NonNull
         @Override
         public String toString() {
             return "FragmentTabHost.SavedState{"

@@ -119,7 +119,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             mLifecycleCallbacks = new CopyOnWriteArrayList<>();
 
     int mCurState = Fragment.INITIALIZING;
-    FragmentHostCallback mHost;
+    FragmentHostCallback<?> mHost;
     FragmentContainer mContainer;
     Fragment mParent;
     @Nullable
@@ -325,28 +325,30 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return mBackStack != null ? mBackStack.size() : 0;
     }
 
+    @NonNull
     @Override
     public BackStackEntry getBackStackEntryAt(int index) {
         return mBackStack.get(index);
     }
 
     @Override
-    public void addOnBackStackChangedListener(OnBackStackChangedListener listener) {
+    public void addOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
         if (mBackStackChangeListeners == null) {
-            mBackStackChangeListeners = new ArrayList<OnBackStackChangedListener>();
+            mBackStackChangeListeners = new ArrayList<>();
         }
         mBackStackChangeListeners.add(listener);
     }
 
     @Override
-    public void removeOnBackStackChangedListener(OnBackStackChangedListener listener) {
+    public void removeOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
         if (mBackStackChangeListeners != null) {
             mBackStackChangeListeners.remove(listener);
         }
     }
 
     @Override
-    public void putFragment(Bundle bundle, String key, Fragment fragment) {
+    public void putFragment(@NonNull Bundle bundle, @NonNull String key,
+            @NonNull Fragment fragment) {
         if (fragment.mFragmentManager != this) {
             throwException(new IllegalStateException("Fragment " + fragment
                     + " is not currently in the FragmentManager"));
@@ -356,7 +358,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     @Override
     @Nullable
-    public Fragment getFragment(Bundle bundle, String key) {
+    public Fragment getFragment(@NonNull Bundle bundle, @NonNull String key) {
         String who = bundle.getString(key);
         if (who == null) {
             return null;
@@ -369,6 +371,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return f;
     }
 
+    @NonNull
     @Override
     @SuppressWarnings("unchecked")
     public List<Fragment> getFragments() {
@@ -1599,7 +1602,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         synchronized (this) {
             if (mAvailBackStackIndices == null || mAvailBackStackIndices.size() <= 0) {
                 if (mBackStackIndices == null) {
-                    mBackStackIndices = new ArrayList<BackStackRecord>();
+                    mBackStackIndices = new ArrayList<>();
                 }
                 int index = mBackStackIndices.size();
                 if (DEBUG) Log.v(TAG, "Setting back stack index " + index + " to " + bse);
@@ -1618,7 +1621,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     public void setBackStackIndex(int index, BackStackRecord bse) {
         synchronized (this) {
             if (mBackStackIndices == null) {
-                mBackStackIndices = new ArrayList<BackStackRecord>();
+                mBackStackIndices = new ArrayList<>();
             }
             int N = mBackStackIndices.size();
             if (index < N) {
@@ -1628,7 +1631,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 while (N < index) {
                     mBackStackIndices.add(null);
                     if (mAvailBackStackIndices == null) {
-                        mAvailBackStackIndices = new ArrayList<Integer>();
+                        mAvailBackStackIndices = new ArrayList<>();
                     }
                     if (DEBUG) Log.v(TAG, "Adding available back stack index " + N);
                     mAvailBackStackIndices.add(N);
@@ -1644,7 +1647,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         synchronized (this) {
             mBackStackIndices.set(index, null);
             if (mAvailBackStackIndices == null) {
-                mAvailBackStackIndices = new ArrayList<Integer>();
+                mAvailBackStackIndices = new ArrayList<>();
             }
             if (DEBUG) Log.v(TAG, "Freeing back stack index " + index);
             mAvailBackStackIndices.add(index);
@@ -2188,7 +2191,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     void addBackStackState(BackStackRecord state) {
         if (mBackStack == null) {
-            mBackStack = new ArrayList<BackStackRecord>();
+            mBackStack = new ArrayList<>();
         }
         mBackStack.add(state);
     }
@@ -2268,7 +2271,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             return;
         }
         if (mStateArray == null) {
-            mStateArray = new SparseArray<Parcelable>();
+            mStateArray = new SparseArray<>();
         } else {
             mStateArray.clear();
         }
@@ -2518,7 +2521,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
         // Build the back stack.
         if (fms.mBackStack != null) {
-            mBackStack = new ArrayList<BackStackRecord>(fms.mBackStack.length);
+            mBackStack = new ArrayList<>(fms.mBackStack.length);
             for (int i=0; i<fms.mBackStack.length; i++) {
                 BackStackRecord bse = fms.mBackStack[i].instantiate(this);
                 if (DEBUG) {
@@ -2557,7 +2560,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         values.removeAll(Collections.singleton(null));
     }
 
-    public void attachController(@NonNull FragmentHostCallback host,
+    public void attachController(@NonNull FragmentHostCallback<?> host,
             @NonNull FragmentContainer container, @Nullable final Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
         mHost = host;
@@ -2710,7 +2713,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 if (f.performCreateOptionsMenu(menu, inflater)) {
                     show = true;
                     if (newMenus == null) {
-                        newMenus = new ArrayList<Fragment>();
+                        newMenus = new ArrayList<>();
                     }
                     newMenus.add(f);
                 }
@@ -3243,7 +3246,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public View onCreateView(String name, Context context, AttributeSet attrs) {
+    public View onCreateView(@NonNull String name, @NonNull Context context,
+            @NonNull AttributeSet attrs) {
         return onCreateView(null, name, context, attrs);
     }
 
