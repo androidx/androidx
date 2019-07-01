@@ -38,4 +38,11 @@ interface TextInputService {
      * Stop text input session.
      */
     fun stopInput()
+
+    /**
+     * Request showing onscreen keyboard
+     *
+     * There is no guarantee nor callback of the result of this API.
+     */
+    fun showSoftwareKeyboard()
 }

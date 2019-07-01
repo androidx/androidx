@@ -36,15 +36,17 @@ fun InputFieldDemo() {
         VerticalScroller {
             Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                 TagLine(tag = "simple editing")
-                EditLine()
+                EditLine("Simple Input Field")
+                TagLine(tag = "simple editing2")
+                EditLine("Another Simple Input Field")
             }
         }
     }
 }
 
 @Composable
-fun EditLine() {
-    val state = +state { EditorState(text = "Hello, Editor", selection = TextRange(2, 2)) }
+fun EditLine(initText: String) {
+    val state = +state { EditorState(text = initText, selection = TextRange(2, 2)) }
     InputField(
         value = state.value,
         onValueChange = { state.value = it },
