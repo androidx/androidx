@@ -143,7 +143,9 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     public List<User> loadAllByIds(final int... ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT * FROM user where uid IN (");
+        _stringBuilder.append("SELECT ");
+        _stringBuilder.append("*");
+        _stringBuilder.append(" FROM user where uid IN (");
         final int _inputSize = ids.length;
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(")");
@@ -318,7 +320,9 @@ public final class ComplexDao_Impl extends ComplexDao {
     @Override
     public LiveData<List<User>> loadUsersByIdsLive(final int... ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
-        _stringBuilder.append("SELECT * FROM user where uid IN (");
+        _stringBuilder.append("SELECT ");
+        _stringBuilder.append("*");
+        _stringBuilder.append(" FROM user where uid IN (");
         final int _inputSize = ids.length;
         StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
         _stringBuilder.append(")");

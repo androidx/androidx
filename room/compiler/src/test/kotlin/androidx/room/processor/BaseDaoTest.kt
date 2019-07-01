@@ -162,7 +162,10 @@ class BaseDaoTest {
             val dbElm = invocation.context.processingEnv.elementUtils
                 .getTypeElement(RoomTypeNames.ROOM_DB.toString())
             val dbType = MoreTypes.asDeclared(dbElm.asType())
-            val processedDao = DaoProcessor(invocation.context, daoElm, dbType, null).process()
+            val queryInterpreter = QueryInterpreter(emptyList())
+            val processedDao = DaoProcessor(
+                invocation.context, daoElm, dbType, null, queryInterpreter
+            ).process()
             handler(processedDao)
             DaoWriter(processedDao, dbElm, invocation.processingEnv).write(invocation.processingEnv)
         }.compilesWithoutError()

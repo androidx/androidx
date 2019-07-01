@@ -24,9 +24,6 @@ import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.Section
-import androidx.room.parser.SectionType.BIND_VAR
-import androidx.room.parser.SectionType.NEWLINE
-import androidx.room.parser.SectionType.TEXT
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.QueryParameter
@@ -79,10 +76,10 @@ class QueryWriter constructor(
                 addStatement("$T $L = $T.newStringBuilder()",
                         ClassName.get(StringBuilder::class.java), stringBuilderVar, STRING_UTIL)
                 query.sections.forEach {
-                    when (it.type) {
-                        TEXT -> addStatement("$L.append($S)", stringBuilderVar, it.text)
-                        NEWLINE -> addStatement("$L.append($S)", stringBuilderVar, "\n")
-                        BIND_VAR -> {
+                    when (it) {
+                        is Section.Text -> addStatement("$L.append($S)", stringBuilderVar, it.text)
+                        is Section.Newline -> addStatement("$L.append($S)", stringBuilderVar, "\n")
+                        is Section.BindVar -> {
                             // If it is null, will be reported as error before. We just try out
                             // best to generate as much code as possible.
                             sectionToParamMapping.firstOrNull { mapping ->
@@ -101,6 +98,11 @@ class QueryWriter constructor(
                                 }
                             }
                         }
+                        is Section.Projection -> addStatement(
+                            "$L.append($S)",
+                            stringBuilderVar,
+                            it.text
+                        )
                     }
                 }
 
@@ -116,7 +118,7 @@ class QueryWriter constructor(
                 }
             } else {
                 addStatement("final $T $L = $S", String::class.typeName(),
-                        outSqlQueryName, query.queryWithReplacedBindParams)
+                        outSqlQueryName, query.interpreted)
                 if (outArgsName != null) {
                     addStatement("final $T $L = $T.acquire($L, $L)",
                             ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,

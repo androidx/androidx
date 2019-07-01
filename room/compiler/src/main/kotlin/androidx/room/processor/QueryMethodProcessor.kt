@@ -28,11 +28,11 @@ import androidx.room.parser.SqlParser
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
-import androidx.room.vo.WriteQueryMethod
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
+import androidx.room.vo.WriteQueryMethod
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
@@ -42,6 +42,7 @@ class QueryMethodProcessor(
     baseContext: Context,
     val containing: DeclaredType,
     val executableElement: ExecutableElement,
+    val queryInterpreter: QueryInterpreter,
     val dbVerifier: DatabaseVerifier? = null
 ) {
     val context = baseContext.fork(executableElement)
@@ -148,6 +149,25 @@ class QueryMethodProcessor(
         }
 
         val parameters = delegate.extractQueryParams()
+
+        if (context.expandProjection) {
+            resultBinder.adapter?.rowAdapter?.let { rowAdapter ->
+                if (rowAdapter is PojoRowAdapter) {
+                    query.interpreted = queryInterpreter.interpret(query, rowAdapter.pojo)
+                    if (dbVerifier != null) {
+                        query.resultInfo = dbVerifier.analyze(query.interpreted)
+                        if (query.resultInfo?.error != null) {
+                            context.logger.e(
+                                executableElement,
+                                DatabaseVerificationErrors.cannotVerifyQuery(
+                                    query.resultInfo!!.error!!
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+        }
 
         return ReadQueryMethod(
             element = executableElement,
