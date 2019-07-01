@@ -172,6 +172,7 @@ package androidx.ui.core {
     method public static void CraneWrapper(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,kotlin.Unit> block);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
+    method public static androidx.compose.CompositionContext? composeIntoActivity(android.app.Activity activity, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
     method @CheckResult(suggest="+") public static <R> androidx.compose.Effect<R> withDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R> block);
