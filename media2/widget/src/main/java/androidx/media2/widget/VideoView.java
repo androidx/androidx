@@ -398,8 +398,10 @@ public class VideoView extends SelectiveLayout {
      *                   {@link MediaControlView} Javadoc Section "UI transitions" for details.
      */
     public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
-        removeView(mMediaControlView);
-        mMediaControlView.setAttachedToVideoView(false);
+        if (mMediaControlView != null) {
+            removeView(mMediaControlView);
+            mMediaControlView.setAttachedToVideoView(false);
+        }
         addView(mediaControlView, mSelectiveLayoutParams);
         mediaControlView.setAttachedToVideoView(true);
 
