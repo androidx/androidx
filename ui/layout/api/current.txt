@@ -7,36 +7,17 @@ package androidx.ui.layout {
     method public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class Alignment {
-    ctor public Alignment(float verticalBias, float horizontalBias);
-    method public androidx.ui.core.IntPxPosition align(androidx.ui.core.IntPxSize size);
-    method public float component1();
-    method public float component2();
-    method public androidx.ui.layout.Alignment copy(float verticalBias, float horizontalBias);
-    method public float getHorizontalBias();
-    method public float getVerticalBias();
-    field public static final androidx.ui.layout.Alignment.Companion! Companion;
-  }
-
-  public static final class Alignment.Companion {
-    method public androidx.ui.layout.Alignment getBottomCenter();
-    method public androidx.ui.layout.Alignment getBottomLeft();
-    method public androidx.ui.layout.Alignment getBottomRight();
-    method public androidx.ui.layout.Alignment getCenter();
-    method public androidx.ui.layout.Alignment getCenterLeft();
-    method public androidx.ui.layout.Alignment getCenterRight();
-    method public androidx.ui.layout.Alignment getTopCenter();
-    method public androidx.ui.layout.Alignment getTopLeft();
-    method public androidx.ui.layout.Alignment getTopRight();
-    property public final androidx.ui.layout.Alignment BottomCenter;
-    property public final androidx.ui.layout.Alignment BottomLeft;
-    property public final androidx.ui.layout.Alignment BottomRight;
-    property public final androidx.ui.layout.Alignment Center;
-    property public final androidx.ui.layout.Alignment CenterLeft;
-    property public final androidx.ui.layout.Alignment CenterRight;
-    property public final androidx.ui.layout.Alignment TopCenter;
-    property public final androidx.ui.layout.Alignment TopLeft;
-    property public final androidx.ui.layout.Alignment TopRight;
+  public enum Alignment {
+    method public final androidx.ui.core.IntPxPosition align(androidx.ui.core.IntPxSize size);
+    enum_constant public static final androidx.ui.layout.Alignment BottomCenter;
+    enum_constant public static final androidx.ui.layout.Alignment BottomLeft;
+    enum_constant public static final androidx.ui.layout.Alignment BottomRight;
+    enum_constant public static final androidx.ui.layout.Alignment Center;
+    enum_constant public static final androidx.ui.layout.Alignment CenterLeft;
+    enum_constant public static final androidx.ui.layout.Alignment CenterRight;
+    enum_constant public static final androidx.ui.layout.Alignment TopCenter;
+    enum_constant public static final androidx.ui.layout.Alignment TopLeft;
+    enum_constant public static final androidx.ui.layout.Alignment TopRight;
   }
 
   public final class AspectRatioKt {
