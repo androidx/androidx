@@ -28,6 +28,8 @@ public interface ExtensionsErrorListener {
         PREVIEW_EXTENSION_REQUIRED,
         /** ImageCapture extension is required to enable when Preview extension is enabled. */
         IMAGE_CAPTURE_EXTENSION_REQUIRED,
+        /** Mismatched ImageCapture/Preview extensions are enabled. */
+        MISMATCHED_EXTENSIONS_ENABLED
     }
 
     /**

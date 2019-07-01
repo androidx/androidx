@@ -144,17 +144,23 @@ public abstract class PreviewExtender {
     static void checkImageCaptureEnabled(EffectMode effectMode,
             Collection<UseCase> activeUseCases) {
         boolean isImageCaptureExtenderEnabled = false;
+        boolean isMismatched = false;
 
         for (UseCase useCase : activeUseCases) {
             EffectMode imageCaptureExtenderMode = useCase.getUseCaseConfig().retrieveOption(
                     ImageCaptureExtender.OPTION_IMAGE_CAPTURE_EXTENDER_MODE, null);
+
             if (effectMode == imageCaptureExtenderMode) {
                 isImageCaptureExtenderEnabled = true;
-                break;
+            } else if (imageCaptureExtenderMode != null) {
+                isMismatched = true;
             }
         }
 
-        if (!isImageCaptureExtenderEnabled) {
+        if (isMismatched) {
+            ExtensionsManager.postExtensionsError(
+                    ExtensionsErrorCode.MISMATCHED_EXTENSIONS_ENABLED);
+        } else if (!isImageCaptureExtenderEnabled) {
             ExtensionsManager.postExtensionsError(
                     ExtensionsErrorCode.IMAGE_CAPTURE_EXTENSION_REQUIRED);
         }
