@@ -35,7 +35,6 @@ import androidx.ui.core.withDensity
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.graphics.Color
-import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
@@ -285,7 +284,7 @@ val CurrentShapeAmbient = Ambient.of<Shapes> {
 }
 
 /**
- * Applies the default [ShapeBorder]s for all the surfaces.
+ * Applies the default [Shape]s for all the surfaces.
  */
 @Composable
 fun MaterialButtonShapeTheme(@Children children: @Composable() () -> Unit) {
