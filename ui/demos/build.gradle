@@ -28,4 +28,10 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
+    // Kotlin generates kotlin_module files based off the gradle *sub*module name, ignoring the
+    // parent project - this means that we generate multiple of these files for any project with a
+    // :samples subproject
+    packagingOptions {
+        exclude 'META-INF/samples_debug.kotlin_module'
+    }
 }

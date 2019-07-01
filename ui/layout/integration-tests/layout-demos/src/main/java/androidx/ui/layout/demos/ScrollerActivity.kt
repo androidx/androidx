@@ -31,7 +31,7 @@ import androidx.compose.setContent
 import androidx.ui.core.sp
 
 class ScrollerActivity : Activity() {
-    val phrases = listOf(
+    private val phrases = listOf(
         "Easy As Pie",
         "Wouldn't Harm a Fly",
         "No-Brainer",
