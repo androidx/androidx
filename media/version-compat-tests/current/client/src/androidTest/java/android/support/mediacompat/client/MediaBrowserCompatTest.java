@@ -78,6 +78,7 @@ import androidx.annotation.NonNull;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
@@ -591,7 +592,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testUnsubscribeWithSubscriptionCallbackForMultipleSubscriptions() throws Exception {
         connectMediaBrowserService();
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
@@ -630,10 +631,11 @@ public class MediaBrowserCompatTest {
                     getApplicationContext());
 
             // Remaining subscriptionCallbacks should be called.
+            int remaining = orderOfRemovingCallbacks.length - i - 1;
             for (int j = i + 1; j < orderOfRemovingCallbacks.length; j++) {
                 StubSubscriptionCallback callback = subscriptionCallbacks
                         .get(orderOfRemovingCallbacks[j]);
-                assertTrue(callback.await(TIME_OUT_MS));
+                assertTrue(callback.await(TIME_OUT_MS * remaining));
                 assertEquals(1, callback.mChildrenLoadedWithOptionCount);
             }
 
