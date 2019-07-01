@@ -23,18 +23,26 @@ import androidx.ui.painting.Image
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 import androidx.ui.core.WithDensity
+import androidx.ui.graphics.Color
+import androidx.ui.painting.BlendMode
+import androidx.ui.painting.ColorFilter
 
 // TODO(Andrey) Temporary. Should be replaced with our proper Image component when it available
 @Composable
 fun SimpleImage(
-    image: Image
+    image: Image,
+    tint: Color? = null
 ) {
-    // TODO b132071873: WithDensity should be able to use the DSL syntax
+    // TODO b/132071873: WithDensity should be able to use the DSL syntax
     WithDensity(block = {
         Container(width = image.width.toDp(), height = image.height.toDp()) {
+            val paint = +memo { Paint() }
+            paint.colorFilter = tint?.let { ColorFilter(tint, BlendMode.srcIn) }
             Draw { canvas, _ ->
-                canvas.drawImage(image, Offset.zero, Paint())
+                canvas.drawImage(image, Offset.zero, paint)
             }
         }
     })
