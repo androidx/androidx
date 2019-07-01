@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.graphics.SurfaceTexture;
-import android.opengl.GLES20;
 import android.os.Looper;
 import android.util.Size;
 import android.view.Surface;
@@ -32,7 +31,6 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -65,10 +63,8 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
     }
 
     private FixedSizeSurfaceTexture createDetachedSurfaceTexture(Size resolution) {
-        IntBuffer buffer = IntBuffer.allocate(1);
-        GLES20.glGenTextures(1, buffer);
         Resource resource = new Resource();
-        FixedSizeSurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(buffer.get(),
+        FixedSizeSurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(0,
                 resolution, resource);
         surfaceTexture.detachFromGLContext();
         resource.setSurfaceTexture(surfaceTexture);
