@@ -16,7 +16,6 @@
 package androidx.ui.engine.text.platform
 
 import android.graphics.Typeface
-import android.os.Build
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -52,7 +51,6 @@ import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
-import androidx.text.style.WordSpacingSpan
 import androidx.ui.core.Density
 import androidx.ui.core.px
 import androidx.ui.core.toPx
@@ -403,17 +401,6 @@ internal class ParagraphAndroid constructor(
                 )
             }
 
-            if (Build.VERSION.SDK_INT >= 29) {
-                style.wordSpacing?.let {
-                    spannableString.setSpan(
-                        WordSpacingSpan(it),
-                        start,
-                        end,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
-            }
-
             // TODO(Migration/haoyuchang): support letter spacing with pixel.
             style.letterSpacing?.let {
                 spannableString.setSpan(
@@ -502,12 +489,6 @@ private fun TextStyle.applyTextStyle(
 
     fontFeatureSettings?.let {
         textPaint.fontFeatureSettings = it
-    }
-
-    if (Build.VERSION.SDK_INT >= 29) {
-        wordSpacing?.let {
-            textPaint.wordSpacing = it
-        }
     }
 
     textGeometricTransform?.scaleX?.let {

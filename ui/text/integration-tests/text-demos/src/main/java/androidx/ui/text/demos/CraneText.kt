@@ -73,8 +73,6 @@ fun TextDemo() {
                 TextDemoTextDecoration()
                 TagLine(tag = "letterSpacing")
                 TextDemoLetterSpacing()
-                TagLine(tag = "wordSpacing")
-                TextDemoWordSpacing()
                 TagLine(tag = "baselineShift")
                 TextDemoBaselineShift()
                 TagLine(tag = "lineHeight")
@@ -270,22 +268,6 @@ fun TextDemoLetterSpacing() {
     Text {
         Span(text = "$displayText   ", style = TextStyle(fontSize = fontSize8))
         Span(text = displayText, style = TextStyle(fontSize = fontSize8, letterSpacing = 0.5f))
-    }
-}
-
-@Composable
-fun TextDemoWordSpacing() {
-    // This group of text widgets show different wordSpacing.
-    Text {
-        Span(text = "$displayText   ", style = TextStyle(fontSize = fontSize8))
-
-        Span(
-            text = displayText,
-            style = TextStyle(
-                fontSize = fontSize8,
-                wordSpacing = 100.0f
-            )
-        )
     }
 }
 

@@ -11,7 +11,6 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.ScaleXSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
@@ -21,7 +20,6 @@ import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
-import androidx.text.style.WordSpacingSpan
 import androidx.ui.core.Density
 import androidx.ui.core.px
 import androidx.ui.core.sp
@@ -398,92 +396,6 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(LetterSpacingSpan::class, 0, "abc".length)
-        )
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 29)
-    fun testAnnotatedString_setWordSpacingOnWholeText() {
-        val text = "ab cd"
-        val wordSpacing = 2.0f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length))
-        )
-        // Notice that the width doesn't matter for this test.
-        paragraph.layout(100.0f)
-
-        assertThat(paragraph.underlyingText.toString(), equalTo(text))
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(WordSpacingSpan::class, 0, text.length) { span ->
-                span.wordSpacing == wordSpacing.toFloat()
-            }
-        )
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 29)
-    fun testAnnotatedString_setWordSpacingOnPartText() {
-        val text = "abc d"
-        val wordSpacing = 2.0f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(AnnotatedString.Item(textStyle, 0, "abc".length))
-        )
-        // Notice that the width doesn't matter for this test.
-        paragraph.layout(100.0f)
-
-        assertThat(paragraph.underlyingText.toString(), equalTo(text))
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(WordSpacingSpan::class, 0, "abc".length) { span ->
-                span.wordSpacing == wordSpacing.toFloat()
-            }
-        )
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 29)
-    fun testAnnotatedString_setWordSpacingTwice_lastOneOverwrite() {
-        val text = "abc d"
-        val wordSpacing = 2.0f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-        val wordSpacingOverwrite = 3.0f
-        val textStyleOverwrite = TextStyle(wordSpacing = wordSpacingOverwrite)
-
-        val paragraph = simpleParagraph(
-            text = text,
-            textStyles = listOf(
-                AnnotatedString.Item(textStyle, 0, text.length),
-                AnnotatedString.Item(textStyleOverwrite, 0, "abc".length)
-            )
-        )
-        // Notice that the width doesn't matter for this test.
-        paragraph.layout(100.0f)
-
-        assertThat(paragraph.underlyingText.toString(), equalTo(text))
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(WordSpacingSpan::class, 0, text.length) { span ->
-                span.wordSpacing == wordSpacing.toFloat()
-            }
-        )
-        assertThat(
-            paragraph.underlyingText,
-            hasSpan(WordSpacingSpan::class, 0, "abc".length) { span ->
-                span.wordSpacing == wordSpacingOverwrite.toFloat()
-            }
-        )
-        assertThat(
-            paragraph.underlyingText,
-            hasSpanOnTop(WordSpacingSpan::class, 0, "abc".length) { span ->
-                span.wordSpacing == wordSpacingOverwrite.toFloat()
-            }
         )
     }
 
@@ -1182,19 +1094,6 @@ class ParagraphAndroidTest {
         paragraph.layout(0f)
 
         assertThat(paragraph.textPaint.fontFeatureSettings, equalTo(fontFeatureSettings))
-    }
-
-    @SdkSuppress(minSdkVersion = 29)
-    @Test
-    fun testTextStyle_wordSpacing_appliedOnTextPaint() {
-        val wordSpacing = 1.23f
-        val paragraph = simpleParagraph(
-            text = "",
-            textStyle = TextStyle(wordSpacing = wordSpacing)
-        )
-        paragraph.layout(0f)
-
-        assertThat(paragraph.textPaint.wordSpacing, equalTo(wordSpacing))
     }
 
     @Test
