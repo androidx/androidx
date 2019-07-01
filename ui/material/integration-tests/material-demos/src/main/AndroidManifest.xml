@@ -18,7 +18,6 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.ui.material.demos">
 
-
     <application>
         <activity
             android:name=".ButtonActivity"
@@ -93,6 +92,15 @@
         <activity android:name=".AppBarActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/App Bar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".TabActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Tabs">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />

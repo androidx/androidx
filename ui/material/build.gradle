@@ -46,6 +46,7 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     testImplementation(TRUTH)
+    androidTestImplementation project(':ui-material:integration-tests:samples')
     androidTestImplementation project(':ui-test')
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
