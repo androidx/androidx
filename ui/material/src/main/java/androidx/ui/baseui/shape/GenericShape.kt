@@ -16,7 +16,7 @@
 
 package androidx.ui.baseui.shape
 
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.painting.Path
@@ -29,7 +29,7 @@ import androidx.ui.painting.Path
 data class GenericShape(
     private val builder: Path.(size: PxSize) -> Unit
 ) : Shape {
-    override fun DensityReceiver.createOutline(size: PxSize): Outline {
+    override fun createOutline(size: PxSize, density: Density): Outline {
         val path = Path().apply {
             builder(size)
             close()

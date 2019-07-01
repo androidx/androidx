@@ -38,10 +38,7 @@ import androidx.ui.painting.PathOperation
  * @param border the [Border] to draw.
  */
 @Composable
-fun DrawBorder(
-    shape: Shape,
-    border: Border
-) = with(shape) {
+fun DrawBorder(shape: Shape, border: Border) {
     with(+memo { DrawBorderCachesHolder() }) {
         lastShape = shape
         lastBorderWidth = border.width
@@ -50,7 +47,7 @@ fun DrawBorder(
 
             if (!outerPathIsCached) {
                 outerPath.reset()
-                outerPath.addOutline(createOutline(parentSize))
+                outerPath.addOutline(shape.createOutline(parentSize, density))
                 outerPathIsCached = true
             }
 
@@ -62,7 +59,7 @@ fun DrawBorder(
                     height = parentSize.height - borderSize * 2
                 )
                 innerPath.reset()
-                innerPath.addOutline(createOutline(sizeMinusBorder))
+                innerPath.addOutline(shape.createOutline(sizeMinusBorder, density))
                 innerPath.shift(Offset(borderSize.value, borderSize.value))
 
                 // now we calculate the diff between the inner and the outer paths

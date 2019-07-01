@@ -16,7 +16,7 @@
 
 package androidx.ui.baseui.shape
 
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Outline
@@ -25,6 +25,6 @@ import androidx.ui.engine.geometry.Outline
  * A shape describing the rectangle.
  */
 val RectangleShape: Shape = object : Shape {
-    override fun DensityReceiver.createOutline(size: PxSize) =
+    override fun createOutline(size: PxSize, density: Density) =
         Outline.Rectangle(size.toRect())
 }
