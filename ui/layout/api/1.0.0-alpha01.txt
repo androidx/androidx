@@ -139,6 +139,14 @@ package androidx.ui.layout {
     method public static void Row(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
+  public final class IntrinsicKt {
+    ctor public IntrinsicKt();
+    method public static void MaxIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MaxIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MinIntrinsicHeight(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class MainAxisAlignment {
     ctor public MainAxisAlignment();
     field public static final androidx.ui.layout.MainAxisAlignment.Companion! Companion;
