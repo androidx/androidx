@@ -20,6 +20,9 @@ import androidx.annotation.experimental.UseExperimental;
 
 @SuppressWarnings("unused")
 class UseJavaExperimentalFromJava {
+    /**
+     * Unsafe call into an experimental class.
+     */
     int getDateUnsafe() {
         DateProvider dateProvider = new DateProvider();
         return dateProvider.getDate();

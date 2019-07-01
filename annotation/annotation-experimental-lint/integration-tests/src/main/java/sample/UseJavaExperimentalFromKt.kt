@@ -18,8 +18,11 @@ package sample
 
 import androidx.annotation.experimental.UseExperimental
 
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 class UseJavaExperimentalFromKt {
+    /**
+     * Unsafe call into an experimental class.
+     */
     fun getDateUnsafe(): Int {
         val dateProvider = DateProvider()
         return dateProvider.date
