@@ -453,13 +453,13 @@ public class MediaBrowserCompatTest {
 
         mSubscriptionCallback.reset(1);
         mMediaBrowser.subscribe(MEDIA_ID_CHILDREN_DELAYED, mSubscriptionCallback);
-        mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS);
+        assertFalse(mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS));
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
 
         callMediaBrowserServiceMethod(
                 SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED,
                 getApplicationContext());
-        mSubscriptionCallback.await(TIME_OUT_MS);
+        assertTrue(mSubscriptionCallback.await(TIME_OUT_MS));
         assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
     }
 
