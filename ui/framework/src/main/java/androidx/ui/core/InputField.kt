@@ -106,7 +106,7 @@ fun InputField(
 
     val textInputService = +ambient(TextInputServiceAmbient)
     TextInputEventObserver(
-        onPress = { delegate.onPress(it) },
+        onPress = { delegate.onPress(textInputService) },
         onFocus = {
             textInputService?.startInput(
                 initState = value,

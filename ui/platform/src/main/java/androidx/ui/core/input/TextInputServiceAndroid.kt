@@ -96,4 +96,8 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
 
         imm.restartInput(view)
     }
+
+    override fun showSoftwareKeyboard() {
+        imm.showSoftInput(view, 0)
+    }
 }

@@ -22,6 +22,7 @@ import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
 import androidx.ui.input.SetSelectionEditOp
+import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.TextPainter
 import com.nhaarman.mockitokotlin2.any
@@ -147,13 +148,23 @@ class InputFieldDelegateTest {
 
         delegate.draw(
             canvas = canvas,
-            value = EditorState(text = "Hello, World", selection = TextRange(1, 1),
-                composition = TextRange(1, 3)),
-            editorStyle = EditorStyle(compositionColor = Color.Red))
+            value = EditorState(
+                text = "Hello, World", selection = TextRange(1, 1),
+                composition = TextRange(1, 3)
+            ),
+            editorStyle = EditorStyle(compositionColor = Color.Red)
+        )
 
         inOrder(painter) {
             verify(painter).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas), any())
             verify(painter).paintCursor(eq(1), eq(canvas))
         }
+    }
+
+    @Test
+    fun show_soft_input() {
+        val textInputService: TextInputService = mock()
+        delegate.onPress(textInputService)
+        verify(textInputService).showSoftwareKeyboard()
     }
 }
