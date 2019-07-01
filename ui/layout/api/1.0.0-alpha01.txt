@@ -35,22 +35,12 @@ package androidx.ui.layout {
     method public static void Container(androidx.ui.layout.EdgeInsets padding = androidx.ui.layout.EdgeInsets(0.dp), androidx.ui.layout.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class CrossAxisAlignment {
-    ctor public CrossAxisAlignment();
-    field public static final androidx.ui.layout.CrossAxisAlignment.Companion! Companion;
-  }
-
-  public static final class CrossAxisAlignment.Companion {
-    method public int getBaseline();
-    method public int getCenter();
-    method public int getEnd();
-    method public int getStart();
-    method public int getStretch();
-    property public final int Baseline;
-    property public final int Center;
-    property public final int End;
-    property public final int Start;
-    property public final int Stretch;
+  public enum CrossAxisAlignment {
+    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Baseline;
+    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Center;
+    enum_constant public static final androidx.ui.layout.CrossAxisAlignment End;
+    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Start;
+    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Stretch;
   }
 
   public final class DpConstraints {
@@ -114,10 +104,10 @@ package androidx.ui.layout {
 
   public final class FlexKt {
     ctor public FlexKt();
-    method public static void Column(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
-    method public static void FlexColumn(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void FlexRow(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
-    method public static void Row(int mainAxisAlignment = 1, int mainAxisSize = 1, int crossAxisAlignment = 0, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void Column(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.MainAxisSize mainAxisSize = MainAxisSize.Max, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void FlexColumn(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.MainAxisSize mainAxisSize = MainAxisSize.Max, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void FlexRow(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.MainAxisSize mainAxisSize = MainAxisSize.Max, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center, kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void Row(androidx.ui.layout.MainAxisAlignment mainAxisAlignment = MainAxisAlignment.Start, androidx.ui.layout.MainAxisSize mainAxisSize = MainAxisSize.Max, androidx.ui.layout.CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.Center, kotlin.jvm.functions.Function0<kotlin.Unit> block);
   }
 
   public final class IntrinsicKt {
@@ -128,36 +118,18 @@ package androidx.ui.layout {
     method public static void MinIntrinsicWidth(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class MainAxisAlignment {
-    ctor public MainAxisAlignment();
-    field public static final androidx.ui.layout.MainAxisAlignment.Companion! Companion;
+  public enum MainAxisAlignment {
+    enum_constant public static final androidx.ui.layout.MainAxisAlignment Center;
+    enum_constant public static final androidx.ui.layout.MainAxisAlignment End;
+    enum_constant public static final androidx.ui.layout.MainAxisAlignment SpaceAround;
+    enum_constant public static final androidx.ui.layout.MainAxisAlignment SpaceBetween;
+    enum_constant public static final androidx.ui.layout.MainAxisAlignment SpaceEvenly;
+    enum_constant public static final androidx.ui.layout.MainAxisAlignment Start;
   }
 
-  public static final class MainAxisAlignment.Companion {
-    method public int getCenter();
-    method public int getEnd();
-    method public int getSpaceAround();
-    method public int getSpaceBetween();
-    method public int getSpaceEvenly();
-    method public int getStart();
-    property public final int Center;
-    property public final int End;
-    property public final int SpaceAround;
-    property public final int SpaceBetween;
-    property public final int SpaceEvenly;
-    property public final int Start;
-  }
-
-  public final class MainAxisSize {
-    ctor public MainAxisSize();
-    field public static final androidx.ui.layout.MainAxisSize.Companion! Companion;
-  }
-
-  public static final class MainAxisSize.Companion {
-    method public int getMax();
-    method public int getMin();
-    property public final int Max;
-    property public final int Min;
+  public enum MainAxisSize {
+    enum_constant public static final androidx.ui.layout.MainAxisSize Max;
+    enum_constant public static final androidx.ui.layout.MainAxisSize Min;
   }
 
   public final class PaddingKt {
