@@ -64,6 +64,15 @@ internal class InputFieldDelegate(
      * @param editorStyle the editor style.
      */
     fun draw(canvas: Canvas, value: EditorState, editorStyle: EditorStyle) {
+        value.composition?.let {
+            textPainter.paintBackground(
+                it.start,
+                it.end,
+                editorStyle.compositionColor,
+                canvas,
+                Offset.zero
+            )
+        }
         if (value.selection.collapsed) {
             textPainter.paintCursor(value.selection.start, canvas)
         } else {
@@ -71,16 +80,6 @@ internal class InputFieldDelegate(
                 value.selection.start,
                 value.selection.end,
                 editorStyle.selectionColor,
-                canvas,
-                Offset.zero
-            )
-        }
-
-        value.composition?.let {
-            textPainter.paintBackground(
-                it.start,
-                it.end,
-                editorStyle.compositionColor,
                 canvas,
                 Offset.zero
             )

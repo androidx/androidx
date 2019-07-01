@@ -27,6 +27,7 @@ import androidx.ui.painting.TextPainter
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.times
@@ -138,5 +139,21 @@ class InputFieldDelegateTest {
         assertEquals(1, captor.firstValue.size)
         assertTrue(captor.firstValue[0] is SetSelectionEditOp)
         verify(onValueChange, times(1)).invoke(eq(dummyEditorState))
+    }
+
+    @Test
+    fun test_draw_order() {
+        val canvas: Canvas = mock()
+
+        delegate.draw(
+            canvas = canvas,
+            value = EditorState(text = "Hello, World", selection = TextRange(1, 1),
+                composition = TextRange(1, 3)),
+            editorStyle = EditorStyle(compositionColor = Color.Red))
+
+        inOrder(painter) {
+            verify(painter).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas), any())
+            verify(painter).paintCursor(eq(1), eq(canvas))
+        }
     }
 }
