@@ -95,6 +95,7 @@ fun InputField(
     val style = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = style.merge(editorStyle.textStyle)
     val textInputService = +ambient(TextInputServiceAmbient)
+    val hasFocus = +state { false }
 
     val processor = +memo { EditProcessor() }
     processor.onNewState(value, textInputService)
@@ -115,19 +116,23 @@ fun InputField(
     TextInputEventObserver(
         onPress = { delegate.onPress(textInputService) },
         onFocus = {
+            hasFocus.value = true
             textInputService?.startInput(
                 initState = value,
                 keyboardType = keyboardType,
                 onEditCommand = { delegate.onEditCommand(it) },
                 onEditorActionPerformed = onEditorActionPerformed)
         },
-        onBlur = { textInputService?.stopInput() },
+        onBlur = {
+            hasFocus.value = false
+            textInputService?.stopInput()
+        },
         onDragAt = { delegate.onDragAt(it) },
         onRelease = { delegate.onRelease(it) }
     ) {
         Layout(
             children = @Composable {
-                Draw { canvas, _ -> delegate.draw(canvas, value, editorStyle) }
+                Draw { canvas, _ -> delegate.draw(canvas, value, editorStyle, hasFocus.value) }
             },
             layoutBlock = { _, constraints ->
                 delegate.layout(constraints).let { layout(it.first, it.second) {} }
