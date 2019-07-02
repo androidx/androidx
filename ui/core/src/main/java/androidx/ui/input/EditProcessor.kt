@@ -42,16 +42,14 @@ class EditProcessor {
      * This method updates the internal editing buffer with the given editor state.
      * This method may tell the IME about the selection offset changes or extracted text changes.
      */
-    fun onNewState(state: EditorState) {
-        if (mPreviousState === state) {
-            return
+    fun onNewState(state: EditorState, textInputService: TextInputService?) {
+        if (mPreviousState !== state) {
+            mBuffer = EditingBuffer(
+                initialText = state.text,
+                initialSelection = state.selection)
         }
 
-        mBuffer = EditingBuffer(
-            initialText = state.text,
-            initialSelection = state.selection)
-
-        // TODO(nona): Tell IME about the selection/extracted text changes.
+        textInputService?.onStateUpdated(state)
     }
 
     /**

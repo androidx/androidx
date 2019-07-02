@@ -21,13 +21,15 @@ import android.os.Handler
 import android.text.TextUtils
 import android.util.Log
 import android.view.KeyEvent
+import android.view.View
 import android.view.inputmethod.CompletionInfo
 import android.view.inputmethod.CorrectionInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
-import androidx.ui.core.TextRange
+import android.view.inputmethod.InputMethodManager
+import androidx.annotation.VisibleForTesting
 import androidx.ui.input.BackspaceKeyEditOp
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteSurroundingTextEditOp
@@ -45,6 +47,11 @@ private val TAG = "RecordingIC"
 
 internal class RecordingInputConnection(
     /**
+     * The initial input state
+     */
+    initState: InputState,
+
+    /**
      * An input event listener.
      */
     val eventListener: InputEventListener
@@ -54,11 +61,54 @@ internal class RecordingInputConnection(
     private var batchDepth: Int = 0
 
     // The input state.
-    var inputState: InputState = InputState("", TextRange(0, 0), null)
+    @VisibleForTesting
+    internal var inputState: InputState = initState
         set(value) {
             if (DEBUG) { Log.d(TAG, "New InputState has set: $inputState") }
             field = value
         }
+
+    /**
+     * The token to be used for reporting updateExtractedText API.
+     *
+     * 0 if no token was specified from IME.
+     */
+    private var currentExtractedTextRequestToken = 0
+
+    /**
+     * True if IME requested extracted text monitor mode.
+     *
+     * If extracted text monitor mode is ON, need to call updateExtractedText API whenever the text
+     * is changed.
+     */
+    private var extractedTextMonitorMode = false
+
+    /**
+     * Updates the input state and tells it to the IME.
+     *
+     * This function may emits updateSelection and updateExtractedText to notify IMEs that the text
+     * contents has changed if needed.
+     */
+    fun updateInputState(state: InputState, imm: InputMethodManager, view: View) {
+        val prev = inputState
+        val next = state
+        inputState = next
+
+        if (prev == next) {
+            return
+        }
+
+        if (extractedTextMonitorMode) {
+            imm.updateExtractedText(view, currentExtractedTextRequestToken, next.toExtractedText())
+        }
+
+        // The candidateStart and candidateEnd is composition start and composition end in
+        // updateSelection API. Need to pass -1 if there is no composition.
+        val candidateStart = next.composition?.start ?: -1
+        val candidateEnd = next.composition?.end ?: -1
+        imm.updateSelection(view, next.selection.start, next.selection.end,
+            candidateStart, candidateEnd)
+    }
 
     // The recoding editing ops.
     private val editOps = mutableListOf<EditOperation>()
@@ -188,7 +238,11 @@ internal class RecordingInputConnection(
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {
         if (DEBUG) { Log.d(TAG, "getExtractedText($request, $flags)") }
-        TODO("not implemented")
+        extractedTextMonitorMode = (flags and InputConnection.GET_EXTRACTED_TEXT_MONITOR) != 0
+        if (extractedTextMonitorMode) {
+            currentExtractedTextRequestToken = request?.token ?: 0
+        }
+        return inputState.toExtractedText()
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////

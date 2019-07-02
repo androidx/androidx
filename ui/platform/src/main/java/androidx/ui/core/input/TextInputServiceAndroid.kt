@@ -22,6 +22,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
+import androidx.ui.core.TextRange
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorState
 import androidx.ui.input.InputEventListener
@@ -41,6 +42,9 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     private var onEditCommand: (List<EditOperation>) -> Unit = {}
     private var onEditorActionPerformed: (Any) -> Unit = {}
 
+    private var state = InputState(text = "", selection = TextRange(0, 0))
+    private var ic: RecordingInputConnection? = null
+
     /**
      * The editable buffer used for BaseInputConnection.
      */
@@ -57,11 +61,14 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
         outAttrs.inputType = InputType.TYPE_CLASS_TEXT
         outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN
 
-        return RecordingInputConnection(object : InputEventListener {
-            override fun onEditOperations(editOps: List<EditOperation>) {
-                onEditCommand(editOps)
+        return RecordingInputConnection(
+            initState = state,
+            eventListener = object : InputEventListener {
+                override fun onEditOperations(editOps: List<EditOperation>) {
+                    onEditCommand(editOps)
+                }
             }
-        })
+        ).also { ic = it }
     }
 
     /**
@@ -75,6 +82,7 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
         onEditorActionPerformed: (Any) -> Unit
     ) {
         editorHasFocus = true
+        state = initState.toInputState()
         this.onEditCommand = onEditCommand
         this.onEditorActionPerformed = onEditorActionPerformed
 
@@ -96,4 +104,15 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     override fun showSoftwareKeyboard() {
         imm.showSoftInput(view, 0)
     }
+
+    override fun onStateUpdated(state: EditorState) {
+        this.state = state.toInputState()
+        ic?.updateInputState(this.state, imm, view)
+    }
 }
+
+private fun EditorState.toInputState(): InputState =
+    InputState(
+        text = text, // TODO(nona): call toString once AnnotatedString is in use.
+        selection = selection,
+        composition = composition)
