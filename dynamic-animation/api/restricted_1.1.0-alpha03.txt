@@ -1,0 +1,11 @@
+// Signature format: 3.0
+package androidx.dynamicanimation.animation {
+
+  public abstract class DynamicAnimation<T extends androidx.dynamicanimation.animation.DynamicAnimation<T>> {
+  }
+
+  public final class SpringForce {
+  }
+
+}
+
