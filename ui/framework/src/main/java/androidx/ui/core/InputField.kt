@@ -80,10 +80,7 @@ fun InputField(
     onValueChange: (EditorState) -> Unit = {},
 
     /** Called when the InputMethod requested an editor action */
-    onEditorActionPerformed: (Any) -> Unit = {}, // TODO(nona): Define argument type
-
-    /** Called when the InputMethod forwarded a key event */
-    onKeyEventForwarded: (Any) -> Unit = {} // TODO(nona): Define argument type
+    onEditorActionPerformed: (Any) -> Unit = {} // TODO(nona): Define argument type
 ) {
     val style = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = style.merge(editorStyle.textStyle)
@@ -111,9 +108,7 @@ fun InputField(
             textInputService?.startInput(
                 initState = value,
                 onEditCommand = { delegate.onEditCommand(it) },
-                onEditorActionPerformed = onEditorActionPerformed,
-                onKeyEventForwarded = onKeyEventForwarded
-            )
+                onEditorActionPerformed = onEditorActionPerformed)
         },
         onBlur = { textInputService?.stopInput() },
         onDragAt = { delegate.onDragAt(it) },

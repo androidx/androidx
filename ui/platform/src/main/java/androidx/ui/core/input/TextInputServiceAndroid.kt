@@ -40,7 +40,6 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
      */
     private var onEditCommand: (List<EditOperation>) -> Unit = {}
     private var onEditorActionPerformed: (Any) -> Unit = {}
-    private var onKeyEventForwarded: (Any) -> Unit = {}
 
     /**
      * The editable buffer used for BaseInputConnection.
@@ -73,13 +72,11 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     override fun startInput(
         initState: EditorState,
         onEditCommand: (List<EditOperation>) -> Unit,
-        onEditorActionPerformed: (Any) -> Unit,
-        onKeyEventForwarded: (Any) -> Unit
+        onEditorActionPerformed: (Any) -> Unit
     ) {
         editorHasFocus = true
         this.onEditCommand = onEditCommand
         this.onEditorActionPerformed = onEditorActionPerformed
-        this.onKeyEventForwarded = onKeyEventForwarded
 
         view.requestFocus()
         view.post {
@@ -92,7 +89,6 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
         editorHasFocus = false
         onEditCommand = {}
         onEditorActionPerformed = {}
-        onKeyEventForwarded = {}
 
         imm.restartInput(view)
     }
