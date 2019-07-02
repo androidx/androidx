@@ -68,7 +68,6 @@ data class TextStyle(
     var fontFamily: FontFamily? = null,
     val fontFeatureSettings: String? = null,
     val letterSpacing: Float? = null,
-    val wordSpacing: Float? = null,
     val baselineShift: BaselineShift? = null,
     val textGeometricTransform: TextGeometricTransform? = null,
     val locale: Locale? = null,
@@ -98,7 +97,6 @@ data class TextStyle(
             fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
             fontFeatureSettings = other.fontFeatureSettings ?: this.fontFeatureSettings,
             letterSpacing = other.letterSpacing ?: this.letterSpacing,
-            wordSpacing = other.wordSpacing ?: this.wordSpacing,
             baselineShift = other.baselineShift ?: this.baselineShift,
             textGeometricTransform = other.textGeometricTransform ?: this.textGeometricTransform,
             locale = other.locale ?: this.locale,
@@ -195,7 +193,6 @@ data class TextStyle(
                 fontSynthesis = lerpDiscrete(a.fontSynthesis, b.fontSynthesis, t),
                 fontFeatureSettings = lerpDiscrete(a.fontFeatureSettings, b.fontFeatureSettings, t),
                 letterSpacing = lerpFloat(a.letterSpacing, b.letterSpacing, t),
-                wordSpacing = lerpFloat(a.wordSpacing, b.wordSpacing, t),
                 baselineShift = BaselineShift.lerp(a.baselineShift, b.baselineShift, t),
                 textGeometricTransform = lerp(
                     a.textGeometricTransform ?: TextGeometricTransform.None,
@@ -233,7 +230,6 @@ data class TextStyle(
             fontSynthesis != other.fontSynthesis ||
             fontFeatureSettings != other.fontFeatureSettings ||
             letterSpacing != other.letterSpacing ||
-            wordSpacing != other.wordSpacing ||
             baselineShift != other.baselineShift ||
             textGeometricTransform != other.textGeometricTransform ||
             locale != other.locale ||

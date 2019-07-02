@@ -15,7 +15,6 @@
  */
 package androidx.ui.engine.text
 
-import androidx.core.os.BuildCompat
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -1376,102 +1375,6 @@ class ParagraphIntegrationTest {
             val expectedWidth = "abc".length * (1 + letterSpacingOverwrite) * fontSizeInPx +
                     "de".length * (1 + letterSpacing) * fontSizeInPx
             assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = 29)
-    @Test
-    fun testAnnotatedString_setWordSpacingOnWholeText() {
-        if (!BuildCompat.isAtLeastQ()) return
-        withDensity(defaultDensity) {
-            val text = "ab cd"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val wordSpacing = 5.0f
-            val textStyle = TextStyle(wordSpacing = wordSpacing)
-            val paragraphWidth = fontSizeInPx * (1 + text.length)
-
-            val paragraph = simpleParagraph(
-                text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, text.length)),
-                fontSize = fontSize
-            )
-            paragraph.layout(ParagraphConstraints(width = paragraphWidth))
-            val paragraphImpl = paragraph.paragraphImpl
-
-            // Make sure there is only one line, so that we can use getLineWidth to test fontSize.
-            assertThat(paragraphImpl.lineCount, equalTo(1))
-            // Notice that in this test font, the width of character equals to fontSize.
-            assertThat(
-                paragraphImpl.getLineWidth(0),
-                equalTo(fontSizeInPx * text.length + wordSpacing)
-            )
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = 29)
-    @Test
-    fun testAnnotatedString_setWordSpacingOnPartText() {
-        if (!BuildCompat.isAtLeastQ()) return
-        withDensity(defaultDensity) {
-            val text = "a b c"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val wordSpacing = 5.0f
-            val textStyle = TextStyle(wordSpacing = wordSpacing)
-            val paragraphWidth = fontSizeInPx * (1 + text.length)
-
-            val paragraph = simpleParagraph(
-                text = text,
-                textStyles = listOf(AnnotatedString.Item(textStyle, 0, "a b".length)),
-                fontSize = fontSize
-            )
-            paragraph.layout(ParagraphConstraints(width = paragraphWidth))
-            val paragraphImpl = paragraph.paragraphImpl
-
-            // Make sure there is only one line, so that we can use getLineWidth to test fontSize.
-            assertThat(paragraphImpl.lineCount, equalTo(1))
-            // Notice that in this test font, the width of character equals to fontSize.
-            assertThat(
-                paragraphImpl.getLineWidth(0),
-                equalTo(fontSizeInPx * text.length + wordSpacing)
-            )
-        }
-    }
-
-    @SdkSuppress(minSdkVersion = 29)
-    @Test
-    fun testAnnotatedString_setWordSpacingTwice_lastOneOverwrite() {
-        if (!BuildCompat.isAtLeastQ()) return
-        withDensity(defaultDensity) {
-            val text = "a b c"
-            val fontSize = 20.sp
-            val fontSizeInPx = fontSize.toPx().value
-            val wordSpacing = 2.0f
-            val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-            val wordSpacingOverwrite = 5.0f
-            val textStyleOverwrite = TextStyle(wordSpacing = wordSpacingOverwrite)
-            val paragraphWidth = fontSizeInPx * (1 + text.length)
-
-            val paragraph = simpleParagraph(
-                text = text,
-                textStyles = listOf(
-                    AnnotatedString.Item(textStyle, 0, text.length),
-                    AnnotatedString.Item(textStyleOverwrite, 0, "a b".length)
-                ),
-                fontSize = fontSize
-            )
-            paragraph.layout(ParagraphConstraints(width = paragraphWidth))
-            val paragraphImpl = paragraph.paragraphImpl
-
-            // Make sure there is only one line, so that we can use getLineWidth to test fontSize.
-            assertThat(paragraphImpl.lineCount, equalTo(1))
-            // Notice that in this test font, the width of character equals to fontSize.
-            assertThat(
-                paragraphImpl.getLineWidth(0),
-                equalTo(fontSizeInPx * text.length + wordSpacing + wordSpacingOverwrite)
-            )
         }
     }
 

@@ -121,12 +121,5 @@ package androidx.text.style {
     method public void updateMeasureState(android.text.TextPaint);
   }
 
-  @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class WordSpacingSpan extends android.text.style.MetricAffectingSpan {
-    ctor public WordSpacingSpan(float);
-    method public float getWordSpacing();
-    method public void updateDrawState(android.text.TextPaint);
-    method public void updateMeasureState(android.text.TextPaint);
-  }
-
 }
 
