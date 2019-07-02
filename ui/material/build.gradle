@@ -37,6 +37,7 @@ dependencies {
     api project(':ui-layout')
     api project(':ui-text')
     api project(':ui-animation')
+    api project(':ui-foundation')
     api(KOTLIN_COMPOSE_STDLIB)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

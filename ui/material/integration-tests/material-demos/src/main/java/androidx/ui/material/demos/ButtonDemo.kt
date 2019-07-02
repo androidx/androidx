@@ -20,11 +20,11 @@ import android.util.Log
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.baseui.shape.border.Border
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
+import androidx.ui.foundation.shape.border.Border
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
 import androidx.ui.layout.MainAxisAlignment

@@ -28,9 +28,9 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
+import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TriStateCheckbox
 import androidx.ui.material.surface.Surface

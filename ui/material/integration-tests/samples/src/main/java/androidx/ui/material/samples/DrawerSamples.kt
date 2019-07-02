@@ -21,9 +21,9 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Center

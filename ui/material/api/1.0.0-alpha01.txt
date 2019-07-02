@@ -1,173 +1,4 @@
 // Signature format: 3.0
-package androidx.ui.baseui {
-
-  public final class ClickableKt {
-    ctor public ClickableKt();
-    method public static void Clickable(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, boolean consumeDownOnStart = false, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class ColoredRectKt {
-    ctor public ColoredRectKt();
-    method public static void ColoredRect(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
-    method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
-  }
-
-  public final class DeterminateProgressIndicatorKt {
-    ctor public DeterminateProgressIndicatorKt();
-    method public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class SimpleImageKt {
-    ctor public SimpleImageKt();
-    method public static void SimpleImage(androidx.ui.painting.Image image, androidx.ui.graphics.Color? tint = null);
-  }
-
-}
-
-package androidx.ui.baseui.selection {
-
-  public final class MutuallyExclusiveSetItemKt {
-    ctor public MutuallyExclusiveSetItemKt();
-    method public static void MutuallyExclusiveSetItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public final class ToggleableKt {
-    ctor public ToggleableKt();
-    method public static void Toggleable(androidx.ui.baseui.selection.ToggleableState value = ToggleableState.Checked, kotlin.jvm.functions.Function0<kotlin.Unit>? onToggle = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
-  public enum ToggleableState {
-    enum_constant public static final androidx.ui.baseui.selection.ToggleableState Checked;
-    enum_constant public static final androidx.ui.baseui.selection.ToggleableState Indeterminate;
-    enum_constant public static final androidx.ui.baseui.selection.ToggleableState Unchecked;
-  }
-
-}
-
-package androidx.ui.baseui.shape {
-
-  public final class DrawShapeKt {
-    ctor public DrawShapeKt();
-    method public static void DrawShape(androidx.ui.engine.geometry.Shape shape, androidx.ui.graphics.Color color);
-    method public static void DrawShape(androidx.ui.engine.geometry.Shape shape, androidx.ui.core.vectorgraphics.Brush brush);
-  }
-
-  public final class GenericShape implements androidx.ui.engine.geometry.Shape {
-    ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
-    method public androidx.ui.baseui.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
-    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
-  }
-
-  public final class RectangleShapeKt {
-    ctor public RectangleShapeKt();
-    method public static androidx.ui.engine.geometry.Shape getRectangleShape();
-  }
-
-}
-
-package androidx.ui.baseui.shape.border {
-
-  public final class Border {
-    ctor public Border(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp width);
-    method public androidx.ui.core.vectorgraphics.Brush component1();
-    method public androidx.ui.core.Dp component2();
-    method public androidx.ui.baseui.shape.border.Border copy(androidx.ui.core.vectorgraphics.Brush brush, androidx.ui.core.Dp width);
-    method public androidx.ui.core.vectorgraphics.Brush getBrush();
-    method public androidx.ui.core.Dp getWidth();
-  }
-
-  public final class BorderKt {
-    ctor public BorderKt();
-    method public static androidx.ui.baseui.shape.border.Border Border(androidx.ui.graphics.Color color, androidx.ui.core.Dp width);
-  }
-
-  public final class DrawBorderKt {
-    ctor public DrawBorderKt();
-    method public static void DrawBorder(androidx.ui.engine.geometry.Shape shape, androidx.ui.baseui.shape.border.Border border);
-  }
-
-}
-
-package androidx.ui.baseui.shape.corner {
-
-  public abstract class CornerBasedShape implements androidx.ui.engine.geometry.Shape {
-    ctor public CornerBasedShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public final androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
-    method public abstract androidx.ui.engine.geometry.Outline createOutline(androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
-  }
-
-  public interface CornerSize {
-    method public androidx.ui.core.Px toPx(androidx.ui.core.PxSize shapeSize, androidx.ui.core.Density density);
-  }
-
-  public final class CornerSizeKt {
-    ctor public CornerSizeKt();
-    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(androidx.ui.core.Dp size);
-    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(androidx.ui.core.Px size);
-    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(@IntRange(from=0, to=50) int percent);
-    method public static androidx.ui.baseui.shape.corner.CornerSize CornerSize(@FloatRange(from=0.0, to=50.0) float percent);
-    method public static androidx.ui.baseui.shape.corner.CornerSize getZeroCornerSize();
-  }
-
-  public final class CornerSizes {
-    ctor public CornerSizes(androidx.ui.baseui.shape.corner.CornerSize topLeft, androidx.ui.baseui.shape.corner.CornerSize topRight, androidx.ui.baseui.shape.corner.CornerSize bottomRight, androidx.ui.baseui.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.baseui.shape.corner.CornerSize component1();
-    method public androidx.ui.baseui.shape.corner.CornerSize component2();
-    method public androidx.ui.baseui.shape.corner.CornerSize component3();
-    method public androidx.ui.baseui.shape.corner.CornerSize component4();
-    method public androidx.ui.baseui.shape.corner.CornerSizes copy(androidx.ui.baseui.shape.corner.CornerSize topLeft, androidx.ui.baseui.shape.corner.CornerSize topRight, androidx.ui.baseui.shape.corner.CornerSize bottomRight, androidx.ui.baseui.shape.corner.CornerSize bottomLeft);
-    method public androidx.ui.baseui.shape.corner.CornerSize getBottomLeft();
-    method public androidx.ui.baseui.shape.corner.CornerSize getBottomRight();
-    method public androidx.ui.baseui.shape.corner.CornerSize getTopLeft();
-    method public androidx.ui.baseui.shape.corner.CornerSize getTopRight();
-  }
-
-  public final class CornerSizesKt {
-    ctor public CornerSizesKt();
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.baseui.shape.corner.CornerSize allCornersSize);
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.core.Dp size);
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.core.Px size);
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(int percent);
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.core.Dp topLeft = 0.dp, androidx.ui.core.Dp topRight = 0.dp, androidx.ui.core.Dp bottomRight = 0.dp, androidx.ui.core.Dp bottomLeft = 0.dp);
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(androidx.ui.core.Px topLeft = 0.px, androidx.ui.core.Px topRight = 0.px, androidx.ui.core.Px bottomRight = 0.px, androidx.ui.core.Px bottomLeft = 0.px);
-    method public static androidx.ui.baseui.shape.corner.CornerSizes CornerSizes(@IntRange(from=0, to=50) int topLeftPercent = 0, @IntRange(from=0, to=50) int topRightPercent = 0, @IntRange(from=0, to=50) int bottomRightPercent = 0, @IntRange(from=0, to=50) int bottomLeftPercent = 0);
-  }
-
-  public final class PxCornerSizes {
-    ctor public PxCornerSizes(androidx.ui.core.Px topLeft, androidx.ui.core.Px topRight, androidx.ui.core.Px bottomRight, androidx.ui.core.Px bottomLeft);
-    method public androidx.ui.core.Px component1();
-    method public androidx.ui.core.Px component2();
-    method public androidx.ui.core.Px component3();
-    method public androidx.ui.core.Px component4();
-    method public androidx.ui.baseui.shape.corner.PxCornerSizes copy(androidx.ui.core.Px topLeft, androidx.ui.core.Px topRight, androidx.ui.core.Px bottomRight, androidx.ui.core.Px bottomLeft);
-    method public androidx.ui.core.Px getBottomLeft();
-    method public androidx.ui.core.Px getBottomRight();
-    method public androidx.ui.core.Px getTopLeft();
-    method public androidx.ui.core.Px getTopRight();
-  }
-
-  public final class PxCornerSizesKt {
-    ctor public PxCornerSizesKt();
-    method public static androidx.ui.baseui.shape.corner.PxCornerSizes PxCornerSizes(androidx.ui.baseui.shape.corner.CornerSizes corners, androidx.ui.core.PxSize size, androidx.ui.core.Density density);
-    method public static boolean isEmpty(androidx.ui.baseui.shape.corner.PxCornerSizes);
-  }
-
-  public final class RoundedCornerShape extends androidx.ui.baseui.shape.corner.CornerBasedShape {
-    ctor public RoundedCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public androidx.ui.baseui.shape.corner.CornerSizes component1();
-    method public androidx.ui.baseui.shape.corner.RoundedCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public androidx.ui.engine.geometry.Outline.Rounded createOutline(androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
-    method public androidx.ui.baseui.shape.corner.CornerSizes getCorners();
-  }
-
-  public final class RoundedCornerShapeKt {
-    ctor public RoundedCornerShapeKt();
-    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape RoundedCornerShape(androidx.ui.baseui.shape.corner.CornerSize corner);
-    method public static androidx.ui.baseui.shape.corner.RoundedCornerShape getCircleShape();
-  }
-
-}
-
 package androidx.ui.material {
 
   public final class AppBarKt {
@@ -190,15 +21,15 @@ package androidx.ui.material {
     button
 }), androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+}), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void Button(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
 }), androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
+}), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
     method public static void TransparentButton(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
-}), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
+}), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
   }
 
   public final class CheckboxKt {
@@ -206,7 +37,7 @@ package androidx.ui.material {
     method public static void Checkbox(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, androidx.ui.graphics.Color color = +themeColor({ 
     secondary
 }));
-    method public static void TriStateCheckbox(androidx.ui.baseui.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void TriStateCheckbox(androidx.ui.foundation.selection.ToggleableState value, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, androidx.ui.graphics.Color color = +themeColor({ 
     secondary
 }));
   }
@@ -450,12 +281,12 @@ package androidx.ui.material.ripple {
 
 package androidx.ui.material.shape {
 
-  public final class CutCornerShape extends androidx.ui.baseui.shape.corner.CornerBasedShape {
-    ctor public CutCornerShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public androidx.ui.baseui.shape.corner.CornerSizes component1();
-    method public androidx.ui.material.shape.CutCornerShape copy(androidx.ui.baseui.shape.corner.CornerSizes corners);
-    method public androidx.ui.engine.geometry.Outline.Generic createOutline(androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
-    method public androidx.ui.baseui.shape.corner.CornerSizes getCorners();
+  public final class CutCornerShape extends androidx.ui.foundation.shape.corner.CornerBasedShape {
+    ctor public CutCornerShape(androidx.ui.foundation.shape.corner.CornerSizes corners);
+    method public androidx.ui.foundation.shape.corner.CornerSizes component1();
+    method public androidx.ui.material.shape.CutCornerShape copy(androidx.ui.foundation.shape.corner.CornerSizes corners);
+    method public androidx.ui.engine.geometry.Outline.Generic createOutline(androidx.ui.foundation.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
+    method public androidx.ui.foundation.shape.corner.CornerSizes getCorners();
   }
 
 }
@@ -466,7 +297,7 @@ package androidx.ui.material.surface {
     ctor public CardKt();
     method public static void Card(androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
     surface
-}), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+}), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawShadowKt {
@@ -478,7 +309,7 @@ package androidx.ui.material.surface {
     ctor public SurfaceKt();
     method public static void Surface(androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
     surface
-}), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+}), androidx.ui.foundation.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class TransparentSurfaceKt {

@@ -19,13 +19,13 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.baseui.shape.border.Border
-import androidx.ui.baseui.shape.corner.CornerSizes
-import androidx.ui.baseui.shape.corner.RoundedCornerShape
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.px
+import androidx.ui.foundation.shape.border.Border
+import androidx.ui.foundation.shape.corner.CornerSizes
+import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding

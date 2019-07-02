@@ -16,11 +16,17 @@
 
 package androidx.ui.material.demos
 
-import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.baseui.selection.ToggleableState.Checked
-import androidx.ui.baseui.selection.ToggleableState.Unchecked
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.memo
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.selection.ToggleableState.Checked
+import androidx.ui.foundation.selection.ToggleableState.Unchecked
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
@@ -34,12 +40,6 @@ import androidx.ui.material.RadioGroup
 import androidx.ui.material.Switch
 import androidx.ui.material.surface.Surface
 import androidx.ui.material.themeTextStyle
-import androidx.ui.graphics.Color
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.memo
-import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.material.TriStateCheckbox
 
 private val customColor = Color(0xFFFF5722.toInt())

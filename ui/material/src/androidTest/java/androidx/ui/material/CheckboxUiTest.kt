@@ -16,13 +16,15 @@
 package androidx.ui.material
 
 import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
-import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.baseui.selection.ToggleableState.Checked
-import androidx.ui.baseui.selection.ToggleableState.Indeterminate
-import androidx.ui.baseui.selection.ToggleableState.Unchecked
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
+import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.selection.ToggleableState.Checked
+import androidx.ui.foundation.selection.ToggleableState.Indeterminate
+import androidx.ui.foundation.selection.ToggleableState.Unchecked
 import androidx.ui.layout.Column
 import androidx.ui.test.assertIsChecked
 import androidx.ui.test.assertIsNotChecked
@@ -33,9 +35,6 @@ import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag
 import com.google.common.truth.Truth
-import androidx.compose.composer
-import androidx.compose.state
-import androidx.compose.unaryPlus
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
