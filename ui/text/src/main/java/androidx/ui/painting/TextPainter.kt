@@ -476,9 +476,9 @@ class TextPainter(
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun getBoundingBoxForTextPosition(textPosition: Int): Rect {
+    fun getBoundingBox(offset: Int): Rect {
         assert(!needsLayout)
-        return paragraph!!.getBoundingBoxForTextPosition(textPosition)
+        return paragraph!!.getBoundingBox(offset)
     }
 
     /**

@@ -108,8 +108,8 @@ internal class TextSelectionProcessor(
         // behaviour.
         textSelectionEnd = textSelectionEnd - 1
 
-        startOffset = textPainter.getBoundingBoxForTextPosition(textSelectionStart)
-        endOffset = textPainter.getBoundingBoxForTextPosition(textSelectionEnd)
+        startOffset = textPainter.getBoundingBox(textSelectionStart)
+        endOffset = textPainter.getBoundingBox(textSelectionEnd)
 
         this.containsWholeSelectionStart = containsWholeSelectionStart
         this.containsWholeSelectionEnd = containsWholeSelectionEnd

@@ -63,11 +63,13 @@ package androidx.ui.engine.text {
     property public final androidx.ui.engine.text.FontWeight w900;
   }
 
-  public final class Paragraph {
+  public interface Paragraph {
     method public float getBaseline();
+    method public androidx.ui.engine.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.engine.geometry.Rect getCursorRect(int offset);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
+    method public int getLineCount();
     method public float getLineHeight(int lineIndex);
     method public float getLineLeft(int lineIndex);
     method public float getLineRight(int lineIndex);
@@ -80,12 +82,13 @@ package androidx.ui.engine.text {
     method public androidx.ui.services.text_editing.TextRange getWordBoundary(int offset);
     method public void layout(androidx.ui.engine.text.ParagraphConstraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, float x, float y);
-    property public final float baseline;
-    property public final boolean didExceedMaxLines;
-    property public final float height;
-    property public final float maxIntrinsicWidth;
-    property public final float minIntrinsicWidth;
-    property public final float width;
+    property public abstract float baseline;
+    property public abstract boolean didExceedMaxLines;
+    property public abstract float height;
+    property public abstract int lineCount;
+    property public abstract float maxIntrinsicWidth;
+    property public abstract float minIntrinsicWidth;
+    property public abstract float width;
   }
 
   public final class ParagraphConstraints {
@@ -93,6 +96,11 @@ package androidx.ui.engine.text {
     method public float component1();
     method public androidx.ui.engine.text.ParagraphConstraints copy(float width);
     method public float getWidth();
+  }
+
+  public final class ParagraphKt {
+    ctor public ParagraphKt();
+    method public static androidx.ui.engine.text.Paragraph Paragraph(String text, androidx.ui.painting.TextStyle style, androidx.ui.engine.text.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.painting.AnnotatedString.Item<androidx.ui.painting.TextStyle>> textStyles, androidx.ui.core.Density density);
   }
 
   public final class ParagraphStyle {
