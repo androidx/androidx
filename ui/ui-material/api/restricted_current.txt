@@ -3,16 +3,23 @@ package androidx.ui.material {
 
   public final class AppBarKt {
     ctor public AppBarKt();
-    method public static void AppBar(androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void AppBarLeadingIcon();
-    method public static void TopAppBar(String? title = null, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void AppBarIcon(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit> onClick);
+    method public static <T> void BottomAppBar(androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), java.util.List<androidx.ui.core.Dp> icons = emptyList());
-    method public static void TopAppBar(androidx.ui.graphics.Color color = +themeColor({ 
+}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.BottomAppBar.FabPosition fabPosition = Center, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
+    method public static <T> void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title = {}, androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), kotlin.jvm.functions.Function0<kotlin.Unit> leadingIcon, kotlin.jvm.functions.Function0<kotlin.Unit> titleTextLabel, kotlin.jvm.functions.Function0<kotlin.Unit> trailingIcons);
-    method public static void TopAppBarTitleTextLabel(String title);
-    method public static void TopAppBarTrailingIcons(java.util.List<androidx.ui.core.Dp> icons);
+}), kotlin.jvm.functions.Function0<kotlin.Unit> navigationIcon = {}, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
+  }
+
+  public final class BottomAppBar {
+    field public static final androidx.ui.material.BottomAppBar! INSTANCE;
+  }
+
+  public enum BottomAppBar.FabPosition {
+    enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition Center;
+    enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition CenterCut;
+    enum_constant public static final androidx.ui.material.BottomAppBar.FabPosition End;
   }
 
   public final class ButtonKt {
