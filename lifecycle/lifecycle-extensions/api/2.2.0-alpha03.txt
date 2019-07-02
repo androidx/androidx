@@ -1,12 +1,12 @@
 // Signature format: 3.0
 package androidx.lifecycle {
 
-  public class ViewModelProviders {
+  @Deprecated public class ViewModelProviders {
     ctor @Deprecated public ViewModelProviders();
-    method @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment);
-    method @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity);
-    method @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment, androidx.lifecycle.ViewModelProvider.Factory?);
-    method @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity, androidx.lifecycle.ViewModelProvider.Factory?);
+    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment);
+    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity);
+    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.Fragment, androidx.lifecycle.ViewModelProvider.Factory?);
+    method @Deprecated @MainThread public static androidx.lifecycle.ViewModelProvider of(androidx.fragment.app.FragmentActivity, androidx.lifecycle.ViewModelProvider.Factory?);
   }
 
   @Deprecated public static class ViewModelProviders.DefaultFactory extends androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory {
