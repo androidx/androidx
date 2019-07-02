@@ -52,6 +52,7 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
+import androidx.ui.core.TextRange
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
@@ -70,7 +71,6 @@ import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.painting.TextStyle
-import androidx.ui.services.text_editing.TextRange
 import java.util.Locale
 import kotlin.math.floor
 import kotlin.math.roundToInt

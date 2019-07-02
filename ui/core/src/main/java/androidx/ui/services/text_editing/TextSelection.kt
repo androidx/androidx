@@ -16,6 +16,8 @@
 
 package androidx.ui.services.text_editing
 
+import androidx.ui.core.TextRange
+
 /** A range of text that represents a selection. */
 data class TextSelection(
     /**
@@ -45,10 +47,18 @@ data class TextSelection(
      * extent and is adjusted.
      */
     val isDirectional: Boolean = false
-) : TextRange(
-    start = if (baseOffset < extentOffset) baseOffset else extentOffset,
-    end = if (baseOffset < extentOffset) extentOffset else baseOffset
 ) {
+    private val range: TextRange = TextRange(
+        start = if (baseOffset < extentOffset) baseOffset else extentOffset,
+        end = if (baseOffset < extentOffset) extentOffset else baseOffset
+    )
+
+    val start: Int
+        get() = range.start
+
+    val end: Int
+        get() = range.end
+
     companion object {
         /**
          * Creates a collapsed selection at the given offset.
@@ -63,7 +73,8 @@ data class TextSelection(
             return TextSelection(
                 baseOffset = offset,
                 extentOffset = offset,
-                isDirectional = false)
+                isDirectional = false
+            )
         }
 
         /**
