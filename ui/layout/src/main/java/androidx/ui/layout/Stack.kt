@@ -81,21 +81,8 @@ class StackChildren {
  * will be resolved according to the [Stack]'s defaultAlignment argument.
  *
  * Example usage:
- *     Stack {
- *         aligned(Alignment.Center) {
- *             SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 300.dp, height = 300.dp)
- *         }
- *         aligned(Alignment.TopLeft) {
- *             SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 150.dp, height = 150.dp)
- *         }
- *         aligned(Alignment.BottomRight) {
- *             SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 150.dp, height = 150.dp)
- *         }
- *         positioned(null, 20.dp, null, 20.dp) {
- *             SizedRectangle(color = Color(0xFFFFA500.toInt()), width = 80.dp)
- *             SizedRectangle(color = Color(0xFFA52A2A.toInt()), width = 20.dp)
- *         }
- *     }
+ *
+ * @sample androidx.ui.layout.samples.SimpleStack
  */
 @Composable
 fun Stack(

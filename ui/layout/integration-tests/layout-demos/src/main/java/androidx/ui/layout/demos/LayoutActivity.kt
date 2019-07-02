@@ -37,6 +37,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.setContent
 import androidx.ui.core.sp
+import androidx.ui.layout.samples.DrawRectangle
 
 class LayoutActivity : Activity() {
 
