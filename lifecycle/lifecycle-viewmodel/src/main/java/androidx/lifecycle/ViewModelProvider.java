@@ -27,7 +27,7 @@ import java.lang.reflect.InvocationTargetException;
  * An utility class that provides {@code ViewModels} for a scope.
  * <p>
  * Default {@code ViewModelProvider} for an {@code Activity} or a {@code Fragment} can be obtained
- * from {@link androidx.lifecycle.ViewModelProviders} class.
+ * by passing it to {@link ViewModelProvider#ViewModelProvider(ViewModelStoreOwner)}.
  */
 @SuppressWarnings("WeakerAccess")
 public class ViewModelProvider {
@@ -80,6 +80,21 @@ public class ViewModelProvider {
 
     private final Factory mFactory;
     private final ViewModelStore mViewModelStore;
+
+    /**
+     * Creates {@code ViewModelProvider}. This will create {@code ViewModels}
+     * and retain them in a store of the given {@code ViewModelStoreOwner}.
+     * <p>
+     * This method will use the
+     * {@link HasDefaultViewModelProviderFactory#getDefaultViewModelProviderFactory() default factory}
+     * if the owner implements {@link HasDefaultViewModelProviderFactory}. Otherwise, a
+     * {@link NewInstanceFactory} will be used.
+     */
+    public ViewModelProvider(@NonNull ViewModelStoreOwner owner) {
+        this(owner.getViewModelStore(), owner instanceof HasDefaultViewModelProviderFactory
+                ? ((HasDefaultViewModelProviderFactory) owner).getDefaultViewModelProviderFactory()
+                : NewInstanceFactory.getInstance());
+    }
 
     /**
      * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
@@ -171,6 +186,21 @@ public class ViewModelProvider {
      * Simple factory, which calls empty constructor on the give class.
      */
     public static class NewInstanceFactory implements Factory {
+
+        private static NewInstanceFactory sInstance;
+
+        /**
+         * Retrieve a singleton instance of NewInstanceFactory.
+         *
+         * @return A valid {@link NewInstanceFactory}
+         */
+        @NonNull
+        static NewInstanceFactory getInstance() {
+            if (sInstance == null) {
+                sInstance = new NewInstanceFactory();
+            }
+            return sInstance;
+        }
 
         @SuppressWarnings("ClassNewInstance")
         @NonNull

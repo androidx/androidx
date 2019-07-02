@@ -29,11 +29,13 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.savedstate.SavedStateRegistry;
@@ -50,6 +52,7 @@ import androidx.savedstate.SavedStateRegistryOwner;
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
         LifecycleOwner,
         ViewModelStoreOwner,
+        HasDefaultViewModelProviderFactory,
         SavedStateRegistryOwner,
         OnBackPressedDispatcherOwner {
 
@@ -270,6 +273,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             }
         }
         return mViewModelStore;
+    }
+
+    @NonNull
+    @Override
+    public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+        if (getApplication() == null) {
+            throw new IllegalStateException("Your activity is not yet attached to the "
+                    + "Application instance. You can't request ViewModel before onCreate call.");
+        }
+        return ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication());
     }
 
     /**
