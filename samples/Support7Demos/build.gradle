@@ -13,7 +13,7 @@ dependencies {
     implementation(project(":gridlayout"))
     implementation(project(":mediarouter"))
     implementation(project(":palette:palette"))
-    implementation(project(":recyclerview"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation project(":recyclerview:recyclerview-selection")
     implementation(project(":core:core"))
     implementation project(':drawerlayout')

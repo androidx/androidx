@@ -13,7 +13,7 @@ dependencies {
     api("androidx.cardview:cardview:1.0.0")
     api("androidx.coordinatorlayout:coordinatorlayout:1.0.0")
     api("androidx.annotation:annotation:1.1.0")
-    api(project(":recyclerview"))
+    api(project(":recyclerview:recyclerview"))
     api("androidx.gridlayout:gridlayout:1.0.0")
     api("androidx.preference:preference:1.0.0")
     api(CONSTRAINT_LAYOUT, { transitive = true })

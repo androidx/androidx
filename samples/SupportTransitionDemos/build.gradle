@@ -6,7 +6,7 @@ plugins {
 dependencies {
     implementation(project(":transition"))
     implementation(project(":appcompat"))
-    implementation(project(":recyclerview"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation(project(":interpolator"))
 }
 
