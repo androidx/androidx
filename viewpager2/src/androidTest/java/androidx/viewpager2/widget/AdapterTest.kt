@@ -23,7 +23,12 @@ import androidx.testutils.waitForExecution
 import androidx.viewpager2.widget.AdapterTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.AdapterTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.AdapterTest.Event.OnPageSelectedEvent
+import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.notNullValue
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -46,7 +51,8 @@ class AdapterTest : BaseTest() {
 
     @Test
     fun test_setAdapter() {
-        test.setAdapterSync(viewAdapterProvider(stringSequence(5)))
+        val recorder = test.viewPager.addNewRecordingCallback()
+        test.setAdapterSync(viewAdapterProvider(stringSequence(pageCount)))
         test.assertBasicState(0)
         test.viewPager.setCurrentItemSync(1, false, 2, SECONDS)
         test.assertBasicState(1)
@@ -54,6 +60,76 @@ class AdapterTest : BaseTest() {
             test.viewPager.adapter = test.viewPager.adapter
         }
         test.assertBasicState(0)
+
+        assertThat(recorder.allEvents, equalTo(
+            expectedEventsForPage(0)            // for setting the adapter
+                .plus(expectedEventsForPage(1)) // for going to page 1
+                .plus(expectedEventsForPage(0)) // for setting it again
+        ))
+    }
+
+    private fun setUpWithoutAdapter() {
+        assertThat(test.viewPager.adapter, nullValue())
+        assertThat(test.viewPager.currentItem, equalTo(0))
+    }
+
+    private fun setUpWithEmptyAdapter() {
+        setUpAdapterSync(0)
+        assertThat(test.viewPager.adapter, notNullValue())
+        assertThat(test.viewPager.currentItem, equalTo(0))
+    }
+
+    @Test
+    fun test_setCurrentItemNullAdapter() {
+        test_setCurrentItemWithoutContent(this::setUpWithoutAdapter)
+    }
+
+    @Test
+    fun test_setCurrentItemEmptyAdapter() {
+        test_setCurrentItemWithoutContent(this::setUpWithEmptyAdapter)
+    }
+
+    private fun test_setCurrentItemWithoutContent(setUp: () -> Unit) {
+        setUp()
+        listOf(-1, 0, 1, 10).forEach { targetPage ->
+            // given
+            val recorder = test.viewPager.addNewRecordingCallback()
+
+            // when
+            test.viewPager.setCurrentItemSync(targetPage, false, 2, SECONDS, false)
+
+            // then
+            assertThat(test.viewPager.currentItem, equalTo(0))
+            assertThat(recorder.allEvents, equalTo(emptyList()))
+            test.viewPager.unregisterOnPageChangeCallback(recorder)
+        }
+    }
+
+    @Test
+    fun test_swipeNullAdapter() {
+        test_swipeWithoutContent(this::setUpWithoutAdapter)
+    }
+
+    @Test
+    fun test_swipeEmptyAdapter() {
+        test_swipeWithoutContent(this::setUpWithEmptyAdapter)
+    }
+
+    private fun test_swipeWithoutContent(setUp: () -> Unit) {
+        setUp()
+        listOf(test::swipeForward, test::swipeBackward).forEach { swipe ->
+            val recorder = test.viewPager.addNewRecordingCallback()
+
+            val idleLatch = test.viewPager.addWaitForIdleLatch()
+            swipe(SwipeMethod.ESPRESSO)
+            idleLatch.await(2, SECONDS)
+
+            assertThat(recorder.allEvents, equalTo(listOf(
+                OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) as Event,
+                OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event
+            )))
+            test.viewPager.unregisterOnPageChangeCallback(recorder)
+        }
     }
 
     @Test
