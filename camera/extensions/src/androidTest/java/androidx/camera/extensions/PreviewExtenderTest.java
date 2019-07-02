@@ -18,9 +18,9 @@ package androidx.camera.extensions;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -32,21 +32,16 @@ import android.Manifest;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
 import android.util.Pair;
 
-import androidx.camera.camera2.Camera2Config;
-import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
-import androidx.camera.camera2.impl.CameraEventCallbacks;
-import androidx.camera.core.CameraCaptureResult;
-import androidx.camera.core.CameraCaptureResults;
 import androidx.camera.core.CameraX;
-import androidx.camera.core.ImageInfo;
-import androidx.camera.core.ImageInfoProcessor;
 import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
+import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -81,13 +76,17 @@ public class PreviewExtenderTest {
         FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
 
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
+        when(mockPreviewExtenderImpl.getProcessorType()).thenReturn(
+                PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_IMAGE_PROCESSOR);
+        when(mockPreviewExtenderImpl.getProcessor()).thenReturn(
+                mock(PreviewImageProcessorImpl.class));
 
-        PreviewExtender.PreviewExtenderAdapter previewExtenderAdapter =
-                new PreviewExtender.PreviewExtenderAdapter(mockPreviewExtenderImpl, null);
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setUseCaseEventListener(
-                previewExtenderAdapter).setLensFacing(CameraX.LensFacing.BACK);
-        new Camera2Config.Extender(configBuilder).setCameraEventCallback(
-                new CameraEventCallbacks(previewExtenderAdapter));
+        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
+                CameraX.LensFacing.BACK);
+
+        FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
+                mockPreviewExtenderImpl);
+        fakePreviewExtender.enableExtension();
 
         Preview useCase = new Preview(configBuilder.build());
 
@@ -99,8 +98,15 @@ public class PreviewExtenderTest {
 
         // To verify the call in order after bind to life cycle, and to verification of the
         // getCaptureStages() is also used to wait for the capture session created. The test for
-        // the unbind would come after the capture session was created.
-        InOrder inOrder = inOrder(mockPreviewExtenderImpl);
+        // the unbind would come after the capture session was created. Ignore any of the calls
+        // unrelated to the ExtenderStateListener.
+        verify(mockPreviewExtenderImpl, timeout(3000)).init(any(String.class),
+                any(CameraCharacteristics.class));
+        verify(mockPreviewExtenderImpl, timeout(3000)).getProcessorType();
+        verify(mockPreviewExtenderImpl, timeout(3000)).getProcessor();
+
+        InOrder inOrder = inOrder(ignoreStubs(mockPreviewExtenderImpl));
+
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).onInit(any(String.class), any(
                 CameraCharacteristics.class), any(Context.class));
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).onPresetSession();
@@ -120,28 +126,29 @@ public class PreviewExtenderTest {
 
     @Test
     @MediumTest
-    public void getCaptureStagesTest_shouldSetToRepeatingRequest() {
+    public void getCaptureStagesTest_shouldSetToRepeatingRequest() throws InterruptedException {
         FakeLifecycleOwner lifecycle = new FakeLifecycleOwner();
 
-        ImageInfoProcessor mockImageInfoProcessor = mock(ImageInfoProcessor.class);
-
         // Set up a result for getCaptureStages() testing.
-        List<Pair<CaptureRequest.Key, Object>> parameters = new ArrayList<>();
-        parameters.add(Pair.create(CaptureRequest.CONTROL_EFFECT_MODE,
-                CaptureRequest.CONTROL_EFFECT_MODE_BLACKBOARD));
-        CaptureStageImpl mockCaptureStageImpl = mock(CaptureStageImpl.class);
-        when(mockCaptureStageImpl.getParameters()).thenReturn(parameters);
+        CaptureStageImpl fakeCaptureStageImpl = new FakeCaptureStageImpl();
 
         PreviewExtenderImpl mockPreviewExtenderImpl = mock(PreviewExtenderImpl.class);
-        when(mockPreviewExtenderImpl.getCaptureStage()).thenReturn(mockCaptureStageImpl);
+        RequestUpdateProcessorImpl mockRequestUpdateProcessorImpl = mock(
+                RequestUpdateProcessorImpl.class);
 
-        PreviewExtender.PreviewExtenderAdapter previewExtenderAdapter =
-                new PreviewExtender.PreviewExtenderAdapter(mockPreviewExtenderImpl, null);
-        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setUseCaseEventListener(
-                previewExtenderAdapter).setLensFacing(CameraX.LensFacing.BACK);
-        new Camera2Config.Extender(configBuilder).setCameraEventCallback(
-                new CameraEventCallbacks(previewExtenderAdapter));
-        configBuilder.setImageInfoProcessor(mockImageInfoProcessor);
+        // The mock an RequestUpdateProcessorImpl to capture the returned TotalCaptureResult
+        when(mockPreviewExtenderImpl.getProcessorType()).thenReturn(
+                PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY);
+        when(mockPreviewExtenderImpl.getProcessor()).thenReturn(mockRequestUpdateProcessorImpl);
+
+        when(mockPreviewExtenderImpl.getCaptureStage()).thenReturn(fakeCaptureStageImpl);
+
+        PreviewConfig.Builder configBuilder = new PreviewConfig.Builder().setLensFacing(
+                CameraX.LensFacing.BACK);
+
+        FakePreviewExtender fakePreviewExtender = new FakePreviewExtender(configBuilder,
+                mockPreviewExtenderImpl);
+        fakePreviewExtender.enableExtension();
 
         Preview useCase = new Preview(configBuilder.build());
 
@@ -151,21 +158,44 @@ public class PreviewExtenderTest {
         // To set the update listener and Preview will change to active state.
         useCase.setOnPreviewOutputUpdateListener(mock(Preview.OnPreviewOutputUpdateListener.class));
 
-        ArgumentCaptor<ImageInfo> imageInfo = ArgumentCaptor.forClass(ImageInfo.class);
-        verify(mockImageInfoProcessor, timeout(3000)).process(imageInfo.capture());
-        CameraCaptureResult result = CameraCaptureResults.retrieveCameraCaptureResult(
-                imageInfo.getValue());
-        assertNotNull(result);
+        ArgumentCaptor<TotalCaptureResult> captureResultArgumentCaptor = ArgumentCaptor.forClass(
+                TotalCaptureResult.class);
 
-        CaptureResult captureResult = Camera2CameraCaptureResultConverter.getCaptureResult(result);
-        assertNotNull(captureResult);
+        verify(mockRequestUpdateProcessorImpl, timeout(3000).atLeastOnce()).process(
+                captureResultArgumentCaptor.capture());
+
+        // TotalCaptureResult might be captured multiple times. Only care to get one instance of
+        // it, since they should all have the same value for the tested key
+        TotalCaptureResult totalCaptureResult = captureResultArgumentCaptor.getValue();
 
         // To verify the capture result should include the parameter of the getCaptureStages().
-        assertThat(captureResult.getRequest().get(CaptureRequest.CONTROL_EFFECT_MODE)).isEqualTo(
-                CaptureRequest.CONTROL_EFFECT_MODE_BLACKBOARD);
-
-        CameraX.unbind(useCase);
-        verify(mockPreviewExtenderImpl, timeout(3000)).onDeInit();
+        List<Pair<CaptureRequest.Key, Object>> parameters = fakeCaptureStageImpl.getParameters();
+        for (Pair<CaptureRequest.Key, Object> parameter : parameters) {
+            assertThat(totalCaptureResult.getRequest().get(
+                    (CaptureRequest.Key<Object>) parameter.first).equals(
+                    parameter.second));
+        }
     }
 
+    private class FakePreviewExtender extends PreviewExtender {
+        FakePreviewExtender(PreviewConfig.Builder builder, PreviewExtenderImpl impl) {
+            init(builder, impl, ExtensionsManager.EffectMode.NORMAL);
+        }
+    }
+
+    private class FakeCaptureStageImpl implements CaptureStageImpl {
+        @Override
+        public int getId() {
+            return 0;
+        }
+
+        @Override
+        public List<Pair<CaptureRequest.Key, Object>> getParameters() {
+            List<Pair<CaptureRequest.Key, Object>> parameters = new ArrayList<>();
+            parameters.add(Pair.create(CaptureRequest.CONTROL_EFFECT_MODE,
+                    CaptureRequest.CONTROL_EFFECT_MODE_BLACKBOARD));
+
+            return parameters;
+        }
+    }
 }
