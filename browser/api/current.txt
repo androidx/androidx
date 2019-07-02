@@ -170,7 +170,8 @@ package androidx.browser.customtabs {
     method protected abstract boolean validateRelationship(androidx.browser.customtabs.CustomTabsSessionToken!, @androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri!, android.os.Bundle!);
     method protected abstract boolean warmup(long);
     field public static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
-    field public static final String CATEGORY_NAVBAR_COLOR_CUSTOMIZATION = "androidx.browser.trusted.category.NavBarColorCustomization";
+    field public static final String CATEGORY_COLOR_SCHEME_CUSTOMIZATION = "androidx.browser.customtabs.category.ColorSchemeCustomization";
+    field public static final String CATEGORY_NAVBAR_COLOR_CUSTOMIZATION = "androidx.browser.customtabs.category.NavBarColorCustomization";
     field public static final String KEY_URL = "android.support.customtabs.otherurls.URL";
     field public static final int RELATION_HANDLE_ALL_URLS = 2; // 0x2
     field public static final int RELATION_USE_AS_ORIGIN = 1; // 0x1
