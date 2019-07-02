@@ -34,18 +34,16 @@ import androidx.compose.composer
  * horizontalBias=0f) represents the center of the box, (verticalBias=-1f, horizontalBias=1f)
  * will be the top right, etc.
  */
-data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
-    companion object {
-        val TopLeft = Alignment(-1f, -1f)
-        val TopCenter = Alignment(-1f, 0f)
-        val TopRight = Alignment(-1f, 1f)
-        val CenterLeft = Alignment(0f, -1f)
-        val Center = Alignment(0f, 0f)
-        val CenterRight = Alignment(0f, 1f)
-        val BottomLeft = Alignment(1f, -1f)
-        val BottomCenter = Alignment(1f, 0f)
-        val BottomRight = Alignment(1f, 1f)
-    }
+enum class Alignment(private val verticalBias: Float, private val horizontalBias: Float) {
+    TopLeft(-1f, -1f),
+    TopCenter(-1f, 0f),
+    TopRight(-1f, 1f),
+    CenterLeft(0f, -1f),
+    Center(0f, 0f),
+    CenterRight(0f, 1f),
+    BottomLeft(1f, -1f),
+    BottomCenter(1f, 0f),
+    BottomRight(1f, 1f);
 
     /**
      * Returns the position of a 2D point in a container of a given size,
