@@ -16,6 +16,7 @@
 package androidx.ui.engine.text
 
 import androidx.ui.core.Density
+import androidx.ui.core.TextRange
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.platform.ParagraphAndroid
@@ -23,7 +24,6 @@ import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.painting.TextStyle
-import androidx.ui.services.text_editing.TextRange
 
 /**
  * A paragraph of text.

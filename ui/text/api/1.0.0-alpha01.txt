@@ -79,7 +79,7 @@ package androidx.ui.engine.text {
     method public androidx.ui.painting.Path getPathForRange(int start, int end);
     method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getWidth();
-    method public androidx.ui.services.text_editing.TextRange getWordBoundary(int offset);
+    method public androidx.ui.core.TextRange getWordBoundary(int offset);
     method public void layout(androidx.ui.engine.text.ParagraphConstraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, float x, float y);
     property public abstract float baseline;
@@ -369,7 +369,7 @@ package androidx.ui.painting {
     method public androidx.ui.painting.TextStyle? getStyle();
     method public androidx.ui.painting.AnnotatedString? getText();
     method public float getWidth();
-    method public androidx.ui.services.text_editing.TextRange getWordBoundary(int position);
+    method public androidx.ui.core.TextRange getWordBoundary(int position);
     method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);

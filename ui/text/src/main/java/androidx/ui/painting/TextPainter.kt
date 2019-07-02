@@ -23,6 +23,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Sp
+import androidx.ui.core.TextRange
 import androidx.ui.core.constrain
 import androidx.ui.core.px
 import androidx.ui.core.round
@@ -38,7 +39,6 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.window.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.rendering.paragraph.TextOverflow
-import androidx.ui.services.text_editing.TextRange
 import kotlin.math.ceil
 
 private val DefaultTextAlign: TextAlign = TextAlign.Start
