@@ -53,4 +53,12 @@ data class ParagraphStyle constructor(
     val lineHeight: Float? = null,
     val maxLines: Int? = null,
     val ellipsis: Boolean? = null
-)
+) {
+    init {
+        lineHeight?.let {
+            assert(it >= 0f) {
+                "lineHeight can't be negative ($it)"
+            }
+        }
+    }
+}

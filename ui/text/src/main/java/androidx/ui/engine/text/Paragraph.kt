@@ -33,24 +33,13 @@ import androidx.ui.services.text_editing.TextRange
  *
  * Paragraphs can be displayed on a [Canvas] using the [paint] method.
  */
-class Paragraph internal constructor(
-    private val text: String,
-    style: TextStyle,
-    paragraphStyle: ParagraphStyle,
-    textStyles: List<AnnotatedString.Item<TextStyle>>,
-    density: Density
-) {
-    private var needsLayout = true
-    /** increased visibility for testing **/
-    internal val paragraphImpl: ParagraphAndroid
-
+interface Paragraph {
     /**
      * The amount of horizontal space this paragraph occupies.
      *
      * Valid only after [layout] has been called.
      */
     val width: Float
-        get() = paragraphImpl.width
 
     /**
      * The amount of vertical space this paragraph occupies.
@@ -58,7 +47,6 @@ class Paragraph internal constructor(
      * Valid only after [layout] has been called.
      */
     val height: Float
-        get() = paragraphImpl.height
 
     /**
      * The minimum width that this paragraph could be without failing to paint
@@ -66,8 +54,7 @@ class Paragraph internal constructor(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth
-        get() = paragraphImpl.minIntrinsicWidth
+    val minIntrinsicWidth: Float
 
     /**
      * Returns the smallest width beyond which increasing the width never
@@ -76,14 +63,12 @@ class Paragraph internal constructor(
      * Valid only after [layout] has been called.
      */
     val maxIntrinsicWidth: Float
-        get() = paragraphImpl.maxIntrinsicWidth
 
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
     val baseline: Float
-        get() = paragraphImpl.baseline
 
     /**
      * True if there is more vertical content, but the text was truncated, either
@@ -94,76 +79,45 @@ class Paragraph internal constructor(
      * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
      */
     val didExceedMaxLines: Boolean
-        get() = paragraphImpl.didExceedMaxLines
 
-    init {
-        if (paragraphStyle.lineHeight != null && paragraphStyle.lineHeight < 0.0f) {
-            throw IllegalArgumentException("lineHeight can't be negative")
-        }
-        paragraphImpl = ParagraphAndroid(
-            text = text,
-            style = style,
-            paragraphStyle = paragraphStyle,
-            textStyles = textStyles,
-            density = density
-        )
-    }
+    /**
+     * The total number of lines in the text.
+     */
+    val lineCount: Int
 
     /**
      * Computes the size and position of each glyph in the paragraph.
      *
      * The [ParagraphConstraints] control how wide the text is allowed to be.
      */
-    fun layout(constraints: ParagraphConstraints) {
-        _layout(constraints.width)
-    }
-
-    private fun _layout(width: Float, force: Boolean = false) {
-        // TODO(migration/siyamed) the comparison should be floor(width) since it is
-        // floored in paragraphImpl, or the comparison should be moved to there.
-        if (!needsLayout && this.width == width && !force) return
-        needsLayout = false
-        paragraphImpl.layout(width)
-    }
+    fun layout(constraints: ParagraphConstraints)
 
     /** Returns path that enclose the given text range. */
-    fun getPathForRange(start: Int, end: Int): Path {
-        assert(start <= end && start >= 0 && end <= text.length) {
-            "Start($start) or End($end) is out of Range(0..${text.length}), or start > end!"
-        }
-        return paragraphImpl.getPathForRange(start, end)
-    }
+    fun getPathForRange(start: Int, end: Int): Path
 
     /** Returns rectangle of the cursor area. */
-    fun getCursorRect(offset: Int): Rect {
-        assert(offset in (0..text.length))
-        return paragraphImpl.getCursorRect(offset)
-    }
+    fun getCursorRect(offset: Int): Rect
 
     /** Returns the left x Coordinate of the given line. */
-    fun getLineLeft(lineIndex: Int): Float = paragraphImpl.getLineLeft(lineIndex)
+    fun getLineLeft(lineIndex: Int): Float
 
     /** Returns the right x Coordinate of the given line. */
-    fun getLineRight(lineIndex: Int): Float = paragraphImpl.getLineRight(lineIndex)
+    fun getLineRight(lineIndex: Int): Float
 
     /** Returns the height of the given line. */
-    fun getLineHeight(lineIndex: Int): Float = paragraphImpl.getLineHeight(lineIndex)
+    fun getLineHeight(lineIndex: Int): Float
 
     /** Returns the width of the given line. */
-    fun getLineWidth(lineIndex: Int): Float = paragraphImpl.getLineWidth(lineIndex)
+    fun getLineWidth(lineIndex: Int): Float
 
     /** Returns the text position closest to the given offset. */
-    fun getPositionForOffset(offset: Offset): Int {
-        return paragraphImpl.getPositionForOffset(offset)
-    }
+    fun getPositionForOffset(offset: Offset): Int
 
     /**
-     * Returns the bounding box as Rect of the character for given text position. Rect includes the
+     * Returns the bounding box as Rect of the character for given offset. Rect includes the
      * top, bottom, left and right of a character.
      */
-    internal fun getBoundingBoxForTextPosition(textPosition: Int): Rect {
-        return paragraphImpl.getBoundingBoxForTextPosition(textPosition)
-    }
+    fun getBoundingBox(offset: Int): Rect
 
     /**
      * Returns the TextRange of the word at the given offset. Characters not
@@ -172,15 +126,24 @@ class Paragraph internal constructor(
      * Word boundaries are defined more precisely in Unicode Standard Annex #29
      * http://www.unicode.org/reports/tr29/#Word_Boundaries
      */
-    fun getWordBoundary(offset: Int): TextRange {
-        val (start, end) = paragraphImpl.getWordBoundary(offset)
-        return TextRange(start, end)
-    }
+    fun getWordBoundary(offset: Int): TextRange
 
-    // Redirecting the paint function in this way solves some dependency problems
-    // in the C++ code. If we straighten out the C++ dependencies, we can remove
-    // this indirection.
-    fun paint(canvas: Canvas, x: Float, y: Float) {
-        paragraphImpl.paint(canvas, x, y)
-    }
+    /**
+     * Paint the paragraph to canvas
+     */
+    fun paint(canvas: Canvas, x: Float, y: Float)
 }
+
+fun Paragraph(
+    text: String,
+    style: TextStyle,
+    paragraphStyle: ParagraphStyle,
+    textStyles: List<AnnotatedString.Item<TextStyle>>,
+    density: Density
+): Paragraph = ParagraphAndroid(
+    text = text,
+    style = style,
+    paragraphStyle = paragraphStyle,
+    textStyles = textStyles,
+    density = density
+)
