@@ -24,7 +24,6 @@ import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ import java.util.List;
  *
  * <p>
  * The host {@link android.app.Activity} or {@link android.app.Fragment} should avoid changing
- * {@link RecyclerView.Adapter Adapter} data while there
+ * {@link androidx.recyclerview.widget.RecyclerView.Adapter Adapter} data while there
  * are active selection operations, as this can result in a poor user experience.
  *
  * <p>
