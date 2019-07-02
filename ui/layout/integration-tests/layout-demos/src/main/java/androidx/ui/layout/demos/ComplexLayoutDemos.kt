@@ -20,7 +20,6 @@ import android.os.Handler
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
@@ -51,23 +50,11 @@ import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onCommit
-import androidx.compose.unaryPlus
 import androidx.ui.layout.AspectRatio
 import androidx.ui.layout.Container
 import androidx.ui.layout.EdgeInsets
-
-/**
- * Draws a rectangle of a specified dimension, or to its max incoming constraints if
- * dimensions are not specified.
- */
-@Composable
-fun SizedRectangle(color: Color, width: Dp? = null, height: Dp? = null) {
-    Layout(children = { DrawRectangle(color = color) }, layoutBlock = { _, constraints ->
-        val widthPx = width?.toIntPx() ?: constraints.maxWidth
-        val heightPx = height?.toIntPx() ?: constraints.maxHeight
-        layout(widthPx, heightPx) {}
-    })
-}
+import androidx.ui.layout.samples.DrawRectangle
+import androidx.ui.layout.samples.SizedRectangle
 
 /**
  * A widget that forces its only child to be as wide as its min intrinsic width.
@@ -410,13 +397,4 @@ fun Collection<IntPx>.max(): IntPx {
         result = max(result, item)
     }
     return result
-}
-
-@Composable
-fun DrawRectangle(color: Color) {
-    val paint = Paint()
-    paint.color = color
-    Draw { canvas, parentSize ->
-        canvas.drawRect(parentSize.toRect(), paint)
-    }
 }
