@@ -51,7 +51,7 @@ import androidx.ui.material.ripple.Ripple
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 /**
  * Components for creating mutually exclusive set of [RadioButton]s.

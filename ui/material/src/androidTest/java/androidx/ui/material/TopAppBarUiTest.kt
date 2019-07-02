@@ -28,7 +28,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.ipx
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertDoesNotExist
 import androidx.ui.test.assertIsVisible

@@ -46,7 +46,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 import kotlin.math.roundToInt
 
 class SpringBackScrolling : Activity() {

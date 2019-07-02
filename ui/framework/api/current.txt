@@ -21,15 +21,15 @@ package androidx.ui.core {
   }
 
   public final class EditorStyle {
-    ctor public EditorStyle(androidx.ui.painting.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
+    ctor public EditorStyle(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
     ctor public EditorStyle();
-    method public androidx.ui.painting.TextStyle? component1();
+    method public androidx.ui.text.TextStyle? component1();
     method public androidx.ui.graphics.Color component2();
     method public androidx.ui.graphics.Color component3();
-    method public androidx.ui.core.EditorStyle copy(androidx.ui.painting.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
+    method public androidx.ui.core.EditorStyle copy(androidx.ui.text.TextStyle? textStyle, androidx.ui.graphics.Color compositionColor, androidx.ui.graphics.Color selectionColor);
     method public androidx.ui.graphics.Color getCompositionColor();
     method public androidx.ui.graphics.Color getSelectionColor();
-    method public androidx.ui.painting.TextStyle? getTextStyle();
+    method public androidx.ui.text.TextStyle? getTextStyle();
   }
 
   public final class InputFieldKt {
@@ -134,30 +134,30 @@ package androidx.ui.core {
 
   public final class TextKt {
     ctor public TextKt();
-    method public static void CurrentTextStyleProvider(androidx.ui.painting.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Text(androidx.ui.painting.TextStyle? style = null, androidx.ui.painting.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
-    method public static void Text(String text, androidx.ui.painting.TextStyle? style = null, androidx.ui.painting.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
-    method public static void Text(androidx.ui.painting.AnnotatedString text, androidx.ui.painting.TextStyle? style = null, androidx.ui.painting.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.rendering.paragraph.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
-    method public static androidx.compose.Effect<androidx.ui.painting.TextStyle> currentTextStyle();
+    method public static void CurrentTextStyleProvider(androidx.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Text(androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
+    method public static void Text(String text, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
+    method public static void Text(androidx.ui.text.AnnotatedString text, androidx.ui.text.TextStyle? style = null, androidx.ui.text.ParagraphStyle? paragraphStyle = null, boolean softWrap = true, androidx.ui.text.style.TextOverflow overflow = androidx.ui.core.TextKt.DefaultOverflow, Integer? maxLines = androidx.ui.core.TextKt.DefaultMaxLines, androidx.ui.graphics.Color selectionColor = androidx.ui.core.TextKt.DefaultSelectionColor);
+    method public static androidx.compose.Effect<androidx.ui.text.TextStyle> currentTextStyle();
   }
 
   public final class TextSpanComposeKt {
     ctor public TextSpanComposeKt();
-    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.painting.TextStyle? style = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
-    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.painting.TextStyle? style = null);
-    method public static void compose(androidx.ui.painting.TextSpan container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> composable);
-    method public static void disposeComposition(androidx.ui.painting.TextSpan container, androidx.compose.CompositionReference? parent = null);
+    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.text.TextStyle? style = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> child);
+    method public static void Span(androidx.ui.core.TextSpanScope, String? text = null, androidx.ui.text.TextStyle? style = null);
+    method public static void compose(androidx.ui.text.TextSpan container, androidx.compose.CompositionReference? parent = null, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit> composable);
+    method public static void disposeComposition(androidx.ui.text.TextSpan container, androidx.compose.CompositionReference? parent = null);
   }
 
-  public final class TextSpanComposer extends androidx.compose.Composer<androidx.ui.painting.TextSpan> {
+  public final class TextSpanComposer extends androidx.compose.Composer<androidx.ui.text.TextSpan> {
   }
 
   public final class TextSpanComposition {
     ctor public TextSpanComposition(androidx.ui.core.TextSpanComposer composer);
     method public inline void call(Object key, kotlin.jvm.functions.Function1<? super androidx.compose.ViewValidator,java.lang.Boolean> invalid, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public inline <T> void call(Object key, kotlin.jvm.functions.Function0<? extends T> ctor, kotlin.jvm.functions.Function2<? super androidx.compose.ViewValidator,? super T,java.lang.Boolean> invalid, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
-    method public inline void emit(Object key, kotlin.jvm.functions.Function0<androidx.ui.painting.TextSpan> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<androidx.ui.painting.TextSpan,androidx.ui.painting.TextSpan>,kotlin.Unit> update);
-    method public inline void emit(Object key, kotlin.jvm.functions.Function0<androidx.ui.painting.TextSpan> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<androidx.ui.painting.TextSpan,androidx.ui.painting.TextSpan>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public inline void emit(Object key, kotlin.jvm.functions.Function0<androidx.ui.text.TextSpan> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<androidx.ui.text.TextSpan,androidx.ui.text.TextSpan>,kotlin.Unit> update);
+    method public inline void emit(Object key, kotlin.jvm.functions.Function0<androidx.ui.text.TextSpan> ctor, kotlin.jvm.functions.Function1<? super androidx.compose.ComposerUpdater<androidx.ui.text.TextSpan,androidx.ui.text.TextSpan>,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public androidx.ui.core.TextSpanComposer getComposer();
     method public inline Object joinKey(Object left, Object? right);
     method public inline operator <V> V! unaryPlus(androidx.compose.Effect<V>);

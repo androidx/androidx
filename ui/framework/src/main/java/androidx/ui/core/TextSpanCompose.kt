@@ -30,8 +30,8 @@ import androidx.compose.Recomposer
 import androidx.compose.SlotTable
 import androidx.compose.ViewValidator
 import androidx.compose.cache
-import androidx.ui.painting.TextSpan
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextSpan
+import androidx.ui.text.TextStyle
 import java.util.WeakHashMap
 
 /**

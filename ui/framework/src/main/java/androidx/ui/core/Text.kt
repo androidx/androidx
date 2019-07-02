@@ -33,16 +33,16 @@ import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
-import androidx.ui.painting.AnnotatedString
-import androidx.ui.painting.ParagraphStyle
+import androidx.ui.text.AnnotatedString
+import androidx.ui.text.ParagraphStyle
 import androidx.ui.core.selection.TextSelectionHandler
 import androidx.ui.core.selection.TextSelectionProcessor
-import androidx.ui.painting.TextPainter
-import androidx.ui.painting.TextSpan
-import androidx.ui.painting.TextStyle
-import androidx.ui.painting.toAnnotatedString
-import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextSelection
+import androidx.ui.text.TextPainter
+import androidx.ui.text.TextSpan
+import androidx.ui.text.TextStyle
+import androidx.ui.text.toAnnotatedString
+import androidx.ui.text.style.TextOverflow
 
 private val DefaultSoftWrap: Boolean = true
 private val DefaultOverflow: TextOverflow = TextOverflow.Clip

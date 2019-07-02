@@ -24,7 +24,7 @@ import androidx.ui.input.EditorState
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.TextPainter
+import androidx.ui.text.TextPainter
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq

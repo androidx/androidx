@@ -27,25 +27,25 @@ import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionContainer
 import androidx.ui.core.selection.SelectionMode
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.text.BaselineShift
-import androidx.ui.engine.text.FontStyle
-import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.TextAlign
-import androidx.ui.engine.text.TextDecoration
+import androidx.ui.text.style.BaselineShift
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontWeight
+import androidx.ui.text.style.TextAlign
+import androidx.ui.text.style.TextDecoration
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.engine.text.font.FontFamily
-import androidx.ui.engine.window.Locale
+import androidx.ui.text.font.FontFamily
+import androidx.ui.text.Locale
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.Row
 import androidx.ui.layout.VerticalScroller
-import androidx.ui.painting.ParagraphStyle
+import androidx.ui.text.ParagraphStyle
 import androidx.ui.painting.Shadow
-import androidx.ui.painting.TextStyle
-import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.compose.composer
+import androidx.ui.text.TextStyle
+import androidx.ui.text.style.TextOverflow
 import androidx.ui.core.Sp
 import androidx.ui.core.sp
 
@@ -112,7 +112,10 @@ fun TagLine(tag: String) {
         Span(text = "\n", style = TextStyle(fontSize = fontSize8))
         Span(
             text = tag,
-            style = TextStyle(color = Color(0xFFAAAAAA.toInt()), fontSize = fontSize6)
+            style = TextStyle(
+                color = Color(0xFFAAAAAA.toInt()),
+                fontSize = fontSize6
+            )
         )
     }
 }
@@ -122,7 +125,10 @@ fun SecondTagLine(tag: String) {
     Text {
         Span(
             text = tag,
-            style = TextStyle(color = Color(0xFFAAAAAA.toInt()), fontSize = fontSize4)
+            style = TextStyle(
+                color = Color(0xFFAAAAAA.toInt()),
+                fontSize = fontSize4
+            )
         )
     }
 }
@@ -265,7 +271,11 @@ fun TextDemoLetterSpacing() {
     // This group of text widgets show different letterSpacing.
     Text {
         Span(text = "$displayText   ", style = TextStyle(fontSize = fontSize8))
-        Span(text = displayText, style = TextStyle(fontSize = fontSize8, letterSpacing = 0.5f))
+        Span(text = displayText, style = TextStyle(
+            fontSize = fontSize8,
+            letterSpacing = 0.5f
+        )
+        )
     }
 }
 
@@ -455,7 +465,8 @@ fun TextDemoSoftWrap() {
     for (i in 1..10) {
         text = "$text$displayText"
     }
-    val textStyle = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
+    val textStyle =
+        TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
 
     Column(crossAxisAlignment = CrossAxisAlignment.Start) {
         Text {
@@ -475,7 +486,8 @@ fun TexDemoTextOverflowFade() {
     for (i in 1..15) {
         text = text + displayText
     }
-    val textSytle = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
+    val textSytle =
+        TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
     SecondTagLine(tag = "horizontally fading edge")
     Text(
         maxLines = 1,

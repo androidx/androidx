@@ -34,8 +34,8 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
-import androidx.ui.painting.TextStyle
 import androidx.ui.vectormath64.radians
+import androidx.ui.text.TextStyle
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.setContent
