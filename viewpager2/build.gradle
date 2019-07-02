@@ -26,7 +26,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":core:core"))
+    api("androidx.core:core:1.2.0-alpha01")
     api("androidx.fragment:fragment:1.1.0-rc01")
     api(project(":recyclerview"))
     implementation("androidx.collection:collection:1.1.0")
