@@ -26,6 +26,7 @@ import androidx.ui.core.TextRange
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorState
 import androidx.ui.input.InputEventListener
+import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextInputService
 
 /**
@@ -43,6 +44,7 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     private var onEditorActionPerformed: (Any) -> Unit = {}
 
     private var state = InputState(text = "", selection = TextRange(0, 0))
+    private var keyboardType = KeyboardType.Text
     private var ic: RecordingInputConnection? = null
 
     /**
@@ -58,8 +60,7 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
         if (!editorHasFocus) {
             return null
         }
-        outAttrs.inputType = InputType.TYPE_CLASS_TEXT
-        outAttrs.imeOptions = EditorInfo.IME_FLAG_NO_FULLSCREEN
+        fillEditorInfo(keyboardType, outAttrs)
 
         return RecordingInputConnection(
             initState = state,
@@ -78,11 +79,13 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
 
     override fun startInput(
         initState: EditorState,
+        keyboardType: KeyboardType,
         onEditCommand: (List<EditOperation>) -> Unit,
         onEditorActionPerformed: (Any) -> Unit
     ) {
         editorHasFocus = true
         state = initState.toInputState()
+        this.keyboardType = keyboardType
         this.onEditCommand = onEditCommand
         this.onEditorActionPerformed = onEditorActionPerformed
 
@@ -108,6 +111,28 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     override fun onStateUpdated(state: EditorState) {
         this.state = state.toInputState()
         ic?.updateInputState(this.state, imm, view)
+    }
+
+    /**
+     * Fills necessary info of EditorInfo.
+     */
+    private fun fillEditorInfo(keyboardType: KeyboardType, outInfo: EditorInfo) {
+        when (keyboardType) {
+            KeyboardType.Text -> outInfo.inputType = InputType.TYPE_CLASS_TEXT
+            KeyboardType.ASCII -> {
+                outInfo.inputType = InputType.TYPE_CLASS_TEXT
+                outInfo.imeOptions = EditorInfo.IME_FLAG_FORCE_ASCII
+            }
+            KeyboardType.Number -> outInfo.inputType = InputType.TYPE_CLASS_NUMBER
+            KeyboardType.Phone -> outInfo.inputType = InputType.TYPE_CLASS_PHONE
+            KeyboardType.URI ->
+                outInfo.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI
+            KeyboardType.Email ->
+                outInfo.inputType =
+                    InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            else -> throw IllegalArgumentException("Unknown KeyboardType: $keyboardType")
+        }
+        outInfo.imeOptions = outInfo.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
     }
 }
 

@@ -29,6 +29,7 @@ import androidx.ui.core.input.FocusManager
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.KeyboardType
 import androidx.ui.painting.AnnotatedString
 import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextStyle
@@ -76,6 +77,15 @@ fun InputField(
     /** The editor style */
     editorStyle: EditorStyle,
 
+    /**
+     * The keyboard type to be used in this text field.
+     *
+     * Note that this input type is honored by IME and shows corresponding keyboard but this is not
+     * guaranteed. For example, some IME may send non-ASCII character even if you set
+     * {@link KeyboardType.KEYBOARD_TYPE_ASCII}
+     */
+    keyboardType: KeyboardType = KeyboardType.Text,
+
     /** Called when the InputMethodService update the editor state */
     onValueChange: (EditorState) -> Unit = {},
 
@@ -107,6 +117,7 @@ fun InputField(
         onFocus = {
             textInputService?.startInput(
                 initState = value,
+                keyboardType = keyboardType,
                 onEditCommand = { delegate.onEditCommand(it) },
                 onEditorActionPerformed = onEditorActionPerformed)
         },
