@@ -47,7 +47,6 @@ class TextStyleTest {
         assertThat(textStyle.fontWeight).isNull()
         assertThat(textStyle.fontStyle).isNull()
         assertThat(textStyle.letterSpacing).isNull()
-        assertThat(textStyle.wordSpacing).isNull()
         assertThat(textStyle.locale).isNull()
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
@@ -97,15 +96,6 @@ class TextStyleTest {
         val textStyle = TextStyle(letterSpacing = letterSpacing)
 
         assertThat(textStyle.letterSpacing).isEqualTo(letterSpacing)
-    }
-
-    @Test
-    fun `constructor with customized wordSpacing`() {
-        val wordSpacing = 2.0f
-
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-        assertThat(textStyle.wordSpacing).isEqualTo(wordSpacing)
     }
 
     @Test
@@ -346,29 +336,6 @@ class TextStyleTest {
         val newTextStyle = textStyle.merge(otherTextStyle)
 
         assertThat(newTextStyle.letterSpacing).isEqualTo(otherLetterSpacing)
-    }
-
-    @Test
-    fun `merge with other's wordSpacing is null should use this' wordSpacing`() {
-        val wordSpacing = 1.2f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-        val otherTextStyle = TextStyle()
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.wordSpacing).isEqualTo(wordSpacing)
-    }
-
-    @Test
-    fun `merge with other's wordSpacing is set should use other's wordSpacing`() {
-        val wordSpacing = 1.2f
-        val otherWordSpacing = 1.5f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-        val otherTextStyle = TextStyle(wordSpacing = otherWordSpacing)
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.wordSpacing).isEqualTo(otherWordSpacing)
     }
 
     @Test
@@ -1054,50 +1021,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp wordSpacing with a is Null and t is smaller than half`() {
-        val wordSpacing = 2.0f
-        val t = 0.3f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.wordSpacing).isNull()
-    }
-
-    @Test
-    fun `lerp wordSpacing with a is Null and t is larger than half`() {
-        val wordSpacing = 2.0f
-        val t = 0.7f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.wordSpacing).isEqualTo(wordSpacing)
-    }
-
-    @Test
-    fun `lerp wordSpacing with b is Null and t is smaller than half`() {
-        val wordSpacing = 2.0f
-        val t = 0.3f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.wordSpacing).isEqualTo(wordSpacing)
-    }
-
-    @Test
-    fun `lerp wordSpacing with b is Null and t is larger than half`() {
-        val wordSpacing = 2.0f
-        val t = 0.7f
-        val textStyle = TextStyle(wordSpacing = wordSpacing)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.wordSpacing).isNull()
-    }
-
-    @Test
     fun `lerp baselineShift with a is Null and t is smaller than half`() {
         val baselineShift = BaselineShift.Superscript
         val t = 0.3f
@@ -1450,7 +1373,6 @@ class TextStyleTest {
             fontStyle = FontStyle.Italic,
             fontFeatureSettings = fontFeatureSettings,
             letterSpacing = 1.0f,
-            wordSpacing = 2.0f,
             baselineShift = BaselineShift.Subscript,
             textGeometricTransform = TextGeometricTransform(scaleX = 1.0f),
             locale = Locale("en", "US"),
@@ -1484,9 +1406,6 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(letterSpacing = 2.0f)))
             .isEqualTo(RenderComparison.LAYOUT)
 
-        assertThat(textStyle.compareTo(textStyle.copy(wordSpacing = 4.0f)))
-            .isEqualTo(RenderComparison.LAYOUT)
-
         assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.Superscript)))
             .isEqualTo(RenderComparison.LAYOUT)
 
@@ -1513,7 +1432,6 @@ class TextStyleTest {
             fontWeight = FontWeight.w800,
             fontStyle = FontStyle.Italic,
             letterSpacing = 1.0f,
-            wordSpacing = 2.0f,
             baselineShift = BaselineShift.Superscript,
             textGeometricTransform = TextGeometricTransform(null, null),
             locale = Locale("en", "US"),
