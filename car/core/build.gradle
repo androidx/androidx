@@ -11,7 +11,6 @@ plugins {
 dependencies {
     api(project(":appcompat"))
     api("androidx.cardview:cardview:1.0.0")
-    api("androidx.coordinatorlayout:coordinatorlayout:1.0.0")
     api("androidx.annotation:annotation:1.1.0")
     api(project(":recyclerview"))
     api("androidx.gridlayout:gridlayout:1.0.0")
