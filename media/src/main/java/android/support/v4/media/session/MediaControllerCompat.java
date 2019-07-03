@@ -210,12 +210,8 @@ public final class MediaControllerCompat {
                 return null;
             }
             MediaSession.Token sessionTokenFwk = controllerFwk.getSessionToken();
-            try {
-                return new MediaControllerCompat(activity,
-                        MediaSessionCompat.Token.fromToken(sessionTokenFwk));
-            } catch (RemoteException e) {
-                Log.e(TAG, "Dead object in getMediaController.", e);
-            }
+            return new MediaControllerCompat(activity,
+                    MediaSessionCompat.Token.fromToken(sessionTokenFwk));
         }
         return null;
     }
@@ -257,17 +253,11 @@ public final class MediaControllerCompat {
         }
         mToken = session.getSessionToken();
 
-        MediaControllerImpl impl = null;
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= 21) {
-                impl = new MediaControllerImplApi21(context, mToken);
-            } else {
-                impl = new MediaControllerImplBase(mToken);
-            }
-        } catch (RemoteException e) {
-            Log.w(TAG, "Failed to create MediaControllerImpl.", e);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            mImpl = new MediaControllerImplApi21(context, mToken);
+        } else {
+            mImpl = new MediaControllerImplBase(mToken);
         }
-        mImpl = impl;
     }
 
     /**
@@ -275,10 +265,8 @@ public final class MediaControllerCompat {
      * been obtained from another process.
      *
      * @param sessionToken The token of the session to be controlled.
-     * @throws RemoteException if the session is not accessible.
      */
-    public MediaControllerCompat(Context context, @NonNull MediaSessionCompat.Token sessionToken)
-            throws RemoteException {
+    public MediaControllerCompat(Context context, @NonNull MediaSessionCompat.Token sessionToken) {
         if (sessionToken == null) {
             throw new IllegalArgumentException("sessionToken must not be null");
         }
@@ -1533,7 +1521,7 @@ public final class MediaControllerCompat {
         private TransportControls mTransportControls;
         private Bundle mSessionInfo;
 
-        public MediaControllerImplBase(MediaSessionCompat.Token token) {
+        MediaControllerImplBase(MediaSessionCompat.Token token) {
             mBinder = IMediaSession.Stub.asInterface((IBinder) token.getToken());
         }
 
@@ -2054,12 +2042,10 @@ public final class MediaControllerCompat {
 
         final MediaSessionCompat.Token mSessionToken;
 
-        public MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken)
-                throws RemoteException {
+        MediaControllerImplApi21(Context context, MediaSessionCompat.Token sessionToken) {
             mSessionToken = sessionToken;
             mControllerFwk = new MediaController(context,
                     (MediaSession.Token) mSessionToken.getToken());
-            if (mControllerFwk == null) throw new RemoteException();
             if (mSessionToken.getExtraBinder() == null) {
                 requestExtraBinder();
             }

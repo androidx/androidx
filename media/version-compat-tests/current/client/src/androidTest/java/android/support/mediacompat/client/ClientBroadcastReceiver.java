@@ -63,7 +63,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
@@ -82,14 +81,8 @@ public class ClientBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
-        MediaControllerCompat controller;
-        try {
-            controller = new MediaControllerCompat(context,
-                    (MediaSessionCompat.Token) extras.getParcelable(KEY_SESSION_TOKEN));
-        } catch (RemoteException ex) {
-            // Do nothing.
-            return;
-        }
+        MediaControllerCompat controller = new MediaControllerCompat(context,
+                (MediaSessionCompat.Token) extras.getParcelable(KEY_SESSION_TOKEN));
         int method = extras.getInt(KEY_METHOD_ID, 0);
         Log.d(TAG, "action=" + intent.getAction() + ", method=" + method);
 

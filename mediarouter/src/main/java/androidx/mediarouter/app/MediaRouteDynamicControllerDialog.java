@@ -31,7 +31,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.RemoteException;
 import android.os.SystemClock;
 import android.renderscript.Allocation;
 import android.renderscript.Element;
@@ -246,16 +245,9 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         if (!mAttachedToWindow) {
             return;
         }
-        try {
-            mMediaController = new MediaControllerCompat(mContext, sessionToken);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Error creating media controller in setMediaSession.", e);
-        }
-        if (mMediaController != null) {
-            mMediaController.registerCallback(mControllerCallback);
-        }
-        MediaMetadataCompat metadata = mMediaController == null ? null
-                : mMediaController.getMetadata();
+        mMediaController = new MediaControllerCompat(mContext, sessionToken);
+        mMediaController.registerCallback(mControllerCallback);
+        MediaMetadataCompat metadata = mMediaController.getMetadata();
         mDescription = metadata == null ? null : metadata.getDescription();
         reloadIconIfNeeded();
         updateMetadataViews();

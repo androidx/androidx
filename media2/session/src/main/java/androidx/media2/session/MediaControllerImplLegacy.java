@@ -42,7 +42,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
-import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -934,13 +933,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void connectToSession(MediaSessionCompat.Token sessionCompatToken) {
-        MediaControllerCompat controllerCompat = null;
-        try {
-            controllerCompat = new MediaControllerCompat(mContext, sessionCompatToken);
-        } catch (RemoteException e) {
-            // TODO: Handle connection error
-            e.printStackTrace();
-        }
+        MediaControllerCompat controllerCompat = new MediaControllerCompat(mContext,
+                sessionCompatToken);
         synchronized (mLock) {
             mControllerCompat = controllerCompat;
             mControllerCompatCallback = new ControllerCompatCallback();
