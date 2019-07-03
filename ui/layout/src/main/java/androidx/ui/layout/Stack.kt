@@ -194,9 +194,7 @@ internal data class StackChildData(
     val leftInset: Dp? = null,
     val topInset: Dp? = null,
     val rightInset: Dp? = null,
-    val bottomInset: Dp? = null,
-    val width: Dp? = null,
-    val height: Dp? = null
+    val bottomInset: Dp? = null
 )
 
 internal val Measurable.stackChildData: StackChildData get() = this.parentData as StackChildData
