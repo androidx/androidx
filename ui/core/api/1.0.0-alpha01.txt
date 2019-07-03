@@ -81,6 +81,8 @@ package androidx.ui.core {
     method public static androidx.ui.core.Constraints looseMin(androidx.ui.core.Constraints);
     method public static androidx.ui.core.Constraints offset(androidx.ui.core.Constraints, androidx.ui.core.IntPx horizontal = 0.ipx, androidx.ui.core.IntPx vertical = 0.ipx);
     method public static boolean satisfiedBy(androidx.ui.core.Constraints, androidx.ui.core.IntPxSize size);
+    method public static androidx.ui.core.Constraints tightMax(androidx.ui.core.Constraints);
+    method public static androidx.ui.core.Constraints tightMin(androidx.ui.core.Constraints);
     method public static androidx.ui.core.Constraints withTight(androidx.ui.core.Constraints, androidx.ui.core.IntPx? width = null, androidx.ui.core.IntPx? height = null);
   }
 

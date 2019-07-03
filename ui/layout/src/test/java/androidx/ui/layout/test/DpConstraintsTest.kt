@@ -29,6 +29,8 @@ import androidx.ui.layout.isZero
 import androidx.ui.layout.looseMax
 import androidx.ui.layout.looseMin
 import androidx.ui.layout.offset
+import androidx.ui.layout.tightMax
+import androidx.ui.layout.tightMin
 import androidx.ui.layout.withTight
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -117,9 +119,24 @@ class DpConstraintsTest {
 
     @Test
     fun loose() {
-        val constraints = DpConstraints(2.dp, 5.dp, 2.dp, 5.dp)
-        constraints.looseMin().assertEquals(0.dp, 5.dp, 0.dp, 5.dp)
-        constraints.looseMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
+        val bounded = DpConstraints(2.dp, 5.dp, 2.dp, 5.dp)
+        bounded.looseMin().assertEquals(0.dp, 5.dp, 0.dp, 5.dp)
+        bounded.looseMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
+
+        val unbounded = DpConstraints(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
+        unbounded.looseMin().assertEquals(0.dp, Dp.Infinity, 0.dp, Dp.Infinity)
+        unbounded.looseMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
+    }
+
+    @Test
+    fun tight() {
+        val bounded = DpConstraints(2.dp, 5.dp, 2.dp, 5.dp)
+        bounded.tightMin().assertEquals(2.dp, 2.dp, 2.dp, 2.dp)
+        bounded.tightMax().assertEquals(5.dp, 5.dp, 5.dp, 5.dp)
+
+        val unbounded = DpConstraints(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
+        unbounded.tightMin().assertEquals(2.dp, 2.dp, 2.dp, 2.dp)
+        unbounded.tightMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
     }
 
     @Test
