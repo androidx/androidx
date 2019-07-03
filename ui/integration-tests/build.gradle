@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
+import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("AndroidXPlugin")
@@ -30,43 +28,32 @@ plugins {
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
+    implementation(project(":ui-core"))
+    implementation(project(":ui-test"))
+    implementation(project(":ui-material"))
+    implementation(project(":ui-platform"))
+    implementation(project(":ui-framework"))
+    implementation(project(":compose:compose-runtime"))
 
-    api project(":ui-core")
-    api project(":ui-platform")
-    api project(":ui-framework")
-    api project(":ui-animation")
-    api project(":compose:compose-runtime")
-
-    api(JUNIT)
-    api(KOTLIN_COMPOSE_STDLIB)
-
-    implementation(ANDROIDX_TEST_RUNNER)
-    implementation(ANDROIDX_TEST_RULES)
-    implementation(ESPRESSO_CORE)
-
-    testImplementation(TRUTH)
-    testImplementation(JUNIT)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(ANDROIDX_TEST_RULES)
-
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation(KOTLIN_COMPOSE_STDLIB)
     androidTestImplementation(TRUTH)
     androidTestImplementation(JUNIT)
-    androidTestImplementation project(':ui-material')
-}
-
-android {
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            useIR = true
-        }
-    }
+    androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
 androidx {
-    name = "AndroidX UI Test Classes"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    name = "UI Integration Tests"
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "AndroidX UI test framework."
+    description = "UI Integration Tests"
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        useIR = true
+    }
+}
+
