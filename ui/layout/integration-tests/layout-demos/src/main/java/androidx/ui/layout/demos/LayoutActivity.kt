@@ -31,7 +31,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.layout.Wrap
 import androidx.ui.graphics.Color
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer

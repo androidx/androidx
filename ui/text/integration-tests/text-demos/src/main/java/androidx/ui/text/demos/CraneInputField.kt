@@ -29,7 +29,7 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.VerticalScroller
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.Text, "Text"),

@@ -46,7 +46,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
 import androidx.ui.painting.Paint
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 import kotlin.math.sign
 
 class SwipeToDismiss : Activity() {

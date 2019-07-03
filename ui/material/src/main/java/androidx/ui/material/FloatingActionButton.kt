@@ -34,7 +34,7 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.painting.Image
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 /**
  * A floating action button (FAB) is a [Button] to represents the primary action of a screen.

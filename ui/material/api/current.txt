@@ -195,12 +195,12 @@ package androidx.ui.material {
 }), androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Button(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.baseui.shape.Shape shape = +themeShape({ 
+    method public static void Button(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.baseui.shape.Shape shape = +themeShape({ 
     button
 }), androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
-    method public static void TransparentButton(String text, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.baseui.shape.Shape shape = +themeShape({ 
+    method public static void TransparentButton(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.baseui.shape.Shape shape = +themeShape({ 
     button
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
   }
@@ -230,7 +230,7 @@ package androidx.ui.material {
     method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 0.dp);
-    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.painting.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void FloatingActionButton(String text, androidx.ui.painting.Image? icon = null, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 0.dp);
     method public static androidx.ui.core.Dp getExtendedFabHeight();
@@ -279,39 +279,39 @@ package androidx.ui.material {
     method public static androidx.compose.Ambient<androidx.ui.material.MaterialTypography> getTypography();
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.graphics.Color> choosingBlock);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.baseui.shape.Shape> themeShape(kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.baseui.shape.Shape> choosingBlock);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.painting.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.painting.TextStyle> choosingBlock);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.text.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.text.TextStyle> choosingBlock);
   }
 
   public final class MaterialTypography {
-    ctor public MaterialTypography(androidx.ui.painting.TextStyle h1, androidx.ui.painting.TextStyle h2, androidx.ui.painting.TextStyle h3, androidx.ui.painting.TextStyle h4, androidx.ui.painting.TextStyle h5, androidx.ui.painting.TextStyle h6, androidx.ui.painting.TextStyle subtitle1, androidx.ui.painting.TextStyle subtitle2, androidx.ui.painting.TextStyle body1, androidx.ui.painting.TextStyle body2, androidx.ui.painting.TextStyle button, androidx.ui.painting.TextStyle caption, androidx.ui.painting.TextStyle overline);
+    ctor public MaterialTypography(androidx.ui.text.TextStyle h1, androidx.ui.text.TextStyle h2, androidx.ui.text.TextStyle h3, androidx.ui.text.TextStyle h4, androidx.ui.text.TextStyle h5, androidx.ui.text.TextStyle h6, androidx.ui.text.TextStyle subtitle1, androidx.ui.text.TextStyle subtitle2, androidx.ui.text.TextStyle body1, androidx.ui.text.TextStyle body2, androidx.ui.text.TextStyle button, androidx.ui.text.TextStyle caption, androidx.ui.text.TextStyle overline);
     ctor public MaterialTypography();
-    method public androidx.ui.painting.TextStyle component1();
-    method public androidx.ui.painting.TextStyle component10();
-    method public androidx.ui.painting.TextStyle component11();
-    method public androidx.ui.painting.TextStyle component12();
-    method public androidx.ui.painting.TextStyle component13();
-    method public androidx.ui.painting.TextStyle component2();
-    method public androidx.ui.painting.TextStyle component3();
-    method public androidx.ui.painting.TextStyle component4();
-    method public androidx.ui.painting.TextStyle component5();
-    method public androidx.ui.painting.TextStyle component6();
-    method public androidx.ui.painting.TextStyle component7();
-    method public androidx.ui.painting.TextStyle component8();
-    method public androidx.ui.painting.TextStyle component9();
-    method public androidx.ui.material.MaterialTypography copy(androidx.ui.painting.TextStyle h1, androidx.ui.painting.TextStyle h2, androidx.ui.painting.TextStyle h3, androidx.ui.painting.TextStyle h4, androidx.ui.painting.TextStyle h5, androidx.ui.painting.TextStyle h6, androidx.ui.painting.TextStyle subtitle1, androidx.ui.painting.TextStyle subtitle2, androidx.ui.painting.TextStyle body1, androidx.ui.painting.TextStyle body2, androidx.ui.painting.TextStyle button, androidx.ui.painting.TextStyle caption, androidx.ui.painting.TextStyle overline);
-    method public androidx.ui.painting.TextStyle getBody1();
-    method public androidx.ui.painting.TextStyle getBody2();
-    method public androidx.ui.painting.TextStyle getButton();
-    method public androidx.ui.painting.TextStyle getCaption();
-    method public androidx.ui.painting.TextStyle getH1();
-    method public androidx.ui.painting.TextStyle getH2();
-    method public androidx.ui.painting.TextStyle getH3();
-    method public androidx.ui.painting.TextStyle getH4();
-    method public androidx.ui.painting.TextStyle getH5();
-    method public androidx.ui.painting.TextStyle getH6();
-    method public androidx.ui.painting.TextStyle getOverline();
-    method public androidx.ui.painting.TextStyle getSubtitle1();
-    method public androidx.ui.painting.TextStyle getSubtitle2();
+    method public androidx.ui.text.TextStyle component1();
+    method public androidx.ui.text.TextStyle component10();
+    method public androidx.ui.text.TextStyle component11();
+    method public androidx.ui.text.TextStyle component12();
+    method public androidx.ui.text.TextStyle component13();
+    method public androidx.ui.text.TextStyle component2();
+    method public androidx.ui.text.TextStyle component3();
+    method public androidx.ui.text.TextStyle component4();
+    method public androidx.ui.text.TextStyle component5();
+    method public androidx.ui.text.TextStyle component6();
+    method public androidx.ui.text.TextStyle component7();
+    method public androidx.ui.text.TextStyle component8();
+    method public androidx.ui.text.TextStyle component9();
+    method public androidx.ui.material.MaterialTypography copy(androidx.ui.text.TextStyle h1, androidx.ui.text.TextStyle h2, androidx.ui.text.TextStyle h3, androidx.ui.text.TextStyle h4, androidx.ui.text.TextStyle h5, androidx.ui.text.TextStyle h6, androidx.ui.text.TextStyle subtitle1, androidx.ui.text.TextStyle subtitle2, androidx.ui.text.TextStyle body1, androidx.ui.text.TextStyle body2, androidx.ui.text.TextStyle button, androidx.ui.text.TextStyle caption, androidx.ui.text.TextStyle overline);
+    method public androidx.ui.text.TextStyle getBody1();
+    method public androidx.ui.text.TextStyle getBody2();
+    method public androidx.ui.text.TextStyle getButton();
+    method public androidx.ui.text.TextStyle getCaption();
+    method public androidx.ui.text.TextStyle getH1();
+    method public androidx.ui.text.TextStyle getH2();
+    method public androidx.ui.text.TextStyle getH3();
+    method public androidx.ui.text.TextStyle getH4();
+    method public androidx.ui.text.TextStyle getH5();
+    method public androidx.ui.text.TextStyle getH6();
+    method public androidx.ui.text.TextStyle getOverline();
+    method public androidx.ui.text.TextStyle getSubtitle1();
+    method public androidx.ui.text.TextStyle getSubtitle2();
   }
 
   public final class ProgressIndicatorKt {
@@ -338,14 +338,14 @@ package androidx.ui.material {
     method public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.ui.material.RadioGroupScope,kotlin.Unit> children);
     method public static void RadioGroup(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.ui.graphics.Color radioColor = +themeColor({ 
     secondary
-}), androidx.ui.painting.TextStyle? textStyle = null);
+}), androidx.ui.text.TextStyle? textStyle = null);
   }
 
   public final class RadioGroupScope {
     method public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void RadioGroupTextItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, String text, androidx.ui.graphics.Color radioColor = +themeColor({ 
     secondary
-}), androidx.ui.painting.TextStyle? textStyle = null);
+}), androidx.ui.text.TextStyle? textStyle = null);
   }
 
   public final class Shapes {

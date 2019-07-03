@@ -43,7 +43,7 @@ import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.material.textColorForBackground
 import androidx.ui.material.themeColor
 import androidx.ui.painting.Path
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 /**
  * The [Surface] is responsible for:

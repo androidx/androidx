@@ -25,8 +25,8 @@ import androidx.ui.core.withDensity
 import androidx.ui.layout.Column
 import androidx.ui.layout.Padding
 import androidx.ui.layout.VerticalScroller
-import androidx.ui.painting.TextStyle
 import androidx.compose.composer
+import androidx.ui.text.TextStyle
 import androidx.compose.setContent
 import androidx.ui.core.sp
 

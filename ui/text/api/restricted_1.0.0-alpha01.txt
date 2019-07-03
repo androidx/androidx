@@ -1,21 +1,21 @@
 // Signature format: 3.0
-package androidx.ui.painting {
+package androidx.ui.text {
 
   public final class TextPainter {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class TextSpan {
-    ctor public TextSpan(androidx.ui.painting.TextStyle? style, String? text, java.util.List<androidx.ui.painting.TextSpan> children);
+    ctor public TextSpan(androidx.ui.text.TextStyle? style, String? text, java.util.List<androidx.ui.text.TextSpan> children);
     ctor public TextSpan();
-    method public java.util.List<androidx.ui.painting.TextSpan> getChildren();
-    method public androidx.ui.painting.TextStyle? getStyle();
+    method public java.util.List<androidx.ui.text.TextSpan> getChildren();
+    method public androidx.ui.text.TextStyle? getStyle();
     method public String? getText();
     method public String toPlainText();
-    method public boolean visitTextSpan(kotlin.jvm.functions.Function1<? super androidx.ui.painting.TextSpan,java.lang.Boolean> visitor);
+    method public boolean visitTextSpan(kotlin.jvm.functions.Function1<? super androidx.ui.text.TextSpan,java.lang.Boolean> visitor);
   }
 
   public final class TextSpanKt {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.ui.painting.AnnotatedString toAnnotatedString(androidx.ui.painting.TextSpan);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.ui.text.AnnotatedString toAnnotatedString(androidx.ui.text.TextSpan);
   }
 
 }

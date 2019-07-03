@@ -32,13 +32,13 @@ import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
-import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.FontFamily
 import androidx.ui.graphics.Color
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 /**
  * This Component defines the styling principles from the Material design specification. It must be
