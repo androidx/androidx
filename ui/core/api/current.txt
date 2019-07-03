@@ -1087,15 +1087,6 @@ package androidx.ui.engine.geometry {
 
 }
 
-package androidx.ui.engine.text {
-
-  public enum TextDirection {
-    enum_constant public static final androidx.ui.engine.text.TextDirection Ltr;
-    enum_constant public static final androidx.ui.engine.text.TextDirection Rtl;
-  }
-
-}
-
 package androidx.ui.graphics {
 
   @AnyThread public final class Color {
@@ -1727,6 +1718,15 @@ package androidx.ui.text {
   public static final class TextSelection.Companion {
     method public androidx.ui.text.TextSelection collapsed(int offset);
     method public androidx.ui.text.TextSelection fromPosition(int position);
+  }
+
+}
+
+package androidx.ui.text.style {
+
+  public enum TextDirection {
+    enum_constant public static final androidx.ui.text.style.TextDirection Ltr;
+    enum_constant public static final androidx.ui.text.style.TextDirection Rtl;
   }
 
 }

@@ -16,7 +16,7 @@
 package androidx.ui.text
 
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import androidx.ui.toStringAsFixed
 
 /**

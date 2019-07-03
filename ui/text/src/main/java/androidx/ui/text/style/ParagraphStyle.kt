@@ -15,8 +15,6 @@
  */
 package androidx.ui.text.style
 
-import androidx.ui.engine.text.TextDirection
-
 /**
  * An opaque object that determines the configuration used by
  * [ParagraphBuilder] to position lines within a [Paragraph] of text.

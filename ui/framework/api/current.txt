@@ -127,7 +127,7 @@ package androidx.ui.core {
 
   public final class SemanticsKt {
     ctor public SemanticsKt();
-    method public static void Semantics(boolean container = false, boolean explicitChildNodes = false, Boolean? enabled = null, Boolean? checked = null, Boolean? selected = null, Boolean? button = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? hidden = null, String? label = null, String? value = null, androidx.ui.engine.text.TextDirection? textDirection = null, String? testTag = null, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions = emptyList(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Semantics(boolean container = false, boolean explicitChildNodes = false, Boolean? enabled = null, Boolean? checked = null, Boolean? selected = null, Boolean? button = null, Boolean? inMutuallyExclusiveGroup = null, Boolean? hidden = null, String? label = null, String? value = null, androidx.ui.text.style.TextDirection? textDirection = null, String? testTag = null, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions = emptyList(), kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class TestTagProviderKt {
