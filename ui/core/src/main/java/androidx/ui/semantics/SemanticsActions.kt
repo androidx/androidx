@@ -16,7 +16,7 @@
 
 package androidx.ui.core.semantics
 
-import androidx.ui.services.text_editing.TextSelection
+import androidx.ui.text.TextSelection
 
 private const val INDEX_TAP = 1 shl 0
 private const val INDEX_LONG_PRESS = 1 shl 1

@@ -757,7 +757,7 @@ package androidx.ui.core.semantics {
     method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getScrollLeft();
     method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getScrollRight();
     method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getScrollUp();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<androidx.ui.services.text_editing.TextSelection,kotlin.Unit>> getSetSelection();
+    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<androidx.ui.text.TextSelection,kotlin.Unit>> getSetSelection();
     method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getShowOnScreen();
     method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getTap();
     property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Copy;
@@ -778,7 +778,7 @@ package androidx.ui.core.semantics {
     property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ScrollLeft;
     property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ScrollRight;
     property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ScrollUp;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<androidx.ui.services.text_editing.TextSelection,kotlin.Unit>> SetSelection;
+    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<androidx.ui.text.TextSelection,kotlin.Unit>> SetSelection;
     property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ShowOnScreen;
     property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Tap;
   }
@@ -1714,31 +1714,6 @@ package androidx.ui.painting {
 
 }
 
-package androidx.ui.services.text_editing {
-
-  public final class TextSelection {
-    ctor public TextSelection(int baseOffset, int extentOffset, boolean isDirectional);
-    method public int component1();
-    method public int component2();
-    method public boolean component3();
-    method public androidx.ui.services.text_editing.TextSelection copy(int baseOffset, int extentOffset, boolean isDirectional);
-    method public int getBaseOffset();
-    method public int getEnd();
-    method public int getExtentOffset();
-    method public int getStart();
-    method public boolean isDirectional();
-    property public final int end;
-    property public final int start;
-    field public static final androidx.ui.services.text_editing.TextSelection.Companion! Companion;
-  }
-
-  public static final class TextSelection.Companion {
-    method public androidx.ui.services.text_editing.TextSelection collapsed(int offset);
-    method public androidx.ui.services.text_editing.TextSelection fromPosition(int position);
-  }
-
-}
-
 package androidx.ui.testutils {
 
   public final class PointerInputTestUtilKt {
@@ -1750,6 +1725,31 @@ package androidx.ui.testutils {
     method public static androidx.ui.core.PointerInputChange moveBy(androidx.ui.core.PointerInputChange, androidx.ui.core.Duration duration, float dx = 0f, float dy = 0f);
     method public static androidx.ui.core.PointerInputChange moveTo(androidx.ui.core.PointerInputChange, androidx.ui.core.Timestamp timestamp, float x = 0f, float y = 0f);
     method public static androidx.ui.core.PointerInputChange up(androidx.ui.core.PointerInputChange, androidx.ui.core.Timestamp timestamp);
+  }
+
+}
+
+package androidx.ui.text {
+
+  public final class TextSelection {
+    ctor public TextSelection(int baseOffset, int extentOffset, boolean isDirectional);
+    method public int component1();
+    method public int component2();
+    method public boolean component3();
+    method public androidx.ui.text.TextSelection copy(int baseOffset, int extentOffset, boolean isDirectional);
+    method public int getBaseOffset();
+    method public int getEnd();
+    method public int getExtentOffset();
+    method public int getStart();
+    method public boolean isDirectional();
+    property public final int end;
+    property public final int start;
+    field public static final androidx.ui.text.TextSelection.Companion! Companion;
+  }
+
+  public static final class TextSelection.Companion {
+    method public androidx.ui.text.TextSelection collapsed(int offset);
+    method public androidx.ui.text.TextSelection fromPosition(int position);
   }
 
 }

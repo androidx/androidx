@@ -37,7 +37,7 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.core.selection.TextSelectionHandler
 import androidx.ui.core.selection.TextSelectionProcessor
-import androidx.ui.services.text_editing.TextSelection
+import androidx.ui.text.TextSelection
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
