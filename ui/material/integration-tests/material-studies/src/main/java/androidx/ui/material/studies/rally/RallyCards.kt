@@ -37,6 +37,7 @@ import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.composer
 import androidx.compose.unaryPlus
+import androidx.ui.layout.CrossAxisAlignment
 
 // TODO: This is not integrated with the theme
 internal val cardInternalColor = Color(0xFF33333D.toInt())
@@ -133,7 +134,7 @@ fun RallyAccountRow(name: String, number: String, amount: String, color: Color) 
             inflexible {
                 AccountIndicator(color = color)
                 WidthSpacer(width = 8.dp)
-                Column(crossAxisAlignment = MainAxisAlignment.Start) {
+                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                     Text(text = name, style = +themeTextStyle { body1 })
                     Text(text = "•••••$number", style = +themeTextStyle { subtitle1 })
                 }
