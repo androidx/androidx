@@ -944,7 +944,7 @@ package androidx.core.content.pm {
     method public static int getMaxShortcutCountPerActivity(android.content.Context);
     method public static boolean isRequestPinShortcutSupported(android.content.Context);
     method public static void removeAllDynamicShortcuts(android.content.Context);
-    method public void removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String!>);
+    method public static void removeDynamicShortcuts(android.content.Context, java.util.List<java.lang.String!>);
     method public static boolean requestPinShortcut(android.content.Context, androidx.core.content.pm.ShortcutInfoCompat, android.content.IntentSender?);
     method public static boolean updateShortcuts(android.content.Context, java.util.List<androidx.core.content.pm.ShortcutInfoCompat!>);
     field public static final String EXTRA_SHORTCUT_ID = "android.intent.extra.shortcut.ID";

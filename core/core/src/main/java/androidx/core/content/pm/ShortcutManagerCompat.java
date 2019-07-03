@@ -263,7 +263,7 @@ public class ShortcutManagerCompat {
     /**
      * Delete dynamic shortcuts by ID.
      */
-    public void removeDynamicShortcuts(@NonNull Context context,
+    public static void removeDynamicShortcuts(@NonNull Context context,
             @NonNull List<String> shortcutIds) {
         if (Build.VERSION.SDK_INT >= 25) {
             context.getSystemService(ShortcutManager.class).removeDynamicShortcuts(shortcutIds);
