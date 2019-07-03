@@ -23,7 +23,7 @@ import androidx.ui.toStringAsFixed
  *
  * This is similar to [Rect] but includes an inherent [TextDirection].
  */
-data class TextBox(
+internal data class TextBox(
     /**
      * The left edge of the text box, irrespective of direction.
      * To get the leading edge (which may depend on the [direction]), consider [start].
