@@ -16,7 +16,6 @@
 package androidx.ui.text
 
 import androidx.ui.core.Density
-import androidx.ui.core.TextRange
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.text.style.ParagraphStyle

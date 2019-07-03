@@ -17,8 +17,8 @@
 package androidx.ui.core.input
 
 import android.view.inputmethod.ExtractedText
-import androidx.ui.core.TextRange
-import androidx.ui.core.substring
+import androidx.ui.text.TextRange
+import androidx.ui.text.substring
 
 /**
  * Stores an input state for IME

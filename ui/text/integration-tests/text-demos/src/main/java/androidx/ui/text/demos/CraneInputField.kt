@@ -23,7 +23,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.EditorStyle
 import androidx.ui.core.InputField
-import androidx.ui.core.TextRange
+import androidx.ui.text.TextRange
 import androidx.ui.input.EditorState
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
