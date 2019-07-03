@@ -43,6 +43,7 @@ tasks.all { task ->
 android {
     defaultConfig {
         minSdkVersion 19
+        targetSdkVersion 29
     }
     lintOptions {
         disable 'UnusedResources'

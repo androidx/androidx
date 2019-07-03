@@ -71,9 +71,7 @@ public class PopupInterstitialActivity extends AppCompatActivity {
             case WebViewClient.SAFE_BROWSING_THREAT_UNWANTED_SOFTWARE:
                 threatTypeMessage = "Harmful unwanted software";
                 break;
-            // TODO(ntfschr): replace with WebViewClient.SAFE_BROWSING_THREAT_BILLING when we
-            // compile against Q.
-            case 4:
+            case WebViewClient.SAFE_BROWSING_THREAT_BILLING:
                 threatTypeMessage = "Trick to bill";
                 break;
             default:
