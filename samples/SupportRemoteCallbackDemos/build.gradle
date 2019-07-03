@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     implementation(project(":remotecallback"))
-    implementation(project(":recyclerview"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation(project(":appcompat"))
     annotationProcessor project(":remotecallback-processor")
 }
