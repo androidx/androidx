@@ -15,7 +15,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.media:media:1.0.0")
     api("androidx.fragment:fragment:1.0.0")
-    api(project(":recyclerview"))
+    api(project(":recyclerview:recyclerview"))
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

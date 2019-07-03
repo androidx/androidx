@@ -12,7 +12,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(project(":swiperefreshlayout"))
     api(project(":fragment:fragment"))
-    api(project(":recyclerview"))
+    api(project(":recyclerview:recyclerview"))
     api(CONSTRAINT_LAYOUT, { transitive = true })
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
