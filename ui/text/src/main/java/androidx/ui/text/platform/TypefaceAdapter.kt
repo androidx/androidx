@@ -21,12 +21,12 @@ import android.graphics.Typeface
 import android.os.Build
 import androidx.collection.LruCache
 import androidx.core.content.res.ResourcesCompat
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontSynthesis
-import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontMatcher
+import androidx.ui.text.font.FontStyle
+import androidx.ui.text.font.FontSynthesis
+import androidx.ui.text.font.FontWeight
 
 /**
  * Creates a Typeface based on generic font family or a custom [FontFamily].
@@ -36,8 +36,9 @@ import androidx.ui.text.font.FontMatcher
  */
 // TODO(Migration/siyamed): font matcher should be at an upper layer such as Paragraph, whoever
 // will call TypefaceAdapter can know about a single font
-internal open class TypefaceAdapter constructor(
-    val fontMatcher: FontMatcher = FontMatcher()
+internal open class TypefaceAdapter(
+    val fontMatcher: FontMatcher = FontMatcher(),
+    val resourceLoader: AndroidFontResourceLoader = AndroidFontResourceLoader(context = null)
 ) {
 
     data class CacheKey(
@@ -169,12 +170,15 @@ internal open class TypefaceAdapter constructor(
         context: Context,
         fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
-        // TODO(Migration/siyamed): add genericFontFamily : String? = null for fallback
-        // TODO(Migration/siyamed): add support for multiple font families
+        // TODO(siyamed): add genericFontFamily : String? = null for fallback
+        // TODO(siyamed): add support for multiple font families
 
         val font = fontMatcher.matchFont(fontFamily, fontWeight, fontStyle)
 
-        // TODO(Migration/siyamed): This is an expensive operation and discouraged in the API Docs
+        // TODO(siyamed) replace the lines until loadedFontIsSameAsRequest with
+        // val typeface = resourceLoader.load(font)
+
+        // TODO(siyamed): This is an expensive operation and discouraged in the API Docs
         // remove when alternative resource loading system is defined.
         val resId = context.resources.getIdentifier(
             font.name.substringBefore("."),
