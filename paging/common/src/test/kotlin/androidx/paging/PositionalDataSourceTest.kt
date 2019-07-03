@@ -103,7 +103,7 @@ class PositionalDataSourceTest {
         )
     }
 
-    private fun validatePositionOffset(enablePlaceholders: Boolean) {
+    private fun validatePositionOffset(enablePlaceholders: Boolean) = runBlocking {
         val config = PagedList.Config.Builder()
             .setPageSize(10)
             .setEnablePlaceholders(enablePlaceholders)

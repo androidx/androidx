@@ -25,6 +25,7 @@ import io.reactivex.ObservableEmitter
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.Scheduler
 import io.reactivex.functions.Cancellable
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executor
 
 /**
@@ -235,15 +236,16 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
             emitter.onNext(createPagedList())
         }
 
+        // TODO: Convert this runBlocking to async with a subscribeOn.
         // for getLastKey cast, and Builder.build()
-        private fun createPagedList(): PagedList<Value> {
+        private fun createPagedList(): PagedList<Value> = runBlocking {
             @Suppress("UNCHECKED_CAST")
             val initializeKey = if (::list.isInitialized) list.lastKey as Key? else initialLoadKey
 
             do {
-                dataSource?.removeInvalidatedCallback(this)
+                dataSource?.removeInvalidatedCallback(this@PagingObservableOnSubscribe)
                 val newDataSource = dataSourceFactory.create()
-                newDataSource.addInvalidatedCallback(this)
+                newDataSource.addInvalidatedCallback(this@PagingObservableOnSubscribe)
                 dataSource = newDataSource
 
                 @Suppress("DEPRECATION")
@@ -254,7 +256,7 @@ class RxPagedListBuilder<Key : Any, Value : Any>(
                     .setInitialKey(initializeKey)
                     .build()
             } while (list.isDetached)
-            return list
+            list
         }
     }
 }

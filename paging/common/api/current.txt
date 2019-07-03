@@ -180,7 +180,7 @@ package androidx.paging {
     ctor public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config);
     ctor public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, int pageSize);
     method @Deprecated @WorkerThread public androidx.paging.PagedList<Value> build();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.paging.PagedList<Value>> buildAsync();
+    method public suspend Object buildAsync(kotlin.coroutines.Continuation<? super androidx.paging.PagedList<Value>> p);
     method public androidx.paging.PagedList.Builder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
     method public androidx.paging.PagedList.Builder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
     method public androidx.paging.PagedList.Builder<Key,Value> setFetchExecutor(java.util.concurrent.Executor fetchExecutor);
@@ -357,10 +357,6 @@ package androidx.paging.futures {
 
   public final class DirectExecutorKt {
     ctor public DirectExecutorKt();
-  }
-
-  public final class Futures {
-    ctor public Futures();
   }
 
 }
