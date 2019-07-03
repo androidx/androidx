@@ -68,7 +68,8 @@ class InputFieldDelegateTest {
         delegate.draw(
             canvas = canvas,
             value = EditorState(text = "Hello, World", selection = selection),
-            editorStyle = EditorStyle(selectionColor = selectionColor))
+            editorStyle = EditorStyle(selectionColor = selectionColor),
+            drawCursor = true)
 
         verify(painter, times(1)).paintBackground(
             eq(selection.start), eq(selection.end), eq(selectionColor), eq(canvas), any())
@@ -84,9 +85,25 @@ class InputFieldDelegateTest {
         delegate.draw(
             canvas = canvas,
             value = EditorState(text = "Hello, World", selection = cursor),
-            editorStyle = EditorStyle())
+            editorStyle = EditorStyle(),
+            drawCursor = true)
 
         verify(painter, times(1)).paintCursor(eq(cursor.start), eq(canvas))
+        verify(painter, times(1)).paint(eq(canvas), any())
+        verify(painter, never()).paintBackground(any(), any(), any(), any(), any())
+    }
+
+    @Test
+    fun dont_draw_cursor_test() {
+        val cursor = TextRange(1, 1)
+
+        delegate.draw(
+            canvas = canvas,
+            value = EditorState(text = "Hello, World", selection = cursor),
+            editorStyle = EditorStyle(),
+            drawCursor = false)
+
+        verify(painter, never()).paintCursor(any(), any())
         verify(painter, times(1)).paint(eq(canvas), any())
         verify(painter, never()).paintBackground(any(), any(), any(), any(), any())
     }
@@ -102,7 +119,8 @@ class InputFieldDelegateTest {
             canvas = canvas,
             value = EditorState(text = "Hello, World", selection = cursor,
                 composition = composition),
-            editorStyle = EditorStyle(compositionColor = compositionColor))
+            editorStyle = EditorStyle(compositionColor = compositionColor),
+            drawCursor = true)
 
         verify(painter, times(1)).paintBackground(
             eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas), any())
@@ -152,7 +170,8 @@ class InputFieldDelegateTest {
                 text = "Hello, World", selection = TextRange(1, 1),
                 composition = TextRange(1, 3)
             ),
-            editorStyle = EditorStyle(compositionColor = Color.Red)
+            editorStyle = EditorStyle(compositionColor = Color.Red),
+            drawCursor = true
         )
 
         inOrder(painter) {

@@ -64,7 +64,7 @@ internal class InputFieldDelegate(
      * @param value the editor state.
      * @param editorStyle the editor style.
      */
-    fun draw(canvas: Canvas, value: EditorState, editorStyle: EditorStyle) {
+    fun draw(canvas: Canvas, value: EditorState, editorStyle: EditorStyle, drawCursor: Boolean) {
         value.composition?.let {
             textPainter.paintBackground(
                 it.start,
@@ -75,7 +75,9 @@ internal class InputFieldDelegate(
             )
         }
         if (value.selection.collapsed) {
-            textPainter.paintCursor(value.selection.start, canvas)
+            if (drawCursor) {
+                textPainter.paintCursor(value.selection.start, canvas)
+            }
         } else {
             textPainter.paintBackground(
                 value.selection.start,
