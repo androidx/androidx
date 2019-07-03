@@ -130,29 +130,6 @@ package androidx.ui.engine.text {
     enum_constant public static final androidx.ui.engine.text.TextAlign Start;
   }
 
-  public final class TextBox {
-    ctor public TextBox(float left, float top, float right, float bottom, androidx.ui.engine.text.TextDirection direction);
-    method public float component1();
-    method public float component2();
-    method public float component3();
-    method public float component4();
-    method public androidx.ui.engine.text.TextDirection component5();
-    method public androidx.ui.engine.text.TextBox copy(float left, float top, float right, float bottom, androidx.ui.engine.text.TextDirection direction);
-    method public float end();
-    method public float getBottom();
-    method public androidx.ui.engine.text.TextDirection getDirection();
-    method public float getLeft();
-    method public float getRight();
-    method public float getTop();
-    method public float start();
-    method public androidx.ui.engine.geometry.Rect toRect();
-    field public static final androidx.ui.engine.text.TextBox.Companion! Companion;
-  }
-
-  public static final class TextBox.Companion {
-    method public androidx.ui.engine.text.TextBox fromLTRBD(float left, float top, float right, float bottom, androidx.ui.engine.text.TextDirection direction);
-  }
-
   public final class TextDecoration {
     method public int component1();
     method public boolean contains(androidx.ui.engine.text.TextDecoration other);
