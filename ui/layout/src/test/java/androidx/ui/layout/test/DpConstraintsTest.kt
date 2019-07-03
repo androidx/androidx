@@ -77,8 +77,8 @@ class DpConstraintsTest {
         assertFalse(untight.isTight)
 
         val tight = DpConstraints(3.dp, 3.dp, 5.dp, 5.dp)
-        assertTrue(tight.hasBoundedWidth)
-        assertTrue(tight.hasBoundedHeight)
+        assertTrue(tight.hasTightWidth)
+        assertTrue(tight.hasTightHeight)
         assertTrue(tight.isTight)
     }
 
@@ -117,9 +117,9 @@ class DpConstraintsTest {
 
     @Test
     fun loose() {
-        val constraints = DpConstraints(2.dp, 2.dp, 5.dp, 5.dp)
-        constraints.looseMin().assertEquals(0.dp, 0.dp, 5.dp, 5.dp)
-        constraints.looseMax().assertEquals(2.dp, 2.dp, Dp.Infinity, Dp.Infinity)
+        val constraints = DpConstraints(2.dp, 5.dp, 2.dp, 5.dp)
+        constraints.looseMin().assertEquals(0.dp, 5.dp, 0.dp, 5.dp)
+        constraints.looseMax().assertEquals(2.dp, Dp.Infinity, 2.dp, Dp.Infinity)
     }
 
     @Test
@@ -154,9 +154,9 @@ class DpConstraintsTest {
         maxWidth: Dp,
         minHeight: Dp,
         maxHeight: Dp
-    ): Boolean {
-        return this.minWidth == minWidth && this.maxWidth == maxWidth &&
-                this.minHeight == minHeight && this.maxHeight == maxHeight
+    ) {
+        assertTrue(this.minWidth == minWidth && this.maxWidth == maxWidth &&
+                this.minHeight == minHeight && this.maxHeight == maxHeight)
     }
 
     private fun assertInvalid(
