@@ -77,6 +77,7 @@ package androidx.ui.layout {
   public final class DpConstraintsKt {
     ctor public DpConstraintsKt();
     method public static androidx.ui.core.Constraints Constraints(androidx.ui.core.DensityReceiver, androidx.ui.layout.DpConstraints dpConstraints);
+    method public static androidx.ui.layout.DpConstraints DpConstraints(androidx.ui.core.DensityReceiver, androidx.ui.core.Constraints constraints);
     method public static androidx.ui.layout.DpConstraints enforce(androidx.ui.layout.DpConstraints, androidx.ui.layout.DpConstraints otherConstraints);
     method public static boolean getHasBoundedHeight(androidx.ui.layout.DpConstraints);
     method public static boolean getHasBoundedWidth(androidx.ui.layout.DpConstraints);
