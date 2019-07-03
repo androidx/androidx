@@ -98,6 +98,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".CustomShapeActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/Custom shapes">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".TabActivity"
             android:configChanges="orientation|screenSize"
             android:label="Material/Tabs">

@@ -48,11 +48,11 @@ package androidx.ui.baseui.shape {
 
   public final class DrawShapeKt {
     ctor public DrawShapeKt();
-    method public static void DrawShape(androidx.ui.baseui.shape.Shape shape, androidx.ui.graphics.Color color);
-    method public static void DrawShape(androidx.ui.baseui.shape.Shape shape, androidx.ui.core.vectorgraphics.Brush brush);
+    method public static void DrawShape(androidx.ui.engine.geometry.Shape shape, androidx.ui.graphics.Color color);
+    method public static void DrawShape(androidx.ui.engine.geometry.Shape shape, androidx.ui.core.vectorgraphics.Brush brush);
   }
 
-  public final class GenericShape implements androidx.ui.baseui.shape.Shape {
+  public final class GenericShape implements androidx.ui.engine.geometry.Shape {
     ctor public GenericShape(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
     method public androidx.ui.baseui.shape.GenericShape copy(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Path,? super androidx.ui.core.PxSize,kotlin.Unit> builder);
     method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
@@ -60,11 +60,7 @@ package androidx.ui.baseui.shape {
 
   public final class RectangleShapeKt {
     ctor public RectangleShapeKt();
-    method public static androidx.ui.baseui.shape.Shape getRectangleShape();
-  }
-
-  public interface Shape {
-    method public androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
+    method public static androidx.ui.engine.geometry.Shape getRectangleShape();
   }
 
 }
@@ -87,14 +83,14 @@ package androidx.ui.baseui.shape.border {
 
   public final class DrawBorderKt {
     ctor public DrawBorderKt();
-    method public static void DrawBorder(androidx.ui.baseui.shape.Shape shape, androidx.ui.baseui.shape.border.Border border);
+    method public static void DrawBorder(androidx.ui.engine.geometry.Shape shape, androidx.ui.baseui.shape.border.Border border);
   }
 
 }
 
 package androidx.ui.baseui.shape.corner {
 
-  public abstract class CornerBasedShape implements androidx.ui.baseui.shape.Shape {
+  public abstract class CornerBasedShape implements androidx.ui.engine.geometry.Shape {
     ctor public CornerBasedShape(androidx.ui.baseui.shape.corner.CornerSizes corners);
     method public final androidx.ui.engine.geometry.Outline createOutline(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
     method public abstract androidx.ui.engine.geometry.Outline createOutline(androidx.ui.baseui.shape.corner.PxCornerSizes corners, androidx.ui.core.PxSize size);
@@ -190,17 +186,17 @@ package androidx.ui.material {
 
   public final class ButtonKt {
     ctor public ButtonKt();
-    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.baseui.shape.Shape shape = +themeShape({ 
+    method public static void Button(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
 }), androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public static void Button(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.baseui.shape.Shape shape = +themeShape({ 
+    method public static void Button(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
 }), androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
-    method public static void TransparentButton(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.baseui.shape.Shape shape = +themeShape({ 
+    method public static void TransparentButton(String text, androidx.ui.text.TextStyle? textStyle = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.engine.geometry.Shape shape = +themeShape({ 
     button
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp);
   }
@@ -224,7 +220,7 @@ package androidx.ui.material {
 
   public final class FloatingActionButtonKt {
     ctor public FloatingActionButtonKt();
-    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.baseui.shape.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
     primary
 }), androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public static void FloatingActionButton(androidx.ui.painting.Image icon, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.graphics.Color color = +themeColor({ 
@@ -278,7 +274,7 @@ package androidx.ui.material {
     method public static androidx.compose.Ambient<androidx.ui.material.Shapes> getCurrentShapeAmbient();
     method public static androidx.compose.Ambient<androidx.ui.material.MaterialTypography> getTypography();
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.graphics.Color> themeColor(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialColors,androidx.ui.graphics.Color> choosingBlock);
-    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.baseui.shape.Shape> themeShape(kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.baseui.shape.Shape> choosingBlock);
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.engine.geometry.Shape> themeShape(kotlin.jvm.functions.Function1<? super androidx.ui.material.Shapes,? extends androidx.ui.engine.geometry.Shape> choosingBlock);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.text.TextStyle> themeTextStyle(kotlin.jvm.functions.Function1<? super androidx.ui.material.MaterialTypography,androidx.ui.text.TextStyle> choosingBlock);
   }
 
@@ -349,10 +345,10 @@ package androidx.ui.material {
   }
 
   public final class Shapes {
-    ctor public Shapes(androidx.ui.baseui.shape.Shape button);
-    method public androidx.ui.baseui.shape.Shape component1();
-    method public androidx.ui.material.Shapes copy(androidx.ui.baseui.shape.Shape button);
-    method public androidx.ui.baseui.shape.Shape getButton();
+    ctor public Shapes(androidx.ui.engine.geometry.Shape button);
+    method public androidx.ui.engine.geometry.Shape component1();
+    method public androidx.ui.material.Shapes copy(androidx.ui.engine.geometry.Shape button);
+    method public androidx.ui.engine.geometry.Shape getButton();
   }
 
   public final class SwitchKt {
@@ -456,26 +452,26 @@ package androidx.ui.material.surface {
 
   public final class CardKt {
     ctor public CardKt();
-    method public static void Card(androidx.ui.baseui.shape.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void Card(androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
     surface
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class DrawShadowKt {
     ctor public DrawShadowKt();
-    method public static void DrawShadow(androidx.ui.core.Dp elevation, androidx.ui.baseui.shape.Shape shape);
+    method public static void DrawShadow(androidx.ui.core.Dp elevation, androidx.ui.engine.geometry.Shape shape);
   }
 
   public final class SurfaceKt {
     ctor public SurfaceKt();
-    method public static void Surface(androidx.ui.baseui.shape.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
+    method public static void Surface(androidx.ui.engine.geometry.Shape shape = RectangleShape, androidx.ui.graphics.Color color = +themeColor({ 
     surface
 }), androidx.ui.baseui.shape.border.Border? border = null, androidx.ui.core.Dp elevation = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class TransparentSurfaceKt {
     ctor public TransparentSurfaceKt();
-    method public static void TransparentSurface(androidx.ui.baseui.shape.Shape shape = RectangleShape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void TransparentSurface(androidx.ui.engine.geometry.Shape shape = RectangleShape, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

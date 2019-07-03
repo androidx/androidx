@@ -19,6 +19,7 @@ package androidx.ui.baseui.shape
 import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.engine.geometry.Outline
+import androidx.ui.engine.geometry.Shape
 import androidx.ui.painting.Path
 
 /**

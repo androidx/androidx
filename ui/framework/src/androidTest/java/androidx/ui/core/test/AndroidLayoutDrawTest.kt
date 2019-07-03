@@ -23,6 +23,7 @@ import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import androidx.annotation.RequiresApi
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
@@ -79,14 +80,12 @@ class AndroidLayoutDrawTest {
         TestActivity::class.java
     )
     private lateinit var activity: TestActivity
-    private lateinit var handler: Handler
     private lateinit var drawLatch: CountDownLatch
 
     @Before
     fun setup() {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
-        runOnUiThread { handler = Handler() }
         drawLatch = CountDownLatch(1)
     }
 
@@ -127,7 +126,7 @@ class AndroidLayoutDrawTest {
         drawLatch = CountDownLatch(1)
         val red = Color(0xFF800000.toInt())
         val yellow = Color(0xFFFFFF00.toInt())
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             model.outerColor = red
             model.innerColor = yellow
         }
@@ -147,7 +146,7 @@ class AndroidLayoutDrawTest {
 
         drawLatch = CountDownLatch(1)
         val yellow = Color(0xFFFFFF00.toInt())
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             model.innerColor = yellow
         }
 
@@ -164,7 +163,7 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         drawLatch = CountDownLatch(1)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             model.size = 20.ipx
         }
 
@@ -184,10 +183,10 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         drawLatch = CountDownLatch(1)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             // there isn't going to be a normal draw because we are just moving the repaint
             // boundary, but we should have a draw cycle
-            findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
+            activityTestRule.findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
                 ViewTreeObserver.OnDrawListener {
                 override fun onDraw() {
                     drawLatch.countDown()
@@ -212,10 +211,10 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         drawLatch = CountDownLatch(1)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             // there isn't going to be a normal draw because we are just moving the repaint
             // boundary, but we should have a draw cycle
-            findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
+            activityTestRule.findAndroidCraneView().viewTreeObserver.addOnDrawListener(object :
                 ViewTreeObserver.OnDrawListener {
                 override fun onDraw() {
                     drawLatch.countDown()
@@ -238,7 +237,7 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = blue, innerColor = white, size = 10)
 
         drawLatch = CountDownLatch(1)
-        runOnUiThread { model.size = 20.ipx }
+        activityTestRule.runOnUiThreadIR { model.size = 20.ipx }
         validateSquareColors(outerColor = blue, innerColor = white, size = 20)
     }
 
@@ -249,7 +248,7 @@ class AndroidLayoutDrawTest {
         val green = Color(0xFF00FF00.toInt())
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = green)
 
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Padding(size = (model.size * 3)) {
@@ -267,7 +266,7 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = green, innerColor = green, size = 20)
 
         drawLatch = CountDownLatch(1)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             model.size = 30.ipx
         }
         validateSquareColors(outerColor = green, innerColor = green, size = 30)
@@ -275,7 +274,7 @@ class AndroidLayoutDrawTest {
         drawLatch = CountDownLatch(1)
         val blue = Color(0xFF0000FF.toInt())
 
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             model.innerColor = blue
             model.outerColor = blue
         }
@@ -290,7 +289,7 @@ class AndroidLayoutDrawTest {
         val white = Color(0xFFFFFFFF.toInt())
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
 
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Layout(children = {
@@ -331,7 +330,7 @@ class AndroidLayoutDrawTest {
         val white = Color(0xFFFFFFFF.toInt())
         val model = SquareModel(size = 20.ipx, outerColor = green, innerColor = white)
 
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Draw { canvas, parentSize ->
@@ -384,7 +383,7 @@ class AndroidLayoutDrawTest {
         val paddedConstraints = Ref<Constraints>()
         val firstChildConstraints = Ref<Constraints>()
         val secondChildConstraints = Ref<Constraints>()
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     WithConstraints { constraints ->
@@ -426,7 +425,7 @@ class AndroidLayoutDrawTest {
     @Test
     fun multipleMeasureCall() {
         val latch = CountDownLatch(1)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     TwoMeasureLayout(50.ipx, latch) {
@@ -450,7 +449,7 @@ class AndroidLayoutDrawTest {
         val headerChildrenCount = 1
         val footerChildrenCount = 2
 
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     val header = @Composable {
@@ -485,7 +484,7 @@ class AndroidLayoutDrawTest {
 
     @Test
     fun multiChildLayoutTest_doesNotOverrideChildrenParentData() {
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     val header = @Composable {
@@ -534,7 +533,7 @@ class AndroidLayoutDrawTest {
         var layoutCalls = 0
 
         val layoutLatch = CountDownLatch(1)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.compose {
                 Draw { canvas, parentSize ->
                     val paint = Paint()
@@ -571,7 +570,7 @@ class AndroidLayoutDrawTest {
         layoutCalls = 0
         measureCalls = 0
         drawLatch = CountDownLatch(1)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             model.size = 20.ipx
         }
 
@@ -637,7 +636,7 @@ class AndroidLayoutDrawTest {
         val laidOut = Array(childrenCount) { Ref<Boolean?>() }
         val drawn = Array(childrenCount) { Ref<Boolean?>() }
         val latch = CountDownLatch(3)
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Align {
@@ -674,7 +673,7 @@ class AndroidLayoutDrawTest {
 
         val outerColor = Color(0xFF000080.toInt())
         val innerColor = Color(0xFFFFFFFF.toInt())
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     AtLeastSize(size = 30.ipx) {
@@ -705,23 +704,13 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = outerColor, innerColor = outerColor, size = 10)
 
         drawLatch = CountDownLatch(1)
-        runOnUiThread { drawChild.value = true }
+        activityTestRule.runOnUiThreadIR { drawChild.value = true }
 
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 20)
     }
 
-    // We only need this because IR compiler doesn't like converting lambdas to Runnables
-    private fun runOnUiThread(block: () -> Unit) {
-        val runnable: Runnable = object : Runnable {
-            override fun run() {
-                block()
-            }
-        }
-        activityTestRule.runOnUiThread(runnable)
-    }
-
     private fun composeSquares(model: SquareModel) {
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Draw { canvas, parentSize ->
@@ -745,7 +734,7 @@ class AndroidLayoutDrawTest {
     }
 
     private fun composeSquaresWithNestedRepaintBoundaries(model: SquareModel) {
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Draw { canvas, parentSize ->
@@ -773,7 +762,7 @@ class AndroidLayoutDrawTest {
     }
 
     private fun composeMovingSquaresWithRepaintBoundary(model: SquareModel, offset: OffsetModel) {
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Draw { canvas, parentSize ->
@@ -799,7 +788,7 @@ class AndroidLayoutDrawTest {
     }
 
     private fun composeMovingSquares(model: SquareModel, offset: OffsetModel) {
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Draw { canvas, parentSize ->
@@ -823,7 +812,7 @@ class AndroidLayoutDrawTest {
     }
 
     private fun composeNestedSquares(model: SquareModel) {
-        runOnUiThread {
+        activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
                     Draw(children = {
@@ -865,7 +854,7 @@ class AndroidLayoutDrawTest {
         totalSize: Int = size * 3
     ) {
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = waitAndScreenShot()
+        val bitmap = activityTestRule.waitAndScreenShot()
         assertEquals(totalSize, bitmap.width)
         assertEquals(totalSize, bitmap.height)
         val squareStart = (totalSize - size) / 2 + offset
@@ -887,58 +876,6 @@ class AndroidLayoutDrawTest {
                 }
             }
         }
-    }
-
-    private fun findAndroidCraneView(): AndroidCraneView {
-        val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
-        return findAndroidCraneView(contentViewGroup)!!
-    }
-
-    private fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
-        for (index in 0 until parent.childCount) {
-            val child = parent.getChildAt(index)
-            if (child is AndroidCraneView) {
-                return child
-            } else if (child is ViewGroup) {
-                val craneView = findAndroidCraneView(child)
-                if (craneView != null) {
-                    return craneView
-                }
-            }
-        }
-        return null
-    }
-
-    private fun waitAndScreenShot(): Bitmap {
-        val view = findAndroidCraneView()
-        val flushListener = DrawCounterListener(view)
-        val offset = intArrayOf(0, 0)
-        runOnUiThread {
-            view.getLocationInWindow(offset)
-            view.viewTreeObserver.addOnPreDrawListener(flushListener)
-            view.invalidate()
-        }
-
-        assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))
-        val width = view.width
-        val height = view.height
-
-        val dest =
-            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        val srcRect = android.graphics.Rect(0, 0, width, height)
-        srcRect.offset(offset[0], offset[1])
-        val latch = CountDownLatch(1)
-        var copyResult = 0
-        val onCopyFinished = object : PixelCopy.OnPixelCopyFinishedListener {
-            override fun onPixelCopyFinished(result: Int) {
-                copyResult = result
-                latch.countDown()
-            }
-        }
-        PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler)
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
-        assertEquals(PixelCopy.SUCCESS, copyResult)
-        return dest
     }
 }
 
@@ -1093,3 +1030,68 @@ class OffsetModel(var offset: IntPx)
 
 @Model
 class DoDraw(var value: Boolean = false)
+
+// We only need this because IR compiler doesn't like converting lambdas to Runnables
+fun ActivityTestRule<*>.runOnUiThreadIR(block: () -> Unit) {
+    val runnable: Runnable = object : Runnable {
+        override fun run() {
+            block()
+        }
+    }
+    runOnUiThread(runnable)
+}
+
+fun ActivityTestRule<*>.findAndroidCraneView(): AndroidCraneView {
+    val contentViewGroup = activity.findViewById<ViewGroup>(android.R.id.content)
+    return findAndroidCraneView(contentViewGroup)!!
+}
+
+fun findAndroidCraneView(parent: ViewGroup): AndroidCraneView? {
+    for (index in 0 until parent.childCount) {
+        val child = parent.getChildAt(index)
+        if (child is AndroidCraneView) {
+            return child
+        } else if (child is ViewGroup) {
+            val craneView = findAndroidCraneView(child)
+            if (craneView != null) {
+                return craneView
+            }
+        }
+    }
+    return null
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun ActivityTestRule<*>.waitAndScreenShot(): Bitmap {
+    val view = findAndroidCraneView()
+    val flushListener = DrawCounterListener(view)
+    val offset = intArrayOf(0, 0)
+    var handler: Handler? = null
+    runOnUiThreadIR {
+        view.getLocationInWindow(offset)
+        view.viewTreeObserver.addOnPreDrawListener(flushListener)
+        view.invalidate()
+        handler = Handler()
+    }
+
+    assertTrue(flushListener.latch.await(1, TimeUnit.SECONDS))
+    val width = view.width
+    val height = view.height
+
+    val dest =
+        Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val srcRect = android.graphics.Rect(0, 0, width, height)
+    srcRect.offset(offset[0], offset[1])
+    val latch = CountDownLatch(1)
+    var copyResult = 0
+    val onCopyFinished = object : PixelCopy.OnPixelCopyFinishedListener {
+        override fun onPixelCopyFinished(result: Int) {
+            copyResult = result
+            latch.countDown()
+        }
+    }
+    PixelCopy.request(activity.window, srcRect, dest, onCopyFinished, handler!!)
+    assertTrue(latch.await(1, TimeUnit.SECONDS))
+    assertEquals(PixelCopy.SUCCESS, copyResult)
+    return dest
+}

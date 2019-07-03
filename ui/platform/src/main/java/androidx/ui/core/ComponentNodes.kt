@@ -20,6 +20,7 @@ import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
 import androidx.compose.Emittable
+import androidx.ui.engine.geometry.Shape
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -92,6 +93,13 @@ interface Owner {
      * Returns a position of the owner in its window.
      */
     fun calculatePosition(): PxPosition
+
+    /**
+     * Called when some params of [RepaintBoundaryNode] are updated.
+     * This is not causing re-recording of the RepaintBoundary, but updates params
+     * like outline, clipping, elevation or alpha.
+     */
+    fun onRepaintBoundaryParamsChange(repaintBoundaryNode: RepaintBoundaryNode)
 
     val measureIteration: Long
 }
@@ -285,6 +293,28 @@ class RepaintBoundaryNode(val name: String?) : ComponentNode() {
      * The vertical position relative to its containing RepaintBoundary or root container
      */
     var containerY: IntPx = 0.ipx
+
+    /**
+     * The shape used to calculate an outline of the RepaintBoundary.
+     */
+    var shape: Shape? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                owner?.onRepaintBoundaryParamsChange(this)
+            }
+        }
+
+    /**
+     * If true RepaintBoundary will be clipped by the outline of it's [shape]
+     */
+    var clipToShape: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                owner?.onRepaintBoundaryParamsChange(this)
+            }
+        }
 
     override val repaintBoundary: RepaintBoundaryNode? get() = this
 }
