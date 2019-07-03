@@ -660,27 +660,6 @@ package androidx.ui.core {
     method public static inline operator androidx.ui.core.Sp times(int, androidx.ui.core.Sp other);
   }
 
-  public final class TextRange {
-    ctor public TextRange(int start, int end);
-    method public int component1();
-    method public int component2();
-    method public boolean contains(androidx.ui.core.TextRange other);
-    method public boolean contains(int offset);
-    method public androidx.ui.core.TextRange copy(int start, int end);
-    method public boolean getCollapsed();
-    method public int getEnd();
-    method public int getLength();
-    method public int getStart();
-    method public boolean intersects(androidx.ui.core.TextRange other);
-    property public final boolean collapsed;
-    property public final int length;
-  }
-
-  public final class TextRangeKt {
-    ctor public TextRangeKt();
-    method public static String substring(CharSequence, androidx.ui.core.TextRange range);
-  }
-
   public final class Timestamp implements java.lang.Comparable<androidx.ui.core.Timestamp> {
     ctor public Timestamp(long nanoseconds);
     method public int compareTo(androidx.ui.core.Timestamp other);
@@ -1698,6 +1677,27 @@ package androidx.ui.testutils {
 }
 
 package androidx.ui.text {
+
+  public final class TextRange {
+    ctor public TextRange(int start, int end);
+    method public int component1();
+    method public int component2();
+    method public boolean contains(androidx.ui.text.TextRange other);
+    method public boolean contains(int offset);
+    method public androidx.ui.text.TextRange copy(int start, int end);
+    method public boolean getCollapsed();
+    method public int getEnd();
+    method public int getLength();
+    method public int getStart();
+    method public boolean intersects(androidx.ui.text.TextRange other);
+    property public final boolean collapsed;
+    property public final int length;
+  }
+
+  public final class TextRangeKt {
+    ctor public TextRangeKt();
+    method public static String substring(CharSequence, androidx.ui.text.TextRange range);
+  }
 
   public final class TextSelection {
     ctor public TextSelection(int baseOffset, int extentOffset, boolean isDirectional);

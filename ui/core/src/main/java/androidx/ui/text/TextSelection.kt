@@ -16,8 +16,6 @@
 
 package androidx.ui.text
 
-import androidx.ui.core.TextRange
-
 /** A range of text that represents a selection. */
 data class TextSelection(
     /**
