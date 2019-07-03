@@ -18,6 +18,13 @@ package androidx.ui.input
 
 import androidx.test.filters.SmallTest
 import androidx.ui.core.TextRange
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.reset
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,9 +37,17 @@ class EditProcessorTest {
     @Test
     fun test_new_state_and_edit_commands() {
         val proc = EditProcessor()
+        val tis: TextInputService = mock()
 
-        proc.onNewState(EditorState("ABCDE", TextRange(0, 0)))
+        proc.onNewState(EditorState("ABCDE", TextRange(0, 0)), tis)
+        val captor = argumentCaptor<EditorState>()
+        verify(tis, times(1)).onStateUpdated(captor.capture())
+        assertEquals(1, captor.allValues.size)
+        assertEquals("ABCDE", captor.firstValue.text)
+        assertEquals(0, captor.firstValue.selection.start)
+        assertEquals(0, captor.firstValue.selection.end)
 
+        reset(tis)
         val newState = proc.onEditCommands(listOf(
             CommitTextEditOp("X", 1)
         ))
@@ -40,5 +55,7 @@ class EditProcessorTest {
         assertEquals("XABCDE", newState.text)
         assertEquals(1, newState.selection.start)
         assertEquals(1, newState.selection.end)
+        // onEditCommands should not fire onStateUpdated since need to pass it to developer first.
+        verify(tis, never()).onStateUpdated(any())
     }
 }

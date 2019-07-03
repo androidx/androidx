@@ -53,7 +53,7 @@ class RecordingInputConnectionTest {
     @Before
     fun setup() {
         listener = mock()
-        ic = RecordingInputConnection(listener)
+        ic = RecordingInputConnection(InputState("", TextRange(0, 0)), listener)
     }
 
     @Test

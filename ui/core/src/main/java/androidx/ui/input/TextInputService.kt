@@ -44,4 +44,9 @@ interface TextInputService {
      * There is no guarantee nor callback of the result of this API.
      */
     fun showSoftwareKeyboard()
+
+    /*
+     * Notify the new editor state to IME.
+     */
+    fun onStateUpdated(state: EditorState)
 }

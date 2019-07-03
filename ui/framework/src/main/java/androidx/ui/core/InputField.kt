@@ -84,9 +84,10 @@ fun InputField(
 ) {
     val style = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = style.merge(editorStyle.textStyle)
+    val textInputService = +ambient(TextInputServiceAmbient)
 
     val processor = +memo { EditProcessor() }
-    processor.onNewState(value)
+    processor.onNewState(value, textInputService)
 
     val density = +ambient(DensityAmbient)
 
@@ -101,7 +102,6 @@ fun InputField(
         onValueChange
     )
 
-    val textInputService = +ambient(TextInputServiceAmbient)
     TextInputEventObserver(
         onPress = { delegate.onPress(textInputService) },
         onFocus = {
