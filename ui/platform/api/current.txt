@@ -386,7 +386,7 @@ package androidx.ui.core.semantics {
     method public Float? getScrollPosition();
     method public String? getTestTag();
     method public androidx.ui.engine.text.TextDirection? getTextDirection();
-    method public androidx.ui.services.text_editing.TextSelection? getTextSelection();
+    method public androidx.ui.text.TextSelection? getTextSelection();
     method public String? getValue();
     method public boolean isBlockingSemanticsOfPreviouslyPaintedNodes();
     method public boolean isButton();
@@ -433,7 +433,7 @@ package androidx.ui.core.semantics {
     method public void setTestTag(String? p);
     method public void setTextDirection(androidx.ui.engine.text.TextDirection? p);
     method public void setTextField(boolean p);
-    method public void setTextSelection(androidx.ui.services.text_editing.TextSelection? p);
+    method public void setTextSelection(androidx.ui.text.TextSelection? p);
     method public void setToggled(Boolean? value);
     method public void setValue(String? p);
     property public final java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> actions;
@@ -466,7 +466,7 @@ package androidx.ui.core.semantics {
     property public final Float? scrollPosition;
     property public final String? testTag;
     property public final androidx.ui.engine.text.TextDirection? textDirection;
-    property public final androidx.ui.services.text_editing.TextSelection? textSelection;
+    property public final androidx.ui.text.TextSelection? textSelection;
     property public final String? value;
   }
 

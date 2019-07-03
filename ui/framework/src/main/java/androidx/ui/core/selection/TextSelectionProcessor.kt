@@ -20,7 +20,7 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.px
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.services.text_editing.TextSelection
+import androidx.ui.text.TextSelection
 import androidx.ui.text.TextPainter
 import kotlin.math.max
 
