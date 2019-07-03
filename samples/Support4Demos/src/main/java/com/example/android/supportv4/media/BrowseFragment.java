@@ -18,7 +18,6 @@ package com.example.android.supportv4.media;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.util.Log;
@@ -141,13 +140,8 @@ public class BrowseFragment extends Fragment {
             if (mMediaBrowser.getSessionToken() == null) {
                 throw new IllegalArgumentException("No Session token");
             }
-            MediaControllerCompat mediaController = null;
-            try {
-                mediaController = new MediaControllerCompat(getActivity(),
-                        mMediaBrowser.getSessionToken());
-            } catch (RemoteException e) {
-                Log.e(TAG, "Failed to create MediaController.", e);
-            }
+            MediaControllerCompat mediaController = new MediaControllerCompat(getActivity(),
+                    mMediaBrowser.getSessionToken());
             ((MediaBrowserSupport) getActivity()).setMediaController(mediaController);
 
             if (mMediaId == null) {
