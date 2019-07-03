@@ -1,0 +1,20 @@
+// Signature format: 3.0
+package androidx.arch.core.executor {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class JunitTaskExecutorRule implements org.junit.rules.TestRule {
+    ctor public JunitTaskExecutorRule(int, boolean);
+    method public org.junit.runners.model.Statement! apply(org.junit.runners.model.Statement!, org.junit.runner.Description!);
+    method public void drainTasks(int) throws java.lang.InterruptedException;
+    method public androidx.arch.core.executor.TaskExecutor! getTaskExecutor();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TaskExecutorWithFakeMainThread extends androidx.arch.core.executor.TaskExecutor {
+    ctor public TaskExecutorWithFakeMainThread(int);
+    method public void drainTasks(int) throws java.lang.InterruptedException;
+    method public void executeOnDiskIO(Runnable!);
+    method public boolean isMainThread();
+    method public void postToMainThread(Runnable!);
+  }
+
+}
+

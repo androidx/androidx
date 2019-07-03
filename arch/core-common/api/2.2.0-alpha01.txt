@@ -1,0 +1,9 @@
+// Signature format: 3.0
+package androidx.arch.core.util {
+
+  public interface Function<I, O> {
+    method public O! apply(I!);
+  }
+
+}
+
