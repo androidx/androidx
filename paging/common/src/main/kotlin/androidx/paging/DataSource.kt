@@ -455,7 +455,7 @@ internal constructor(internal val type: KeyType) {
      * @param Value Type of the data produced by a [DataSource].
      * @property counted Set to true if the result is an initial load that is passed totalCount
      */
-    open class BaseResult<Value : Any> protected constructor(
+    open class BaseResult<Value : Any> internal constructor(
         @JvmField
         val data: List<Value>,
         val prevKey: Any?,

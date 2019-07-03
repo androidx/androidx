@@ -57,11 +57,11 @@ open class ContiguousPagedList<K : Any, V : Any>(
         ) = index + prefetchDistance + 1 - itemsBeforeTrailingNulls
     }
 
-    var prependItemsRequested = 0
+    private var prependItemsRequested = 0
 
-    var appendItemsRequested = 0
+    private var appendItemsRequested = 0
 
-    var replacePagesWithNulls = false
+    private var replacePagesWithNulls = false
 
     private val shouldTrim: Boolean
 
