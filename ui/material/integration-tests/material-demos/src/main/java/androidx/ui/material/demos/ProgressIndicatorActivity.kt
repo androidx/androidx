@@ -21,7 +21,7 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.ui.core.CraneWrapper
 import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.MainAxisAlignment.Companion.SpaceEvenly
+import androidx.ui.layout.MainAxisAlignment.SpaceEvenly
 import androidx.ui.layout.Row
 import androidx.ui.material.CircularProgressIndicator
 import androidx.ui.material.LinearProgressIndicator
