@@ -248,9 +248,8 @@ public class FingerprintHelperFragment extends Fragment {
      */
     void cleanup() {
         mShowing = false;
-        if (getActivity() != null) {
-            getActivity().getSupportFragmentManager().beginTransaction().detach(this)
-                    .commitAllowingStateLoss();
+        if (getFragmentManager() != null) {
+            getFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
         }
     }
 
