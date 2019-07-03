@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import java.util.concurrent.Executor;
 
@@ -59,9 +60,10 @@ public class BiometricFragment extends Fragment {
     private Bundle mBundle;
 
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
-    Executor mClientExecutor;
-    DialogInterface.OnClickListener mClientNegativeButtonListener;
-    BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
+    private FragmentManager mClientFragmentManager;
+    private Executor mClientExecutor;
+    private DialogInterface.OnClickListener mClientNegativeButtonListener;
+    private BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
 
     // Set once and retained.
     private BiometricPrompt.CryptoObject mCryptoObject;
@@ -72,6 +74,7 @@ public class BiometricFragment extends Fragment {
     private android.hardware.biometrics.BiometricPrompt mBiometricPrompt;
     private CancellationSignal mCancellationSignal;
     private boolean mStartRespectingCancel;
+
     // Do not rely on the application's executor when calling into the framework's code.
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor = new Executor() {
@@ -153,6 +156,10 @@ public class BiometricFragment extends Fragment {
         return biometricFragment;
     }
 
+    protected void setClientFragmentManager(FragmentManager clientFragmentManager) {
+        mClientFragmentManager = clientFragmentManager;
+    }
+
     /**
      * Sets the client's callback. This should be done whenever the lifecycle changes (orientation
      * changes).
@@ -198,8 +205,7 @@ public class BiometricFragment extends Fragment {
     void cleanup() {
         mShowing = false;
         if (getActivity() != null) {
-            getActivity().getSupportFragmentManager().beginTransaction().detach(this)
-                    .commitAllowingStateLoss();
+            mClientFragmentManager.beginTransaction().detach(this).commitAllowingStateLoss();
         }
     }
 

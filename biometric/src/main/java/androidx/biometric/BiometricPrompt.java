@@ -18,6 +18,7 @@ package androidx.biometric;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
@@ -50,6 +52,7 @@ import javax.crypto.Mac;
  * canceled by the client. For security reasons, the prompt will automatically dismiss when the
  * activity is no longer in the foreground.
  */
+@SuppressLint("SyntheticAccessor")
 public class BiometricPrompt implements BiometricConstants {
 
     private static final String TAG = "BiometricPromptCompat";
@@ -375,7 +378,8 @@ public class BiometricPrompt implements BiometricConstants {
     }
 
     // Passed in from the client.
-    final FragmentActivity mFragmentActivity;
+    FragmentActivity mFragmentActivity;
+    Fragment mFragment;
     final Executor mExecutor;
     final AuthenticationCallback mAuthenticationCallback;
 
@@ -433,7 +437,7 @@ public class BiometricPrompt implements BiometricConstants {
     private final LifecycleObserver mLifecycleObserver = new LifecycleObserver() {
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         void onPause() {
-            if (!mFragmentActivity.isChangingConfigurations()) {
+            if (!isChangingConfigurations()) {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
                     // May be null if no authentication is occurring.
                     if (mFingerprintDialogFragment != null) {
@@ -470,18 +474,21 @@ public class BiometricPrompt implements BiometricConstants {
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         void onResume() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                mBiometricFragment = (BiometricFragment) mFragmentActivity
-                        .getSupportFragmentManager().findFragmentByTag(BIOMETRIC_FRAGMENT_TAG);
+                mBiometricFragment =
+                        (BiometricFragment) getFragmentManager().findFragmentByTag(
+                                BIOMETRIC_FRAGMENT_TAG);
                 if (DEBUG) Log.v(TAG, "BiometricFragment: " + mBiometricFragment);
                 if (mBiometricFragment != null) {
+                    mBiometricFragment.setClientFragmentManager(getFragmentManager());
                     mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
                             mAuthenticationCallback);
                 }
             } else {
-                mFingerprintDialogFragment = (FingerprintDialogFragment) mFragmentActivity
-                        .getSupportFragmentManager().findFragmentByTag(DIALOG_FRAGMENT_TAG);
-                mFingerprintHelperFragment = (FingerprintHelperFragment) mFragmentActivity
-                        .getSupportFragmentManager().findFragmentByTag(
+                mFingerprintDialogFragment =
+                        (FingerprintDialogFragment) getFragmentManager().findFragmentByTag(
+                                DIALOG_FRAGMENT_TAG);
+                mFingerprintHelperFragment =
+                        (FingerprintHelperFragment) getFragmentManager().findFragmentByTag(
                                 FINGERPRINT_HELPER_FRAGMENT_TAG);
 
                 if (DEBUG) Log.v(TAG, "FingerprintDialogFragment: " + mFingerprintDialogFragment);
@@ -507,25 +514,58 @@ public class BiometricPrompt implements BiometricConstants {
      * such as {@link FragmentActivity#onCreate(Bundle)}.
      *
      * @param fragmentActivity A reference to the client's activity.
-     * @param executor An executor to handle callback events.
      * @param callback An object to receive authentication events.
+     * @param executor An executor to handle callback events.
      */
     public BiometricPrompt(@NonNull FragmentActivity fragmentActivity,
-            @NonNull Executor executor, @NonNull AuthenticationCallback callback) {
+            @NonNull AuthenticationCallback callback, @NonNull Executor executor) {
         if (fragmentActivity == null) {
             throw new IllegalArgumentException("FragmentActivity must not be null");
-        }
-        if (executor == null) {
-            throw new IllegalArgumentException("Executor must not be null");
         }
         if (callback == null) {
             throw new IllegalArgumentException("AuthenticationCallback must not be null");
         }
+        if (executor == null) {
+            throw new IllegalArgumentException("Executor must not be null");
+        }
         mFragmentActivity = fragmentActivity;
-        mExecutor = executor;
         mAuthenticationCallback = callback;
+        mExecutor = executor;
 
         mFragmentActivity.getLifecycle().addObserver(mLifecycleObserver);
+    }
+
+    /**
+     * Constructs a {@link BiometricPrompt} which can be used to prompt the user for
+     * authentication. The authenticaton prompt created by
+     * {@link BiometricPrompt#authenticate(PromptInfo, CryptoObject)} and
+     * {@link BiometricPrompt#authenticate(PromptInfo)} will persist across device
+     * configuration changes by default. If authentication is in progress, re-creating
+     * the {@link BiometricPrompt} can be used to update the {@link Executor} and
+     * {@link AuthenticationCallback}. This should be used to update the
+     * {@link AuthenticationCallback} after configuration changes.
+     * such as {@link Fragment#onCreate(Bundle)}.
+     *
+     * @param fragment A reference to the client's fragment.
+     * @param callback An object to receive authentication events.
+     * @param executor An executor to handle callback events.
+     */
+    public BiometricPrompt(@NonNull Fragment fragment,
+            @NonNull AuthenticationCallback callback, @NonNull Executor executor) {
+        if (fragment == null) {
+            throw new IllegalArgumentException("FragmentActivity must not be null");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("AuthenticationCallback must not be null");
+        }
+        if (executor == null) {
+            throw new IllegalArgumentException("Executor must not be null");
+        }
+        mFragment = fragment;
+        mAuthenticationCallback = callback;
+        mExecutor = executor;
+
+        mFragment.getLifecycle().addObserver(mLifecycleObserver);
     }
 
     /**
@@ -561,7 +601,7 @@ public class BiometricPrompt implements BiometricConstants {
 
     private void authenticateInternal(@NonNull PromptInfo info, @Nullable CryptoObject crypto) {
         final Bundle bundle = info.getBundle();
-        final FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
+        final FragmentManager fragmentManager = getFragmentManager();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             mPausedOnce = false;
@@ -574,6 +614,7 @@ public class BiometricPrompt implements BiometricConstants {
             } else {
                 mBiometricFragment = BiometricFragment.newInstance();
             }
+            mBiometricFragment.setClientFragmentManager(fragmentManager);
             mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
                     mAuthenticationCallback);
             // Set the crypto object.
@@ -657,5 +698,22 @@ public class BiometricPrompt implements BiometricConstants {
                 mFingerprintDialogFragment.dismiss();
             }
         }
+    }
+
+    /** Checks if the client is currently changing configurations (e.g., screen orientation). */
+    private boolean isChangingConfigurations() {
+        return (mFragmentActivity != null && mFragmentActivity.isChangingConfigurations())
+                || (mFragment != null && mFragment.getActivity() != null
+                && mFragment.getActivity().isChangingConfigurations());
+    }
+
+    /**
+     * Gets the appropriate fragment manager for the client. This is either the support fragment
+     * manager for a client activity or the child fragment manager for a client fragment.
+     */
+    private FragmentManager getFragmentManager() {
+        return mFragmentActivity != null
+                ? mFragmentActivity.getSupportFragmentManager()
+                : mFragment.getChildFragmentManager();
     }
 }

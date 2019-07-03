@@ -25,11 +25,17 @@ import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
 import androidx.fragment.app.Fragment;
 
+/**
+ * Implementation of {@link com.example.android.biometric.BiometricPromptDemoController} that
+ * handles launching the biometric prompt from within a fragment host.
+ */
 class BiometricPromptDemoFragmentController extends BiometricPromptDemoController {
 
+    private final Context mContext;
     private final Fragment mFragment;
 
     BiometricPromptDemoFragmentController(
+            @NonNull Context context,
             @NonNull Fragment fragment,
             @NonNull Button createKeysButton,
             @NonNull Button authenticateButton,
@@ -38,6 +44,7 @@ class BiometricPromptDemoFragmentController extends BiometricPromptDemoControlle
             @NonNull CheckBox confirmationRequiredCheckbox,
             @NonNull CheckBox deviceCredentialAllowedCheckbox,
             @NonNull RadioGroup radioGroup) {
+        mContext = context;
         mFragment = fragment;
         mCreateKeysButton = createKeysButton;
         mAuthenticateButton = authenticateButton;
@@ -50,7 +57,7 @@ class BiometricPromptDemoFragmentController extends BiometricPromptDemoControlle
 
     @Override
     Context getApplicationContext() {
-        return mFragment.getContext().getApplicationContext();
+        return mContext.getApplicationContext();
     }
 
     @Override
@@ -59,7 +66,6 @@ class BiometricPromptDemoFragmentController extends BiometricPromptDemoControlle
         // This is necessary because it is possible for the executor and callback to be GC'd.
         // Instantiating the prompt here allows the library to handle things such as configuration
         // changes.
-        mBiometricPrompt = new BiometricPrompt(mFragment.getActivity(), mExecutor,
-                    mAuthenticationCallback);
+        mBiometricPrompt = new BiometricPrompt(mFragment, mAuthenticationCallback, mExecutor);
     }
 }
