@@ -164,7 +164,7 @@ class StackTest : LayoutTest() {
                     stackSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Stack(defaultAlignment = Alignment.BottomRight) {
+                    Stack {
                         aligned(Alignment.Center) {
                             Container(width = sizeDp, height = sizeDp) {
                                 SaveLayoutInfo(
@@ -192,7 +192,7 @@ class StackTest : LayoutTest() {
                                 )
                             }
                         }
-                        positioned(leftInset = insetDp) {
+                        positioned(leftInset = insetDp, fallbackAlignment = Alignment.BottomRight) {
                             Container(width = halfSizeDp, height = halfSizeDp) {
                                 SaveLayoutInfo(
                                     size = childSize[3],
@@ -201,7 +201,7 @@ class StackTest : LayoutTest() {
                                 )
                             }
                         }
-                        positioned(topInset = insetDp) {
+                        positioned(topInset = insetDp, fallbackAlignment = Alignment.BottomRight) {
                             Container(width = halfSizeDp, height = halfSizeDp) {
                                 SaveLayoutInfo(
                                     size = childSize[4],
@@ -210,7 +210,7 @@ class StackTest : LayoutTest() {
                                 )
                             }
                         }
-                        positioned(rightInset = insetDp) {
+                        positioned(rightInset = insetDp, fallbackAlignment = Alignment.BottomRight) {
                             Container(width = halfSizeDp, height = halfSizeDp) {
                                 SaveLayoutInfo(
                                     size = childSize[5],
@@ -219,7 +219,7 @@ class StackTest : LayoutTest() {
                                 )
                             }
                         }
-                        positioned(bottomInset = insetDp) {
+                        positioned(bottomInset = insetDp, fallbackAlignment = Alignment.BottomRight) {
                             Container(width = halfSizeDp, height = halfSizeDp) {
                                 SaveLayoutInfo(
                                     size = childSize[6],
@@ -252,6 +252,90 @@ class StackTest : LayoutTest() {
         assertEquals(PxPosition(size - inset - halfSize, halfSize), childPosition[5].value)
         assertEquals(PxSize(halfSize, halfSize), childSize[6].value)
         assertEquals(PxPosition(halfSize, size - inset - halfSize), childPosition[6].value)
+    }
+
+    @Test
+    fun testStack_withPositionedChildren_fallbackAlignment() = withDensity(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+        val halfSizeDp = sizeDp / 2
+        val halfSize = (sizeDp / 2).toIntPx()
+        val insetDp = 10.dp
+        val inset = insetDp.toIntPx()
+
+        val positionedLatch = CountDownLatch(6)
+        val stackSize = Ref<PxSize>()
+        val childSize = Array(5) { Ref<PxSize>() }
+        val childPosition = Array(5) { Ref<PxPosition>() }
+        show {
+            Align(alignment = Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    stackSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Stack {
+                        aligned(Alignment.Center) {
+                            Container(width = sizeDp, height = sizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[0],
+                                    position = childPosition[0],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                        positioned(leftInset = insetDp) {
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[1],
+                                    position = childPosition[1],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                        positioned(leftInset = insetDp, fallbackAlignment = Alignment.Center) {
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[2],
+                                    position = childPosition[2],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                        positioned(leftInset = insetDp, fallbackAlignment = Alignment.TopLeft) {
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[3],
+                                    position = childPosition[3],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                        positioned(leftInset = insetDp, fallbackAlignment = Alignment.BottomRight) {
+                            Container(width = halfSizeDp, height = halfSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize[4],
+                                    position = childPosition[4],
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(PxSize(size, size), stackSize.value)
+        assertEquals(PxSize(size, size), childSize[0].value)
+        assertEquals(PxPosition(0.px, 0.px), childPosition[0].value)
+        assertEquals(PxSize(halfSize, halfSize), childSize[1].value)
+        assertEquals(PxPosition(inset, (size - halfSize) / 2), childPosition[1].value)
+        assertEquals(PxSize(halfSize, halfSize), childSize[2].value)
+        assertEquals(PxPosition(inset, (size - halfSize) / 2), childPosition[2].value)
+        assertEquals(PxSize(halfSize, halfSize), childSize[3].value)
+        assertEquals(PxPosition(inset, 0.ipx), childPosition[3].value)
+        assertEquals(PxSize(halfSize, halfSize), childSize[4].value)
+        assertEquals(PxPosition(inset, halfSize), childPosition[4].value)
     }
 
     @Test
