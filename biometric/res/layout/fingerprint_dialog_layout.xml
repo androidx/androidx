@@ -63,7 +63,6 @@
         android:gravity="center_horizontal"
         android:accessibilityLiveRegion="polite"
         android:text="@string/fingerprint_dialog_touch_sensor"
-        android:contentDescription="@string/accessibility_fingerprint_dialog_help_area"
         android:textColor="?android:attr/textColorSecondary" />
 
 </LinearLayout>
