@@ -31,7 +31,7 @@ import androidx.text.Preconditions;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class FontFeatureSpan extends MetricAffectingSpan {
-    private String mFontFeatureSettings;
+    private final String mFontFeatureSettings;
     public FontFeatureSpan(@NonNull String fontFeatureSettings) {
         mFontFeatureSettings = Preconditions.checkNotNull(fontFeatureSettings);
     }

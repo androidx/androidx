@@ -187,7 +187,7 @@ public class BoringLayoutCompat {
         /**
          * Set the width as used for ellipsizing purposes, if it differs from the
          * normal layout width. The default is the {@code width}
-         * passed to {@link #Builder(CharSequence, TextPaint, int)}.
+         * passed to {@link #Builder(CharSequence, TextPaint, int, BoringLayout.Metrics)}.
          *
          * @param ellipsizedWidth width used for ellipsizing, in pixels
          * @return this builder, useful for chaining
@@ -237,9 +237,9 @@ public class BoringLayoutCompat {
     /**
      * Check if the text can be laid out by BoringLayout with provided paint and text direction.
      *
-     * @param text
-     * @param paint
-     * @param textDir
+     * @param text the text to analyze
+     * @param paint TextPaint object
+     * @param textDir text direction heuristics
      * @return null if not boring; the width, ascent, and descent in a BoringLayout.Metrics object
      */
     @Nullable

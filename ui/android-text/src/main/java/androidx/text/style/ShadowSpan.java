@@ -22,6 +22,7 @@ import android.text.TextPaint;
 import android.text.style.CharacterStyle;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -43,7 +44,7 @@ public class ShadowSpan extends CharacterStyle {
     }
 
     @Override
-    public void updateDrawState(TextPaint tp) {
+    public void updateDrawState(@NonNull TextPaint tp) {
         tp.setShadowLayer(mRadius, mOffsetX, mOffsetY, mColor);
     }
 

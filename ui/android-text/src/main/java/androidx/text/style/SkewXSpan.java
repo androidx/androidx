@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class SkewXSpan extends MetricAffectingSpan {
-    private float mSkewX;
+    private final float mSkewX;
 
     public SkewXSpan(float skewX) {
         mSkewX = skewX;
