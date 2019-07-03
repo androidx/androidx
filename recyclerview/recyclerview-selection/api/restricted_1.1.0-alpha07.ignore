@@ -1,4 +1,26 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#anchorRange(int):
+    Added method androidx.recyclerview.selection.SelectionTracker.anchorRange(int)
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#clearProvisionalSelection():
+    Added method androidx.recyclerview.selection.SelectionTracker.clearProvisionalSelection()
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#endRange():
+    Added method androidx.recyclerview.selection.SelectionTracker.endRange()
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#extendProvisionalRange(int):
+    Added method androidx.recyclerview.selection.SelectionTracker.extendProvisionalRange(int)
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#extendRange(int):
+    Added method androidx.recyclerview.selection.SelectionTracker.extendRange(int)
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#getAdapterDataObserver():
+    Added method androidx.recyclerview.selection.SelectionTracker.getAdapterDataObserver()
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#isRangeActive():
+    Added method androidx.recyclerview.selection.SelectionTracker.isRangeActive()
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#mergeProvisionalSelection():
+    Added method androidx.recyclerview.selection.SelectionTracker.mergeProvisionalSelection()
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#setProvisionalSelection(java.util.Set<K>):
+    Added method androidx.recyclerview.selection.SelectionTracker.setProvisionalSelection(java.util.Set<K>)
+AddedAbstractMethod: androidx.recyclerview.selection.SelectionTracker#startRange(int):
+    Added method androidx.recyclerview.selection.SelectionTracker.startRange(int)
+
+
 RemovedClass: androidx.recyclerview.selection.AutoScroller:
     Removed class androidx.recyclerview.selection.AutoScroller
 RemovedClass: androidx.recyclerview.selection.EventBridge:

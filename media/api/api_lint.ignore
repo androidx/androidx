@@ -51,7 +51,3 @@ ParcelNotFinal: android.support.v4.media.MediaBrowserCompat.MediaItem:
     Parcelable classes must be final: android.support.v4.media.MediaBrowserCompat.MediaItem is not final
 ParcelNotFinal: android.support.v4.media.session.ParcelableVolumeInfo:
     Parcelable classes must be final: android.support.v4.media.session.ParcelableVolumeInfo is not final
-
-
-RethrowRemoteException: android.support.v4.media.session.MediaControllerCompat#MediaControllerCompat(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token):
-    Methods calling into system server should rethrow `RemoteException` as `RuntimeException` (but do not list it in the throws clause)

@@ -1,12 +1,4 @@
 // Baseline format: 1.0
-AutoBoxing: androidx.ui.core.TextKt#Text(String, androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, float, Integer, androidx.ui.graphics.Color) parameter #6:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.painting.AnnotatedString, androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, float, Integer, androidx.ui.graphics.Color) parameter #6:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.core.TextKt#Text(androidx.ui.painting.TextStyle, androidx.ui.painting.ParagraphStyle, boolean, androidx.ui.rendering.paragraph.TextOverflow, float, Integer, androidx.ui.graphics.Color, kotlin.jvm.functions.Function1<? super androidx.ui.core.TextSpanScope,kotlin.Unit>) parameter #5:
-    Must avoid boxed primitives (`java.lang.Integer`)
-
-
 BannedThrow: androidx.ui.core.vectorgraphics.PathCommandKt#toPathCommand(char):
     Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
 BannedThrow: androidx.ui.core.vectorgraphics.PathParser#parsePathString(String):
@@ -19,7 +11,3 @@ CallbackName: androidx.ui.core.gesture.DragObserver:
 
 DocumentExceptions: androidx.ui.core.vectorgraphics.BrushKt#obtainBrush(Object):
     Method BrushKt.obtainBrush appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
-KotlinOperator: androidx.ui.core.LayoutReceiver#get(java.util.List<? extends androidx.ui.core.Measurable>, kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
