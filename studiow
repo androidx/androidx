@@ -22,7 +22,8 @@ function getStudioUrl() {
   echo "${studioUrl}"
 }
 
-acceptsLicenseAgreement="$1"
+acceptsLicenseAgreement="false"
+updateOnly="false"
 scriptDir="$(cd $(dirname $0) && pwd)"
 projectDir=$scriptDir
 tempDir="${scriptDir}/studio"
@@ -41,6 +42,23 @@ studioUrl="$(getStudioUrl $osName)"
 studioDestName="$(basename ${studioUrl})"
 studioZipPath="${tempDir}/${studioDestName}"
 studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//; s/\.tar.gz$//')"
+
+function parseOptions() {
+  while :; do
+    case "$1" in
+      -y|--accept-license-agreement)
+        acceptsLicenseAgreement="true"
+        ;;
+      --update-only)
+        updateOnly="true"
+        ;;
+      *)
+        break
+    esac
+
+    shift
+  done
+}
 
 function downloadFile() {
   fromUrl="$1"
@@ -90,7 +108,7 @@ function checkLicenseAgreement() {
   licenseAcceptedPath="${studioUnzippedPath}/STUDIOW_LICENSE_ACCEPTED"
 
   if [ ! -f "${licenseAcceptedPath}" ]; then
-    if [ "${acceptsLicenseAgreement}" == "-y" ]; then
+    if [ "${acceptsLicenseAgreement}" == "true" ]; then
       touch "${licenseAcceptedPath}"
     else
       read -r -n 1 -p "Do you accept the license agreement at $(getLicensePath) [Y/n]? " reply
@@ -187,10 +205,13 @@ function runStudio() {
 }
 
 function main() {
+  parseOptions
   updateStudio
-  checkLicenseAgreement
-  ensureLocalPropertiesUpdated
-  runStudio
+  if [ "${updateOnly}" == "false" ]; then
+    checkLicenseAgreement
+    ensureLocalPropertiesUpdated
+    runStudio
+  fi
 }
 
 main
