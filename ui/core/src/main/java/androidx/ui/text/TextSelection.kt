@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.services.text_editing
+package androidx.ui.text
 
 import androidx.ui.core.TextRange
 
