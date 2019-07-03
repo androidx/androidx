@@ -95,6 +95,11 @@ package androidx.ui.core {
     property public abstract Object? parentData;
   }
 
+  public final class OpacityKt {
+    ctor public OpacityKt();
+    method public static void Opacity(@FloatRange(from=0.0, to=1.0) float opacity, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class ParentDataKt {
     ctor public ParentDataKt();
     method public static void ParentData(Object data, kotlin.jvm.functions.Function0<kotlin.Unit> children);
