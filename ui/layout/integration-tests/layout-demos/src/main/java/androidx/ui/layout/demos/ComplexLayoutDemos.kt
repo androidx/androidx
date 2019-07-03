@@ -174,7 +174,7 @@ fun AlignUsage() {
 
 @Composable
 fun StackUsage() {
-    Stack(defaultAlignment = Alignment.BottomRight) {
+    Stack {
         aligned(Alignment.Center) {
             SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 300.dp, height = 300.dp)
         }
@@ -184,15 +184,23 @@ fun StackUsage() {
         aligned(Alignment.BottomRight) {
             SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 150.dp, height = 150.dp)
         }
-        // TODO(popam): insets should be named arguments
-        positioned(null, 20.dp, null, 20.dp) {
+        positioned(
+            leftInset = null, topInset = 20.dp, rightInset = null, bottomInset = 20.dp,
+            fallbackAlignment = Alignment.BottomRight
+        ) {
             SizedRectangle(color = Color(0xFFFFA500.toInt()), width = 80.dp)
             SizedRectangle(color = Color(0xFFA52A2A.toInt()), width = 20.dp)
         }
-        positioned(40.dp, null, null, null) {
+        positioned(
+            leftInset = 40.dp, topInset = null, rightInset = null, bottomInset = null,
+            fallbackAlignment = Alignment.BottomRight
+        ) {
             SizedRectangle(color = Color(0xFFB22222.toInt()), width = 20.dp)
         }
-        positioned(null, null, 40.dp, null) {
+        positioned(
+            leftInset = null, topInset = null, rightInset = 40.dp, bottomInset = null,
+            fallbackAlignment = Alignment.BottomRight
+        ) {
             SizedRectangle(color = Color(0xFFFFFF00.toInt()), width = 40.dp)
         }
     }
