@@ -86,19 +86,6 @@ public class FakeKeyedAppStatesReporter extends KeyedAppStatesReporter {
     }
 
     /**
-     * Reset the state of this fake.
-     */
-    public void reset() {
-        mOnDeviceKeyedAppStates.clear();
-        mOnDeviceKeyedAppStatesByKey.clear();
-        mUploadedKeyedAppStates.clear();
-        mUploadedKeyedAppStatesByKey.clear();
-        mKeyedAppStates.clear();
-        mKeyedAppStatesByKey.clear();
-        mNumberOfUploads.set(0);
-    }
-
-    /**
      * Get a list of all {@link KeyedAppState} instances that have been set.
      *
      * <p>This is in the order that they were set, and may contain multiple with the same key, if
