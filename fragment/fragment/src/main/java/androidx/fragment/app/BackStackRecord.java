@@ -137,7 +137,10 @@ final class BackStackRecord extends FragmentTransaction implements
         }
     }
 
-    public BackStackRecord(FragmentManagerImpl manager) {
+    BackStackRecord(@NonNull FragmentManagerImpl manager) {
+        super(manager.getFragmentFactory(), manager.mHost != null
+                ? manager.mHost.getContext().getClassLoader()
+                : null);
         mManager = manager;
     }
 

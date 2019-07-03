@@ -87,6 +87,9 @@ public abstract class FragmentTransaction {
         }
     }
 
+    private final FragmentFactory mFragmentFactory;
+    private final ClassLoader mClassLoader;
+
     ArrayList<Op> mOps = new ArrayList<>();
     int mEnterAnim;
     int mExitAnim;
@@ -109,12 +112,50 @@ public abstract class FragmentTransaction {
 
     ArrayList<Runnable> mCommitRunnables;
 
+    /**
+     * @deprecated You should not instantiate a FragmentTransaction except via
+     * {@link FragmentManager#beginTransaction()}.
+     */
+    @Deprecated
+    public FragmentTransaction() {
+        mFragmentFactory = null;
+        mClassLoader = null;
+    }
+
+    FragmentTransaction(@NonNull FragmentFactory fragmentFactory,
+            @Nullable ClassLoader classLoader) {
+        mFragmentFactory = fragmentFactory;
+        mClassLoader = classLoader;
+    }
+
     void addOp(Op op) {
         mOps.add(op);
         op.mEnterAnim = mEnterAnim;
         op.mExitAnim = mExitAnim;
         op.mPopEnterAnim = mPopEnterAnim;
         op.mPopExitAnim = mPopExitAnim;
+    }
+
+    @NonNull
+    private Fragment createFragment(@NonNull Class<? extends Fragment> fragmentClass) {
+        if (mFragmentFactory == null) {
+            throw new IllegalStateException("Creating a Fragment requires that this "
+                    + "FragmentTransaction was built with FragmentManager.beginTransaction()");
+        }
+        if (mClassLoader == null) {
+            throw new IllegalStateException("The FragmentManager must be attached to its"
+                    + "host to create a Fragment");
+        }
+        return mFragmentFactory.instantiate(mClassLoader, fragmentClass.getName());
+    }
+
+    /**
+     * Calls {@link #add(int, Class, String)} with a 0 containerViewId.
+     */
+    @NonNull
+    public final FragmentTransaction add(@NonNull Class<? extends Fragment> fragmentClass,
+            @Nullable String tag)  {
+        return add(createFragment(fragmentClass), tag);
     }
 
     /**
@@ -127,12 +168,42 @@ public abstract class FragmentTransaction {
     }
 
     /**
+     * Calls {@link #add(int, Class, String)} with a null tag.
+     */
+    @NonNull
+    public final FragmentTransaction add(@IdRes int containerViewId,
+            @NonNull Class<? extends Fragment> fragmentClass)  {
+        return add(containerViewId, createFragment(fragmentClass));
+    }
+
+    /**
      * Calls {@link #add(int, Fragment, String)} with a null tag.
      */
     @NonNull
     public FragmentTransaction add(@IdRes int containerViewId, @NonNull Fragment fragment) {
         doAddOp(containerViewId, fragment, null, OP_ADD);
         return this;
+    }
+
+    /**
+     * Add a fragment to the activity state.  This fragment may optionally
+     * also have its view (if {@link Fragment#onCreateView Fragment.onCreateView}
+     * returns non-null) into a container view of the activity.
+     *
+     * @param containerViewId Optional identifier of the container this fragment is
+     * to be placed in.  If 0, it will not be placed in a container.
+     * @param fragmentClass The fragment to be added, created via the
+     * {@link FragmentManager#getFragmentFactory() FragmentManager's FragmentFactory}.
+     * @param tag Optional tag name for the fragment, to later retrieve the
+     * fragment with {@link FragmentManager#findFragmentByTag(String)
+     * FragmentManager.findFragmentByTag(String)}.
+     *
+     * @return Returns the same FragmentTransaction instance.
+     */
+    @NonNull
+    public final FragmentTransaction add(@IdRes int containerViewId,
+            @NonNull Class<? extends Fragment> fragmentClass, @Nullable String tag) {
+        return add(containerViewId, createFragment(fragmentClass), tag);
     }
 
     /**
@@ -193,11 +264,43 @@ public abstract class FragmentTransaction {
     }
 
     /**
+     * Calls {@link #replace(int, Class, String)} with a null tag.
+     */
+    @NonNull
+    public final FragmentTransaction replace(@IdRes int containerViewId,
+            @NonNull Class<? extends Fragment> fragmentClass) {
+        return replace(containerViewId, fragmentClass, null);
+    }
+
+    /**
      * Calls {@link #replace(int, Fragment, String)} with a null tag.
      */
     @NonNull
     public FragmentTransaction replace(@IdRes int containerViewId, @NonNull Fragment fragment) {
         return replace(containerViewId, fragment, null);
+    }
+
+    /**
+     * Replace an existing fragment that was added to a container.  This is
+     * essentially the same as calling {@link #remove(Fragment)} for all
+     * currently added fragments that were added with the same containerViewId
+     * and then {@link #add(int, Fragment, String)} with the same arguments
+     * given here.
+     *
+     * @param containerViewId Identifier of the container whose fragment(s) are
+     * to be replaced.
+     * @param fragmentClass The new fragment to place in the container, created via the
+     * {@link FragmentManager#getFragmentFactory() FragmentManager's FragmentFactory}.
+     * @param tag Optional tag name for the fragment, to later retrieve the
+     * fragment with {@link FragmentManager#findFragmentByTag(String)
+     * FragmentManager.findFragmentByTag(String)}.
+     *
+     * @return Returns the same FragmentTransaction instance.
+     */
+    @NonNull
+    public final FragmentTransaction replace(@IdRes int containerViewId,
+            @NonNull Class<? extends Fragment> fragmentClass, @Nullable String tag) {
+        return replace(containerViewId, createFragment(fragmentClass), tag);
     }
 
     /**
