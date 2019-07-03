@@ -33,8 +33,10 @@ import java.util.Locale;
  * Word boundaries are defined more precisely in Unicode Standard Annex #29
  * http://www.unicode.org/reports/tr29/#Word_Boundaries
  *
- * Note: This file is copied from help class Editor.java in {@link android.googlesource.com
- * /platform/frameworks/base/+/master/core/java/android/widget/Editor.java}.
+ * Note: The contents of this file is initially copied from
+ * <a href="https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/widget/Editor.java">
+ * Editor.java
+ * </a>.
  *
  * @hide
  */
