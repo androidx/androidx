@@ -218,6 +218,18 @@ package androidx.ui.material {
 }), androidx.ui.core.Dp height = 1.dp, androidx.ui.core.Dp indent = 0.dp);
   }
 
+  public final class DrawerKt {
+    ctor public DrawerKt();
+    method public static void BottomDrawer(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
+    method public static void ModalDrawer(androidx.ui.material.DrawerState drawerState, kotlin.jvm.functions.Function1<? super androidx.ui.material.DrawerState,kotlin.Unit> onStateChange, kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
+    method public static void StaticDrawer(kotlin.jvm.functions.Function0<kotlin.Unit> drawerContent);
+  }
+
+  public enum DrawerState {
+    enum_constant public static final androidx.ui.material.DrawerState Closed;
+    enum_constant public static final androidx.ui.material.DrawerState Opened;
+  }
+
   public final class FloatingActionButtonKt {
     ctor public FloatingActionButtonKt();
     method public static void FloatingActionButton(kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.ui.core.Dp minSize = FabSize, androidx.ui.engine.geometry.Shape shape = CircleShape, androidx.ui.graphics.Color color = +themeColor({ 
