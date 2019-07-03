@@ -36,7 +36,7 @@ import androidx.ui.layout.Padding
 import androidx.ui.material.Tab
 import androidx.ui.material.TabRow
 import androidx.ui.painting.Image
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 @Sampled
 @Composable

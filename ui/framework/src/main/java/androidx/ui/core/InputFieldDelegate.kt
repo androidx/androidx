@@ -24,7 +24,7 @@ import androidx.ui.input.EditorState
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
-import androidx.ui.painting.TextPainter
+import androidx.ui.text.TextPainter
 
 /**
  * Delegate class of the UI implementation of the InputField.

@@ -18,7 +18,7 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
-import androidx.ui.painting.TextPainter
+import androidx.ui.text.TextPainter
 
 /**
  * The enum class allows user to decide the selection mode.

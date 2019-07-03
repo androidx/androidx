@@ -33,7 +33,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 /**
  * [Button] with flexible user interface. You can provide any content you want as a

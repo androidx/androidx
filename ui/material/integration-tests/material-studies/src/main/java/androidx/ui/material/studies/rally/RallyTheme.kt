@@ -17,13 +17,13 @@
 package androidx.ui.material.studies.rally
 
 import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.FontFamily
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.MaterialTypography
 import androidx.ui.graphics.Color
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer

@@ -41,7 +41,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.painting.Paint
-import androidx.ui.painting.TextStyle
+import androidx.ui.text.TextStyle
 
 class AnimatableSeekBar : Activity() {
 
