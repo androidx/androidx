@@ -21,40 +21,33 @@ import android.os.Bundle
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
-import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
 import androidx.ui.core.setContent
-import androidx.ui.graphics.Color
 import androidx.compose.composer
 import androidx.ui.core.dp
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.LongPressGestureDetector
 
 /**
  * Simple demo that shows off DragGestureDetector.
  */
-class DragGestureDetectorDemo : Activity() {
+class LongPressGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val xOffset = +state { 0.px }
-            val yOffset = +state { 0.px }
+            val color = +state { Colors.random() }
 
-            val dragObserver = object : DragObserver {
-                override fun onDrag(dragDistance: PxPosition): PxPosition {
-                    xOffset.value += dragDistance.x
-                    yOffset.value += dragDistance.y
-                    return dragDistance
-                }
+            val onLongPress = { _: PxPosition ->
+                color.value = color.value.anotherRandomColor()
             }
 
-            DragGestureDetector(dragObserver = dragObserver) {
+            LongPressGestureDetector(onLongPress = onLongPress) {
                 MatchParent {
                     DrawBox(
-                        xOffset.value,
-                        yOffset.value,
+                        0.px,
+                        0.px,
                         96.dp,
                         96.dp,
-                        Color(0xFF9e9e9e.toInt())
+                        color.value
                     )
                 }
             }

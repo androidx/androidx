@@ -24,24 +24,26 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Direction
 import androidx.ui.core.Dp
-import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.coerceIn
-import androidx.ui.core.dp
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.px
-import androidx.ui.core.round
-import androidx.ui.core.toRect
+import androidx.ui.core.setContent
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
+import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.compose.composer
-import androidx.ui.core.setContent
+import androidx.ui.core.Draw
+import androidx.ui.core.dp
+import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.round
+import androidx.ui.core.toRect
 
 /**
  * Demo app created to study some complex interactions of multiple DragGestureDetectors.
@@ -50,11 +52,11 @@ class NestedScrollingDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // Outer composable that scrolls
+            // Outer composable that scrollsAll mea
             Draggable {
                 RepeatingList(repititions = 3) {
                     SimpleContainer(
-                        width = -1.dp,
+                        width = (-1).dp,
                         height = 398.dp,
                         padding = 72.dp
                     ) {
@@ -138,6 +140,10 @@ private fun Pressable(
     height: Dp
 ) {
 
+    val pressedColor = Color(0x1f000000)
+    val itemColor = Color(0xFFFFFFFF.toInt())
+
+    val color = +state { itemColor }
     val pressed = +state { false }
 
     val onStart: (PxPosition) -> Unit = {
@@ -148,29 +154,43 @@ private fun Pressable(
         pressed.value = false
     }
 
-    val resolvedColor =
-        if (pressed.value) {
-            Color(0x1f000000)
-        } else {
-            Color(0xFFFFFFFF.toInt())
-        }
+    val onRelease = {
+        color.value = color.value.next()
+        pressed.value = false
+    }
+
+    val onLongPress = { _: PxPosition ->
+        color.value = color.value.prev()
+        pressed.value = false
+    }
 
     val children = @Composable {
         Draw { canvas, parentSize ->
-            val backgroundPaint = Paint().apply { this.color = resolvedColor }
+            val backgroundPaint = Paint().apply { this.color = color.value }
             canvas.drawRect(
                 Rect(0f, 0f, parentSize.width.value, parentSize.height.value),
                 backgroundPaint
             )
+            if (pressed.value) {
+                backgroundPaint.color = pressedColor
+                canvas.drawRect(
+                    Rect(0f, 0f, parentSize.width.value, parentSize.height.value),
+                    backgroundPaint
+                )
+            }
         }
     }
 
     PressIndicatorGestureDetector(onStart, onStop, onStop) {
-        Layout(children) { _, constraints ->
-            layout(
-                constraints.maxWidth,
-                height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
-            ) {}
+        PressReleasedGestureDetector(onRelease, false) {
+            LongPressGestureDetector(onLongPress) {
+                Layout(children) { _, constraints ->
+                    layout(
+                        constraints.maxWidth,
+                        height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
+                    ) {}
+                }
+            }
         }
     }
 }

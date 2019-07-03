@@ -37,6 +37,8 @@ import androidx.compose.onPreCommit
 import androidx.compose.unaryPlus
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.text.font.Font
+import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Composes a view containing ui composables into a view composition.
@@ -80,8 +82,11 @@ fun ComposeView(@Children children: @Composable() () -> Unit) {
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
         val context = rootRef.value?.context ?: composer.composer.context
 
+        // If this value is inlined where it is used, an error that includes 'Precise Reference:
+        // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
+        val coroutineContext = Dispatchers.Main
         cc = Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
-            WrapWithAmbients(rootRef.value!!, context) {
+            WrapWithAmbients(rootRef.value!!, context, coroutineContext) {
                 children()
             }
         }
@@ -102,8 +107,11 @@ fun Activity.setContent(
         .getChildAt(0) as? AndroidCraneView
         ?: AndroidCraneView(this).also { setContentView(it) }
 
+    // If this value is inlined where it is used, an error that includes 'Precise Reference:
+    // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
+    val coroutineContext = Dispatchers.Main
     return Compose.composeInto(craneView.root, this) {
-        WrapWithAmbients(craneView, this) {
+        WrapWithAmbients(craneView, this, coroutineContext) {
             content()
         }
     }
@@ -121,8 +129,11 @@ fun ViewGroup.setContent(
         if (childCount > 0) { getChildAt(0) as? AndroidCraneView } else { removeAllViews(); null }
         ?: AndroidCraneView(context).also { addView(it) }
 
+    // If this value is inlined where it is used, an error that includes 'Precise Reference:
+    // kotlinx.coroutines.Dispatchers' not instance of 'Precise Reference: androidx.compose.Ambient'.
+    val coroutineContext = Dispatchers.Main
     return Compose.composeInto(craneView.root, context) {
-        WrapWithAmbients(craneView, context) {
+        WrapWithAmbients(craneView, context, coroutineContext) {
             content()
         }
     }
@@ -132,12 +143,14 @@ fun ViewGroup.setContent(
 private fun WrapWithAmbients(
     craneView: AndroidCraneView,
     context: Context,
+    coroutineContext: CoroutineContext,
     @Children content: @Composable() () -> Unit
 ) {
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidCraneView case
     val focusManager = +memo { FocusManager() }
     ContextAmbient.Provider(value = context) {
+        CoroutineContextAmbient.Provider(value = coroutineContext) {
         DensityAmbient.Provider(value = Density(context)) {
             FocusManagerAmbient.Provider(value = focusManager) {
                 TextInputServiceAmbient.Provider(value = craneView.textInputService) {
@@ -147,12 +160,15 @@ private fun WrapWithAmbients(
                 }
             }
         }
+        }
     }
 }
 
 val ContextAmbient = Ambient.of<Context>()
 
 val DensityAmbient = Ambient.of<Density>()
+
+val CoroutineContextAmbient = Ambient.of<CoroutineContext>()
 
 internal val FocusManagerAmbient = Ambient.of<FocusManager>()
 
