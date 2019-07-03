@@ -16,8 +16,6 @@
 
 package androidx.ui.text.font
 
-import android.content.Context
-
 /**
  * Defines a font family. It can be constructed via a generic font family such as serif, sans-serif
  * (i.e. FontFamily("sans-serif"). It can also be constructed by a set of custom fonts.
@@ -61,9 +59,6 @@ data class FontFamily private constructor(val genericFamily: String?, val fonts:
      * @param fonts list of font files
      */
     constructor(vararg fonts: Font) : this(null, fonts.asList())
-
-    // TODO(migration/siyamed) this should be in an subclass or platform actual class
-    lateinit var context: Context
 
     init {
         assert(genericFamily != null || fonts.size > 0) {

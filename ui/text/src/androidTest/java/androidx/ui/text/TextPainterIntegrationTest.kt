@@ -29,16 +29,15 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.style.TextDirection
-import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.asFontFamily
 import androidx.ui.graphics.Color
 import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
+import androidx.ui.text.platform.AndroidFontResourceLoader
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -48,21 +47,21 @@ import kotlin.math.ceil
 @SmallTest
 class TextPainterIntegrationTest {
 
-    private lateinit var fontFamily: FontFamily
+    private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val density = Density(density = 1f)
-
-    @Before
-    fun setup() {
-        fontFamily = BASIC_MEASURE_FONT.asFontFamily()
-        fontFamily.context = InstrumentationRegistry.getInstrumentation().context
-    }
+    private val context = InstrumentationRegistry.getInstrumentation().context
+    private val resourceLoader = AndroidFontResourceLoader(context)
 
     @Test
     fun preferredLineHeight_style_set() {
         withDensity(density) {
             val fontSize = 20.sp
             val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
-            val textPainter = TextPainter(style = textStyle, density = density)
+            val textPainter = TextPainter(
+                style = textStyle,
+                density = density,
+                resourceLoader = resourceLoader
+            )
             val preferredHeight = textPainter.preferredLineHeight
 
             assertThat(preferredHeight).isEqualTo(fontSize.toPx().value)
@@ -93,7 +92,8 @@ class TextPainterIntegrationTest {
         val textPainter = TextPainter(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints())
@@ -120,7 +120,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
 
             textPainter.layout(Constraints())
@@ -148,7 +149,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
 
             textPainter.layout(Constraints(0.ipx, 200.ipx))
@@ -169,7 +171,8 @@ class TextPainterIntegrationTest {
         val textPainter = TextPainter(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints(maxWidth = width))
@@ -196,7 +199,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
 
             textPainter.layout(Constraints())
@@ -225,7 +229,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
 
             textPainter.layout(Constraints())
@@ -248,7 +253,8 @@ class TextPainterIntegrationTest {
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             maxLines = 2,
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints(0.ipx, 200.ipx))
@@ -264,7 +270,8 @@ class TextPainterIntegrationTest {
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Rtl),
             maxLines = 2,
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints(0.ipx, 200.ipx))
@@ -277,7 +284,8 @@ class TextPainterIntegrationTest {
         val textPainter = TextPainter(
             text = AnnotatedString(text = "Hello"),
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints(0.ipx, 20.ipx))
@@ -301,7 +309,8 @@ class TextPainterIntegrationTest {
         val textPainter = TextPainter(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
         textPainter.layout(Constraints())
 
@@ -329,7 +338,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
             textPainter.layout(Constraints())
 
@@ -352,7 +362,8 @@ class TextPainterIntegrationTest {
         val textPainter = TextPainter(
             text = annotatedString,
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints())
@@ -377,7 +388,8 @@ class TextPainterIntegrationTest {
             overflow = TextOverflow.Fade,
             softWrap = false,
             maxLines = 1,
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints(maxWidth = 100.ipx))
@@ -401,7 +413,8 @@ class TextPainterIntegrationTest {
             paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
             overflow = TextOverflow.Fade,
             maxLines = 2,
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         )
 
         textPainter.layout(Constraints(maxWidth = 100.ipx))
@@ -430,7 +443,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
             textPainter.layout(Constraints(maxWidth = 120.ipx))
 
@@ -508,7 +522,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
             textPainter.layout(Constraints())
 
@@ -579,7 +594,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
             textPainter.layout(Constraints())
 
@@ -660,7 +676,8 @@ class TextPainterIntegrationTest {
             val textPainter = TextPainter(
                 text = annotatedString,
                 paragraphStyle = ParagraphStyle(textDirection = TextDirection.Ltr),
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
             textPainter.layout(Constraints())
 

@@ -59,7 +59,6 @@ import org.hamcrest.Matchers.nullValue
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThat
 import org.junit.Assert.assertTrue
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -68,18 +67,13 @@ import kotlin.math.ceil
 @RunWith(JUnit4::class)
 @SmallTest
 class AndroidParagraphTest {
-    private lateinit var fontFamily: FontFamily
+    // This sample font provides the following features:
+    // 1. The width of most of visible characters equals to font size.
+    // 2. The LTR/RTL characters are rendered as ▶/◀.
+    // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
+    private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val defaultDensity = Density(density = 1f)
-
-    @Before
-    fun setup() {
-        // This sample font provides the following features:
-        // 1. The width of most of visible characters equals to font size.
-        // 2. The LTR/RTL characters are rendered as ▶/◀.
-        // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
-        fontFamily = BASIC_MEASURE_FONT.asFontFamily()
-        fontFamily.context = InstrumentationRegistry.getInstrumentation().context
-    }
+    private val context = InstrumentationRegistry.getInstrumentation().context
 
     @Test
     fun draw_with_newline_and_line_break_default_values() {
@@ -1285,4 +1279,8 @@ class AndroidParagraphTest {
             density = Density(density = 1f)
         )
     }
+
+    private fun TypefaceAdapter() = TypefaceAdapter(
+        resourceLoader = AndroidFontResourceLoader(context)
+    )
 }

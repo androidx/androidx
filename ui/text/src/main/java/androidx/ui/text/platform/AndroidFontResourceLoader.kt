@@ -18,15 +18,37 @@ package androidx.ui.text.platform
 
 import android.content.Context
 import android.graphics.Typeface
+import androidx.annotation.RestrictTo
+import androidx.core.content.res.ResourcesCompat
 import androidx.ui.text.font.Font
 
 /**
  * Android implementation for [Font.ResourceLoader]
+ *
+ * @hide
  */
-internal class AndroidFontResourceLoader(
-    val context: Context? = null
-) : Font.ResourceLoader<Typeface> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class AndroidFontResourceLoader(val context: Context) : Font.ResourceLoader<Typeface> {
     override fun load(font: Font): Typeface {
-        TODO("Not implemented")
+        // TODO(siyamed): This is an expensive operation and discouraged in the API Docs
+        // remove when alternative resource loading system is defined.
+        val resId = context.resources.getIdentifier(
+            font.name.substringBefore("."),
+            "font",
+            context.packageName
+        )
+
+        val typeface = try {
+            ResourcesCompat.getFont(context, resId)
+        } catch (e: Throwable) {
+            null
+        }
+
+        if (typeface == null) {
+            throw IllegalStateException(
+                "Cannot create Typeface from $font with resource id $resId"
+            )
+        }
+        return typeface
     }
 }

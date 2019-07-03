@@ -37,6 +37,7 @@ import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.Shadow
+import androidx.ui.text.platform.AndroidFontResourceLoader
 import androidx.ui.text.style.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
@@ -44,7 +45,6 @@ import com.nhaarman.mockitokotlin2.mock
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertThat
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -52,33 +52,17 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 @SmallTest
 class ParagraphIntegrationTest {
-    // TODO(Migration/haoyuchang): These native calls should be removed after the
-    // counterparts are implemented in crane.
-    private lateinit var fontFamilyMeasureFont: FontFamily
-    private lateinit var fontFamilyKernFont: FontFamily
-    private lateinit var fontFamilyCustom100: FontFamily
-    private lateinit var fontFamilyCustom200: FontFamily
+    private val fontFamilyMeasureFont = BASIC_MEASURE_FONT.asFontFamily()
+    private val fontFamilyKernFont = BASIC_KERN_FONT.asFontFamily()
+    private val fontFamilyCustom100 = FONT_100_REGULAR.asFontFamily()
+    private val fontFamilyCustom200 = FONT_200_REGULAR.asFontFamily()
+
+    private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
 
-    @Before
-    fun setup() {
-        // This sample font provides the following features:
-        // 1. The width of most of visible characters equals to font size.
-        // 2. The LTR/RTL characters are rendered as ▶/◀.
-        // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
-        fontFamilyMeasureFont = BASIC_MEASURE_FONT.asFontFamily()
-        fontFamilyMeasureFont.context = InstrumentationRegistry.getInstrumentation().context
-        // The kern_font provides the following features:
-        // 1. Characters from A to Z are rendered as ▲ while a to z are rendered as ▼.
-        // 2. When kerning is off, the width of each character is equal to font size.
-        // 3. When kerning is on, it will reduce the space between two characters by 0.4 * width.
-        fontFamilyKernFont = BASIC_KERN_FONT.asFontFamily()
-        fontFamilyKernFont.context = InstrumentationRegistry.getInstrumentation().context
-        fontFamilyCustom100 = FONT_100_REGULAR.asFontFamily()
-        fontFamilyCustom200 = FONT_200_REGULAR.asFontFamily()
-        fontFamilyCustom100.context = fontFamilyMeasureFont.context
-        fontFamilyCustom200.context = fontFamilyMeasureFont.context
-    }
+    // TODO(Migration/haoyuchang): These native calls should be removed after the
+    // counterparts are implemented in crane.
+    private val resourceLoader = AndroidFontResourceLoader(context)
 
     @Test
     fun empty_string() {
@@ -469,7 +453,8 @@ class ParagraphIntegrationTest {
                         locale = locale
                     ),
                     paragraphStyle = ParagraphStyle(),
-                    density = defaultDensity
+                    density = defaultDensity,
+                    resourceLoader = resourceLoader
                 )
 
                 // just have 10x font size to have a bitmap
@@ -2018,7 +2003,8 @@ class ParagraphIntegrationTest {
                 maxLines = maxLines,
                 lineHeight = lineHeight
             ),
-            density = density ?: defaultDensity
+            density = density ?: defaultDensity,
+            resourceLoader = AndroidFontResourceLoader(context)
         )
     }
 }
