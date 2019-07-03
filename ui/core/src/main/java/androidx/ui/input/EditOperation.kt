@@ -18,6 +18,7 @@ package androidx.ui.input
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
+import java.text.BreakIterator
 import java.util.Objects
 
 /**
@@ -305,4 +306,95 @@ class FinishComposingTextEditOp : EditOperation {
     // Treating all FinishComposingTextEditOp are equal object.
     override fun equals(other: Any?): Boolean = other is FinishComposingTextEditOp
     override fun hashCode(): Int = Objects.hashCode(this.javaClass)
+}
+
+/**
+ * An edit operation represents backspace keyevent
+ *
+ * If there is composition, delete the text in the composition range.
+ * If there is no composition but there is selection, delete whole selected range.
+ * If there is no composition and selection, perform backspace key event at the cursor position.
+ *
+ * @hide
+ */
+@RestrictTo(LIBRARY)
+class BackspaceKeyEditOp : EditOperation {
+
+    override fun process(buffer: EditingBuffer) {
+        if (buffer.hasComposition()) {
+            buffer.delete(buffer.compositionStart, buffer.compositionEnd)
+            return
+        }
+
+        if (buffer.cursor == -1) {
+            val delStart = buffer.selectionStart
+            val delEnd = buffer.selectionEnd
+            buffer.cursor = buffer.selectionStart
+            buffer.delete(delStart, delEnd)
+            return
+        }
+
+        if (buffer.cursor == 0) {
+            return
+        }
+
+        // TODO(nona): Support font based grapheme breaking. Some units could be ligated form.
+        //             e.g. Arabic LAM + ALEF (U+0644 U+0627)
+        // TODO(nona): Copy Android backspace behavior implemented in BaseKeyListener
+        val it = BreakIterator.getCharacterInstance()
+        it.setText(buffer.toString())
+        val prevCursorPos = it.preceding(buffer.cursor)
+        buffer.delete(prevCursorPos, buffer.cursor)
+    }
+
+    // Class with empty arguments default ctor cannot be data class.
+    // Treating all FinishComposingTextEditOp are equal object.
+    override fun equals(other: Any?): Boolean = other is BackspaceKeyEditOp
+    override fun hashCode(): Int = Objects.hashCode(this.javaClass)
+}
+
+/**
+ * An edit operation represents cursor moving.
+ *
+ * If there is selection, cancel the selection first and move the cursor to the selection start
+ * position. Then perform the cursor movement.
+ *
+ * @hide
+ */
+@RestrictTo(LIBRARY)
+data class MoveCursorEditOp(
+    /**
+     * The amount of cursor movement.
+     *
+     * If you want to move backward, pass negative value.
+     */
+    val amount: Int
+) : EditOperation {
+
+    override fun process(buffer: EditingBuffer) {
+        // TODO(nona): Support font based grapheme breaking. Some units could be ligated form.
+        //             e.g. Arabic LAM + ALEF (U+0644 U+0627)
+        val it = BreakIterator.getCharacterInstance()
+        it.setText(buffer.toString())
+        if (buffer.cursor == -1) {
+            buffer.cursor = buffer.selectionStart
+        }
+
+        var newCursor = buffer.selectionStart
+        if (amount > 0) {
+            for (i in 0 until amount) {
+                val next = it.following(newCursor)
+                if (next == BreakIterator.DONE) break
+                newCursor = next
+            }
+        } else {
+            for (i in 0 until -amount) {
+                val prev = it.preceding(newCursor)
+                if (prev == BreakIterator.DONE) break
+                newCursor = prev
+            }
+        }
+
+        buffer.cursor = newCursor
+    }
 }

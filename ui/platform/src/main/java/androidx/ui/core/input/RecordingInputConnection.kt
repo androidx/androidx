@@ -28,12 +28,14 @@ import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
 import androidx.ui.core.TextRange
+import androidx.ui.input.BackspaceKeyEditOp
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteSurroundingTextEditOp
 import androidx.ui.input.DeleteSurroundingTextInCodePointsEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.InputEventListener
+import androidx.ui.input.MoveCursorEditOp
 import androidx.ui.input.SetComposingRegionEditOp
 import androidx.ui.input.SetComposingTextEditOp
 import androidx.ui.input.SetSelectionEditOp
@@ -143,9 +145,21 @@ internal class RecordingInputConnection(
         return true
     }
 
-    override fun sendKeyEvent(event: KeyEvent?): Boolean {
+    override fun sendKeyEvent(event: KeyEvent): Boolean {
         if (DEBUG) { Log.d(TAG, "sendKeyEvent($event)") }
-        TODO("not implemented")
+        if (event.action != KeyEvent.ACTION_DOWN) {
+            return true // Only interested in KEY_DOWN event.
+        }
+
+        val op = when (event.keyCode) {
+            KeyEvent.KEYCODE_DEL -> BackspaceKeyEditOp()
+            KeyEvent.KEYCODE_DPAD_LEFT -> MoveCursorEditOp(-1)
+            KeyEvent.KEYCODE_DPAD_RIGHT -> MoveCursorEditOp(1)
+            else -> null
+        }
+
+        op?.let { addEditOpWithBatch(it) }
+        return true
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////

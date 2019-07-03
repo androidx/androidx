@@ -16,14 +16,17 @@
 
 package androidx.ui.core.input
 
+import android.view.KeyEvent
 import androidx.test.filters.SmallTest
 import androidx.ui.core.TextRange
+import androidx.ui.input.BackspaceKeyEditOp
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.DeleteSurroundingTextEditOp
 import androidx.ui.input.DeleteSurroundingTextInCodePointsEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.InputEventListener
+import androidx.ui.input.MoveCursorEditOp
 import androidx.ui.input.SetComposingRegionEditOp
 import androidx.ui.input.SetComposingTextEditOp
 import androidx.ui.input.SetSelectionEditOp
@@ -451,5 +454,56 @@ class RecordingInputConnectionTest {
         // Everything is internal and there is nothing to expect.
         // Just make sure it is not crashed by calling method.
         ic.closeConnection()
+    }
+
+    @Test
+    fun key_event_del_down() {
+        val captor = argumentCaptor<List<EditOperation>>()
+        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL))
+        verify(listener, times(1)).onEditOperations(captor.capture())
+
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(BackspaceKeyEditOp(), editOps[0])
+    }
+
+    @Test
+    fun key_event_del_up() {
+        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL))
+        verify(listener, never()).onEditOperations(any())
+    }
+
+    @Test
+    fun key_event_left_down() {
+        val captor = argumentCaptor<List<EditOperation>>()
+        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_LEFT))
+        verify(listener, times(1)).onEditOperations(captor.capture())
+
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(MoveCursorEditOp(-1), editOps[0])
+    }
+
+    @Test
+    fun key_event_left_up() {
+        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_LEFT))
+        verify(listener, never()).onEditOperations(any())
+    }
+
+    @Test
+    fun key_event_right_down() {
+        val captor = argumentCaptor<List<EditOperation>>()
+        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DPAD_RIGHT))
+        verify(listener, times(1)).onEditOperations(captor.capture())
+
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(MoveCursorEditOp(1), editOps[0])
+    }
+
+    @Test
+    fun key_event_right_up() {
+        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_RIGHT))
+        verify(listener, never()).onEditOperations(any())
     }
 }
