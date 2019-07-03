@@ -34,7 +34,6 @@ import androidx.ui.graphics.Color
 import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
-import androidx.ui.text.platform.AndroidFontResourceLoader
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
@@ -50,7 +49,7 @@ class TextPainterIntegrationTest {
     private val fontFamily = BASIC_MEASURE_FONT.asFontFamily()
     private val density = Density(density = 1f)
     private val context = InstrumentationRegistry.getInstrumentation().context
-    private val resourceLoader = AndroidFontResourceLoader(context)
+    private val resourceLoader = TestFontResourceLoader(context)
 
     @Test
     fun preferredLineHeight_style_set() {

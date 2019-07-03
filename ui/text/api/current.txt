@@ -100,7 +100,7 @@ package androidx.ui.text {
 
   public final class ParagraphKt {
     ctor public ParagraphKt();
-    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, androidx.ui.text.style.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader<?> resourceLoader);
+    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, androidx.ui.text.style.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
   }
 
   public final class ParagraphStyle {
@@ -118,7 +118,7 @@ package androidx.ui.text {
   }
 
   public final class TextPainter {
-    ctor public TextPainter(androidx.ui.text.AnnotatedString? text, androidx.ui.text.TextStyle? style, androidx.ui.text.ParagraphStyle? paragraphStyle, Integer? maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.text.Locale? locale, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader<?> resourceLoader);
+    ctor public TextPainter(androidx.ui.text.AnnotatedString? text, androidx.ui.text.TextStyle? style, androidx.ui.text.ParagraphStyle? paragraphStyle, Integer? maxLines, boolean softWrap, androidx.ui.text.style.TextOverflow overflow, androidx.ui.text.Locale? locale, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
     method public androidx.ui.core.Density getDensity();
     method public boolean getDidExceedMaxLines();
     method public float getHeight();
@@ -130,7 +130,7 @@ package androidx.ui.text {
     method public androidx.ui.text.ParagraphStyle? getParagraphStyle();
     method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getPreferredLineHeight();
-    method public androidx.ui.text.font.Font.ResourceLoader<java.lang.Object> getResourceLoader();
+    method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
     method public androidx.ui.engine.geometry.Size getSize();
     method public boolean getSoftWrap();
     method public androidx.ui.text.TextStyle? getStyle();
@@ -217,8 +217,8 @@ package androidx.ui.text.font {
     method public androidx.ui.text.font.FontWeight getWeight();
   }
 
-  public static interface Font.ResourceLoader<T> {
-    method public T! load(androidx.ui.text.font.Font font);
+  public static interface Font.ResourceLoader {
+    method public Object load(androidx.ui.text.font.Font font);
   }
 
   public final class FontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {

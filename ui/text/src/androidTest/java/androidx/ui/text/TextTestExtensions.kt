@@ -15,8 +15,12 @@
  */
 package androidx.ui.text
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Typeface
+import androidx.core.content.res.ResourcesCompat
+import androidx.ui.text.font.Font
 import kotlin.math.ceil
 
 // TODO(Migration/siyamed): This should return platform independent bitmap but we dont have it yet
@@ -28,4 +32,16 @@ fun Paragraph.bitmap(): Bitmap {
     )
     this.paint(androidx.ui.painting.Canvas(Canvas(bitmap)), 0.0f, 0.0f)
     return bitmap
+}
+
+class TestFontResourceLoader(val context: Context) : Font.ResourceLoader {
+    override fun load(font: Font): Typeface {
+        val resId = context.resources.getIdentifier(
+            font.name.substringBefore("."),
+            "font",
+            context.packageName
+        )
+
+        return ResourcesCompat.getFont(context, resId)!!
+    }
 }

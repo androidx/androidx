@@ -41,7 +41,6 @@ import androidx.ui.text.TextSelection
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
-import androidx.ui.text.platform.AndroidFontResourceLoader
 import androidx.ui.text.toAnnotatedString
 import androidx.ui.text.style.TextOverflow
 
@@ -189,11 +188,8 @@ fun Text(
     val themeStyle = +ambient(CurrentTextStyleAmbient)
     val mergedStyle = themeStyle.merge(style)
 
-    // TODO(Migration/siyamed): This is temporary and should be removed when resource
-    //  system is resolved.
     val density = +ambientDensity()
-
-    val resourceLoader = AndroidFontResourceLoader(composer.composer.context)
+    val resourceLoader = +ambient(FontLoaderAmbient)
 
     Semantics(label = text.text) {
         val textPainter = +memo(

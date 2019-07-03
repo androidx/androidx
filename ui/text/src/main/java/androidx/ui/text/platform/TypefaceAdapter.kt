@@ -16,7 +16,6 @@
 
 package androidx.ui.text.platform
 
-import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import androidx.collection.LruCache
@@ -32,12 +31,14 @@ import androidx.ui.text.font.FontWeight
  *
  * @param fontMatcher [FontMatcher] class to be used to match given [FontWeight] and [FontStyle]
  *                    constraints to select a [Font] from a [FontFamily]
+ *
+ * @param resourceLoader [Font.ResourceLoader] for Android.
  */
 // TODO(Migration/siyamed): font matcher should be at an upper layer such as Paragraph, whoever
 // will call TypefaceAdapter can know about a single font
 internal open class TypefaceAdapter(
     val fontMatcher: FontMatcher = FontMatcher(),
-    val resourceLoader: AndroidFontResourceLoader
+    val resourceLoader: Font.ResourceLoader
 ) {
 
     data class CacheKey(
@@ -157,7 +158,6 @@ internal open class TypefaceAdapter(
      * @param fontStyle the font style to create the typeface in
      * @param fontWeight the font weight to create the typeface in
      * @param fontFamily [FontFamily] that contains the list of [Font]s
-     * @param context [Context] instance
      * @param fontSynthesis [FontSynthesis] which attributes of the font family to synthesize
      *        custom fonts for if they are not already present in the font family
      */
@@ -172,7 +172,11 @@ internal open class TypefaceAdapter(
 
         val font = fontMatcher.matchFont(fontFamily, fontWeight, fontStyle)
 
-        val typeface = resourceLoader.load(font)
+        val typeface = try {
+            resourceLoader.load(font) as Typeface
+        } catch (e: Exception) {
+            throw IllegalStateException("Cannot create Typeface from $font")
+        }
 
         val loadedFontIsSameAsRequest = fontWeight == font.weight && fontStyle == font.style
         // if synthesis is not requested or there is an exact match we don't need synthesis

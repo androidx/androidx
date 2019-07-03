@@ -37,7 +37,6 @@ import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.Shadow
-import androidx.ui.text.platform.AndroidFontResourceLoader
 import androidx.ui.text.style.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
@@ -60,9 +59,7 @@ class ParagraphIntegrationTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
     private val defaultDensity = Density(density = 1f)
 
-    // TODO(Migration/haoyuchang): These native calls should be removed after the
-    // counterparts are implemented in crane.
-    private val resourceLoader = AndroidFontResourceLoader(context)
+    private val resourceLoader = TestFontResourceLoader(context)
 
     @Test
     fun empty_string() {
@@ -2004,7 +2001,7 @@ class ParagraphIntegrationTest {
                 lineHeight = lineHeight
             ),
             density = density ?: defaultDensity,
-            resourceLoader = AndroidFontResourceLoader(context)
+            resourceLoader = TestFontResourceLoader(context)
         )
     }
 }

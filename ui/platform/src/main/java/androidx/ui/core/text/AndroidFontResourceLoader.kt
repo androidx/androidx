@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text.platform
+package androidx.ui.core.text
 
 import android.content.Context
 import android.graphics.Typeface
@@ -28,7 +28,7 @@ import androidx.ui.text.font.Font
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class AndroidFontResourceLoader(val context: Context) : Font.ResourceLoader<Typeface> {
+class AndroidFontResourceLoader(private val context: Context) : Font.ResourceLoader {
     override fun load(font: Font): Typeface {
         // TODO(siyamed): This is an expensive operation and discouraged in the API Docs
         // remove when alternative resource loading system is defined.
@@ -38,17 +38,6 @@ class AndroidFontResourceLoader(val context: Context) : Font.ResourceLoader<Type
             context.packageName
         )
 
-        val typeface = try {
-            ResourcesCompat.getFont(context, resId)
-        } catch (e: Throwable) {
-            null
-        }
-
-        if (typeface == null) {
-            throw IllegalStateException(
-                "Cannot create Typeface from $font with resource id $resId"
-            )
-        }
-        return typeface
+        return ResourcesCompat.getFont(context, resId)!!
     }
 }
