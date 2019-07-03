@@ -1,4 +1,27 @@
 // Signature format: 3.0
+package androidx.ui.input {
+
+  public final class EditorState {
+    ctor public EditorState(String text, androidx.ui.core.TextRange selection);
+    method public androidx.ui.core.TextRange? getComposition();
+    method public androidx.ui.core.TextRange getSelection();
+    method public String getText();
+    property public final androidx.ui.core.TextRange? composition;
+    property public final androidx.ui.core.TextRange selection;
+    property public final String text;
+  }
+
+  public enum KeyboardType {
+    enum_constant public static final androidx.ui.input.KeyboardType ASCII;
+    enum_constant public static final androidx.ui.input.KeyboardType Email;
+    enum_constant public static final androidx.ui.input.KeyboardType Number;
+    enum_constant public static final androidx.ui.input.KeyboardType Phone;
+    enum_constant public static final androidx.ui.input.KeyboardType Text;
+    enum_constant public static final androidx.ui.input.KeyboardType URI;
+  }
+
+}
+
 package androidx.ui.text {
 
   public final class AnnotatedString {
