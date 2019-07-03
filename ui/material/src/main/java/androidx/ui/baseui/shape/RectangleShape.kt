@@ -20,6 +20,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.PxSize
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Outline
+import androidx.ui.engine.geometry.Shape
 
 /**
  * A shape describing the rectangle.

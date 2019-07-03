@@ -22,6 +22,7 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.px
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Outline
+import androidx.ui.engine.geometry.Shape
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

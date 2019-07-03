@@ -20,7 +20,7 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.baseui.shape.RectangleShape
-import androidx.ui.baseui.shape.Shape
+import androidx.ui.engine.geometry.Shape
 import androidx.ui.graphics.Color
 import androidx.ui.material.ripple.RippleEffect
 

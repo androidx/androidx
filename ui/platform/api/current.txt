@@ -17,6 +17,7 @@ package androidx.ui.core {
     method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRepaintBoundaryParamsChange(androidx.ui.core.RepaintBoundaryNode repaintBoundaryNode);
     method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
@@ -169,6 +170,7 @@ package androidx.ui.core {
     method public void onEndMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onRepaintBoundaryParamsChange(androidx.ui.core.RepaintBoundaryNode repaintBoundaryNode);
     method public void onRequestMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onStartLayout(androidx.ui.core.LayoutNode layoutNode);
@@ -192,20 +194,26 @@ package androidx.ui.core {
 
   public final class RepaintBoundaryNode extends androidx.ui.core.ComponentNode {
     ctor public RepaintBoundaryNode(String? name);
+    method public boolean getClipToShape();
     method public androidx.ui.core.IntPx getContainerX();
     method public androidx.ui.core.IntPx getContainerY();
     method public androidx.ui.core.IntPx getLayoutX();
     method public androidx.ui.core.IntPx getLayoutY();
     method public String? getName();
+    method public androidx.ui.engine.geometry.Shape? getShape();
+    method public void setClipToShape(boolean value);
     method public void setContainerX(androidx.ui.core.IntPx p);
     method public void setContainerY(androidx.ui.core.IntPx p);
     method public void setLayoutX(androidx.ui.core.IntPx p);
     method public void setLayoutY(androidx.ui.core.IntPx p);
+    method public void setShape(androidx.ui.engine.geometry.Shape? value);
+    property public final boolean clipToShape;
     property public final androidx.ui.core.IntPx containerX;
     property public final androidx.ui.core.IntPx containerY;
     property public final androidx.ui.core.IntPx layoutX;
     property public final androidx.ui.core.IntPx layoutY;
     property public androidx.ui.core.RepaintBoundaryNode? repaintBoundary;
+    property public final androidx.ui.engine.geometry.Shape? shape;
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {

@@ -14,30 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.surface
+package androidx.ui.core
 
+import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.ui.core.Dp
-import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
 
 /**
- * Draws the shadow. The [elevation] defines the visual dept of the physical object.
- * The physical object has a shape specified by [shape].
+ * Clips the children with the provided shape.
  *
- * TODO("Andrey: Replace with the real implementation based on RenderNode's elevation")
- *
- * @param elevation The z-coordinate at which to place this physical object.
- * @param shape Defines a shape of the physical object
+ * @param shape the [Shape] used for clipping.
  */
 @Composable
-fun DrawShadow(
-    elevation: Dp,
-    @Suppress("UNUSED_PARAMETER")
-    shape: Shape
-) {
-    if (elevation != 0.dp) {
-        TODO("Shadows are not yet supported")
-    }
+fun Clip(shape: Shape, @Children children: @Composable() () -> Unit) {
+    <RepaintBoundaryNode name=null shape=shape clipToShape=true>
+        children()
+    </RepaintBoundaryNode>
 }

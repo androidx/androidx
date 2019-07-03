@@ -19,21 +19,19 @@ package androidx.ui.material.surface
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.baseui.shape.border.Border
 import androidx.ui.baseui.shape.DrawShape
 import androidx.ui.baseui.shape.RectangleShape
-import androidx.ui.baseui.shape.Shape
 import androidx.ui.baseui.shape.border.DrawBorder
+import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
-import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
-import androidx.ui.engine.geometry.addOutline
+import androidx.ui.engine.geometry.Shape
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.ripple.RippleEffect
@@ -42,7 +40,6 @@ import androidx.ui.material.ripple.RippleSurfaceOwner
 import androidx.ui.material.ripple.ambientRippleSurface
 import androidx.ui.material.textColorForBackground
 import androidx.ui.material.themeColor
-import androidx.ui.painting.Path
 import androidx.ui.text.TextStyle
 
 /**
@@ -127,23 +124,4 @@ private fun SurfaceLayout(@Children children: @Composable() () -> Unit) {
             }
         }
     })
-}
-
-// Temporary.
-// TODO: Replace with an implementation using RenderNode's Outlines instead to have
-// clipping with antialiasing.
-@Composable
-private fun Clip(shape: Shape, @Children children: @Composable() () -> Unit) {
-    val path = +memo { Path() }
-    Draw(children = {
-        // this layout is temporary while Draw doesn't accept multiple children
-        SurfaceLayout(children)
-    }) { canvas, parentSize ->
-        path.reset()
-        path.addOutline(shape.createOutline(parentSize, density))
-        canvas.save()
-        canvas.clipPath(path)
-        drawChildren()
-        canvas.restore()
-    }
 }

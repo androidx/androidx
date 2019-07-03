@@ -25,6 +25,7 @@ import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewOutlineProvider
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
@@ -32,12 +33,18 @@ import androidx.compose.ObserverMap
 import androidx.ui.core.input.TextInputServiceAndroid
 import androidx.ui.core.pointerinput.PointerInputEventProcessor
 import androidx.ui.core.pointerinput.toPointerInputEvent
+import androidx.ui.engine.geometry.Outline
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
+import androidx.ui.painting.Path
 import androidx.compose.frames.FrameCommitObserver
 import androidx.compose.frames.FrameReadObserver
 import androidx.compose.frames.currentFrame
 import androidx.compose.frames.registerCommitObserver
+import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.geometry.RRect
+import androidx.ui.engine.geometry.Shape
+import kotlin.math.roundToInt
 import java.util.TreeSet
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -128,6 +135,7 @@ class AndroidCraneView constructor(context: Context)
             focusable = View.FOCUSABLE
         }
         isFocusableInTouchMode = true
+        clipChildren = false
     }
 
     private fun onModelsCommitted(models: Iterable<Any>) {
@@ -174,6 +182,10 @@ class AndroidCraneView constructor(context: Context)
 //        ownerScope.launch {
         markRepaintBoundaryBoundsChanged(layoutNode)
 //        }
+    }
+
+    override fun onRepaintBoundaryParamsChange(repaintBoundaryNode: RepaintBoundaryNode) {
+        repaintBoundaryNode.container.onParamsChange()
     }
 
     /**
@@ -635,6 +647,12 @@ private interface RepaintBoundary {
     fun updateDisplayList()
 
     /**
+     * This is not causing re-recording of the RepaintBoundary, but updates params
+     * like outline, clipping, elevation or alpha.
+     */
+    fun onParamsChange()
+
+    /**
      * `true` indicates that the RepaintBoundary must be redrawn and `false` indicates
      * that no change has occured since the previous [callDraw] or [updateDisplayList] call.
      */
@@ -655,6 +673,13 @@ private class RepaintBoundaryView(
         clipChildren = false
         setWillNotDraw(false) // we WILL draw
     }
+    private val outlineResolver = OutlineResolver(Density(context))
+    private val outlineProviderImpl = object : ViewOutlineProvider() {
+        override fun getOutline(view: View, outline: android.graphics.Outline) {
+            outlineResolver.applyTo(outline)
+        }
+    }
+    private var clipPath: android.graphics.Path? = null
     override var dirty: Boolean = true
         set(value) {
             if (value && !field) {
@@ -671,6 +696,7 @@ private class RepaintBoundaryView(
             val heightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
             measure(widthSpec, heightSpec)
             layout(left, top, right, bottom)
+            onParamsChange()
         } else {
             val offsetHorizontal = left - this.left
             if (offsetHorizontal != 0) {
@@ -711,6 +737,7 @@ private class RepaintBoundaryView(
         canvas.save()
         canvas.translate(-repaintBoundaryNode.layoutX.value.toFloat(),
             -repaintBoundaryNode.layoutY.value.toFloat())
+        clipPath?.let { canvas.clipPath(it) }
         if (ownerView.currentNode == null) {
             // Only this repaint boundary was invalidated and nothing higher in the view hierarchy.
             // We must observe changes
@@ -735,10 +762,20 @@ private class RepaintBoundaryView(
         // Don't need to do anything here. This is handled by View
         throw IllegalStateException("updateDisplayList should not be called on RepaintBoundaryView")
     }
+
+    override fun onParamsChange() {
+        outlineResolver.update(repaintBoundaryNode, PxSize(width.px, height.px))
+        clipToOutline = outlineResolver.clipToOutline
+        this.outlineProvider = if (outlineResolver.hasShape) outlineProviderImpl else null
+        if (outlineResolver.manualClipPath !== clipPath) {
+            clipPath = outlineResolver.manualClipPath
+            dirty = true
+        }
+    }
 }
 
 /**
- * RenderNode implemenation of RepaintBoundary.
+ * RenderNode implementation of RepaintBoundary.
  */
 @TargetApi(29)
 private class RepaintBoundaryRenderNode(
@@ -754,12 +791,16 @@ private class RepaintBoundaryRenderNode(
             field = value
         }
     val renderNode = RenderNode(repaintBoundaryNode.name)
+    private val outline = android.graphics.Outline()
+    private val outlineResolver = OutlineResolver(Density(ownerView.context))
+    private var clipPath: android.graphics.Path? = null
 
     override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
         val width = right - left
         val height = bottom - top
         if (width != renderNode.width || height != renderNode.height) {
             renderNode.setPosition(left, top, right, bottom)
+            onParamsChange()
         } else {
             var needsChange = renderNode.offsetLeftAndRight(left - renderNode.left)
             needsChange = renderNode.offsetTopAndBottom(top - renderNode.top) || needsChange
@@ -797,10 +838,27 @@ private class RepaintBoundaryRenderNode(
             val canvas = renderNode.beginRecording()
             canvas.translate(-repaintBoundaryNode.layoutX.value.toFloat(),
                 -repaintBoundaryNode.layoutY.value.toFloat())
+            clipPath?.let { canvas.clipPath(it) }
             ownerView.callChildDraw(canvas, repaintBoundaryNode)
             renderNode.endRecording()
             dirty = false
         }
+    }
+
+    override fun onParamsChange() {
+        val size = PxSize(renderNode.width.px, renderNode.height.px)
+        outlineResolver.update(repaintBoundaryNode, size)
+        renderNode.clipToOutline = outlineResolver.clipToOutline
+        if (outlineResolver.hasShape) {
+            renderNode.setOutline(outline.apply { outlineResolver.applyTo(this) })
+        } else {
+            renderNode.setOutline(null)
+        }
+        if (outlineResolver.manualClipPath !== clipPath) {
+            clipPath = outlineResolver.manualClipPath
+            dirty = true
+        }
+        ownerView.invalidate()
     }
 }
 
@@ -815,5 +873,95 @@ private val DepthComparator: Comparator<ComponentNode> = object : Comparator<Com
             return depthDiff
         }
         return System.identityHashCode(l1) - System.identityHashCode(l2)
+    }
+}
+
+/**
+ * Resolves the Android [Outline] from the [Shape] of [RepaintBoundaryNode].
+ */
+private class OutlineResolver(private val density: Density) {
+    private val cachedOutline = android.graphics.Outline().apply { alpha = 1f }
+    private var size: PxSize = PxSize.Zero
+    private var shape: Shape? = null
+    var manualClipPath: android.graphics.Path? = null
+        private set
+    var clipToOutline: Boolean = false
+        private set
+    val hasShape: Boolean get() = shape != null
+
+    fun update(node: RepaintBoundaryNode, size: PxSize) {
+        var cacheIsDirty = false
+        if (node.shape != shape) {
+            this.shape = node.shape
+            cacheIsDirty = true
+        }
+        if (this.size != size) {
+            this.size = size
+            cacheIsDirty = true
+        }
+        clipToOutline = (shape != null && node.clipToShape)
+        if (cacheIsDirty) {
+            manualClipPath = null
+            shape?.let { updateCache(it) }
+        }
+    }
+
+    fun applyTo(outline: android.graphics.Outline) {
+        if (shape == null) {
+            throw IllegalStateException("Cache is dirty!")
+        }
+        outline.set(cachedOutline)
+    }
+
+    private fun updateCache(shape: Shape) {
+        if (size.width == 0.px && size.height == 0.px) {
+            cachedOutline.setEmpty()
+            return
+        }
+        val outline = shape.createOutline(size, density)
+        when (outline) {
+            is Outline.Rectangle -> updateCacheWithRect(outline.rect)
+            is Outline.Rounded -> updateCacheWithRRect(outline.rrect)
+            is Outline.Generic -> updateCacheWithPath(outline.path)
+        }
+    }
+
+    private /*inline*/ fun updateCacheWithRect(rect: Rect) {
+        cachedOutline.setRect(
+            rect.left.roundToInt(),
+            rect.top.roundToInt(),
+            rect.right.roundToInt(),
+            rect.bottom.roundToInt()
+        )
+    }
+
+    private /*inline*/ fun updateCacheWithRRect(rrect: RRect) {
+        val radius = rrect.topLeftRadiusX
+        if (radius == rrect.topLeftRadiusY &&
+            radius == rrect.topRightRadiusX &&
+            radius == rrect.topRightRadiusY &&
+            radius == rrect.bottomRightRadiusX &&
+            radius == rrect.bottomRightRadiusY &&
+            radius == rrect.bottomLeftRadiusX &&
+            radius == rrect.bottomLeftRadiusY
+        ) {
+            cachedOutline.setRoundRect(
+                rrect.left.roundToInt(),
+                rrect.top.roundToInt(),
+                rrect.right.roundToInt(),
+                rrect.bottom.roundToInt(),
+                radius
+            )
+        } else {
+            updateCacheWithPath(Path().apply { addRRect(rrect) })
+        }
+    }
+
+    private fun updateCacheWithPath(composePath: Path) {
+        val path = composePath.toFrameworkPath()
+        cachedOutline.setConvexPath(path)
+        if (clipToOutline) {
+            manualClipPath = path
+        }
     }
 }

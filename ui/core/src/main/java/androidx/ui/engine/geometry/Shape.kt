@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.ui.baseui.shape
+package androidx.ui.engine.geometry
 
 import androidx.ui.core.Density
 import androidx.ui.core.PxSize
-import androidx.ui.engine.geometry.Outline
 
 /**
  * Defines a generic shape.
