@@ -24,6 +24,7 @@ import androidx.compose.composer
 import androidx.compose.compositionReference
 import androidx.compose.memo
 import androidx.compose.onPreCommit
+import androidx.compose.trace
 import androidx.compose.unaryPlus
 
 internal typealias LayoutBlock = LayoutBlockReceiver.(List<Measurable>, Constraints) -> Unit
@@ -317,61 +318,63 @@ fun Layout(
     @Children(composable = false) layoutBlock: LayoutReceiver
         .(measurables: List<Measurable>, constraints: Constraints) -> Unit
 ) {
-    ComplexLayout(children = children, block = {
-        layout { measurables, constraints ->
-            val layoutReceiver = LayoutReceiver(
-                layoutState,
-                { m, c -> m.measure(c) }, /* measure lambda */
-                this::layoutResult,
-                density
-            )
-            layoutReceiver.layoutBlock(measurables, constraints)
-        }
+    trace("UI:Layout") {
+        ComplexLayout(children = children, block = {
+            layout { measurables, constraints ->
+                val layoutReceiver = LayoutReceiver(
+                    layoutState,
+                    { m, c -> m.measure(c) }, /* measure lambda */
+                    this::layoutResult,
+                    density
+                )
+                layoutReceiver.layoutBlock(measurables, constraints)
+            }
 
-        minIntrinsicWidth { measurables, h ->
-            var intrinsicWidth = IntPx.Zero
-            val measureBoxReceiver = LayoutReceiver(layoutState, { m, c ->
-                val width = m.minIntrinsicWidth(c.maxHeight)
-                DummyPlaceable(width, h)
-            }, { width, _, _ -> intrinsicWidth = width }, density)
-            val constraints = Constraints(maxHeight = h)
-            layoutBlock(measureBoxReceiver, measurables, constraints)
-            intrinsicWidth
-        }
+            minIntrinsicWidth { measurables, h ->
+                var intrinsicWidth = IntPx.Zero
+                val measureBoxReceiver = LayoutReceiver(layoutState, { m, c ->
+                    val width = m.minIntrinsicWidth(c.maxHeight)
+                    DummyPlaceable(width, h)
+                }, { width, _, _ -> intrinsicWidth = width }, density)
+                val constraints = Constraints(maxHeight = h)
+                layoutBlock(measureBoxReceiver, measurables, constraints)
+                intrinsicWidth
+            }
 
-        maxIntrinsicWidth { measurables, h ->
-            var intrinsicWidth = IntPx.Zero
-            val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
-                val width = m.maxIntrinsicWidth(c.maxHeight)
-                DummyPlaceable(width, h)
-            }, { width, _, _ -> intrinsicWidth = width }, density)
-            val constraints = Constraints(maxHeight = h)
-            layoutBlock(layoutReceiver, measurables, constraints)
-            intrinsicWidth
-        }
+            maxIntrinsicWidth { measurables, h ->
+                var intrinsicWidth = IntPx.Zero
+                val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
+                    val width = m.maxIntrinsicWidth(c.maxHeight)
+                    DummyPlaceable(width, h)
+                }, { width, _, _ -> intrinsicWidth = width }, density)
+                val constraints = Constraints(maxHeight = h)
+                layoutBlock(layoutReceiver, measurables, constraints)
+                intrinsicWidth
+            }
 
-        minIntrinsicHeight { measurables, w ->
-            var intrinsicHeight = IntPx.Zero
-            val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
-                val height = m.minIntrinsicHeight(c.maxWidth)
-                DummyPlaceable(w, height)
-            }, { _, height, _ -> intrinsicHeight = height }, density)
-            val constraints = Constraints(maxWidth = w)
-            layoutBlock(layoutReceiver, measurables, constraints)
-            intrinsicHeight
-        }
+            minIntrinsicHeight { measurables, w ->
+                var intrinsicHeight = IntPx.Zero
+                val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
+                    val height = m.minIntrinsicHeight(c.maxWidth)
+                    DummyPlaceable(w, height)
+                }, { _, height, _ -> intrinsicHeight = height }, density)
+                val constraints = Constraints(maxWidth = w)
+                layoutBlock(layoutReceiver, measurables, constraints)
+                intrinsicHeight
+            }
 
-        maxIntrinsicHeight { measurables, w ->
-            var intrinsicHeight = IntPx.Zero
-            val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
-                val height = m.maxIntrinsicHeight(c.maxWidth)
-                DummyPlaceable(w, height)
-            }, { _, height, _ -> intrinsicHeight = height }, density)
-            val constraints = Constraints(maxWidth = w)
-            layoutBlock(layoutReceiver, measurables, constraints)
-            intrinsicHeight
-        }
-    })
+            maxIntrinsicHeight { measurables, w ->
+                var intrinsicHeight = IntPx.Zero
+                val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
+                    val height = m.maxIntrinsicHeight(c.maxWidth)
+                    DummyPlaceable(w, height)
+                }, { _, height, _ -> intrinsicHeight = height }, density)
+                val constraints = Constraints(maxWidth = w)
+                layoutBlock(layoutReceiver, measurables, constraints)
+                intrinsicHeight
+            }
+        })
+    }
 }
 
 /**
