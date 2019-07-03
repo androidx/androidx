@@ -65,8 +65,8 @@ class ConstraintsTest {
         assertFalse(untight.isTight)
 
         val tight = Constraints(3.ipx, 3.ipx, 5.ipx, 5.ipx)
-        assertTrue(tight.hasBoundedWidth)
-        assertTrue(tight.hasBoundedHeight)
+        assertTrue(tight.hasTightWidth)
+        assertTrue(tight.hasTightHeight)
         assertTrue(tight.isTight)
     }
 
@@ -125,9 +125,9 @@ class ConstraintsTest {
 
     @Test
     fun loose() {
-        val constraints = Constraints(2.ipx, 2.ipx, 5.ipx, 5.ipx)
-        constraints.looseMin().assertEquals(0.ipx, 0.ipx, 5.ipx, 5.ipx)
-        constraints.looseMax().assertEquals(2.ipx, 2.ipx, IntPx.Infinity, IntPx.Infinity)
+        val constraints = Constraints(2.ipx, 5.ipx, 2.ipx, 5.ipx)
+        constraints.looseMin().assertEquals(0.ipx, 5.ipx, 0.ipx, 5.ipx)
+        constraints.looseMax().assertEquals(2.ipx, IntPx.Infinity, 2.ipx, IntPx.Infinity)
     }
 
     fun offset() {
@@ -157,9 +157,9 @@ class ConstraintsTest {
         maxWidth: IntPx,
         minHeight: IntPx,
         maxHeight: IntPx
-    ): Boolean {
-        return this.minWidth == minWidth && this.maxWidth == maxWidth &&
-                this.minHeight == minHeight && this.maxHeight == maxHeight
+    ) {
+        assertTrue(this.minWidth == minWidth && this.maxWidth == maxWidth &&
+                this.minHeight == minHeight && this.maxHeight == maxHeight)
     }
 
     private fun assertInvalid(
