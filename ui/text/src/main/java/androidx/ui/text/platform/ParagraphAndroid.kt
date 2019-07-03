@@ -65,7 +65,7 @@ import androidx.ui.text.ParagraphConstraints
 import androidx.ui.text.style.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextIndent
 import androidx.ui.text.AnnotatedString
 import androidx.ui.painting.Canvas

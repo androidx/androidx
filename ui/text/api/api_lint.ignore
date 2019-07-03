@@ -1,15 +1,15 @@
 // Baseline format: 1.0
-AcronymName: androidx.ui.text.TextBox.Companion#fromLTRBD(float, float, float, float, androidx.ui.engine.text.TextDirection):
+AcronymName: androidx.ui.text.TextBox.Companion#fromLTRBD(float, float, float, float, androidx.ui.text.style.TextDirection):
     Acronyms should not be capitalized in method names: was `fromLTRBD`, should this be `fromLtrbd`?
 AcronymName: androidx.ui.text.style.TextIndent.Companion#getNONE():
     Acronyms should not be capitalized in method names: was `getNONE`, should this be `getNone`?
 
 
-AutoBoxing: androidx.ui.text.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.engine.text.TextDirection, Float, androidx.ui.text.style.TextIndent) parameter #2:
+AutoBoxing: androidx.ui.text.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, Float, androidx.ui.text.style.TextIndent) parameter #2:
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.ParagraphStyle#component3():
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.engine.text.TextDirection, Float, androidx.ui.text.style.TextIndent) parameter #2:
+AutoBoxing: androidx.ui.text.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, Float, androidx.ui.text.style.TextIndent) parameter #2:
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.ParagraphStyle#getLineHeight():
     Must avoid boxed primitives (`java.lang.Float`)
@@ -33,17 +33,17 @@ AutoBoxing: androidx.ui.text.TextStyle#getFontSizeScale():
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.TextStyle#getLetterSpacing():
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #3:
+AutoBoxing: androidx.ui.text.style.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #3:
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #4:
+AutoBoxing: androidx.ui.text.style.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #4:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.style.ParagraphStyle#component4():
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.style.ParagraphStyle#component5():
     Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #3:
+AutoBoxing: androidx.ui.text.style.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #3:
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.engine.text.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #4:
+AutoBoxing: androidx.ui.text.style.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #4:
     Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.style.ParagraphStyle#getLineHeight():
     Must avoid boxed primitives (`java.lang.Float`)
