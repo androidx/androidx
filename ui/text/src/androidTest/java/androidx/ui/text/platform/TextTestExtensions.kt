@@ -24,7 +24,7 @@ import android.text.TextPaint
 import androidx.text.TextLayout
 import kotlin.math.ceil
 
-internal fun ParagraphAndroid.bitmap(): Bitmap {
+internal fun AndroidParagraph.bitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(
         ceil(this.width).toInt(),
         ceil(this.height).toInt(),
