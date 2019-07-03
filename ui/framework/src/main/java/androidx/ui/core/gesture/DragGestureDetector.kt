@@ -16,6 +16,10 @@
 
 package androidx.ui.core.gesture
 
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.memo
+import androidx.compose.unaryPlus
 import androidx.ui.core.Direction
 import androidx.ui.core.PointerEventPass
 import androidx.ui.core.PointerInputChange
@@ -31,12 +35,8 @@ import androidx.ui.core.ipx
 import androidx.ui.core.positionChange
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.memo
-import androidx.compose.unaryPlus
 import androidx.ui.core.PointerInputWrapper
+import androidx.compose.composer
 
 interface DragObserver {
 
@@ -44,11 +44,11 @@ interface DragObserver {
      * Override to be notified when a drag has started.
      *
      * This will occur when a pointer has moved far enough to surpass [TouchSlop] in a supported
-     * direction (as reported by [DragGestureDetector.canDrag]. Always called just before
-     * [onStart] and isn't called again until after [onStop].
+     * direction (as reported by DragGestureDetector.canDrag. Always called before [onDrag] and
+     * isn't called again until after [onStop].
      *
-     * @see onStart
      * @see onDrag
+     * @see onStop
      * @see DragGestureRecognizer.canDrag
      */
     fun onStart() {}
@@ -58,7 +58,8 @@ interface DragObserver {
      *
      * When overridden, return the amount of the [dragDistance] that has been consumed.
      *
-     * Always called just after [onStart] (and for every subsequent drag).
+     * Called after [onStart] and for every subsequent pointer movement, as long as the movement
+     * was enough to constitute a drag (the average movement on the x or y axis is not equal to 0).
      *
      * @param dragDistance The distance that has been dragged.  Reflects the average drag distance
      * of all pointers.
@@ -118,7 +119,6 @@ fun DragGestureDetector(
 internal class DragGestureRecognizer {
     private val pointerTrackers: MutableMap<Int, PointerTrackingData> = mutableMapOf()
     private var passedSlop = false
-    private var pointerCount = 0
     var touchSlop = 0.ipx
 
     var canDrag: ((Direction) -> Boolean)? = null
@@ -126,163 +126,225 @@ internal class DragGestureRecognizer {
 
     val pointerInputHandler =
         { changes: List<PointerInputChange>, pass: PointerEventPass ->
-            changes.map { processChange(it, pass) }
-        }
 
-    private fun processChange(
-        pointerInputChange: PointerInputChange,
-        pass: PointerEventPass
-    ): PointerInputChange {
-        var change: PointerInputChange = pointerInputChange
+            var changesToReturn = changes
 
-        if (pass == PointerEventPass.InitialDown && change.changedToDownIgnoreConsumed()) {
-            pointerCount++
-        }
-
-        if (pass == PointerEventPass.InitialDown && change.changedToDown() && passedSlop) {
-            // If we are passedSlop, we are actively dragging so we want to prevent any children
-            // from reacting to any down change.
-            change = change.consumeDownChange()
-        }
-
-        if (pass == PointerEventPass.PostUp) {
-            if (change.changedToUpIgnoreConsumed()) {
-                // This pointer is up (consumed or not), so we should stop tracking information
-                // about it.  Get a reference for the velocity tracker in case this is the last
-                // pointer and thus we are going to fling.
-                val velocityTracker = pointerTrackers.remove(change.id)?.velocityTracker
-                if (pointerCount == 1) {
-                    if (passedSlop && change.changedToUp()) {
-                        // There is one pointer, we have passed slop, and there was an unconsumed
-                        // up event, so we should fire the onStop with the velocity tracked
-                        // for the last pointer.
-
-                        // TODO(shepshapard): handle the case that the velocity tracker for the
-                        // given pointer is null, by throwing an exception or printing a warning,
-                        // or something else.
-                        val velocity =
-                            velocityTracker?.calculateVelocity()?.pixelsPerSecond
-                                ?: PxPosition.Origin
-                        velocityTracker?.resetTracking()
-                        dragObserver?.onStop(PxPosition(velocity.x, velocity.y))
-
-                        // We responded to the up change, so consume it.
-                        change = change.consumeDownChange()
-                    }
-                    // The last pointer is up whether or not up was consumed, so we should reset
-                    // that we passed slop.
-                    passedSlop = false
-                }
-            } else if (change.changedToDownIgnoreConsumed()) {
-                // If a pointer has changed to down, we should start tracking information about it.
-                pointerTrackers[change.id] = PointerTrackingData()
-                    .apply {
-                        velocityTracker.addPosition(
-                            change.current.timestamp!!,
-                            change.current.position!!
-                        )
-                    }
-            } else if (change.current.down) {
-                // TODO(shepshapard): handle the case that the pointerTrackingData is null, either
-                // with an exception or a logged error, or something else.
-                val pointerTracker: PointerTrackingData? = pointerTrackers[change.id]
-
-                if (pointerTracker != null) {
-                    // If the pointer is currently down, we should track its velocity.
-                    pointerTracker.velocityTracker.addPosition(
-                        change.current.timestamp!!,
-                        change.current.position!!
-                    )
-
-                    val dx = change.positionChange().x.value
-                    val dy = change.positionChange().y.value
-
-                    // If we aren't passed slop, calculate things related to slop, and start drag
-                    // if we do pass touch slop.
-                    if (!passedSlop) {
-                        // TODO(shepshapard): I believe the logic in this block could be simplified
-                        // to be much more clear.  Will need to revisit. The need to make
-                        // improvements may be rendered obsolete with upcoming changes however.
-
-                        val directionX = when {
-                            dx == 0f -> null
-                            dx < 0f -> Direction.LEFT
-                            else -> Direction.RIGHT
-                        }
-                        val directionY = when {
-                            dy == 0f -> null
-                            dy < 0f -> Direction.UP
-                            else -> Direction.DOWN
-                        }
-
-                        val canDragX =
-                            if (directionX != null) {
-                                canDrag?.invoke(directionX) ?: true
-                            } else false
-                        val canDragY =
-                            if (directionY != null) {
-                                canDrag?.invoke(directionY) ?: true
-                            } else false
-
-                        pointerTracker.dxUnderSlop += dx
-                        pointerTracker.dyUnderSlop += dy
-
-                        val passedSlopX =
-                            canDragX && Math.abs(pointerTracker.dxUnderSlop) > touchSlop.value
-                        val passedSlopY =
-                            canDragY && Math.abs(pointerTracker.dyUnderSlop) > touchSlop.value
-
-                        if (passedSlopX || passedSlopY) {
-                            passedSlop = true
-                            dragObserver?.onStart()
+            if (pass == PointerEventPass.InitialDown) {
+                if (passedSlop) {
+                    // If we are passedSlop, we are actively dragging so we want to prevent any
+                    // children from reacting to any down change.
+                    changesToReturn = changesToReturn.map {
+                        if (it.changedToDown()) {
+                            it.consumeDownChange()
                         } else {
-                            if (!canDragX &&
-                                ((directionX == Direction.LEFT && pointerTracker.dxUnderSlop < 0) ||
-                                        (directionX == Direction.RIGHT &&
-                                                pointerTracker.dxUnderSlop > 0))
-                            ) {
-                                pointerTracker.dxUnderSlop = 0f
-                            }
-                            if (!canDragY &&
-                                ((directionY == Direction.LEFT && pointerTracker.dyUnderSlop < 0) ||
-                                        (directionY == Direction.DOWN &&
-                                                pointerTracker.dyUnderSlop > 0))
-                            ) {
-                                pointerTracker.dyUnderSlop = 0f
-                            }
+                            it
                         }
                     }
-
-                    // At this point, check to see if we have passed touch slop, and if we have
-                    // go ahead and drag and consume.
-                    if (passedSlop) {
-                        change = dragObserver?.run {
-                            val (consumedDx, consumedDy) = onDrag(
-                                PxPosition(
-                                    dx.px / pointerCount,
-                                    dy.px / pointerCount
-                                )
-                            )
-                            change.consumePositionChange(
-                                consumedDx,
-                                consumedDy
-                            )
-                        } ?: change
+                } else {
+                    // If we aren't passed slop, reset the tracking information given the multiple
+                    // passes that DragGestureDetector reacts to.
+                    pointerTrackers.forEach {
+                        it.value.dxForPass = 0f
+                        it.value.dyForPass = 0f
                     }
                 }
             }
-        }
 
-        if (pass == PointerEventPass.PostDown && change.changedToUpIgnoreConsumed()) {
-            pointerCount--
-        }
+            if (pass == PointerEventPass.PostUp) {
 
-        return change
-    }
+                // Handle up changes, which includes removing individual pointer VelocityTrackers
+                // and potentially calling onStop().
+                if (changesToReturn.any { it.changedToUpIgnoreConsumed() }) {
+
+                    var velocityTracker: VelocityTracker? = null
+
+                    changesToReturn.forEach {
+                        // This pointer is up (consumed or not), so we should stop tracking information
+                        // about it.  Get a reference for the velocity tracker in case this is the last
+                        // pointer and thus we are going to fling.
+                        if (it.changedToUp()) {
+                            velocityTracker = pointerTrackers.remove(it.id)?.velocityTracker
+                        } else if (it.changedToUpIgnoreConsumed()) {
+                            pointerTrackers.remove(it.id)
+                        }
+                    }
+
+                    if (changesToReturn.all { it.changedToUpIgnoreConsumed() } && passedSlop) {
+                        // If all of the fingers are up and we passedSlop, then we may need to call
+                        // onStop.
+                        passedSlop = false
+                        if (velocityTracker != null) {
+                            // If all of the pointers went up, and there is a VelocityTracker
+                            // (which means that at least one had an unconsumed up change), we
+                            // are responding to the change so consume all of the down changes, and
+                            // maybe fire off en event.
+
+                            changesToReturn = changesToReturn.map {
+                                it.consumeDownChange()
+                            }
+
+                            if (dragObserver != null) {
+                                val velocity = velocityTracker!!.calculateVelocity().pixelsPerSecond
+                                dragObserver!!.onStop(PxPosition(velocity.x, velocity.y))
+                            }
+                        }
+                    }
+                }
+
+                // For each new pointer that has been added, start tracking information about it.
+                if (changesToReturn.any { it.changedToDownIgnoreConsumed() }) {
+                    changesToReturn.forEach {
+                        // If a pointer has changed to down, we should start tracking information
+                        // about it.
+                        if (it.changedToDownIgnoreConsumed()) {
+                            pointerTrackers[it.id] = PointerTrackingData()
+                                .apply {
+                                    velocityTracker.addPosition(
+                                        it.current.timestamp!!,
+                                        it.current.position!!
+                                    )
+                                }
+                        }
+                    }
+                }
+            }
+
+            // This if block is run for both PostUp and PostDown to allow for the detector to
+            // respond to modified changes after ancestors may have modified them.  (This allows
+            // for things like dragging an ancestor scrolling container, while keeping a finger on
+            // a descendant scrolling container, and the descendant scrolling container keeping the
+            // descendant still.)
+            if (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown) {
+
+                var (movedChanges, otherChanges) = changesToReturn.partition {
+                    it.current.down && !it.changedToDownIgnoreConsumed()
+                }
+
+                movedChanges.forEach {
+                    // TODO(shepshapard): handle the case that the pointerTrackingData is null,
+                    // either with an exception or a logged error, or something else.
+                    val pointerTracker: PointerTrackingData? = pointerTrackers[it.id]
+
+                    if (pointerTracker != null) {
+
+                        // Add information to the velocity tracker only during one pass.
+                        // TODO(shepshapard): VelocityTracker needs to be updated to not accept
+                        // position information, but rather vector information about movement.
+                        if (pass == PointerEventPass.PostUp) {
+                            pointerTracker.velocityTracker.addPosition(
+                                it.current.timestamp!!,
+                                it.current.position!!
+                            )
+                        }
+
+                        val dx = it.positionChange().x.value
+                        val dy = it.positionChange().y.value
+
+                        // If we aren't passed slop, calculate things related to slop, and start drag
+                        // if we do pass touch slop.
+                        if (!passedSlop) {
+                            // TODO(shepshapard): I believe the logic in this block could be simplified
+                            // to be much more clear.  Will need to revisit. The need to make
+                            // improvements may be rendered obsolete with upcoming changes however.
+
+                            val directionX = when {
+                                dx == 0f -> null
+                                dx < 0f -> Direction.LEFT
+                                else -> Direction.RIGHT
+                            }
+                            val directionY = when {
+                                dy == 0f -> null
+                                dy < 0f -> Direction.UP
+                                else -> Direction.DOWN
+                            }
+
+                            val canDragX =
+                                if (directionX != null) {
+                                    canDrag?.invoke(directionX) ?: true
+                                } else false
+                            val canDragY =
+                                if (directionY != null) {
+                                    canDrag?.invoke(directionY) ?: true
+                                } else false
+
+                            if (pass == PointerEventPass.PostUp) {
+                                pointerTracker.dxForPass = dx
+                                pointerTracker.dyForPass = dy
+                                pointerTracker.dxUnderSlop += dx
+                                pointerTracker.dyUnderSlop += dy
+                            } else {
+                                pointerTracker.dxUnderSlop += dx - pointerTracker.dxForPass
+                                pointerTracker.dyUnderSlop += dy - pointerTracker.dyForPass
+                            }
+
+                            val passedSlopX =
+                                canDragX && Math.abs(pointerTracker.dxUnderSlop) > touchSlop.value
+                            val passedSlopY =
+                                canDragY && Math.abs(pointerTracker.dyUnderSlop) > touchSlop.value
+
+                            if (passedSlopX || passedSlopY) {
+                                passedSlop = true
+                                dragObserver?.onStart()
+                            } else {
+                                if (!canDragX &&
+                                    ((directionX == Direction.LEFT &&
+                                            pointerTracker.dxUnderSlop < 0) ||
+                                            (directionX == Direction.RIGHT &&
+                                                    pointerTracker.dxUnderSlop > 0))
+                                ) {
+                                    pointerTracker.dxUnderSlop = 0f
+                                }
+                                if (!canDragY &&
+                                    ((directionY == Direction.LEFT &&
+                                            pointerTracker.dyUnderSlop < 0) ||
+                                            (directionY == Direction.DOWN &&
+                                                    pointerTracker.dyUnderSlop > 0))
+                                ) {
+                                    pointerTracker.dyUnderSlop = 0f
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // At this point, check to see if we have passed touch slop, and if we have, we may
+                // be calling onDrag and updating change information on the PointerInputChanges.
+                if (passedSlop) {
+
+                    var totalDx = 0f
+                    var totalDy = 0f
+
+                    movedChanges.forEach {
+                        totalDx += it.positionChange().x.value
+                        totalDy += it.positionChange().y.value
+                    }
+
+                    if (totalDx != 0f || totalDy != 0f) {
+                        dragObserver?.run {
+                            val (consumedDx, consumedDy) = onDrag(
+                                PxPosition(
+                                    (totalDx / changesToReturn.size).px,
+                                    (totalDy / changesToReturn.size).px
+                                )
+                            )
+                            movedChanges = movedChanges.map {
+                                it.consumePositionChange(consumedDx, consumedDy)
+                            }
+                        }
+                    }
+                }
+
+                changesToReturn = movedChanges + otherChanges
+            }
+
+            changesToReturn
+        }
 
     internal data class PointerTrackingData(
         val velocityTracker: VelocityTracker = VelocityTracker(),
         var dxUnderSlop: Float = 0f,
-        var dyUnderSlop: Float = 0f
+        var dyUnderSlop: Float = 0f,
+        var dxForPass: Float = 0f,
+        var dyForPass: Float = 0f
     )
 }

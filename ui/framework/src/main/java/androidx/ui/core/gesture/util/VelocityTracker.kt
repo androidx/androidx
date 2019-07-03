@@ -54,6 +54,9 @@ class VelocityTracker {
      *
      * @see resetTracking
      */
+    // TODO(shepshapard): VelocityTracker needs to be updated to be passed vectors instead of
+    //   positions. For velocity tracking, the only thing that is important is the change in
+    //   position over time.
     fun addPosition(time: Timestamp, position: PxPosition) {
         index = (index + 1) % HistorySize
         samples[index] = PointAtTime(position, time)
