@@ -29,8 +29,10 @@ import java.util.Locale;
  *
  * Also provides methods to determine word boundaries.
  *
- * Note: This file is copied from {@link android.googlesource
- * .com/platform/frameworks/base/+/master/core/java/android/text/method/WordIterator.java}.
+ * Note: This file is copied from
+ * <a href="https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/method/WordIterator.java">
+ * WordIterator.java.
+ * </a>
  *
  * @hide
  */

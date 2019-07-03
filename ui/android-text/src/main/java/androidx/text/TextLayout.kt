@@ -211,7 +211,7 @@ internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: In
 
 /** @hide */
 @RestrictTo(LIBRARY_GROUP)
-public object TextAlignmentAdapter {
+object TextAlignmentAdapter {
     val ALIGN_LEFT_FRAMEWORK: Layout.Alignment
     val ALIGN_RIGHT_FRAMEWORK: Layout.Alignment
 

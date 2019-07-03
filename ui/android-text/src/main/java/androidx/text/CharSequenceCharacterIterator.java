@@ -23,8 +23,10 @@ import java.text.CharacterIterator;
 /**
  * An implementation of {@link java.text.CharacterIterator} that iterates over a given CharSequence.
  *
- * Note: This file is copied from {@link android.googlesource.com/platform/frameworks/base
- * /+/master/core/java/android/text/CharSequenceCharacterIterator.java}.
+ * Note: This file is copied from
+ * <a href="https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/text/CharSequenceCharacterIterator.java">
+ * CharSequenceCharacterIterator.java
+ * </a>.
  *
  * {@hide}
  */
@@ -183,6 +185,8 @@ public class CharSequenceCharacterIterator implements CharacterIterator {
      *
      * @return A copy of this
      */
+    @NonNull
+    @Override
     public Object clone() {
         try {
             return super.clone();
