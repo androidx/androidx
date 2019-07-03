@@ -31,6 +31,7 @@ plugins {
 dependencies {
     api project(":compose:compose-runtime")
     api project(":ui-core")
+    api project(":ui-text")
     api(KOTLIN_COMPOSE_STDLIB)
 
     testImplementation(JUNIT)
