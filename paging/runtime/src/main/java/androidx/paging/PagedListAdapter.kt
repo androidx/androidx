@@ -117,7 +117,7 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         get() = this::onLoadStateChanged
 
     /**
-     * Returns the PagedList currently being displayed by the Adapter.
+     * Returns the [PagedList] currently being displayed by the [PagedListAdapter].
      *
      * This is not necessarily the most recent list passed to [submitList], because a diff is
      * computed asynchronously between the new list and the current list before updating the
@@ -131,11 +131,10 @@ abstract class PagedListAdapter<T : Any, VH : RecyclerView.ViewHolder> : Recycle
         get() = differ.currentList
 
     /**
-     * Creates a PagedListAdapter with default threading and
+     * Creates a [PagedListAdapter] with default threading and
      * [androidx.recyclerview.widget.ListUpdateCallback].
      *
-     * Convenience for [.PagedListAdapter], which uses default threading
-     * behavior.
+     * Convenience for [PagedListAdapter], which uses default threading behavior.
      *
      * @param diffCallback The [DiffUtil.ItemCallback] instance to
      * compare items in the list.

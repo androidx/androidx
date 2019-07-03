@@ -26,7 +26,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
-* Incremental data loader for paging keyed content, where loaded content uses previously loaded
+ * Incremental data loader for paging keyed content, where loaded content uses previously loaded
  * items as input to future loads.
  *
  * Implement a DataSource using ItemKeyedDataSource if you need to use data from item `N - 1`
@@ -287,13 +287,13 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
      * backend defines page sizes. It is generally preferred to increase the number loaded than
      * reduce.
      *
-     * **Note:** Data returned will be prepended just before the key
-     * passed, so if you vary size, ensure that the last item is adjacent to the passed key.
+     * **Note:** Data returned will be prepended just before the key passed, so if you vary size,
+     * ensure that the last item is adjacent to the passed key.
      *
      * Data may be passed synchronously during the loadBefore method, or deferred and called at a
      * later time. Further loads going up will be blocked until the callback is called.
      *
-     * If data cannot be loaded (for example, if the request is invalid, or the data would be stalteme
+     * If data cannot be loaded (for example, if the request is invalid, or the data would be stale
      * and inconsistent), it is valid to call [invalidate] to invalidate the data source, and
      * prevent further loading.
      *
