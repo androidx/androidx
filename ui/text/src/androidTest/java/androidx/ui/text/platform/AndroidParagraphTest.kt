@@ -67,7 +67,7 @@ import kotlin.math.ceil
 
 @RunWith(JUnit4::class)
 @SmallTest
-class ParagraphAndroidTest {
+class AndroidParagraphTest {
     private lateinit var fontFamily: FontFamily
     private val defaultDensity = Density(density = 1f)
 
@@ -1270,8 +1270,8 @@ class ParagraphAndroidTest {
         maxLines: Int? = null,
         textStyle: TextStyle? = null,
         typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
-    ): ParagraphAndroid {
-        return ParagraphAndroid(
+    ): AndroidParagraph {
+        return AndroidParagraph(
             text = text,
             textStyles = textStyles,
             typefaceAdapter = typefaceAdapter,

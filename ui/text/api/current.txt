@@ -318,8 +318,8 @@ package androidx.ui.text.font {
 
 package androidx.ui.text.platform {
 
-  public final class ParagraphAndroidKt {
-    ctor public ParagraphAndroidKt();
+  public final class AndroidParagraphKt {
+    ctor public AndroidParagraphKt();
   }
 
 }

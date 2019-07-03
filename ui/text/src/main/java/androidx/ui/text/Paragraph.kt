@@ -19,7 +19,7 @@ import androidx.ui.core.Density
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.text.style.ParagraphStyle
-import androidx.ui.text.platform.ParagraphAndroid
+import androidx.ui.text.platform.AndroidParagraph
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 
@@ -138,7 +138,7 @@ fun Paragraph(
     paragraphStyle: ParagraphStyle,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
     density: Density
-): Paragraph = ParagraphAndroid(
+): Paragraph = AndroidParagraph(
     text = text,
     style = style,
     paragraphStyle = paragraphStyle,
