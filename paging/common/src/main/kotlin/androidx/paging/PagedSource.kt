@@ -175,7 +175,8 @@ abstract class PagedSource<Key : Any, Value : Any> {
     abstract val keyProvider: KeyProvider<Key, Value>
 
     /**
-     * Whether this [PagedSource] has been invalidated, which should happen when
+     * Whether this [PagedSource] has been invalidated, which should happen when the data this
+     * [PagedSource] represents changes since it was first instantiated.
      */
     abstract val invalid: Boolean
 
@@ -195,6 +196,9 @@ abstract class PagedSource<Key : Any, Value : Any> {
     abstract suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value>
 
     /**
+     * Determine whether an error passed to a loading method is retryable.
+     *
+     * @param error Throwable returned from an attempted load from this [PagedSource].
      * @return `false` if the observed error should never be retried, `true` otherwise.
      */
     abstract fun isRetryableError(error: Throwable): Boolean
