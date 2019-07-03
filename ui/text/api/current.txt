@@ -216,6 +216,10 @@ package androidx.ui.text.font {
     method public androidx.ui.text.font.FontWeight getWeight();
   }
 
+  public static interface Font.ResourceLoader<T> {
+    method public T! load(androidx.ui.text.font.Font font);
+  }
+
   public final class FontFamily implements kotlin.jvm.internal.markers.KMappedMarker java.util.List<androidx.ui.text.font.Font> {
     ctor public FontFamily(String genericFamily);
     ctor public FontFamily(androidx.ui.text.font.Font font);
