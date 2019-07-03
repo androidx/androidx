@@ -1697,37 +1697,19 @@ package androidx.ui.painting {
 
 package androidx.ui.services.text_editing {
 
-  public class TextRange {
-    ctor public TextRange(int start, int end);
-    method public final int getEnd();
-    method public final int getStart();
-    method public final boolean isCollapsed();
-    method public final boolean isNormalized();
-    method public final boolean isValid();
-    method public final String textAfter(String text);
-    method public final String textBefore(String text);
-    method public final String textInside(String text);
-    property public final boolean isCollapsed;
-    property public final boolean isNormalized;
-    property public final boolean isValid;
-    field public static final androidx.ui.services.text_editing.TextRange.Companion! Companion;
-  }
-
-  public static final class TextRange.Companion {
-    method public androidx.ui.services.text_editing.TextRange collapsed(int offset);
-    method public androidx.ui.services.text_editing.TextRange getEmpty();
-    property public final androidx.ui.services.text_editing.TextRange empty;
-  }
-
-  public final class TextSelection extends androidx.ui.services.text_editing.TextRange {
+  public final class TextSelection {
     ctor public TextSelection(int baseOffset, int extentOffset, boolean isDirectional);
     method public int component1();
     method public int component2();
     method public boolean component3();
     method public androidx.ui.services.text_editing.TextSelection copy(int baseOffset, int extentOffset, boolean isDirectional);
     method public int getBaseOffset();
+    method public int getEnd();
     method public int getExtentOffset();
+    method public int getStart();
     method public boolean isDirectional();
+    property public final int end;
+    property public final int start;
     field public static final androidx.ui.services.text_editing.TextSelection.Companion! Companion;
   }
 
