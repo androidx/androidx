@@ -49,13 +49,23 @@ public interface ImageOutputConfig {
     // *********************************************************************************************
 
     /**
+     * Option: camerax.core.imageOutput.targetAspectRatioCustom
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Option<Rational> OPTION_TARGET_ASPECT_RATIO_CUSTOM =
+            Option.create("camerax.core.imageOutput.targetAspectRatioCustom", Rational.class);
+
+    /**
      * Option: camerax.core.imageOutput.targetAspectRatio
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    Option<Rational> OPTION_TARGET_ASPECT_RATIO =
-            Option.create("camerax.core.imageOutput.targetAspectRatio", Rational.class);
+    Option<AspectRatio> OPTION_TARGET_ASPECT_RATIO =
+            Option.create("camerax.core.imageOutput.targetAspectRatio", AspectRatio.class);
+
     /**
      * Option: camerax.core.imageOutput.targetRotation
      *
@@ -72,6 +82,14 @@ public interface ImageOutputConfig {
     @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Size> OPTION_TARGET_RESOLUTION =
             Option.create("camerax.core.imageOutput.targetResolution", Size.class);
+    /**
+     * Option: camerax.core.imageOutput.defaultResolution
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Option<Size> OPTION_DEFAULT_RESOLUTION =
+            Option.create("camerax.core.imageOutput.defaultResolution", Size.class);
     /**
      * Option: camerax.core.imageOutput.maxResolution
      *
@@ -93,9 +111,11 @@ public interface ImageOutputConfig {
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
     @Nullable
-    Rational getTargetAspectRatio(@Nullable Rational valueIfMissing);
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing);
 
     /**
      * Retrieves the aspect ratio of the target intending to use images from this configuration.
@@ -106,9 +126,30 @@ public interface ImageOutputConfig {
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
      */
     @NonNull
-    Rational getTargetAspectRatio();
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Rational getTargetAspectRatioCustom();
+
+    /**
+     * Retrieves the aspect ratio of the target intending to use images from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    AspectRatio getTargetAspectRatio(@Nullable AspectRatio valueIfMissing);
+
+    /**
+     * Retrieves the aspect ratio of the target intending to use images from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    AspectRatio getTargetAspectRatio();
 
     /**
      * Retrieves the rotation of the target intending to use images from this configuration.
@@ -161,6 +202,29 @@ public interface ImageOutputConfig {
     Size getTargetResolution();
 
     /**
+     * Retrieves the default resolution of the target intending to use from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    Size getDefaultResolution(@Nullable Size valueIfMissing);
+
+    /**
+     * Retrieves the default resolution of the target intending to use from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    Size getDefaultResolution();
+
+    /**
      * Retrieves the max resolution limitation of the target intending to use from this
      * configuration.
      *
@@ -201,12 +265,32 @@ public interface ImageOutputConfig {
          * the provided {@link Rational} corresponds to the width, and the denominator corresponds
          * to the height.
          *
+         * <p>This method can be used to request an aspect ratio that is not from the standard set
+         * of aspect ratios defined in the {@link AspectRatio}.
+         *
+         * <p>This method will remove any value set by setTargetAspectRatio().
+         *
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
          * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        B setTargetAspectRatioCustom(@NonNull Rational aspectRatio);
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.
+         *
+         * @param aspectRatio A {@link AspectRatio} representing the ratio of the
+         *                    target's width and height.
+         * @return The current Builder.
          */
         @NonNull
-        B setTargetAspectRatio(@NonNull Rational aspectRatio);
+        B setTargetAspectRatio(@NonNull AspectRatio aspectRatio);
 
         /**
          * Sets the rotation of the intended target for images from this configuration.
@@ -224,6 +308,12 @@ public interface ImageOutputConfig {
         /**
          * Sets the resolution of the intended target from this configuration.
          *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.
+         *
+         * <p>The target aspect ratio will also be set the same as the aspect ratio of the provided
+         * {@link Size}. Make sure to set the target resolution with the correct orientation.
+         *
          * @param resolution The target resolution to choose from supported output sizes list.
          * @return The current Builder.
          * @hide
@@ -231,6 +321,17 @@ public interface ImageOutputConfig {
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         B setTargetResolution(@NonNull Size resolution);
+
+        /**
+         * Sets the default resolution of the intended target from this configuration.
+         *
+         * @param resolution The default resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        B setDefaultResolution(@NonNull Size resolution);
 
         /**
          * Sets the max resolution limitation of the intended target from this configuration.

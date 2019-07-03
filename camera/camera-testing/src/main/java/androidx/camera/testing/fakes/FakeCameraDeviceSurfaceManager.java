@@ -104,7 +104,7 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
     @Override
     public Rational getCorrectedAspectRatio(@NonNull UseCaseConfig<?> useCaseConfig) {
         ImageOutputConfig config = (ImageOutputConfig) useCaseConfig;
-        Rational aspectRatio = config.getTargetAspectRatio(null);
+        Rational aspectRatio = config.getTargetAspectRatioCustom(null);
         return aspectRatio;
     }
 }

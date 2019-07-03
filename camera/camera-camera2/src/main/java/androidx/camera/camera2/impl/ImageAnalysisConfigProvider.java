@@ -85,7 +85,7 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
                     targetRotation);
             boolean isRotateNeeded = (rotationDegrees == 90 || rotationDegrees == 270);
             builder.setTargetRotation(targetRotation);
-            builder.setTargetAspectRatio(
+            builder.setTargetAspectRatioCustom(
                     isRotateNeeded ? DEFAULT_ASPECT_RATIO_3_4 : DEFAULT_ASPECT_RATIO_4_3);
         } catch (Exception e) {
             Log.w(TAG, "Unable to determine default lens facing for ImageAnalysis.", e);

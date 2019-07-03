@@ -428,11 +428,13 @@ public final class VideoCaptureConfig
      * @param valueIfMissing The value to return if this configuration option has not been set.
      * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
      * configuration.
+     * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    public Rational getTargetAspectRatio(@Nullable Rational valueIfMissing) {
-        return retrieveOption(OPTION_TARGET_ASPECT_RATIO, valueIfMissing);
+    public Rational getTargetAspectRatioCustom(@Nullable Rational valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, valueIfMissing);
     }
 
     /**
@@ -444,10 +446,37 @@ public final class VideoCaptureConfig
      *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
      */
-    @Override
     @NonNull
-    public Rational getTargetAspectRatio() {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Rational getTargetAspectRatioCustom() {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM);
+    }
+
+    /**
+     * Retrieves the aspect ratio of the target intending to use images from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    @Override
+    public AspectRatio getTargetAspectRatio(@Nullable AspectRatio valueIfMissing) {
+        return retrieveOption(OPTION_TARGET_ASPECT_RATIO, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the aspect ratio of the target intending to use images from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    @Override
+    public AspectRatio getTargetAspectRatio() {
         return retrieveOption(OPTION_TARGET_ASPECT_RATIO);
     }
 
@@ -498,6 +527,35 @@ public final class VideoCaptureConfig
     @NonNull
     public Size getTargetResolution() {
         return retrieveOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION);
+    }
+
+    /**
+     * Retrieves the default resolution of the target intending to use from this configuration.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     * @hide
+     */
+    @Nullable
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Size getDefaultResolution(@Nullable Size valueIfMissing) {
+        return retrieveOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the default resolution of the target intending to use from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public Size getDefaultResolution() {
+        return retrieveOption(ImageOutputConfig.OPTION_DEFAULT_RESOLUTION);
     }
 
     /** @hide */
@@ -729,6 +787,14 @@ public final class VideoCaptureConfig
          */
         @NonNull
         public VideoCaptureConfig build() {
+            // Error at runtime for using both setTargetResolution and setTargetAspectRatio on
+            // the same config.
+            if (getMutableConfig().retrieveOption(OPTION_TARGET_ASPECT_RATIO, null) != null
+                    && getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION, null) != null) {
+                throw new IllegalArgumentException(
+                        "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
+                                + "config.");
+            }
             return new VideoCaptureConfig(OptionsBundle.from(mMutableConfig));
         }
 
@@ -922,15 +988,44 @@ public final class VideoCaptureConfig
          * ratio which may differ from the request, possibly due to device constraints.
          * Application code should check the resulting output's resolution.
          *
+         * <p>This method can be used to request an aspect ratio that is not from the standard set
+         * of aspect ratios defined in the {@link AspectRatio}.
+         *
+         * <p>This method will remove any value set by setTargetAspectRatio().
+         *
          * <p>For VideoCapture the output is the output video file.
          *
          * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
          *                    height.
          * @return The current Builder.
+         * @hide
          */
-        @Override
         @NonNull
-        public Builder setTargetAspectRatio(@NonNull Rational aspectRatio) {
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
+            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
+            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
+            return this;
+        }
+
+        /**
+         * Sets the aspect ratio of the intended target for images from this configuration.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.
+         *
+         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
+         * ratio which may differ from the request, possibly due to device constraints.
+         * Application code should check the resulting output's resolution.
+         *
+         * @param aspectRatio A {@link AspectRatio} representing the ratio of the
+         *                    target's width and height.
+         * @return The current Builder.
+         */
+        @NonNull
+        @Override
+        public Builder setTargetAspectRatio(@NonNull AspectRatio aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
         }
@@ -945,26 +1040,63 @@ public final class VideoCaptureConfig
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
          */
-        @Override
         @NonNull
+        @Override
         public Builder setTargetRotation(@RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
             return this;
         }
 
-        /** @hide */
+        /**
+         * Sets the resolution of the intended target from this configuration.
+         *
+         * <p>The target resolution attempts to establish a minimum bound for the image resolution.
+         * The actual image resolution will be the closest available resolution in size that is not
+         * smaller than the target resolution, as determined by the Camera implementation. However,
+         * if no resolution exists that is equal to or larger than the target resolution, the
+         * nearest available resolution smaller than the target resolution will be chosen.
+         *
+         * <p>It is not allowed to set both target aspect ratio and target resolution on the same
+         * use case.
+         *
+         * <p>The target aspect ratio will also be set the same as the aspect ratio of the provided
+         * {@link Size}. Make sure to set the target resolution with the correct orientation.
+         *
+         * @param resolution The target resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         * @hide
+         */
+        @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
-        @NonNull
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, resolution);
+            if (resolution != null) {
+                getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
+                        new Rational(resolution.getWidth(), resolution.getHeight()));
+            }
             return this;
         }
 
-        /** @hide */
+        /**
+         * Sets the default resolution of the intended target from this configuration.
+         *
+         * @param resolution The default resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         * @hide
+         */
+        @NonNull
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
+        public Builder setDefaultResolution(@NonNull Size resolution) {
+            getMutableConfig().insertOption(OPTION_DEFAULT_RESOLUTION, resolution);
+            return null;
+        }
+
+        /** @hide */
         @NonNull
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
         public Builder setMaxResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_MAX_RESOLUTION, resolution);
             return this;

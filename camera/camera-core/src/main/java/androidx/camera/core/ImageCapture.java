@@ -267,11 +267,11 @@ public class ImageCapture extends UseCase {
      *
      * @param aspectRatio New target aspect ratio.
      */
-    public void setTargetAspectRatio(Rational aspectRatio) {
+    public void setTargetAspectRatioCustom(Rational aspectRatio) {
         ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
-        Rational oldRatio = oldConfig.getTargetAspectRatio(null);
+        Rational oldRatio = oldConfig.getTargetAspectRatioCustom(null);
         if (!aspectRatio.equals(oldRatio)) {
-            mUseCaseConfigBuilder.setTargetAspectRatio(aspectRatio);
+            mUseCaseConfigBuilder.setTargetAspectRatioCustom(aspectRatio);
             updateUseCaseConfig(mUseCaseConfigBuilder.build());
             mConfig = (ImageCaptureConfig) getUseCaseConfig();
 
@@ -472,7 +472,7 @@ public class ImageCapture extends UseCase {
             Log.e(TAG, "Unable to retrieve camera sensor orientation.", e);
         }
 
-        Rational targetRatio = mConfig.getTargetAspectRatio(null);
+        Rational targetRatio = mConfig.getTargetAspectRatioCustom(null);
         targetRatio = ImageUtil.rotate(targetRatio, relativeRotation);
 
         mImageCaptureRequests.offer(

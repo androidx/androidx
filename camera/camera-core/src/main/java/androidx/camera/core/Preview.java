@@ -346,7 +346,7 @@ public class Preview extends UseCase {
         if (CameraX.getSurfaceManager().requiresCorrectedAspectRatio(config)) {
             Rational resultRatio = CameraX.getSurfaceManager().getCorrectedAspectRatio(config);
             PreviewConfig.Builder configBuilder = PreviewConfig.Builder.fromConfig(config);
-            configBuilder.setTargetAspectRatio(resultRatio);
+            configBuilder.setTargetAspectRatioCustom(resultRatio);
             config = configBuilder.build();
         }
         super.updateUseCaseConfig(config);

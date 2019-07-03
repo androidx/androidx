@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.UiThread;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
@@ -219,22 +220,18 @@ final class CameraXModule {
 
         // Set the preferred aspect ratio as 4:3 if it is IMAGE only mode. Set the preferred aspect
         // ratio as 16:9 if it is VIDEO or MIXED mode. Then, it will be WYSIWYG when the view finder
-        // is
-        // in CENTER_INSIDE mode.
+        // is in CENTER_INSIDE mode.
 
         boolean isDisplayPortrait = getDisplayRotationDegrees() == 0
                 || getDisplayRotationDegrees() == 180;
 
+        Rational targetAspectRatio;
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            mImageCaptureConfigBuilder.setTargetAspectRatio(
-                    isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3);
-            mPreviewConfigBuilder.setTargetAspectRatio(
-                    isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3);
+            mImageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
+            targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_3_4 : ASPECT_RATIO_4_3;
         } else {
-            mImageCaptureConfigBuilder.setTargetAspectRatio(
-                    isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9);
-            mPreviewConfigBuilder.setTargetAspectRatio(
-                    isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9);
+            mImageCaptureConfigBuilder.setTargetAspectRatio(AspectRatio.RATIO_16_9);
+            targetAspectRatio = isDisplayPortrait ? ASPECT_RATIO_9_16 : ASPECT_RATIO_16_9;
         }
 
         mImageCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
@@ -246,15 +243,9 @@ final class CameraXModule {
         mVideoCapture = new VideoCapture(mVideoCaptureConfigBuilder.build());
         mPreviewConfigBuilder.setLensFacing(mCameraLensFacing);
 
-        int relativeCameraOrientation = getRelativeCameraOrientation(false);
-
-        if (relativeCameraOrientation == 90 || relativeCameraOrientation == 270) {
-            mPreviewConfigBuilder.setTargetResolution(
-                    new Size(getMeasuredHeight(), getMeasuredWidth()));
-        } else {
-            mPreviewConfigBuilder.setTargetResolution(
-                    new Size(getMeasuredWidth(), getMeasuredHeight()));
-        }
+        // Adjusts the preview resolution according to the view size and the target aspect ratio.
+        int height = (int) (getMeasuredWidth() / targetAspectRatio.floatValue());
+        mPreviewConfigBuilder.setTargetResolution(new Size(getMeasuredWidth(), height));
 
         mPreview = new Preview(mPreviewConfigBuilder.build());
         mPreview.setOnPreviewOutputUpdateListener(
@@ -607,7 +598,7 @@ final class CameraXModule {
     // Update view related information used in use cases
     private void updateViewInfo() {
         if (mImageCapture != null) {
-            mImageCapture.setTargetAspectRatio(new Rational(getWidth(), getHeight()));
+            mImageCapture.setTargetAspectRatioCustom(new Rational(getWidth(), getHeight()));
             mImageCapture.setTargetRotation(getDisplaySurfaceRotation());
         }
 
