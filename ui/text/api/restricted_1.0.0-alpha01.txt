@@ -1,4 +1,25 @@
 // Signature format: 3.0
+package androidx.ui.input {
+
+
+
+
+
+
+
+
+  public final class EditorState {
+  }
+
+
+
+
+
+
+
+
+}
+
 package androidx.ui.text {
 
   public final class TextPainter {
