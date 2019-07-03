@@ -18,7 +18,7 @@ package androidx.ui.input
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
-import androidx.ui.core.TextRange
+import androidx.ui.text.TextRange
 import java.lang.IllegalArgumentException
 
 /**

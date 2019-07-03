@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.text
 
 fun CharSequence.substring(range: TextRange): String = this.substring(range.start, range.end)
 

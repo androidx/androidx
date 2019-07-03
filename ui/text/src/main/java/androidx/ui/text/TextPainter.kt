@@ -23,7 +23,6 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Sp
-import androidx.ui.core.TextRange
 import androidx.ui.core.constrain
 import androidx.ui.core.px
 import androidx.ui.core.round

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.ui.text
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

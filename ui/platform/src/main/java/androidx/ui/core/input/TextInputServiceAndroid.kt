@@ -22,7 +22,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
-import androidx.ui.core.TextRange
+import androidx.ui.text.TextRange
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorState
 import androidx.ui.input.InputEventListener

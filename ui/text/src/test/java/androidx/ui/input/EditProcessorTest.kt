@@ -17,7 +17,7 @@
 package androidx.ui.input
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.TextRange
+import androidx.ui.text.TextRange
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock

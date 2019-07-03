@@ -21,7 +21,7 @@ import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.test.filters.SmallTest
-import androidx.ui.core.TextRange
+import androidx.ui.text.TextRange
 import androidx.ui.input.InputEventListener
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor

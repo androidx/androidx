@@ -2,12 +2,12 @@
 package androidx.ui.input {
 
   public final class EditorState {
-    ctor public EditorState(String text, androidx.ui.core.TextRange selection);
-    method public androidx.ui.core.TextRange? getComposition();
-    method public androidx.ui.core.TextRange getSelection();
+    ctor public EditorState(String text, androidx.ui.text.TextRange selection);
+    method public androidx.ui.text.TextRange? getComposition();
+    method public androidx.ui.text.TextRange getSelection();
     method public String getText();
-    property public final androidx.ui.core.TextRange? composition;
-    property public final androidx.ui.core.TextRange selection;
+    property public final androidx.ui.text.TextRange? composition;
+    property public final androidx.ui.text.TextRange selection;
     property public final String text;
   }
 
@@ -79,7 +79,7 @@ package androidx.ui.text {
     method public androidx.ui.painting.Path getPathForRange(int start, int end);
     method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getWidth();
-    method public androidx.ui.core.TextRange getWordBoundary(int offset);
+    method public androidx.ui.text.TextRange getWordBoundary(int offset);
     method public void layout(androidx.ui.text.ParagraphConstraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, float x, float y);
     property public abstract float baseline;
@@ -135,7 +135,7 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle? getStyle();
     method public androidx.ui.text.AnnotatedString? getText();
     method public float getWidth();
-    method public androidx.ui.core.TextRange getWordBoundary(int position);
+    method public androidx.ui.text.TextRange getWordBoundary(int position);
     method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
