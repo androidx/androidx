@@ -17,7 +17,7 @@ package androidx.ui.core
 
 import androidx.ui.core.semantics.SemanticsAction
 import androidx.ui.core.semantics.SemanticsConfiguration
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import androidx.ui.painting.Canvas
 import androidx.compose.Emittable
 import androidx.ui.engine.geometry.Shape

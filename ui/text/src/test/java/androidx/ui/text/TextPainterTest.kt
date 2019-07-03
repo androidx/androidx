@@ -21,7 +21,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.text.style.TextAlign
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import androidx.ui.painting.Canvas
 import androidx.ui.text.style.TextOverflow
 import com.google.common.truth.Truth.assertThat

@@ -16,7 +16,7 @@
 package androidx.ui.core
 
 import androidx.ui.core.semantics.SemanticsAction
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient

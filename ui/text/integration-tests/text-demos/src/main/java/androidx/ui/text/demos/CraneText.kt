@@ -32,7 +32,7 @@ import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.Locale
 import androidx.ui.graphics.Color

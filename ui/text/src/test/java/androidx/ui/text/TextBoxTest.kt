@@ -16,7 +16,7 @@
 package androidx.ui.text
 
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat

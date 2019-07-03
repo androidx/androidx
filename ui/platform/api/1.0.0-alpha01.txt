@@ -217,7 +217,7 @@ package androidx.ui.core {
   }
 
   public final class SemanticsComponentNode extends androidx.ui.core.ComponentNode {
-    ctor public SemanticsComponentNode(boolean container, boolean explicitChildNodes, Boolean? enabled, Boolean? checked, Boolean? selected, Boolean? button, Boolean? header, Boolean? textField, Boolean? focused, Boolean? inMutuallyExclusiveGroup, Boolean? obscured, Boolean? scopesRoute, Boolean? namesRoute, Boolean? hidden, String? label, String? value, String? hint, androidx.ui.engine.text.TextDirection? textDirection, String? testTag, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions);
+    ctor public SemanticsComponentNode(boolean container, boolean explicitChildNodes, Boolean? enabled, Boolean? checked, Boolean? selected, Boolean? button, Boolean? header, Boolean? textField, Boolean? focused, Boolean? inMutuallyExclusiveGroup, Boolean? obscured, Boolean? scopesRoute, Boolean? namesRoute, Boolean? hidden, String? label, String? value, String? hint, androidx.ui.text.style.TextDirection? textDirection, String? testTag, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions);
     ctor public SemanticsComponentNode();
     method public java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> getActions();
     method public Boolean? getButton();
@@ -237,7 +237,7 @@ package androidx.ui.core {
     method public Boolean? getSelected();
     method public androidx.ui.core.semantics.SemanticsConfiguration getSemanticsConfiguration();
     method public String? getTestTag();
-    method public androidx.ui.engine.text.TextDirection? getTextDirection();
+    method public androidx.ui.text.style.TextDirection? getTextDirection();
     method public Boolean? getTextField();
     method public String? getValue();
     method public void setActions(java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> p);
@@ -257,7 +257,7 @@ package androidx.ui.core {
     method public void setScopesRoute(Boolean? p);
     method public void setSelected(Boolean? p);
     method public void setTestTag(String? p);
-    method public void setTextDirection(androidx.ui.engine.text.TextDirection? p);
+    method public void setTextDirection(androidx.ui.text.style.TextDirection? p);
     method public void setTextField(Boolean? p);
     method public void setValue(String? p);
     property public final java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> actions;
@@ -278,7 +278,7 @@ package androidx.ui.core {
     property public final Boolean? selected;
     property public final androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration;
     property public final String? testTag;
-    property public final androidx.ui.engine.text.TextDirection? textDirection;
+    property public final androidx.ui.text.style.TextDirection? textDirection;
     property public final Boolean? textField;
     property public final String? value;
   }
@@ -385,7 +385,7 @@ package androidx.ui.core.semantics {
     method public Float? getScrollExtentMin();
     method public Float? getScrollPosition();
     method public String? getTestTag();
-    method public androidx.ui.engine.text.TextDirection? getTextDirection();
+    method public androidx.ui.text.style.TextDirection? getTextDirection();
     method public androidx.ui.text.TextSelection? getTextSelection();
     method public String? getValue();
     method public boolean isBlockingSemanticsOfPreviouslyPaintedNodes();
@@ -431,7 +431,7 @@ package androidx.ui.core.semantics {
     method public void setSelected(boolean p);
     method public void setSemanticBoundary(boolean value);
     method public void setTestTag(String? p);
-    method public void setTextDirection(androidx.ui.engine.text.TextDirection? p);
+    method public void setTextDirection(androidx.ui.text.style.TextDirection? p);
     method public void setTextField(boolean p);
     method public void setTextSelection(androidx.ui.text.TextSelection? p);
     method public void setToggled(Boolean? value);
@@ -465,7 +465,7 @@ package androidx.ui.core.semantics {
     property public final Float? scrollExtentMin;
     property public final Float? scrollPosition;
     property public final String? testTag;
-    property public final androidx.ui.engine.text.TextDirection? textDirection;
+    property public final androidx.ui.text.style.TextDirection? textDirection;
     property public final androidx.ui.text.TextSelection? textSelection;
     property public final String? value;
   }

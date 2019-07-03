@@ -17,7 +17,7 @@
 package androidx.ui.text
 
 import androidx.ui.text.style.TextAlign
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.text.style.TextDirection
 import androidx.ui.text.style.TextIndent
 
 /**
