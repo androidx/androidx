@@ -79,6 +79,8 @@ package androidx.ui.layout {
     method public static androidx.ui.layout.DpConstraints looseMax(androidx.ui.layout.DpConstraints);
     method public static androidx.ui.layout.DpConstraints looseMin(androidx.ui.layout.DpConstraints);
     method public static androidx.ui.layout.DpConstraints offset(androidx.ui.layout.DpConstraints, androidx.ui.core.Dp horizontal = 0.dp, androidx.ui.core.Dp vertical = 0.dp);
+    method public static androidx.ui.layout.DpConstraints tightMax(androidx.ui.layout.DpConstraints);
+    method public static androidx.ui.layout.DpConstraints tightMin(androidx.ui.layout.DpConstraints);
     method public static androidx.ui.layout.DpConstraints withTight(androidx.ui.layout.DpConstraints, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
   }
 
@@ -163,7 +165,8 @@ package androidx.ui.layout {
 
   public final class StackChildren {
     ctor public StackChildren();
-    method public void aligned(androidx.ui.layout.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void aligned(androidx.ui.layout.Alignment alignment, boolean loose = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void expanded(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void positioned(androidx.ui.core.Dp? leftInset = null, androidx.ui.core.Dp? topInset = null, androidx.ui.core.Dp? rightInset = null, androidx.ui.core.Dp? bottomInset = null, androidx.ui.layout.Alignment fallbackAlignment = Alignment.Center, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 

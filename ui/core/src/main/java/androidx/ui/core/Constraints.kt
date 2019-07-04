@@ -157,14 +157,28 @@ fun Constraints.satisfiedBy(size: IntPxSize) =
                 minHeight <= size.height && size.height <= maxHeight
 
 /**
- * Returns a copy of the current instance, with no min constraints.
+ * Returns a copy of the current instance with no min constraints.
  */
 fun Constraints.looseMin() = this.copy(minWidth = 0.ipx, minHeight = 0.ipx)
 
 /**
- * Returns a copy of the current instance, with no max constraints.
+ * Returns a copy of the current instance with no max constraints.
  */
 fun Constraints.looseMax() = this.copy(maxWidth = IntPx.Infinity, maxHeight = IntPx.Infinity)
+
+/**
+ * Returns a copy of the current instance with the constraints tightened to their smallest size.
+ */
+fun Constraints.tightMin() = this.withTight(width = minWidth, height = minHeight)
+
+/**
+ * Returns a copy of the current instance with the constraints tightened to their largest size.
+ * Note that if any of the constraints are unbounded, they will be left unchanged.
+ */
+fun Constraints.tightMax() = this.copy(
+    minWidth = if (hasBoundedWidth) maxWidth else minWidth,
+    minHeight = if (hasBoundedHeight) maxHeight else minHeight
+)
 
 /**
  * Returns the Constraints obtained by offsetting the current instance with the given values.
