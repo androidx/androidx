@@ -23,7 +23,7 @@ function getStudioUrl() {
 }
 
 acceptsLicenseAgreement="false"
-updateOnly="false"
+runStudio="true"
 scriptDir="$(cd $(dirname $0) && pwd)"
 projectDir=$scriptDir
 tempDir="${scriptDir}/studio"
@@ -50,7 +50,7 @@ function parseOptions() {
         acceptsLicenseAgreement="true"
         ;;
       --update-only)
-        updateOnly="true"
+        runStudio="false"
         ;;
       *)
         break
@@ -59,6 +59,7 @@ function parseOptions() {
     shift
   done
 }
+
 
 function downloadFile() {
   fromUrl="$1"
@@ -114,7 +115,7 @@ function checkLicenseAgreement() {
       read -r -n 1 -p "Do you accept the license agreement at $(getLicensePath) [Y/n]? " reply
 
       if [ ! -z "${reply}" ]; then
-	# Fix missing newline
+        # Fix missing newline
         echo
       fi
 
@@ -205,13 +206,13 @@ function runStudio() {
 }
 
 function main() {
-  parseOptions
+  parseOptions "$@"
   updateStudio
-  if [ "${updateOnly}" == "false" ]; then
+  if [ "${runStudio}" == "true" ]; then
     checkLicenseAgreement
     ensureLocalPropertiesUpdated
     runStudio
   fi
 }
 
-main
+main "$@"
