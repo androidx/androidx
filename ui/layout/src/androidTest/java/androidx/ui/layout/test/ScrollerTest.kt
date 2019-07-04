@@ -133,7 +133,7 @@ class ScrollerTest : LayoutTest() {
     ) {
         // We assume that the height of the device is more than 45 px
         withDensity(density) {
-            val constraints = DpConstraints.tightConstraints(45.px.toDp(), height.toPx().toDp())
+            val constraints = DpConstraints.tightConstraints(45.px.toDp(), height.toDp())
             val runnable: Runnable = object : Runnable {
                 override fun run() {
                     activity.setContent {

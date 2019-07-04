@@ -106,6 +106,16 @@ interface DensityReceiver {
      */
     fun Px.toSp(): Sp = (value / (density.fontScale * density.density)).sp
 
+    /**
+     * Convert [IntPx] to [Dp].
+     */
+    fun IntPx.toDp(): Dp = (value / density.density).dp
+
+    /**
+     * Convert [IntPx] to [Sp].
+     */
+    fun IntPx.toSp(): Sp = (value / (density.fontScale * density.density)).sp
+
     /** Convert a [Float] pixel value to a Dp */
     fun Float.toDp(): Dp = (this / density.density).dp
 

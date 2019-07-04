@@ -83,7 +83,7 @@ fun <T> TabRow(
             // TODO : think about Infinite max bounds case
             require(constraints.hasBoundedWidth) { "TabRow can't have infinite width" }
             val totalWidth = +withDensity {
-                constraints.maxWidth.value.px.toDp()
+                constraints.maxWidth.toDp()
             }
             val indicatorWidth = totalWidth / count
             TabIndicatorTransition(count, indicatorWidth, selectedIndex) { indicatorPosition ->
