@@ -143,14 +143,28 @@ fun DpConstraints.withTight(width: Dp? = null, height: Dp? = null) = DpConstrain
 )
 
 /**
- * Returns a copy of the current instance, with no min constraints.
+ * Returns a copy of the current instance with no min constraints.
  */
 fun DpConstraints.looseMin() = this.copy(minWidth = 0.dp, minHeight = 0.dp)
 
 /**
- * Returns a copy of the current instance, with no max constraints.
+ * Returns a copy of the current instance with no max constraints.
  */
 fun DpConstraints.looseMax() = this.copy(maxWidth = Dp.Infinity, maxHeight = Dp.Infinity)
+
+/**
+ * Returns a copy of the current instance with the constraints tightened to their smallest size.
+ */
+fun DpConstraints.tightMin() = this.withTight(width = minWidth, height = minHeight)
+
+/**
+ * Returns a copy of the current instance with the constraints tightened to their largest size.
+ * Note that if any of the constraints are unbounded, they will be left unchanged.
+ */
+fun DpConstraints.tightMax() = this.copy(
+    minWidth = if (hasBoundedWidth) maxWidth else minWidth,
+    minHeight = if (hasBoundedHeight) maxHeight else minHeight
+)
 
 /**
  * Returns the DpConstraints obtained by offsetting the current instance with the given values.

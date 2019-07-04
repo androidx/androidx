@@ -17,11 +17,13 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
+import androidx.ui.core.Constraints
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.IntPx
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
+import androidx.ui.core.WithConstraints
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
 import androidx.ui.core.px
@@ -35,6 +37,7 @@ import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Stack
 import androidx.compose.Composable
 import androidx.compose.composer
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -336,6 +339,49 @@ class StackTest : LayoutTest() {
         assertEquals(PxPosition(inset, 0.ipx), childPosition[3].value)
         assertEquals(PxSize(halfSize, halfSize), childSize[4].value)
         assertEquals(PxPosition(inset, halfSize), childPosition[4].value)
+    }
+
+    @Test
+    fun testStack_fit() = withDensity(density) {
+        val sizeDp = 50.dp
+        val size = sizeDp.toIntPx()
+        val halfSizeDp = sizeDp / 2
+        val halfSize = (sizeDp / 2).toIntPx()
+
+        val constraintsLatch = CountDownLatch(3)
+        val childConstraints = Array(3) { Constraints() }
+        show {
+            Align(alignment = Alignment.TopLeft) {
+                ConstrainedBox(constraints = DpConstraints(minWidth = halfSizeDp, maxWidth = sizeDp,
+                    minHeight = halfSizeDp, maxHeight = sizeDp)) {
+                    Stack {
+                        aligned(Alignment.Center, loose = true) {
+                            WithConstraints { constraints ->
+                                childConstraints[0] = constraints
+                                constraintsLatch.countDown()
+                            }
+                        }
+                        expanded {
+                            WithConstraints { constraints ->
+                                childConstraints[1] = constraints
+                                constraintsLatch.countDown()
+                            }
+                        }
+                        aligned(Alignment.Center, loose = false) {
+                            WithConstraints { constraints ->
+                                childConstraints[2] = constraints
+                                constraintsLatch.countDown()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        constraintsLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(Constraints(0.ipx, size, 0.ipx, size), childConstraints[0])
+        assertEquals(Constraints(size, size, size, size), childConstraints[1])
+        assertEquals(Constraints(halfSize, size, halfSize, size), childConstraints[2])
     }
 
     @Test
