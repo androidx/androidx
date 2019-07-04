@@ -305,6 +305,20 @@ public class AccessibilityDelegateCompatTest extends
 
     @Test
     @SdkSuppress(minSdkVersion = 21)
+    public void testActionRemovedAfterAfterNullReplacement() {
+        final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
+
+        ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
+                "Focus title", action);
+
+        ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
+                null, null);
+
+        assertFalse(nodeHasActionWithId(AccessibilityNodeInfoCompat.ACTION_FOCUS, null));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void testReplaceActionPerformIsCalledWithArguments() {
         final AccessibilityViewCommand action =
                 (AccessibilityViewCommand) mock(
