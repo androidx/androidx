@@ -26,6 +26,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.trace
 
 /**
  * Component that represents a rectangle painted with the specified [Brush].
@@ -42,8 +43,10 @@ import androidx.compose.composer
  */
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
-    Container(width = width, height = height, expanded = true) {
-        DrawFillRect(brush = brush)
+    trace("UI:ColoredRect") {
+        Container(width = width, height = height, expanded = true) {
+            DrawFillRect(brush = brush)
+        }
     }
 }
 
