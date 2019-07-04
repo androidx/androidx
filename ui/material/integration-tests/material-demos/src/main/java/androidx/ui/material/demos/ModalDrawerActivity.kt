@@ -22,6 +22,7 @@ import androidx.compose.setContent
 import androidx.compose.composer
 import androidx.ui.core.CraneWrapper
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.samples.ModalDrawerSample
 
 class ModalDrawerActivity : Activity() {
 
@@ -30,7 +31,7 @@ class ModalDrawerActivity : Activity() {
         setContent {
             CraneWrapper {
                 MaterialTheme {
-                    ModalDrawerDemo()
+                    ModalDrawerSample()
                 }
             }
         }
