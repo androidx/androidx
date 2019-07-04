@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.demos
+package androidx.ui.material.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
@@ -35,48 +36,37 @@ import androidx.ui.material.Button
 import androidx.ui.material.DrawerState
 import androidx.ui.material.ModalDrawer
 import androidx.ui.material.StaticDrawer
-import androidx.ui.material.themeTextStyle
-import androidx.ui.text.ParagraphStyle
-import androidx.ui.text.style.TextAlign
 
+@Sampled
 @Composable
-fun StaticDrawerDemo() {
+fun StaticDrawerSample() {
     Row {
         StaticDrawer {
             Center {
-                Text("Drawer Content", +themeTextStyle { h4 })
+                Text("Drawer Content")
             }
         }
         ColoredRect(Color.Black, width = 1.dp)
-        Text("Rest of App", +themeTextStyle { h5 })
+        Text("Rest of App")
     }
 }
 
+@Sampled
 @Composable
-fun ModalDrawerDemo() {
+fun ModalDrawerSample() {
     val (state, onStateChange) = +state { DrawerState.Closed }
-
+    val appContentText =
+        if (state == DrawerState.Closed) ">>> Pull to open >>>" else "<<< Swipe to close <<<"
     Stack {
         aligned(Alignment.Center) {
-            val text =
-                if (state == DrawerState.Closed) {
-                    "Drawer Closed.\n>>>> Pull to open >>>>"
-                } else {
-                    "Drawer Opened.\n<<<< Swipe to close <<<<"
-                }
-            Column {
-                Text(
-                    text = text,
-                    paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center),
-                    style = +themeTextStyle { h5 })
-                HeightSpacer(20.dp)
-                Button(text = "Click to open", onClick = { onStateChange(DrawerState.Opened) })
-            }
+            // your app content goes there
+            YourAppContent(appContentText, onStateChange)
         }
         aligned(Alignment.CenterLeft) {
             ModalDrawer(state, onStateChange) {
                 Column {
-                    Text("Drawer Content", +themeTextStyle { h4 })
+                    Text(text = "Drawer Content")
+                    HeightSpacer(20.dp)
                     Button(
                         text = "Close Drawer",
                         onClick = { onStateChange(DrawerState.Closed) })
@@ -84,39 +74,41 @@ fun ModalDrawerDemo() {
             }
         }
     }
-
 }
 
+@Sampled
 @Composable
-fun BottomDrawerDemo() {
+fun BottomDrawerSample() {
     val (state, onStateChange) = +state { DrawerState.Closed }
-
+    val appContentText =
+        if (state == DrawerState.Closed) "▲▲▲ Pull to open ▲▲▲" else "▼▼▼ Drag down to close ▼▼▼"
     Stack {
         aligned(Alignment.Center) {
-            val text =
-                if (state == DrawerState.Closed) {
-                    "Drawer Closed.\n▲▲▲ Pull to open ▲▲▲"
-                } else {
-                    "Drawer Opened.\n▼▼▼ Drag down to close ▼▼▼"
-                }
-            Column {
-                Text(
-                    text = text,
-                    paragraphStyle = ParagraphStyle(textAlign = TextAlign.Center),
-                    style = +themeTextStyle { h5 })
-                HeightSpacer(20.dp)
-                Button(text = "Click to open", onClick = { onStateChange(DrawerState.Opened) })
-            }
+            // your app content goes there
+            YourAppContent(appContentText, onStateChange)
         }
         aligned(Alignment.BottomCenter) {
             BottomDrawer(state, onStateChange) {
                 Column {
-                    Text("Drawer Content", +themeTextStyle { h4 })
+                    Text(text = "Drawer Content")
+                    HeightSpacer(20.dp)
                     Button(
                         text = "Close Drawer",
                         onClick = { onStateChange(DrawerState.Closed) })
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun YourAppContent(text: String, onDrawerStateChange: (DrawerState) -> Unit) {
+    Column {
+        Text(text = text)
+        HeightSpacer(20.dp)
+        Button(
+            text = "Click to open",
+            onClick = { onDrawerStateChange(DrawerState.Opened) }
+        )
     }
 }

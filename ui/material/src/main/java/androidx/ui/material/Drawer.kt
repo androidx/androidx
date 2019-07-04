@@ -21,7 +21,6 @@ import androidx.animation.ExponentialDecay
 import androidx.animation.PhysicsBuilder
 import androidx.animation.TargetAnimation
 import androidx.animation.fling
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
@@ -30,7 +29,6 @@ import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
 import androidx.ui.baseui.Clickable
 import androidx.ui.baseui.ColoredRect
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Direction
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
@@ -47,19 +45,11 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
-import androidx.ui.graphics.Color
 import androidx.ui.layout.Alignment
-import androidx.ui.layout.Column
 import androidx.ui.layout.Container
-import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.HeightSpacer
-import androidx.ui.layout.MainAxisAlignment
-import androidx.ui.layout.MainAxisSize
-import androidx.ui.layout.Row
 import androidx.ui.layout.Stack
-import androidx.ui.layout.WidthSpacer
 import androidx.ui.lerp
 import androidx.ui.material.surface.Surface
 import kotlin.math.max
@@ -88,7 +78,7 @@ enum class DrawerState {
  *
  * @see [ModalDrawer] and [BottomDrawer] for more mobile friendly options
  *
- * //example is TBD with @sample later
+ * @sample androidx.ui.material.samples.StaticDrawerSample
  *
  * @param drawerContent composable that represents content inside the drawer
  */
@@ -110,7 +100,7 @@ fun StaticDrawer(
  * @see [StaticDrawer] for always visible drawer, suitable for tables or desktop
  * @see [BottomDrawer] for drawer that is recommended when you have bottom navigation
  *
- * //example is TBD with @sample later
+ * @sample androidx.ui.material.samples.ModalDrawerSample
  *
  * @param drawerState state of the drawer
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
@@ -178,7 +168,7 @@ fun ModalDrawer(
  * @see [StaticDrawer] for always visible drawer, suitable for tables or desktop
  * @see [ModalDrawer] for classic "from the side" drawer
  *
- * // example is TBD with @sample later
+ * @sample androidx.ui.material.samples.BottomDrawerSample
  *
  * @param drawerState state of the drawer
  * @param onStateChange lambda to be invoked when the drawer requests to change its state,
