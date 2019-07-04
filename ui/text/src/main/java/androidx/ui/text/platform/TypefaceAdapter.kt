@@ -20,7 +20,6 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import androidx.collection.LruCache
-import androidx.core.content.res.ResourcesCompat
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontFamily
 import androidx.ui.text.font.FontMatcher
@@ -38,7 +37,7 @@ import androidx.ui.text.font.FontWeight
 // will call TypefaceAdapter can know about a single font
 internal open class TypefaceAdapter(
     val fontMatcher: FontMatcher = FontMatcher(),
-    val resourceLoader: AndroidFontResourceLoader = AndroidFontResourceLoader(context = null)
+    val resourceLoader: AndroidFontResourceLoader
 ) {
 
     data class CacheKey(
@@ -80,8 +79,7 @@ internal open class TypefaceAdapter(
                 fontFamily = fontFamily,
                 fontWeight = fontWeight,
                 fontStyle = fontStyle,
-                fontSynthesis = fontSynthesis,
-                context = fontFamily.context
+                fontSynthesis = fontSynthesis
             )
         } else {
             // there is no option to control fontSynthesis in framework for system fonts
@@ -167,7 +165,6 @@ internal open class TypefaceAdapter(
         fontStyle: FontStyle = FontStyle.Normal,
         fontWeight: FontWeight = FontWeight.normal,
         fontFamily: FontFamily,
-        context: Context,
         fontSynthesis: FontSynthesis = FontSynthesis.All
     ): Typeface {
         // TODO(siyamed): add genericFontFamily : String? = null for fallback
@@ -175,28 +172,7 @@ internal open class TypefaceAdapter(
 
         val font = fontMatcher.matchFont(fontFamily, fontWeight, fontStyle)
 
-        // TODO(siyamed) replace the lines until loadedFontIsSameAsRequest with
-        // val typeface = resourceLoader.load(font)
-
-        // TODO(siyamed): This is an expensive operation and discouraged in the API Docs
-        // remove when alternative resource loading system is defined.
-        val resId = context.resources.getIdentifier(
-            font.name.substringBefore("."),
-            "font",
-            context.packageName
-        )
-
-        val typeface = try {
-            ResourcesCompat.getFont(context, resId)
-        } catch (e: Throwable) {
-            null
-        }
-
-        if (typeface == null) {
-            throw IllegalStateException(
-                "Cannot create Typeface from $font with resource id $resId"
-            )
-        }
+        val typeface = resourceLoader.load(font)
 
         val loadedFontIsSameAsRequest = fontWeight == font.weight && fontStyle == font.style
         // if synthesis is not requested or there is an exact match we don't need synthesis
