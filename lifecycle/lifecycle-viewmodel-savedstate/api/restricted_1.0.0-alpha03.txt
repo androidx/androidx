@@ -1,0 +1,9 @@
+// Signature format: 3.0
+package androidx.lifecycle {
+
+  public abstract class AbstractSavedStateViewModelFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
+  }
+
+}
+
