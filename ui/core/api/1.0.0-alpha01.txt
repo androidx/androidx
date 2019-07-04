@@ -113,6 +113,7 @@ package androidx.ui.core {
     method public androidx.ui.core.Density getDensity();
     method public default androidx.ui.core.Dp toDp(androidx.ui.core.Sp);
     method public default androidx.ui.core.Dp toDp(androidx.ui.core.Px);
+    method public default androidx.ui.core.Dp toDp(androidx.ui.core.IntPx);
     method public default androidx.ui.core.Dp toDp(float);
     method public default androidx.ui.core.Dp toDp(int);
     method public default androidx.ui.core.IntPx toIntPx(androidx.ui.core.Dp);
@@ -123,6 +124,7 @@ package androidx.ui.core {
     method public default androidx.ui.engine.geometry.Rect toRect(androidx.ui.core.Bounds);
     method public default androidx.ui.core.Sp toSp(androidx.ui.core.Dp);
     method public default androidx.ui.core.Sp toSp(androidx.ui.core.Px);
+    method public default androidx.ui.core.Sp toSp(androidx.ui.core.IntPx);
     method public default androidx.ui.core.Sp toSp(float);
     method public default androidx.ui.core.Sp toSp(int);
     property public abstract androidx.ui.core.Density density;

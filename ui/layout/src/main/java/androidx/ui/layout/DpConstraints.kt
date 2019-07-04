@@ -176,8 +176,8 @@ fun DensityReceiver.Constraints(dpConstraints: DpConstraints) = Constraints(
  * Creates the [DpConstraints] corresponding to the current [Constraints].
  */
 fun DensityReceiver.DpConstraints(constraints: Constraints) = DpConstraints(
-    minWidth = constraints.minWidth.toPx().toDp(),
-    maxWidth = constraints.maxWidth.toPx().toDp(),
-    minHeight = constraints.minHeight.toPx().toDp(),
-    maxHeight = constraints.maxHeight.toPx().toDp()
+    minWidth = constraints.minWidth.toDp(),
+    maxWidth = constraints.maxWidth.toDp(),
+    minHeight = constraints.minHeight.toDp(),
+    maxHeight = constraints.maxHeight.toDp()
 )
