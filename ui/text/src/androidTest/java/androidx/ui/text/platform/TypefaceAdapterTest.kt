@@ -15,7 +15,6 @@
  */
 package androidx.ui.text.platform
 
-import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import androidx.test.filters.SdkSuppress
@@ -57,7 +56,6 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.junit.MockitoJUnitRunner
@@ -67,12 +65,10 @@ import org.mockito.junit.MockitoJUnitRunner
 class TypefaceAdapterTest {
     // TODO(Migration/siyamed): These native calls should be removed after the
     // counterparts are implemented in crane.
-    private lateinit var context: Context
+    private val context = InstrumentationRegistry.getInstrumentation().context
+    private val resourceLoader = AndroidFontResourceLoader(context)
 
-    @Before
-    fun setup() {
-        context = InstrumentationRegistry.getInstrumentation().context
-    }
+    private fun TypefaceAdapter() = TypefaceAdapter(resourceLoader = resourceLoader)
 
     @Test
     fun createDefaultTypeface() {
@@ -245,7 +241,6 @@ class TypefaceAdapterTest {
         val defaultTypeface = TypefaceAdapter().create()
 
         val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(fontFamily = fontFamily)
 
@@ -261,7 +256,6 @@ class TypefaceAdapterTest {
         val defaultTypeface = TypefaceAdapter().create()
 
         val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -297,7 +291,6 @@ class TypefaceAdapterTest {
             FONT_900_REGULAR,
             FONT_900_ITALIC
         )
-        fontFamily.context = context
 
         for (fontWeight in FontWeight.values) {
             for (fontStyle in FontStyle.values()) {
@@ -324,12 +317,12 @@ class TypefaceAdapterTest {
         val fontWeight = FontWeight.w300
         val fontStyle = FontStyle.Italic
         val fontFamily = FontFamily(FONT_200_ITALIC)
-        fontFamily.context = context
 
         val fontMatcher = mock<FontMatcher>()
         whenever(fontMatcher.matchFont(any(), any(), any()))
             .thenReturn(FONT_200_ITALIC)
-        TypefaceAdapter(fontMatcher).create(
+
+        TypefaceAdapter(fontMatcher = fontMatcher, resourceLoader = resourceLoader).create(
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             fontFamily = fontFamily
@@ -406,7 +399,6 @@ class TypefaceAdapterTest {
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotIncludedInTheApp() {
         val fontFamily = FontFamily(Font("nonexistent.ttf"))
-        fontFamily.context = context
 
         TypefaceAdapter().create(fontFamily)
     }
@@ -414,7 +406,6 @@ class TypefaceAdapterTest {
     @Test(expected = IllegalStateException::class)
     fun throwsExceptionIfFontIsNotReadable() {
         val fontFamily = FontFamily(Font("invalid_font.ttf"))
-        fontFamily.context = context
 
         TypefaceAdapter().create(fontFamily)
     }
@@ -422,7 +413,6 @@ class TypefaceAdapterTest {
     @Test
     fun fontSynthesisDefault_synthesizeTheFontToItalicBold() {
         val fontFamily = FONT_100_REGULAR.asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -440,7 +430,6 @@ class TypefaceAdapterTest {
     @Test
     fun fontSynthesisStyle_synthesizeTheFontToItalic() {
         val fontFamily = FONT_100_REGULAR.asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -458,7 +447,6 @@ class TypefaceAdapterTest {
     @Test
     fun fontSynthesisWeight_synthesizeTheFontToBold() {
         val fontFamily = FONT_100_REGULAR.asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -476,7 +464,6 @@ class TypefaceAdapterTest {
     @Test
     fun fontSynthesisStyle_forMatchingItalicDoesNotSynthesize() {
         val fontFamily = FONT_100_ITALIC.asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -492,7 +479,6 @@ class TypefaceAdapterTest {
     @Test
     fun fontSynthesisAll_doesNotSynthesizeIfFontIsTheSame_beforeApi28() {
         val fontFamily = FONT_700_ITALIC.asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -516,7 +502,6 @@ class TypefaceAdapterTest {
     @Test
     fun fontSynthesisNone_doesNotSynthesize() {
         val fontFamily = FONT_100_REGULAR.asFontFamily()
-        fontFamily.context = context
 
         val typeface = TypefaceAdapter().create(
             fontFamily = fontFamily,
@@ -532,7 +517,6 @@ class TypefaceAdapterTest {
     @Test
     fun fontSynthesisWeight_doesNotSynthesizeIfRequestedWeightIsLessThan600() {
         val fontFamily = FONT_100_REGULAR.asFontFamily()
-        fontFamily.context = context
 
         // Less than 600 is not synthesized
         val typeface500 = TypefaceAdapter().create(

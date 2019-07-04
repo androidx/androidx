@@ -33,6 +33,7 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextStyle
+import androidx.ui.text.platform.AndroidFontResourceLoader
 
 /**
  * Data class holding text display attributes used for editors.
@@ -101,13 +102,15 @@ fun InputField(
     processor.onNewState(value, textInputService)
 
     val density = +ambient(DensityAmbient)
+    val resourceLoader = AndroidFontResourceLoader(composer.composer.context)
 
     // TODO(nona): Add parameter for text direction, softwrap, etc.
     val delegate = InputFieldDelegate(
         TextPainter(
             text = AnnotatedString(text = value.text),
             style = mergedStyle,
-            density = density
+            density = density,
+            resourceLoader = resourceLoader
         ),
         processor,
         onValueChange

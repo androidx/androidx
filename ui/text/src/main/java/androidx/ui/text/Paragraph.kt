@@ -20,7 +20,10 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
+import androidx.ui.text.font.Font
+import androidx.ui.text.platform.AndroidFontResourceLoader
 import androidx.ui.text.platform.AndroidParagraph
+import androidx.ui.text.platform.TypefaceAdapter
 import androidx.ui.text.style.ParagraphStyle
 
 /**
@@ -140,17 +143,22 @@ interface Paragraph {
     density: Density
 ): Paragraph*/
 
-// TODO(siyamed) Font.ResourceLoader will be created as ambient and passed to this function
 /* actual */ fun Paragraph(
     text: String,
     style: TextStyle,
     paragraphStyle: ParagraphStyle,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
-    density: Density
-): Paragraph = AndroidParagraph(
-    text = text,
-    style = style,
-    paragraphStyle = paragraphStyle,
-    textStyles = textStyles,
-    density = density
-)
+    density: Density,
+    resourceLoader: Font.ResourceLoader<Any>
+): Paragraph {
+    return AndroidParagraph(
+        text = text,
+        style = style,
+        paragraphStyle = paragraphStyle,
+        textStyles = textStyles,
+        typefaceAdapter = TypefaceAdapter(
+            resourceLoader = resourceLoader as AndroidFontResourceLoader
+        ),
+        density = density
+    )
+}

@@ -74,7 +74,7 @@ data class Font(
     /**
      * Interface used to load a font resource.
      */
-    interface ResourceLoader<T> {
+    interface ResourceLoader<out T> {
         fun load(font: Font): T
     }
 }

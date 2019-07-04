@@ -39,6 +39,7 @@ import androidx.ui.painting.Canvas
 import androidx.ui.painting.Gradient
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Shader
+import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextOverflow
 import kotlin.math.ceil
 
@@ -109,7 +110,8 @@ class TextPainter(
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
     val locale: Locale? = null,
-    val density: Density
+    val density: Density,
+    val resourceLoader: Font.ResourceLoader<Any>
 ) {
     init {
         assert(maxLines == null || maxLines > 0)
@@ -192,7 +194,8 @@ class TextPainter(
                     // direction doesn't matter, text is just a space
                     paragraphStyle = createParagraphStyle(),
                     textStyles = listOf(),
-                    density = density
+                    density = density,
+                    resourceLoader = resourceLoader
                 )
                 layoutTemplate?.layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))
             }
@@ -309,7 +312,8 @@ class TextPainter(
                 style = createTextStyle(),
                 paragraphStyle = createParagraphStyle(),
                 textStyles = text!!.textStyles,
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
         }
         lastMinWidth = minWidth
@@ -344,7 +348,8 @@ class TextPainter(
                 text = AnnotatedString(text = "\u2026", textStyles = listOf()),
                 style = textStyle,
                 paragraphStyle = paragraphStyle,
-                density = density
+                density = density,
+                resourceLoader = resourceLoader
             )
             fadeSizePainter.layoutText()
             val fadeWidth = fadeSizePainter.paragraph!!.width

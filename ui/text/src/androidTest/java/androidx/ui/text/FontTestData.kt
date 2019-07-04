@@ -22,12 +22,20 @@ import androidx.ui.text.font.FontWeight
 
 class FontTestData {
     companion object {
+        // This sample font provides the following features:
+        // 1. The width of most of visible characters equals to font size.
+        // 2. The LTR/RTL characters are rendered as ▶/◀.
+        // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
         val BASIC_MEASURE_FONT = Font(
             name = "sample_font.ttf",
             weight = FontWeight.normal,
             style = FontStyle.Normal
         )
 
+        // The kern_font provides the following features:
+        // 1. Characters from A to Z are rendered as ▲ while a to z are rendered as ▼.
+        // 2. When kerning is off, the width of each character is equal to font size.
+        // 3. When kerning is on, it will reduce the space between two characters by 0.4 * width.
         val BASIC_KERN_FONT = Font(
             name = "kern_font.ttf",
             weight = FontWeight.normal,
