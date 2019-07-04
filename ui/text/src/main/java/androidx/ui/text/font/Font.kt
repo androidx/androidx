@@ -70,6 +70,13 @@ data class Font(
     init {
         assert(name.isNotEmpty()) { "Font name cannot be empty" }
     }
+
+    /**
+     * Interface used to load a font resource.
+     */
+    interface ResourceLoader<T> {
+        fun load(font: Font): T
+    }
 }
 
 /**

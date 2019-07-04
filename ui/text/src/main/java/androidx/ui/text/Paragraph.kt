@@ -18,10 +18,10 @@ package androidx.ui.text
 import androidx.ui.core.Density
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.text.style.ParagraphStyle
-import androidx.ui.text.platform.AndroidParagraph
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
+import androidx.ui.text.platform.AndroidParagraph
+import androidx.ui.text.style.ParagraphStyle
 
 /**
  * A paragraph of text.
@@ -132,7 +132,16 @@ interface Paragraph {
     fun paint(canvas: Canvas, x: Float, y: Float)
 }
 
-fun Paragraph(
+/*expect fun Paragraph(
+    text: String,
+    style: TextStyle,
+    paragraphStyle: ParagraphStyle,
+    textStyles: List<AnnotatedString.Item<TextStyle>>,
+    density: Density
+): Paragraph*/
+
+// TODO(siyamed) Font.ResourceLoader will be created as ambient and passed to this function
+/* actual */ fun Paragraph(
     text: String,
     style: TextStyle,
     paragraphStyle: ParagraphStyle,
