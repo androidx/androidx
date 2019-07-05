@@ -144,6 +144,9 @@ fun Text(
 /**
  * The Text widget displays text that uses multiple different styles. The text to display is
  * described using a [AnnotatedString].
+ *
+ * TODO(popam): fix this
+ * @throws UnsupportedOperationException
  */
 // TODO(migration/qqd): Add tests when text widget system is mature and testable.
 @Composable
@@ -229,10 +232,30 @@ fun Text(
                 textPainter.paint(canvas, Offset.zero)
             }
         }
-        Layout(children = children, layoutBlock = { _, constraints ->
-            textPainter.layout(constraints)
-            layout(textPainter.width.px.round(), textPainter.height.px.round()) {}
-        })
+        ComplexLayout(children) {
+            layout { _, constraints ->
+                textPainter.layout(constraints)
+                layoutResult(textPainter.width.px.round(), textPainter.height.px.round()) {}
+            }
+            minIntrinsicWidth { _, _ ->
+                // TODO(popam): discuss with the Text team about this
+                throw UnsupportedOperationException()
+                // textPainter.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
+                // textPainter.minIntrinsicWidth.px.round()
+            }
+            minIntrinsicHeight { _, w ->
+                textPainter.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
+                textPainter.height.px.round()
+            }
+            maxIntrinsicWidth { _, h ->
+                textPainter.layout(Constraints(0.ipx, IntPx.Infinity, 0.ipx, h))
+                textPainter.maxIntrinsicWidth.px.round()
+            }
+            maxIntrinsicHeight { _, w ->
+                textPainter.layout(Constraints(0.ipx, w, 0.ipx, IntPx.Infinity))
+                textPainter.height.px.round()
+            }
+        }
 
         +onCommit(
             text,
