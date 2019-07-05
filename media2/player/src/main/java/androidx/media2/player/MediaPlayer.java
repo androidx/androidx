@@ -417,7 +417,9 @@ public final class MediaPlayer extends SessionPlayer {
      * The return value of {@link #getSelectedTrack} when there is no selected track for the given
      * type.
      * @see #getSelectedTrack(int)
+     * @deprecated {@link #getSelectedTrack} returns {@code null} instead of this value.
      */
+    @Deprecated
     public static final int NO_TRACK_SELECTED = Integer.MIN_VALUE;
 
     static final PlaybackParams DEFAULT_PLAYBACK_PARAMS = new PlaybackParams.Builder()
