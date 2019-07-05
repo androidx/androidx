@@ -63,7 +63,7 @@ package androidx.media2.player {
     field public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805; // 0x325
     field public static final int MEDIA_INFO_VIDEO_RENDERING_START = 3; // 0x3
     field public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING = 700; // 0x2bc
-    field public static final int NO_TRACK_SELECTED = -2147483648; // 0x80000000
+    field @Deprecated public static final int NO_TRACK_SELECTED = -2147483648; // 0x80000000
     field public static final int PLAYER_ERROR_IO = -1004; // 0xfffffc14
     field public static final int PLAYER_ERROR_MALFORMED = -1007; // 0xfffffc11
     field public static final int PLAYER_ERROR_TIMED_OUT = -110; // 0xffffff92
