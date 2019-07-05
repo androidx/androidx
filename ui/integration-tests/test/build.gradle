@@ -36,6 +36,7 @@ dependencies {
 
     implementation(JUNIT)
     implementation(TRUTH)
+    implementation(ANDROIDX_TEST_RULES)
 
     implementation project(":compose:compose-runtime")
     implementation project(":ui:ui-core")
@@ -43,9 +44,8 @@ dependencies {
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-material")
+    implementation project(":ui:ui-platform")
     implementation project(":ui:ui-test")
-
-    androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
 androidx {
@@ -57,9 +57,10 @@ androidx {
     description = "UI Integration Tests"
 }
 
+android.defaultConfig.minSdkVersion 29 // RenderNode requires 29+
+
 tasks.withType(KotlinCompile).all {
     kotlinOptions {
         useIR = true
     }
 }
-

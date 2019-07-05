@@ -28,8 +28,10 @@ plugins {
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
-    androidTestImplementation(project(":ui:integration-tests:test"))
-    androidTestImplementation(project(":benchmark"))
+    implementation(project(":ui:integration-tests:test"))
+    implementation(project(":benchmark"))
+    implementation(KOTLIN_COMPOSE_STDLIB)
+    implementation(JUNIT)
     androidTestImplementation(project(":ui:ui-core"))
     androidTestImplementation(project(":ui:ui-test"))
     androidTestImplementation(project(":ui:ui-material"))
@@ -37,9 +39,7 @@ dependencies {
     androidTestImplementation(project(":ui:ui-framework"))
     androidTestImplementation(project(":compose:compose-runtime"))
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation(KOTLIN_COMPOSE_STDLIB)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RULES)
 }
 
@@ -51,6 +51,8 @@ androidx {
     inceptionYear = "2019"
     description = "UI Benchmarks"
 }
+
+android.defaultConfig.minSdkVersion 29 // RenderNode requires 29+
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
