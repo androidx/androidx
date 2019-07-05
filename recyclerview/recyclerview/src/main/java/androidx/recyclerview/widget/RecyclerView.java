@@ -219,8 +219,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     private static final int[]  NESTED_SCROLLING_ATTRS =
             {16843830 /* android.R.attr.nestedScrollingEnabled */};
 
-    private static final int[] CLIP_TO_PADDING_ATTR = {android.R.attr.clipToPadding};
-
     /**
      * On Kitkat and JB MR2, there is a bug which prevents DisplayList from being invalidated if
      * a View is two levels deep(wrt to ViewHolder.itemView). DisplayList can be invalidated by
@@ -649,18 +647,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     public RecyclerView(@NonNull Context context, @Nullable AttributeSet attrs) {
-        this(context, attrs, 0);
+        this(context, attrs, R.attr.recyclerViewStyle);
     }
 
-    public RecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, CLIP_TO_PADDING_ATTR, defStyle, 0);
-            mClipToPadding = a.getBoolean(0, true);
-            a.recycle();
-        } else {
-            mClipToPadding = true;
-        }
+    public RecyclerView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
         setScrollContainer(true);
         setFocusableInTouchMode(true);
 
@@ -687,54 +678,49 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         mAccessibilityManager = (AccessibilityManager) getContext()
                 .getSystemService(Context.ACCESSIBILITY_SERVICE);
         setAccessibilityDelegateCompat(new RecyclerViewAccessibilityDelegate(this));
-        // Create the layoutManager if specified.
 
-        boolean nestedScrollingEnabled = true;
-
-        if (attrs != null) {
-            int defStyleRes = 0;
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
-                    defStyle, defStyleRes);
-            if (Build.VERSION.SDK_INT >= 29) {
-                saveAttributeDataForStyleable(
-                        context, R.styleable.RecyclerView, attrs, a, defStyle, defStyleRes);
-            }
-            String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
-            int descendantFocusability = a.getInt(
-                    R.styleable.RecyclerView_android_descendantFocusability, -1);
-            if (descendantFocusability == -1) {
-                setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
-            }
-            mEnableFastScroller = a.getBoolean(R.styleable.RecyclerView_fastScrollEnabled, false);
-            if (mEnableFastScroller) {
-                StateListDrawable verticalThumbDrawable = (StateListDrawable) a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollVerticalThumbDrawable);
-                Drawable verticalTrackDrawable = a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollVerticalTrackDrawable);
-                StateListDrawable horizontalThumbDrawable = (StateListDrawable) a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalThumbDrawable);
-                Drawable horizontalTrackDrawable = a
-                        .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalTrackDrawable);
-                initFastScroller(verticalThumbDrawable, verticalTrackDrawable,
-                        horizontalThumbDrawable, horizontalTrackDrawable);
-            }
-            a.recycle();
-            createLayoutManager(context, layoutManagerName, attrs, defStyle, defStyleRes);
-
-            if (Build.VERSION.SDK_INT >= 21) {
-                a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
-                        defStyle, defStyleRes);
-                if (Build.VERSION.SDK_INT >= 29) {
-                    saveAttributeDataForStyleable(
-                            context, NESTED_SCROLLING_ATTRS, attrs, a, defStyle, defStyleRes);
-                }
-                nestedScrollingEnabled = a.getBoolean(0, true);
-                a.recycle();
-            }
-        } else {
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.RecyclerView,
+                defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(context, R.styleable.RecyclerView, attrs, a,
+                    defStyleAttr, 0);
+        }
+        String layoutManagerName = a.getString(R.styleable.RecyclerView_layoutManager);
+        int descendantFocusability = a.getInt(
+                R.styleable.RecyclerView_android_descendantFocusability, -1);
+        if (descendantFocusability == -1) {
             setDescendantFocusability(ViewGroup.FOCUS_AFTER_DESCENDANTS);
         }
+        mClipToPadding = a.getBoolean(R.styleable.RecyclerView_android_clipToPadding, true);
+        mEnableFastScroller = a.getBoolean(R.styleable.RecyclerView_fastScrollEnabled, false);
+        if (mEnableFastScroller) {
+            StateListDrawable verticalThumbDrawable = (StateListDrawable) a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollVerticalThumbDrawable);
+            Drawable verticalTrackDrawable = a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollVerticalTrackDrawable);
+            StateListDrawable horizontalThumbDrawable = (StateListDrawable) a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalThumbDrawable);
+            Drawable horizontalTrackDrawable = a
+                    .getDrawable(R.styleable.RecyclerView_fastScrollHorizontalTrackDrawable);
+            initFastScroller(verticalThumbDrawable, verticalTrackDrawable,
+                    horizontalThumbDrawable, horizontalTrackDrawable);
+        }
+        a.recycle();
 
+        // Create the layoutManager if specified.
+        createLayoutManager(context, layoutManagerName, attrs, defStyleAttr, 0);
+
+        boolean nestedScrollingEnabled = true;
+        if (Build.VERSION.SDK_INT >= 21) {
+            a = context.obtainStyledAttributes(attrs, NESTED_SCROLLING_ATTRS,
+                    defStyleAttr, 0);
+            if (Build.VERSION.SDK_INT >= 29) {
+                saveAttributeDataForStyleable(
+                        context, NESTED_SCROLLING_ATTRS, attrs, a, defStyleAttr, 0);
+            }
+            nestedScrollingEnabled = a.getBoolean(0, true);
+            a.recycle();
+        }
         // Re-set whether nested scrolling is enabled so that it is set on all API levels
         setNestedScrollingEnabled(nestedScrollingEnabled);
     }
