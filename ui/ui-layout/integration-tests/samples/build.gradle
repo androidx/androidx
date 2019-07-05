@@ -31,11 +31,12 @@ dependencies {
     implementation(KOTLIN_COMPOSE_STDLIB)
 
     implementation project(":annotation:annotation-sampled")
-
     implementation project(":compose:compose-runtime")
     implementation project(":ui:ui-core")
     implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-text")
 }
 
 android {
