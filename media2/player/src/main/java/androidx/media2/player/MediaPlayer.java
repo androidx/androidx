@@ -2966,6 +2966,7 @@ public final class MediaPlayer extends SessionPlayer {
                     });
                     break;
                 case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
+                case MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT:
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(

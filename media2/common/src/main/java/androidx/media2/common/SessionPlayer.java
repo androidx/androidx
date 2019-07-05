@@ -1344,8 +1344,9 @@ public abstract class SessionPlayer implements AutoCloseable {
         }
 
         /**
-         * Called when the player's current media item has changed. It's also called after
-         * {@link #setPlaylist} or {@link #setMediaItem}.
+         * Called when the player's current media item has changed. Generally called after a new
+         * media item is set through {@link #setPlaylist} or {@link #setMediaItem}, or after
+         * skipping to a different item in a given playlist.
          *
          * @param player the player whose media item changed.
          * @param item the new current media item.
