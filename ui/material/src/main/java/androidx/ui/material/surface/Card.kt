@@ -20,11 +20,11 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.baseui.shape.RectangleShape
-import androidx.ui.baseui.shape.border.Border
 import androidx.ui.core.Dp
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
+import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.themeColor

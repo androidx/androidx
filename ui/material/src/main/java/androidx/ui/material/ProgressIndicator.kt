@@ -31,7 +31,6 @@ import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
-import androidx.ui.baseui.DeterminateProgressIndicator
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.ambientDensity
@@ -39,6 +38,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.foundation.DeterminateProgressIndicator
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding

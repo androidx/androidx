@@ -26,13 +26,13 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.animation.Transition
-import androidx.ui.baseui.selection.Toggleable
-import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.foundation.selection.Toggleable
+import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding

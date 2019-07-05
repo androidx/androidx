@@ -18,6 +18,10 @@ package androidx.ui.material.studies.rally
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.compose.setContent
+import androidx.compose.unaryPlus
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -27,10 +31,6 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.material.studies.Scaffold
 import androidx.ui.material.themeTextStyle
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.compose.setContent
-import androidx.compose.unaryPlus
 
 /**
  * This Activity recreates the Rally Material Study from

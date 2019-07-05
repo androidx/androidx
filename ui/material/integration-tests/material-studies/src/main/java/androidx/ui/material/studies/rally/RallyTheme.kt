@@ -16,18 +16,18 @@
 
 package androidx.ui.material.studies.rally
 
-import androidx.ui.core.CurrentTextStyleProvider
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.FontFamily
-import androidx.ui.material.MaterialColors
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.MaterialTypography
-import androidx.ui.graphics.Color
-import androidx.ui.text.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.sp
+import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.FontFamily
+import androidx.ui.graphics.Color
+import androidx.ui.material.MaterialColors
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.MaterialTypography
+import androidx.ui.text.TextStyle
 
 val rallyGreen = Color(0xFF1EB980.toInt())
 val rallyDarkGreen = Color(0xFF045D56.toInt())

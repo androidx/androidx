@@ -21,8 +21,8 @@ import android.app.Activity
 import androidx.compose.CompositionContext
 import androidx.compose.FrameManager
 import androidx.compose.Model
-import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.dp
+import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 
