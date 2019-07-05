@@ -22,10 +22,10 @@ import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.setContent
-import androidx.ui.baseui.shape.border.Border
-import androidx.ui.baseui.shape.GenericShape
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.dp
+import androidx.ui.foundation.shape.border.Border
+import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.FixedSpacer

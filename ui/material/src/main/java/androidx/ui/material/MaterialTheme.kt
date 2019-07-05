@@ -25,19 +25,19 @@ import androidx.compose.ambient
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.baseui.shape.corner.CornerSizes
-import androidx.ui.baseui.shape.corner.RoundedCornerShape
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.dp
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Shape
-import androidx.ui.text.font.FontWeight
-import androidx.ui.text.font.FontFamily
+import androidx.ui.foundation.shape.corner.CornerSizes
+import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.material.ripple.CurrentRippleTheme
 import androidx.ui.material.ripple.DefaultRippleEffectFactory
 import androidx.ui.material.ripple.RippleTheme
+import androidx.ui.text.font.FontWeight
+import androidx.ui.text.font.FontFamily
 import androidx.ui.text.TextStyle
 
 /**

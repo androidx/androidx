@@ -20,7 +20,6 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.test.filters.MediumTest
 
-import androidx.ui.baseui.Clickable
 import androidx.ui.core.Density
 import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
@@ -28,19 +27,20 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.TestTag
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
+import androidx.ui.foundation.Clickable
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.ui.material.ripple.CurrentRippleTheme
+import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.ripple.RippleEffect
 import androidx.ui.material.ripple.RippleEffectFactory
 import androidx.ui.material.ripple.RippleSurfaceOwner
 import androidx.ui.material.ripple.RippleTheme
 import androidx.ui.material.surface.Card
 import androidx.ui.painting.Canvas
-import androidx.ui.graphics.Color
-import androidx.ui.material.ripple.Ripple
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findByTag

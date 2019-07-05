@@ -16,10 +16,16 @@
 
 package androidx.ui.material.studies.rally
 
-import androidx.ui.baseui.ColoredRect
+import androidx.compose.Composable
+import androidx.compose.ambient
+import androidx.compose.composer
+import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.foundation.ColoredRect
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
+import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexRow
@@ -32,12 +38,6 @@ import androidx.ui.material.Divider
 import androidx.ui.material.TransparentButton
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
-import androidx.ui.graphics.Color
-import androidx.compose.Composable
-import androidx.compose.ambient
-import androidx.compose.composer
-import androidx.compose.unaryPlus
-import androidx.ui.layout.CrossAxisAlignment
 
 // TODO: This is not integrated with the theme
 internal val cardInternalColor = Color(0xFF33333D.toInt())

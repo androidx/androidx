@@ -19,8 +19,8 @@ package androidx.ui.material.surface
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.ui.baseui.shape.RectangleShape
 import androidx.ui.engine.geometry.Shape
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.material.ripple.RippleEffect
 

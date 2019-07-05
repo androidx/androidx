@@ -16,11 +16,11 @@
 
 package androidx.ui.material.shape
 
-import androidx.ui.baseui.shape.corner.CornerBasedShape
-import androidx.ui.baseui.shape.corner.CornerSizes
-import androidx.ui.baseui.shape.corner.PxCornerSizes
 import androidx.ui.core.PxSize
 import androidx.ui.engine.geometry.Outline
+import androidx.ui.foundation.shape.corner.CornerBasedShape
+import androidx.ui.foundation.shape.corner.CornerSizes
+import androidx.ui.foundation.shape.corner.PxCornerSizes
 import androidx.ui.painting.Path
 
 /**

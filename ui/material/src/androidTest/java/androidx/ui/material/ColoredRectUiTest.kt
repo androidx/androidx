@@ -18,11 +18,11 @@ package androidx.ui.material
 
 import androidx.compose.composer
 import androidx.test.filters.MediumTest
-import androidx.ui.baseui.ColoredRect
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
-import androidx.ui.layout.DpConstraints
+import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
+import androidx.ui.layout.DpConstraints
 import androidx.ui.test.createComposeRule
 import org.junit.Rule
 import org.junit.Test

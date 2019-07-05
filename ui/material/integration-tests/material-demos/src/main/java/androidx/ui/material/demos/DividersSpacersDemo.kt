@@ -16,9 +16,13 @@
 
 package androidx.ui.material.demos
 
-import androidx.ui.baseui.ColoredRect
+import androidx.compose.Composable
+import androidx.compose.unaryPlus
+import androidx.compose.composer
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.foundation.ColoredRect
+import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
@@ -28,10 +32,6 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.Divider
 import androidx.ui.material.themeTextStyle
-import androidx.ui.graphics.Color
-import androidx.compose.Composable
-import androidx.compose.unaryPlus
-import androidx.compose.composer
 
 @Composable
 fun DividersDemo() {
