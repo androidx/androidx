@@ -24,16 +24,27 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.annotation.RequiresApi
+import androidx.compose.Children
+import androidx.compose.Composable
+import androidx.compose.Compose
+import androidx.compose.Model
+import androidx.compose.composer
+import androidx.compose.setContent
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
+import androidx.ui.core.ContextAmbient
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.Density
+import androidx.ui.core.DensityAmbient
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.ParentData
 import androidx.ui.core.Ref
+import androidx.ui.core.RepaintBoundary
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.coerceIn
@@ -44,17 +55,6 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.Compose
-import androidx.compose.Model
-import androidx.compose.composer
-import androidx.compose.setContent
-import androidx.test.filters.SdkSuppress
-import androidx.ui.core.ContextAmbient
-import androidx.ui.core.Density
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.RepaintBoundary
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -252,13 +252,7 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 CraneWrapper {
                     Padding(size = (model.size * 3)) {
-                        Draw { canvas, parentSize ->
-                            val paint = Paint().apply {
-                                color = model.outerColor
-                            }
-                            canvas.drawRect(parentSize.toRect(), paint)
-                            drawLatch.countDown()
-                        }
+                        FillColor(model.outerColor)
                     }
                 }
             }
@@ -294,21 +288,10 @@ class AndroidLayoutDrawTest {
                 CraneWrapper {
                     Layout(children = {
                         Padding(size = (model.size * 3)) {
-                            Draw { canvas, parentSize ->
-                                drawLatch.countDown()
-                                val paint = Paint()
-                                paint.color = model.outerColor
-                                canvas.drawRect(parentSize.toRect(), paint)
-                                drawLatch.countDown()
-                            }
+                            FillColor(model.outerColor)
                         }
                         Padding(size = model.size) {
-                            Draw { canvas, parentSize ->
-                                drawLatch.countDown()
-                                val paint = Paint()
-                                paint.color = model.innerColor
-                                canvas.drawRect(parentSize.toRect(), paint)
-                            }
+                            FillColor(model.innerColor)
                         }
                     }, layoutBlock = { measurables, constraints ->
                         val placeables = measurables.map { it.measure(constraints) }
@@ -677,21 +660,11 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 CraneWrapper {
                     AtLeastSize(size = 30.ipx) {
-                        Draw { canvas, parentSize ->
-                            drawLatch.countDown()
-                            val paint = Paint()
-                            paint.color = outerColor
-                            canvas.drawRect(parentSize.toRect(), paint)
-                        }
+                        FillColor(outerColor)
                         if (drawChild.value) {
                             Padding(size = 20.ipx) {
                                 AtLeastSize(size = 20.ipx) {
-                                    Draw { canvas, parentSize ->
-                                        drawLatch.countDown()
-                                        val paint = Paint()
-                                        paint.color = innerColor
-                                        canvas.drawRect(parentSize.toRect(), paint)
-                                    }
+                                    FillColor(innerColor)
                                 }
                             }
                         }
@@ -707,6 +680,54 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR { drawChild.value = true }
 
         validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 20)
+    }
+
+    // When we change a position of one LayoutNode up the tree it automatically
+    // changes the position of all the children. RepaintBoundary with few intermediate
+    // LayoutNode parents should be drawn on a correct position
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun moveRootLayoutRedrawsLeafRepaintBoundary() {
+        val offset = OffsetModel(0.ipx)
+        drawLatch = CountDownLatch(2)
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                CraneWrapper {
+                    FillColor(Color.Green)
+                    Layout(
+                        children = {
+                            AtLeastSize(size = 10.ipx) {
+                                AtLeastSize(size = 10.ipx) {
+                                    RepaintBoundary {
+                                        FillColor(Color.Cyan)
+                                    }
+                                }
+                            }
+                        }
+                    ) { measurables, constraints ->
+                        layout(width = 20.ipx, height = 20.ipx) {
+                            measurables.first().measure(constraints)
+                                .place(offset.offset, offset.offset)
+                        }
+                    }
+                }
+            }
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        activityTestRule.waitAndScreenShot().apply {
+            assertRect(Color.Cyan, size = 10, centerX = 5, centerY = 5)
+            assertRect(Color.Green, size = 10, centerX = 15, centerY = 15)
+        }
+
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { offset.offset = 10.ipx }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        activityTestRule.waitAndScreenShot().apply {
+            assertRect(Color.Green, size = 10, centerX = 5, centerY = 5)
+            assertRect(Color.Cyan, size = 10, centerX = 15, centerY = 15)
+        }
     }
 
     // When a child is removed, the parent must be remeasured and redrawn.
@@ -783,21 +804,12 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    Draw { canvas, parentSize ->
-                        val paint = Paint()
-                        paint.color = model.outerColor
-                        canvas.drawRect(parentSize.toRect(), paint)
-                    }
+                    FillColor(model.outerColor, doCountDown = false)
                     Padding(size = model.size) {
                         RepaintBoundary {
                             RepaintBoundary {
                                 AtLeastSize(size = model.size) {
-                                    Draw { canvas, parentSize ->
-                                        drawLatch.countDown()
-                                        val paint = Paint()
-                                        paint.color = model.innerColor
-                                        canvas.drawRect(parentSize.toRect(), paint)
-                                    }
+                                    FillColor(model.innerColor)
                                 }
                             }
                         }
@@ -811,20 +823,11 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    Draw { canvas, parentSize ->
-                        val paint = Paint()
-                        paint.color = model.outerColor
-                        canvas.drawRect(parentSize.toRect(), paint)
-                    }
+                    FillColor(model.outerColor, doCountDown = false)
                     Position(size = model.size * 3, offset = offset) {
                         RepaintBoundary {
                             AtLeastSize(size = model.size) {
-                                Draw { canvas, parentSize ->
-                                    drawLatch.countDown()
-                                    val paint = Paint()
-                                    paint.color = model.innerColor
-                                    canvas.drawRect(parentSize.toRect(), paint)
-                                }
+                                FillColor(model.innerColor)
                             }
                         }
                     }
@@ -837,19 +840,10 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    Draw { canvas, parentSize ->
-                        val paint = Paint()
-                        paint.color = model.outerColor
-                        canvas.drawRect(parentSize.toRect(), paint)
-                    }
+                    FillColor(model.outerColor, doCountDown = false)
                     Position(size = model.size * 3, offset = offset) {
                         AtLeastSize(size = model.size) {
-                            Draw { canvas, parentSize ->
-                                drawLatch.countDown()
-                                val paint = Paint()
-                                paint.color = model.innerColor
-                                canvas.drawRect(parentSize.toRect(), paint)
-                            }
+                            FillColor(model.innerColor)
                         }
                     }
                 }
@@ -864,12 +858,7 @@ class AndroidLayoutDrawTest {
                     Draw(children = {
                         AtLeastSize(size = (model.size * 3)) {
                             Draw(children = {
-                                Draw { canvas, parentSize ->
-                                    val paint = Paint()
-                                    paint.color = model.innerColor
-                                    canvas.drawRect(parentSize.toRect(), paint)
-                                    drawLatch.countDown()
-                                }
+                                FillColor(model.innerColor)
                             }, onPaint = { canvas, parentSize ->
                                 val paint = Paint()
                                 paint.color = model.outerColor
@@ -920,6 +909,18 @@ class AndroidLayoutDrawTest {
                                 "but was $pixelString", innerColor.toArgb(), pixel
                     )
                 }
+            }
+        }
+    }
+
+    @Composable
+    private fun FillColor(color: Color, doCountDown: Boolean = true) {
+        Draw { canvas, parentSize ->
+            canvas.drawRect(parentSize.toRect(), Paint().apply {
+                this.color = color
+            })
+            if (doCountDown) {
+                drawLatch.countDown()
             }
         }
     }
