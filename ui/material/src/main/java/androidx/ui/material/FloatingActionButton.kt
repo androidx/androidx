@@ -29,7 +29,7 @@ import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.MainAxisSize
+import androidx.ui.layout.FlexSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
@@ -139,7 +139,7 @@ fun FloatingActionButton(
             }
         } else {
             Padding(left = ExtendedFabIconPadding, right = ExtendedFabTextPadding) {
-                Row(mainAxisSize = MainAxisSize.Min) {
+                Row(mainAxisSize = FlexSize.Min) {
                     SimpleImage(image = icon)
                     WidthSpacer(width = ExtendedFabIconPadding)
                     Text(text = text, style = textStyle)
