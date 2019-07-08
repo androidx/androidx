@@ -55,6 +55,7 @@ import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
+import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
@@ -3160,12 +3161,12 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
 
         String fname = attrs.getAttributeValue(null, "class");
-        TypedArray a =  context.obtainStyledAttributes(attrs, FragmentTag.Fragment);
+        TypedArray a =  context.obtainStyledAttributes(attrs, R.styleable.Fragment);
         if (fname == null) {
-            fname = a.getString(FragmentTag.Fragment_name);
+            fname = a.getString(R.styleable.Fragment_android_name);
         }
-        int id = a.getResourceId(FragmentTag.Fragment_id, View.NO_ID);
-        String tag = a.getString(FragmentTag.Fragment_tag);
+        int id = a.getResourceId(R.styleable.Fragment_android_id, View.NO_ID);
+        String tag = a.getString(R.styleable.Fragment_android_tag);
         a.recycle();
 
         if (fname == null || !FragmentFactory.isFragmentClass(context.getClassLoader(), fname)) {
@@ -3253,18 +3254,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
 
     LayoutInflater.Factory2 getLayoutInflaterFactory() {
         return this;
-    }
-
-    static class FragmentTag {
-        public static final int[] Fragment = {
-                0x01010003, 0x010100d0, 0x010100d1
-        };
-        public static final int Fragment_id = 1;
-        public static final int Fragment_name = 0;
-        public static final int Fragment_tag = 2;
-
-        private FragmentTag() {
-        }
     }
 
     /**
