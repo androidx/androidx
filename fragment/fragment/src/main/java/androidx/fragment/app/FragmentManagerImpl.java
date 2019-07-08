@@ -75,10 +75,10 @@ final class FragmentManagerImpl extends FragmentManager {
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
 
-    static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
-    static final String TARGET_STATE_TAG = "android:target_state";
-    static final String VIEW_STATE_TAG = "android:view_state";
-    static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
+    private static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
+    private static final String TARGET_STATE_TAG = "android:target_state";
+    private static final String VIEW_STATE_TAG = "android:view_state";
+    private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     private static final class FragmentLifecycleCallbacksHolder {
         final FragmentLifecycleCallbacks mCallback;
@@ -90,15 +90,16 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    ArrayList<OpGenerator> mPendingActions;
-    boolean mExecutingActions;
+    private ArrayList<OpGenerator> mPendingActions;
+    private boolean mExecutingActions;
 
-    int mNextFragmentIndex = 0;
+    private int mNextFragmentIndex = 0;
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayList<Fragment> mAdded = new ArrayList<>();
     final HashMap<String, Fragment> mActive = new HashMap<>();
     ArrayList<BackStackRecord> mBackStack;
-    ArrayList<Fragment> mCreatedMenus;
+    private ArrayList<Fragment> mCreatedMenus;
     private final FragmentLayoutInflaterFactory mLayoutInflaterFactory =
             new FragmentLayoutInflaterFactory(this);
     private OnBackPressedDispatcher mOnBackPressedDispatcher;
@@ -111,41 +112,42 @@ final class FragmentManagerImpl extends FragmentManager {
     };
 
     // Must be accessed while locked.
-    ArrayList<BackStackRecord> mBackStackIndices;
-    ArrayList<Integer> mAvailBackStackIndices;
+    private ArrayList<BackStackRecord> mBackStackIndices;
+    private ArrayList<Integer> mAvailBackStackIndices;
 
-    ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
+    private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
     private final CopyOnWriteArrayList<FragmentLifecycleCallbacksHolder>
             mLifecycleCallbacks = new CopyOnWriteArrayList<>();
 
     int mCurState = Fragment.INITIALIZING;
     FragmentHostCallback<?> mHost;
     FragmentContainer mContainer;
-    Fragment mParent;
+    private Fragment mParent;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable
     Fragment mPrimaryNav;
 
-    boolean mNeedMenuInvalidate;
-    boolean mStateSaved;
-    boolean mStopped;
-    boolean mDestroyed;
-    boolean mHavePendingDeferredStart;
+    private boolean mNeedMenuInvalidate;
+    private boolean mStateSaved;
+    private boolean mStopped;
+    private boolean mDestroyed;
+    private boolean mHavePendingDeferredStart;
 
     // Temporary vars for removing redundant operations in BackStackRecords:
-    ArrayList<BackStackRecord> mTmpRecords;
-    ArrayList<Boolean> mTmpIsPop;
-    ArrayList<Fragment> mTmpAddedFragments;
+    private ArrayList<BackStackRecord> mTmpRecords;
+    private ArrayList<Boolean> mTmpIsPop;
+    private ArrayList<Fragment> mTmpAddedFragments;
 
     // Temporary vars for state save and restore.
-    Bundle mStateBundle = null;
-    SparseArray<Parcelable> mStateArray = null;
+    private Bundle mStateBundle = null;
+    private SparseArray<Parcelable> mStateArray = null;
 
     // Postponed transactions.
-    ArrayList<StartEnterTransitionListener> mPostponedTransactions;
+    private ArrayList<StartEnterTransitionListener> mPostponedTransactions;
 
     private FragmentManagerViewModel mNonConfig;
 
-    Runnable mExecCommit = new Runnable() {
+    private Runnable mExecCommit = new Runnable() {
         @Override
         public void run() {
             execPendingActions();
@@ -389,7 +391,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     @NonNull
-    FragmentManagerViewModel getChildNonConfig(@NonNull Fragment f) {
+    private FragmentManagerViewModel getChildNonConfig(@NonNull Fragment f) {
         return mNonConfig.getChildNonConfig(f);
     }
 
@@ -575,12 +577,12 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    static final Interpolator DECELERATE_QUINT = new DecelerateInterpolator(2.5f);
-    static final Interpolator DECELERATE_CUBIC = new DecelerateInterpolator(1.5f);
+    private static final Interpolator DECELERATE_QUINT = new DecelerateInterpolator(2.5f);
+    private static final Interpolator DECELERATE_CUBIC = new DecelerateInterpolator(1.5f);
 
-    static final int ANIM_DUR = 220;
+    private static final int ANIM_DUR = 220;
 
-    static AnimationOrAnimator makeOpenCloseAnimation(float startScale,
+    private static AnimationOrAnimator makeOpenCloseAnimation(float startScale,
                                                       float endScale, float startAlpha, float endAlpha) {
         AnimationSet set = new AnimationSet(false);
         ScaleAnimation scale = new ScaleAnimation(startScale, endScale, startScale, endScale,
@@ -595,14 +597,14 @@ final class FragmentManagerImpl extends FragmentManager {
         return new AnimationOrAnimator(set);
     }
 
-    static AnimationOrAnimator makeFadeAnimation(float start, float end) {
+    private static AnimationOrAnimator makeFadeAnimation(float start, float end) {
         AlphaAnimation anim = new AlphaAnimation(start, end);
         anim.setInterpolator(DECELERATE_CUBIC);
         anim.setDuration(ANIM_DUR);
         return new AnimationOrAnimator(anim);
     }
 
-    AnimationOrAnimator loadAnimation(Fragment fragment, int transit, boolean enter,
+    private AnimationOrAnimator loadAnimation(Fragment fragment, int transit, boolean enter,
                                       int transitionStyle) {
         int nextAnim = fragment.getNextAnim();
         // Clear the Fragment animation
@@ -706,7 +708,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return null;
     }
 
-    public void performPendingDeferredStart(Fragment f) {
+    void performPendingDeferredStart(@NonNull Fragment f) {
         if (f.mDeferStart) {
             if (mExecutingActions) {
                 // Wait until we're done executing our pending transactions
@@ -1138,7 +1140,7 @@ final class FragmentManagerImpl extends FragmentManager {
         moveToState(f, mCurState, 0, 0, false);
     }
 
-    void ensureInflatedFragmentView(Fragment f) {
+    private void ensureInflatedFragmentView(Fragment f) {
         if (f.mFromLayout && !f.mPerformedCreateView) {
             f.performCreateView(f.performGetLayoutInflater(
                     f.mSavedFragmentState), null, f.mSavedFragmentState);
@@ -1164,7 +1166,7 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param fragment The fragment with mHiddenChanged = true that should change its View's
      *                 visibility and start the show or hide animation.
      */
-    void completeShowHideFragment(final Fragment fragment) {
+    private void completeShowHideFragment(final Fragment fragment) {
         if (fragment.mView != null) {
             AnimationOrAnimator anim = loadAnimation(fragment, fragment.getNextTransition(),
                     !fragment.mHidden, fragment.getNextTransitionStyle());
@@ -1324,7 +1326,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void startPendingDeferredFragments() {
+    private void startPendingDeferredFragments() {
         for (Fragment f : mActive.values()) {
             if (f != null) {
                 performPendingDeferredStart(f);
@@ -1349,7 +1351,7 @@ final class FragmentManagerImpl extends FragmentManager {
         if (DEBUG) Log.v(TAG, "Added fragment to active set " + f);
     }
 
-    void makeInactive(Fragment f) {
+    private void makeInactive(Fragment f) {
         if (mActive.get(f.mWho) == null) {
             return;
         }
@@ -1376,7 +1378,7 @@ final class FragmentManagerImpl extends FragmentManager {
         f.initState();
     }
 
-    public void addFragment(Fragment fragment, boolean moveToStateNow) {
+    void addFragment(Fragment fragment, boolean moveToStateNow) {
         if (DEBUG) Log.v(TAG, "add: " + fragment);
         makeActive(fragment);
         if (!fragment.mDetached) {
@@ -1400,7 +1402,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void removeFragment(Fragment fragment) {
+    void removeFragment(Fragment fragment) {
         if (DEBUG) Log.v(TAG, "remove: " + fragment + " nesting=" + fragment.mBackStackNesting);
         final boolean inactive = !fragment.isInBackStack();
         if (!fragment.mDetached || inactive) {
@@ -1421,7 +1423,7 @@ final class FragmentManagerImpl extends FragmentManager {
      *
      * @param fragment The fragment to be shown.
      */
-    public void hideFragment(Fragment fragment) {
+    void hideFragment(Fragment fragment) {
         if (DEBUG) Log.v(TAG, "hide: " + fragment);
         if (!fragment.mHidden) {
             fragment.mHidden = true;
@@ -1437,7 +1439,7 @@ final class FragmentManagerImpl extends FragmentManager {
      *
      * @param fragment The fragment to be shown.
      */
-    public void showFragment(Fragment fragment) {
+    void showFragment(Fragment fragment) {
         if (DEBUG) Log.v(TAG, "show: " + fragment);
         if (fragment.mHidden) {
             fragment.mHidden = false;
@@ -1447,7 +1449,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void detachFragment(Fragment fragment) {
+    void detachFragment(Fragment fragment) {
         if (DEBUG) Log.v(TAG, "detach: " + fragment);
         if (!fragment.mDetached) {
             fragment.mDetached = true;
@@ -1465,7 +1467,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void attachFragment(Fragment fragment) {
+    void attachFragment(Fragment fragment) {
         if (DEBUG) Log.v(TAG, "attach: " + fragment);
         if (fragment.mDetached) {
             fragment.mDetached = false;
@@ -1527,7 +1529,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return null;
     }
 
-    public Fragment findFragmentByWho(@NonNull String who) {
+    Fragment findFragmentByWho(@NonNull String who) {
         for (Fragment f : mActive.values()) {
             if (f != null && (f = f.findFragmentByWho(who)) != null) {
                 return f;
@@ -1558,7 +1560,7 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param allowStateLoss whether to allow loss of state information
      * @throws IllegalStateException if the activity has been destroyed
      */
-    public void enqueueAction(OpGenerator action, boolean allowStateLoss) {
+    void enqueueAction(OpGenerator action, boolean allowStateLoss) {
         if (!allowStateLoss) {
             checkStateLoss();
         }
@@ -1598,7 +1600,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public int allocBackStackIndex(BackStackRecord bse) {
+    int allocBackStackIndex(BackStackRecord bse) {
         synchronized (this) {
             if (mAvailBackStackIndices == null || mAvailBackStackIndices.size() <= 0) {
                 if (mBackStackIndices == null) {
@@ -1618,7 +1620,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void setBackStackIndex(int index, BackStackRecord bse) {
+    private void setBackStackIndex(int index, BackStackRecord bse) {
         synchronized (this) {
             if (mBackStackIndices == null) {
                 mBackStackIndices = new ArrayList<>();
@@ -1643,7 +1645,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void freeBackStackIndex(int index) {
+    private void freeBackStackIndex(int index) {
         synchronized (this) {
             mBackStackIndices.set(index, null);
             if (mAvailBackStackIndices == null) {
@@ -1689,7 +1691,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void execSingleAction(OpGenerator action, boolean allowStateLoss) {
+    void execSingleAction(OpGenerator action, boolean allowStateLoss) {
         if (allowStateLoss && (mHost == null || mDestroyed)) {
             // This FragmentManager isn't attached, so drop the entire transaction.
             return;
@@ -2174,14 +2176,14 @@ final class FragmentManagerImpl extends FragmentManager {
         return didSomething;
     }
 
-    void doPendingDeferredStart() {
+    private void doPendingDeferredStart() {
         if (mHavePendingDeferredStart) {
             mHavePendingDeferredStart = false;
             startPendingDeferredFragments();
         }
     }
 
-    void reportBackStackChanged() {
+    private void reportBackStackChanged() {
         if (mBackStackChangeListeners != null) {
             for (int i=0; i<mBackStackChangeListeners.size(); i++) {
                 mBackStackChangeListeners.get(i).onBackStackChanged();
@@ -2196,9 +2198,9 @@ final class FragmentManagerImpl extends FragmentManager {
         mBackStack.add(state);
     }
 
-    @SuppressWarnings("unused")
-    boolean popBackStackState(ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop,
-                              String name, int id, int flags) {
+    @SuppressWarnings({"unused", "WeakerAccess"}) /* synthetic access */
+    boolean popBackStackState(ArrayList<BackStackRecord> records,
+            ArrayList<Boolean> isRecordPop, String name, int id, int flags) {
         if (mBackStack == null) {
             return false;
         }
@@ -2266,7 +2268,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return mNonConfig.getSnapshot();
     }
 
-    void saveFragmentViewState(Fragment f) {
+    private void saveFragmentViewState(Fragment f) {
         if (f.mInnerView == null) {
             return;
         }
@@ -2282,7 +2284,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    Bundle saveFragmentBasicState(Fragment f) {
+    private Bundle saveFragmentBasicState(Fragment f) {
         Bundle result = null;
 
         if (mStateBundle == null) {
@@ -2560,7 +2562,7 @@ final class FragmentManagerImpl extends FragmentManager {
         values.removeAll(Collections.singleton(null));
     }
 
-    public void attachController(@NonNull FragmentHostCallback<?> host,
+    void attachController(@NonNull FragmentHostCallback<?> host,
             @NonNull FragmentContainer container, @Nullable final Fragment parent) {
         if (mHost != null) throw new IllegalStateException("Already attached");
         mHost = host;
@@ -2591,7 +2593,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void noteStateNotSaved() {
+    void noteStateNotSaved() {
         mStateSaved = false;
         mStopped = false;
         final int addedCount = mAdded.size();
@@ -2603,44 +2605,44 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void dispatchCreate() {
+    void dispatchCreate() {
         mStateSaved = false;
         mStopped = false;
         dispatchStateChange(Fragment.CREATED);
     }
 
-    public void dispatchActivityCreated() {
+    void dispatchActivityCreated() {
         mStateSaved = false;
         mStopped = false;
         dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
-    public void dispatchStart() {
+    void dispatchStart() {
         mStateSaved = false;
         mStopped = false;
         dispatchStateChange(Fragment.STARTED);
     }
 
-    public void dispatchResume() {
+    void dispatchResume() {
         mStateSaved = false;
         mStopped = false;
         dispatchStateChange(Fragment.RESUMED);
     }
 
-    public void dispatchPause() {
+    void dispatchPause() {
         dispatchStateChange(Fragment.STARTED);
     }
 
-    public void dispatchStop() {
+    void dispatchStop() {
         mStopped = true;
         dispatchStateChange(Fragment.ACTIVITY_CREATED);
     }
 
-    public void dispatchDestroyView() {
+    void dispatchDestroyView() {
         dispatchStateChange(Fragment.CREATED);
     }
 
-    public void dispatchDestroy() {
+    void dispatchDestroy() {
         mDestroyed = true;
         execPendingActions();
         dispatchStateChange(Fragment.INITIALIZING);
@@ -2665,7 +2667,7 @@ final class FragmentManagerImpl extends FragmentManager {
         execPendingActions();
     }
 
-    public void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
+    void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
         for (int i = mAdded.size() - 1; i >= 0; --i) {
             final Fragment f = mAdded.get(i);
             if (f != null) {
@@ -2674,7 +2676,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void dispatchPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
+    void dispatchPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
         for (int i = mAdded.size() - 1; i >= 0; --i) {
             final Fragment f = mAdded.get(i);
             if (f != null) {
@@ -2683,7 +2685,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void dispatchConfigurationChanged(@NonNull Configuration newConfig) {
+    void dispatchConfigurationChanged(@NonNull Configuration newConfig) {
         for (int i = 0; i < mAdded.size(); i++) {
             Fragment f = mAdded.get(i);
             if (f != null) {
@@ -2692,7 +2694,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public void dispatchLowMemory() {
+    void dispatchLowMemory() {
         for (int i = 0; i < mAdded.size(); i++) {
             Fragment f = mAdded.get(i);
             if (f != null) {
@@ -2701,7 +2703,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    public boolean dispatchCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+    boolean dispatchCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -2734,7 +2736,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return show;
     }
 
-    public boolean dispatchPrepareOptionsMenu(@NonNull Menu menu) {
+    boolean dispatchPrepareOptionsMenu(@NonNull Menu menu) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -2750,7 +2752,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return show;
     }
 
-    public boolean dispatchOptionsItemSelected(@NonNull MenuItem item) {
+    boolean dispatchOptionsItemSelected(@NonNull MenuItem item) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -2765,7 +2767,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return false;
     }
 
-    public boolean dispatchContextItemSelected(@NonNull MenuItem item) {
+    boolean dispatchContextItemSelected(@NonNull MenuItem item) {
         if (mCurState < Fragment.CREATED) {
             return false;
         }
@@ -2780,7 +2782,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return false;
     }
 
-    public void dispatchOptionsMenuClosed(@NonNull Menu menu) {
+    void dispatchOptionsMenuClosed(@NonNull Menu menu) {
         if (mCurState < Fragment.CREATED) {
             return;
         }
@@ -2793,7 +2795,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     @SuppressWarnings("ReferenceEquality")
-    public void setPrimaryNavigationFragment(Fragment f) {
+    void setPrimaryNavigationFragment(Fragment f) {
         if (f != null && (mActive.get(f.mWho) != f
                 || (f.mHost != null && f.getFragmentManager() != this))) {
             throw new IllegalArgumentException("Fragment " + f
@@ -2823,7 +2825,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return mPrimaryNav;
     }
 
-    public void setMaxLifecycle(Fragment f, Lifecycle.State state) {
+    void setMaxLifecycle(Fragment f, Lifecycle.State state) {
         if ((mActive.get(f.mWho) != f
                 || (f.mHost != null && f.getFragmentManager() != this))) {
             throw new IllegalArgumentException("Fragment " + f
@@ -2875,7 +2877,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentPreAttached(@NonNull Fragment f, @NonNull Context context,
+    private void dispatchOnFragmentPreAttached(@NonNull Fragment f, @NonNull Context context,
                                        boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
@@ -2891,8 +2893,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentAttached(@NonNull Fragment f, @NonNull Context context,
-                                    boolean onlyRecursive) {
+    private void dispatchOnFragmentAttached(@NonNull Fragment f, @NonNull Context context,
+            boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -2907,8 +2909,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentPreCreated(@NonNull Fragment f, @Nullable Bundle savedInstanceState,
-                                      boolean onlyRecursive) {
+    private void dispatchOnFragmentPreCreated(@NonNull Fragment f,
+            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -2923,8 +2925,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentCreated(@NonNull Fragment f, @Nullable Bundle savedInstanceState,
-                                   boolean onlyRecursive) {
+    private void dispatchOnFragmentCreated(@NonNull Fragment f,
+            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -2939,8 +2941,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentActivityCreated(@NonNull Fragment f, @Nullable Bundle savedInstanceState,
-                                           boolean onlyRecursive) {
+    private void dispatchOnFragmentActivityCreated(@NonNull Fragment f,
+            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -2955,8 +2957,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentViewCreated(@NonNull Fragment f, @NonNull View v,
-                                       @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
+    private void dispatchOnFragmentViewCreated(@NonNull Fragment f, @NonNull View v,
+            @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -2971,7 +2973,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentStarted(@NonNull Fragment f, boolean onlyRecursive) {
+    private void dispatchOnFragmentStarted(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -2986,7 +2988,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentResumed(@NonNull Fragment f, boolean onlyRecursive) {
+    private void dispatchOnFragmentResumed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3001,7 +3003,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentPaused(@NonNull Fragment f, boolean onlyRecursive) {
+    private void dispatchOnFragmentPaused(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3016,7 +3018,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentStopped(@NonNull Fragment f, boolean onlyRecursive) {
+    private void dispatchOnFragmentStopped(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3031,8 +3033,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentSaveInstanceState(@NonNull Fragment f, @NonNull Bundle outState,
-                                             boolean onlyRecursive) {
+    private void dispatchOnFragmentSaveInstanceState(@NonNull Fragment f, @NonNull Bundle outState,
+            boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3047,7 +3049,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentViewDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
+    private void dispatchOnFragmentViewDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3062,7 +3064,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
+    private void dispatchOnFragmentDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3077,7 +3079,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    void dispatchOnFragmentDetached(@NonNull Fragment f, boolean onlyRecursive) {
+    private void dispatchOnFragmentDetached(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3111,7 +3113,7 @@ final class FragmentManagerImpl extends FragmentManager {
         return f.mHasMenu && f.mMenuVisible || f.mChildFragmentManager.checkForMenus();
     }
 
-    public static int reverseTransit(int transit) {
+    static int reverseTransit(int transit) {
         int rev = 0;
         switch (transit) {
             case FragmentTransaction.TRANSIT_FRAGMENT_OPEN:
@@ -3128,14 +3130,14 @@ final class FragmentManagerImpl extends FragmentManager {
 
     }
 
-    public static final int ANIM_STYLE_OPEN_ENTER = 1;
-    public static final int ANIM_STYLE_OPEN_EXIT = 2;
-    public static final int ANIM_STYLE_CLOSE_ENTER = 3;
-    public static final int ANIM_STYLE_CLOSE_EXIT = 4;
-    public static final int ANIM_STYLE_FADE_ENTER = 5;
-    public static final int ANIM_STYLE_FADE_EXIT = 6;
+    private static final int ANIM_STYLE_OPEN_ENTER = 1;
+    private static final int ANIM_STYLE_OPEN_EXIT = 2;
+    private static final int ANIM_STYLE_CLOSE_ENTER = 3;
+    private static final int ANIM_STYLE_CLOSE_EXIT = 4;
+    private static final int ANIM_STYLE_FADE_ENTER = 5;
+    private static final int ANIM_STYLE_FADE_EXIT = 6;
 
-    public static int transitToStyleIndex(int transit, boolean enter) {
+    private static int transitToStyleIndex(int transit, boolean enter) {
         int animAttr = -1;
         switch (transit) {
             case FragmentTransaction.TRANSIT_FRAGMENT_OPEN:
@@ -3259,7 +3261,7 @@ final class FragmentManagerImpl extends FragmentManager {
          * the transitions if this is called before all fragments have called
          * {@link Fragment#startPostponedEnterTransition()}.
          */
-        public void completeTransaction() {
+        void completeTransaction() {
             final boolean canceled;
             canceled = mNumPostponed > 0;
             FragmentManagerImpl manager = mRecord.mManager;
@@ -3278,7 +3280,7 @@ final class FragmentManagerImpl extends FragmentManager {
          * Cancels this transaction instead of completing it. That means that the state isn't
          * changed, so the pop results in no change to the state.
          */
-        public void cancelTransaction() {
+        void cancelTransaction() {
             mRecord.mManager.completeExecute(mRecord, mIsBack, false, false);
         }
     }
