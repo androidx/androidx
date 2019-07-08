@@ -80,19 +80,8 @@ class FlexChildren internal constructor() {
  * - [flexible] similar to [expanded], but the child can leave unoccupied width.
  *
  * Example usage:
- *     FlexRow {
- *         expanded(flex = 2f) {
- *             Center {
- *                 SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
- *             }
- *         }
- *         inflexible {
- *             SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp)
- *         }
- *         expanded(flex = 1f) {
- *             SizedRectangle(color = Color(0xFF00FF00.toInt()))
- *         }
- *     }
+ *
+ * @sample androidx.ui.layout.samples.SimpleFlexRow
  */
 @Composable
 fun FlexRow(
@@ -123,19 +112,8 @@ fun FlexRow(
  * - [flexible] similar to [expanded], but the child can leave unoccupied height.
  *
  * Example usage:
- *     ColumnFlex {
- *         expanded(flex = 2f) {
- *             Center {
- *                 SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
- *             }
- *         }
- *         inflexible {
- *             SizedRectangle(color = Color(0xFFFF0000.toInt()), height = 40.dp)
- *         }
- *         expanded(flex = 1f) {
- *             SizedRectangle(color = Color(0xFF00FF00.toInt()))
- *         }
- *     }
+ *
+ * @sample androidx.ui.layout.samples.SimpleFlexColumn
  */
 @Composable
 fun FlexColumn(
@@ -157,11 +135,8 @@ fun FlexColumn(
  * A widget that places its children in a horizontal sequence.
  *
  * Example usage:
- *   Row {
- *       SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
- *       SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
- *       SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
- *   }
+ *
+ * @sample androidx.ui.layout.samples.SimpleRow
  */
 @Composable
 fun Row(
@@ -185,11 +160,8 @@ fun Row(
  * A widget that places its children in a vertical sequence.
  *
  * Example usage:
- *   Column {
- *       SizedRectangle(color = Color(0xFF0000FF.toInt()), width = 40.dp, height = 40.dp)
- *       SizedRectangle(color = Color(0xFFFF0000.toInt()), width = 40.dp, height = 80.dp)
- *       SizedRectangle(color = Color(0xFF00FF00.toInt()), width = 80.dp, height = 70.dp)
- *   }
+ *
+ * @sample androidx.ui.layout.samples.SimpleColumn
  */
 @Composable
 fun Column(
