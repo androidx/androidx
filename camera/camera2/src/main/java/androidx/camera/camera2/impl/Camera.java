@@ -90,6 +90,7 @@ final class Camera implements BaseCamera {
      * <p>Is an atomic reference because it is initialized in the constructor which is not called on
      * same thread as any of the other methods and callbacks.
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final AtomicReference<State> mState = new AtomicReference<>(State.UNINITIALIZED);
     /** The camera control shared across all use cases bound to this Camera. */
     private final CameraControlInternal mCameraControlInternal;
@@ -101,6 +102,7 @@ final class Camera implements BaseCamera {
     private CameraInfo mCameraInfo;
     /** The handle to the opened camera. */
     @Nullable
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CameraDevice mCameraDevice;
     /** The configured session which handles issuing capture requests. */
     private CaptureSession mCaptureSession = new CaptureSession(null);
@@ -109,7 +111,7 @@ final class Camera implements BaseCamera {
 
     private final Object mPendingLock = new Object();
     @GuardedBy("mPendingLock")
-    final List<UseCase> mPendingForAddOnline = new ArrayList<>();
+    private final List<UseCase> mPendingForAddOnline = new ArrayList<>();
     @GuardedBy("mClosedCaptureSessions")
     private List<CaptureSession> mClosedCaptureSessions = new ArrayList<>();
 
@@ -442,14 +444,14 @@ final class Camera implements BaseCamera {
         }
     }
 
-    void notifyAttachToUseCaseSurfaces(UseCase useCase) {
+    private void notifyAttachToUseCaseSurfaces(UseCase useCase) {
         for (DeferrableSurface surface : useCase.getSessionConfig(
                 mCameraId).getSurfaces()) {
             surface.notifySurfaceAttached();
         }
     }
 
-    void notifyDetachFromUseCaseSurfaces(UseCase useCase) {
+    private void notifyDetachFromUseCaseSurfaces(UseCase useCase) {
         for (DeferrableSurface surface : useCase.getSessionConfig(
                 mCameraId).getSurfaces()) {
             surface.notifySurfaceDetached();
@@ -594,6 +596,7 @@ final class Camera implements BaseCamera {
     /** Opens the camera device */
     // TODO(b/124268878): Handle SecurityException and require permission in manifest.
     @SuppressLint("MissingPermission")
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void openCameraDevice() {
         mState.set(State.OPENING);
 
@@ -629,6 +632,7 @@ final class Camera implements BaseCamera {
      *
      * <p>The previously opened session will be safely disposed of before the new session opened.
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void openCaptureSession() {
         if (mState.get() != State.OPENED) {
             Log.d(TAG, "openCaptureSession() ignored due to being in state: " + mState.get());
@@ -683,6 +687,7 @@ final class Camera implements BaseCamera {
      * Closes the currently opened capture session, so it can be safely disposed. Replaces the old
      * session with a new session initialized with the old session's configuration.
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void resetCaptureSession() {
         Log.d(TAG, "Closing Capture Session: " + mCameraId);
 
@@ -767,8 +772,9 @@ final class Camera implements BaseCamera {
      * @param captureConfigs capture configuration used for creating CaptureRequest
      * @hide
      */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void submitCaptureRequests(final List<CaptureConfig> captureConfigs) {
+    void submitCaptureRequests(final List<CaptureConfig> captureConfigs) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -976,6 +982,8 @@ final class Camera implements BaseCamera {
                             + getErrorMessage(error));
             resetCaptureSession();
             switch (mState.get()) {
+                case INITIALIZED:
+                    break;
                 case CLOSING:
                     mState.set(State.INITIALIZED);
                     Camera.this.mCameraDevice = null;
