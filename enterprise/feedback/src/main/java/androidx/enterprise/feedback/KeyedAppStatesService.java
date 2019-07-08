@@ -29,9 +29,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
+
+import com.google.common.flogger.FluentLogger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,7 +59,7 @@ import java.util.Map;
  */
 public abstract class KeyedAppStatesService extends Service {
 
-    private static final String LOG_TAG = "KeyedAppStatesService";
+    static final FluentLogger sLogger = FluentLogger.forEnclosingClass();
 
     // This form is used instead of AsyncTask.execute(Runnable) as Robolectric causes tests to wait
     // for execution of these but does not currently wait for execution of
@@ -140,26 +141,26 @@ public abstract class KeyedAppStatesService extends Service {
             try {
                 bundle = (Bundle) message.obj;
             } catch (ClassCastException e) {
-                Log.e(LOG_TAG, "Could not extract state bundles from message");
+                sLogger.atSevere().log("Could not extract state bundles from message");
                 return Collections.emptyList();
             }
 
             if (bundle == null) {
-                Log.e(LOG_TAG, "Could not extract state bundles from message");
+                sLogger.atSevere().log("Could not extract state bundles from message");
                 return Collections.emptyList();
             }
 
             Collection<Bundle> stateBundles = bundle.getParcelableArrayList(APP_STATES);
 
             if (stateBundles == null) {
-                Log.e(LOG_TAG, "Could not extract state bundles from message");
+                sLogger.atSevere().log("Could not extract state bundles from message");
                 return Collections.emptyList();
             }
 
             Collection<ReceivedKeyedAppState> states = new ArrayList<>();
             for (Bundle stateBundle : stateBundles) {
                 if (!KeyedAppState.isValid(stateBundle)) {
-                    Log.e(LOG_TAG, "Invalid KeyedAppState in bundle");
+                    sLogger.atSevere().log("Invalid KeyedAppState in bundle");
                     continue;
                 }
                 states.add(ReceivedKeyedAppState.fromBundle(stateBundle, packageName, timestamp));

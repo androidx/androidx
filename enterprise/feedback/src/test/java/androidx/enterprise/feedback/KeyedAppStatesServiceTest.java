@@ -39,6 +39,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.SystemClock;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -66,7 +67,8 @@ public class KeyedAppStatesServiceTest {
         boolean mRequestSync;
 
         @Override
-        public void onReceive(Collection<ReceivedKeyedAppState> states, boolean requestSync) {
+        public void onReceive(
+                @NonNull Collection<ReceivedKeyedAppState> states, boolean requestSync) {
             this.mStates = Collections.unmodifiableCollection(states);
             this.mRequestSync = requestSync;
         }
