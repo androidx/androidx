@@ -55,6 +55,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.util.DebugUtils;
 import androidx.core.view.LayoutInflaterCompat;
@@ -1042,6 +1043,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * be called whenever the fragment changes state from that.
      * @param hidden True if the fragment is now hidden, false otherwise.
      */
+    @MainThread
     public void onHiddenChanged(boolean hidden) {
     }
 
@@ -1480,6 +1482,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @UiThread
     @CallSuper
     public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
             @Nullable Bundle savedInstanceState) {
@@ -1498,6 +1501,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @deprecated See {@link #onInflate(Context, AttributeSet, Bundle)}.
      */
     @Deprecated
+    @UiThread
     @CallSuper
     public void onInflate(@NonNull Activity activity, @NonNull AttributeSet attrs,
             @Nullable Bundle savedInstanceState) {
@@ -1513,6 +1517,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param childFragment child fragment being attached
      */
+    @MainThread
     public void onAttachFragment(@NonNull Fragment childFragment) {
     }
 
@@ -1520,6 +1525,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when a fragment is first attached to its context.
      * {@link #onCreate(Bundle)} will be called after this.
      */
+    @MainThread
     @CallSuper
     public void onAttach(@NonNull Context context) {
         mCalled = true;
@@ -1537,6 +1543,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @deprecated See {@link #onAttach(Context)}.
      */
     @Deprecated
+    @MainThread
     @CallSuper
     public void onAttach(@NonNull Activity activity) {
         mCalled = true;
@@ -1557,6 +1564,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                 {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}, or
      *                 0 if neither was called. The value will depend on the current operation.
      */
+    @MainThread
     @Nullable
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
         return null;
@@ -1578,6 +1586,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *                 {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}, or
      *                 0 if neither was called. The value will depend on the current operation.
      */
+    @MainThread
     @Nullable
     public Animator onCreateAnimator(int transit, boolean enter, int nextAnim) {
         return null;
@@ -1600,6 +1609,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @MainThread
     @CallSuper
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
@@ -1655,6 +1665,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @return Return the View for the fragment's UI, or null.
      */
+    @MainThread
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
@@ -1674,6 +1685,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If non-null, this fragment is being re-constructed
      * from a previous saved state as given here.
      */
+    @MainThread
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     }
 
@@ -1717,6 +1729,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @MainThread
     @CallSuper
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         mCalled = true;
@@ -1733,6 +1746,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param savedInstanceState If the fragment is being re-created from
      * a previous saved state, this is the state.
      */
+    @MainThread
     @CallSuper
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         mCalled = true;
@@ -1743,6 +1757,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onStart() Activity.onStart} of the containing
      * Activity's lifecycle.
      */
+    @MainThread
     @CallSuper
     public void onStart() {
         mCalled = true;
@@ -1754,6 +1769,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onResume() Activity.onResume} of the containing
      * Activity's lifecycle.
      */
+    @MainThread
     @CallSuper
     public void onResume() {
         mCalled = true;
@@ -1778,6 +1794,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @param outState Bundle in which to place your saved state.
      */
+    @MainThread
     public void onSaveInstanceState(@NonNull Bundle outState) {
     }
 
@@ -1817,6 +1834,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link #getParentFragment() parent fragment} is set as the primary navigation fragment
      * via {@link androidx.fragment.app.FragmentTransaction#setPrimaryNavigationFragment}.
      */
+    @MainThread
     public void onPrimaryNavigationFragmentChanged(boolean isPrimaryNavigationFragment) {
     }
 
@@ -1825,6 +1843,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onPause() Activity.onPause} of the containing
      * Activity's lifecycle.
      */
+    @MainThread
     @CallSuper
     public void onPause() {
         mCalled = true;
@@ -1835,11 +1854,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * tied to {@link Activity#onStop() Activity.onStop} of the containing
      * Activity's lifecycle.
      */
+    @MainThread
     @CallSuper
     public void onStop() {
         mCalled = true;
     }
 
+    @MainThread
     @Override
     @CallSuper
     public void onLowMemory() {
@@ -1855,6 +1876,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * non-null view.  Internally it is called after the view's state has
      * been saved but before it has been removed from its parent.
      */
+    @MainThread
     @CallSuper
     public void onDestroyView() {
         mCalled = true;
@@ -1864,6 +1886,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when the fragment is no longer in use.  This is called
      * after {@link #onStop()} and before {@link #onDetach()}.
      */
+    @MainThread
     @CallSuper
     public void onDestroy() {
         mCalled = true;
@@ -1898,6 +1921,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Called when the fragment is no longer attached to its activity.  This
      * is called after {@link #onDestroy()}.
      */
+    @MainThread
     @CallSuper
     public void onDetach() {
         mCalled = true;
@@ -1916,6 +1940,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @see #onPrepareOptionsMenu
      * @see #onOptionsItemSelected
      */
+    @MainThread
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
     }
 
@@ -1933,6 +1958,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @see #setHasOptionsMenu
      * @see #onCreateOptionsMenu
      */
+    @MainThread
     public void onPrepareOptionsMenu(@NonNull Menu menu) {
     }
 
@@ -1943,6 +1969,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * included in the newly built menu (its {@link #onCreateOptionsMenu(Menu, MenuInflater)}
      * was not called).
      */
+    @MainThread
     public void onDestroyOptionsMenu() {
     }
 
@@ -1964,6 +1991,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      *
      * @see #onCreateOptionsMenu
      */
+    @MainThread
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         return false;
     }
@@ -1975,6 +2003,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param menu The options menu as last shown or first initialized by
      *             onCreateOptionsMenu().
      */
+    @MainThread
     public void onOptionsMenuClosed(@NonNull Menu menu) {
     }
 
@@ -1995,6 +2024,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * It is not safe to hold onto the context menu after this method returns.
      * {@inheritDoc}
      */
+    @MainThread
     @Override
     public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v,
             @Nullable ContextMenuInfo menuInfo) {
@@ -2043,6 +2073,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @return boolean Return false to allow normal context menu processing to
      *         proceed, true to consume it here.
      */
+    @MainThread
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         return false;
     }
