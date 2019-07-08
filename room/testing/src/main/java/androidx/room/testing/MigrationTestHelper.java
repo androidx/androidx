@@ -389,7 +389,8 @@ public class MigrationTestHelper extends TestWatcher {
 
     private static TableInfo.Column toColumn(EntityBundle entity, FieldBundle field) {
         return new TableInfo.Column(field.getColumnName(), field.getAffinity(),
-                field.isNonNull(), findPrimaryKeyPosition(entity, field), field.getDefaultValue());
+                field.isNonNull(), findPrimaryKeyPosition(entity, field), field.getDefaultValue(),
+                TableInfo.CREATED_FROM_ENTITY);
     }
 
     private static int findPrimaryKeyPosition(EntityBundle entity, FieldBundle field) {
