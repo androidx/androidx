@@ -23,11 +23,9 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Parcelable;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -55,7 +53,6 @@ import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
-import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
@@ -74,7 +71,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Container for fragments associated with an activity.
  */
-final class FragmentManagerImpl extends FragmentManager implements LayoutInflater.Factory2 {
+final class FragmentManagerImpl extends FragmentManager {
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
 
@@ -102,6 +99,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     final HashMap<String, Fragment> mActive = new HashMap<>();
     ArrayList<BackStackRecord> mBackStack;
     ArrayList<Fragment> mCreatedMenus;
+    private final FragmentLayoutInflaterFactory mLayoutInflaterFactory =
+            new FragmentLayoutInflaterFactory(this);
     private OnBackPressedDispatcher mOnBackPressedDispatcher;
     private final OnBackPressedCallback mOnBackPressedCallback =
             new OnBackPressedCallback(false) {
@@ -3152,108 +3151,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return animAttr;
     }
 
-    @Override
-    @Nullable
-    public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
-                             @NonNull AttributeSet attrs) {
-        if (!"fragment".equals(name)) {
-            return null;
-        }
-
-        String fname = attrs.getAttributeValue(null, "class");
-        TypedArray a =  context.obtainStyledAttributes(attrs, R.styleable.Fragment);
-        if (fname == null) {
-            fname = a.getString(R.styleable.Fragment_android_name);
-        }
-        int id = a.getResourceId(R.styleable.Fragment_android_id, View.NO_ID);
-        String tag = a.getString(R.styleable.Fragment_android_tag);
-        a.recycle();
-
-        if (fname == null || !FragmentFactory.isFragmentClass(context.getClassLoader(), fname)) {
-            // Invalid support lib fragment; let the device's framework handle it.
-            // This will allow android.app.Fragments to do the right thing.
-            return null;
-        }
-
-        int containerId = parent != null ? parent.getId() : 0;
-        if (containerId == View.NO_ID && id == View.NO_ID && tag == null) {
-            throw new IllegalArgumentException(attrs.getPositionDescription()
-                    + ": Must specify unique android:id, android:tag, or have a parent with an id for " + fname);
-        }
-
-        // If we restored from a previous state, we may already have
-        // instantiated this fragment from the state and should use
-        // that instance instead of making a new one.
-        Fragment fragment = id != View.NO_ID ? findFragmentById(id) : null;
-        if (fragment == null && tag != null) {
-            fragment = findFragmentByTag(tag);
-        }
-        if (fragment == null && containerId != View.NO_ID) {
-            fragment = findFragmentById(containerId);
-        }
-
-        if (FragmentManagerImpl.DEBUG) Log.v(TAG, "onCreateView: id=0x"
-                + Integer.toHexString(id) + " fname=" + fname
-                + " existing=" + fragment);
-        if (fragment == null) {
-            fragment = getFragmentFactory().instantiate(context.getClassLoader(), fname);
-            fragment.mFromLayout = true;
-            fragment.mFragmentId = id != 0 ? id : containerId;
-            fragment.mContainerId = containerId;
-            fragment.mTag = tag;
-            fragment.mInLayout = true;
-            fragment.mFragmentManager = this;
-            fragment.mHost = mHost;
-            fragment.onInflate(mHost.getContext(), attrs, fragment.mSavedFragmentState);
-            addFragment(fragment, true);
-
-        } else if (fragment.mInLayout) {
-            // A fragment already exists and it is not one we restored from
-            // previous state.
-            throw new IllegalArgumentException(attrs.getPositionDescription()
-                    + ": Duplicate id 0x" + Integer.toHexString(id)
-                    + ", tag " + tag + ", or parent id 0x" + Integer.toHexString(containerId)
-                    + " with another fragment for " + fname);
-        } else {
-            // This fragment was retained from a previous instance; get it
-            // going now.
-            fragment.mInLayout = true;
-            fragment.mHost = mHost;
-            // Give the Fragment the attributes to initialize itself.
-            fragment.onInflate(mHost.getContext(), attrs, fragment.mSavedFragmentState);
-        }
-
-        // If we haven't finished entering the CREATED state ourselves yet,
-        // push the inflated child fragment along. This will ensureInflatedFragmentView
-        // at the right phase of the lifecycle so that we will have mView populated
-        // for compliant fragments below.
-        if (mCurState < Fragment.CREATED && fragment.mFromLayout) {
-            moveToState(fragment, Fragment.CREATED, 0, 0, false);
-        } else {
-            moveToState(fragment);
-        }
-
-        if (fragment.mView == null) {
-            throw new IllegalStateException("Fragment " + fname
-                    + " did not create a view.");
-        }
-        if (id != 0) {
-            fragment.mView.setId(id);
-        }
-        if (fragment.mView.getTag() == null) {
-            fragment.mView.setTag(tag);
-        }
-        return fragment.mView;
-    }
-
-    @Override
-    public View onCreateView(@NonNull String name, @NonNull Context context,
-            @NonNull AttributeSet attrs) {
-        return onCreateView(null, name, context, attrs);
-    }
-
+    @NonNull
     LayoutInflater.Factory2 getLayoutInflaterFactory() {
-        return this;
+        return mLayoutInflaterFactory;
     }
 
     /**
