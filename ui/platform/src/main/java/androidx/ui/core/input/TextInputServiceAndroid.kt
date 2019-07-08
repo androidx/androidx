@@ -119,13 +119,13 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     private fun fillEditorInfo(keyboardType: KeyboardType, outInfo: EditorInfo) {
         when (keyboardType) {
             KeyboardType.Text -> outInfo.inputType = InputType.TYPE_CLASS_TEXT
-            KeyboardType.ASCII -> {
+            KeyboardType.Ascii -> {
                 outInfo.inputType = InputType.TYPE_CLASS_TEXT
                 outInfo.imeOptions = EditorInfo.IME_FLAG_FORCE_ASCII
             }
             KeyboardType.Number -> outInfo.inputType = InputType.TYPE_CLASS_NUMBER
             KeyboardType.Phone -> outInfo.inputType = InputType.TYPE_CLASS_PHONE
-            KeyboardType.URI ->
+            KeyboardType.Uri ->
                 outInfo.inputType = InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI
             KeyboardType.Email ->
                 outInfo.inputType =

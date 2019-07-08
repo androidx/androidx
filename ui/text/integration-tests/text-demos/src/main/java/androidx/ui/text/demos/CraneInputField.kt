@@ -33,7 +33,7 @@ import androidx.ui.text.TextStyle
 
 val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.Text, "Text"),
-    Pair(KeyboardType.ASCII, "ASCII"),
+    Pair(KeyboardType.Ascii, "Ascii"),
     Pair(KeyboardType.Number, "Number"),
     Pair(KeyboardType.Email, "Email"),
     Pair(KeyboardType.Phone, "Phone")
