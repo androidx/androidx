@@ -30,8 +30,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.EdgeInsets
+import androidx.ui.layout.FlexSize
 import androidx.ui.layout.MainAxisAlignment
-import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.material.Checkbox
@@ -99,7 +99,7 @@ fun CustomRadioGroup() {
     val textStyle = +themeTextStyle { subtitle1 }
 
     RadioGroup {
-        Row(mainAxisSize = MainAxisSize.Min) {
+        Row(mainAxisSize = FlexSize.Min) {
             radioOptions.forEach { text ->
                 val selected = text == selectedOption
                 RadioGroupItem(
@@ -154,7 +154,7 @@ fun CheckboxDemo() {
 fun SwitchDemo() {
     Row(
         mainAxisAlignment = MainAxisAlignment.SpaceAround,
-        mainAxisSize = MainAxisSize.Min
+        mainAxisSize = FlexSize.Min
     ) {
         val (checked, onChecked) = +state { false }
         val (checked2, onChecked2) = +state { false }
@@ -171,7 +171,7 @@ fun SwitchDemo() {
 fun RadioButtonDemo() {
     Row(
         mainAxisAlignment = MainAxisAlignment.SpaceAround,
-        mainAxisSize = MainAxisSize.Min
+        mainAxisSize = FlexSize.Min
     ) {
         RadioButton(selected = true, onSelect = null)
         RadioButton(selected = false, onSelect = null)
