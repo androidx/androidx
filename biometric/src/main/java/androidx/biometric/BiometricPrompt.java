@@ -479,7 +479,6 @@ public class BiometricPrompt implements BiometricConstants {
                                 BIOMETRIC_FRAGMENT_TAG);
                 if (DEBUG) Log.v(TAG, "BiometricFragment: " + mBiometricFragment);
                 if (mBiometricFragment != null) {
-                    mBiometricFragment.setClientFragmentManager(getFragmentManager());
                     mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
                             mAuthenticationCallback);
                 }
@@ -614,7 +613,6 @@ public class BiometricPrompt implements BiometricConstants {
             } else {
                 mBiometricFragment = BiometricFragment.newInstance();
             }
-            mBiometricFragment.setClientFragmentManager(fragmentManager);
             mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
                     mAuthenticationCallback);
             // Set the crypto object.

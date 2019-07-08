@@ -35,7 +35,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import java.util.concurrent.Executor;
 
@@ -60,7 +59,6 @@ public class BiometricFragment extends Fragment {
     private Bundle mBundle;
 
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
-    private FragmentManager mClientFragmentManager;
     private Executor mClientExecutor;
     private DialogInterface.OnClickListener mClientNegativeButtonListener;
     private BiometricPrompt.AuthenticationCallback mClientAuthenticationCallback;
@@ -156,10 +154,6 @@ public class BiometricFragment extends Fragment {
         return biometricFragment;
     }
 
-    protected void setClientFragmentManager(FragmentManager clientFragmentManager) {
-        mClientFragmentManager = clientFragmentManager;
-    }
-
     /**
      * Sets the client's callback. This should be done whenever the lifecycle changes (orientation
      * changes).
@@ -204,8 +198,8 @@ public class BiometricFragment extends Fragment {
      */
     void cleanup() {
         mShowing = false;
-        if (getActivity() != null) {
-            mClientFragmentManager.beginTransaction().detach(this).commitAllowingStateLoss();
+        if (getFragmentManager() != null) {
+            getFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
         }
     }
 
