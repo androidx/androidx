@@ -16,6 +16,7 @@
 
 package androidx.ui.input
 
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.text.TextRange
 import org.junit.Assert.assertEquals
@@ -147,6 +148,7 @@ class MoveCursorEditOpTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
     fun test_left_emoji() {
         val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length, FAMILY.length))
 
@@ -158,6 +160,7 @@ class MoveCursorEditOpTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
     fun test_right_emoji() {
         val eb = EditingBuffer("$FAMILY$FAMILY", TextRange(FAMILY.length, FAMILY.length))
 
