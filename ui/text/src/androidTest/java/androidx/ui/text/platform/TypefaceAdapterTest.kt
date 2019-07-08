@@ -40,6 +40,7 @@ import androidx.ui.text.FontTestData.Companion.FONT_800_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_800_REGULAR
 import androidx.ui.text.FontTestData.Companion.FONT_900_ITALIC
 import androidx.ui.text.FontTestData.Companion.FONT_900_REGULAR
+import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.Font
 import androidx.ui.text.font.FontFamily
@@ -66,7 +67,7 @@ class TypefaceAdapterTest {
     // TODO(Migration/siyamed): These native calls should be removed after the
     // counterparts are implemented in crane.
     private val context = InstrumentationRegistry.getInstrumentation().context
-    private val resourceLoader = AndroidFontResourceLoader(context)
+    private val resourceLoader = TestFontResourceLoader(context)
 
     private fun TypefaceAdapter() = TypefaceAdapter(resourceLoader = resourceLoader)
 

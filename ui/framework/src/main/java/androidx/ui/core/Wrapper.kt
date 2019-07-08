@@ -33,6 +33,8 @@ import androidx.compose.compositionReference
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.core.text.AndroidFontResourceLoader
+import androidx.ui.text.font.Font
 
 @Composable
 fun CraneWrapper(@Children children: @Composable() () -> Unit) {
@@ -69,7 +71,9 @@ fun CraneWrapper(@Children children: @Composable() () -> Unit) {
                 DensityAmbient.Provider(value = Density(context)) {
                     FocusManagerAmbient.Provider(value = focusManager) {
                         TextInputServiceAmbient.Provider(value = rootRef.value?.textInputService) {
-                            children()
+                            FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
+                                children()
+                            }
                         }
                     }
                 }
@@ -102,7 +106,9 @@ fun composeIntoActivity(
             DensityAmbient.Provider(value = Density(context)) {
                 FocusManagerAmbient.Provider(value = focusManager) {
                     TextInputServiceAmbient.Provider(value = craneView.textInputService) {
-                        children()
+                        FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
+                            children()
+                        }
                     }
                 }
             }
@@ -117,6 +123,8 @@ val DensityAmbient = Ambient.of<Density>()
 internal val FocusManagerAmbient = Ambient.of<FocusManager>()
 
 internal val TextInputServiceAmbient = Ambient.of<TextInputService?>()
+
+internal val FontLoaderAmbient = Ambient.of<Font.ResourceLoader>()
 
 /**
  * [ambient] to get a [Density] object from an internal [DensityAmbient].

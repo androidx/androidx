@@ -45,6 +45,7 @@ import androidx.ui.text.matchers.hasSpan
 import androidx.ui.text.matchers.hasSpanOnTop
 import androidx.ui.text.AnnotatedString
 import androidx.ui.painting.Shadow
+import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.TextStyle
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
@@ -1281,6 +1282,6 @@ class AndroidParagraphTest {
     }
 
     private fun TypefaceAdapter() = TypefaceAdapter(
-        resourceLoader = AndroidFontResourceLoader(context)
+        resourceLoader = TestFontResourceLoader(context)
     )
 }
