@@ -39,6 +39,13 @@ data class ParagraphStyle constructor(
     val lineHeight: Float? = null,
     val textIndent: TextIndent? = null
 ) {
+    init {
+        lineHeight?.let {
+            assert(it >= 0f) {
+                "lineHeight can't be negative ($it)"
+            }
+        }
+    }
     // TODO(siyamed) uncomment
 //    /**
 //     * Returns a new paragraph style that is a combination of this style and the given [other] style.

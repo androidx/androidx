@@ -62,7 +62,6 @@ import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.Paragraph
 import androidx.ui.text.ParagraphConstraints
-import androidx.ui.text.style.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextDirection
@@ -70,6 +69,7 @@ import androidx.ui.text.style.TextIndent
 import androidx.ui.text.AnnotatedString
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
+import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TextStyle
 import java.util.Locale
 import kotlin.math.floor
@@ -83,6 +83,8 @@ internal class AndroidParagraph constructor(
     val style: TextStyle,
     val paragraphStyle: ParagraphStyle,
     val textStyles: List<AnnotatedString.Item<TextStyle>>,
+    val maxLines: Int?,
+    val ellipsis: Boolean?,
     val typefaceAdapter: TypefaceAdapter,
     val density: Density
 ) : Paragraph {
@@ -99,11 +101,11 @@ internal class AndroidParagraph constructor(
         get() = layout?.let {
             // TODO(Migration/haoyuchang): Figure out a way to add bottomPadding properly
             val lineCount = it.lineCount
-            if (paragraphStyle.maxLines != null &&
-                paragraphStyle.maxLines >= 0 &&
-                paragraphStyle.maxLines < lineCount
+            if (maxLines != null &&
+                maxLines >= 0 &&
+                maxLines < lineCount
             ) {
-                it.layout.getLineBottom(paragraphStyle.maxLines - 1).toFloat()
+                it.layout.getLineBottom(maxLines - 1).toFloat()
             } else {
                 it.layout.height.toFloat()
             }
@@ -173,7 +175,7 @@ internal class AndroidParagraph constructor(
             else -> DEFAULT_TEXT_DIRECTION
         }
 
-        val maxLines = paragraphStyle.maxLines ?: DEFAULT_MAX_LINES
+        val maxLines = maxLines ?: DEFAULT_MAX_LINES
         val justificationMode = when (paragraphStyle.textAlign) {
             TextAlign.Justify -> JUSTIFICATION_MODE_INTER_WORD
             else -> DEFAULT_JUSTIFICATION_MODE
@@ -181,7 +183,7 @@ internal class AndroidParagraph constructor(
 
         val lineSpacingMultiplier = paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER
 
-        val ellipsize = if (paragraphStyle.ellipsis == true) {
+        val ellipsize = if (ellipsis == true) {
             TextUtils.TruncateAt.END
         } else {
             null

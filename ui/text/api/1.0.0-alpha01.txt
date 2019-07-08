@@ -100,7 +100,7 @@ package androidx.ui.text {
 
   public final class ParagraphKt {
     ctor public ParagraphKt();
-    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, androidx.ui.text.style.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
+    method public static androidx.ui.text.Paragraph Paragraph(String text, androidx.ui.text.TextStyle style, androidx.ui.text.ParagraphStyle paragraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>> textStyles, Integer? maxLines = null, Boolean? ellipsis = null, androidx.ui.core.Density density, androidx.ui.text.font.Font.ResourceLoader resourceLoader);
   }
 
   public final class ParagraphStyle {
@@ -341,24 +341,6 @@ package androidx.ui.text.style {
     method public androidx.ui.text.style.BaselineShift? lerp(androidx.ui.text.style.BaselineShift? a, androidx.ui.text.style.BaselineShift? b, float t);
     property public final androidx.ui.text.style.BaselineShift Subscript;
     property public final androidx.ui.text.style.BaselineShift Superscript;
-  }
-
-  public final class ParagraphStyle {
-    ctor public ParagraphStyle(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirection? textDirection, androidx.ui.text.style.TextIndent? textIndent, Float? lineHeight, Integer? maxLines, Boolean? ellipsis);
-    ctor public ParagraphStyle();
-    method public androidx.ui.text.style.TextAlign? component1();
-    method public androidx.ui.text.style.TextDirection? component2();
-    method public androidx.ui.text.style.TextIndent? component3();
-    method public Float? component4();
-    method public Integer? component5();
-    method public Boolean? component6();
-    method public androidx.ui.text.style.ParagraphStyle copy(androidx.ui.text.style.TextAlign? textAlign, androidx.ui.text.style.TextDirection? textDirection, androidx.ui.text.style.TextIndent? textIndent, Float? lineHeight, Integer? maxLines, Boolean? ellipsis);
-    method public Boolean? getEllipsis();
-    method public Float? getLineHeight();
-    method public Integer? getMaxLines();
-    method public androidx.ui.text.style.TextAlign? getTextAlign();
-    method public androidx.ui.text.style.TextDirection? getTextDirection();
-    method public androidx.ui.text.style.TextIndent? getTextIndent();
   }
 
   public enum TextAlign {
