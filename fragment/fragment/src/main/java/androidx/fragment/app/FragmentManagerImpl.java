@@ -43,6 +43,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.AnimRes;
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
@@ -67,7 +68,15 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Container for fragments associated with an activity.
+ * Static library support version of the framework's {@link android.app.FragmentManager}.
+ * Used to write apps that run on platforms prior to Android 3.0.  When running
+ * on Android 3.0 or above, this implementation is still used; it does not try
+ * to switch to the framework's implementation.  See the framework {@link FragmentManager}
+ * documentation for a class overview.
+ *
+ * <p>Your activity must derive from {@link FragmentActivity} to use this. From such an activity,
+ * you can acquire the {@link FragmentManager} by calling
+ * {@link FragmentActivity#getSupportFragmentManager}.
  */
 final class FragmentManagerImpl extends FragmentManager {
     static boolean DEBUG = false;
@@ -173,12 +182,46 @@ final class FragmentManagerImpl extends FragmentManager {
         throw ex;
     }
 
+    /**
+     * Start a series of edit operations on the Fragments associated with
+     * this FragmentManager.
+     *
+     * <p>Note: A fragment transaction can only be created/committed prior
+     * to an activity saving its state.  If you try to commit a transaction
+     * after {@link FragmentActivity#onSaveInstanceState FragmentActivity.onSaveInstanceState()}
+     * (and prior to a following {@link FragmentActivity#onStart FragmentActivity.onStart}
+     * or {@link FragmentActivity#onResume FragmentActivity.onResume()}, you will get an error.
+     * This is because the framework takes care of saving your current fragments
+     * in the state, and if changes are made after the state is saved then they
+     * will be lost.</p>
+     */
     @NonNull
     @Override
     public FragmentTransaction beginTransaction() {
         return new BackStackRecord(this);
     }
 
+    /**
+     * After a {@link FragmentTransaction} is committed with
+     * {@link FragmentTransaction#commit FragmentTransaction.commit()}, it
+     * is scheduled to be executed asynchronously on the process's main thread.
+     * If you want to immediately executing any such pending operations, you
+     * can call this function (only from the main thread) to do so.  Note that
+     * all callbacks and other related behavior will be done from within this
+     * call, so be careful about where this is called from.
+     *
+     * <p>If you are committing a single transaction that does not modify the
+     * fragment back stack, strongly consider using
+     * {@link FragmentTransaction#commitNow()} instead. This can help avoid
+     * unwanted side effects when other code in your app has pending committed
+     * transactions that expect different timing.</p>
+     * <p>
+     * This also forces the start of any postponed Transactions where
+     * {@link Fragment#postponeEnterTransition()} has been called.
+     *
+     * @return Returns true if there were any pending transactions to be
+     * executed.
+     */
     @Override
     public boolean executePendingTransactions() {
         boolean updates = execPendingActions();
@@ -245,28 +288,72 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
+    /**
+     * Pop the top state off the back stack. This function is asynchronous -- it enqueues the
+     * request to pop, but the action will not be performed until the application
+     * returns to its event loop.
+     */
     @Override
     public void popBackStack() {
         enqueueAction(new PopBackStackState(null, -1, 0), false);
     }
 
+    /**
+     * Like {@link #popBackStack()}, but performs the operation immediately
+     * inside of the call.  This is like calling {@link #executePendingTransactions()}
+     * afterwards without forcing the start of postponed Transactions.
+     * @return Returns true if there was something popped, else false.
+     */
     @Override
     public boolean popBackStackImmediate() {
         checkStateLoss();
         return popBackStackImmediate(null, -1, 0);
     }
 
+    /**
+     * Pop the last fragment transition from the manager's fragment
+     * back stack.
+     * This function is asynchronous -- it enqueues the
+     * request to pop, but the action will not be performed until the application
+     * returns to its event loop.
+     *
+     * @param name If non-null, this is the name of a previous back state
+     * to look for; if found, all states up to that state will be popped.  The
+     * {@link #POP_BACK_STACK_INCLUSIVE} flag can be used to control whether
+     * the named state itself is popped. If null, only the top state is popped.
+     * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
+     */
     @Override
     public void popBackStack(@Nullable final String name, final int flags) {
         enqueueAction(new PopBackStackState(name, -1, flags), false);
     }
 
+    /**
+     * Like {@link #popBackStack(String, int)}, but performs the operation immediately
+     * inside of the call.  This is like calling {@link #executePendingTransactions()}
+     * afterwards without forcing the start of postponed Transactions.
+     * @return Returns true if there was something popped, else false.
+     */
     @Override
     public boolean popBackStackImmediate(@Nullable String name, int flags) {
         checkStateLoss();
         return popBackStackImmediate(name, -1, flags);
     }
 
+    /**
+     * Pop all back stack states up to the one with the given identifier.
+     * This function is asynchronous -- it enqueues the
+     * request to pop, but the action will not be performed until the application
+     * returns to its event loop.
+     *
+     * @param id Identifier of the stated to be popped. If no identifier exists,
+     * false is returned.
+     * The identifier is the number returned by
+     * {@link FragmentTransaction#commit() FragmentTransaction.commit()}.  The
+     * {@link #POP_BACK_STACK_INCLUSIVE} flag can be used to control whether
+     * the named state itself is popped.
+     * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
+     */
     @Override
     public void popBackStack(final int id, final int flags) {
         if (id < 0) {
@@ -275,6 +362,12 @@ final class FragmentManagerImpl extends FragmentManager {
         enqueueAction(new PopBackStackState(null, id, flags), false);
     }
 
+    /**
+     * Like {@link #popBackStack(int, int)}, but performs the operation immediately
+     * inside of the call.  This is like calling {@link #executePendingTransactions()}
+     * afterwards without forcing the start of postponed Transactions.
+     * @return Returns true if there was something popped, else false.
+     */
     @Override
     public boolean popBackStackImmediate(int id, int flags) {
         checkStateLoss();
@@ -322,17 +415,27 @@ final class FragmentManagerImpl extends FragmentManager {
         return executePop;
     }
 
+    /**
+     * Return the number of entries currently in the back stack.
+     */
     @Override
     public int getBackStackEntryCount() {
         return mBackStack != null ? mBackStack.size() : 0;
     }
 
+    /**
+     * Return the BackStackEntry at index <var>index</var> in the back stack;
+     * entries start index 0 being the bottom of the stack.
+     */
     @NonNull
     @Override
     public BackStackEntry getBackStackEntryAt(int index) {
         return mBackStack.get(index);
     }
 
+    /**
+     * Add a new listener for changes to the fragment back stack.
+     */
     @Override
     public void addOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
         if (mBackStackChangeListeners == null) {
@@ -341,6 +444,10 @@ final class FragmentManagerImpl extends FragmentManager {
         mBackStackChangeListeners.add(listener);
     }
 
+    /**
+     * Remove a listener that was previously added with
+     * {@link #addOnBackStackChangedListener(OnBackStackChangedListener)}.
+     */
     @Override
     public void removeOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
         if (mBackStackChangeListeners != null) {
@@ -348,6 +455,16 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
+    /**
+     * Put a reference to a fragment in a Bundle.  This Bundle can be
+     * persisted as saved state, and when later restoring
+     * {@link #getFragment(Bundle, String)} will return the current
+     * instance of the same fragment.
+     *
+     * @param bundle The bundle in which to put the fragment reference.
+     * @param key The name of the entry in the bundle.
+     * @param fragment The Fragment whose reference is to be stored.
+     */
     @Override
     public void putFragment(@NonNull Bundle bundle, @NonNull String key,
             @NonNull Fragment fragment) {
@@ -358,6 +475,15 @@ final class FragmentManagerImpl extends FragmentManager {
         bundle.putString(key, fragment.mWho);
     }
 
+    /**
+     * Retrieve the current Fragment instance for a reference previously
+     * placed with {@link #putFragment(Bundle, String, Fragment)}.
+     *
+     * @param bundle The bundle from which to retrieve the fragment reference.
+     * @param key The name of the entry in the bundle.
+     * @return Returns the current Fragment instance that is associated with
+     * the given reference.
+     */
     @Override
     @Nullable
     public Fragment getFragment(@NonNull Bundle bundle, @NonNull String key) {
@@ -373,6 +499,17 @@ final class FragmentManagerImpl extends FragmentManager {
         return f;
     }
 
+    /**
+     * Get a list of all fragments that are currently added to the FragmentManager.
+     * This may include those that are hidden as well as those that are shown.
+     * This will not include any fragments only in the back stack, or fragments that
+     * are detached or removed.
+     * <p>
+     * The order of the fragments in the list is the order in which they were
+     * added or attached.
+     *
+     * @return A list of all fragments that are added to the FragmentManager.
+     */
     @NonNull
     @Override
     @SuppressWarnings("unchecked")
@@ -441,6 +578,28 @@ final class FragmentManagerImpl extends FragmentManager {
         return mActive.size();
     }
 
+    /**
+     * Save the current instance state of the given Fragment.  This can be
+     * used later when creating a new instance of the Fragment and adding
+     * it to the fragment manager, to have it create itself to match the
+     * current state returned here.  Note that there are limits on how
+     * this can be used:
+     *
+     * <ul>
+     * <li>The Fragment must currently be attached to the FragmentManager.
+     * <li>A new Fragment created using this saved state must be the same class
+     * type as the Fragment it was created from.
+     * <li>The saved state can not contain dependencies on other fragments --
+     * that is it can't use {@link #putFragment(Bundle, String, Fragment)} to
+     * store a fragment reference because that reference may not be valid when
+     * this saved state is later used.  Likewise the Fragment's target and
+     * result code are not included in this state.
+     * </ul>
+     *
+     * @param fragment The Fragment whose state is to be saved.
+     * @return The generated state.  This will be null if there was no
+     * interesting state created by the fragment.
+     */
     @Override
     @Nullable
     public Fragment.SavedState saveFragmentInstanceState(@NonNull Fragment fragment) {
@@ -455,6 +614,10 @@ final class FragmentManagerImpl extends FragmentManager {
         return null;
     }
 
+    /**
+     * Returns true if the final {@link android.app.Activity#onDestroy() Activity.onDestroy()}
+     * call has been made on the FragmentManager's Activity, so this instance is now dead.
+     */
     @Override
     public boolean isDestroyed() {
         return mDestroyed;
@@ -475,6 +638,14 @@ final class FragmentManagerImpl extends FragmentManager {
         return sb.toString();
     }
 
+    /**
+     * Print the FragmentManager's state into the given stream.
+     *
+     * @param prefix Text to print at the front of each line.
+     * @param fd The raw file descriptor that the dump is being sent to.
+     * @param writer A PrintWriter to which the dump is to be set.
+     * @param args Additional arguments to the dump request.
+     */
     @Override
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
                      @NonNull PrintWriter writer, @Nullable String[] args) {
@@ -1451,9 +1622,17 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
+    /**
+     * Finds a fragment that was identified by the given id either when inflated
+     * from XML or as the container ID when added in a transaction.  This first
+     * searches through fragments that are currently added to the manager's
+     * activity; if no such fragment is found, then all fragments currently
+     * on the back stack associated with this ID are searched.
+     * @return The fragment if found or null otherwise.
+     */
     @Override
     @Nullable
-    public Fragment findFragmentById(int id) {
+    public Fragment findFragmentById(@IdRes int id) {
         // First look through added fragments.
         for (int i = mAdded.size() - 1; i >= 0; i--) {
             Fragment f = mAdded.get(i);
@@ -1470,6 +1649,14 @@ final class FragmentManagerImpl extends FragmentManager {
         return null;
     }
 
+    /**
+     * Finds a fragment that was identified by the given tag either when inflated
+     * from XML or as supplied when added in a transaction.  This first
+     * searches through fragments that are currently added to the manager's
+     * activity; if no such fragment is found, then all fragments currently
+     * on the back stack are searched.
+     * @return The fragment if found or null otherwise.
+     */
     @Override
     @Nullable
     public Fragment findFragmentByTag(@Nullable String tag) {
@@ -1509,6 +1696,17 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
+    /**
+     * Returns {@code true} if the FragmentManager's state has already been saved
+     * by its host. Any operations that would change saved state should not be performed
+     * if this method returns true. For example, any popBackStack() method, such as
+     * {@link #popBackStackImmediate()} or any FragmentTransaction using
+     * {@link FragmentTransaction#commit()} instead of
+     * {@link FragmentTransaction#commitAllowingStateLoss()} will change
+     * the state and will result in an error.
+     *
+     * @return true if this FragmentManager's state has already been saved by its host
+     */
     @Override
     public boolean isStateSaved() {
         // See saveAllState() for the explanation of this.  We do this for
@@ -2770,6 +2968,18 @@ final class FragmentManagerImpl extends FragmentManager {
         dispatchParentPrimaryNavigationFragmentChanged(mPrimaryNav);
     }
 
+    /**
+     * Return the currently active primary navigation fragment for this FragmentManager.
+     * The primary navigation fragment is set by fragment transactions using
+     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}.
+     *
+     * <p>The primary navigation fragment's
+     * {@link Fragment#getChildFragmentManager() child FragmentManager} will be called first
+     * to process delegated navigation actions such as {@link #popBackStack()} if no ID
+     * or transaction name is provided to pop to.</p>
+     *
+     * @return the fragment designated as the primary navigation fragment
+     */
     @Override
     @Nullable
     public Fragment getPrimaryNavigationFragment() {
@@ -2785,6 +2995,11 @@ final class FragmentManagerImpl extends FragmentManager {
         f.mMaxState = state;
     }
 
+    /**
+     * Gets the current {@link FragmentFactory} used to instantiate new Fragment instances.
+     *
+     * @return the current FragmentFactory
+     */
     @Override
     @NonNull
     public FragmentFactory getFragmentFactory() {
@@ -2810,12 +3025,27 @@ final class FragmentManagerImpl extends FragmentManager {
         return super.getFragmentFactory();
     }
 
+    /**
+     * Registers a {@link FragmentLifecycleCallbacks} to listen to fragment lifecycle events
+     * happening in this FragmentManager. All registered callbacks will be automatically
+     * unregistered when this FragmentManager is destroyed.
+     *
+     * @param cb Callbacks to register
+     * @param recursive true to automatically register this callback for all child FragmentManagers
+     */
     @Override
     public void registerFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb,
             boolean recursive) {
         mLifecycleCallbacks.add(new FragmentLifecycleCallbacksHolder(cb, recursive));
     }
 
+    /**
+     * Unregisters a previously registered {@link FragmentLifecycleCallbacks}. If the callback
+     * was not previously registered this call has no effect. All registered callbacks will be
+     * automatically unregistered when this FragmentManager is destroyed.
+     *
+     * @param cb Callbacks to unregister
+     */
     @Override
     public void unregisterFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb) {
         synchronized (mLifecycleCallbacks) {
