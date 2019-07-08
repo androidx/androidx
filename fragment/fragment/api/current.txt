@@ -388,7 +388,7 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction setPrimaryNavigationFragment(androidx.fragment.app.Fragment?);
     method public androidx.fragment.app.FragmentTransaction setReorderingAllowed(boolean);
     method public androidx.fragment.app.FragmentTransaction setTransition(int);
-    method public androidx.fragment.app.FragmentTransaction setTransitionStyle(@StyleRes int);
+    method @Deprecated public androidx.fragment.app.FragmentTransaction setTransitionStyle(@StyleRes int);
     method public androidx.fragment.app.FragmentTransaction show(androidx.fragment.app.Fragment);
     field public static final int TRANSIT_ENTER_MASK = 4096; // 0x1000
     field public static final int TRANSIT_EXIT_MASK = 8192; // 0x2000
