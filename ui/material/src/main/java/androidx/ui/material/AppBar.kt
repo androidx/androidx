@@ -34,7 +34,7 @@ import androidx.ui.layout.WidthSpacer
 import androidx.ui.material.surface.Surface
 import androidx.ui.graphics.Color
 import androidx.ui.layout.EdgeInsets
-import androidx.ui.layout.MainAxisSize
+import androidx.ui.layout.FlexSize
 
 /**
  * A Top App Bar displays information and actions relating to the current screen and is placed at
@@ -199,7 +199,7 @@ internal fun TrailingIcons(
     overflowIcon: @Composable() () -> Unit
 ) {
     if (numIcons > 0) {
-        Row(mainAxisSize = MainAxisSize.Min) {
+        Row(mainAxisSize = FlexSize.Min) {
             val needsOverflow = numIcons > maxIcons
             val iconsToDisplay = if (needsOverflow) maxIcons else numIcons
             for (index in 0 until iconsToDisplay) {

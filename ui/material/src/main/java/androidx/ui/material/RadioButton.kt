@@ -42,8 +42,8 @@ import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.layout.Container
+import androidx.ui.layout.FlexSize
 import androidx.ui.layout.MainAxisAlignment
-import androidx.ui.layout.MainAxisSize
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
@@ -109,7 +109,7 @@ fun RadioGroup(
     textStyle: TextStyle? = null
 ) {
     RadioGroup {
-        Column(mainAxisSize = MainAxisSize.Min) {
+        Column(mainAxisSize = FlexSize.Min) {
             options.forEach { text ->
                 RadioGroupTextItem(
                     selected = (text == selectedOption),
@@ -181,7 +181,7 @@ class RadioGroupScope internal constructor() {
     ) {
         RadioGroupItem(selected = selected, onSelect = onSelect) {
             Padding(padding = DefaultRadioItemPadding) {
-                Row(mainAxisSize = MainAxisSize.Max, mainAxisAlignment = MainAxisAlignment.Start) {
+                Row(mainAxisSize = FlexSize.Max, mainAxisAlignment = MainAxisAlignment.Start) {
                     RadioButton(selected = selected, onSelect = onSelect, color = radioColor)
                     Padding(left = DefaultRadioLabelOffset) {
                         Text(text = text, style = +themeTextStyle { body1.merge(textStyle) })
