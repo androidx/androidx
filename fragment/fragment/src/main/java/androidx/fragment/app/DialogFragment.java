@@ -32,6 +32,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -332,6 +333,7 @@ public class DialogFragment extends Fragment
         return mShowsDialog;
     }
 
+    @MainThread
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -342,6 +344,7 @@ public class DialogFragment extends Fragment
         }
     }
 
+    @MainThread
     @Override
     public void onDetach() {
         super.onDetach();
@@ -353,6 +356,7 @@ public class DialogFragment extends Fragment
         }
     }
 
+    @MainThread
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -426,6 +430,7 @@ public class DialogFragment extends Fragment
      *
      * @return Return a new Dialog instance to be displayed by the Fragment.
      */
+    @MainThread
     @NonNull
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         return new Dialog(requireContext(), getTheme());
@@ -446,6 +451,7 @@ public class DialogFragment extends Fragment
         }
     }
 
+    @MainThread
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -477,6 +483,7 @@ public class DialogFragment extends Fragment
         }
     }
 
+    @MainThread
     @Override
     public void onStart() {
         super.onStart();
@@ -487,6 +494,7 @@ public class DialogFragment extends Fragment
         }
     }
 
+    @MainThread
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -513,6 +521,7 @@ public class DialogFragment extends Fragment
         }
     }
 
+    @MainThread
     @Override
     public void onStop() {
         super.onStop();
@@ -524,6 +533,7 @@ public class DialogFragment extends Fragment
     /**
      * Remove dialog.
      */
+    @MainThread
     @Override
     public void onDestroyView() {
         super.onDestroyView();

@@ -10,7 +10,7 @@ package androidx.fragment.app {
     method @StyleRes public int getTheme();
     method public boolean isCancelable();
     method public void onCancel(android.content.DialogInterface);
-    method public android.app.Dialog onCreateDialog(android.os.Bundle?);
+    method @MainThread public android.app.Dialog onCreateDialog(android.os.Bundle?);
     method public void onDismiss(android.content.DialogInterface);
     method public final android.app.Dialog requireDialog();
     method public void setCancelable(boolean);
@@ -74,42 +74,42 @@ package androidx.fragment.app {
     method public final boolean isResumed();
     method public final boolean isStateSaved();
     method public final boolean isVisible();
-    method @CallSuper public void onActivityCreated(android.os.Bundle?);
+    method @MainThread @CallSuper public void onActivityCreated(android.os.Bundle?);
     method public void onActivityResult(int, int, android.content.Intent?);
-    method @CallSuper public void onAttach(android.content.Context);
-    method @Deprecated @CallSuper public void onAttach(android.app.Activity);
-    method public void onAttachFragment(androidx.fragment.app.Fragment);
+    method @MainThread @CallSuper public void onAttach(android.content.Context);
+    method @Deprecated @CallSuper @MainThread public void onAttach(android.app.Activity);
+    method @MainThread public void onAttachFragment(androidx.fragment.app.Fragment);
     method @CallSuper public void onConfigurationChanged(android.content.res.Configuration);
-    method public boolean onContextItemSelected(android.view.MenuItem);
-    method @CallSuper public void onCreate(android.os.Bundle?);
-    method public android.view.animation.Animation? onCreateAnimation(int, boolean, int);
-    method public android.animation.Animator? onCreateAnimator(int, boolean, int);
-    method public void onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo?);
-    method public void onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
-    method public android.view.View? onCreateView(android.view.LayoutInflater, android.view.ViewGroup?, android.os.Bundle?);
-    method @CallSuper public void onDestroy();
-    method public void onDestroyOptionsMenu();
-    method @CallSuper public void onDestroyView();
-    method @CallSuper public void onDetach();
+    method @MainThread public boolean onContextItemSelected(android.view.MenuItem);
+    method @MainThread @CallSuper public void onCreate(android.os.Bundle?);
+    method @MainThread public android.view.animation.Animation? onCreateAnimation(int, boolean, int);
+    method @MainThread public android.animation.Animator? onCreateAnimator(int, boolean, int);
+    method @MainThread public void onCreateContextMenu(android.view.ContextMenu, android.view.View, android.view.ContextMenu.ContextMenuInfo?);
+    method @MainThread public void onCreateOptionsMenu(android.view.Menu, android.view.MenuInflater);
+    method @MainThread public android.view.View? onCreateView(android.view.LayoutInflater, android.view.ViewGroup?, android.os.Bundle?);
+    method @MainThread @CallSuper public void onDestroy();
+    method @MainThread public void onDestroyOptionsMenu();
+    method @MainThread @CallSuper public void onDestroyView();
+    method @MainThread @CallSuper public void onDetach();
     method public android.view.LayoutInflater onGetLayoutInflater(android.os.Bundle?);
-    method public void onHiddenChanged(boolean);
-    method @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet, android.os.Bundle?);
-    method @Deprecated @CallSuper public void onInflate(android.app.Activity, android.util.AttributeSet, android.os.Bundle?);
-    method @CallSuper public void onLowMemory();
+    method @MainThread public void onHiddenChanged(boolean);
+    method @UiThread @CallSuper public void onInflate(android.content.Context, android.util.AttributeSet, android.os.Bundle?);
+    method @Deprecated @CallSuper @UiThread public void onInflate(android.app.Activity, android.util.AttributeSet, android.os.Bundle?);
+    method @CallSuper @MainThread public void onLowMemory();
     method public void onMultiWindowModeChanged(boolean);
-    method public boolean onOptionsItemSelected(android.view.MenuItem);
-    method public void onOptionsMenuClosed(android.view.Menu);
-    method @CallSuper public void onPause();
+    method @MainThread public boolean onOptionsItemSelected(android.view.MenuItem);
+    method @MainThread public void onOptionsMenuClosed(android.view.Menu);
+    method @MainThread @CallSuper public void onPause();
     method public void onPictureInPictureModeChanged(boolean);
-    method public void onPrepareOptionsMenu(android.view.Menu);
-    method public void onPrimaryNavigationFragmentChanged(boolean);
+    method @MainThread public void onPrepareOptionsMenu(android.view.Menu);
+    method @MainThread public void onPrimaryNavigationFragmentChanged(boolean);
     method public void onRequestPermissionsResult(int, String![], int[]);
-    method @CallSuper public void onResume();
-    method public void onSaveInstanceState(android.os.Bundle);
-    method @CallSuper public void onStart();
-    method @CallSuper public void onStop();
-    method public void onViewCreated(android.view.View, android.os.Bundle?);
-    method @CallSuper public void onViewStateRestored(android.os.Bundle?);
+    method @MainThread @CallSuper public void onResume();
+    method @MainThread public void onSaveInstanceState(android.os.Bundle);
+    method @MainThread @CallSuper public void onStart();
+    method @MainThread @CallSuper public void onStop();
+    method @MainThread public void onViewCreated(android.view.View, android.os.Bundle?);
+    method @MainThread @CallSuper public void onViewStateRestored(android.os.Bundle?);
     method public void postponeEnterTransition();
     method public final void postponeEnterTransition(long, java.util.concurrent.TimeUnit);
     method public void registerForContextMenu(android.view.View);
@@ -322,7 +322,7 @@ package androidx.fragment.app {
   }
 
   public static interface FragmentManager.OnBackStackChangedListener {
-    method public void onBackStackChanged();
+    method @MainThread public void onBackStackChanged();
   }
 
   @Deprecated public class FragmentManagerNonConfig {

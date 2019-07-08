@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -111,6 +112,7 @@ public abstract class FragmentManager {
         /**
          * Called whenever the contents of the back stack change.
          */
+        @MainThread
         void onBackStackChanged();
     }
 
