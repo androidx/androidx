@@ -19,6 +19,7 @@ package androidx.room.migration;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import static java.util.Arrays.asList;
@@ -58,11 +59,14 @@ public class TableInfoTest {
         mDb = createDatabase(
                 "CREATE TABLE foo (id INTEGER PRIMARY KEY AUTOINCREMENT,"
                         + "name TEXT)");
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", false, 1, null),
-                        new TableInfo.Column("name", "TEXT", false, 0, null)),
-                Collections.<TableInfo.ForeignKey>emptySet())));
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo("foo",
+                toMap(new TableInfo.Column("id", "INTEGER", false, 1, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("name", "TEXT", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
     }
 
     @Test
@@ -70,11 +74,14 @@ public class TableInfoTest {
         mDb = createDatabase(
                 "CREATE TABLE foo (id INTEGER,"
                         + "name TEXT, PRIMARY KEY(name, id))");
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", false, 2, null),
-                        new TableInfo.Column("name", "TEXT", false, 1, null)),
-                Collections.<TableInfo.ForeignKey>emptySet())));
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo("foo",
+                toMap(new TableInfo.Column("id", "INTEGER", false, 2, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("name", "TEXT", false, 1, null,
+                                TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
     }
 
     @Test
@@ -83,33 +90,56 @@ public class TableInfoTest {
                 "CREATE TABLE foo (id INTEGER,"
                         + "name TEXT, PRIMARY KEY(name))");
         mDb.execSQL("ALTER TABLE foo ADD COLUMN added REAL;");
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("id", "INTEGER", false, 0, null),
-                        new TableInfo.Column("name", "TEXT", false, 1, null),
-                        new TableInfo.Column("added", "REAL", false, 0, null)),
-                Collections.<TableInfo.ForeignKey>emptySet())));
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo("foo",
+                toMap(new TableInfo.Column("id", "INTEGER", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("name", "TEXT", false, 1, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("added", "REAL", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
     }
 
     @Test
     public void nonNull() {
         mDb = createDatabase(
                 "CREATE TABLE foo (name TEXT NOT NULL)");
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo("foo",
-                toMap(new TableInfo.Column("name", "TEXT", true, 0, null)),
-                Collections.<TableInfo.ForeignKey>emptySet())));
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo("foo",
+                toMap(new TableInfo.Column("name", "TEXT", true, 0, null,
+                        TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
     }
 
     @Test
     public void defaultValue() {
         mDb = createDatabase(
                 "CREATE TABLE foo (name TEXT DEFAULT blah)");
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo(
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("name", "TEXT", false, 0, "blah")),
-                Collections.<TableInfo.ForeignKey>emptySet())));
+                toMap(new TableInfo.Column("name", "TEXT", false, 0, "blah",
+                        TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
+        assertThat(dbInfo, is(expectedInfo));
+    }
+
+    @Test
+    public void defaultValue_missing() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT)");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo(
+                "foo",
+                toMap(new TableInfo.Column("name", "TEXT", false, 0, "blah",
+                        TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(not(dbInfo)));
+        assertThat(dbInfo, is(not(expectedInfo)));
     }
 
     @SuppressWarnings("deprecation")
@@ -117,11 +147,82 @@ public class TableInfoTest {
     public void defaultValue_oldConstructor() {
         mDb = createDatabase(
                 "CREATE TABLE foo (name TEXT DEFAULT blah)");
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo(
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo(
                 "foo",
                 toMap(new TableInfo.Column("name", "TEXT", false, 0)),
-                Collections.<TableInfo.ForeignKey>emptySet())));
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
+        assertThat(dbInfo, is(expectedInfo));
+    }
+
+    @Test
+    public void defaultValue_unaccounted() {
+        mDb = createDatabase(
+                "CREATE TABLE foo (name TEXT DEFAULT blah)");
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo(
+                "foo",
+                toMap(new TableInfo.Column("name", "TEXT", false, 0, null,
+                        TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
+        assertThat(dbInfo, is(expectedInfo));
+    }
+
+    @Test
+    public void columnInfo_defaultValue_equality() {
+        TableInfo.Column column1;
+        TableInfo.Column column2;
+
+        column1 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_ENTITY);
+        column2 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_ENTITY);
+        assertThat(column1, is(column2));
+        assertThat(column2, is(column1));
+
+        column1 = new TableInfo.Column("name", "TEXT", false, 0, "",
+                TableInfo.CREATED_FROM_ENTITY);
+        column2 = new TableInfo.Column("name", "TEXT", false, 0, "different",
+                TableInfo.CREATED_FROM_ENTITY);
+        assertThat(column1, is(not(column2)));
+        assertThat(column2, is(not(column1)));
+
+        column1 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_ENTITY);
+        column2 = new TableInfo.Column("name", "TEXT", false, 0, "different",
+                TableInfo.CREATED_FROM_ENTITY);
+        assertThat(column1, is(not(column2)));
+        assertThat(column2, is(not(column1)));
+
+        column1 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_DATABASE);
+        column2 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_DATABASE);
+        assertThat(column1, is(column2));
+        assertThat(column2, is(column1));
+
+        column1 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_DATABASE);
+        column2 = new TableInfo.Column("name", "TEXT", false, 0, "different",
+                TableInfo.CREATED_FROM_DATABASE);
+        assertThat(column1, is(not(column2)));
+        assertThat(column2, is(not(column1)));
+
+        column1 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_UNKNOWN);
+        column2 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_DATABASE);
+        assertThat(column1, is(column2));
+        assertThat(column2, is(column1));
+
+        column1 = new TableInfo.Column("name", "TEXT", false, 0, null,
+                TableInfo.CREATED_FROM_UNKNOWN);
+        column2 = new TableInfo.Column("name", "TEXT", false, 0, "different",
+                TableInfo.CREATED_FROM_DATABASE);
+        assertThat(column1, is(column2));
+        assertThat(column2, is(column1));
     }
 
     @Test
@@ -130,9 +231,9 @@ public class TableInfoTest {
                 "CREATE TABLE foo (name TEXT)",
                 "CREATE TABLE bar(barName TEXT, FOREIGN KEY(barName) REFERENCES foo(name))"
         );
-        TableInfo info = TableInfo.read(mDb, "bar");
-        assertThat(info.foreignKeys.size(), is(1));
-        final TableInfo.ForeignKey foreignKey = info.foreignKeys.iterator().next();
+        TableInfo dbInfo = TableInfo.read(mDb, "bar");
+        assertThat(dbInfo.foreignKeys.size(), is(1));
+        final TableInfo.ForeignKey foreignKey = dbInfo.foreignKeys.iterator().next();
         assertThat(foreignKey.columnNames, is(singletonList("barName")));
         assertThat(foreignKey.referenceColumnNames, is(singletonList("name")));
         assertThat(foreignKey.onDelete, is("NO ACTION"));
@@ -148,8 +249,8 @@ public class TableInfoTest {
                 "CREATE TABLE bar(barName TEXT, barLastName TEXT, "
                         + " FOREIGN KEY(barName) REFERENCES foo(name) ON UPDATE SET NULL,"
                         + " FOREIGN KEY(barLastName) REFERENCES foo2(lastName) ON DELETE CASCADE)");
-        TableInfo info = TableInfo.read(mDb, "bar");
-        assertThat(info.foreignKeys.size(), is(2));
+        TableInfo dbInfo = TableInfo.read(mDb, "bar");
+        assertThat(dbInfo.foreignKeys.size(), is(2));
         Set<TableInfo.ForeignKey> expected = new HashSet<>();
         expected.add(new TableInfo.ForeignKey("foo2", // table
                 "CASCADE", // on delete
@@ -162,7 +263,7 @@ public class TableInfoTest {
                 "SET NULL", // on update
                 singletonList("barName"), // mine
                 singletonList("name")/*ref*/));
-        assertThat(info.foreignKeys, equalTo(expected));
+        assertThat(dbInfo.foreignKeys, equalTo(expected));
     }
 
     @Test
@@ -172,8 +273,8 @@ public class TableInfoTest {
                 "CREATE TABLE bar(barName TEXT, barLastName TEXT, "
                         + " FOREIGN KEY(barName, barLastName) REFERENCES foo(name, lastName)"
                         + " ON UPDATE cascade ON DELETE RESTRICT)");
-        TableInfo info = TableInfo.read(mDb, "bar");
-        assertThat(info.foreignKeys.size(), is(1));
+        TableInfo dbInfo = TableInfo.read(mDb, "bar");
+        assertThat(dbInfo.foreignKeys.size(), is(1));
         TableInfo.ForeignKey expected = new TableInfo.ForeignKey(
                 "foo", // table
                 "RESTRICT", // on delete
@@ -181,18 +282,20 @@ public class TableInfoTest {
                 asList("barName", "barLastName"), // my columns
                 asList("name", "lastName") // ref columns
         );
-        assertThat(info.foreignKeys.iterator().next(), is(expected));
+        assertThat(dbInfo.foreignKeys.iterator().next(), is(expected));
     }
 
     @Test
     public void caseInsensitiveTypeName() {
         mDb = createDatabase(
                 "CREATE TABLE foo (n integer)");
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo(
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("n", "INTEGER", false, 0, null)),
-                Collections.<TableInfo.ForeignKey>emptySet())));
+                toMap(new TableInfo.Column("n", "INTEGER", false, 0, null,
+                        TableInfo.CREATED_FROM_ENTITY)),
+                Collections.<TableInfo.ForeignKey>emptySet());
+        assertThat(expectedInfo, is(dbInfo));
     }
 
     @Test
@@ -206,22 +309,27 @@ public class TableInfoTest {
                 "CREATE INDEX " + TableInfo.Index.DEFAULT_PREFIX + "foo_composite_indexed"
                         + " ON foo(a, b);"
         );
-        TableInfo info = TableInfo.read(mDb, "foo");
-        assertThat(info, is(new TableInfo(
+        TableInfo dbInfo = TableInfo.read(mDb, "foo");
+        TableInfo expectedInfo = new TableInfo(
                 "foo",
-                toMap(new TableInfo.Column("n", "INTEGER", false, 0, null),
-                        new TableInfo.Column("indexed", "TEXT", false, 0, null),
-                        new TableInfo.Column("unique_indexed", "TEXT", false, 0, null),
-                        new TableInfo.Column("a", "INTEGER", false, 0, null),
-                        new TableInfo.Column("b", "INTEGER", false, 0, null)),
+                toMap(new TableInfo.Column("n", "INTEGER", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("indexed", "TEXT", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("unique_indexed", "TEXT", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("a", "INTEGER", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY),
+                        new TableInfo.Column("b", "INTEGER", false, 0, null,
+                                TableInfo.CREATED_FROM_ENTITY)),
                 Collections.<TableInfo.ForeignKey>emptySet(),
                 toSet(new TableInfo.Index("index_foo_blahblah", false,
                         Arrays.asList("a", "b")),
                         new TableInfo.Index("foo_unique_indexed", true,
                                 Arrays.asList("unique_indexed")),
                         new TableInfo.Index("foo_indexed", false,
-                                Arrays.asList("indexed"))))
-        ));
+                                Arrays.asList("indexed"))));
+        assertThat(expectedInfo, is(dbInfo));
     }
 
     @Test
@@ -240,8 +348,10 @@ public class TableInfoTest {
                             + "name " + testCase.first + ")");
             TableInfo info = TableInfo.read(mDb, "foo");
             assertThat(info, is(new TableInfo("foo",
-                    toMap(new TableInfo.Column("id", "INTEGER", false, 1),
-                            new TableInfo.Column("name", testCase.second, false, 0)),
+                    toMap(new TableInfo.Column("id", "INTEGER", false, 1, null,
+                                    TableInfo.CREATED_FROM_ENTITY),
+                            new TableInfo.Column("name", testCase.second, false, 0, null,
+                                    TableInfo.CREATED_FROM_ENTITY)),
                     Collections.<TableInfo.ForeignKey>emptySet())));
         }
     }

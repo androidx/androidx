@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 9,
-    "identityHash": "a6be2522a02b9ae6528719c637ac5daa",
+    "version": 11,
+    "identityHash": "a29fee21937e8b4a5ae5a3226027e176",
     "entities": [
       {
         "tableName": "Entity1",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT, `addedInV10` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -19,6 +19,13 @@
             "columnName": "name",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "addedInV10",
+            "columnName": "addedInV10",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -41,7 +48,7 @@
       },
       {
         "tableName": "Entity2",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `addedInV3` TEXT, `name` TEXT, `addedInV9` TEXT)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `addedInV3` TEXT, `name` TEXT DEFAULT 'Unknown', `addedInV9` TEXT)",
         "fields": [
           {
             "fieldPath": "id",
@@ -59,7 +66,8 @@
             "fieldPath": "name",
             "columnName": "name",
             "affinity": "TEXT",
-            "notNull": false
+            "notNull": false,
+            "defaultValue": "'Unknown'"
           },
           {
             "fieldPath": "addedInV9",
@@ -124,7 +132,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a6be2522a02b9ae6528719c637ac5daa')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a29fee21937e8b4a5ae5a3226027e176')"
     ]
   }
 }
