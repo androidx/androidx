@@ -138,9 +138,17 @@ public class CarUxRestrictionsHelper {
             try {
                 mCarUxRestrictionsManager = (CarUxRestrictionsManager)
                         mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-                // Convert framework UX restrictions to androidx type.
-                mCarUxRestrictionsManager.registerListener(restrictions ->
-                        mListener.onUxRestrictionsChanged(new CarUxRestrictions(restrictions)));
+                // Convert framework UX restrictions to androidx type. Avoid using lambda here
+                // to workaround de-sugaring issue when referencing car-lib.
+                mCarUxRestrictionsManager.registerListener(
+                        new CarUxRestrictionsManager.OnUxRestrictionsChangedListener() {
+                            @Override
+                            public void onUxRestrictionsChanged(
+                                    android.car.drivingstate.CarUxRestrictions restrictions) {
+                                mListener.onUxRestrictionsChanged(
+                                        new CarUxRestrictions(restrictions));
+                            }
+                        });
 
                 mListener.onUxRestrictionsChanged(new CarUxRestrictions(
                         mCarUxRestrictionsManager.getCurrentCarUxRestrictions()));
