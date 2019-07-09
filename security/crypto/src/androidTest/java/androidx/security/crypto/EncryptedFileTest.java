@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SmallTest;
 
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.StreamingAead;
@@ -46,10 +47,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 
-@SuppressWarnings("unchecked")
+@SmallTest
 @RunWith(JUnit4.class)
 public class EncryptedFileTest {
-
 
     private Context mContext;
     private String mMasterKeyAlias;
@@ -269,4 +269,3 @@ public class EncryptedFileTest {
     }
 
 }
-

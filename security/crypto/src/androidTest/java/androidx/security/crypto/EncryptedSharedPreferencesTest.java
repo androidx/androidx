@@ -27,6 +27,7 @@ import android.content.SharedPreferences;
 import android.util.ArraySet;
 
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.MediumTest;
 
 import com.google.crypto.tink.Aead;
 import com.google.crypto.tink.DeterministicAead;
@@ -51,7 +52,7 @@ import java.security.KeyStore;
 import java.util.Map;
 import java.util.Set;
 
-@SuppressWarnings("unchecked")
+@MediumTest
 @RunWith(JUnit4.class)
 public class EncryptedSharedPreferencesTest {
 

@@ -27,6 +27,7 @@ import androidx.compose.memo
 import androidx.compose.setContent
 import androidx.compose.unaryPlus
 import androidx.test.filters.FlakyTest
+import androidx.test.filters.LargeTest
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
@@ -46,6 +47,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@LargeTest
 @RunWith(JUnit4::class)
 class ScrollerPerformance : LayoutTest() {
     @get:Rule

@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.test.filters.SmallTest
 import androidx.ui.graphics.ColorSpace
 import androidx.ui.painting.Image
 import androidx.ui.painting.ImageConfig
@@ -25,6 +26,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@SmallTest
 @RunWith(JUnit4::class)
 class ImageTest {
 
