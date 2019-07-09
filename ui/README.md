@@ -21,12 +21,12 @@ To start the required version of Android Studio, you need to run the studiow com
 Also if you would like to build from the command line, all gradle commands need to be run from the `/ui` subfolder.  E.g. to build the demo app, run:
 
     cd path/to/checkout/frameworks/support/ui/
-    ./gradlew :ui-demos:assembleDebug
+    ./gradlew ui:integration-tests:demos:installDebug
 
 ## Currently available components
 Jetpack Compose is in very early stages of development. Developers wanting to build sample apps will probably want to include the material, layout and framework modules. You can see how to setup your dependencies in `material/integration-tests/material-studies/build.gradle`.
 
-Run the `ui-demos` app to see examples of individual components. 
+Run the `demos` app to see examples of individual components.
 
 A sample implementation of the [Material Rally app](https://material.io/design/material-studies/rally.html) is under `material/integration-tests/material-studies`.
 
@@ -39,41 +39,41 @@ To build the Material Rally app via the command line run:
 ## Structure
 Library code for Jetpack Compose lives under the `frameworks/support/ui` directory. Additionally, sample code can be found within each module in the `integration-tests` subdirectories and the compiler and runtime code can be found in `frameworks/support/compose`.
 
-The modules within UI are structured as follows
-* `android-text/`
+The modules within UI are structured as follows:
+* `ui-android-text/`
 
    Android specific text stack dependent implementations
-* `android-view/`
+* `ui-android-view/`
 
    Wrappers and adapters for existing Android Views
-* `animation/`
+* `ui-animation/`
 
    Animation components
-* `animation-core/`
+* `ui-animation-core/`
 
    Internal declarations for the animations system
-* `core/`
+* `ui-core/`
 
    Base classes used across the system covering primitives, graphics and drawing
-* `demos/`
+* `integration-tests/demos/`
 
    Module that collects all demos across ui and packages them into one demo APK
-* `framework/`
+* `ui-framework/`
 
    Base components exposed by the system as building blocks. This includes Draw, Layout, Text, etc.
-* `layout/`
+* `ui-layout/`
 
    Basic layout components
-* `material/`
+* `ui-material/`
 
    Set of UI components built according to the Material spec
-* `platform/`
+* `ui-platform/`
 
    Internal implementation that allows separation of android implementation from host-side tests
-* `test/`
+* `ui-test/`
 
    Testing framework
-* `text/`
+* `ui-text/`
 
    Text engine
 
