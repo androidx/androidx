@@ -67,8 +67,6 @@ final class BackStackRecord extends FragmentTransaction implements
             if (mTransition != FragmentTransaction.TRANSIT_NONE) {
                 writer.print(prefix); writer.print("mTransition=#");
                         writer.print(Integer.toHexString(mTransition));
-                        writer.print(" mTransitionStyle=#");
-                        writer.println(Integer.toHexString(mTransitionStyle));
             }
             if (mEnterAnim != 0 || mExitAnim !=0) {
                 writer.print(prefix); writer.print("mEnterAnim=#");
@@ -391,7 +389,7 @@ final class BackStackRecord extends FragmentTransaction implements
             final Op op = mOps.get(opNum);
             final Fragment f = op.mFragment;
             if (f != null) {
-                f.setNextTransition(mTransition, mTransitionStyle);
+                f.setNextTransition(mTransition);
             }
             switch (op.mCmd) {
                 case OP_ADD:
@@ -452,8 +450,7 @@ final class BackStackRecord extends FragmentTransaction implements
             final Op op = mOps.get(opNum);
             Fragment f = op.mFragment;
             if (f != null) {
-                f.setNextTransition(FragmentManagerImpl.reverseTransit(mTransition),
-                        mTransitionStyle);
+                f.setNextTransition(FragmentManagerImpl.reverseTransit(mTransition));
             }
             switch (op.mCmd) {
                 case OP_ADD:

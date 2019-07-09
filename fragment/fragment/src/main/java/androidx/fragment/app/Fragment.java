@@ -2934,20 +2934,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mNextTransition;
     }
 
-    void setNextTransition(int nextTransition, int nextTransitionStyle) {
-        if (mAnimationInfo == null && nextTransition == 0 && nextTransitionStyle == 0) {
+    void setNextTransition(int nextTransition) {
+        if (mAnimationInfo == null && nextTransition == 0) {
             return; // no change!
         }
         ensureAnimationInfo();
         mAnimationInfo.mNextTransition = nextTransition;
-        mAnimationInfo.mNextTransitionStyle = nextTransitionStyle;
-    }
-
-    int getNextTransitionStyle() {
-        if (mAnimationInfo == null) {
-            return 0;
-        }
-        return mAnimationInfo.mNextTransitionStyle;
     }
 
     SharedElementCallback getEnterTransitionCallback() {
@@ -3048,9 +3040,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
         // If app has requested a specific transition, this is the one to use.
         int mNextTransition;
-
-        // If app has requested a specific transition style, this is the one to use.
-        int mNextTransitionStyle;
 
         Object mEnterTransition = null;
         Object mReturnTransition = USE_DEFAULT_TRANSITION;

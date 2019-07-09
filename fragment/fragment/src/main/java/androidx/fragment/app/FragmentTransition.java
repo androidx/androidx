@@ -1194,7 +1194,7 @@ class FragmentTransition {
             if (fragment.mState < Fragment.CREATED && manager.mCurState >= Fragment.CREATED
                     && !transaction.mReorderingAllowed) {
                 manager.makeActive(fragment);
-                manager.moveToState(fragment, Fragment.CREATED, 0, 0, false);
+                manager.moveToState(fragment, Fragment.CREATED, 0, false);
             }
         }
         if (setFirstOut && (containerTransition == null || containerTransition.firstOut == null)) {

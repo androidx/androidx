@@ -93,7 +93,6 @@ public abstract class FragmentTransaction {
     int mPopEnterAnim;
     int mPopExitAnim;
     int mTransition;
-    int mTransitionStyle;
     boolean mAddToBackStack;
     boolean mAllowAddToBackStack = true;
     @Nullable String mName;
@@ -482,10 +481,12 @@ public abstract class FragmentTransaction {
     /**
      * Set a custom style resource that will be used for resolving transit
      * animations.
+     *
+     * @deprecated The desired functionality never worked correctly. This should not be used.
      */
+    @Deprecated
     @NonNull
     public FragmentTransaction setTransitionStyle(@StyleRes int styleRes) {
-        mTransitionStyle = styleRes;
         return this;
     }
 
