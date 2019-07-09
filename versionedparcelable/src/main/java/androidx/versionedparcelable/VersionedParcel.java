@@ -861,8 +861,8 @@ public abstract class VersionedParcel {
         if (size == 0) {
             return;
         }
-        List<K> keySet = new ArrayList<>();
-        List<V> valueSet = new ArrayList<>();
+        List<K> keySet = new ArrayList<>(size);
+        List<V> valueSet = new ArrayList<>(size);
         for (Map.Entry<K, V> entry : val.entrySet()) {
             keySet.add(entry.getKey());
             valueSet.add(entry.getValue());
@@ -1406,12 +1406,12 @@ public abstract class VersionedParcel {
         if (size < 0) {
             return null;
         }
-        Map<K, V> map = new ArrayMap<>();
+        Map<K, V> map = new ArrayMap<>(size);
         if (size == 0) {
             return map;
         }
-        List<K> keyList = new ArrayList<>();
-        List<V> valueList = new ArrayList<>();
+        List<K> keyList = new ArrayList<>(size);
+        List<V> valueList = new ArrayList<>(size);
         readCollection(keyList);
         readCollection(valueList);
         for (int i = 0; i < size; i++) {
