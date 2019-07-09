@@ -131,7 +131,8 @@ public class FragmentController {
     @Nullable
     public View onCreateView(@Nullable View parent, @NonNull String name, @NonNull Context context,
             @NonNull AttributeSet attrs) {
-        return mHost.mFragmentManager.onCreateView(parent, name, context, attrs);
+        return mHost.mFragmentManager.getLayoutInflaterFactory()
+                .onCreateView(parent, name, context, attrs);
     }
 
     /**
