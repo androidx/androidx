@@ -31,26 +31,26 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
-    api project(":ui:ui-core")
-    api project(":ui:ui-platform")
-    api project(":ui:ui-framework")
-    api project(":ui:ui-animation")
-    api project(":compose:compose-runtime")
+    implementation(KOTLIN_COMPOSE_STDLIB)
 
-    api(JUNIT)
-    api(KOTLIN_COMPOSE_STDLIB)
-
-    implementation(ANDROIDX_TEST_RUNNER)
     implementation(ANDROIDX_TEST_RULES)
+    implementation(ANDROIDX_TEST_RUNNER)
     implementation(ESPRESSO_CORE)
+    implementation(JUNIT)
+
+    api project(":ui:ui-platform")
+
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-animation")
+    implementation project(":ui:ui-core")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-framework")
+    implementation project(":ui:ui-layout")
 
     testImplementation(TRUTH)
-    testImplementation(JUNIT)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(ANDROIDX_TEST_RULES)
 
     androidTestImplementation(TRUTH)
-    androidTestImplementation(JUNIT)
+
     androidTestImplementation project(':ui:ui-material')
 }
 

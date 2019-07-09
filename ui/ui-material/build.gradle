@@ -31,33 +31,33 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
-    api project(":compose:compose-runtime")
-    api project(":ui:ui-core")
-    api project(':ui:ui-framework')
-    api project(':ui:ui-layout')
-    api project(':ui:ui-text')
-    api project(':ui:ui-animation')
-    api project(':ui:ui-foundation')
-    api(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_COMPOSE_STDLIB)
+
+    implementation "androidx.annotation:annotation:1.1.0"
+
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-core")
+    implementation project(":ui:ui-framework")
+    implementation project(":ui:ui-layout")
+    implementation project(":ui:ui-text")
+    implementation project(":ui:ui-animation")
+    implementation project(":ui:ui-foundation")
+
+    testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(TRUTH)
     testImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
-    testImplementation(TRUTH)
-    androidTestImplementation project(':ui:ui-material:integration-tests:samples')
-    androidTestImplementation project(':ui:ui-test')
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+
+    androidTestImplementation project(":ui:ui-material:integration-tests:samples")
+    androidTestImplementation project(":ui:ui-test")
+
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
-    }
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
 }
 
