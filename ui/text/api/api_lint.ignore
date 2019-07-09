@@ -3,6 +3,8 @@ AcronymName: androidx.ui.text.style.TextIndent.Companion#getNONE():
     Acronyms should not be capitalized in method names: was `getNONE`, should this be `getNone`?
 
 
+AutoBoxing: androidx.ui.text.ParagraphKt#Paragraph(String, androidx.ui.text.TextStyle, androidx.ui.text.ParagraphStyle, java.util.List<androidx.ui.text.AnnotatedString.Item<androidx.ui.text.TextStyle>>, Integer, Boolean, androidx.ui.core.Density, androidx.ui.text.font.Font.ResourceLoader) parameter #4:
+    Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, Float, androidx.ui.text.style.TextIndent) parameter #2:
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.ParagraphStyle#component3():
@@ -31,22 +33,6 @@ AutoBoxing: androidx.ui.text.TextStyle#getFontSizeScale():
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.TextStyle#getLetterSpacing():
     Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #3:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#ParagraphStyle(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #4:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#component4():
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#component5():
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #3:
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#copy(androidx.ui.text.style.TextAlign, androidx.ui.text.style.TextDirection, androidx.ui.text.style.TextIndent, Float, Integer, Boolean) parameter #4:
-    Must avoid boxed primitives (`java.lang.Integer`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#getLineHeight():
-    Must avoid boxed primitives (`java.lang.Float`)
-AutoBoxing: androidx.ui.text.style.ParagraphStyle#getMaxLines():
-    Must avoid boxed primitives (`java.lang.Integer`)
 AutoBoxing: androidx.ui.text.style.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #0:
     Must avoid boxed primitives (`java.lang.Float`)
 AutoBoxing: androidx.ui.text.style.TextGeometricTransform#TextGeometricTransform(Float, Float) parameter #1:

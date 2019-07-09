@@ -38,7 +38,6 @@ import androidx.ui.text.matchers.equalToBitmap
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.Shadow
-import androidx.ui.text.style.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextIndent
 import com.nhaarman.mockitokotlin2.mock
@@ -2000,9 +1999,9 @@ class ParagraphIntegrationTest {
                 textIndent = textIndent,
                 textAlign = textAlign,
                 textDirection = textDirection,
-                maxLines = maxLines,
                 lineHeight = lineHeight
             ),
+            maxLines = maxLines,
             density = density ?: defaultDensity,
             resourceLoader = TestFontResourceLoader(context)
         )

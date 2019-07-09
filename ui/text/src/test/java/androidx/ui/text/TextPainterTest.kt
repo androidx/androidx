@@ -18,7 +18,6 @@ package androidx.ui.text
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
-import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
 import androidx.ui.text.font.Font
@@ -156,38 +155,6 @@ class TextPainterTest() {
 
         assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
         assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.Rtl)
-        assertThat(paragraphStyle.maxLines).isEqualTo(maxLines)
-        assertThat(paragraphStyle.ellipsis).isEqualTo(true)
-    }
-
-    @Test
-    fun `createParagraphStyle with defaultTextDirection`() {
-        val fontSize = 15.sp
-        val maxLines = 5
-        val overflow = TextOverflow.Ellipsis
-        val locale = Locale("en", "US")
-        val textStyle = TextStyle(fontSize = fontSize)
-        val text = AnnotatedString(text = "Hello")
-        val textPainter = TextPainter(
-            text = text,
-            style = textStyle,
-            paragraphStyle = ParagraphStyle(
-                textAlign = TextAlign.Center,
-                textDirection = TextDirection.Rtl
-            ),
-            maxLines = maxLines,
-            overflow = overflow,
-            locale = locale,
-            density = density,
-            resourceLoader = resourceLoader
-        )
-
-        val paragraphStyle = textPainter.createParagraphStyle()
-
-        assertThat(paragraphStyle.textAlign).isEqualTo(TextAlign.Center)
-        assertThat(paragraphStyle.textDirection).isEqualTo(TextDirection.Rtl)
-        assertThat(paragraphStyle.maxLines).isEqualTo(maxLines)
-        assertThat(paragraphStyle.ellipsis).isEqualTo(true)
     }
 
     @Test
