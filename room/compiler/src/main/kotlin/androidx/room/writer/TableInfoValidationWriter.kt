@@ -34,6 +34,11 @@ import java.util.HashMap
 import java.util.HashSet
 
 class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
+
+    companion object {
+        const val CREATED_FROM_ENTITY = "CREATED_FROM_ENTITY"
+    }
+
     override fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope) {
         val suffix = entity.tableName.stripNonJava().capitalize()
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
@@ -45,13 +50,14 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
                     columnListType, entity.fields.size)
             entity.fields.forEach { field ->
-                addStatement("$L.put($S, new $T($S, $S, $L, $L, $S))",
+                addStatement("$L.put($S, new $T($S, $S, $L, $L, $S, $T.$L))",
                         columnListVar, field.columnName, RoomTypeNames.TABLE_INFO_COLUMN,
                         /*name*/ field.columnName,
                         /*type*/ field.affinity?.name ?: SQLTypeAffinity.TEXT.name,
                         /*nonNull*/ field.nonNull,
                         /*pkeyPos*/ entity.primaryKey.fields.indexOf(field) + 1,
-                        /*defaultValue*/ field.defaultValue)
+                        /*defaultValue*/ field.defaultValue,
+                        /*createdFrom*/ RoomTypeNames.TABLE_INFO, CREATED_FROM_ENTITY)
             }
 
             val foreignKeySetVar = scope.getTmpVar("_foreignKeys$suffix")
