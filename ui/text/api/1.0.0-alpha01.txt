@@ -12,12 +12,12 @@ package androidx.ui.input {
   }
 
   public enum KeyboardType {
-    enum_constant public static final androidx.ui.input.KeyboardType ASCII;
+    enum_constant public static final androidx.ui.input.KeyboardType Ascii;
     enum_constant public static final androidx.ui.input.KeyboardType Email;
     enum_constant public static final androidx.ui.input.KeyboardType Number;
     enum_constant public static final androidx.ui.input.KeyboardType Phone;
     enum_constant public static final androidx.ui.input.KeyboardType Text;
-    enum_constant public static final androidx.ui.input.KeyboardType URI;
+    enum_constant public static final androidx.ui.input.KeyboardType Uri;
   }
 
 }
@@ -415,12 +415,6 @@ package androidx.ui.text.style {
     method public androidx.ui.text.style.TextIndent copy(androidx.ui.core.Px firstLine, androidx.ui.core.Px restLine);
     method public androidx.ui.core.Px getFirstLine();
     method public androidx.ui.core.Px getRestLine();
-    field public static final androidx.ui.text.style.TextIndent.Companion! Companion;
-  }
-
-  public static final class TextIndent.Companion {
-    method public androidx.ui.text.style.TextIndent getNONE();
-    property public final androidx.ui.text.style.TextIndent NONE;
   }
 
   public final class TextIndentKt {

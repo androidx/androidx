@@ -29,11 +29,7 @@ import androidx.ui.core.lerp
 data class TextIndent(
     val firstLine: Px = 0.px,
     val restLine: Px = 0.px
-) {
-    companion object {
-        val NONE = TextIndent(0.px, 0.px)
-    }
-}
+)
 
 fun lerp(a: TextIndent, b: TextIndent, t: Float): TextIndent {
     return TextIndent(

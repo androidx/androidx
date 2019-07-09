@@ -68,7 +68,7 @@ class TextInputServiceAndroidTest {
     fun test_fill_editor_info_ascii() {
         textInputService.startInput(
             EditorState(""),
-            KeyboardType.ASCII,
+            KeyboardType.Ascii,
             onEditCommand = {},
             onEditorActionPerformed = {})
 
@@ -111,7 +111,7 @@ class TextInputServiceAndroidTest {
     fun test_fill_editor_info_uri() {
         textInputService.startInput(
             EditorState(""),
-            KeyboardType.URI,
+            KeyboardType.Uri,
             onEditCommand = {},
             onEditorActionPerformed = {})
 

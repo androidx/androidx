@@ -28,7 +28,7 @@ enum class KeyboardType {
     /**
      * A keyboard type used to request an IME that is capable of inputting ASCII characters.
      */
-    ASCII,
+    Ascii,
 
     /**
      * A keyboard type used to request an that is capable of inputting digits.
@@ -36,17 +36,17 @@ enum class KeyboardType {
     Number,
 
     /**
-     * A keyboard type used to request an IME is capable of inputting phone numbers.
+     * A keyboard type used to request an IME that is capable of inputting phone numbers.
      */
     Phone,
 
     /**
-     * A keyboard type used to request an IME is capable of inputting URIs.
+     * A keyboard type used to request an IME that is capable of inputting URIs.
      */
-    URI,
+    Uri,
 
     /**
-     * A keyboard type used to request an IME is capable of inputting email addresses.
+     * A keyboard type used to request an IME that is capable of inputting email addresses.
      */
     Email
 }
