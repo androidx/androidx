@@ -102,8 +102,10 @@ final class BackStackState implements Parcelable {
         while (pos < mOps.length) {
             BackStackRecord.Op op = new BackStackRecord.Op();
             op.mCmd = mOps[pos++];
-            if (FragmentManagerImpl.DEBUG) Log.v(FragmentManagerImpl.TAG,
-                    "Instantiate " + bse + " op #" + num + " base fragment #" + mOps[pos]);
+            if (FragmentManagerImpl.DEBUG) {
+                Log.v(FragmentManagerImpl.TAG, "Instantiate " + bse
+                        + " op #" + num + " base fragment #" + mOps[pos]);
+            }
             String fWho = mFragmentWhos.get(num);
             if (fWho != null) {
                 Fragment f = fm.mActive.get(fWho);
