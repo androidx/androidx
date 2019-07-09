@@ -15,6 +15,7 @@
  */
 package androidx.ui.input
 
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.text.TextRange
 import org.junit.Assert.assertEquals
@@ -117,6 +118,7 @@ class BackspaceKeyEditOpTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
     fun test_delete_with_composition_zwj_emoji() {
         val eb = EditingBuffer(
             "$ZWJ_EMOJI$ZWJ_EMOJI",
