@@ -316,6 +316,18 @@ class RepaintBoundaryNode(val name: String?) : ComponentNode() {
             }
         }
 
+    /**
+     * The fraction of children's alpha value.
+     */
+    var opacity: Float = 1f
+        set(value) {
+            if (field != value) {
+                require(value in 0f..1f) { "Opacity should be within [0, 1] range" }
+                field = value
+                owner?.onRepaintBoundaryParamsChange(this)
+            }
+        }
+
     override val repaintBoundary: RepaintBoundaryNode? get() = this
 }
 
