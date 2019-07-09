@@ -760,6 +760,7 @@ private class RepaintBoundaryView(
             clipPath = outlineResolver.manualClipPath
             dirty = true
         }
+        alpha = repaintBoundaryNode.opacity
     }
 }
 
@@ -809,16 +810,18 @@ private class RepaintBoundaryRenderNode(
     }
 
     override fun callDraw(canvas: Canvas) {
-        val androidCanvas = canvas.nativeCanvas
-        if (androidCanvas.isHardwareAccelerated) {
-            updateDisplayList()
-            androidCanvas.drawRenderNode(renderNode)
-        } else {
-            canvas.save()
-            canvas.translate(renderNode.left.toFloat(), renderNode.top.toFloat())
-            ownerView.callChildDraw(androidCanvas, repaintBoundaryNode)
-            canvas.restore()
-            dirty = false
+        if (renderNode.alpha > 0f) {
+            val androidCanvas = canvas.nativeCanvas
+            if (androidCanvas.isHardwareAccelerated) {
+                updateDisplayList()
+                androidCanvas.drawRenderNode(renderNode)
+            } else {
+                canvas.save()
+                canvas.translate(renderNode.left.toFloat(), renderNode.top.toFloat())
+                ownerView.callChildDraw(androidCanvas, repaintBoundaryNode)
+                canvas.restore()
+                dirty = false
+            }
         }
     }
 
@@ -847,6 +850,7 @@ private class RepaintBoundaryRenderNode(
             clipPath = outlineResolver.manualClipPath
             dirty = true
         }
+        renderNode.alpha = repaintBoundaryNode.opacity
         ownerView.invalidate()
     }
 }
