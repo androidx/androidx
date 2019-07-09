@@ -457,7 +457,7 @@ open class BaseTest {
      */
     fun Context.assertBasicState(
         pageIx: Int,
-        value: String = pageIx.toString(),
+        value: String? = pageIx.toString(),
         performSelfCheck: Boolean = true
     ) {
         assertThat<Int>(
@@ -465,9 +465,11 @@ open class BaseTest {
             viewPager.currentItem, equalTo(pageIx)
         )
         assertThat(viewPager.scrollState, equalTo(SCROLL_STATE_IDLE))
-        onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
-            matches(withText(value))
-        )
+        if (value != null) {
+            onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
+                matches(withText(value))
+            )
+        }
 
         // TODO(b/130153109): Wire offscreenPageLimit into FragmentAdapter, remove performSelfCheck
         if (performSelfCheck && viewPager.adapter is SelfChecking) {
