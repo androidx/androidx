@@ -21,6 +21,7 @@ import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.KeyboardType
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
@@ -45,11 +46,12 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class InputFieldDelegateTest {
 
-    private lateinit var delegate: InputFieldDelegate
     private lateinit var canvas: Canvas
     private lateinit var painter: TextPainter
     private lateinit var processor: EditProcessor
     private lateinit var onValueChange: (EditorState) -> Unit
+    private lateinit var onEditorActionPerformed: (Any) -> Unit
+    private lateinit var textInputService: TextInputService
 
     @Before
     fun setup() {
@@ -57,8 +59,8 @@ class InputFieldDelegateTest {
         canvas = mock()
         processor = mock()
         onValueChange = mock()
-
-        delegate = InputFieldDelegate(painter, processor, onValueChange)
+        onEditorActionPerformed = mock()
+        textInputService = mock()
     }
 
     @Test
@@ -66,11 +68,12 @@ class InputFieldDelegateTest {
         val selection = TextRange(0, 1)
         val selectionColor = Color.Blue
 
-        delegate.draw(
+        InputFieldDelegate.draw(
             canvas = canvas,
+            textPainter = painter,
             value = EditorState(text = "Hello, World", selection = selection),
             editorStyle = EditorStyle(selectionColor = selectionColor),
-            drawCursor = true)
+            hasFocus = true)
 
         verify(painter, times(1)).paintBackground(
             eq(selection.start), eq(selection.end), eq(selectionColor), eq(canvas), any())
@@ -83,11 +86,12 @@ class InputFieldDelegateTest {
     fun draw_cursor_test() {
         val cursor = TextRange(1, 1)
 
-        delegate.draw(
+        InputFieldDelegate.draw(
             canvas = canvas,
+            textPainter = painter,
             value = EditorState(text = "Hello, World", selection = cursor),
             editorStyle = EditorStyle(),
-            drawCursor = true)
+            hasFocus = true)
 
         verify(painter, times(1)).paintCursor(eq(cursor.start), eq(canvas))
         verify(painter, times(1)).paint(eq(canvas), any())
@@ -98,11 +102,12 @@ class InputFieldDelegateTest {
     fun dont_draw_cursor_test() {
         val cursor = TextRange(1, 1)
 
-        delegate.draw(
+        InputFieldDelegate.draw(
             canvas = canvas,
+            textPainter = painter,
             value = EditorState(text = "Hello, World", selection = cursor),
             editorStyle = EditorStyle(),
-            drawCursor = false)
+            hasFocus = false)
 
         verify(painter, never()).paintCursor(any(), any())
         verify(painter, times(1)).paint(eq(canvas), any())
@@ -116,12 +121,13 @@ class InputFieldDelegateTest {
 
         val cursor = TextRange(1, 1)
 
-        delegate.draw(
+        InputFieldDelegate.draw(
             canvas = canvas,
+            textPainter = painter,
             value = EditorState(text = "Hello, World", selection = cursor,
                 composition = composition),
             editorStyle = EditorStyle(compositionColor = compositionColor),
-            drawCursor = true)
+            hasFocus = true)
 
         verify(painter, times(1)).paintBackground(
             eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas), any())
@@ -136,7 +142,7 @@ class InputFieldDelegateTest {
 
         whenever(processor.onEditCommands(ops)).thenReturn(dummyEditorState)
 
-        delegate.onEditCommand(ops)
+        InputFieldDelegate.onEditCommand(ops, processor, onValueChange)
 
         verify(onValueChange, times(1)).invoke(eq(dummyEditorState))
     }
@@ -153,7 +159,7 @@ class InputFieldDelegateTest {
 
         whenever(processor.onEditCommands(captor.capture())).thenReturn(dummyEditorState)
 
-        delegate.onRelease(position)
+        InputFieldDelegate.onRelease(position, painter, processor, onValueChange)
 
         assertEquals(1, captor.allValues.size)
         assertEquals(1, captor.firstValue.size)
@@ -165,14 +171,15 @@ class InputFieldDelegateTest {
     fun test_draw_order() {
         val canvas: Canvas = mock()
 
-        delegate.draw(
+        InputFieldDelegate.draw(
             canvas = canvas,
+            textPainter = painter,
             value = EditorState(
                 text = "Hello, World", selection = TextRange(1, 1),
                 composition = TextRange(1, 3)
             ),
             editorStyle = EditorStyle(compositionColor = Color.Red),
-            drawCursor = true
+            hasFocus = true
         )
 
         inOrder(painter) {
@@ -183,8 +190,26 @@ class InputFieldDelegateTest {
 
     @Test
     fun show_soft_input() {
-        val textInputService: TextInputService = mock()
-        delegate.onPress(textInputService)
+        InputFieldDelegate.onPress(textInputService)
         verify(textInputService).showSoftwareKeyboard()
+    }
+
+    @Test
+    fun on_focus() {
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
+        InputFieldDelegate.onFocus(textInputService, dummyEditorState, processor,
+            KeyboardType.Text, onValueChange, onEditorActionPerformed)
+        verify(textInputService).startInput(
+            eq(dummyEditorState),
+            eq(KeyboardType.Text),
+            any(),
+            eq(onEditorActionPerformed)
+        )
+    }
+
+    @Test
+    fun on_blur() {
+        InputFieldDelegate.onBlur(textInputService)
+        verify(textInputService).stopInput()
     }
 }

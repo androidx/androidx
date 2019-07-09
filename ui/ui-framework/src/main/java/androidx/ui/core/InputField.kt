@@ -92,52 +92,61 @@ fun InputField(
     /** Called when the InputMethod requested an editor action */
     onEditorActionPerformed: (Any) -> Unit = {} // TODO(nona): Define argument type
 ) {
+    // Ambients
     val style = +ambient(CurrentTextStyleAmbient)
-    val mergedStyle = style.merge(editorStyle.textStyle)
     val textInputService = +ambient(TextInputServiceAmbient)
-    val hasFocus = +state { false }
-
-    val processor = +memo { EditProcessor() }
-    processor.onNewState(value, textInputService)
-
     val density = +ambient(DensityAmbient)
     val resourceLoader = +ambient(FontLoaderAmbient)
 
-    // TODO(nona): Add parameter for text direction, softwrap, etc.
-    val delegate = InputFieldDelegate(
+    // Memos
+    val processor = +memo { EditProcessor() }
+    val mergedStyle = style.merge(editorStyle.textStyle)
+    val textPainter = +memo(value, mergedStyle, density, resourceLoader) {
+        // TODO(nona): Add parameter for text direction, softwrap, etc.
         TextPainter(
             text = AnnotatedString(text = value.text),
             style = mergedStyle,
             density = density,
             resourceLoader = resourceLoader
-        ),
-        processor,
-        onValueChange
-    )
+        )
+    }
 
+    // States
+    val hasFocus = +state { false }
+
+    processor.onNewState(value, textInputService)
     TextInputEventObserver(
-        onPress = { delegate.onPress(textInputService) },
+        onPress = { InputFieldDelegate.onPress(textInputService) },
         onFocus = {
             hasFocus.value = true
-            textInputService?.startInput(
-                initState = value,
-                keyboardType = keyboardType,
-                onEditCommand = { delegate.onEditCommand(it) },
-                onEditorActionPerformed = onEditorActionPerformed)
+            InputFieldDelegate.onFocus(
+                textInputService,
+                value,
+                processor,
+                keyboardType,
+                onValueChange,
+                onEditorActionPerformed)
         },
         onBlur = {
             hasFocus.value = false
-            textInputService?.stopInput()
+            InputFieldDelegate.onBlur(textInputService)
         },
-        onDragAt = { delegate.onDragAt(it) },
-        onRelease = { delegate.onRelease(it) }
+        onDragAt = { InputFieldDelegate.onDragAt(it) },
+        onRelease = { InputFieldDelegate.onRelease(it, textPainter, processor, onValueChange) }
     ) {
         Layout(
             children = @Composable {
-                Draw { canvas, _ -> delegate.draw(canvas, value, editorStyle, hasFocus.value) }
+                Draw { canvas, _ -> InputFieldDelegate.draw(
+                    canvas,
+                    value,
+                    textPainter,
+                    hasFocus.value,
+                    editorStyle) }
             },
             layoutBlock = { _, constraints ->
-                delegate.layout(constraints).let { layout(it.first, it.second) {} }
+                InputFieldDelegate.layout(textPainter, constraints).let {
+                    layout(it.first, it.second) {}
+                }
             }
         )
     }
