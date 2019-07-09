@@ -916,7 +916,7 @@ public class MediaBrowserCompatTest {
     }
 
     private class StubSubscriptionCallback extends MediaBrowserCompat.SubscriptionCallback {
-        private CountDownLatch mLatch;
+        private volatile CountDownLatch mLatch;
         private volatile int mChildrenLoadedCount;
         private volatile int mChildrenLoadedWithOptionCount;
         private volatile String mLastErrorId;
@@ -938,6 +938,7 @@ public class MediaBrowserCompatTest {
             try {
                 return mLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
+                Log.e(TAG, "interrupt while awaiting", e);
                 return false;
             }
         }
