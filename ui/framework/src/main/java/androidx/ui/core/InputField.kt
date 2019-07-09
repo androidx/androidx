@@ -82,7 +82,7 @@ fun InputField(
      *
      * Note that this input type is honored by IME and shows corresponding keyboard but this is not
      * guaranteed. For example, some IME may send non-ASCII character even if you set
-     * {@link KeyboardType.KEYBOARD_TYPE_ASCII}
+     * [KeyboardType.Ascii]
      */
     keyboardType: KeyboardType = KeyboardType.Text,
 
