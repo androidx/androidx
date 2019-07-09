@@ -34,18 +34,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Interpolator;
-import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.annotation.AnimRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.collection.ArraySet;
@@ -53,6 +50,7 @@ import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
+import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
@@ -577,33 +575,6 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    private static final Interpolator DECELERATE_QUINT = new DecelerateInterpolator(2.5f);
-    private static final Interpolator DECELERATE_CUBIC = new DecelerateInterpolator(1.5f);
-
-    private static final int ANIM_DUR = 220;
-
-    private static AnimationOrAnimator makeOpenCloseAnimation(float startScale,
-                                                      float endScale, float startAlpha, float endAlpha) {
-        AnimationSet set = new AnimationSet(false);
-        ScaleAnimation scale = new ScaleAnimation(startScale, endScale, startScale, endScale,
-                Animation.RELATIVE_TO_SELF, .5f, Animation.RELATIVE_TO_SELF, .5f);
-        scale.setInterpolator(DECELERATE_QUINT);
-        scale.setDuration(ANIM_DUR);
-        set.addAnimation(scale);
-        AlphaAnimation alpha = new AlphaAnimation(startAlpha, endAlpha);
-        alpha.setInterpolator(DECELERATE_CUBIC);
-        alpha.setDuration(ANIM_DUR);
-        set.addAnimation(alpha);
-        return new AnimationOrAnimator(set);
-    }
-
-    private static AnimationOrAnimator makeFadeAnimation(float start, float end) {
-        AlphaAnimation anim = new AlphaAnimation(start, end);
-        anim.setInterpolator(DECELERATE_CUBIC);
-        anim.setDuration(ANIM_DUR);
-        return new AnimationOrAnimator(anim);
-    }
-
     private AnimationOrAnimator loadAnimation(Fragment fragment, int transit, boolean enter) {
         int nextAnim = fragment.getNextAnim();
         // Clear the Fragment animation
@@ -666,27 +637,15 @@ final class FragmentManagerImpl extends FragmentManager {
             return null;
         }
 
-        int styleIndex = transitToStyleIndex(transit, enter);
-        if (styleIndex < 0) {
+        int animResourceId = transitToAnimResourceId(transit, enter);
+        if (animResourceId < 0) {
             return null;
         }
 
-        switch (styleIndex) {
-            case ANIM_STYLE_OPEN_ENTER:
-                return makeOpenCloseAnimation(1.125f, 1.0f, 0, 1);
-            case ANIM_STYLE_OPEN_EXIT:
-                return makeOpenCloseAnimation(1.0f, .975f, 1, 0);
-            case ANIM_STYLE_CLOSE_ENTER:
-                return makeOpenCloseAnimation(.975f, 1.0f, 0, 1);
-            case ANIM_STYLE_CLOSE_EXIT:
-                return makeOpenCloseAnimation(1.0f, 1.075f, 1, 0);
-            case ANIM_STYLE_FADE_ENTER:
-                return makeFadeAnimation(0, 1);
-            case ANIM_STYLE_FADE_EXIT:
-                return makeFadeAnimation(1, 0);
-        }
-
-        return null;
+        return new AnimationOrAnimator(AnimationUtils.loadAnimation(
+                mHost.getContext(),
+                animResourceId
+        ));
     }
 
     void performPendingDeferredStart(@NonNull Fragment f) {
@@ -3106,24 +3065,18 @@ final class FragmentManagerImpl extends FragmentManager {
 
     }
 
-    private static final int ANIM_STYLE_OPEN_ENTER = 1;
-    private static final int ANIM_STYLE_OPEN_EXIT = 2;
-    private static final int ANIM_STYLE_CLOSE_ENTER = 3;
-    private static final int ANIM_STYLE_CLOSE_EXIT = 4;
-    private static final int ANIM_STYLE_FADE_ENTER = 5;
-    private static final int ANIM_STYLE_FADE_EXIT = 6;
-
-    private static int transitToStyleIndex(int transit, boolean enter) {
+    @AnimRes
+    private static int transitToAnimResourceId(int transit, boolean enter) {
         int animAttr = -1;
         switch (transit) {
             case FragmentTransaction.TRANSIT_FRAGMENT_OPEN:
-                animAttr = enter ? ANIM_STYLE_OPEN_ENTER : ANIM_STYLE_OPEN_EXIT;
+                animAttr = enter ? R.anim.fragment_open_enter : R.anim.fragment_open_exit;
                 break;
             case FragmentTransaction.TRANSIT_FRAGMENT_CLOSE:
-                animAttr = enter ? ANIM_STYLE_CLOSE_ENTER : ANIM_STYLE_CLOSE_EXIT;
+                animAttr = enter ? R.anim.fragment_close_enter : R.anim.fragment_close_exit;
                 break;
             case FragmentTransaction.TRANSIT_FRAGMENT_FADE:
-                animAttr = enter ? ANIM_STYLE_FADE_ENTER : ANIM_STYLE_FADE_EXIT;
+                animAttr = enter ? R.anim.fragment_fade_enter : R.anim.fragment_fade_exit;
                 break;
         }
         return animAttr;
