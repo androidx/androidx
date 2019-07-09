@@ -29,25 +29,28 @@ plugins {
 }
 
 dependencies {
-    api project(":compose:compose-runtime")
-    api project(":ui:ui-core")
-    api project(":ui:ui-text")
-    api(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_COMPOSE_STDLIB)
 
+    implementation "androidx.core:core:1.0.2"
+
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-core")
+    implementation project(":ui:ui-text")
+
+    testImplementation(ANDROIDX_TEST_RULES)
+    testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation("com.google.truth:truth:0.42")
+    testImplementation(TRUTH)
     testImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
+
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }

@@ -28,24 +28,20 @@ plugins {
 }
 
 dependencies {
-    api(KOTLIN_COMPOSE_STDLIB)
+    implementation(KOTLIN_COMPOSE_STDLIB)
 
-    api "androidx.annotation:annotation:1.0.0"
-    api "androidx.activity:activity:1.0.0-alpha01"
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
-    testImplementation(ANDROIDX_TEST_RUNNER)
+    implementation "androidx.annotation:annotation:1.1.0"
+
     testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(TRUTH)
-    testImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
-    }
+    testImplementation(ANDROIDX_TEST_RUNNER)
+    testImplementation(JUNIT)
+
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation MOCKITO_KOTLIN, {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
