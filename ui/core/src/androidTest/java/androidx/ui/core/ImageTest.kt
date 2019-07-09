@@ -30,7 +30,7 @@ class ImageTest {
 
     @Test
     fun testCreatedImage() {
-        val cs = ColorSpace.get(ColorSpace.Named.DisplayP3)
+        val cs = ColorSpace.get(ColorSpace.Named.Srgb)
         val image = Image(
             width = 10,
             height = 20,
