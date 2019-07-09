@@ -16,6 +16,8 @@
 
 package androidx.fragment.app;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+
 import android.animation.Animator;
 import android.animation.AnimatorInflater;
 import android.animation.AnimatorListenerAdapter;
@@ -44,8 +46,11 @@ import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
 import androidx.annotation.AnimRes;
 import androidx.annotation.IdRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.StringRes;
 import androidx.collection.ArraySet;
 import androidx.core.util.DebugUtils;
 import androidx.core.util.LogWriter;
@@ -78,9 +83,246 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * you can acquire the {@link FragmentManager} by calling
  * {@link FragmentActivity#getSupportFragmentManager}.
  */
-final class FragmentManagerImpl extends FragmentManager {
+public class FragmentManager {
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
+
+    /**
+     * Control whether the framework's internal fragment manager debugging
+     * logs are turned on.  If enabled, you will see output in logcat as
+     * the framework performs fragment operations.
+     */
+    public static void enableDebugLogging(boolean enabled) {
+        FragmentManager.DEBUG = enabled;
+    }
+
+    /**
+     * Flag for {@link #popBackStack(String, int)}
+     * and {@link #popBackStack(int, int)}: If set, and the name or ID of
+     * a back stack entry has been supplied, then all matching entries will
+     * be consumed until one that doesn't match is found or the bottom of
+     * the stack is reached.  Otherwise, all entries up to but not including that entry
+     * will be removed.
+     */
+    public static final int POP_BACK_STACK_INCLUSIVE = 1;
+
+    /**
+     * Representation of an entry on the fragment back stack, as created
+     * with {@link FragmentTransaction#addToBackStack(String)
+     * FragmentTransaction.addToBackStack()}.  Entries can later be
+     * retrieved with {@link FragmentManager#getBackStackEntryAt(int)
+     * FragmentManager.getBackStackEntryAt()}.
+     *
+     * <p>Note that you should never hold on to a BackStackEntry object;
+     * the identifier as returned by {@link #getId} is the only thing that
+     * will be persisted across activity instances.
+     */
+    public interface BackStackEntry {
+        /**
+         * Return the unique identifier for the entry.  This is the only
+         * representation of the entry that will persist across activity
+         * instances.
+         */
+        int getId();
+
+        /**
+         * Get the name that was supplied to
+         * {@link FragmentTransaction#addToBackStack(String)
+         * FragmentTransaction.addToBackStack(String)} when creating this entry.
+         */
+        @Nullable
+        String getName();
+
+        /**
+         * Return the full bread crumb title resource identifier for the entry,
+         * or 0 if it does not have one.
+         */
+        @StringRes
+        int getBreadCrumbTitleRes();
+
+        /**
+         * Return the short bread crumb title resource identifier for the entry,
+         * or 0 if it does not have one.
+         */
+        @StringRes
+        int getBreadCrumbShortTitleRes();
+
+        /**
+         * Return the full bread crumb title for the entry, or null if it
+         * does not have one.
+         */
+        @Nullable
+        CharSequence getBreadCrumbTitle();
+
+        /**
+         * Return the short bread crumb title for the entry, or null if it
+         * does not have one.
+         */
+        @Nullable
+        CharSequence getBreadCrumbShortTitle();
+    }
+
+    /**
+     * Interface to watch for changes to the back stack.
+     */
+    public interface OnBackStackChangedListener {
+        /**
+         * Called whenever the contents of the back stack change.
+         */
+        @MainThread
+        void onBackStackChanged();
+    }
+
+    /**
+     * Callback interface for listening to fragment state changes that happen
+     * within a given FragmentManager.
+     */
+    public abstract static class FragmentLifecycleCallbacks {
+        /**
+         * Called right before the fragment's {@link Fragment#onAttach(Context)} method is called.
+         * This is a good time to inject any required dependencies or perform other configuration
+         * for the fragment before any of the fragment's lifecycle methods are invoked.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         * @param context Context that the Fragment is being attached to
+         */
+        public void onFragmentPreAttached(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull Context context) {}
+
+        /**
+         * Called after the fragment has been attached to its host. Its host will have had
+         * <code>onAttachFragment</code> called before this call happens.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         * @param context Context that the Fragment was attached to
+         */
+        public void onFragmentAttached(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull Context context) {}
+
+        /**
+         * Called right before the fragment's {@link Fragment#onCreate(Bundle)} method is called.
+         * This is a good time to inject any required dependencies or perform other configuration
+         * for the fragment.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         * @param savedInstanceState Saved instance bundle from a previous instance
+         */
+        public void onFragmentPreCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @Nullable Bundle savedInstanceState) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onCreate(Bundle)}. This will only happen once for any given
+         * fragment instance, though the fragment may be attached and detached multiple times.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         * @param savedInstanceState Saved instance bundle from a previous instance
+         */
+        public void onFragmentCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @Nullable Bundle savedInstanceState) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onActivityCreated(Bundle)}. This will only happen once for any given
+         * fragment instance, though the fragment may be attached and detached multiple times.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         * @param savedInstanceState Saved instance bundle from a previous instance
+         */
+        public void onFragmentActivityCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @Nullable Bundle savedInstanceState) {}
+
+        /**
+         * Called after the fragment has returned a non-null view from the FragmentManager's
+         * request to {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment that created and owns the view
+         * @param v View returned by the fragment
+         * @param savedInstanceState Saved instance bundle from a previous instance
+         */
+        public void onFragmentViewCreated(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull View v, @Nullable Bundle savedInstanceState) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onStart()}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         */
+        public void onFragmentStarted(@NonNull FragmentManager fm, @NonNull Fragment f) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onResume()}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         */
+        public void onFragmentResumed(@NonNull FragmentManager fm, @NonNull Fragment f) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onPause()}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         */
+        public void onFragmentPaused(@NonNull FragmentManager fm, @NonNull Fragment f) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onStop()}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         */
+        public void onFragmentStopped(@NonNull FragmentManager fm, @NonNull Fragment f) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onSaveInstanceState(Bundle)}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         * @param outState Saved state bundle for the fragment
+         */
+        public void onFragmentSaveInstanceState(@NonNull FragmentManager fm, @NonNull Fragment f,
+                @NonNull Bundle outState) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onDestroyView()}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         */
+        public void onFragmentViewDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onDestroy()}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         */
+        public void onFragmentDestroyed(@NonNull FragmentManager fm, @NonNull Fragment f) {}
+
+        /**
+         * Called after the fragment has returned from the FragmentManager's call to
+         * {@link Fragment#onDetach()}.
+         *
+         * @param fm Host FragmentManager
+         * @param f Fragment changing state
+         */
+        public void onFragmentDetached(@NonNull FragmentManager fm, @NonNull Fragment f) {}
+    }
 
     private static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
     private static final String TARGET_STATE_TAG = "android:target_state";
@@ -114,7 +356,7 @@ final class FragmentManagerImpl extends FragmentManager {
             new OnBackPressedCallback(false) {
         @Override
         public void handleOnBackPressed() {
-            FragmentManagerImpl.this.handleOnBackPressed();
+            FragmentManager.this.handleOnBackPressed();
         }
     };
 
@@ -133,6 +375,15 @@ final class FragmentManagerImpl extends FragmentManager {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable
     Fragment mPrimaryNav;
+    private FragmentFactory mFragmentFactory = null;
+    private FragmentFactory mHostFragmentFactory = new FragmentFactory() {
+        @SuppressWarnings("deprecation")
+        @NonNull
+        @Override
+        public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className) {
+            return mHost.instantiate(mHost.getContext(), className, null);
+        }
+    };
 
     private boolean mNeedMenuInvalidate;
     private boolean mStateSaved;
@@ -183,6 +434,17 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     /**
+     * @hide -- remove once prebuilts are in.
+     * @deprecated Use {@link #beginTransaction()}.
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Deprecated
+    @NonNull
+    public FragmentTransaction openTransaction() {
+        return beginTransaction();
+    }
+
+    /**
      * Start a series of edit operations on the Fragments associated with
      * this FragmentManager.
      *
@@ -196,7 +458,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * will be lost.</p>
      */
     @NonNull
-    @Override
     public FragmentTransaction beginTransaction() {
         return new BackStackRecord(this);
     }
@@ -222,7 +483,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * @return Returns true if there were any pending transactions to be
      * executed.
      */
-    @Override
     public boolean executePendingTransactions() {
         boolean updates = execPendingActions();
         forcePostponedTransactions();
@@ -257,7 +517,7 @@ final class FragmentManagerImpl extends FragmentManager {
         if (parent == null) {
             return true;
         }
-        FragmentManagerImpl parentFragmentManager = parent.mFragmentManager;
+        FragmentManager parentFragmentManager = parent.mFragmentManager;
         Fragment primaryNavigationFragment = parentFragmentManager
                 .getPrimaryNavigationFragment();
         // The parent Fragment needs to be the primary navigation Fragment
@@ -293,7 +553,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * request to pop, but the action will not be performed until the application
      * returns to its event loop.
      */
-    @Override
     public void popBackStack() {
         enqueueAction(new PopBackStackState(null, -1, 0), false);
     }
@@ -304,7 +563,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
-    @Override
     public boolean popBackStackImmediate() {
         checkStateLoss();
         return popBackStackImmediate(null, -1, 0);
@@ -323,7 +581,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * the named state itself is popped. If null, only the top state is popped.
      * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
      */
-    @Override
     public void popBackStack(@Nullable final String name, final int flags) {
         enqueueAction(new PopBackStackState(name, -1, flags), false);
     }
@@ -334,7 +591,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
-    @Override
     public boolean popBackStackImmediate(@Nullable String name, int flags) {
         checkStateLoss();
         return popBackStackImmediate(name, -1, flags);
@@ -354,7 +610,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * the named state itself is popped.
      * @param flags Either 0 or {@link #POP_BACK_STACK_INCLUSIVE}.
      */
-    @Override
     public void popBackStack(final int id, final int flags) {
         if (id < 0) {
             throw new IllegalArgumentException("Bad id: " + id);
@@ -368,7 +623,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * afterwards without forcing the start of postponed Transactions.
      * @return Returns true if there was something popped, else false.
      */
-    @Override
     public boolean popBackStackImmediate(int id, int flags) {
         checkStateLoss();
         execPendingActions();
@@ -418,7 +672,6 @@ final class FragmentManagerImpl extends FragmentManager {
     /**
      * Return the number of entries currently in the back stack.
      */
-    @Override
     public int getBackStackEntryCount() {
         return mBackStack != null ? mBackStack.size() : 0;
     }
@@ -428,7 +681,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * entries start index 0 being the bottom of the stack.
      */
     @NonNull
-    @Override
     public BackStackEntry getBackStackEntryAt(int index) {
         return mBackStack.get(index);
     }
@@ -436,7 +688,6 @@ final class FragmentManagerImpl extends FragmentManager {
     /**
      * Add a new listener for changes to the fragment back stack.
      */
-    @Override
     public void addOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
         if (mBackStackChangeListeners == null) {
             mBackStackChangeListeners = new ArrayList<>();
@@ -448,7 +699,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * Remove a listener that was previously added with
      * {@link #addOnBackStackChangedListener(OnBackStackChangedListener)}.
      */
-    @Override
     public void removeOnBackStackChangedListener(@NonNull OnBackStackChangedListener listener) {
         if (mBackStackChangeListeners != null) {
             mBackStackChangeListeners.remove(listener);
@@ -465,7 +715,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param key The name of the entry in the bundle.
      * @param fragment The Fragment whose reference is to be stored.
      */
-    @Override
     public void putFragment(@NonNull Bundle bundle, @NonNull String key,
             @NonNull Fragment fragment) {
         if (fragment.mFragmentManager != this) {
@@ -484,7 +733,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * @return Returns the current Fragment instance that is associated with
      * the given reference.
      */
-    @Override
     @Nullable
     public Fragment getFragment(@NonNull Bundle bundle, @NonNull String key) {
         String who = bundle.getString(key);
@@ -511,7 +759,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * @return A list of all fragments that are added to the FragmentManager.
      */
     @NonNull
-    @Override
     @SuppressWarnings("unchecked")
     public List<Fragment> getFragments() {
         if (mAdded.isEmpty()) {
@@ -534,26 +781,26 @@ final class FragmentManagerImpl extends FragmentManager {
 
     void addRetainedFragment(@NonNull Fragment f) {
         if (isStateSaved()) {
-            if (FragmentManagerImpl.DEBUG) {
+            if (FragmentManager.DEBUG) {
                 Log.v(TAG, "Ignoring addRetainedFragment as the state is already saved");
             }
             return;
         }
         boolean added = mNonConfig.addRetainedFragment(f);
-        if (added && FragmentManagerImpl.DEBUG) {
+        if (added && FragmentManager.DEBUG) {
             Log.v(TAG, "Updating retained Fragments: Added " + f);
         }
     }
 
     void removeRetainedFragment(@NonNull Fragment f) {
         if (isStateSaved()) {
-            if (FragmentManagerImpl.DEBUG) {
+            if (FragmentManager.DEBUG) {
                 Log.v(TAG, "Ignoring removeRetainedFragment as the state is already saved");
             }
             return;
         }
         boolean removed = mNonConfig.removeRetainedFragment(f);
-        if (removed && FragmentManagerImpl.DEBUG) {
+        if (removed && FragmentManager.DEBUG) {
             Log.v(TAG, "Updating retained Fragments: Removed " + f);
         }
     }
@@ -600,7 +847,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * @return The generated state.  This will be null if there was no
      * interesting state created by the fragment.
      */
-    @Override
     @Nullable
     public Fragment.SavedState saveFragmentInstanceState(@NonNull Fragment fragment) {
         if (fragment.mFragmentManager != this) {
@@ -618,11 +864,11 @@ final class FragmentManagerImpl extends FragmentManager {
      * Returns true if the final {@link android.app.Activity#onDestroy() Activity.onDestroy()}
      * call has been made on the FragmentManager's Activity, so this instance is now dead.
      */
-    @Override
     public boolean isDestroyed() {
         return mDestroyed;
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
@@ -646,7 +892,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param writer A PrintWriter to which the dump is to be set.
      * @param args Additional arguments to the dump request.
      */
-    @Override
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
                      @NonNull PrintWriter writer, @Nullable String[] args) {
         String innerPrefix = prefix + "    ";
@@ -914,20 +1159,20 @@ final class FragmentManagerImpl extends FragmentManager {
                             f.mSavedFragmentState.setClassLoader(mHost.getContext()
                                     .getClassLoader());
                             f.mSavedViewState = f.mSavedFragmentState.getSparseParcelableArray(
-                                    FragmentManagerImpl.VIEW_STATE_TAG);
+                                    FragmentManager.VIEW_STATE_TAG);
                             Fragment target = getFragment(f.mSavedFragmentState,
-                                    FragmentManagerImpl.TARGET_STATE_TAG);
+                                    FragmentManager.TARGET_STATE_TAG);
                             f.mTargetWho = target != null ? target.mWho : null;
                             if (f.mTargetWho != null) {
                                 f.mTargetRequestCode = f.mSavedFragmentState.getInt(
-                                        FragmentManagerImpl.TARGET_REQUEST_CODE_STATE_TAG, 0);
+                                        FragmentManager.TARGET_REQUEST_CODE_STATE_TAG, 0);
                             }
                             if (f.mSavedUserVisibleHint != null) {
                                 f.mUserVisibleHint = f.mSavedUserVisibleHint;
                                 f.mSavedUserVisibleHint = null;
                             } else {
                                 f.mUserVisibleHint = f.mSavedFragmentState.getBoolean(
-                                        FragmentManagerImpl.USER_VISIBLE_HINT_TAG, true);
+                                        FragmentManager.USER_VISIBLE_HINT_TAG, true);
                             }
                             if (!f.mUserVisibleHint) {
                                 f.mDeferStart = true;
@@ -1630,7 +1875,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * on the back stack associated with this ID are searched.
      * @return The fragment if found or null otherwise.
      */
-    @Override
     @Nullable
     public Fragment findFragmentById(@IdRes int id) {
         // First look through added fragments.
@@ -1657,7 +1901,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * on the back stack are searched.
      * @return The fragment if found or null otherwise.
      */
-    @Override
     @Nullable
     public Fragment findFragmentByTag(@Nullable String tag) {
         if (tag != null) {
@@ -1707,7 +1950,6 @@ final class FragmentManagerImpl extends FragmentManager {
      *
      * @return true if this FragmentManager's state has already been saved by its host
      */
-    @Override
     public boolean isStateSaved() {
         // See saveAllState() for the explanation of this.  We do this for
         // all platform versions, to keep our behavior more consistent between
@@ -2451,14 +2693,14 @@ final class FragmentManagerImpl extends FragmentManager {
                 result = new Bundle();
             }
             result.putSparseParcelableArray(
-                    FragmentManagerImpl.VIEW_STATE_TAG, f.mSavedViewState);
+                    FragmentManager.VIEW_STATE_TAG, f.mSavedViewState);
         }
         if (!f.mUserVisibleHint) {
             if (result == null) {
                 result = new Bundle();
             }
             // Only add this if it's not the default value
-            result.putBoolean(FragmentManagerImpl.USER_VISIBLE_HINT_TAG, f.mUserVisibleHint);
+            result.putBoolean(FragmentManager.USER_VISIBLE_HINT_TAG, f.mUserVisibleHint);
         }
 
         return result;
@@ -2509,10 +2751,10 @@ final class FragmentManagerImpl extends FragmentManager {
                             fs.mSavedFragmentState = new Bundle();
                         }
                         putFragment(fs.mSavedFragmentState,
-                                FragmentManagerImpl.TARGET_STATE_TAG, target);
+                                FragmentManager.TARGET_STATE_TAG, target);
                         if (f.mTargetRequestCode != 0) {
                             fs.mSavedFragmentState.putInt(
-                                    FragmentManagerImpl.TARGET_REQUEST_CODE_STATE_TAG,
+                                    FragmentManager.TARGET_REQUEST_CODE_STATE_TAG,
                                     f.mTargetRequestCode);
                         }
                     }
@@ -2628,7 +2870,7 @@ final class FragmentManagerImpl extends FragmentManager {
             if (fs.mSavedFragmentState != null) {
                 fs.mSavedFragmentState.setClassLoader(mHost.getContext().getClassLoader());
                 f.mSavedViewState = fs.mSavedFragmentState.getSparseParcelableArray(
-                        FragmentManagerImpl.VIEW_STATE_TAG);
+                        FragmentManager.VIEW_STATE_TAG);
                 f.mSavedFragmentState = fs.mSavedFragmentState;
             }
         }
@@ -2980,7 +3222,6 @@ final class FragmentManagerImpl extends FragmentManager {
      *
      * @return the fragment designated as the primary navigation fragment
      */
-    @Override
     @Nullable
     public Fragment getPrimaryNavigationFragment() {
         return mPrimaryNav;
@@ -2996,33 +3237,33 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     /**
+     * Set a {@link FragmentFactory} for this FragmentManager that will be used
+     * to create new Fragment instances from this point onward.
+     *
+     * @param fragmentFactory the factory to use to create new Fragment instances
+     */
+    public void setFragmentFactory(@NonNull FragmentFactory fragmentFactory) {
+        mFragmentFactory = fragmentFactory;
+    }
+
+    /**
      * Gets the current {@link FragmentFactory} used to instantiate new Fragment instances.
      *
      * @return the current FragmentFactory
      */
-    @Override
     @NonNull
     public FragmentFactory getFragmentFactory() {
-        FragmentFactory factory = super.getFragmentFactory();
-        if (factory == DEFAULT_FACTORY) {
-            if (mParent != null) {
-                // This can't call setFragmentFactory since we need to
-                // compute this each time getFragmentFactory() is called
-                // so that if the parent's FragmentFactory changes, we
-                // pick the change up here.
-                return mParent.mFragmentManager.getFragmentFactory();
-            }
-            setFragmentFactory(new FragmentFactory() {
-                @SuppressWarnings("deprecation")
-                @NonNull
-                @Override
-                public Fragment instantiate(@NonNull ClassLoader classLoader,
-                        @NonNull String className) {
-                    return mHost.instantiate(mHost.getContext(), className, null);
-                }
-            });
+        if (mFragmentFactory != null) {
+            return mFragmentFactory;
         }
-        return super.getFragmentFactory();
+        if (mParent != null) {
+            // This can't call setFragmentFactory since we need to
+            // compute this each time getFragmentFactory() is called
+            // so that if the parent's FragmentFactory changes, we
+            // pick the change up here.
+            return mParent.mFragmentManager.getFragmentFactory();
+        }
+        return mHostFragmentFactory;
     }
 
     /**
@@ -3033,7 +3274,6 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param cb Callbacks to register
      * @param recursive true to automatically register this callback for all child FragmentManagers
      */
-    @Override
     public void registerFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb,
             boolean recursive) {
         mLifecycleCallbacks.add(new FragmentLifecycleCallbacksHolder(cb, recursive));
@@ -3046,7 +3286,6 @@ final class FragmentManagerImpl extends FragmentManager {
      *
      * @param cb Callbacks to unregister
      */
-    @Override
     public void unregisterFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb) {
         synchronized (mLifecycleCallbacks) {
             for (int i = 0, count = mLifecycleCallbacks.size(); i < count; i++) {
@@ -3061,11 +3300,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private void dispatchOnFragmentPreAttached(@NonNull Fragment f, @NonNull Context context,
             boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentPreAttached(f, context, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentPreAttached(f, context, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3077,11 +3313,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private void dispatchOnFragmentAttached(@NonNull Fragment f, @NonNull Context context,
             boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentAttached(f, context, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentAttached(f, context, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3093,11 +3326,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private void dispatchOnFragmentPreCreated(@NonNull Fragment f,
             @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentPreCreated(f, savedInstanceState, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentPreCreated(f, savedInstanceState, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3109,11 +3339,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private void dispatchOnFragmentCreated(@NonNull Fragment f,
             @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentCreated(f, savedInstanceState, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentCreated(f, savedInstanceState, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3125,11 +3352,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private void dispatchOnFragmentActivityCreated(@NonNull Fragment f,
             @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentActivityCreated(f, savedInstanceState, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentActivityCreated(f, savedInstanceState, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3141,11 +3365,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private void dispatchOnFragmentViewCreated(@NonNull Fragment f, @NonNull View v,
             @Nullable Bundle savedInstanceState, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentViewCreated(f, v, savedInstanceState, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentViewCreated(f, v, savedInstanceState, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3156,11 +3377,8 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void dispatchOnFragmentStarted(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentStarted(f, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentStarted(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3171,11 +3389,8 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void dispatchOnFragmentResumed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentResumed(f, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentResumed(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3186,11 +3401,8 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void dispatchOnFragmentPaused(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentPaused(f, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentPaused(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3201,11 +3413,8 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void dispatchOnFragmentStopped(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentStopped(f, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentStopped(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3217,11 +3426,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private void dispatchOnFragmentSaveInstanceState(@NonNull Fragment f, @NonNull Bundle outState,
             boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentSaveInstanceState(f, outState, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentSaveInstanceState(f, outState, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3232,11 +3438,8 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void dispatchOnFragmentViewDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentViewDestroyed(f, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentViewDestroyed(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3247,11 +3450,8 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void dispatchOnFragmentDestroyed(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentDestroyed(f, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentDestroyed(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3262,11 +3462,8 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void dispatchOnFragmentDetached(@NonNull Fragment f, boolean onlyRecursive) {
         if (mParent != null) {
-            FragmentManager parentManager = mParent.getFragmentManager();
-            if (parentManager instanceof FragmentManagerImpl) {
-                ((FragmentManagerImpl) parentManager)
-                        .dispatchOnFragmentDetached(f, true);
-            }
+            FragmentManager parentManager = mParent.requireFragmentManager();
+            parentManager.dispatchOnFragmentDetached(f, true);
         }
         for (FragmentLifecycleCallbacksHolder holder : mLifecycleCallbacks) {
             if (!onlyRecursive || holder.mRecursive) {
@@ -3439,7 +3636,7 @@ final class FragmentManagerImpl extends FragmentManager {
         void completeTransaction() {
             final boolean canceled;
             canceled = mNumPostponed > 0;
-            FragmentManagerImpl manager = mRecord.mManager;
+            FragmentManager manager = mRecord.mManager;
             final int numAdded = manager.mAdded.size();
             for (int i = 0; i < numAdded; i++) {
                 final Fragment fragment = manager.mAdded.get(i);

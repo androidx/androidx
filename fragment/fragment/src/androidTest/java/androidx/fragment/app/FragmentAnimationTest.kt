@@ -745,7 +745,7 @@ class FragmentAnimationTest {
         ) = super.onCreateView(inflater, container, savedInstanceState)?.apply {
             if (forceRunOnHwLayer) {
                 // Set any background color on the TextView, so view.hasOverlappingRendering() will
-                // return true, which in turn makes FragmentManagerImpl.shouldRunOnHWLayer() return
+                // return true, which in turn makes FragmentManager.shouldRunOnHWLayer() return
                 // true.
                 setBackgroundColor(-0x1)
             }

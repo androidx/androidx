@@ -36,7 +36,7 @@ class FragmentManagerTest {
     @UiThreadTest
     @Test fun transactionAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
-        val fragmentManager = FragmentManagerImpl()
+        val fragmentManager = FragmentManager()
 
         fragmentManager.transaction(allowStateLoss = true) {
             add(TestFragment(), null)
@@ -47,7 +47,7 @@ class FragmentManagerTest {
     @UiThreadTest
     @Test fun transactionNowAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
-        val fragmentManager = FragmentManagerImpl()
+        val fragmentManager = FragmentManager()
 
         fragmentManager.transaction(now = true, allowStateLoss = true) {
             add(TestFragment(), null)
@@ -69,7 +69,7 @@ class FragmentManagerTest {
     @UiThreadTest
     @Test fun commitAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
-        val fragmentManager = FragmentManagerImpl()
+        val fragmentManager = FragmentManager()
 
         fragmentManager.commit(allowStateLoss = true) {
             add(TestFragment(), null)
@@ -89,7 +89,7 @@ class FragmentManagerTest {
     @UiThreadTest
     @Test fun commitNowAllowingStateLoss() {
         // Use a detached FragmentManager to ensure state loss.
-        val fragmentManager = FragmentManagerImpl()
+        val fragmentManager = FragmentManager()
 
         fragmentManager.commitNow(allowStateLoss = true) {
             add(TestFragment(), null)
