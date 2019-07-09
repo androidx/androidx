@@ -800,7 +800,9 @@ class FragmentTransition {
             names = outTransaction.mSharedElementSourceNames;
         }
 
-        outSharedElements.retainAll(names);
+        if (names != null) {
+            outSharedElements.retainAll(names);
+        }
         if (sharedElementCallback != null) {
             sharedElementCallback.onMapSharedElements(names, outSharedElements);
             for (int i = names.size() - 1; i >= 0; i--) {
