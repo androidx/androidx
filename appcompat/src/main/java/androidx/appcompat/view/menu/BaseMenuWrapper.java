@@ -20,19 +20,16 @@ import android.content.Context;
 import android.view.MenuItem;
 import android.view.SubMenu;
 
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.internal.view.SupportMenuItem;
 import androidx.core.internal.view.SupportSubMenu;
-
-import java.util.Iterator;
-import java.util.Map;
 
 abstract class BaseMenuWrapper {
 
     final Context mContext;
 
-    private Map<SupportMenuItem, MenuItem> mMenuItems;
-    private Map<SupportSubMenu, SubMenu> mSubMenus;
+    private SimpleArrayMap<SupportMenuItem, MenuItem> mMenuItems;
+    private SimpleArrayMap<SupportSubMenu, SubMenu> mSubMenus;
 
     BaseMenuWrapper(Context context) {
         mContext = context;
@@ -44,7 +41,7 @@ abstract class BaseMenuWrapper {
 
             // Instantiate Map if null
             if (mMenuItems == null) {
-                mMenuItems = new ArrayMap<>();
+                mMenuItems = new SimpleArrayMap<>();
             }
 
             // First check if we already have a wrapper for this item
@@ -67,7 +64,7 @@ abstract class BaseMenuWrapper {
 
             // Instantiate Map if null
             if (mSubMenus == null) {
-                mSubMenus = new ArrayMap<>();
+                mSubMenus = new SimpleArrayMap<>();
             }
 
             SubMenu wrappedMenu = mSubMenus.get(supportSubMenu);
@@ -95,14 +92,10 @@ abstract class BaseMenuWrapper {
         if (mMenuItems == null) {
             return;
         }
-
-        Iterator<SupportMenuItem> iterator = mMenuItems.keySet().iterator();
-        android.view.MenuItem menuItem;
-
-        while (iterator.hasNext()) {
-            menuItem = iterator.next();
-            if (groupId == menuItem.getGroupId()) {
-                iterator.remove();
+        for (int i = 0; i < mMenuItems.size(); i++) {
+            if (mMenuItems.keyAt(i).getGroupId() == groupId) {
+                mMenuItems.removeAt(i);
+                i--;
             }
         }
     }
@@ -111,14 +104,9 @@ abstract class BaseMenuWrapper {
         if (mMenuItems == null) {
             return;
         }
-
-        Iterator<SupportMenuItem> iterator = mMenuItems.keySet().iterator();
-        android.view.MenuItem menuItem;
-
-        while (iterator.hasNext()) {
-            menuItem = iterator.next();
-            if (id == menuItem.getItemId()) {
-                iterator.remove();
+        for (int i = 0; i < mMenuItems.size(); i++) {
+            if (mMenuItems.keyAt(i).getItemId() == id) {
+                mMenuItems.removeAt(i);
                 break;
             }
         }
