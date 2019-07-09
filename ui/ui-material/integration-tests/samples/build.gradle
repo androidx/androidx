@@ -28,11 +28,17 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
+    implementation(KOTLIN_COMPOSE_STDLIB)
+
     implementation project(":annotation:annotation-sampled")
 
-    api(KOTLIN_COMPOSE_STDLIB)
-    api project(":compose:compose-runtime")
-    api project(':ui:ui-material')
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-core")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-framework")
+    implementation project(":ui:ui-layout")
+    implementation project(":ui:ui-material")
+    implementation project(":ui:ui-text")
 }
 
 android {

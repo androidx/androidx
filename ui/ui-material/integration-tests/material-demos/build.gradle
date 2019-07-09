@@ -15,15 +15,21 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
 
-    api "androidx.annotation:annotation:1.0.0"
-    api "androidx.activity:activity:1.0.0-alpha01"
-    api(KOTLIN_COMPOSE_STDLIB)
-    api(KOTLIN_COMPOSE_COROUTINES)
-    api project(":compose:compose-runtime")
-    api project(':ui:ui-material')
-    api project(':ui:ui-android-view-non-ir')
+    implementation(KOTLIN_COMPOSE_COROUTINES)
+    implementation(KOTLIN_COMPOSE_STDLIB)
+
+    implementation "androidx.activity:activity:1.0.0-alpha01"
+    implementation "androidx.annotation:annotation:1.1.0"
+
+    implementation project(":compose:compose-runtime")
+    implementation project(":ui:ui-core")
+    implementation project(":ui:ui-foundation")
+    implementation project(":ui:ui-framework")
     implementation project(":ui:ui-layout")
     implementation project(":ui:ui-material:integration-tests:samples")
+    implementation project(":ui:ui-text")
+    implementation project(':ui:ui-android-view-non-ir')
+    implementation project(':ui:ui-material')
 }
 
 android {
