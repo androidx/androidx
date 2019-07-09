@@ -21,6 +21,7 @@ import android.os.SystemClock
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.StrictFragment
 import androidx.fragment.app.executePendingTransactions
 import androidx.fragment.app.popBackStackImmediate
 import androidx.fragment.test.R
@@ -42,7 +43,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * Tests usage of the [FragmentTransaction] class.
+ * Tests usage of the [androidx.fragment.app.FragmentTransaction] class.
  */
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -80,6 +81,20 @@ class FragmentTransactionTest {
         activity.supportFragmentManager.executePendingTransactions()
         assertThat(onBackStackChangedTimes).isEqualTo(1)
         assertThat(fragment.isAdded).isTrue()
+    }
+
+    @Test
+    @UiThreadTest
+    fun testAddTransactionByClassName() {
+        activity.supportFragmentManager.beginTransaction()
+            .add(R.id.content, CorrectFragment::class.java)
+            .addToBackStack(null)
+            .commit()
+        activity.supportFragmentManager.executePendingTransactions()
+        assertThat(onBackStackChangedTimes).isEqualTo(1)
+        val fragment = activity.supportFragmentManager.findFragmentById(R.id.content)
+        assertThat(fragment)
+            .isInstanceOf(CorrectFragment::class.java)
     }
 
     @Test
@@ -210,6 +225,27 @@ class FragmentTransactionTest {
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
+    }
+
+    @Test
+    @UiThreadTest
+    fun testReplaceTransactionByClassName() {
+        val firstFragment = StrictFragment()
+        activity.supportFragmentManager.beginTransaction()
+            .add(R.id.content, firstFragment)
+            .commitNow()
+        assertThat(activity.supportFragmentManager.findFragmentById(R.id.content))
+            .isSameInstanceAs(firstFragment)
+
+        activity.supportFragmentManager.beginTransaction()
+            .add(R.id.content, CorrectFragment::class.java)
+            .addToBackStack(null)
+            .commit()
+        activity.supportFragmentManager.executePendingTransactions()
+        assertThat(onBackStackChangedTimes).isEqualTo(1)
+        val fragment = activity.supportFragmentManager.findFragmentById(R.id.content)
+        assertThat(fragment)
+            .isInstanceOf(CorrectFragment::class.java)
     }
 
     @Test

@@ -357,9 +357,12 @@ package androidx.fragment.app {
   }
 
   public abstract class FragmentTransaction {
-    ctor public FragmentTransaction();
+    ctor @Deprecated public FragmentTransaction();
+    method public final androidx.fragment.app.FragmentTransaction add(Class<? extends androidx.fragment.app.Fragment>, String?);
     method public androidx.fragment.app.FragmentTransaction add(androidx.fragment.app.Fragment, String?);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment);
+    method public final androidx.fragment.app.FragmentTransaction add(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, String?);
     method public androidx.fragment.app.FragmentTransaction add(@IdRes int, androidx.fragment.app.Fragment, String?);
     method public androidx.fragment.app.FragmentTransaction addSharedElement(android.view.View, String);
     method public androidx.fragment.app.FragmentTransaction addToBackStack(String?);
@@ -374,7 +377,9 @@ package androidx.fragment.app {
     method public boolean isAddToBackStackAllowed();
     method public boolean isEmpty();
     method public androidx.fragment.app.FragmentTransaction remove(androidx.fragment.app.Fragment);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment);
+    method public final androidx.fragment.app.FragmentTransaction replace(@IdRes int, Class<? extends androidx.fragment.app.Fragment>, String?);
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment, String?);
     method public androidx.fragment.app.FragmentTransaction runOnCommit(Runnable);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setAllowOptimization(boolean);
