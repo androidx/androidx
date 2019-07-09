@@ -1518,6 +1518,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
             // This will populate st.shownPanelView
             if (!initializePanelContent(st) || !st.hasPanelItems()) {
+                // If st.decorView was populated but we're not showing the menu for some reason,
+                // make sure we try again rather than showing a potentially empty st.decorView.
+                st.refreshDecorView = true;
                 return;
             }
 

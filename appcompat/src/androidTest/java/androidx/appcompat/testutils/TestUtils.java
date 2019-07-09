@@ -25,6 +25,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.view.InputDevice;
 import android.view.MotionEvent;
@@ -36,10 +37,16 @@ import android.view.ViewTreeObserver.OnDrawListener;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.TintTypedArray;
 import androidx.core.util.Pair;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -406,5 +413,35 @@ public class TestUtils {
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+    }
+
+    /**
+     * Executes the given shell command and returns true if any line matches the find predicate, or
+     * false otherwise.
+     * <p>
+     * Requires API 18+ due to UiAutomation dependency.
+     */
+    @RequiresApi(18)
+    public static boolean executeShellCommandAndFind(@NonNull String cmd,
+            @NonNull Predicate<String> find) throws IOException {
+        InputStream stdout = new ParcelFileDescriptor.AutoCloseInputStream(
+                InstrumentationRegistry.getInstrumentation()
+                        .getUiAutomation().executeShellCommand(cmd));
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stdout))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (find.test(line)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Substitute for Java 8 predicate until everyone moves to Java 8.
+     */
+    public interface Predicate<T> {
+        boolean test(T t);
     }
 }
