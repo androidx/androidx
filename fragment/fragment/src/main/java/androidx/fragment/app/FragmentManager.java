@@ -83,7 +83,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * you can acquire the {@link FragmentManager} by calling
  * {@link FragmentActivity#getSupportFragmentManager}.
  */
-public class FragmentManager {
+public abstract class FragmentManager {
     static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
 

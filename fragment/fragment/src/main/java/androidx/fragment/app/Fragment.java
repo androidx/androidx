@@ -164,7 +164,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     // Private fragment manager for child fragments inside of this one.
     @NonNull
-    FragmentManager mChildFragmentManager = new FragmentManager();
+    FragmentManager mChildFragmentManager = new FragmentManagerImpl();
 
     // If this Fragment is contained in another Fragment, this is that container.
     Fragment mParentFragment;
@@ -1908,7 +1908,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mRestored = false;
         mBackStackNesting = 0;
         mFragmentManager = null;
-        mChildFragmentManager = new FragmentManager();
+        mChildFragmentManager = new FragmentManagerImpl();
         mHost = null;
         mFragmentId = 0;
         mContainerId = 0;
@@ -2885,7 +2885,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         // specifically if the Fragment is retained.
         if (!mChildFragmentManager.isDestroyed()) {
             mChildFragmentManager.dispatchDestroy();
-            mChildFragmentManager = new FragmentManager();
+            mChildFragmentManager = new FragmentManagerImpl();
         }
     }
 

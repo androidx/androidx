@@ -46,7 +46,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
     @NonNull private final Context mContext;
     @NonNull private final Handler mHandler;
     private final int mWindowAnimations;
-    final FragmentManager mFragmentManager = new FragmentManager();
+    final FragmentManager mFragmentManager = new FragmentManagerImpl();
 
     public FragmentHostCallback(@NonNull Context context, @NonNull Handler handler,
             int windowAnimations) {
