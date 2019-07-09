@@ -54,6 +54,7 @@ fun imageFromResource(res: Resources, resId: Int): Image {
             height,
             bitmapConfig
         )
+        bitmap.setHasAlpha(hasAlpha)
     }
     return AndroidImage(bitmap)
 }
@@ -106,38 +107,44 @@ internal class AndroidImage(val bitmap: Bitmap) : Image {
     }
 }
 
-internal fun ImageConfig.toBitmapConfig(): Bitmap.Config =
-    when (this) {
-        ImageConfig.Argb8888 -> Bitmap.Config.ARGB_8888
-        ImageConfig.Alpha8 -> Bitmap.Config.ALPHA_8
-        ImageConfig.Rgb565 -> Bitmap.Config.RGB_565
-        else -> Bitmap.Config.ARGB_8888
+internal fun ImageConfig.toBitmapConfig(): Bitmap.Config {
+    // Cannot utilize when statements with enums that may have different sets of supported
+    // values between the compiled SDK and the platform version of the device.
+    // As a workaround use if/else statements
+    // See https://youtrack.jetbrains.com/issue/KT-30473 for details
+    return if (this == ImageConfig.Argb8888) {
+        Bitmap.Config.ARGB_8888
+    } else if (this == ImageConfig.Alpha8) {
+        Bitmap.Config.ALPHA_8
+    } else if (this == ImageConfig.Rgb565) {
+        Bitmap.Config.RGB_565
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && this == ImageConfig.F16) {
+        Bitmap.Config.RGBA_F16
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && this == ImageConfig.Gpu) {
+        Bitmap.Config.HARDWARE
+    } else {
+        Bitmap.Config.ARGB_8888
     }
+}
 
 internal fun Bitmap.Config.toImageConfig(): ImageConfig {
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-        @Suppress("DEPRECATION")
-        return when (this) {
-            Bitmap.Config.ALPHA_8 -> ImageConfig.Alpha8
-            Bitmap.Config.RGB_565 -> ImageConfig.Rgb565
-            Bitmap.Config.ARGB_4444 -> ImageConfig.Argb8888 // Always upgrade to Argb_8888
-            Bitmap.Config.ARGB_8888 -> ImageConfig.Argb8888
-            Bitmap.Config.RGBA_F16 -> ImageConfig.F16
-            Bitmap.Config.HARDWARE -> ImageConfig.Gpu
-            else -> ImageConfig.Argb8888
-        }
+    // Cannot utilize when statements with enums that may have different sets of supported
+    // values between the compiled SDK and the platform version of the device.
+    // As a workaround use if/else statements
+    // See https://youtrack.jetbrains.com/issue/KT-30473 for details
+    @Suppress("DEPRECATION")
+    return if (this == Bitmap.Config.ALPHA_8) {
+        ImageConfig.Alpha8
+    } else if (this == Bitmap.Config.RGB_565) {
+        ImageConfig.Rgb565
+    } else if (this == Bitmap.Config.ARGB_4444) {
+        ImageConfig.Argb8888 // Always upgrade to Argb_8888
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && this == Bitmap.Config.RGBA_F16) {
+        ImageConfig.F16
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && this == Bitmap.Config.HARDWARE) {
+        ImageConfig.Gpu
     } else {
-        // Re implement when statement for older OS versions that do not support hardware
-        // bitmaps to work around NoSuchFieldExceptions not being caught in Kotlin:
-        // https://youtrack.jetbrains.com/issue/KT-30473
-        @Suppress("DEPRECATION")
-        return when (this) {
-            Bitmap.Config.ALPHA_8 -> ImageConfig.Alpha8
-            Bitmap.Config.RGB_565 -> ImageConfig.Rgb565
-            Bitmap.Config.ARGB_4444 -> ImageConfig.Argb8888 // Always upgrade to Argb_8888
-            Bitmap.Config.ARGB_8888 -> ImageConfig.Argb8888
-            else -> ImageConfig.Argb8888
-        }
+        ImageConfig.Argb8888
     }
 }
 
