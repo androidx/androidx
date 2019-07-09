@@ -16,13 +16,8 @@ package androidx.ui.core {
 
   public final class DrawKt {
     ctor public DrawKt();
-    method public static void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children = {}, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawScope,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
-  }
-
-  public final class DrawScope implements androidx.ui.core.DensityReceiver {
-    method public void drawChildren();
-    method public androidx.ui.core.Density getDensity();
-    property public androidx.ui.core.Density density;
+    method public static void Draw(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
+    method public static void Draw(kotlin.jvm.functions.Function0<kotlin.Unit> children, kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> onPaint);
   }
 
   public final class EditorStyle {
