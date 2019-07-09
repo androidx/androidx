@@ -1548,13 +1548,11 @@ public abstract class VersionedParcel {
             };
             return (Serializable) ois.readObject();
         } catch (IOException ioe) {
-            throw new RuntimeException("VersionedParcelable encountered "
-                    + "IOException reading a Serializable object (name = " + name
-                    + ")", ioe);
+            throw new RuntimeException("Unable to read Serializable object (name = " + name + ")",
+                    ioe);
         } catch (ClassNotFoundException cnfe) {
-            throw new RuntimeException("VersionedParcelable encountered "
-                    + "ClassNotFoundException reading a Serializable object (name = "
-                    + name + ")", cnfe);
+            throw new RuntimeException("Unable to read Serializable object (name = " + name + ")",
+                    cnfe);
         }
     }
 
@@ -1567,16 +1565,20 @@ public abstract class VersionedParcel {
             Method m = getReadMethod(parcelCls);
             return (T) m.invoke(null, versionedParcel);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("VersionedParcel encountered IllegalAccessException", e);
+            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
             }
-            throw new RuntimeException("VersionedParcel encountered InvocationTargetException", e);
+            if (cause instanceof Error) {
+                throw (Error) cause;
+            }
+            throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("VersionedParcel encountered NoSuchMethodException", e);
+            throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("VersionedParcel encountered ClassNotFoundException", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -1588,16 +1590,20 @@ public abstract class VersionedParcel {
             Method m = getWriteMethod(val.getClass());
             m.invoke(null, val, versionedParcel);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("VersionedParcel encountered IllegalAccessException", e);
+            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
+            Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
             }
-            throw new RuntimeException("VersionedParcel encountered InvocationTargetException", e);
+            if (cause instanceof Error) {
+                throw (Error) cause;
+            }
+            throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException("VersionedParcel encountered NoSuchMethodException", e);
+            throw new RuntimeException(e);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException("VersionedParcel encountered ClassNotFoundException", e);
+            throw new RuntimeException(e);
         }
     }
 
