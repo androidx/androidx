@@ -40,6 +40,7 @@ import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -60,6 +61,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(Parameterized.class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 16)
 public class RecyclerViewNestedScrollingA11yScrollTest {
 
     @Rule
