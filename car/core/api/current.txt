@@ -373,6 +373,7 @@ package androidx.car.widget {
   public abstract class CompoundButtonListItem<VH extends androidx.car.widget.CompoundButtonListItem.ViewHolder> extends androidx.car.widget.ListItem<VH> {
     ctor public CompoundButtonListItem(android.content.Context);
     method public abstract boolean isCompoundButtonPositionEnd();
+    method public boolean isEntireItemClickable();
     method public void onBind(VH);
     method @CallSuper protected void resolveDirtyState();
     method public void setBody(CharSequence?);
