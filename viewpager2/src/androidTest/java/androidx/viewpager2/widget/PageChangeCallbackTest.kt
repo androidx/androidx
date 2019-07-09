@@ -43,7 +43,6 @@ import androidx.viewpager2.widget.swipe.PageSwiperManual
 import androidx.viewpager2.widget.swipe.ViewAdapter
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
-import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.Matchers.greaterThan
 import org.hamcrest.Matchers.greaterThanOrEqualTo
@@ -851,47 +850,6 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         // Let the animation finish
         assertThat(idleLatch.await(2, SECONDS), equalTo(true))
         test.assertBasicState(expectedTargetPage)
-    }
-
-    @Test
-    fun test_setCurrentItem_noAdapter() {
-        val test = setUpTest(config.orientation)
-        assertThat(test.viewPager.adapter, nullValue())
-        assertThat(test.viewPager.currentItem, equalTo(0))
-
-        listOf(-1, 0, 1, 10).forEach { targetPage ->
-            // given
-            val callback = test.viewPager.addNewRecordingCallback()
-
-            // when
-            test.viewPager.setCurrentItemSync(targetPage, false, 2, SECONDS, false)
-
-            // then
-            assertThat(test.viewPager.currentItem, equalTo(0))
-            assertThat(callback.eventCount, equalTo(0))
-            test.viewPager.unregisterOnPageChangeCallback(callback)
-        }
-    }
-
-    @Test
-    fun test_swipe_noAdapter() {
-        val test = setUpTest(config.orientation)
-        assertThat(test.viewPager.adapter, nullValue())
-        assertThat(test.viewPager.currentItem, equalTo(0))
-
-        listOf(test::swipeForward, test::swipeBackward).forEach { swipe ->
-            val recorder = test.viewPager.addNewRecordingCallback()
-
-            val idleLatch = test.viewPager.addWaitForIdleLatch()
-            swipe(SwipeMethod.ESPRESSO)
-            idleLatch.await(2, SECONDS)
-
-            assertThat(recorder.allEvents, equalTo(listOf(
-                OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) as Event,
-                OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event
-            )))
-            test.viewPager.unregisterOnPageChangeCallback(recorder)
-        }
     }
 
     /**
