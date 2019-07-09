@@ -579,9 +579,6 @@ class AndroidCraneView constructor(context: Context)
         nodeToModels.remove(node).forEach { model ->
             modelToNodes.remove(model, node)
         }
-        if (node is LayoutNode) {
-            relayoutNodes.remove(node)
-        }
     }
 
     private inner class DrawNodeScopeImpl(
