@@ -392,7 +392,8 @@ limitations under the License.
     <style name="Widget.Car.Button.DarkText" />
 
     <!-- The style for borderless buttons. -->
-    <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
+    <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
         <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>
         <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Medium</item>
         <item name="android:ellipsize">none</item>
