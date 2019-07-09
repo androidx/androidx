@@ -257,11 +257,11 @@ sealed class ComponentNode : Emittable {
      * children. After executing, the [owner] will be `null`.
      */
     open fun detach() {
-        val owner = owner ?: ErrorMessages.OwnerAlreadyDetached.state()
-        owner.onDetach(this)
         visitChildren { child ->
             child.detach()
         }
+        val owner = owner ?: ErrorMessages.OwnerAlreadyDetached.state()
+        owner.onDetach(this)
         this.owner = null
         depth = 0
     }
@@ -340,13 +340,18 @@ class DrawNode : ComponentNode() {
             invalidate()
         }
 
-    var needsPaint = true
+    var needsPaint = false
 
     override fun attach(owner: Owner) {
         super.attach(owner)
-        if (needsPaint) {
-            owner.onInvalidate(this)
-        }
+        needsPaint = true
+        owner.onInvalidate(this)
+    }
+
+    override fun detach() {
+        invalidate()
+        super.detach()
+        needsPaint = false
     }
 
     fun invalidate() {
