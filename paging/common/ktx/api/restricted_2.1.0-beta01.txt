@@ -1,1 +1,15 @@
 // Signature format: 3.0
+package androidx.paging {
+
+  public final class PagedListConfigKt {
+    ctor public PagedListConfigKt();
+    method public static androidx.paging.PagedList.Config Config(int pageSize, int prefetchDistance = pageSize, boolean enablePlaceholders = true, int initialLoadSizeHint = pageSize * androidx.paging.PagedList.Config.Builder.DEFAULT_INITIAL_PAGE_MULTIPLIER, int maxSize = 2147483647);
+  }
+
+  public final class PagedListKt {
+    ctor public PagedListKt();
+    method public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, Key? initialKey = null);
+  }
+
+}
+

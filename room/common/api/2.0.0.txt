@@ -1,42 +1,62 @@
+// Signature format: 3.0
 package androidx.room {
 
-  public abstract class ColumnInfo implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ColumnInfo {
+    method @androidx.room.ColumnInfo.Collate public abstract int collate() default androidx.room.ColumnInfo.UNSPECIFIED;
+    method public abstract boolean index() default false;
+    method public abstract String name() default androidx.room.ColumnInfo.INHERIT_FIELD_NAME;
+    method @androidx.room.ColumnInfo.SQLiteTypeAffinity public abstract int typeAffinity() default androidx.room.ColumnInfo.UNDEFINED;
     field public static final int BINARY = 2; // 0x2
     field public static final int BLOB = 5; // 0x5
-    field public static final java.lang.String INHERIT_FIELD_NAME = "[field-name]";
+    field public static final String INHERIT_FIELD_NAME = "[field-name]";
     field public static final int INTEGER = 3; // 0x3
-    field public static final int LOCALIZED = 5; // 0x5
+    field @RequiresApi(21) public static final int LOCALIZED = 5; // 0x5
     field public static final int NOCASE = 3; // 0x3
     field public static final int REAL = 4; // 0x4
     field public static final int RTRIM = 4; // 0x4
     field public static final int TEXT = 2; // 0x2
     field public static final int UNDEFINED = 1; // 0x1
-    field public static final int UNICODE = 6; // 0x6
+    field @RequiresApi(21) public static final int UNICODE = 6; // 0x6
     field public static final int UNSPECIFIED = 1; // 0x1
   }
 
-  public static abstract class ColumnInfo.Collate implements java.lang.annotation.Annotation {
+  @IntDef({androidx.room.ColumnInfo.UNSPECIFIED, androidx.room.ColumnInfo.BINARY, androidx.room.ColumnInfo.NOCASE, androidx.room.ColumnInfo.RTRIM, androidx.room.ColumnInfo.LOCALIZED, androidx.room.ColumnInfo.UNICODE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface ColumnInfo.Collate {
   }
 
-  public static abstract class ColumnInfo.SQLiteTypeAffinity implements java.lang.annotation.Annotation {
+  @IntDef({androidx.room.ColumnInfo.UNDEFINED, androidx.room.ColumnInfo.TEXT, androidx.room.ColumnInfo.INTEGER, androidx.room.ColumnInfo.REAL, androidx.room.ColumnInfo.BLOB}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface ColumnInfo.SQLiteTypeAffinity {
   }
 
-  public abstract class Dao implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Dao {
   }
 
-  public abstract class Database implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Database {
+    method public abstract Class[] entities();
+    method public abstract boolean exportSchema() default true;
+    method public abstract int version();
   }
 
-  public abstract class Delete implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Delete {
   }
 
-  public abstract class Embedded implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Embedded {
+    method public abstract String prefix() default "";
   }
 
-  public abstract class Entity implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Entity {
+    method public abstract androidx.room.ForeignKey[] foreignKeys() default {};
+    method public abstract androidx.room.Index[] indices() default {};
+    method public abstract boolean inheritSuperIndices() default false;
+    method public abstract String[] primaryKeys() default {};
+    method public abstract String tableName() default "";
   }
 
-  public abstract class ForeignKey implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ForeignKey {
+    method public abstract String[] childColumns();
+    method public abstract boolean deferred() default false;
+    method public abstract Class entity();
+    method @androidx.room.ForeignKey.Action public abstract int onDelete() default androidx.room.ForeignKey.NO_ACTION;
+    method @androidx.room.ForeignKey.Action public abstract int onUpdate() default androidx.room.ForeignKey.NO_ACTION;
+    method public abstract String[] parentColumns();
     field public static final int CASCADE = 5; // 0x5
     field public static final int NO_ACTION = 1; // 0x1
     field public static final int RESTRICT = 2; // 0x2
@@ -44,19 +64,23 @@ package androidx.room {
     field public static final int SET_NULL = 3; // 0x3
   }
 
-  public static abstract class ForeignKey.Action implements java.lang.annotation.Annotation {
+  @IntDef({androidx.room.ForeignKey.NO_ACTION, androidx.room.ForeignKey.RESTRICT, androidx.room.ForeignKey.SET_NULL, androidx.room.ForeignKey.SET_DEFAULT, androidx.room.ForeignKey.CASCADE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ForeignKey.Action {
   }
 
-  public abstract class Ignore implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.CONSTRUCTOR}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Ignore {
   }
 
-  public abstract class Index implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Index {
+    method public abstract String name() default "";
+    method public abstract boolean unique() default false;
+    method public abstract String[] value();
   }
 
-  public abstract class Insert implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Insert {
+    method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
   }
 
-  public abstract class OnConflictStrategy implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) public @interface OnConflictStrategy {
     field public static final int ABORT = 3; // 0x3
     field public static final int FAIL = 4; // 0x4
     field public static final int IGNORE = 5; // 0x5
@@ -64,48 +88,57 @@ package androidx.room {
     field public static final int ROLLBACK = 2; // 0x2
   }
 
-  public abstract class PrimaryKey implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface PrimaryKey {
+    method public abstract boolean autoGenerate() default false;
   }
 
-  public abstract class Query implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Query {
+    method public abstract String value();
   }
 
-  public abstract class RawQuery implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface RawQuery {
+    method public abstract Class[] observedEntities() default {};
   }
 
-  public abstract class Relation implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Relation {
+    method public abstract Class entity() default java.lang.Object.class;
+    method public abstract String entityColumn();
+    method public abstract String parentColumn();
+    method public abstract String[] projection() default {};
   }
 
   public class RoomWarnings {
-    ctor public deprecated RoomWarnings();
-    field public static final java.lang.String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
-    field public static final java.lang.String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
-    field public static final java.lang.String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
-    field public static final java.lang.String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED = "ROOM_EMBEDDED_ENTITY_INDEX_IS_DROPPED";
-    field public static final java.lang.String INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED = "ROOM_EMBEDDED_INDEX_IS_DROPPED";
-    field public static final java.lang.String INDEX_FROM_PARENT_FIELD_IS_DROPPED = "ROOM_PARENT_FIELD_INDEX_IS_DROPPED";
-    field public static final java.lang.String INDEX_FROM_PARENT_IS_DROPPED = "ROOM_PARENT_INDEX_IS_DROPPED";
-    field public static final java.lang.String MISSING_INDEX_ON_FOREIGN_KEY_CHILD = "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
-    field public static final java.lang.String MISSING_JAVA_TMP_DIR = "ROOM_MISSING_JAVA_TMP_DIR";
-    field public static final java.lang.String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
-    field public static final java.lang.String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED = "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
-    field public static final java.lang.String RELATION_QUERY_WITHOUT_TRANSACTION = "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
-    field public static final java.lang.String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
+    ctor @Deprecated public RoomWarnings();
+    field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
+    field public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
+    field public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
+    field public static final String INDEX_FROM_EMBEDDED_ENTITY_IS_DROPPED = "ROOM_EMBEDDED_ENTITY_INDEX_IS_DROPPED";
+    field public static final String INDEX_FROM_EMBEDDED_FIELD_IS_DROPPED = "ROOM_EMBEDDED_INDEX_IS_DROPPED";
+    field public static final String INDEX_FROM_PARENT_FIELD_IS_DROPPED = "ROOM_PARENT_FIELD_INDEX_IS_DROPPED";
+    field public static final String INDEX_FROM_PARENT_IS_DROPPED = "ROOM_PARENT_INDEX_IS_DROPPED";
+    field public static final String MISSING_INDEX_ON_FOREIGN_KEY_CHILD = "ROOM_MISSING_FOREIGN_KEY_CHILD_INDEX";
+    field public static final String MISSING_JAVA_TMP_DIR = "ROOM_MISSING_JAVA_TMP_DIR";
+    field public static final String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
+    field public static final String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED = "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
+    field public static final String RELATION_QUERY_WITHOUT_TRANSACTION = "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
+    field public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
   }
 
-  public abstract class SkipQueryVerification implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface SkipQueryVerification {
   }
 
-  public abstract class Transaction implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Transaction {
   }
 
-  public abstract class TypeConverter implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface TypeConverter {
   }
 
-  public abstract class TypeConverters implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface TypeConverters {
+    method public abstract Class<?>[] value();
   }
 
-  public abstract class Update implements java.lang.annotation.Annotation {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface Update {
+    method @androidx.room.OnConflictStrategy public abstract int onConflict() default androidx.room.OnConflictStrategy.ABORT;
   }
 
 }

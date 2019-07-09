@@ -1,1 +1,52 @@
 // Signature format: 3.0
+package androidx.collection {
+
+  public final class ArrayMapKt {
+    ctor public ArrayMapKt();
+    method public static inline <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf();
+    method public static <K, V> androidx.collection.ArrayMap<K,V> arrayMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
+  }
+
+  public final class ArraySetKt {
+    ctor public ArraySetKt();
+    method public static inline <T> androidx.collection.ArraySet<T> arraySetOf();
+    method public static <T> androidx.collection.ArraySet<T> arraySetOf(T?... values);
+  }
+
+  public final class LongSparseArrayKt {
+    ctor public LongSparseArrayKt();
+    method public static inline operator <T> boolean contains(androidx.collection.LongSparseArray<T>, long key);
+    method public static inline <T> void forEach(androidx.collection.LongSparseArray<T>, kotlin.jvm.functions.Function2<? super java.lang.Long,? super T,kotlin.Unit> action);
+    method public static inline <T> T! getOrDefault(androidx.collection.LongSparseArray<T>, long key, T? defaultValue);
+    method public static inline <T> T! getOrElse(androidx.collection.LongSparseArray<T>, long key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> int getSize(androidx.collection.LongSparseArray<T>);
+    method public static inline <T> boolean isNotEmpty(androidx.collection.LongSparseArray<T>);
+    method public static <T> kotlin.collections.LongIterator keyIterator(androidx.collection.LongSparseArray<T>);
+    method public static operator <T> androidx.collection.LongSparseArray<T> plus(androidx.collection.LongSparseArray<T>, androidx.collection.LongSparseArray<T> other);
+    method @Deprecated public static <T> boolean remove(androidx.collection.LongSparseArray<T>, long key, T? value);
+    method public static inline operator <T> void set(androidx.collection.LongSparseArray<T>, long key, T? value);
+    method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.LongSparseArray<T>);
+  }
+
+  public final class LruCacheKt {
+    ctor public LruCacheKt();
+    method public static inline <K, V> androidx.collection.LruCache<K,V> lruCache(int maxSize, kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Integer> sizeOf = { _, _ -> 1 }, kotlin.jvm.functions.Function1<? super K,? extends V> create = { (java.lang.Object)null }, kotlin.jvm.functions.Function4<? super java.lang.Boolean,? super K,? super V,? super V,kotlin.Unit> onEntryRemoved = { _, _, _, _ ->  });
+  }
+
+  public final class SparseArrayKt {
+    ctor public SparseArrayKt();
+    method public static inline operator <T> boolean contains(androidx.collection.SparseArrayCompat<T>, int key);
+    method public static inline <T> void forEach(androidx.collection.SparseArrayCompat<T>, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> action);
+    method public static inline <T> T! getOrDefault(androidx.collection.SparseArrayCompat<T>, int key, T? defaultValue);
+    method public static inline <T> T! getOrElse(androidx.collection.SparseArrayCompat<T>, int key, kotlin.jvm.functions.Function0<? extends T> defaultValue);
+    method public static inline <T> int getSize(androidx.collection.SparseArrayCompat<T>);
+    method public static inline <T> boolean isNotEmpty(androidx.collection.SparseArrayCompat<T>);
+    method public static <T> kotlin.collections.IntIterator keyIterator(androidx.collection.SparseArrayCompat<T>);
+    method public static operator <T> androidx.collection.SparseArrayCompat<T> plus(androidx.collection.SparseArrayCompat<T>, androidx.collection.SparseArrayCompat<T> other);
+    method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T? value);
+    method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T? value);
+    method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.SparseArrayCompat<T>);
+  }
+
+}
+

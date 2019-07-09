@@ -1,1 +1,50 @@
 // Signature format: 3.0
+package androidx.security.crypto {
+
+  public final class EncryptedFile {
+    method public java.io.FileInputStream openFileInput() throws java.security.GeneralSecurityException, java.io.IOException;
+    method public java.io.FileOutputStream openFileOutput() throws java.security.GeneralSecurityException, java.io.IOException;
+  }
+
+  public static final class EncryptedFile.Builder {
+    ctor public EncryptedFile.Builder(java.io.File, android.content.Context, String, androidx.security.crypto.EncryptedFile.FileEncryptionScheme);
+    method public androidx.security.crypto.EncryptedFile build() throws java.security.GeneralSecurityException, java.io.IOException;
+    method public androidx.security.crypto.EncryptedFile.Builder setKeysetAlias(String);
+    method public androidx.security.crypto.EncryptedFile.Builder setKeysetPrefName(String);
+  }
+
+  public enum EncryptedFile.FileEncryptionScheme {
+    enum_constant public static final androidx.security.crypto.EncryptedFile.FileEncryptionScheme AES256_GCM_HKDF_4KB;
+  }
+
+  public final class EncryptedSharedPreferences implements android.content.SharedPreferences {
+    method public boolean contains(String?);
+    method public static android.content.SharedPreferences create(String, String, android.content.Context, androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme, androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme) throws java.security.GeneralSecurityException, java.io.IOException;
+    method public android.content.SharedPreferences.Editor edit();
+    method public java.util.Map<java.lang.String!,?> getAll();
+    method public boolean getBoolean(String?, boolean);
+    method public float getFloat(String?, float);
+    method public int getInt(String?, int);
+    method public long getLong(String?, long);
+    method public String? getString(String?, String?);
+    method public java.util.Set<java.lang.String!>? getStringSet(String?, java.util.Set<java.lang.String!>?);
+    method public void registerOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener);
+    method public void unregisterOnSharedPreferenceChangeListener(android.content.SharedPreferences.OnSharedPreferenceChangeListener);
+  }
+
+  public enum EncryptedSharedPreferences.PrefKeyEncryptionScheme {
+    enum_constant public static final androidx.security.crypto.EncryptedSharedPreferences.PrefKeyEncryptionScheme AES256_SIV;
+  }
+
+  public enum EncryptedSharedPreferences.PrefValueEncryptionScheme {
+    enum_constant public static final androidx.security.crypto.EncryptedSharedPreferences.PrefValueEncryptionScheme AES256_GCM;
+  }
+
+  public final class MasterKeys {
+    ctor public MasterKeys();
+    method public static String getOrCreate(android.security.keystore.KeyGenParameterSpec) throws java.security.GeneralSecurityException, java.io.IOException;
+    field public static final android.security.keystore.KeyGenParameterSpec AES256_GCM_SPEC;
+  }
+
+}
+

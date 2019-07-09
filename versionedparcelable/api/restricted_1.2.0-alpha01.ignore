@@ -1,5 +1,9 @@
 // Baseline format: 1.0
 ChangedType: androidx.versionedparcelable.VersionedParcel#mParcelizerCache:
-    Field androidx.versionedparcelable.VersionedParcel.mParcelizerCache has changed type from androidx.collection.ArrayMap<java.lang.String!,java.lang.Class!> to androidx.collection.ArrayMap<java.lang.String!,java.lang.Class<?>!>
+    Field androidx.versionedparcelable.VersionedParcel.mParcelizerCache has changed type from androidx.collection.ArrayMap<java.lang.String!,java.lang.Class!> to androidx.collection.ArrayMap<java.lang.String,java.lang.Class<?>>
 ChangedType: androidx.versionedparcelable.VersionedParcelize#factory():
     Method androidx.versionedparcelable.VersionedParcelize.factory has changed return type from Class to Class<?>
+
+
+RemovedMethod: androidx.versionedparcelable.VersionedParcel#VersionedParcel(androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>, androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>, androidx.collection.ArrayMap<java.lang.String,java.lang.Class>):
+    Removed constructor androidx.versionedparcelable.VersionedParcel(androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>,androidx.collection.ArrayMap<java.lang.String,java.lang.reflect.Method>,androidx.collection.ArrayMap<java.lang.String,java.lang.Class>)

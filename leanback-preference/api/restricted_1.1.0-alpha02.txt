@@ -1,12 +1,122 @@
 // Signature format: 3.0
 package androidx.leanback.preference {
 
+  @Deprecated public abstract class BaseLeanbackPreferenceFragment extends androidx.preference.PreferenceFragment {
+    ctor @Deprecated public BaseLeanbackPreferenceFragment();
+    method @Deprecated public androidx.recyclerview.widget.RecyclerView! onCreateRecyclerView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+  }
+
+  public abstract class BaseLeanbackPreferenceFragmentCompat extends androidx.preference.PreferenceFragmentCompat {
+    ctor public BaseLeanbackPreferenceFragmentCompat();
+  }
+
+  public class LeanbackEditTextPreferenceDialogFragmentCompat extends androidx.leanback.preference.LeanbackPreferenceDialogFragmentCompat {
+    ctor public LeanbackEditTextPreferenceDialogFragmentCompat();
+    method public static androidx.leanback.preference.LeanbackEditTextPreferenceDialogFragmentCompat! newInstance(String!);
+    field public static final String EXTRA_IME_OPTIONS = "ime_option";
+    field public static final String EXTRA_INPUT_TYPE = "input_type";
+  }
+
+  @Deprecated public class LeanbackListPreferenceDialogFragment extends androidx.leanback.preference.LeanbackPreferenceDialogFragment {
+    ctor @Deprecated public LeanbackListPreferenceDialogFragment();
+    method @Deprecated public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment! newInstanceMulti(String!);
+    method @Deprecated public static androidx.leanback.preference.LeanbackListPreferenceDialogFragment! newInstanceSingle(String!);
+    method @Deprecated public androidx.recyclerview.widget.RecyclerView.Adapter! onCreateAdapter();
+    method @Deprecated public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
+  }
+
+  @Deprecated public class LeanbackListPreferenceDialogFragment.AdapterMulti extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder> implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    ctor @Deprecated public LeanbackListPreferenceDialogFragment.AdapterMulti(CharSequence![]!, CharSequence![]!, java.util.Set<java.lang.String!>!);
+    method @Deprecated public int getItemCount();
+    method @Deprecated public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!, int);
+    method @Deprecated public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
+    method @Deprecated public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!);
+  }
+
+  @Deprecated public class LeanbackListPreferenceDialogFragment.AdapterSingle extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder> implements androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    ctor @Deprecated public LeanbackListPreferenceDialogFragment.AdapterSingle(CharSequence![]!, CharSequence![]!, CharSequence!);
+    method @Deprecated public int getItemCount();
+    method @Deprecated public void onBindViewHolder(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!, int);
+    method @Deprecated public androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
+    method @Deprecated public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!);
+  }
+
+  @Deprecated public static class LeanbackListPreferenceDialogFragment.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements android.view.View.OnClickListener {
+    ctor @Deprecated public LeanbackListPreferenceDialogFragment.ViewHolder(android.view.View, androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener);
+    method @Deprecated public android.view.ViewGroup! getContainer();
+    method @Deprecated public android.widget.TextView! getTitleView();
+    method @Deprecated public android.widget.Checkable! getWidgetView();
+    method @Deprecated public void onClick(android.view.View!);
+  }
+
+  @Deprecated public static interface LeanbackListPreferenceDialogFragment.ViewHolder.OnItemClickListener {
+    method @Deprecated public void onItemClick(androidx.leanback.preference.LeanbackListPreferenceDialogFragment.ViewHolder!);
+  }
+
+  public class LeanbackListPreferenceDialogFragmentCompat extends androidx.leanback.preference.LeanbackPreferenceDialogFragmentCompat {
+    ctor public LeanbackListPreferenceDialogFragmentCompat();
+    method public static androidx.leanback.preference.LeanbackListPreferenceDialogFragmentCompat! newInstanceMulti(String!);
+    method public static androidx.leanback.preference.LeanbackListPreferenceDialogFragmentCompat! newInstanceSingle(String!);
+  }
+
+  public static final class LeanbackListPreferenceDialogFragmentCompat.ViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements android.view.View.OnClickListener {
+    method public android.view.ViewGroup! getContainer();
+    method public android.widget.TextView! getTitleView();
+    method public android.widget.Checkable! getWidgetView();
+    method public void onClick(android.view.View!);
+  }
+
+  @Deprecated public class LeanbackPreferenceDialogFragment extends android.app.Fragment {
+    ctor @Deprecated public LeanbackPreferenceDialogFragment();
+    method @Deprecated public androidx.preference.DialogPreference! getPreference();
+    method @Deprecated public void onCreate(android.os.Bundle!);
+    field @Deprecated public static final String ARG_KEY = "key";
+  }
+
+  public class LeanbackPreferenceDialogFragmentCompat extends androidx.fragment.app.Fragment {
+    ctor public LeanbackPreferenceDialogFragmentCompat();
+    method public androidx.preference.DialogPreference! getPreference();
+    field public static final String ARG_KEY = "key";
+  }
+
+  @Deprecated public abstract class LeanbackPreferenceFragment extends androidx.leanback.preference.BaseLeanbackPreferenceFragment {
+    ctor @Deprecated public LeanbackPreferenceFragment();
+    method @Deprecated public void setTitle(CharSequence!);
+  }
+
+  public abstract class LeanbackPreferenceFragmentCompat extends androidx.leanback.preference.BaseLeanbackPreferenceFragmentCompat {
+    ctor public LeanbackPreferenceFragmentCompat();
+    method public void setTitle(CharSequence!);
+  }
+
   @RequiresApi(21) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LeanbackPreferenceFragmentTransitionHelperApi21 {
     method public static void addTransitions(android.app.Fragment!);
   }
 
+  @Deprecated public abstract class LeanbackSettingsFragment extends android.app.Fragment implements androidx.preference.PreferenceFragment.OnPreferenceDisplayDialogCallback androidx.preference.PreferenceFragment.OnPreferenceStartFragmentCallback androidx.preference.PreferenceFragment.OnPreferenceStartScreenCallback {
+    ctor @Deprecated public LeanbackSettingsFragment();
+    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method @Deprecated public void onPause();
+    method @Deprecated public boolean onPreferenceDisplayDialog(androidx.preference.PreferenceFragment, androidx.preference.Preference!);
+    method @Deprecated public abstract void onPreferenceStartInitialScreen();
+    method @Deprecated public void onResume();
+    method @Deprecated public void onViewCreated(android.view.View!, android.os.Bundle!);
+    method @Deprecated public void startImmersiveFragment(android.app.Fragment);
+    method @Deprecated public void startPreferenceFragment(android.app.Fragment);
+  }
+
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class LeanbackSettingsFragment.DummyFragment extends android.app.Fragment {
     ctor @Deprecated public LeanbackSettingsFragment.DummyFragment();
+    method @Deprecated public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+  }
+
+  public abstract class LeanbackSettingsFragmentCompat extends androidx.fragment.app.Fragment implements androidx.preference.PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback androidx.preference.PreferenceFragmentCompat.OnPreferenceStartFragmentCallback androidx.preference.PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+    ctor public LeanbackSettingsFragmentCompat();
+    method public boolean onPreferenceDisplayDialog(androidx.preference.PreferenceFragmentCompat, androidx.preference.Preference!);
+    method public abstract void onPreferenceStartInitialScreen();
+    method public void startImmersiveFragment(androidx.fragment.app.Fragment);
+    method public void startPreferenceFragment(androidx.fragment.app.Fragment);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class LeanbackSettingsRootView extends android.widget.FrameLayout {

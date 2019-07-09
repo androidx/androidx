@@ -37,7 +37,6 @@ package androidx.viewpager2.widget {
     method public final androidx.recyclerview.widget.RecyclerView.Adapter? getAdapter();
     method public final int getCurrentItem();
     method @androidx.viewpager2.widget.ViewPager2.Orientation public final int getOrientation();
-    method public boolean isUserInputEnabled();
     method public final void onViewAdded(android.view.View!);
     method public final void registerOnPageChangeCallback(androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback);
     method public final void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?);
@@ -45,7 +44,6 @@ package androidx.viewpager2.widget {
     method public final void setCurrentItem(int, boolean);
     method public final void setOrientation(@androidx.viewpager2.widget.ViewPager2.Orientation int);
     method public final void setPageTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer?);
-    method public void setUserInputEnabled(boolean);
     method public final void unregisterOnPageChangeCallback(androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback);
     field public static final int ORIENTATION_HORIZONTAL = 0; // 0x0
     field public static final int ORIENTATION_VERTICAL = 1; // 0x1

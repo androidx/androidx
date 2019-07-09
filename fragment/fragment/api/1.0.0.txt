@@ -26,7 +26,7 @@ package androidx.fragment.app {
 
   public class Fragment implements android.content.ComponentCallbacks androidx.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
-    method public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String[]!);
+    method public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
     method public final boolean equals(Object?);
     method public final androidx.fragment.app.FragmentActivity? getActivity();
     method public boolean getAllowEnterTransitionOverlap();
@@ -50,7 +50,7 @@ package androidx.fragment.app {
     method public Object? getSharedElementEnterTransition();
     method public Object? getSharedElementReturnTransition();
     method public final String getString(@StringRes int);
-    method public final String getString(@StringRes int, java.lang.Object...!);
+    method public final String getString(@StringRes int, java.lang.Object!...);
     method public final String? getTag();
     method public final androidx.fragment.app.Fragment? getTargetFragment();
     method public final int getTargetRequestCode();
@@ -58,7 +58,7 @@ package androidx.fragment.app {
     method public boolean getUserVisibleHint();
     method public android.view.View? getView();
     method @MainThread public androidx.lifecycle.LifecycleOwner getViewLifecycleOwner();
-    method public androidx.lifecycle.LiveData<androidx.lifecycle.LifecycleOwner> getViewLifecycleOwnerLiveData();
+    method public androidx.lifecycle.LiveData<androidx.lifecycle.LifecycleOwner!> getViewLifecycleOwnerLiveData();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public final int hashCode();
     method public static androidx.fragment.app.Fragment! instantiate(android.content.Context!, String!);
@@ -99,7 +99,7 @@ package androidx.fragment.app {
     method @CallSuper public void onPause();
     method public void onPictureInPictureModeChanged(boolean);
     method public void onPrepareOptionsMenu(android.view.Menu!);
-    method public void onRequestPermissionsResult(int, String[], int[]);
+    method public void onRequestPermissionsResult(int, String![], int[]);
     method @CallSuper public void onResume();
     method public void onSaveInstanceState(android.os.Bundle);
     method @CallSuper public void onStart();
@@ -108,7 +108,7 @@ package androidx.fragment.app {
     method @CallSuper public void onViewStateRestored(android.os.Bundle?);
     method public void postponeEnterTransition();
     method public void registerForContextMenu(android.view.View!);
-    method public final void requestPermissions(String[], int);
+    method public final void requestPermissions(String![], int);
     method public final androidx.fragment.app.FragmentActivity requireActivity();
     method public final android.content.Context requireContext();
     method public final androidx.fragment.app.FragmentManager requireFragmentManager();
@@ -147,13 +147,12 @@ package androidx.fragment.app {
   public static class Fragment.SavedState implements android.os.Parcelable {
     method public int describeContents();
     method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.fragment.app.Fragment.SavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.fragment.app.Fragment.SavedState!>! CREATOR;
   }
 
   public class FragmentActivity extends androidx.core.app.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator androidx.lifecycle.ViewModelStoreOwner {
     ctor public FragmentActivity();
     method public Object! getLastCustomNonConfigurationInstance();
-    method public androidx.lifecycle.Lifecycle! getLifecycle();
     method public androidx.fragment.app.FragmentManager! getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager! getSupportLoaderManager();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
@@ -163,6 +162,7 @@ package androidx.fragment.app {
     method protected void onResumeFragments();
     method public Object! onRetainCustomNonConfigurationInstance();
     method public final Object! onRetainNonConfigurationInstance();
+    method public void onStateNotSaved();
     method public void setEnterSharedElementCallback(androidx.core.app.SharedElementCallback!);
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback!);
     method public void startActivityFromFragment(androidx.fragment.app.Fragment!, android.content.Intent!, int);
@@ -207,35 +207,35 @@ package androidx.fragment.app {
     method @Deprecated public void doLoaderRetain();
     method @Deprecated public void doLoaderStart();
     method @Deprecated public void doLoaderStop(boolean);
-    method @Deprecated public void dumpLoaders(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String[]!);
+    method @Deprecated public void dumpLoaders(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
     method public boolean execPendingActions();
     method public androidx.fragment.app.Fragment? findFragmentByWho(String!);
-    method public java.util.List<androidx.fragment.app.Fragment>! getActiveFragments(java.util.List<androidx.fragment.app.Fragment>!);
+    method public java.util.List<androidx.fragment.app.Fragment!>! getActiveFragments(java.util.List<androidx.fragment.app.Fragment!>!);
     method public int getActiveFragmentsCount();
     method public androidx.fragment.app.FragmentManager! getSupportFragmentManager();
     method @Deprecated public androidx.loader.app.LoaderManager! getSupportLoaderManager();
     method public void noteStateNotSaved();
     method public android.view.View! onCreateView(android.view.View!, String!, android.content.Context!, android.util.AttributeSet!);
     method @Deprecated public void reportLoaderStart();
-    method @Deprecated public void restoreAllState(android.os.Parcelable!, java.util.List<androidx.fragment.app.Fragment>!);
+    method @Deprecated public void restoreAllState(android.os.Parcelable!, java.util.List<androidx.fragment.app.Fragment!>!);
     method public void restoreAllState(android.os.Parcelable!, androidx.fragment.app.FragmentManagerNonConfig!);
-    method @Deprecated public void restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String,androidx.loader.app.LoaderManager>!);
-    method @Deprecated public androidx.collection.SimpleArrayMap<java.lang.String,androidx.loader.app.LoaderManager>! retainLoaderNonConfig();
+    method @Deprecated public void restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>!);
+    method @Deprecated public androidx.collection.SimpleArrayMap<java.lang.String!,androidx.loader.app.LoaderManager!>! retainLoaderNonConfig();
     method public androidx.fragment.app.FragmentManagerNonConfig! retainNestedNonConfig();
-    method @Deprecated public java.util.List<androidx.fragment.app.Fragment>! retainNonConfig();
+    method @Deprecated public java.util.List<androidx.fragment.app.Fragment!>! retainNonConfig();
     method public android.os.Parcelable! saveAllState();
   }
 
   public abstract class FragmentHostCallback<E> extends androidx.fragment.app.FragmentContainer {
     ctor public FragmentHostCallback(android.content.Context, android.os.Handler, int);
-    method public void onDump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String[]!);
+    method public void onDump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
     method public android.view.View? onFindViewById(int);
     method public abstract E? onGetHost();
     method public android.view.LayoutInflater onGetLayoutInflater();
     method public int onGetWindowAnimations();
     method public boolean onHasView();
     method public boolean onHasWindowAnimations();
-    method public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String[], int);
+    method public void onRequestPermissionsFromFragment(androidx.fragment.app.Fragment, String![], int);
     method public boolean onShouldSaveFragmentState(androidx.fragment.app.Fragment!);
     method public boolean onShouldShowRequestPermissionRationale(String);
     method public void onStartActivityFromFragment(androidx.fragment.app.Fragment!, android.content.Intent!, int);
@@ -248,7 +248,7 @@ package androidx.fragment.app {
     ctor public FragmentManager();
     method public abstract void addOnBackStackChangedListener(androidx.fragment.app.FragmentManager.OnBackStackChangedListener);
     method public abstract androidx.fragment.app.FragmentTransaction beginTransaction();
-    method public abstract void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String[]!);
+    method public abstract void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String![]!);
     method public static void enableDebugLogging(boolean);
     method public abstract boolean executePendingTransactions();
     method public abstract androidx.fragment.app.Fragment? findFragmentById(@IdRes int);
@@ -256,7 +256,7 @@ package androidx.fragment.app {
     method public abstract androidx.fragment.app.FragmentManager.BackStackEntry getBackStackEntryAt(int);
     method public abstract int getBackStackEntryCount();
     method public abstract androidx.fragment.app.Fragment? getFragment(android.os.Bundle, String);
-    method public abstract java.util.List<androidx.fragment.app.Fragment> getFragments();
+    method public abstract java.util.List<androidx.fragment.app.Fragment!> getFragments();
     method public abstract androidx.fragment.app.Fragment? getPrimaryNavigationFragment();
     method public abstract boolean isDestroyed();
     method public abstract boolean isStateSaved();
@@ -312,13 +312,13 @@ package androidx.fragment.app {
     ctor public FragmentPagerAdapter(androidx.fragment.app.FragmentManager!);
     method public abstract androidx.fragment.app.Fragment! getItem(int);
     method public long getItemId(int);
-    method public boolean isViewFromObject(android.view.View!, Object!);
+    method public boolean isViewFromObject(android.view.View, Object);
   }
 
   public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor public FragmentStatePagerAdapter(androidx.fragment.app.FragmentManager!);
     method public abstract androidx.fragment.app.Fragment! getItem(int);
-    method public boolean isViewFromObject(android.view.View!, Object!);
+    method public boolean isViewFromObject(android.view.View, Object);
   }
 
   public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {

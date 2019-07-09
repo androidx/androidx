@@ -607,8 +607,6 @@ package androidx.core.view {
 
   public final class ViewKt {
     ctor public ViewKt();
-    method public static inline void doOnAttach(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
-    method public static inline void doOnDetach(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static inline void doOnLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static inline void doOnNextLayout(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);
     method public static inline androidx.core.view.OneShotPreDrawListener doOnPreDraw(android.view.View, kotlin.jvm.functions.Function1<? super android.view.View,kotlin.Unit> action);

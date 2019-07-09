@@ -1,12 +1,245 @@
 // Signature format: 3.0
 package androidx.car.cluster.navigation {
 
+  public final class Destination implements androidx.versionedparcelable.VersionedParcelable {
+    method public String getAddress();
+    method public androidx.car.cluster.navigation.Distance? getDistance();
+    method public java.time.ZonedDateTime? getEta();
+    method public androidx.car.cluster.navigation.LatLng? getLocation();
+    method public String getTitle();
+    method public androidx.car.cluster.navigation.Destination.Traffic getTraffic();
+  }
+
+  public static final class Destination.Builder {
+    ctor public Destination.Builder();
+    method public androidx.car.cluster.navigation.Destination build();
+    method public androidx.car.cluster.navigation.Destination.Builder setAddress(String);
+    method public androidx.car.cluster.navigation.Destination.Builder setDistance(androidx.car.cluster.navigation.Distance?);
+    method public androidx.car.cluster.navigation.Destination.Builder setEta(java.time.ZonedDateTime?);
+    method public androidx.car.cluster.navigation.Destination.Builder setLocation(androidx.car.cluster.navigation.LatLng?);
+    method public androidx.car.cluster.navigation.Destination.Builder setTitle(String);
+    method public androidx.car.cluster.navigation.Destination.Builder setTraffic(androidx.car.cluster.navigation.Destination.Traffic, androidx.car.cluster.navigation.Destination.Traffic!...);
+  }
+
+  public enum Destination.Traffic {
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic HIGH;
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic LOW;
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic MEDIUM;
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic UNKNOWN;
+  }
+
+  public final class Distance implements androidx.versionedparcelable.VersionedParcelable {
+    ctor public Distance(int, String, androidx.car.cluster.navigation.Distance.Unit);
+    method public androidx.car.cluster.navigation.Distance.Unit getDisplayUnit();
+    method public String getDisplayValue();
+    method public int getMeters();
+  }
+
+  public enum Distance.Unit {
+    enum_constant public static final androidx.car.cluster.navigation.Distance.Unit FEET;
+    enum_constant public static final androidx.car.cluster.navigation.Distance.Unit KILOMETERS;
+    enum_constant public static final androidx.car.cluster.navigation.Distance.Unit METERS;
+    enum_constant public static final androidx.car.cluster.navigation.Distance.Unit MILES;
+    enum_constant public static final androidx.car.cluster.navigation.Distance.Unit UNKNOWN;
+    enum_constant public static final androidx.car.cluster.navigation.Distance.Unit YARDS;
+  }
+
   public class ImageReference implements androidx.versionedparcelable.VersionedParcelable {
+    method public android.net.Uri? getContentUri(@IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int, @IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int);
+    method public int getOriginalHeight();
+    method public int getOriginalWidth();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public String getRawContentUri();
+    method public boolean isTintable();
+  }
+
+  public static final class ImageReference.Builder {
+    ctor public ImageReference.Builder();
+    method public androidx.car.cluster.navigation.ImageReference build();
+    method public androidx.car.cluster.navigation.ImageReference.Builder setContentUri(String);
+    method public androidx.car.cluster.navigation.ImageReference.Builder setIsTintable(boolean);
+    method public androidx.car.cluster.navigation.ImageReference.Builder setOriginalSize(@IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int, @IntRange(from=1, to=java.lang.Integer.MAX_VALUE) int);
+  }
+
+  public final class Lane implements androidx.versionedparcelable.VersionedParcelable {
+    method public java.util.List<androidx.car.cluster.navigation.LaneDirection!> getDirections();
+  }
+
+  public static final class Lane.Builder {
+    ctor public Lane.Builder();
+    method public androidx.car.cluster.navigation.Lane.Builder addDirection(androidx.car.cluster.navigation.LaneDirection);
+    method public androidx.car.cluster.navigation.Lane build();
+  }
+
+  public final class LaneDirection implements androidx.versionedparcelable.VersionedParcelable {
+    method public androidx.car.cluster.navigation.LaneDirection.Shape getShape();
+    method public boolean isHighlighted();
+  }
+
+  public static final class LaneDirection.Builder {
+    ctor public LaneDirection.Builder();
+    method public androidx.car.cluster.navigation.LaneDirection build();
+    method public androidx.car.cluster.navigation.LaneDirection.Builder setHighlighted(boolean);
+    method public androidx.car.cluster.navigation.LaneDirection.Builder setShape(androidx.car.cluster.navigation.LaneDirection.Shape, androidx.car.cluster.navigation.LaneDirection.Shape!...);
+  }
+
+  public enum LaneDirection.Shape {
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SHARP_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SHARP_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SLIGHT_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SLIGHT_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape STRAIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape UNKNOWN;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape U_TURN_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape U_TURN_RIGHT;
+  }
+
+  public final class LatLng implements androidx.versionedparcelable.VersionedParcelable {
+    ctor public LatLng(double, double);
+    method public double getLatitude();
+    method public double getLongitude();
+  }
+
+  public final class Maneuver implements androidx.versionedparcelable.VersionedParcelable {
+    method public androidx.car.cluster.navigation.ImageReference? getIcon();
+    method public int getRoundaboutExitNumber();
+    method public androidx.car.cluster.navigation.Maneuver.Type getType();
+  }
+
+  public static final class Maneuver.Builder {
+    ctor public Maneuver.Builder();
+    method public androidx.car.cluster.navigation.Maneuver build();
+    method public androidx.car.cluster.navigation.Maneuver.Builder setIcon(androidx.car.cluster.navigation.ImageReference?);
+    method public androidx.car.cluster.navigation.Maneuver.Builder setRoundaboutExitNumber(int);
+    method public androidx.car.cluster.navigation.Maneuver.Builder setType(androidx.car.cluster.navigation.Maneuver.Type, androidx.car.cluster.navigation.Maneuver.Type!...);
+  }
+
+  public enum Maneuver.Type {
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DEPART;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION_STRAIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type FERRY_BOAT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type FERRY_TRAIN;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type FORK_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type FORK_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type KEEP_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type KEEP_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type MERGE_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type MERGE_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type NAME_CHANGE;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type OFF_RAMP_NORMAL_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type OFF_RAMP_NORMAL_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type OFF_RAMP_SLIGHT_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type OFF_RAMP_SLIGHT_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_NORMAL_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_NORMAL_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_SHARP_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_SHARP_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_SLIGHT_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_SLIGHT_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_U_TURN_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ON_RAMP_U_TURN_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_NORMAL_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_SHARP_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_SLIGHT_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_STRAIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CCW_U_TURN;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_NORMAL_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_SHARP_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_SLIGHT_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_STRAIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_ENTER_AND_EXIT_CW_U_TURN;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type ROUNDABOUT_EXIT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type STRAIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type TURN_NORMAL_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type TURN_NORMAL_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type TURN_SHARP_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type TURN_SHARP_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type TURN_SLIGHT_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type TURN_SLIGHT_RIGHT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type UNKNOWN;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type U_TURN_LEFT;
+    enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type U_TURN_RIGHT;
+  }
+
+  public final class NavigationState implements androidx.versionedparcelable.VersionedParcelable {
+    method public static androidx.car.cluster.navigation.NavigationState! fromParcelable(android.os.Parcelable?);
+    method public androidx.car.cluster.navigation.Segment? getCurrentSegment();
+    method public java.util.List<androidx.car.cluster.navigation.Destination!> getDestinations();
+    method public androidx.car.cluster.navigation.NavigationState.ServiceStatus getServiceStatus();
+    method public java.util.List<androidx.car.cluster.navigation.Step!> getSteps();
+    method public android.os.Parcelable toParcelable();
+  }
+
+  public static final class NavigationState.Builder {
+    ctor public NavigationState.Builder();
+    method public androidx.car.cluster.navigation.NavigationState.Builder addDestination(androidx.car.cluster.navigation.Destination);
+    method public androidx.car.cluster.navigation.NavigationState.Builder addStep(androidx.car.cluster.navigation.Step);
+    method public androidx.car.cluster.navigation.NavigationState build();
+    method public androidx.car.cluster.navigation.NavigationState.Builder setCurrentSegment(androidx.car.cluster.navigation.Segment?);
+    method public androidx.car.cluster.navigation.NavigationState.Builder setServiceStatus(androidx.car.cluster.navigation.NavigationState.ServiceStatus, androidx.car.cluster.navigation.NavigationState.ServiceStatus!...);
+  }
+
+  public enum NavigationState.ServiceStatus {
+    enum_constant public static final androidx.car.cluster.navigation.NavigationState.ServiceStatus NORMAL;
+    enum_constant public static final androidx.car.cluster.navigation.NavigationState.ServiceStatus REROUTING;
+  }
+
+  public class RichText implements androidx.versionedparcelable.VersionedParcelable {
+    method public java.util.List<androidx.car.cluster.navigation.RichTextElement!> getElements();
+    method public String getText();
+  }
+
+  public static final class RichText.Builder {
+    ctor public RichText.Builder();
+    method public androidx.car.cluster.navigation.RichText.Builder addElement(androidx.car.cluster.navigation.RichTextElement);
+    method public androidx.car.cluster.navigation.RichText build(String);
   }
 
   public class RichTextElement implements androidx.versionedparcelable.VersionedParcelable {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RichTextElement(String?, androidx.car.cluster.navigation.ImageReference?);
+    method public androidx.car.cluster.navigation.ImageReference? getImage();
+    method public String getText();
+  }
+
+  public static final class RichTextElement.Builder {
+    ctor public RichTextElement.Builder();
+    method public androidx.car.cluster.navigation.RichTextElement build();
+    method public androidx.car.cluster.navigation.RichTextElement.Builder setImage(androidx.car.cluster.navigation.ImageReference?);
+    method public androidx.car.cluster.navigation.RichTextElement.Builder setText(String?);
+  }
+
+  public class Segment implements androidx.versionedparcelable.VersionedParcelable {
+    ctor public Segment(String);
+    method public String getName();
+  }
+
+  public final class Step implements androidx.versionedparcelable.VersionedParcelable {
+    method public androidx.car.cluster.navigation.RichText? getCue();
+    method public androidx.car.cluster.navigation.Distance? getDistance();
+    method public java.util.List<androidx.car.cluster.navigation.Lane!> getLanes();
+    method public androidx.car.cluster.navigation.ImageReference? getLanesImage();
+    method public androidx.car.cluster.navigation.Maneuver? getManeuver();
+  }
+
+  public static final class Step.Builder {
+    ctor public Step.Builder();
+    method public androidx.car.cluster.navigation.Step.Builder addLane(androidx.car.cluster.navigation.Lane);
+    method public androidx.car.cluster.navigation.Step build();
+    method public androidx.car.cluster.navigation.Step.Builder setCue(androidx.car.cluster.navigation.RichText?);
+    method public androidx.car.cluster.navigation.Step.Builder setDistance(androidx.car.cluster.navigation.Distance?);
+    method public androidx.car.cluster.navigation.Step.Builder setLanesImage(androidx.car.cluster.navigation.ImageReference?);
+    method public androidx.car.cluster.navigation.Step.Builder setManeuver(androidx.car.cluster.navigation.Maneuver?);
   }
 
 }

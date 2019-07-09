@@ -1,0 +1,15 @@
+// Baseline format: 1.0
+RemovedClass: androidx.tvprovider.media.tv.BasePreviewProgram.AspectRatio:
+    Removed class androidx.tvprovider.media.tv.BasePreviewProgram.AspectRatio
+RemovedClass: androidx.tvprovider.media.tv.BasePreviewProgram.Availability:
+    Removed class androidx.tvprovider.media.tv.BasePreviewProgram.Availability
+RemovedClass: androidx.tvprovider.media.tv.BasePreviewProgram.Builder:
+    Removed class androidx.tvprovider.media.tv.BasePreviewProgram.Builder
+RemovedClass: androidx.tvprovider.media.tv.BasePreviewProgram.InteractionType:
+    Removed class androidx.tvprovider.media.tv.BasePreviewProgram.InteractionType
+RemovedClass: androidx.tvprovider.media.tv.BasePreviewProgram.TvSeriesItemType:
+    Removed class androidx.tvprovider.media.tv.BasePreviewProgram.TvSeriesItemType
+RemovedClass: androidx.tvprovider.media.tv.BasePreviewProgram.Type:
+    Removed class androidx.tvprovider.media.tv.BasePreviewProgram.Type
+RemovedClass: androidx.tvprovider.media.tv.BaseProgram.Builder:
+    Removed class androidx.tvprovider.media.tv.BaseProgram.Builder

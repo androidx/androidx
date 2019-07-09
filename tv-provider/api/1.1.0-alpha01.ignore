@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.tvprovider.media.tv.PreviewProgram:
+    Public class androidx.tvprovider.media.tv.PreviewProgram stripped of unavailable superclass androidx.tvprovider.media.tv.BasePreviewProgram
+HiddenSuperclass: androidx.tvprovider.media.tv.Program:
+    Public class androidx.tvprovider.media.tv.Program stripped of unavailable superclass androidx.tvprovider.media.tv.BaseProgram
+HiddenSuperclass: androidx.tvprovider.media.tv.WatchNextProgram:
+    Public class androidx.tvprovider.media.tv.WatchNextProgram stripped of unavailable superclass androidx.tvprovider.media.tv.BasePreviewProgram

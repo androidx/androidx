@@ -1,1 +1,14 @@
 // Signature format: 3.0
+package androidx.car.moderator {
+
+  public class SpeedBumpView extends android.widget.FrameLayout {
+    ctor public SpeedBumpView(android.content.Context!);
+    ctor public SpeedBumpView(android.content.Context!, android.util.AttributeSet!);
+    ctor public SpeedBumpView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public SpeedBumpView(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public void onAttachedToWindow();
+    method public void onDetachedFromWindow();
+  }
+
+}
+

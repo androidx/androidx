@@ -1,13 +1,22 @@
 // Signature format: 3.0
 package androidx.room {
 
-  @RestrictTo({RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class CoroutinesRoom {
-    method public static suspend <R> Object? execute(androidx.room.RoomDatabase p, boolean db, java.util.concurrent.Callable<R> inTransaction, kotlin.coroutines.experimental.Continuation<? super R> callable);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class CoroutinesRoom {
+    method public static suspend <R> Object! execute(androidx.room.RoomDatabase p, boolean db, java.util.concurrent.Callable<R> inTransaction, kotlin.coroutines.Continuation<? super R> callable);
     field public static final androidx.room.CoroutinesRoom.Companion! Companion;
   }
 
   public static final class CoroutinesRoom.Companion {
-    method public suspend <R> Object? execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.experimental.Continuation<? super R> p);
+    method public suspend <R> Object! execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R> p);
+  }
+
+  public final class CoroutinesRoomKt {
+    ctor public CoroutinesRoomKt();
+  }
+
+  public final class RoomDatabaseKt {
+    ctor public RoomDatabaseKt();
+    method public static suspend <R> Object! withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R> p);
   }
 
 }

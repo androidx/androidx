@@ -10,6 +10,7 @@ package androidx.activity {
 
   public final class ActivityViewModelLazyKt {
     ctor public ActivityViewModelLazyKt();
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.activity.ComponentActivity, androidx.lifecycle.ViewModelProvider.Factory? factory = null);
   }
 
 }

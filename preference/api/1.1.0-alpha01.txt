@@ -77,13 +77,13 @@ package androidx.preference {
     ctor public ListPreference(android.content.Context!, android.util.AttributeSet!);
     ctor public ListPreference(android.content.Context!);
     method public int findIndexOfValue(String!);
-    method public CharSequence[]! getEntries();
+    method public CharSequence![]! getEntries();
     method public CharSequence! getEntry();
-    method public CharSequence[]! getEntryValues();
+    method public CharSequence![]! getEntryValues();
     method public String! getValue();
-    method public void setEntries(CharSequence[]!);
+    method public void setEntries(CharSequence![]!);
     method public void setEntries(@ArrayRes int);
-    method public void setEntryValues(CharSequence[]!);
+    method public void setEntryValues(CharSequence![]!);
     method public void setEntryValues(@ArrayRes int);
     method public void setValue(String!);
     method public void setValueIndex(int);
@@ -113,15 +113,15 @@ package androidx.preference {
     ctor public MultiSelectListPreference(android.content.Context!, android.util.AttributeSet!);
     ctor public MultiSelectListPreference(android.content.Context!);
     method public int findIndexOfValue(String!);
-    method public CharSequence[]! getEntries();
-    method public CharSequence[]! getEntryValues();
+    method public CharSequence![]! getEntries();
+    method public CharSequence![]! getEntryValues();
     method protected boolean[]! getSelectedItems();
-    method public java.util.Set<java.lang.String>! getValues();
-    method public void setEntries(CharSequence[]!);
+    method public java.util.Set<java.lang.String!>! getValues();
+    method public void setEntries(CharSequence![]!);
     method public void setEntries(@ArrayRes int);
-    method public void setEntryValues(CharSequence[]!);
+    method public void setEntryValues(CharSequence![]!);
     method public void setEntryValues(@ArrayRes int);
-    method public void setValues(java.util.Set<java.lang.String>!);
+    method public void setValues(java.util.Set<java.lang.String!>!);
   }
 
   @Deprecated public class MultiSelectListPreferenceDialogFragment extends androidx.preference.PreferenceDialogFragment {
@@ -162,7 +162,7 @@ package androidx.preference {
     method protected int getPersistedInt(int);
     method protected long getPersistedLong(long);
     method protected String! getPersistedString(String!);
-    method public java.util.Set<java.lang.String>! getPersistedStringSet(java.util.Set<java.lang.String>!);
+    method public java.util.Set<java.lang.String!>! getPersistedStringSet(java.util.Set<java.lang.String!>!);
     method public androidx.preference.PreferenceDataStore? getPreferenceDataStore();
     method public androidx.preference.PreferenceManager! getPreferenceManager();
     method public android.content.SharedPreferences! getSharedPreferences();
@@ -202,7 +202,7 @@ package androidx.preference {
     method protected boolean persistInt(int);
     method protected boolean persistLong(long);
     method protected boolean persistString(String!);
-    method public boolean persistStringSet(java.util.Set<java.lang.String>!);
+    method public boolean persistStringSet(java.util.Set<java.lang.String!>!);
     method public void restoreHierarchyState(android.os.Bundle!);
     method public void saveHierarchyState(android.os.Bundle!);
     method public void setDefaultValue(Object!);
@@ -239,7 +239,7 @@ package androidx.preference {
   public static class Preference.BaseSavedState extends android.view.AbsSavedState {
     ctor public Preference.BaseSavedState(android.os.Parcel!);
     ctor public Preference.BaseSavedState(android.os.Parcelable!);
-    field public static final android.os.Parcelable.Creator<androidx.preference.Preference.BaseSavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.preference.Preference.BaseSavedState!>! CREATOR;
   }
 
   public static interface Preference.OnPreferenceChangeListener {
@@ -268,13 +268,13 @@ package androidx.preference {
     method public int getInt(String!, int);
     method public long getLong(String!, long);
     method public String? getString(String!, String?);
-    method public java.util.Set<java.lang.String>? getStringSet(String!, java.util.Set<java.lang.String>?);
+    method public java.util.Set<java.lang.String!>? getStringSet(String!, java.util.Set<java.lang.String!>?);
     method public void putBoolean(String!, boolean);
     method public void putFloat(String!, float);
     method public void putInt(String!, int);
     method public void putLong(String!, long);
     method public void putString(String!, String?);
-    method public void putStringSet(String!, java.util.Set<java.lang.String>?);
+    method public void putStringSet(String!, java.util.Set<java.lang.String!>?);
   }
 
   @Deprecated public abstract class PreferenceDialogFragment extends android.app.DialogFragment implements android.content.DialogInterface.OnClickListener {

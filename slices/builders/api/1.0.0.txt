@@ -31,11 +31,10 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder);
     method public androidx.slice.builders.ListBuilder addRange(androidx.slice.builders.ListBuilder.RangeBuilder);
     method public androidx.slice.builders.ListBuilder addRow(androidx.slice.builders.ListBuilder.RowBuilder);
-    method public androidx.slice.builders.ListBuilder addSelection(androidx.slice.builders.SelectionBuilder);
     method public androidx.slice.builders.ListBuilder setAccentColor(@ColorInt int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setIsError(boolean);
-    method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String>!);
+    method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String!>!);
     method public androidx.slice.builders.ListBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder setSeeMoreRow(androidx.slice.builders.ListBuilder.RowBuilder);
@@ -104,18 +103,6 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat?, int, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction, boolean);
-  }
-
-  @RequiresApi(19) public class SelectionBuilder {
-    ctor public SelectionBuilder();
-    method public androidx.slice.builders.SelectionBuilder! addOption(String!, CharSequence!);
-    method public androidx.slice.builders.SelectionBuilder! setContentDescription(CharSequence?);
-    method public androidx.slice.builders.SelectionBuilder! setInputAction(android.app.PendingIntent);
-    method public androidx.slice.builders.SelectionBuilder! setLayoutDirection(int);
-    method public androidx.slice.builders.SelectionBuilder! setPrimaryAction(androidx.slice.builders.SliceAction);
-    method public androidx.slice.builders.SelectionBuilder! setSelectedOption(String!);
-    method public androidx.slice.builders.SelectionBuilder! setSubtitle(CharSequence?);
-    method public androidx.slice.builders.SelectionBuilder! setTitle(CharSequence?);
   }
 
   @RequiresApi(19) public class SliceAction implements androidx.slice.core.SliceAction {

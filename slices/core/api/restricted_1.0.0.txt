@@ -1,146 +1,120 @@
 // Signature format: 3.0
 package androidx.slice {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public interface Clock {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public interface Clock {
     method public long currentTimeMillis();
   }
 
-  @RequiresApi(19) public final class Slice {
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public Slice();
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public Slice(android.os.Bundle!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static void appendHints(StringBuilder!, String[]!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.slice.Slice? bindSlice(android.content.Context!, android.net.Uri, java.util.Set<androidx.slice.SliceSpec>!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.slice.SliceSpec? getSpec();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean hasHint(@androidx.slice.Slice.SliceHint String!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.os.Bundle! toBundle();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public String! toString(String!);
+  @RequiresApi(19) public final class Slice implements androidx.versionedparcelable.VersionedParcelable {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.slice.Slice? bindSlice(android.content.Context!, android.net.Uri, java.util.Set<androidx.slice.SliceSpec!>!);
+    method @androidx.slice.Slice.SliceHint public java.util.List<java.lang.String!>! getHints();
+    method public java.util.List<androidx.slice.SliceItem!>! getItems();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.slice.SliceSpec? getSpec();
+    method public android.net.Uri! getUri();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean hasHint(@androidx.slice.Slice.SliceHint String!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class Slice.Builder {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static class Slice.Builder {
     ctor public Slice.Builder(android.net.Uri);
     ctor public Slice.Builder(androidx.slice.Slice.Builder);
     method public androidx.slice.Slice.Builder! addAction(android.app.PendingIntent, androidx.slice.Slice, String?);
     method public androidx.slice.Slice.Builder! addAction(androidx.slice.SliceItem.ActionHandler, androidx.slice.Slice, String?);
-    method public androidx.slice.Slice.Builder! addHints(@androidx.slice.Slice.SliceHint java.lang.String...!);
-    method public androidx.slice.Slice.Builder! addHints(@androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
-    method public androidx.slice.Slice.Builder! addIcon(androidx.core.graphics.drawable.IconCompat!, String?, @androidx.slice.Slice.SliceHint java.lang.String...!);
-    method public androidx.slice.Slice.Builder! addIcon(androidx.core.graphics.drawable.IconCompat!, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
-    method public androidx.slice.Slice.Builder! addInt(int, String?, @androidx.slice.Slice.SliceHint java.lang.String...!);
-    method public androidx.slice.Slice.Builder! addInt(int, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.slice.Slice.Builder! addItem(androidx.slice.SliceItem!);
-    method public androidx.slice.Slice.Builder! addLong(long, String?, @androidx.slice.Slice.SliceHint java.lang.String...!);
-    method public androidx.slice.Slice.Builder! addLong(long, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.slice.Slice.Builder! addRemoteInput(android.app.RemoteInput!, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.slice.Slice.Builder! addRemoteInput(android.app.RemoteInput!, String?, @androidx.slice.Slice.SliceHint java.lang.String...!);
+    method public androidx.slice.Slice.Builder! addHints(@androidx.slice.Slice.SliceHint java.lang.String!...);
+    method public androidx.slice.Slice.Builder! addHints(@androidx.slice.Slice.SliceHint java.util.List<java.lang.String!>!);
+    method public androidx.slice.Slice.Builder! addIcon(androidx.core.graphics.drawable.IconCompat!, String?, @androidx.slice.Slice.SliceHint java.lang.String!...);
+    method public androidx.slice.Slice.Builder! addIcon(androidx.core.graphics.drawable.IconCompat!, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String!>!);
+    method public androidx.slice.Slice.Builder! addInt(int, String?, @androidx.slice.Slice.SliceHint java.lang.String!...);
+    method public androidx.slice.Slice.Builder! addInt(int, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String!>!);
+    method public androidx.slice.Slice.Builder! addLong(long, String?, @androidx.slice.Slice.SliceHint java.lang.String!...);
+    method public androidx.slice.Slice.Builder! addLong(long, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.slice.Slice.Builder! addRemoteInput(android.app.RemoteInput!, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String!>!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.slice.Slice.Builder! addRemoteInput(android.app.RemoteInput!, String?, @androidx.slice.Slice.SliceHint java.lang.String!...);
     method public androidx.slice.Slice.Builder! addSubSlice(androidx.slice.Slice);
     method public androidx.slice.Slice.Builder! addSubSlice(androidx.slice.Slice, String!);
-    method public androidx.slice.Slice.Builder! addText(CharSequence!, String?, @androidx.slice.Slice.SliceHint java.lang.String...!);
-    method public androidx.slice.Slice.Builder! addText(CharSequence!, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
-    method @Deprecated public androidx.slice.Slice.Builder! addTimestamp(long, String?, @androidx.slice.Slice.SliceHint java.lang.String...!);
-    method public androidx.slice.Slice.Builder! addTimestamp(long, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
+    method public androidx.slice.Slice.Builder! addText(CharSequence!, String?, @androidx.slice.Slice.SliceHint java.lang.String!...);
+    method public androidx.slice.Slice.Builder! addText(CharSequence!, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String!>!);
+    method @Deprecated public androidx.slice.Slice.Builder! addTimestamp(long, String?, @androidx.slice.Slice.SliceHint java.lang.String!...);
+    method public androidx.slice.Slice.Builder! addTimestamp(long, String?, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String!>!);
     method public androidx.slice.Slice! build();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.slice.Slice.Builder! setSpec(androidx.slice.SliceSpec!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.slice.Slice.Builder! setSpec(androidx.slice.SliceSpec!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface Slice.SliceHint {
-  }
 
   @RequiresApi(28) public class SliceConvert {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static java.util.Set<androidx.slice.SliceSpec!>! wrap(java.util.Set<android.app.slice.SliceSpec>!);
+    method public static android.app.slice.Slice! unwrap(androidx.slice.Slice!);
+    method public static androidx.slice.Slice! wrap(android.app.slice.Slice!, android.content.Context!);
   }
 
-  @RequiresApi(19) public final class SliceItem {
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceItem(Object!, @androidx.slice.SliceItem.SliceType String!, String!, @androidx.slice.Slice.SliceHint String[]!);
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceItem(Object!, @androidx.slice.SliceItem.SliceType String!, String!, @androidx.slice.Slice.SliceHint java.util.List<java.lang.String>!);
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceItem();
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceItem(android.app.PendingIntent!, androidx.slice.Slice!, String!, String!, @androidx.slice.Slice.SliceHint String[]!);
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceItem(androidx.slice.SliceItem.ActionHandler!, androidx.slice.Slice!, String!, String!, @androidx.slice.Slice.SliceHint String[]!);
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceItem(android.os.Bundle!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void addHint(@androidx.slice.Slice.SliceHint String!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean fireActionInternal(android.content.Context?, android.content.Intent?);
-    method @RequiresApi(20) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.app.RemoteInput! getRemoteInput();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public long getTimestamp();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean hasAnyHints(@androidx.slice.Slice.SliceHint java.lang.String...!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean hasHints(@androidx.slice.Slice.SliceHint String[]!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public android.os.Bundle! toBundle();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public String! toString(String!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static String! typeToString(String!);
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @androidx.slice.Slice.SliceHint protected String![]! mHints;
+  @RequiresApi(19) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+    method public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean fireActionInternal(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
+    method public android.app.PendingIntent! getAction();
+    method @androidx.slice.SliceItem.SliceType public String! getFormat();
+    method @androidx.slice.Slice.SliceHint public java.util.List<java.lang.String!> getHints();
+    method public androidx.core.graphics.drawable.IconCompat! getIcon();
+    method public int getInt();
+    method public long getLong();
+    method @RequiresApi(20) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.app.RemoteInput! getRemoteInput();
+    method public androidx.slice.Slice! getSlice();
+    method public String! getSubType();
+    method public CharSequence! getText();
+    method public boolean hasHint(@androidx.slice.Slice.SliceHint String!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static interface SliceItem.ActionHandler {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static interface SliceItem.ActionHandler {
     method public void onAction(androidx.slice.SliceItem!, android.content.Context!, android.content.Intent!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public static @interface SliceItem.SliceType {
-  }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class SliceItemHolder {
-    ctor public SliceItemHolder();
-    ctor public SliceItemHolder(String!, Object!, boolean);
-    method public Object! getObj(String!);
-  }
-
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class SliceItemHolderParcelizer {
-    ctor public SliceItemHolderParcelizer();
-    method public static androidx.slice.SliceItemHolder! read(androidx.versionedparcelable.VersionedParcel!);
-    method public static void write(androidx.slice.SliceItemHolder!, androidx.versionedparcelable.VersionedParcel!);
-  }
-
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class SliceItemParcelizer {
-    ctor public SliceItemParcelizer();
-    method public static androidx.slice.SliceItem! read(androidx.versionedparcelable.VersionedParcel!);
-    method public static void write(androidx.slice.SliceItem!, androidx.versionedparcelable.VersionedParcel!);
-  }
 
   @RequiresApi(19) public abstract class SliceManager {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public abstract java.util.Set<androidx.slice.SliceSpec!> getPinnedSpecs(android.net.Uri);
+    method public abstract int checkSlicePermission(android.net.Uri, int, int);
+    method public static androidx.slice.SliceManager getInstance(android.content.Context);
+    method public abstract java.util.List<android.net.Uri!> getPinnedSlices();
+    method public abstract void grantSlicePermission(String, android.net.Uri);
+    method public abstract void revokeSlicePermission(String, android.net.Uri);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class SliceParcelizer {
-    ctor public SliceParcelizer();
-    method public static androidx.slice.Slice! read(androidx.versionedparcelable.VersionedParcel!);
-    method public static void write(androidx.slice.Slice!, androidx.versionedparcelable.VersionedParcel!);
+  public abstract class SliceProvider extends android.content.ContentProvider implements androidx.core.app.CoreComponentFactory.CompatWrapped {
+    ctor public SliceProvider(java.lang.String!...);
+    ctor public SliceProvider();
+    method public final int bulkInsert(android.net.Uri, android.content.ContentValues![]);
+    method @RequiresApi(19) public final android.net.Uri? canonicalize(android.net.Uri);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public static android.app.PendingIntent! createPermissionIntent(android.content.Context!, android.net.Uri!, String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public static androidx.slice.Slice! createPermissionSlice(android.content.Context!, android.net.Uri!, String!);
+    method public final int delete(android.net.Uri, String?, String![]?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public static java.util.Set<androidx.slice.SliceSpec!>! getCurrentSpecs();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public static CharSequence! getPermissionString(android.content.Context!, String!);
+    method @RequiresApi(19) public java.util.List<android.net.Uri!> getPinnedSlices();
+    method public final String! getType(android.net.Uri!);
+    method public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
+    method @RequiresApi(19) public abstract androidx.slice.Slice! onBindSlice(android.net.Uri!);
+    method public final boolean onCreate();
+    method @RequiresApi(19) public abstract boolean onCreateSliceProvider();
+    method @RequiresApi(19) public java.util.Collection<android.net.Uri!>! onGetSliceDescendants(android.net.Uri!);
+    method @RequiresApi(19) public android.net.Uri onMapIntentToUri(android.content.Intent!);
+    method @RequiresApi(19) public void onSlicePinned(android.net.Uri!);
+    method @RequiresApi(19) public void onSliceUnpinned(android.net.Uri!);
+    method public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method @RequiresApi(28) public final android.database.Cursor? query(android.net.Uri, String![]?, android.os.Bundle?, android.os.CancellationSignal?);
+    method @RequiresApi(16) public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?, android.os.CancellationSignal?);
+    method public final int update(android.net.Uri, android.content.ContentValues?, String?, String![]?);
   }
 
-  public abstract class SliceProvider {
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public static android.app.PendingIntent! createPermissionIntent(android.content.Context!, android.net.Uri!, String!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public static androidx.slice.Slice! createPermissionSlice(android.content.Context!, android.net.Uri!, String!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public static androidx.slice.Clock! getClock();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public static java.util.Set<androidx.slice.SliceSpec!>! getCurrentSpecs();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public static CharSequence! getPermissionString(android.content.Context!, String!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public Object! getWrapper();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public void handleSlicePinned(android.net.Uri!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public void handleSliceUnpinned(android.net.Uri!);
-    method @RequiresApi(19) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @VisibleForTesting protected androidx.slice.compat.CompatPermissionManager! onCreatePermissionManager(String[]!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public static void setClock(androidx.slice.Clock!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public static void setSpecs(java.util.Set<androidx.slice.SliceSpec>!);
-  }
-
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public final class SliceSpec {
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceSpec();
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class SliceSpec implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SliceSpec(String, int);
     method public boolean canRender(androidx.slice.SliceSpec);
-    method public boolean equals(Object?);
     method public int getRevision();
     method public String! getType();
-    method public int hashCode();
-    method public String toString();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class SliceSpecParcelizer {
-    ctor public SliceSpecParcelizer();
-    method public static androidx.slice.SliceSpec! read(androidx.versionedparcelable.VersionedParcel!);
-    method public static void write(androidx.slice.SliceSpec!, androidx.versionedparcelable.VersionedParcel!);
-  }
-
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public class SliceSpecs {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public class SliceSpecs {
     field public static final androidx.slice.SliceSpec! BASIC;
     field public static final androidx.slice.SliceSpec! LIST;
     field public static final androidx.slice.SliceSpec! MESSAGING;
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public class SystemClock implements androidx.slice.Clock {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public class SystemClock implements androidx.slice.Clock {
     ctor public SystemClock();
     method public long currentTimeMillis();
   }
@@ -149,111 +123,55 @@ package androidx.slice {
 
 package androidx.slice.compat {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class CompatPermissionManager {
-    ctor public CompatPermissionManager(android.content.Context!, String!, int, String[]!);
-    method public int checkSlicePermission(android.net.Uri!, int, int);
-    method public void grantSlicePermission(android.net.Uri!, String!);
-    method public void revokeSlicePermission(android.net.Uri!, String!);
-    field public static final String ALL_SUFFIX = "_all";
-  }
 
   public static class CompatPermissionManager.PermissionState {
     method public String! getKey();
-    method public boolean hasAccess(java.util.List<java.lang.String>!);
+    method public boolean hasAccess(java.util.List<java.lang.String!>!);
     method public boolean hasAllPermissions();
     method public java.util.Set<java.lang.String!>! toPersistable();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class CompatPinnedList {
-    ctor public CompatPinnedList(android.content.Context!, String!);
-    method public boolean addPin(android.net.Uri!, String!, java.util.Set<androidx.slice.SliceSpec>!);
-    method @VisibleForTesting protected long getBootTime();
-    method public java.util.List<android.net.Uri!>! getPinnedSlices();
-    method public androidx.collection.ArraySet<androidx.slice.SliceSpec!>! getSpecs(android.net.Uri!);
-    method public boolean removePin(android.net.Uri!, String!);
-  }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class SlicePermissionActivity {
-    ctor public SlicePermissionActivity();
-    method public void onClick(android.content.DialogInterface!, int);
-    method protected void onCreate(android.os.Bundle!);
-    method public void onDestroy();
-    method public void onDismiss(android.content.DialogInterface!);
-  }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) @RequiresApi(19) public class SliceProviderCompat {
-    ctor public SliceProviderCompat(androidx.slice.SliceProvider!, androidx.slice.compat.CompatPermissionManager!, android.content.Context!);
-    method public static void addSpecs(android.os.Bundle!, java.util.Set<androidx.slice.SliceSpec>!);
-    method public static androidx.slice.Slice! bindSlice(android.content.Context!, android.net.Uri!, java.util.Set<androidx.slice.SliceSpec>!);
-    method public static androidx.slice.Slice! bindSlice(android.content.Context!, android.content.Intent!, java.util.Set<androidx.slice.SliceSpec>!);
-    method public android.os.Bundle! call(String!, String!, android.os.Bundle!);
-    method public static int checkSlicePermission(android.content.Context!, String!, android.net.Uri!, int, int);
-    method public String! getCallingPackage();
-    method public static java.util.List<android.net.Uri!>! getPinnedSlices(android.content.Context!);
-    method public static java.util.Set<androidx.slice.SliceSpec!>! getPinnedSpecs(android.content.Context!, android.net.Uri!);
-    method public static java.util.Collection<android.net.Uri!> getSliceDescendants(android.content.Context!, android.net.Uri);
-    method public static java.util.Set<androidx.slice.SliceSpec!>! getSpecs(android.os.Bundle!);
-    method public static void grantSlicePermission(android.content.Context!, String!, String!, android.net.Uri!);
-    method public static android.net.Uri! mapIntentToUri(android.content.Context!, android.content.Intent!);
-    method public static void pinSlice(android.content.Context!, android.net.Uri!, java.util.Set<androidx.slice.SliceSpec>!);
-    method public static void revokeSlicePermission(android.content.Context!, String!, String!, android.net.Uri!);
-    method public static void unpinSlice(android.content.Context!, android.net.Uri!, java.util.Set<androidx.slice.SliceSpec>!);
-    field public static final String ARG_SUPPORTS_VERSIONED_PARCELABLE = "supports_versioned_parcelable";
-    field public static final String EXTRA_BIND_URI = "slice_uri";
-    field public static final String EXTRA_INTENT = "slice_intent";
-    field public static final String EXTRA_PID = "pid";
-    field public static final String EXTRA_PKG = "pkg";
-    field public static final String EXTRA_PROVIDER_PKG = "provider_pkg";
-    field public static final String EXTRA_RESULT = "result";
-    field public static final String EXTRA_SLICE = "slice";
-    field public static final String EXTRA_SLICE_DESCENDANTS = "slice_descendants";
-    field public static final String EXTRA_SUPPORTED_SPECS = "specs";
-    field public static final String EXTRA_SUPPORTED_SPECS_REVS = "revs";
-    field public static final String EXTRA_UID = "uid";
-    field public static final String METHOD_CHECK_PERMISSION = "check_perms";
-    field public static final String METHOD_GET_DESCENDANTS = "get_descendants";
-    field public static final String METHOD_GET_PINNED_SPECS = "get_specs";
-    field public static final String METHOD_GRANT_PERMISSION = "grant_perms";
-    field public static final String METHOD_MAP_INTENT = "map_slice";
-    field public static final String METHOD_MAP_ONLY_INTENT = "map_only";
-    field public static final String METHOD_PIN = "pin_slice";
-    field public static final String METHOD_REVOKE_PERMISSION = "revoke_perms";
-    field public static final String METHOD_SLICE = "bind_slice";
-    field public static final String METHOD_UNPIN = "unpin_slice";
-    field public static final String PERMS_PREFIX = "slice_perms_";
-  }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class SliceProviderWrapperContainer {
-  }
 
-  @RequiresApi(28) public static class SliceProviderWrapperContainer.SliceProviderWrapper {
-    ctor public SliceProviderWrapperContainer.SliceProviderWrapper(androidx.slice.SliceProvider!, String[]!);
-    method public void attachInfo(android.content.Context!, android.content.pm.ProviderInfo!);
-    method public android.app.slice.Slice! onBindSlice(android.net.Uri!, java.util.Set<android.app.slice.SliceSpec>!);
+  @RequiresApi(28) public static class SliceProviderWrapperContainer.SliceProviderWrapper extends android.app.slice.SliceProvider {
+    ctor public SliceProviderWrapperContainer.SliceProviderWrapper(androidx.slice.SliceProvider!, String![]!);
     method public boolean onCreate();
-    method public java.util.Collection<android.net.Uri>! onGetSliceDescendants(android.net.Uri!);
-    method public android.net.Uri onMapIntentToUri(android.content.Intent!);
-    method public void onSlicePinned(android.net.Uri!);
-    method public void onSliceUnpinned(android.net.Uri!);
   }
 
 }
 
 package androidx.slice.core {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public class SliceActionImpl implements androidx.slice.core.SliceAction {
+  @RequiresApi(19) public interface SliceAction {
+    method public android.app.PendingIntent getAction();
+    method public CharSequence? getContentDescription();
+    method public androidx.core.graphics.drawable.IconCompat? getIcon();
+    method @androidx.slice.core.SliceHints.ImageMode public int getImageMode();
+    method public int getPriority();
+    method public CharSequence getTitle();
+    method public boolean isActivity();
+    method public boolean isChecked();
+    method public boolean isDefaultToggle();
+    method public boolean isToggle();
+    method public androidx.slice.core.SliceAction! setChecked(boolean);
+    method public androidx.slice.core.SliceAction? setContentDescription(CharSequence);
+    method public androidx.slice.core.SliceAction! setPriority(@IntRange(from=0) int);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public class SliceActionImpl implements androidx.slice.core.SliceAction {
     ctor public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence);
-    ctor public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, int, CharSequence);
+    ctor public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, @androidx.slice.core.SliceHints.ImageMode int, CharSequence);
     ctor public SliceActionImpl(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean);
     ctor public SliceActionImpl(android.app.PendingIntent, CharSequence, boolean);
-    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public SliceActionImpl(androidx.slice.SliceItem!);
     method public androidx.slice.Slice buildPrimaryActionSlice(androidx.slice.Slice.Builder);
     method public androidx.slice.Slice buildSlice(androidx.slice.Slice.Builder);
     method public android.app.PendingIntent getAction();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public androidx.slice.SliceItem! getActionItem();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public androidx.slice.SliceItem! getActionItem();
     method public CharSequence? getContentDescription();
     method public androidx.core.graphics.drawable.IconCompat? getIcon();
-    method public int getImageMode();
+    method @androidx.slice.core.SliceHints.ImageMode public int getImageMode();
     method public int getPriority();
     method public androidx.slice.SliceItem? getSliceItem();
     method public String? getSubtype();
@@ -265,10 +183,10 @@ package androidx.slice.core {
     method public void setActivity(boolean);
     method public androidx.slice.core.SliceActionImpl! setChecked(boolean);
     method public androidx.slice.core.SliceActionImpl? setContentDescription(CharSequence);
-    method public androidx.slice.core.SliceActionImpl! setPriority(@IntRange(from=0L) int);
+    method public androidx.slice.core.SliceActionImpl! setPriority(@IntRange(from=0) int);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public class SliceHints {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public class SliceHints {
     field public static final String HINT_ACTIVITY = "activity";
     field public static final int ICON_IMAGE = 0; // 0x0
     field public static final long INFINITY = -1L; // 0xffffffffffffffffL
@@ -280,31 +198,31 @@ package androidx.slice.core {
     field public static final int UNKNOWN_IMAGE = 3; // 0x3
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
+  @IntDef({androidx.slice.core.SliceHints.LARGE_IMAGE, androidx.slice.core.SliceHints.SMALL_IMAGE, androidx.slice.core.SliceHints.ICON_IMAGE, androidx.slice.core.SliceHints.UNKNOWN_IMAGE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface SliceHints.ImageMode {
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @RequiresApi(19) public class SliceQuery {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @RequiresApi(19) public class SliceQuery {
     method public static androidx.slice.SliceItem! find(androidx.slice.Slice!, String!, String!, String!);
     method public static androidx.slice.SliceItem! find(androidx.slice.Slice!, String!);
     method public static androidx.slice.SliceItem! find(androidx.slice.SliceItem!, String!);
     method public static androidx.slice.SliceItem! find(androidx.slice.SliceItem!, String!, String!, String!);
-    method public static androidx.slice.SliceItem! find(androidx.slice.Slice!, String!, String[]!, String[]!);
-    method public static androidx.slice.SliceItem! find(androidx.slice.SliceItem!, String!, String[]!, String[]!);
+    method public static androidx.slice.SliceItem! find(androidx.slice.Slice!, String!, String![]!, String![]!);
+    method public static androidx.slice.SliceItem! find(androidx.slice.SliceItem!, String!, String![]!, String![]!);
     method public static java.util.List<androidx.slice.SliceItem!>! findAll(androidx.slice.SliceItem!, String!);
     method public static java.util.List<androidx.slice.SliceItem!>! findAll(androidx.slice.Slice!, String!, String!, String!);
     method public static java.util.List<androidx.slice.SliceItem!>! findAll(androidx.slice.SliceItem!, String!, String!, String!);
-    method public static java.util.List<androidx.slice.SliceItem!>! findAll(androidx.slice.Slice!, String!, String[]!, String[]!);
-    method public static java.util.List<androidx.slice.SliceItem!>! findAll(androidx.slice.SliceItem!, String!, String[]!, String[]!);
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static androidx.slice.SliceItem! findItem(androidx.slice.Slice!, android.net.Uri!);
-    method public static androidx.slice.SliceItem! findNotContaining(androidx.slice.SliceItem!, java.util.List<androidx.slice.SliceItem>!);
+    method public static java.util.List<androidx.slice.SliceItem!>! findAll(androidx.slice.Slice!, String!, String![]!, String![]!);
+    method public static java.util.List<androidx.slice.SliceItem!>! findAll(androidx.slice.SliceItem!, String!, String![]!, String![]!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static androidx.slice.SliceItem! findItem(androidx.slice.Slice!, android.net.Uri!);
+    method public static androidx.slice.SliceItem! findNotContaining(androidx.slice.SliceItem!, java.util.List<androidx.slice.SliceItem!>!);
     method public static androidx.slice.SliceItem! findSubtype(androidx.slice.Slice!, String!, String!);
     method public static androidx.slice.SliceItem! findSubtype(androidx.slice.SliceItem!, String!, String!);
-    method public static androidx.slice.SliceItem! findTopLevelItem(androidx.slice.Slice!, String!, String!, String[]!, String[]!);
-    method public static boolean hasAnyHints(androidx.slice.SliceItem!, java.lang.String...!);
-    method public static boolean hasHints(androidx.slice.SliceItem!, java.lang.String...!);
-    method public static boolean hasHints(androidx.slice.Slice!, java.lang.String...!);
-    method public static java.util.Iterator<androidx.slice.SliceItem>! stream(androidx.slice.SliceItem!);
-    method public static java.util.Iterator<androidx.slice.SliceItem>! stream(androidx.slice.Slice!);
+    method public static androidx.slice.SliceItem! findTopLevelItem(androidx.slice.Slice!, String!, String!, String![]!, String![]!);
+    method public static boolean hasAnyHints(androidx.slice.SliceItem!, java.lang.String!...);
+    method public static boolean hasHints(androidx.slice.SliceItem!, java.lang.String!...);
+    method public static boolean hasHints(androidx.slice.Slice!, java.lang.String!...);
+    method public static java.util.Iterator<androidx.slice.SliceItem!>! stream(androidx.slice.SliceItem!);
+    method public static java.util.Iterator<androidx.slice.SliceItem!>! stream(androidx.slice.Slice!);
   }
 
 }

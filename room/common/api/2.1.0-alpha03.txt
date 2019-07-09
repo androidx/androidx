@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.room {
 
   @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ColumnInfo {
@@ -74,12 +74,12 @@ package androidx.room {
   @IntDef({androidx.room.ForeignKey.NO_ACTION, androidx.room.ForeignKey.RESTRICT, androidx.room.ForeignKey.SET_NULL, androidx.room.ForeignKey.SET_DEFAULT, androidx.room.ForeignKey.CASCADE}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ForeignKey.Action {
   }
 
-  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @RequiresApi(16) public @interface Fts3 {
+  @RequiresApi(16) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Fts3 {
     method public abstract String tokenizer() default androidx.room.FtsOptions.TOKENIZER_SIMPLE;
     method public abstract String[] tokenizerArgs() default {};
   }
 
-  @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @RequiresApi(16) public @interface Fts4 {
+  @RequiresApi(16) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface Fts4 {
     method public abstract Class contentEntity() default java.lang.Object.class;
     method public abstract String languageId() default "";
     method public abstract androidx.room.FtsOptions.MatchInfo matchInfo() default androidx.room.FtsOptions.MatchInfo.FTS4;
@@ -97,12 +97,12 @@ package androidx.room {
     field @RequiresApi(21) public static final String TOKENIZER_UNICODE61 = "unicode61";
   }
 
-  public static enum FtsOptions.MatchInfo {
+  public enum FtsOptions.MatchInfo {
     enum_constant public static final androidx.room.FtsOptions.MatchInfo FTS3;
     enum_constant public static final androidx.room.FtsOptions.MatchInfo FTS4;
   }
 
-  public static enum FtsOptions.Order {
+  public enum FtsOptions.Order {
     enum_constant public static final androidx.room.FtsOptions.Order ASC;
     enum_constant public static final androidx.room.FtsOptions.Order DESC;
   }
@@ -122,10 +122,10 @@ package androidx.room {
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.room.OnConflictStrategy.REPLACE, androidx.room.OnConflictStrategy.ROLLBACK, androidx.room.OnConflictStrategy.ABORT, androidx.room.OnConflictStrategy.FAIL, androidx.room.OnConflictStrategy.IGNORE}) public @interface OnConflictStrategy {
     field public static final int ABORT = 3; // 0x3
-    field @Deprecated public static final int FAIL = 4; // 0x4
+    field public static final int FAIL = 4; // 0x4
     field public static final int IGNORE = 5; // 0x5
     field public static final int REPLACE = 1; // 0x1
-    field @Deprecated public static final int ROLLBACK = 2; // 0x2
+    field public static final int ROLLBACK = 2; // 0x2
   }
 
   @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface PrimaryKey {

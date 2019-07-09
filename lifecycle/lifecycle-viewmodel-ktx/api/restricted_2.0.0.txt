@@ -1,1 +1,10 @@
 // Signature format: 3.0
+package androidx.lifecycle {
+
+  public final class ViewModelProviderKt {
+    ctor public ViewModelProviderKt();
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> VM get(androidx.lifecycle.ViewModelProvider);
+  }
+
+}
+

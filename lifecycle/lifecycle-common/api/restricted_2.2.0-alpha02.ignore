@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.lifecycle.LifecycleEventObserver#onStateChanged(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event):
+    Added method androidx.lifecycle.LifecycleEventObserver.onStateChanged(androidx.lifecycle.LifecycleOwner,androidx.lifecycle.Lifecycle.Event)

@@ -86,7 +86,7 @@ package androidx.viewpager.widget {
     field public static final int SCROLL_STATE_SETTLING = 2; // 0x2
   }
 
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) @java.lang.annotation.Inherited public static @interface ViewPager.DecorView {
+  @java.lang.annotation.Inherited @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface ViewPager.DecorView {
   }
 
   public static class ViewPager.LayoutParams extends android.view.ViewGroup.LayoutParams {
@@ -112,7 +112,7 @@ package androidx.viewpager.widget {
 
   public static class ViewPager.SavedState extends androidx.customview.view.AbsSavedState {
     ctor public ViewPager.SavedState(android.os.Parcelable);
-    field public static final android.os.Parcelable.Creator<androidx.viewpager.widget.ViewPager.SavedState>! CREATOR;
+    field public static final android.os.Parcelable.Creator<androidx.viewpager.widget.ViewPager.SavedState!>! CREATOR;
   }
 
   public static class ViewPager.SimpleOnPageChangeListener implements androidx.viewpager.widget.ViewPager.OnPageChangeListener {

@@ -1,1 +1,22 @@
 // Signature format: 3.0
+package androidx.activity {
+
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+    ctor public ComponentActivity();
+    method public void addOnBackPressedCallback(androidx.activity.OnBackPressedCallback);
+    method public void addOnBackPressedCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
+    method @Deprecated public Object? getLastCustomNonConfigurationInstance();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public final androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
+    method public final Object? onRetainNonConfigurationInstance();
+    method public void removeOnBackPressedCallback(androidx.activity.OnBackPressedCallback);
+  }
+
+  public interface OnBackPressedCallback {
+    method public boolean handleOnBackPressed();
+  }
+
+}
+

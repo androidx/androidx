@@ -11,31 +11,31 @@ package androidx.recyclerview.widget {
 
   public final class AsyncDifferConfig<T> {
     method public java.util.concurrent.Executor getBackgroundThreadExecutor();
-    method public androidx.recyclerview.widget.DiffUtil.ItemCallback<T> getDiffCallback();
+    method public androidx.recyclerview.widget.DiffUtil.ItemCallback<T!> getDiffCallback();
   }
 
   public static final class AsyncDifferConfig.Builder<T> {
-    ctor public AsyncDifferConfig.Builder(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
-    method public androidx.recyclerview.widget.AsyncDifferConfig<T> build();
-    method public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T> setBackgroundThreadExecutor(java.util.concurrent.Executor!);
+    ctor public AsyncDifferConfig.Builder(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
+    method public androidx.recyclerview.widget.AsyncDifferConfig<T!> build();
+    method public androidx.recyclerview.widget.AsyncDifferConfig.Builder<T!> setBackgroundThreadExecutor(java.util.concurrent.Executor!);
   }
 
   public class AsyncListDiffer<T> {
-    ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
-    ctor public AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T>);
-    method public void addListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T>);
-    method public java.util.List<T> getCurrentList();
-    method public void removeListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T>);
-    method public void submitList(java.util.List<T>?);
-    method public void submitList(java.util.List<T>?, Runnable?);
+    ctor public AsyncListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
+    ctor public AsyncListDiffer(androidx.recyclerview.widget.ListUpdateCallback, androidx.recyclerview.widget.AsyncDifferConfig<T!>);
+    method public void addListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T!>);
+    method public java.util.List<T!> getCurrentList();
+    method public void removeListListener(androidx.recyclerview.widget.AsyncListDiffer.ListListener<T!>);
+    method public void submitList(java.util.List<T!>?);
+    method public void submitList(java.util.List<T!>?, Runnable?);
   }
 
   public static interface AsyncListDiffer.ListListener<T> {
-    method public void onCurrentListChanged(java.util.List<T>, java.util.List<T>);
+    method public void onCurrentListChanged(java.util.List<T!>, java.util.List<T!>);
   }
 
   public class AsyncListUtil<T> {
-    ctor public AsyncListUtil(Class<T>, int, androidx.recyclerview.widget.AsyncListUtil.DataCallback<T>, androidx.recyclerview.widget.AsyncListUtil.ViewCallback);
+    ctor public AsyncListUtil(Class<T!>, int, androidx.recyclerview.widget.AsyncListUtil.DataCallback<T!>, androidx.recyclerview.widget.AsyncListUtil.ViewCallback);
     method public T? getItem(int);
     method public int getItemCount();
     method public void onRangeChanged();
@@ -44,9 +44,9 @@ package androidx.recyclerview.widget {
 
   public abstract static class AsyncListUtil.DataCallback<T> {
     ctor public AsyncListUtil.DataCallback();
-    method @WorkerThread public abstract void fillData(T[], int, int);
+    method @WorkerThread public abstract void fillData(T![], int, int);
     method @WorkerThread public int getMaxCachedTiles();
-    method @WorkerThread public void recycleData(T[], int);
+    method @WorkerThread public void recycleData(T![], int);
     method @WorkerThread public abstract int refreshData();
   }
 
@@ -125,10 +125,8 @@ package androidx.recyclerview.widget {
     ctor public GridLayoutManager(android.content.Context!, int, int, boolean);
     method public int getSpanCount();
     method public androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup! getSpanSizeLookup();
-    method public boolean isUsingSpansToEstimateScrollbarDimensions();
     method public void setSpanCount(int);
     method public void setSpanSizeLookup(androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup!);
-    method public void setUsingSpansToEstimateScrollbarDimensions(boolean);
     field public static final int DEFAULT_SPAN_COUNT = -1; // 0xffffffff
   }
 
@@ -153,11 +151,8 @@ package androidx.recyclerview.widget {
     method public int getSpanGroupIndex(int, int);
     method public int getSpanIndex(int, int);
     method public abstract int getSpanSize(int);
-    method public void invalidateSpanGroupIndexCache();
     method public void invalidateSpanIndexCache();
-    method public boolean isSpanGroupIndexCacheEnabled();
     method public boolean isSpanIndexCacheEnabled();
-    method public void setSpanGroupIndexCacheEnabled(boolean);
     method public void setSpanIndexCacheEnabled(boolean);
   }
 
@@ -185,7 +180,7 @@ package androidx.recyclerview.widget {
   public abstract static class ItemTouchHelper.Callback {
     ctor public ItemTouchHelper.Callback();
     method public boolean canDropOver(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder);
-    method public androidx.recyclerview.widget.RecyclerView.ViewHolder! chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder>, int, int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder! chooseDropTarget(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder!>, int, int);
     method public void clearView(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public int convertToAbsoluteDirection(int, int);
     method public static int convertToRelativeDirection(int, int);
@@ -304,14 +299,14 @@ package androidx.recyclerview.widget {
   }
 
   public abstract class ListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {
-    ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T>);
-    ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T>);
-    method public java.util.List<T> getCurrentList();
+    ctor protected ListAdapter(androidx.recyclerview.widget.DiffUtil.ItemCallback<T!>);
+    ctor protected ListAdapter(androidx.recyclerview.widget.AsyncDifferConfig<T!>);
+    method public java.util.List<T!> getCurrentList();
     method protected T! getItem(int);
     method public int getItemCount();
-    method public void onCurrentListChanged(java.util.List<T>, java.util.List<T>);
-    method public void submitList(java.util.List<T>?);
-    method public void submitList(java.util.List<T>?, Runnable?);
+    method public void onCurrentListChanged(java.util.List<T!>, java.util.List<T!>);
+    method public void submitList(java.util.List<T!>?);
+    method public void submitList(java.util.List<T!>?, Runnable?);
   }
 
   public interface ListUpdateCallback {
@@ -483,7 +478,7 @@ package androidx.recyclerview.widget {
     method public final void notifyItemRemoved(int);
     method public void onAttachedToRecyclerView(androidx.recyclerview.widget.RecyclerView);
     method public abstract void onBindViewHolder(VH, int);
-    method public void onBindViewHolder(VH, int, java.util.List<java.lang.Object>);
+    method public void onBindViewHolder(VH, int, java.util.List<java.lang.Object!>);
     method public abstract VH onCreateViewHolder(android.view.ViewGroup, int);
     method public void onDetachedFromRecyclerView(androidx.recyclerview.widget.RecyclerView);
     method public boolean onFailedToRecycleView(VH);
@@ -528,7 +523,7 @@ package androidx.recyclerview.widget {
     method public abstract boolean animateDisappearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo?);
     method public abstract boolean animatePersistence(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
     method public boolean canReuseUpdatedViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder);
-    method public boolean canReuseUpdatedViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<java.lang.Object>);
+    method public boolean canReuseUpdatedViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder, java.util.List<java.lang.Object!>);
     method public final void dispatchAnimationFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public final void dispatchAnimationStarted(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public final void dispatchAnimationsFinished();
@@ -544,7 +539,7 @@ package androidx.recyclerview.widget {
     method public void onAnimationFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void onAnimationStarted(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPostLayoutInformation(androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.ViewHolder);
-    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPreLayoutInformation(androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.ViewHolder, @androidx.recyclerview.widget.RecyclerView.ItemAnimator.AdapterChanges int, java.util.List<java.lang.Object>);
+    method public androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo recordPreLayoutInformation(androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.ViewHolder, @androidx.recyclerview.widget.RecyclerView.ItemAnimator.AdapterChanges int, java.util.List<java.lang.Object!>);
     method public abstract void runPendingAnimations();
     method public void setAddDuration(long);
     method public void setChangeDuration(long);
@@ -677,7 +672,7 @@ package androidx.recyclerview.widget {
     method public void offsetChildrenHorizontal(@Px int);
     method public void offsetChildrenVertical(@Px int);
     method public void onAdapterChanged(androidx.recyclerview.widget.RecyclerView.Adapter?, androidx.recyclerview.widget.RecyclerView.Adapter?);
-    method public boolean onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View>, int, int);
+    method public boolean onAddFocusables(androidx.recyclerview.widget.RecyclerView, java.util.ArrayList<android.view.View!>, int, int);
     method @CallSuper public void onAttachedToWindow(androidx.recyclerview.widget.RecyclerView!);
     method @Deprecated public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView!);
     method @CallSuper public void onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView!, androidx.recyclerview.widget.RecyclerView.Recycler!);
@@ -793,7 +788,7 @@ package androidx.recyclerview.widget {
     method public void bindViewToPosition(android.view.View, int);
     method public void clear();
     method public int convertPreLayoutPositionToPostLayout(int);
-    method public java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder> getScrapList();
+    method public java.util.List<androidx.recyclerview.widget.RecyclerView.ViewHolder!> getScrapList();
     method public android.view.View getViewForPosition(int);
     method public void recycleView(android.view.View);
     method public void setViewCacheSize(int);
@@ -939,12 +934,12 @@ package androidx.recyclerview.widget {
   }
 
   public class SortedList<T> {
-    ctor public SortedList(Class<T>, androidx.recyclerview.widget.SortedList.Callback<T>);
-    ctor public SortedList(Class<T>, androidx.recyclerview.widget.SortedList.Callback<T>, int);
+    ctor public SortedList(Class<T!>, androidx.recyclerview.widget.SortedList.Callback<T!>);
+    ctor public SortedList(Class<T!>, androidx.recyclerview.widget.SortedList.Callback<T!>, int);
     method public int add(T!);
-    method public void addAll(T[], boolean);
-    method public void addAll(T...);
-    method public void addAll(java.util.Collection<T>);
+    method public void addAll(T![], boolean);
+    method public void addAll(T!...);
+    method public void addAll(java.util.Collection<T!>);
     method public void beginBatchedUpdates();
     method public void clear();
     method public void endBatchedUpdates();
@@ -953,16 +948,16 @@ package androidx.recyclerview.widget {
     method public void recalculatePositionOfItemAt(int);
     method public boolean remove(T!);
     method public T! removeItemAt(int);
-    method public void replaceAll(T[], boolean);
-    method public void replaceAll(T...);
-    method public void replaceAll(java.util.Collection<T>);
+    method public void replaceAll(T![], boolean);
+    method public void replaceAll(T!...);
+    method public void replaceAll(java.util.Collection<T!>);
     method public int size();
     method public void updateItemAt(int, T!);
     field public static final int INVALID_POSITION = -1; // 0xffffffff
   }
 
   public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
-    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2>!);
+    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>!);
     method public boolean areContentsTheSame(T2!, T2!);
     method public boolean areItemsTheSame(T2!, T2!);
     method public int compare(T2!, T2!);

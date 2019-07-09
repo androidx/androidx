@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.room.RoomDatabase#clearAllTables():
+    Added method androidx.room.RoomDatabase.clearAllTables()
+AddedAbstractMethod: androidx.room.RoomDatabase#createInvalidationTracker():
+    Added method androidx.room.RoomDatabase.createInvalidationTracker()
+AddedAbstractMethod: androidx.room.RoomDatabase#createOpenHelper(androidx.room.DatabaseConfiguration):
+    Added method androidx.room.RoomDatabase.createOpenHelper(androidx.room.DatabaseConfiguration)

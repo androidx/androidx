@@ -1,1 +1,10 @@
 // Signature format: 3.0
+package androidx.sqlite.db {
+
+  public final class SupportSQLiteDatabaseKt {
+    ctor public SupportSQLiteDatabaseKt();
+    method public static inline <T> T! transaction(androidx.sqlite.db.SupportSQLiteDatabase, boolean exclusive = true, kotlin.jvm.functions.Function1<? super androidx.sqlite.db.SupportSQLiteDatabase,? extends T> body);
+  }
+
+}
+

@@ -1,43 +1,35 @@
 // Signature format: 3.0
 package androidx.versionedparcelable {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
     ctor public CustomVersionedParcelable();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void onPostParceling();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void onPreParceling(boolean);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onPostParceling();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void onPreParceling(boolean);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD}) public @interface NonParcelField {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public @interface NonParcelField {
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD}) public @interface ParcelField {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.FIELD) public @interface ParcelField {
     method public abstract int value();
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class ParcelImpl {
-    ctor public ParcelImpl(androidx.versionedparcelable.VersionedParcelable!);
-    ctor protected ParcelImpl(android.os.Parcel!);
-    method public int describeContents();
-    method public <T extends androidx.versionedparcelable.VersionedParcelable> T! getVersionedParcel();
-    method public void writeToParcel(android.os.Parcel!, int);
-    field public static final android.os.Parcelable.Creator<androidx.versionedparcelable.ParcelImpl!>! CREATOR;
-  }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ParcelUtils {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class ParcelUtils {
     method public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromInputStream(java.io.InputStream!);
     method public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromParcelable(android.os.Parcelable!);
     method public static void toOutputStream(androidx.versionedparcelable.VersionedParcelable!, java.io.OutputStream!);
     method public static android.os.Parcelable! toParcelable(androidx.versionedparcelable.VersionedParcelable!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class VersionedParcel {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public abstract class VersionedParcel {
     ctor public VersionedParcel();
     method protected abstract void closeField();
     method protected abstract androidx.versionedparcelable.VersionedParcel! createSubParcel();
     method protected static Throwable getRootCause(Throwable);
     method public boolean isStream();
-    method public <T> T![]! readArray(T[]!, int);
-    method protected <T> T![]! readArray(T[]!);
+    method public <T> T![]! readArray(T![]!, int);
+    method protected <T> T![]! readArray(T![]!);
     method protected abstract boolean readBoolean();
     method public boolean readBoolean(boolean, int);
     method public boolean[]! readBooleanArray(boolean[]!, int);
@@ -63,17 +55,17 @@ package androidx.versionedparcelable {
     method public int readInt(int, int);
     method public int[]! readIntArray(int[]!, int);
     method protected int[]! readIntArray();
-    method public <T> java.util.List<T!>! readList(java.util.List<T>!, int);
+    method public <T> java.util.List<T!>! readList(java.util.List<T!>!, int);
     method protected abstract long readLong();
     method public long readLong(long, int);
     method public long[]! readLongArray(long[]!, int);
     method protected long[]! readLongArray();
-    method protected abstract <T extends > T! readParcelable();
-    method public <T extends > T! readParcelable(T!, int);
+    method protected abstract <T extends android.os.Parcelable> T! readParcelable();
+    method public <T extends android.os.Parcelable> T! readParcelable(T!, int);
     method protected java.io.Serializable! readSerializable();
-    method public <T> java.util.Set<T!>! readSet(java.util.Set<T>!, int);
-    method @RequiresApi(api=21) public android.util.Size! readSize(android.util.Size!, int);
-    method @RequiresApi(api=21) public android.util.SizeF! readSizeF(android.util.SizeF!, int);
+    method public <T> java.util.Set<T!>! readSet(java.util.Set<T!>!, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public android.util.Size! readSize(android.util.Size!, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public android.util.SizeF! readSizeF(android.util.SizeF!, int);
     method public android.util.SparseBooleanArray! readSparseBooleanArray(android.util.SparseBooleanArray!, int);
     method protected abstract String! readString();
     method public String! readString(String!, int);
@@ -83,8 +75,8 @@ package androidx.versionedparcelable {
     method protected <T extends androidx.versionedparcelable.VersionedParcelable> T! readVersionedParcelable();
     method protected abstract void setOutputField(int);
     method public void setSerializationFlags(boolean, boolean);
-    method public <T> void writeArray(T[]!, int);
-    method protected <T> void writeArray(T[]!);
+    method public <T> void writeArray(T![]!, int);
+    method protected <T> void writeArray(T![]!);
     method protected abstract void writeBoolean(boolean);
     method public void writeBoolean(boolean, int);
     method public void writeBooleanArray(boolean[]!, int);
@@ -110,7 +102,7 @@ package androidx.versionedparcelable {
     method public void writeInt(int, int);
     method public void writeIntArray(int[]!, int);
     method protected void writeIntArray(int[]!);
-    method public <T> void writeList(java.util.List<T>!, int);
+    method public <T> void writeList(java.util.List<T!>!, int);
     method protected abstract void writeLong(long);
     method public void writeLong(long, int);
     method public void writeLongArray(long[]!, int);
@@ -119,9 +111,9 @@ package androidx.versionedparcelable {
     method protected abstract void writeParcelable(android.os.Parcelable!);
     method public void writeParcelable(android.os.Parcelable!, int);
     method public void writeSerializable(java.io.Serializable!, int);
-    method public <T> void writeSet(java.util.Set<T>!, int);
-    method @RequiresApi(api=21) public void writeSize(android.util.Size!, int);
-    method @RequiresApi(api=21) public void writeSizeF(android.util.SizeF!, int);
+    method public <T> void writeSet(java.util.Set<T!>!, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public void writeSize(android.util.Size!, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public void writeSizeF(android.util.SizeF!, int);
     method public void writeSparseBooleanArray(android.util.SparseBooleanArray!, int);
     method protected abstract void writeString(String!);
     method public void writeString(String!, int);
@@ -134,14 +126,14 @@ package androidx.versionedparcelable {
     method protected void writeVersionedParcelable(androidx.versionedparcelable.VersionedParcelable!);
   }
 
-  public static class VersionedParcel.ParcelException {
+  public static class VersionedParcel.ParcelException extends java.lang.RuntimeException {
     ctor public VersionedParcel.ParcelException(Throwable!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface VersionedParcelable {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface VersionedParcelable {
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE}) public @interface VersionedParcelize {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface VersionedParcelize {
     method public abstract boolean allowSerialization() default false;
     method public abstract int[] deprecatedIds() default {};
     method public abstract boolean ignoreParcelables() default false;

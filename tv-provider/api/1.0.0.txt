@@ -73,9 +73,9 @@ package androidx.tvprovider.media.tv {
 
   @WorkerThread public class ChannelLogoUtils {
     ctor @Deprecated public ChannelLogoUtils();
-    method @WorkerThread public static android.graphics.Bitmap! loadChannelLogo(android.content.Context, long);
+    method public static android.graphics.Bitmap! loadChannelLogo(android.content.Context, long);
     method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
-    method @WorkerThread public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
+    method public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
   }
 
   public class PreviewChannel {
@@ -122,7 +122,7 @@ package androidx.tvprovider.media.tv {
     method public void deletePreviewChannel(long);
     method public void deletePreviewProgram(long);
     method protected android.graphics.Bitmap! downloadBitmap(android.net.Uri) throws java.io.IOException;
-    method public java.util.List<androidx.tvprovider.media.tv.PreviewChannel>! getAllChannels();
+    method public java.util.List<androidx.tvprovider.media.tv.PreviewChannel!>! getAllChannels();
     method public androidx.tvprovider.media.tv.PreviewChannel! getPreviewChannel(long);
     method public androidx.tvprovider.media.tv.PreviewProgram! getPreviewProgram(long);
     method public androidx.tvprovider.media.tv.WatchNextProgram! getWatchNextProgram(long);
@@ -137,13 +137,13 @@ package androidx.tvprovider.media.tv {
 
   public final class PreviewProgram {
     method public static androidx.tvprovider.media.tv.PreviewProgram! fromCursor(android.database.Cursor!);
-    method public String[]! getAudioLanguages();
+    method public String![]! getAudioLanguages();
     method public String! getAuthor();
     method public int getAvailability();
-    method public String[]! getCanonicalGenres();
+    method public String![]! getCanonicalGenres();
     method public long getChannelId();
     method public String! getContentId();
-    method public android.media.tv.TvContentRating[]! getContentRatings();
+    method public android.media.tv.TvContentRating![]! getContentRatings();
     method public String! getDescription();
     method public int getDurationMillis();
     method public long getEndTimeUtcMillis();
@@ -205,11 +205,11 @@ package androidx.tvprovider.media.tv {
   public final class Program implements java.lang.Comparable<androidx.tvprovider.media.tv.Program> {
     method public int compareTo(androidx.tvprovider.media.tv.Program);
     method public static androidx.tvprovider.media.tv.Program! fromCursor(android.database.Cursor!);
-    method public String[]! getAudioLanguages();
-    method public String[]! getBroadcastGenres();
-    method public String[]! getCanonicalGenres();
+    method public String![]! getAudioLanguages();
+    method public String![]! getBroadcastGenres();
+    method public String![]! getCanonicalGenres();
     method public long getChannelId();
-    method public android.media.tv.TvContentRating[]! getContentRatings();
+    method public android.media.tv.TvContentRating![]! getContentRatings();
     method public String! getDescription();
     method public long getEndTimeUtcMillis();
     method public String! getEpisodeNumber();
@@ -240,7 +240,7 @@ package androidx.tvprovider.media.tv {
     ctor public Program.Builder();
     ctor public Program.Builder(androidx.tvprovider.media.tv.Program!);
     method public androidx.tvprovider.media.tv.Program! build();
-    method public androidx.tvprovider.media.tv.Program.Builder! setBroadcastGenres(String[]!);
+    method public androidx.tvprovider.media.tv.Program.Builder! setBroadcastGenres(String![]!);
     method public androidx.tvprovider.media.tv.Program.Builder! setChannelId(long);
     method public androidx.tvprovider.media.tv.Program.Builder! setEndTimeUtcMillis(long);
     method public androidx.tvprovider.media.tv.Program.Builder! setRecordingProhibited(boolean);
@@ -503,8 +503,8 @@ package androidx.tvprovider.media.tv {
   }
 
   public static final class TvContractCompat.Programs.Genres {
-    method public static String[]! decode(String);
-    method public static String! encode(java.lang.String...);
+    method public static String![]! decode(String);
+    method public static String! encode(java.lang.String!...);
     method public static boolean isCanonical(String!);
     field public static final String ANIMAL_WILDLIFE = "ANIMAL_WILDLIFE";
     field public static final String ARTS = "ARTS";
@@ -666,12 +666,12 @@ package androidx.tvprovider.media.tv {
 
   public final class WatchNextProgram {
     method public static androidx.tvprovider.media.tv.WatchNextProgram! fromCursor(android.database.Cursor!);
-    method public String[]! getAudioLanguages();
+    method public String![]! getAudioLanguages();
     method public String! getAuthor();
     method public int getAvailability();
-    method public String[]! getCanonicalGenres();
+    method public String![]! getCanonicalGenres();
     method public String! getContentId();
-    method public android.media.tv.TvContentRating[]! getContentRatings();
+    method public android.media.tv.TvContentRating![]! getContentRatings();
     method public String! getDescription();
     method public int getDurationMillis();
     method public long getEndTimeUtcMillis();

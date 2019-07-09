@@ -32,7 +32,7 @@ package androidx.core.app {
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
-    method public static void requestPermissions(android.app.Activity, String[], @IntRange(from=0) int);
+    method public static void requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
     method public static <T extends android.view.View> T requireViewById(android.app.Activity, @IdRes int);
     method public static void setEnterSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
     method public static void setExitSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
@@ -44,12 +44,12 @@ package androidx.core.app {
   }
 
   public static interface ActivityCompat.OnRequestPermissionsResultCallback {
-    method public void onRequestPermissionsResult(int, String[], int[]);
+    method public void onRequestPermissionsResult(int, String![], int[]);
   }
 
   public static interface ActivityCompat.PermissionCompatDelegate {
     method public boolean onActivityResult(android.app.Activity, @IntRange(from=0) int, int, android.content.Intent?);
-    method public boolean requestPermissions(android.app.Activity, String[], @IntRange(from=0) int);
+    method public boolean requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
   }
 
   public final class ActivityManagerCompat {
@@ -64,7 +64,7 @@ package androidx.core.app {
     method public static androidx.core.app.ActivityOptionsCompat makeCustomAnimation(android.content.Context, int, int);
     method public static androidx.core.app.ActivityOptionsCompat makeScaleUpAnimation(android.view.View, int, int, int, int);
     method public static androidx.core.app.ActivityOptionsCompat makeSceneTransitionAnimation(android.app.Activity, android.view.View, String);
-    method public static androidx.core.app.ActivityOptionsCompat makeSceneTransitionAnimation(android.app.Activity, androidx.core.util.Pair<android.view.View,java.lang.String>...!);
+    method public static androidx.core.app.ActivityOptionsCompat makeSceneTransitionAnimation(android.app.Activity, androidx.core.util.Pair<android.view.View!,java.lang.String!>!...);
     method public static androidx.core.app.ActivityOptionsCompat makeTaskLaunchBehind();
     method public static androidx.core.app.ActivityOptionsCompat makeThumbnailScaleUpAnimation(android.view.View, android.graphics.Bitmap, int, int);
     method public void requestUsageTimeReport(android.app.PendingIntent);
@@ -127,10 +127,10 @@ package androidx.core.app {
     ctor public FrameMetricsAggregator();
     ctor public FrameMetricsAggregator(int);
     method public void add(android.app.Activity);
-    method public android.util.SparseIntArray[]? getMetrics();
-    method public android.util.SparseIntArray[]? remove(android.app.Activity);
-    method public android.util.SparseIntArray[]? reset();
-    method public android.util.SparseIntArray[]? stop();
+    method public android.util.SparseIntArray![]? getMetrics();
+    method public android.util.SparseIntArray![]? remove(android.app.Activity);
+    method public android.util.SparseIntArray![]? reset();
+    method public android.util.SparseIntArray![]? stop();
     field public static final int ANIMATION_DURATION = 256; // 0x100
     field public static final int ANIMATION_INDEX = 8; // 0x8
     field public static final int COMMAND_DURATION = 32; // 0x20
@@ -186,7 +186,7 @@ package androidx.core.app {
     method public static android.os.Bundle? getExtras(android.app.Notification!);
     method public static String! getGroup(android.app.Notification!);
     method public static int getGroupAlertBehavior(android.app.Notification!);
-    method @RequiresApi(21) public static java.util.List<androidx.core.app.NotificationCompat.Action>! getInvisibleActions(android.app.Notification!);
+    method @RequiresApi(21) public static java.util.List<androidx.core.app.NotificationCompat.Action!>! getInvisibleActions(android.app.Notification!);
     method public static boolean getLocalOnly(android.app.Notification!);
     method public static String! getShortcutId(android.app.Notification!);
     method public static String! getSortKey(android.app.Notification!);
@@ -273,10 +273,10 @@ package androidx.core.app {
     ctor public NotificationCompat.Action(int, CharSequence!, android.app.PendingIntent!);
     method public android.app.PendingIntent! getActionIntent();
     method public boolean getAllowGeneratedReplies();
-    method public androidx.core.app.RemoteInput[]! getDataOnlyRemoteInputs();
+    method public androidx.core.app.RemoteInput![]! getDataOnlyRemoteInputs();
     method public android.os.Bundle! getExtras();
     method public int getIcon();
-    method public androidx.core.app.RemoteInput[]! getRemoteInputs();
+    method public androidx.core.app.RemoteInput![]! getRemoteInputs();
     method @androidx.core.app.NotificationCompat.Action.SemanticAction public int getSemanticAction();
     method public boolean getShowsUserInterface();
     method public CharSequence! getTitle();
@@ -396,7 +396,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! setPriority(int);
     method public androidx.core.app.NotificationCompat.Builder! setProgress(int, int, boolean);
     method public androidx.core.app.NotificationCompat.Builder! setPublicVersion(android.app.Notification!);
-    method public androidx.core.app.NotificationCompat.Builder! setRemoteInputHistory(CharSequence[]!);
+    method public androidx.core.app.NotificationCompat.Builder! setRemoteInputHistory(CharSequence![]!);
     method public androidx.core.app.NotificationCompat.Builder! setShortcutId(String!);
     method public androidx.core.app.NotificationCompat.Builder! setShowWhen(boolean);
     method public androidx.core.app.NotificationCompat.Builder! setSmallIcon(int);
@@ -413,7 +413,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder! setVibrate(long[]!);
     method public androidx.core.app.NotificationCompat.Builder! setVisibility(int);
     method public androidx.core.app.NotificationCompat.Builder! setWhen(long);
-    field @Deprecated public java.util.ArrayList<java.lang.String>! mPeople;
+    field @Deprecated public java.util.ArrayList<java.lang.String!>! mPeople;
   }
 
   public static final class NotificationCompat.CarExtender implements androidx.core.app.NotificationCompat.Extender {
@@ -430,9 +430,9 @@ package androidx.core.app {
 
   public static class NotificationCompat.CarExtender.UnreadConversation {
     method public long getLatestTimestamp();
-    method public String[]! getMessages();
+    method public String![]! getMessages();
     method public String! getParticipant();
-    method public String[]! getParticipants();
+    method public String![]! getParticipants();
     method public android.app.PendingIntent! getReadPendingIntent();
     method public androidx.core.app.RemoteInput! getRemoteInput();
     method public android.app.PendingIntent! getReplyPendingIntent();
@@ -472,7 +472,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.MessagingStyle! addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message!);
     method public static androidx.core.app.NotificationCompat.MessagingStyle? extractMessagingStyleFromNotification(android.app.Notification!);
     method public CharSequence? getConversationTitle();
-    method public java.util.List<androidx.core.app.NotificationCompat.MessagingStyle.Message>! getMessages();
+    method public java.util.List<androidx.core.app.NotificationCompat.MessagingStyle.Message!>! getMessages();
     method public androidx.core.app.Person! getUser();
     method @Deprecated public CharSequence! getUserDisplayName();
     method public boolean isGroupConversation();
@@ -504,14 +504,14 @@ package androidx.core.app {
     ctor public NotificationCompat.WearableExtender();
     ctor public NotificationCompat.WearableExtender(android.app.Notification!);
     method public androidx.core.app.NotificationCompat.WearableExtender! addAction(androidx.core.app.NotificationCompat.Action!);
-    method public androidx.core.app.NotificationCompat.WearableExtender! addActions(java.util.List<androidx.core.app.NotificationCompat.Action>!);
+    method public androidx.core.app.NotificationCompat.WearableExtender! addActions(java.util.List<androidx.core.app.NotificationCompat.Action!>!);
     method @Deprecated public androidx.core.app.NotificationCompat.WearableExtender! addPage(android.app.Notification!);
-    method @Deprecated public androidx.core.app.NotificationCompat.WearableExtender! addPages(java.util.List<android.app.Notification>!);
+    method @Deprecated public androidx.core.app.NotificationCompat.WearableExtender! addPages(java.util.List<android.app.Notification!>!);
     method public androidx.core.app.NotificationCompat.WearableExtender! clearActions();
     method @Deprecated public androidx.core.app.NotificationCompat.WearableExtender! clearPages();
     method public androidx.core.app.NotificationCompat.WearableExtender! clone();
     method public androidx.core.app.NotificationCompat.Builder! extend(androidx.core.app.NotificationCompat.Builder!);
-    method public java.util.List<androidx.core.app.NotificationCompat.Action>! getActions();
+    method public java.util.List<androidx.core.app.NotificationCompat.Action!>! getActions();
     method @Deprecated public android.graphics.Bitmap! getBackground();
     method public String! getBridgeTag();
     method public int getContentAction();
@@ -529,7 +529,7 @@ package androidx.core.app {
     method @Deprecated public boolean getHintHideIcon();
     method @Deprecated public int getHintScreenTimeout();
     method @Deprecated public boolean getHintShowBackgroundOnly();
-    method @Deprecated public java.util.List<android.app.Notification>! getPages();
+    method @Deprecated public java.util.List<android.app.Notification!>! getPages();
     method public boolean getStartScrollBottom();
     method @Deprecated public androidx.core.app.NotificationCompat.WearableExtender! setBackground(android.graphics.Bitmap!);
     method public androidx.core.app.NotificationCompat.WearableExtender! setBridgeTag(String!);
@@ -583,7 +583,7 @@ package androidx.core.app {
     method public void cancel(String?, int);
     method public void cancelAll();
     method public static androidx.core.app.NotificationManagerCompat from(android.content.Context);
-    method public static java.util.Set<java.lang.String> getEnabledListenerPackages(android.content.Context);
+    method public static java.util.Set<java.lang.String!> getEnabledListenerPackages(android.content.Context);
     method public int getImportance();
     method public void notify(int, android.app.Notification);
     method public void notify(String?, int, android.app.Notification);
@@ -639,12 +639,12 @@ package androidx.core.app {
   }
 
   public final class RemoteInput {
-    method public static void addDataResultToIntent(androidx.core.app.RemoteInput!, android.content.Intent!, java.util.Map<java.lang.String,android.net.Uri>!);
-    method public static void addResultsToIntent(androidx.core.app.RemoteInput[]!, android.content.Intent!, android.os.Bundle!);
+    method public static void addDataResultToIntent(androidx.core.app.RemoteInput!, android.content.Intent!, java.util.Map<java.lang.String!,android.net.Uri!>!);
+    method public static void addResultsToIntent(androidx.core.app.RemoteInput![]!, android.content.Intent!, android.os.Bundle!);
     method public boolean getAllowFreeFormInput();
-    method public java.util.Set<java.lang.String>! getAllowedDataTypes();
-    method public CharSequence[]! getChoices();
-    method public static java.util.Map<java.lang.String,android.net.Uri>! getDataResultsFromIntent(android.content.Intent!, String!);
+    method public java.util.Set<java.lang.String!>! getAllowedDataTypes();
+    method public CharSequence![]! getChoices();
+    method public static java.util.Map<java.lang.String!,android.net.Uri!>! getDataResultsFromIntent(android.content.Intent!, String!);
     method public android.os.Bundle! getExtras();
     method public CharSequence! getLabel();
     method public String! getResultKey();
@@ -665,7 +665,7 @@ package androidx.core.app {
     method public android.os.Bundle getExtras();
     method public androidx.core.app.RemoteInput.Builder setAllowDataType(String, boolean);
     method public androidx.core.app.RemoteInput.Builder setAllowFreeFormInput(boolean);
-    method public androidx.core.app.RemoteInput.Builder setChoices(CharSequence[]?);
+    method public androidx.core.app.RemoteInput.Builder setChoices(CharSequence![]?);
     method public androidx.core.app.RemoteInput.Builder setLabel(CharSequence?);
   }
 
@@ -687,20 +687,20 @@ package androidx.core.app {
 
   public static class ShareCompat.IntentBuilder {
     method public androidx.core.app.ShareCompat.IntentBuilder! addEmailBcc(String!);
-    method public androidx.core.app.ShareCompat.IntentBuilder! addEmailBcc(String[]!);
+    method public androidx.core.app.ShareCompat.IntentBuilder! addEmailBcc(String![]!);
     method public androidx.core.app.ShareCompat.IntentBuilder! addEmailCc(String!);
-    method public androidx.core.app.ShareCompat.IntentBuilder! addEmailCc(String[]!);
+    method public androidx.core.app.ShareCompat.IntentBuilder! addEmailCc(String![]!);
     method public androidx.core.app.ShareCompat.IntentBuilder! addEmailTo(String!);
-    method public androidx.core.app.ShareCompat.IntentBuilder! addEmailTo(String[]!);
+    method public androidx.core.app.ShareCompat.IntentBuilder! addEmailTo(String![]!);
     method public androidx.core.app.ShareCompat.IntentBuilder! addStream(android.net.Uri!);
     method public android.content.Intent! createChooserIntent();
     method public static androidx.core.app.ShareCompat.IntentBuilder! from(android.app.Activity!);
     method public android.content.Intent! getIntent();
     method public androidx.core.app.ShareCompat.IntentBuilder! setChooserTitle(CharSequence!);
     method public androidx.core.app.ShareCompat.IntentBuilder! setChooserTitle(@StringRes int);
-    method public androidx.core.app.ShareCompat.IntentBuilder! setEmailBcc(String[]!);
-    method public androidx.core.app.ShareCompat.IntentBuilder! setEmailCc(String[]!);
-    method public androidx.core.app.ShareCompat.IntentBuilder! setEmailTo(String[]!);
+    method public androidx.core.app.ShareCompat.IntentBuilder! setEmailBcc(String![]!);
+    method public androidx.core.app.ShareCompat.IntentBuilder! setEmailCc(String![]!);
+    method public androidx.core.app.ShareCompat.IntentBuilder! setEmailTo(String![]!);
     method public androidx.core.app.ShareCompat.IntentBuilder! setHtmlText(String!);
     method public androidx.core.app.ShareCompat.IntentBuilder! setStream(android.net.Uri!);
     method public androidx.core.app.ShareCompat.IntentBuilder! setSubject(String!);
@@ -716,9 +716,9 @@ package androidx.core.app {
     method public android.graphics.drawable.Drawable! getCallingApplicationIcon();
     method public CharSequence! getCallingApplicationLabel();
     method public String! getCallingPackage();
-    method public String[]! getEmailBcc();
-    method public String[]! getEmailCc();
-    method public String[]! getEmailTo();
+    method public String![]! getEmailBcc();
+    method public String![]! getEmailCc();
+    method public String![]! getEmailTo();
     method public String! getHtmlText();
     method public android.net.Uri! getStream();
     method public android.net.Uri! getStream(int);
@@ -735,11 +735,11 @@ package androidx.core.app {
     ctor public SharedElementCallback();
     method public android.os.Parcelable! onCaptureSharedElementSnapshot(android.view.View!, android.graphics.Matrix!, android.graphics.RectF!);
     method public android.view.View! onCreateSnapshotView(android.content.Context!, android.os.Parcelable!);
-    method public void onMapSharedElements(java.util.List<java.lang.String>!, java.util.Map<java.lang.String,android.view.View>!);
-    method public void onRejectSharedElements(java.util.List<android.view.View>!);
-    method public void onSharedElementEnd(java.util.List<java.lang.String>!, java.util.List<android.view.View>!, java.util.List<android.view.View>!);
-    method public void onSharedElementStart(java.util.List<java.lang.String>!, java.util.List<android.view.View>!, java.util.List<android.view.View>!);
-    method public void onSharedElementsArrived(java.util.List<java.lang.String>!, java.util.List<android.view.View>!, androidx.core.app.SharedElementCallback.OnSharedElementsReadyListener!);
+    method public void onMapSharedElements(java.util.List<java.lang.String!>!, java.util.Map<java.lang.String!,android.view.View!>!);
+    method public void onRejectSharedElements(java.util.List<android.view.View!>!);
+    method public void onSharedElementEnd(java.util.List<java.lang.String!>!, java.util.List<android.view.View!>!, java.util.List<android.view.View!>!);
+    method public void onSharedElementStart(java.util.List<java.lang.String!>!, java.util.List<android.view.View!>!, java.util.List<android.view.View!>!);
+    method public void onSharedElementsArrived(java.util.List<java.lang.String!>!, java.util.List<android.view.View!>!, androidx.core.app.SharedElementCallback.OnSharedElementsReadyListener!);
   }
 
   public static interface SharedElementCallback.OnSharedElementsReadyListener {
@@ -757,10 +757,10 @@ package androidx.core.app {
     method @Deprecated public static androidx.core.app.TaskStackBuilder! from(android.content.Context!);
     method @Deprecated public android.content.Intent! getIntent(int);
     method public int getIntentCount();
-    method public android.content.Intent[] getIntents();
+    method public android.content.Intent![] getIntents();
     method public android.app.PendingIntent? getPendingIntent(int, int);
     method public android.app.PendingIntent? getPendingIntent(int, int, android.os.Bundle?);
-    method @Deprecated public java.util.Iterator<android.content.Intent>! iterator();
+    method @Deprecated public java.util.Iterator<android.content.Intent!>! iterator();
     method public void startActivities();
     method public void startActivities(android.os.Bundle?);
   }
@@ -774,7 +774,7 @@ package androidx.core.app {
 package androidx.core.content {
 
   public final class ContentResolverCompat {
-    method public static android.database.Cursor! query(android.content.ContentResolver!, android.net.Uri!, String[]!, String!, String[]!, String!, androidx.core.os.CancellationSignal!);
+    method public static android.database.Cursor! query(android.content.ContentResolver!, android.net.Uri!, String![]!, String!, String![]!, String!, androidx.core.os.CancellationSignal!);
   }
 
   public class ContextCompat {
@@ -786,29 +786,29 @@ package androidx.core.content {
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
     method public static java.io.File? getDataDir(android.content.Context);
     method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
-    method public static java.io.File[] getExternalCacheDirs(android.content.Context);
-    method public static java.io.File[] getExternalFilesDirs(android.content.Context, String?);
+    method public static java.io.File![] getExternalCacheDirs(android.content.Context);
+    method public static java.io.File![] getExternalFilesDirs(android.content.Context, String?);
     method public static java.util.concurrent.Executor! getMainExecutor(android.content.Context!);
     method public static java.io.File? getNoBackupFilesDir(android.content.Context);
-    method public static java.io.File[] getObbDirs(android.content.Context);
-    method public static <T> T? getSystemService(android.content.Context, Class<T>);
+    method public static java.io.File![] getObbDirs(android.content.Context);
+    method public static <T> T? getSystemService(android.content.Context, Class<T!>);
     method public static String? getSystemServiceName(android.content.Context, Class<?>);
     method public static boolean isDeviceProtectedStorage(android.content.Context);
-    method public static boolean startActivities(android.content.Context, android.content.Intent[]);
-    method public static boolean startActivities(android.content.Context, android.content.Intent[], android.os.Bundle?);
+    method public static boolean startActivities(android.content.Context, android.content.Intent![]);
+    method public static boolean startActivities(android.content.Context, android.content.Intent![], android.os.Bundle?);
     method public static void startActivity(android.content.Context, android.content.Intent, android.os.Bundle?);
     method public static void startForegroundService(android.content.Context, android.content.Intent);
   }
 
   public class FileProvider extends android.content.ContentProvider {
     ctor public FileProvider();
-    method public int delete(android.net.Uri, String?, String[]?);
+    method public int delete(android.net.Uri, String?, String![]?);
     method public String! getType(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
     method public android.net.Uri! insert(android.net.Uri, android.content.ContentValues!);
     method public boolean onCreate();
-    method public android.database.Cursor! query(android.net.Uri, String[]?, String?, String[]?, String?);
-    method public int update(android.net.Uri, android.content.ContentValues!, String?, String[]?);
+    method public android.database.Cursor! query(android.net.Uri, String![]?, String?, String![]?, String?);
+    method public int update(android.net.Uri, android.content.ContentValues!, String?, String![]?);
   }
 
   public final class IntentCompat {
@@ -820,9 +820,9 @@ package androidx.core.content {
 
   public final class MimeTypeFilter {
     method public static boolean matches(String?, String);
-    method public static String? matches(String?, String[]);
-    method public static String? matches(String[]?, String);
-    method public static String[] matchesMany(String[]?, String);
+    method public static String? matches(String?, String![]);
+    method public static String? matches(String![]?, String);
+    method public static String![] matchesMany(String![]?, String);
   }
 
   public final class PermissionChecker {
@@ -862,11 +862,11 @@ package androidx.core.content.pm {
 
   public class ShortcutInfoCompat {
     method public android.content.ComponentName? getActivity();
-    method public java.util.Set<java.lang.String>? getCategories();
+    method public java.util.Set<java.lang.String!>? getCategories();
     method public CharSequence? getDisabledMessage();
     method public String getId();
     method public android.content.Intent getIntent();
-    method public android.content.Intent[] getIntents();
+    method public android.content.Intent![] getIntents();
     method public CharSequence? getLongLabel();
     method public CharSequence getShortLabel();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
@@ -877,15 +877,15 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat build();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setActivity(android.content.ComponentName);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setCategories(java.util.Set<java.lang.String>);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setCategories(java.util.Set<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(CharSequence);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIcon(androidx.core.graphics.drawable.IconCompat!);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent[]);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntents(android.content.Intent![]);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLabel(CharSequence);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setLongLived();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPerson(androidx.core.app.Person);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPersons(androidx.core.app.Person[]);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setPersons(androidx.core.app.Person![]);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setShortLabel(CharSequence);
   }
 
@@ -928,7 +928,7 @@ package androidx.core.database {
   }
 
   @Deprecated public final class DatabaseUtilsCompat {
-    method @Deprecated public static String[]! appendSelectionArgs(String[]!, String[]!);
+    method @Deprecated public static String![]! appendSelectionArgs(String![]!, String![]!);
     method @Deprecated public static String! concatenateWhere(String!, String!);
   }
 
@@ -987,8 +987,8 @@ package androidx.core.graphics {
   }
 
   public final class PathUtils {
-    method @RequiresApi(26) public static java.util.Collection<androidx.core.graphics.PathSegment> flatten(android.graphics.Path);
-    method @RequiresApi(26) public static java.util.Collection<androidx.core.graphics.PathSegment> flatten(android.graphics.Path, @FloatRange(from=0) float);
+    method @RequiresApi(26) public static java.util.Collection<androidx.core.graphics.PathSegment!> flatten(android.graphics.Path);
+    method @RequiresApi(26) public static java.util.Collection<androidx.core.graphics.PathSegment!> flatten(android.graphics.Path, @FloatRange(from=0) float);
   }
 
 }
@@ -1073,8 +1073,8 @@ package androidx.core.hardware.display {
 
   public final class DisplayManagerCompat {
     method public android.view.Display? getDisplay(int);
-    method public android.view.Display[] getDisplays();
-    method public android.view.Display[] getDisplays(String?);
+    method public android.view.Display![] getDisplays();
+    method public android.view.Display![] getDisplays(String?);
     method public static androidx.core.hardware.display.DisplayManagerCompat getInstance(android.content.Context);
     field public static final String DISPLAY_CATEGORY_PRESENTATION = "android.hardware.display.category.PRESENTATION";
   }
@@ -1189,13 +1189,13 @@ package androidx.core.os {
   }
 
   public final class LocaleListCompat {
-    method public static androidx.core.os.LocaleListCompat create(java.util.Locale...);
+    method public static androidx.core.os.LocaleListCompat create(java.util.Locale!...);
     method public static androidx.core.os.LocaleListCompat forLanguageTags(String?);
     method public java.util.Locale! get(int);
     method @Size(min=1) public static androidx.core.os.LocaleListCompat getAdjustedDefault();
     method @Size(min=1) public static androidx.core.os.LocaleListCompat getDefault();
     method public static androidx.core.os.LocaleListCompat getEmptyLocaleList();
-    method public java.util.Locale? getFirstMatch(String[]);
+    method public java.util.Locale? getFirstMatch(String![]);
     method @IntRange(from=0xffffffff) public int indexOf(java.util.Locale!);
     method public boolean isEmpty();
     method @IntRange(from=0) public int size();
@@ -1221,12 +1221,12 @@ package androidx.core.os {
   }
 
   @Deprecated public final class ParcelableCompat {
-    method @Deprecated public static <T> android.os.Parcelable.Creator<T>! newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T>!);
+    method @Deprecated public static <T> android.os.Parcelable.Creator<T!>! newCreator(androidx.core.os.ParcelableCompatCreatorCallbacks<T!>!);
   }
 
   @Deprecated public interface ParcelableCompatCreatorCallbacks<T> {
     method @Deprecated public T! createFromParcel(android.os.Parcel!, ClassLoader!);
-    method @Deprecated public T[]! newArray(int);
+    method @Deprecated public T![]! newArray(int);
   }
 
   public final class TraceCompat {
@@ -1243,9 +1243,9 @@ package androidx.core.os {
 package androidx.core.provider {
 
   public final class FontRequest {
-    ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]>>);
+    ctor public FontRequest(String, String, String, java.util.List<java.util.List<byte[]!>!>);
     ctor public FontRequest(String, String, String, @ArrayRes int);
-    method public java.util.List<java.util.List<byte[]>>? getCertificates();
+    method public java.util.List<java.util.List<byte[]!>!>? getCertificates();
     method @ArrayRes public int getCertificatesArrayResId();
     method public String getProviderAuthority();
     method public String getProviderPackage();
@@ -1253,7 +1253,7 @@ package androidx.core.provider {
   }
 
   public class FontsContractCompat {
-    method public static android.graphics.Typeface? buildTypeface(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo[]);
+    method public static android.graphics.Typeface? buildTypeface(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![]);
     method public static androidx.core.provider.FontsContractCompat.FontFamilyResult fetchFonts(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontRequest) throws android.content.pm.PackageManager.NameNotFoundException;
     method public static void requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
   }
@@ -1273,7 +1273,7 @@ package androidx.core.provider {
   }
 
   public static class FontsContractCompat.FontFamilyResult {
-    method public androidx.core.provider.FontsContractCompat.FontInfo[]! getFonts();
+    method public androidx.core.provider.FontsContractCompat.FontInfo![]! getFonts();
     method public int getStatusCode();
     field public static final int STATUS_OK = 0; // 0x0
     field public static final int STATUS_UNEXPECTED_DATA_PROVIDED = 2; // 0x2
@@ -1371,8 +1371,8 @@ package androidx.core.text {
     method public int getSpanEnd(Object!);
     method public int getSpanFlags(Object!);
     method public int getSpanStart(Object!);
-    method public <T> T[]! getSpans(int, int, Class<T>!);
-    method @UiThread public static java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>! getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor?);
+    method public <T> T![]! getSpans(int, int, Class<T!>!);
+    method @UiThread public static java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat!>! getTextFuture(CharSequence, androidx.core.text.PrecomputedTextCompat.Params, java.util.concurrent.Executor?);
     method public int length();
     method public int nextSpanTransition(int, int, Class!);
     method public void removeSpan(Object!);
@@ -1424,10 +1424,10 @@ package androidx.core.text.util {
     method public static boolean addLinks(android.widget.TextView, int);
     method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, String?);
     method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, String?, android.text.util.Linkify.MatchFilter?, android.text.util.Linkify.TransformFilter?);
-    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, String?, String[]?, android.text.util.Linkify.MatchFilter?, android.text.util.Linkify.TransformFilter?);
+    method public static void addLinks(android.widget.TextView, java.util.regex.Pattern, String?, String![]?, android.text.util.Linkify.MatchFilter?, android.text.util.Linkify.TransformFilter?);
     method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, String?);
     method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, String?, android.text.util.Linkify.MatchFilter?, android.text.util.Linkify.TransformFilter?);
-    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, String?, String[]?, android.text.util.Linkify.MatchFilter?, android.text.util.Linkify.TransformFilter?);
+    method public static boolean addLinks(android.text.Spannable, java.util.regex.Pattern, String?, String![]?, android.text.util.Linkify.MatchFilter?, android.text.util.Linkify.TransformFilter?);
   }
 
 }
@@ -1451,13 +1451,13 @@ package androidx.core.util {
 
   public class ObjectsCompat {
     method public static boolean equals(Object?, Object?);
-    method public static int hash(java.lang.Object...?);
+    method public static int hash(java.lang.Object!...);
     method public static int hashCode(Object?);
   }
 
   public class Pair<F, S> {
     ctor public Pair(F?, S?);
-    method public static <A, B> androidx.core.util.Pair<A,B> create(A?, B?);
+    method public static <A, B> androidx.core.util.Pair<A!,B!> create(A?, B?);
     field public final F? first;
     field public final S? second;
   }
@@ -1527,8 +1527,8 @@ package androidx.core.view {
   }
 
   public final class DisplayCutoutCompat {
-    ctor public DisplayCutoutCompat(android.graphics.Rect!, java.util.List<android.graphics.Rect>!);
-    method public java.util.List<android.graphics.Rect>! getBoundingRects();
+    ctor public DisplayCutoutCompat(android.graphics.Rect!, java.util.List<android.graphics.Rect!>!);
+    method public java.util.List<android.graphics.Rect!>! getBoundingRects();
     method public int getSafeInsetBottom();
     method public int getSafeInsetLeft();
     method public int getSafeInsetRight();
@@ -1876,8 +1876,7 @@ package androidx.core.view {
 
   public class ViewCompat {
     ctor protected ViewCompat();
-    method public static int addAccessibilityAction(android.view.View, CharSequence, androidx.core.view.accessibility.AccessibilityViewCommand);
-    method public static void addKeyboardNavigationClusters(android.view.View, java.util.Collection<android.view.View>, int);
+    method public static void addKeyboardNavigationClusters(android.view.View, java.util.Collection<android.view.View!>, int);
     method public static void addOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
     method public static androidx.core.view.ViewPropertyAnimatorCompat animate(android.view.View);
     method @Deprecated public static boolean canScrollHorizontally(android.view.View!, int);
@@ -1972,9 +1971,7 @@ package androidx.core.view {
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
     method public static void postOnAnimation(android.view.View, Runnable!);
     method public static void postOnAnimationDelayed(android.view.View, Runnable!, long);
-    method public static void removeAccessibilityAction(android.view.View, int);
     method public static void removeOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
-    method public static void replaceAccessibilityAction(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat, CharSequence?, androidx.core.view.accessibility.AccessibilityViewCommand?);
     method public static void requestApplyInsets(android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.View, @IdRes int);
     method @Deprecated public static int resolveSizeAndState(int, int, int);
@@ -1985,7 +1982,7 @@ package androidx.core.view {
     method @UiThread public static void setAccessibilityPaneTitle(android.view.View!, CharSequence!);
     method @Deprecated public static void setActivated(android.view.View!, boolean);
     method @Deprecated public static void setAlpha(android.view.View!, @FloatRange(from=0.0, to=1.0) float);
-    method public static void setAutofillHints(android.view.View, java.lang.String...?);
+    method public static void setAutofillHints(android.view.View, java.lang.String!...);
     method public static void setBackground(android.view.View, android.graphics.drawable.Drawable?);
     method public static void setBackgroundTintList(android.view.View, android.content.res.ColorStateList!);
     method public static void setBackgroundTintMode(android.view.View, android.graphics.PorterDuff.Mode!);
@@ -2247,8 +2244,8 @@ package androidx.core.view.accessibility {
   public final class AccessibilityManagerCompat {
     method @Deprecated public static boolean addAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
     method public static boolean addTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener!);
-    method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo>! getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!, int);
-    method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo>! getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!);
+    method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getEnabledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!, int);
+    method @Deprecated public static java.util.List<android.accessibilityservice.AccessibilityServiceInfo!>! getInstalledAccessibilityServiceList(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean isTouchExplorationEnabled(android.view.accessibility.AccessibilityManager!);
     method @Deprecated public static boolean removeAccessibilityStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListener!);
     method public static boolean removeTouchExplorationStateChangeListener(android.view.accessibility.AccessibilityManager!, androidx.core.view.accessibility.AccessibilityManagerCompat.TouchExplorationStateChangeListener!);
@@ -2273,11 +2270,11 @@ package androidx.core.view.accessibility {
     method public void addChild(android.view.View!);
     method public void addChild(android.view.View!, int);
     method public boolean canOpenPopup();
-    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat>! findAccessibilityNodeInfosByText(String!);
-    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat>! findAccessibilityNodeInfosByViewId(String!);
+    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>! findAccessibilityNodeInfosByText(String!);
+    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>! findAccessibilityNodeInfosByViewId(String!);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! findFocus(int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! focusSearch(int);
-    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat>! getActionList();
+    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat!>! getActionList();
     method public int getActions();
     method public void getBoundsInParent(android.graphics.Rect!);
     method public void getBoundsInScreen(android.graphics.Rect!);
@@ -2520,7 +2517,7 @@ package androidx.core.view.accessibility {
     ctor public AccessibilityNodeProviderCompat();
     ctor public AccessibilityNodeProviderCompat(Object!);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? createAccessibilityNodeInfo(int);
-    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat>? findAccessibilityNodeInfosByText(String!, int);
+    method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat!>? findAccessibilityNodeInfosByText(String!, int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? findFocus(int);
     method public Object! getProvider();
     method public boolean performAction(int, int, android.os.Bundle!);
@@ -2547,7 +2544,7 @@ package androidx.core.view.accessibility {
     method @Deprecated public int getScrollX();
     method @Deprecated public int getScrollY();
     method @Deprecated public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getSource();
-    method @Deprecated public java.util.List<java.lang.CharSequence>! getText();
+    method @Deprecated public java.util.List<java.lang.CharSequence!>! getText();
     method @Deprecated public int getToIndex();
     method @Deprecated public int getWindowId();
     method @Deprecated public int hashCode();
@@ -2583,53 +2580,6 @@ package androidx.core.view.accessibility {
     method @Deprecated public void setSource(android.view.View!, int);
     method public static void setSource(android.view.accessibility.AccessibilityRecord, android.view.View!, int);
     method @Deprecated public void setToIndex(int);
-  }
-
-  public interface AccessibilityViewCommand {
-    method public boolean perform(android.view.View, androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments?);
-  }
-
-  public abstract static class AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.CommandArguments();
-  }
-
-  public static final class AccessibilityViewCommand.MoveAtGranularityArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.MoveAtGranularityArguments();
-    method public boolean getExtendSelection();
-    method public int getGranularity();
-  }
-
-  public static final class AccessibilityViewCommand.MoveHtmlArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.MoveHtmlArguments();
-    method public String! getHTMLElement();
-  }
-
-  public static final class AccessibilityViewCommand.MoveWindowArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.MoveWindowArguments();
-    method public int getX();
-    method public int getY();
-  }
-
-  public static final class AccessibilityViewCommand.ScrollToPositionArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.ScrollToPositionArguments();
-    method public int getColumn();
-    method public int getRow();
-  }
-
-  public static final class AccessibilityViewCommand.SetProgressArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.SetProgressArguments();
-    method public float getProgress();
-  }
-
-  public static final class AccessibilityViewCommand.SetSelectionArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.SetSelectionArguments();
-    method public int getEnd();
-    method public int getStart();
-  }
-
-  public static final class AccessibilityViewCommand.SetTextArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
-    ctor public AccessibilityViewCommand.SetTextArguments();
-    method public CharSequence! getText();
   }
 
   public class AccessibilityWindowInfoCompat {
@@ -2672,8 +2622,8 @@ package androidx.core.view.inputmethod {
 
   public final class EditorInfoCompat {
     ctor @Deprecated public EditorInfoCompat();
-    method public static String[] getContentMimeTypes(android.view.inputmethod.EditorInfo!);
-    method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, String[]?);
+    method public static String![] getContentMimeTypes(android.view.inputmethod.EditorInfo!);
+    method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, String![]?);
     field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
     field public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 16777216; // 0x1000000
   }
@@ -2867,7 +2817,7 @@ package androidx.core.widget {
     method public static int getAutoSizeStepGranularity(android.widget.TextView);
     method public static int[] getAutoSizeTextAvailableSizes(android.widget.TextView);
     method public static int getAutoSizeTextType(android.widget.TextView);
-    method public static android.graphics.drawable.Drawable[] getCompoundDrawablesRelative(android.widget.TextView);
+    method public static android.graphics.drawable.Drawable![] getCompoundDrawablesRelative(android.widget.TextView);
     method public static int getFirstBaselineToTopHeight(android.widget.TextView);
     method public static int getLastBaselineToBottomHeight(android.widget.TextView);
     method public static int getMaxLines(android.widget.TextView);

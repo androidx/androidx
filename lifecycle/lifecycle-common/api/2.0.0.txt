@@ -8,7 +8,7 @@ package androidx.lifecycle {
     method @MainThread public abstract void removeObserver(androidx.lifecycle.LifecycleObserver);
   }
 
-  public static enum Lifecycle.Event {
+  public enum Lifecycle.Event {
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_CREATE;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_DESTROY;
@@ -18,7 +18,7 @@ package androidx.lifecycle {
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_STOP;
   }
 
-  public static enum Lifecycle.State {
+  public enum Lifecycle.State {
     method public boolean isAtLeast(androidx.lifecycle.Lifecycle.State);
     enum_constant public static final androidx.lifecycle.Lifecycle.State CREATED;
     enum_constant public static final androidx.lifecycle.Lifecycle.State DESTROYED;
@@ -35,7 +35,7 @@ package androidx.lifecycle {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
-    method public abstract androidx.lifecycle.Lifecycle.Event value();
+    method public abstract androidx.lifecycle.Lifecycle.Event! value();
   }
 
 }

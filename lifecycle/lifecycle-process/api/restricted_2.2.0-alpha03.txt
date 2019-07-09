@@ -1,6 +1,11 @@
 // Signature format: 3.0
 package androidx.lifecycle {
 
+  public class ProcessLifecycleOwner implements androidx.lifecycle.LifecycleOwner {
+    method public static androidx.lifecycle.LifecycleOwner get();
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ProcessLifecycleOwnerInitializer extends android.content.ContentProvider {
     ctor public ProcessLifecycleOwnerInitializer();
     method public int delete(android.net.Uri, String!, String![]!);
