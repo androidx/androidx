@@ -88,7 +88,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
     }
 
-    private ArrayList<OpGenerator> mPendingActions;
+    private final ArrayList<OpGenerator> mPendingActions = new ArrayList<>();
     private boolean mExecutingActions;
 
     private int mNextFragmentIndex = 0;
@@ -110,8 +110,8 @@ final class FragmentManagerImpl extends FragmentManager {
     };
 
     // Must be accessed while locked.
-    private ArrayList<BackStackRecord> mBackStackIndices;
-    private ArrayList<Integer> mAvailBackStackIndices;
+    private final ArrayList<BackStackRecord> mBackStackIndices = new ArrayList<>();
+    private final ArrayList<Integer> mAvailBackStackIndices = new ArrayList<>();
 
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
     private final CopyOnWriteArrayList<FragmentLifecycleCallbacksHolder>
@@ -190,9 +190,11 @@ final class FragmentManagerImpl extends FragmentManager {
         // Always enable the callback if we have pending actions
         // as we don't know if they'll change the back stack entry count.
         // See handleOnBackPressed() for more explanation
-        if (mPendingActions != null && !mPendingActions.isEmpty()) {
-            mOnBackPressedCallback.setEnabled(true);
-            return;
+        synchronized (mPendingActions) {
+            if (!mPendingActions.isEmpty()) {
+                mOnBackPressedCallback.setEnabled(true);
+                return;
+            }
         }
         // This FragmentManager needs to have a back stack for this to be enabled
         // And the parent fragment, if it exists, needs to be the primary navigation
@@ -528,30 +530,28 @@ final class FragmentManagerImpl extends FragmentManager {
             }
         }
 
-        synchronized (this) {
-            if (mBackStackIndices != null) {
-                N = mBackStackIndices.size();
-                if (N > 0) {
-                    writer.print(prefix); writer.println("Back Stack Indices:");
-                    for (int i=0; i<N; i++) {
-                        BackStackRecord bs = mBackStackIndices.get(i);
-                        writer.print(prefix); writer.print("  #"); writer.print(i);
-                        writer.print(": "); writer.println(bs);
-                    }
+        synchronized (mBackStackIndices) {
+            N = mBackStackIndices.size();
+            if (N > 0) {
+                writer.print(prefix); writer.println("Back Stack Indices:");
+                for (int i = 0; i < N; i++) {
+                    BackStackRecord bs = mBackStackIndices.get(i);
+                    writer.print(prefix); writer.print("  #"); writer.print(i);
+                    writer.print(": "); writer.println(bs);
                 }
             }
 
-            if (mAvailBackStackIndices != null && mAvailBackStackIndices.size() > 0) {
+            if (!mAvailBackStackIndices.isEmpty()) {
                 writer.print(prefix); writer.print("mAvailBackStackIndices: ");
                 writer.println(Arrays.toString(mAvailBackStackIndices.toArray()));
             }
         }
 
-        if (mPendingActions != null) {
+        synchronized (mPendingActions) {
             N = mPendingActions.size();
             if (N > 0) {
                 writer.print(prefix); writer.println("Pending Actions:");
-                for (int i=0; i<N; i++) {
+                for (int i = 0; i < N; i++) {
                     OpGenerator r = mPendingActions.get(i);
                     writer.print(prefix); writer.print("  #"); writer.print(i);
                     writer.print(": "); writer.println(r);
@@ -1500,16 +1500,13 @@ final class FragmentManagerImpl extends FragmentManager {
         if (!allowStateLoss) {
             checkStateLoss();
         }
-        synchronized (this) {
+        synchronized (mPendingActions) {
             if (mDestroyed || mHost == null) {
                 if (allowStateLoss) {
                     // This FragmentManager isn't attached, so drop the entire transaction.
                     return;
                 }
                 throw new IllegalStateException("Activity has been destroyed");
-            }
-            if (mPendingActions == null) {
-                mPendingActions = new ArrayList<>();
             }
             mPendingActions.add(action);
             scheduleCommit();
@@ -1524,10 +1521,10 @@ final class FragmentManagerImpl extends FragmentManager {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void scheduleCommit() {
-        synchronized (this) {
+        synchronized (mPendingActions) {
             boolean postponeReady =
                     mPostponedTransactions != null && !mPostponedTransactions.isEmpty();
-            boolean pendingReady = mPendingActions != null && mPendingActions.size() == 1;
+            boolean pendingReady = mPendingActions.size() == 1;
             if (postponeReady || pendingReady) {
                 mHost.getHandler().removeCallbacks(mExecCommit);
                 mHost.getHandler().post(mExecCommit);
@@ -1537,11 +1534,8 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     int allocBackStackIndex(BackStackRecord bse) {
-        synchronized (this) {
-            if (mAvailBackStackIndices == null || mAvailBackStackIndices.size() <= 0) {
-                if (mBackStackIndices == null) {
-                    mBackStackIndices = new ArrayList<>();
-                }
+        synchronized (mBackStackIndices) {
+            if (mAvailBackStackIndices.isEmpty()) {
                 int index = mBackStackIndices.size();
                 if (DEBUG) Log.v(TAG, "Setting back stack index " + index + " to " + bse);
                 mBackStackIndices.add(bse);
@@ -1557,10 +1551,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     private void setBackStackIndex(int index, BackStackRecord bse) {
-        synchronized (this) {
-            if (mBackStackIndices == null) {
-                mBackStackIndices = new ArrayList<>();
-            }
+        synchronized (mBackStackIndices) {
             int N = mBackStackIndices.size();
             if (index < N) {
                 if (DEBUG) Log.v(TAG, "Setting back stack index " + index + " to " + bse);
@@ -1568,9 +1559,6 @@ final class FragmentManagerImpl extends FragmentManager {
             } else {
                 while (N < index) {
                     mBackStackIndices.add(null);
-                    if (mAvailBackStackIndices == null) {
-                        mAvailBackStackIndices = new ArrayList<>();
-                    }
                     if (DEBUG) Log.v(TAG, "Adding available back stack index " + N);
                     mAvailBackStackIndices.add(N);
                     N++;
@@ -1582,11 +1570,8 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     private void freeBackStackIndex(int index) {
-        synchronized (this) {
+        synchronized (mBackStackIndices) {
             mBackStackIndices.set(index, null);
-            if (mAvailBackStackIndices == null) {
-                mAvailBackStackIndices = new ArrayList<>();
-            }
             if (DEBUG) Log.v(TAG, "Freeing back stack index " + index);
             mAvailBackStackIndices.add(index);
         }
@@ -2096,8 +2081,8 @@ final class FragmentManagerImpl extends FragmentManager {
     private boolean generateOpsForPendingActions(ArrayList<BackStackRecord> records,
                                                  ArrayList<Boolean> isPop) {
         boolean didSomething = false;
-        synchronized (this) {
-            if (mPendingActions == null || mPendingActions.size() == 0) {
+        synchronized (mPendingActions) {
+            if (mPendingActions.isEmpty()) {
                 return false;
             }
 
