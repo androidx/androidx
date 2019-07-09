@@ -111,7 +111,7 @@ class TextPainter(
     val overflow: TextOverflow = TextOverflow.Clip,
     val locale: Locale? = null,
     val density: Density,
-    val resourceLoader: Font.ResourceLoader<Any>
+    val resourceLoader: Font.ResourceLoader
 ) {
     init {
         assert(maxLines == null || maxLines > 0)

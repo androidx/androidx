@@ -74,8 +74,15 @@ data class Font(
     /**
      * Interface used to load a font resource.
      */
-    interface ResourceLoader<out T> {
-        fun load(font: Font): T
+    interface ResourceLoader {
+        /**
+         * Loads resource represented by the [Font] object.
+         *
+         * @param font [Font] to be loaded
+         * @return platform specific font
+         */
+        // TODO(siyamed) when expect/actual is enabled return a typealias
+        fun load(font: Font): Any
     }
 }
 

@@ -21,7 +21,6 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
 import androidx.ui.text.font.Font
-import androidx.ui.text.platform.AndroidFontResourceLoader
 import androidx.ui.text.platform.AndroidParagraph
 import androidx.ui.text.platform.TypefaceAdapter
 import androidx.ui.text.style.ParagraphStyle
@@ -149,7 +148,7 @@ interface Paragraph {
     paragraphStyle: ParagraphStyle,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
     density: Density,
-    resourceLoader: Font.ResourceLoader<Any>
+    resourceLoader: Font.ResourceLoader
 ): Paragraph {
     return AndroidParagraph(
         text = text,
@@ -157,7 +156,7 @@ interface Paragraph {
         paragraphStyle = paragraphStyle,
         textStyles = textStyles,
         typefaceAdapter = TypefaceAdapter(
-            resourceLoader = resourceLoader as AndroidFontResourceLoader
+            resourceLoader = resourceLoader
         ),
         density = density
     )

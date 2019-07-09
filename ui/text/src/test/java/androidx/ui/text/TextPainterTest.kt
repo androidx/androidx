@@ -34,7 +34,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TextPainterTest() {
     private val density = Density(density = 1f)
-    private val resourceLoader = mock<Font.ResourceLoader<Any>>()
+    private val resourceLoader = mock<Font.ResourceLoader>()
 
     @Test
     fun `constructor with default values`() {
