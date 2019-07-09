@@ -164,6 +164,9 @@ package androidx.room.util {
     ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!, java.util.Set<androidx.room.util.TableInfo.Index!>!);
     ctor public TableInfo(String!, java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>!, java.util.Set<androidx.room.util.TableInfo.ForeignKey!>!);
     method public static androidx.room.util.TableInfo! read(androidx.sqlite.db.SupportSQLiteDatabase!, String!);
+    field public static final int CREATED_FROM_DATABASE = 2; // 0x2
+    field public static final int CREATED_FROM_ENTITY = 1; // 0x1
+    field public static final int CREATED_FROM_UNKNOWN = 0; // 0x0
     field public final java.util.Map<java.lang.String!,androidx.room.util.TableInfo.Column!>! columns;
     field public final java.util.Set<androidx.room.util.TableInfo.ForeignKey!>! foreignKeys;
     field public final java.util.Set<androidx.room.util.TableInfo.Index!>? indices;
@@ -172,7 +175,7 @@ package androidx.room.util {
 
   public static class TableInfo.Column {
     ctor @Deprecated public TableInfo.Column(String!, String!, boolean, int);
-    ctor public TableInfo.Column(String!, String!, boolean, int, String!);
+    ctor public TableInfo.Column(String!, String!, boolean, int, String!, int);
     method public boolean isPrimaryKey();
     field public final int affinity;
     field public final String! defaultValue;
