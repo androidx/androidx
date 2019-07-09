@@ -26,7 +26,7 @@ dependencies {
     implementation(project(":slice-builders"))
     implementation(project(":slice-core"))
     implementation(project(":slice-test"))
-    implementation(project(":transition"))
+    implementation(project(":transition:transition"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":appcompat"))
     implementation(project(":cardview"))
