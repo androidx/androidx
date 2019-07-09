@@ -1348,8 +1348,12 @@ package androidx.core.os {
   }
 
   public final class TraceCompat {
+    method public static void beginAsyncSection(String, int);
     method public static void beginSection(String);
+    method public static void endAsyncSection(String, int);
     method public static void endSection();
+    method public static boolean isEnabled();
+    method public static void setCounter(String, int);
   }
 
   public class UserManagerCompat {
