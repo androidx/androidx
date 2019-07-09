@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text.style
+package androidx.ui.text
 
 import org.junit.Test
 import org.junit.runner.RunWith

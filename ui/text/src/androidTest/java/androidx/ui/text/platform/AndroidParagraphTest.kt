@@ -31,7 +31,6 @@ import androidx.ui.text.font.FontSynthesis
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.ParagraphConstraints
-import androidx.ui.text.style.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDecoration
 import androidx.ui.text.style.TextGeometricTransform
@@ -45,6 +44,7 @@ import androidx.ui.text.matchers.hasSpan
 import androidx.ui.text.matchers.hasSpanOnTop
 import androidx.ui.text.AnnotatedString
 import androidx.ui.painting.Shadow
+import androidx.ui.text.ParagraphStyle
 import androidx.ui.text.TestFontResourceLoader
 import androidx.ui.text.TextStyle
 import com.nhaarman.mockitokotlin2.any
@@ -1273,10 +1273,10 @@ class AndroidParagraphTest {
             style = TextStyle().merge(textStyle),
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
-                textIndent = textIndent,
-                ellipsis = ellipsis,
-                maxLines = maxLines
+                textIndent = textIndent
             ),
+            maxLines = maxLines,
+            ellipsis = ellipsis,
             density = Density(density = 1f)
         )
     }

@@ -30,7 +30,6 @@ import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
-import androidx.ui.text.style.ParagraphStyle
 import androidx.ui.text.style.TextAlign
 import androidx.ui.text.style.TextDirection
 import androidx.ui.graphics.Color
@@ -105,7 +104,7 @@ internal fun applyFloatingPointHack(layoutValue: Float): Float {
 class TextPainter(
     text: AnnotatedString? = null,
     val style: TextStyle? = null,
-    val paragraphStyle: androidx.ui.text.ParagraphStyle? = null,
+    val paragraphStyle: ParagraphStyle? = null,
     val maxLines: Int? = null,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.Clip,
@@ -156,6 +155,8 @@ class TextPainter(
     internal val textDirection: TextDirection? =
         paragraphStyle?.textDirection ?: DefaultTextDirection
 
+    private val isEllipsis = (overflow == TextOverflow.Ellipsis)
+
     private fun createTextStyle(): TextStyle {
         return textStyle.copy(
             fontSize = (textStyle.fontSize ?: DefaultFontSize)
@@ -167,9 +168,7 @@ class TextPainter(
             textAlign = textAlign,
             textDirection = textDirection,
             textIndent = paragraphStyle?.textIndent,
-            lineHeight = paragraphStyle?.lineHeight,
-            maxLines = maxLines,
-            ellipsis = overflow == TextOverflow.Ellipsis
+            lineHeight = paragraphStyle?.lineHeight
         )
     }
 
@@ -194,6 +193,8 @@ class TextPainter(
                     // direction doesn't matter, text is just a space
                     paragraphStyle = createParagraphStyle(),
                     textStyles = listOf(),
+                    maxLines = maxLines,
+                    ellipsis = isEllipsis,
                     density = density,
                     resourceLoader = resourceLoader
                 )
@@ -312,6 +313,8 @@ class TextPainter(
                 style = createTextStyle(),
                 paragraphStyle = createParagraphStyle(),
                 textStyles = text!!.textStyles,
+                maxLines = maxLines,
+                ellipsis = isEllipsis,
                 density = density,
                 resourceLoader = resourceLoader
             )

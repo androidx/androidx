@@ -23,7 +23,6 @@ import androidx.ui.painting.Path
 import androidx.ui.text.font.Font
 import androidx.ui.text.platform.AndroidParagraph
 import androidx.ui.text.platform.TypefaceAdapter
-import androidx.ui.text.style.ParagraphStyle
 
 /**
  * A paragraph of text.
@@ -147,6 +146,8 @@ interface Paragraph {
     style: TextStyle,
     paragraphStyle: ParagraphStyle,
     textStyles: List<AnnotatedString.Item<TextStyle>>,
+    maxLines: Int? = null,
+    ellipsis: Boolean? = null,
     density: Density,
     resourceLoader: Font.ResourceLoader
 ): Paragraph {
@@ -155,6 +156,8 @@ interface Paragraph {
         style = style,
         paragraphStyle = paragraphStyle,
         textStyles = textStyles,
+        maxLines = maxLines,
+        ellipsis = ellipsis,
         typefaceAdapter = TypefaceAdapter(
             resourceLoader = resourceLoader
         ),
