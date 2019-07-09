@@ -1645,7 +1645,7 @@ final class FragmentManagerImpl extends FragmentManager {
     /**
      * Only call from main thread!
      */
-    public boolean execPendingActions() {
+    boolean execPendingActions() {
         ensureExecReady(true);
 
         boolean didSomething = false;
