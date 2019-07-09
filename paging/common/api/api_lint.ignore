@@ -9,10 +9,6 @@ DocumentExceptions: androidx.paging.PageKeyedDataSource.LoadInitialCallback#onEr
     Method LoadInitialCallback.onError appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.paging.PagedList#loadAround(int):
     Method PagedList.loadAround appears to be throwing java.lang.IndexOutOfBoundsException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.paging.PagedList.Builder#build():
-    Method Builder.build appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.paging.PagedList.Builder#buildAsync():
-    Method Builder.buildAsync appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.paging.PagedList.Config.Builder#build():
     Method Builder.build appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 DocumentExceptions: androidx.paging.PagedList.Config.Builder#setPageSize(int):
@@ -25,6 +21,16 @@ DocumentExceptions: androidx.paging.PositionalDataSource.LoadRangeCallback#onErr
 
 EqualsAndHashCode: androidx.paging.DataSource.BaseResult#equals(Object):
     Must override both equals and hashCode; missing one in androidx.paging.DataSource.BaseResult
+
+
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadAfter$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.Result<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.ItemKeyedDataSource.Result.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadBefore$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.Result<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.ItemKeyedDataSource.Result.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadInitial$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadInitialParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.InitialResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.ItemKeyedDataSource.InitialResult.
+HiddenTypeParameter: androidx.paging.PositionalDataSource#loadInitial$lintWithKotlin(androidx.paging.PositionalDataSource.LoadInitialParams, kotlin.coroutines.Continuation<? super androidx.paging.PositionalDataSource.InitialResult<T>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.PositionalDataSource.InitialResult.
 
 
 KotlinOperator: androidx.paging.PagedList#get(int):

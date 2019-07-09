@@ -21,7 +21,3 @@ DocumentExceptions: androidx.ui.core.ComponentNodesKt#childToLocal(androidx.ui.c
 
 EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:
     Don't expose your implementation details: `SemanticsTreeNodeImpl` ends with `Impl`
-
-
-KotlinOperator: androidx.ui.core.ComponentNode#get(int):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
