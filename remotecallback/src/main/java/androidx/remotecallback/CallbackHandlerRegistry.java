@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.RestrictTo;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -45,8 +45,8 @@ public class CallbackHandlerRegistry {
     public static final CallbackHandlerRegistry sInstance = new CallbackHandlerRegistry();
     private static final String TAG = "CallbackHandlerRegistry";
 
-    private final ArrayMap<Class<? extends CallbackReceiver>, ClsHandler> mClsLookup =
-            new ArrayMap<>();
+    private final SimpleArrayMap<Class<? extends CallbackReceiver>, ClsHandler> mClsLookup =
+            new SimpleArrayMap<>();
 
     /**
      * @hide
@@ -212,8 +212,8 @@ public class CallbackHandlerRegistry {
     }
 
     static class ClsHandler {
-        final ArrayMap<String, CallbackHandler<? extends CallbackReceiver>> mHandlers =
-                new ArrayMap<>();
+        final SimpleArrayMap<String, CallbackHandler<? extends CallbackReceiver>> mHandlers =
+                new SimpleArrayMap<>();
         public String mAuthority;
         Context mContext;
         CallbackReceiver mCallStub;
