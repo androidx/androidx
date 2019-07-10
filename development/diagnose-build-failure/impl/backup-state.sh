@@ -2,18 +2,23 @@
 set -e
 
 stateDir="$1"
+gradlewDir="$2"
 
 scriptPath="$(cd $(dirname $0) && pwd)"
 supportRoot="$(cd $scriptPath/../../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
 
 function usage() {
-  echo "usage: $0 <statePath>"
-  echo "Backs up build state into <statePath>"
+  echo "usage: $0 <statePath> <gradlew dir>"
+  echo "Backs up build state for <gradlew dir> into <statePath>"
   exit 1
 }
 
 if [ "$stateDir" == "" ]; then
+  usage
+fi
+
+if [ "$gradlewDir" == "" ]; then
   usage
 fi
 
@@ -40,11 +45,11 @@ function backupState() {
   backupDir="$1"
   echo "Saving state into $backupDir"
   mkdir -p "$backupDir"
-  copy "$checkoutRoot/out"             "$backupDir/out"
-  copy "$supportRoot/.gradle"          "$backupDir/support/.gradle"
-  copy "$supportRoot/buildSrc/.gradle" "$backupDir/buildSrc/.gradle"
-  copy "$supportRoot/local.properties" "$backupDir/local.properties"
-  copy "$GRADLE_USER_HOME"             "$backupDir/gradleUserHome"
+  copy "$checkoutRoot/out"            "$backupDir/out"
+  copy "$gradlewDir/.gradle"          "$backupDir/support/.gradle"
+  copy "$gradlewDir/buildSrc/.gradle" "$backupDir/buildSrc/.gradle"
+  copy "$gradlewDir/local.properties" "$backupDir/local.properties"
+  copy "$GRADLE_USER_HOME"            "$backupDir/gradleUserHome"
 }
 
 backupState $stateDir
