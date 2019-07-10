@@ -274,25 +274,6 @@ sealed class ComponentNode : Emittable {
 fun ComponentNode.isAttached() = owner != null
 
 class RepaintBoundaryNode(val name: String?) : ComponentNode() {
-    /**
-     * The horizontal position relative to its containing LayoutNode
-     */
-    var layoutX: IntPx = 0.ipx
-
-    /**
-     * The vertical position relative to its containing LayoutNode
-     */
-    var layoutY: IntPx = 0.ipx
-
-    /**
-     * The horizontal position relative to its containing RepaintBoundary or root container
-     */
-    var containerX: IntPx = 0.ipx
-
-    /**
-     * The vertical position relative to its containing RepaintBoundary or root container
-     */
-    var containerY: IntPx = 0.ipx
 
     /**
      * The shape used to calculate an outline of the RepaintBoundary.
@@ -942,25 +923,3 @@ fun ComponentNode.findLastLayoutChild(block: (LayoutNode) -> Boolean): LayoutNod
  * Returns `true` if this ComponentNode has no descendant [LayoutNode]s.
  */
 fun ComponentNode.hasNoLayoutDescendants() = findLastLayoutChild { true } == null
-
-/**
- * Finds the union of all bounding boxes of LayoutNode children, relative to the containing
- * [LayoutNode].
- *
- * @param node The starting of the ComponentNode hierarchy in which to look for bounding boxes.
- */
-fun ComponentNode.calculateChildrenBoundingBox(): IntPxBounds {
-    var left = IntPx.Infinity
-    var top = IntPx.Infinity
-    var right = Int.MIN_VALUE.ipx
-    var bottom = Int.MIN_VALUE.ipx
-
-    visitLayoutChildren { layoutNode ->
-        left = min(left, layoutNode.x)
-        top = min(top, layoutNode.y)
-        right = max(right, layoutNode.width + layoutNode.x)
-        bottom = max(bottom, layoutNode.height + layoutNode.y)
-    }
-
-    return IntPxBounds(left = left, top = top, right = right, bottom = bottom)
-}

@@ -68,9 +68,9 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    FillColor(Color.White)
-                    Opacity(opacity = 1f) {
-                        AtLeastSize(size = 10.ipx) {
+                    AtLeastSize(size = 10.ipx) {
+                        FillColor(Color.White)
+                        Opacity(opacity = 1f) {
                             FillColor(color)
                         }
                     }
@@ -90,9 +90,9 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    FillColor(Color.White)
-                    Opacity(opacity = 0f) {
-                        AtLeastSize(size = 10.ipx) {
+                    AtLeastSize(size = 10.ipx) {
+                        FillColor(Color.White)
+                        Opacity(opacity = 0f) {
                             FillColor(color)
                         }
                     }
@@ -114,8 +114,8 @@ class OpacityTest {
                 CraneWrapper {
                     FillColor(Color.White)
                     Row {
-                        Opacity(opacity = 0.5f) {
-                            AtLeastSize(size = 10.ipx) {
+                        AtLeastSize(size = 10.ipx) {
+                            Opacity(opacity = 0.5f) {
                                 FillColor(color)
                             }
                         }
@@ -141,9 +141,9 @@ class OpacityTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    FillColor(Color.White)
-                    Opacity(opacity = model.opacity) {
-                        AtLeastSize(size = 10.ipx) {
+                    AtLeastSize(size = 10.ipx) {
+                        FillColor(Color.White)
+                        Opacity(opacity = model.opacity) {
                             FillColor(color)
                         }
                     }
