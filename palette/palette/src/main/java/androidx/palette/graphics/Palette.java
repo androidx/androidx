@@ -28,14 +28,13 @@ import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.graphics.ColorUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A helper class to extract prominent colors from an image.
@@ -154,7 +153,7 @@ public final class Palette {
     private final List<Swatch> mSwatches;
     private final List<Target> mTargets;
 
-    private final Map<Target, Swatch> mSelectedSwatches;
+    private final SimpleArrayMap<Target, Swatch> mSelectedSwatches;
     private final SparseBooleanArray mUsedColors;
 
     @Nullable private final Swatch mDominantSwatch;
@@ -164,7 +163,7 @@ public final class Palette {
         mTargets = targets;
 
         mUsedColors = new SparseBooleanArray();
-        mSelectedSwatches = new ArrayMap<>();
+        mSelectedSwatches = new SimpleArrayMap<>();
 
         mDominantSwatch = findDominantSwatch();
     }

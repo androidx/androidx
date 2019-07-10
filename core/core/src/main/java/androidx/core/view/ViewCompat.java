@@ -58,7 +58,7 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
-import androidx.collection.ArrayMap;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.R;
 import androidx.core.view.AccessibilityDelegateCompat.AccessibilityDelegateAdapter;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -3707,12 +3707,12 @@ public class ViewCompat {
     public static void addOnUnhandledKeyEventListener(@NonNull View v,
             final @NonNull OnUnhandledKeyEventListenerCompat listener) {
         if (Build.VERSION.SDK_INT >= 28) {
-            Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
-                    viewListeners = (Map<OnUnhandledKeyEventListenerCompat,
+            SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
+                    viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
                             View.OnUnhandledKeyEventListener>)
                             v.getTag(R.id.tag_unhandled_key_listeners);
             if (viewListeners == null) {
-                viewListeners = new ArrayMap<>();
+                viewListeners = new SimpleArrayMap<>();
                 v.setTag(R.id.tag_unhandled_key_listeners, viewListeners);
             }
 
@@ -3751,9 +3751,9 @@ public class ViewCompat {
     public static void removeOnUnhandledKeyEventListener(@NonNull View v,
             @NonNull OnUnhandledKeyEventListenerCompat listener) {
         if (Build.VERSION.SDK_INT >= 28) {
-            Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
-                    viewListeners =
-                    (Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>)
+            SimpleArrayMap<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
+                    viewListeners = (SimpleArrayMap<OnUnhandledKeyEventListenerCompat,
+                            View.OnUnhandledKeyEventListener>)
                             v.getTag(R.id.tag_unhandled_key_listeners);
             if (viewListeners == null) {
                 return;
