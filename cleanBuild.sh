@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-cd $(dirname $0)
 
 echo "IF THIS SCRIPT FIXES YOUR BUILD; OPEN A BUG."
 echo "In nearly all cases, it should not be necessary to run a clean build."
@@ -30,6 +29,14 @@ function usage() {
 if [ "$goals" == "" ]; then
   usage
 fi
+
+if [ ! -e "./gradlew" ]; then
+  echo "Error; ./gradlew does not exist. Must cd to a dir containing a ./gradlew first"
+  # so that this script knows which gradlew to use (in frameworks/support or frameworks/support/ui)
+  exit 1
+fi
+
+
 
 function confirm() {
   # Confirm whether the user wants to run this script instead of diagnose-build-failure.sh
