@@ -1,1 +1,13 @@
 // Signature format: 3.0
+package androidx.paging {
+
+  public final class RxPagedListKt {
+    ctor public RxPagedListKt();
+    method public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null, io.reactivex.BackpressureStrategy backpressureStrategy = io.reactivex.BackpressureStrategy.LATEST);
+    method public static <Key, Value> io.reactivex.Flowable<androidx.paging.PagedList<Value>> toFlowable(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null, io.reactivex.BackpressureStrategy backpressureStrategy = io.reactivex.BackpressureStrategy.LATEST);
+    method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null);
+    method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagedList<Value>> toObservable(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, io.reactivex.Scheduler? fetchScheduler = null, io.reactivex.Scheduler? notifyScheduler = null);
+  }
+
+}
+

@@ -1,1 +1,20 @@
 // Signature format: 3.0
+package androidx.interpolator.view.animation {
+
+  public class FastOutLinearInInterpolator implements android.view.animation.Interpolator {
+    ctor public FastOutLinearInInterpolator();
+    method public float getInterpolation(float);
+  }
+
+  public class FastOutSlowInInterpolator implements android.view.animation.Interpolator {
+    ctor public FastOutSlowInInterpolator();
+    method public float getInterpolation(float);
+  }
+
+  public class LinearOutSlowInInterpolator implements android.view.animation.Interpolator {
+    ctor public LinearOutSlowInInterpolator();
+    method public float getInterpolation(float);
+  }
+
+}
+

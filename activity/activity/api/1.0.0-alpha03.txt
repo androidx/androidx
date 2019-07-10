@@ -5,7 +5,7 @@ package androidx.activity {
     ctor public ComponentActivity();
     method public void addOnBackPressedCallback(androidx.activity.OnBackPressedCallback);
     method public void addOnBackPressedCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback);
-    method public final androidx.savedstate.SavedStateRegistry<android.os.Bundle> getBundleSavedStateRegistry();
+    method public final androidx.savedstate.SavedStateRegistry<android.os.Bundle!> getBundleSavedStateRegistry();
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();

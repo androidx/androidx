@@ -2,7 +2,30 @@
 package androidx.lifecycle {
 
   public abstract class AbstractSavedStateVMFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+    ctor public AbstractSavedStateVMFactory(androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>);
+    method public final <T extends androidx.lifecycle.ViewModel> T create(Class<T!>);
+    method protected abstract <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>, androidx.lifecycle.SavedStateHandle);
+  }
+
+  public final class SavedStateHandle {
+    ctor public SavedStateHandle(java.util.Map<java.lang.String!,java.lang.Object!>);
+    ctor public SavedStateHandle();
+    method @MainThread public boolean contains(String);
+    method @MainThread public <T> T? get(String);
+    method @MainThread public <T> androidx.lifecycle.MutableLiveData<T!> getLiveData(String?);
+    method @MainThread public java.util.Set<java.lang.String!> keys();
+    method @MainThread public <T> T? remove(String);
+    method @MainThread public <T> void set(String, T?);
+  }
+
+  public final class SavedStateVMFactory extends androidx.lifecycle.AbstractSavedStateVMFactory implements androidx.lifecycle.ViewModelProvider.Factory {
+    ctor public SavedStateVMFactory(androidx.fragment.app.Fragment);
+    ctor public SavedStateVMFactory(androidx.fragment.app.Fragment, android.os.Bundle?);
+    ctor public SavedStateVMFactory(androidx.fragment.app.FragmentActivity);
+    ctor public SavedStateVMFactory(androidx.fragment.app.FragmentActivity, android.os.Bundle?);
+    ctor public SavedStateVMFactory(android.app.Application, androidx.savedstate.SavedStateRegistryOwner, android.os.Bundle?);
+    method protected <T extends androidx.lifecycle.ViewModel> T create(String, Class<T!>, androidx.lifecycle.SavedStateHandle);
   }
 
 }

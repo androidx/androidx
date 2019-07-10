@@ -3,9 +3,7 @@ package androidx.fragment.app {
 
   public final class FragmentManagerKt {
     ctor public FragmentManagerKt();
-    method public static void commit(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
-    method public static void commitNow(androidx.fragment.app.FragmentManager, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
-    method @Deprecated public static void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+    method public static inline void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
   }
 
 }

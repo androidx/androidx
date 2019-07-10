@@ -28,7 +28,7 @@ package androidx.work.testing {
 
   public final class TestListenableWorkerBuilderKt {
     ctor public TestListenableWorkerBuilderKt();
-    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
+    method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = listOf(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = listOf(), java.util.List<java.lang.String> triggeredContentAuthorities = listOf());
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {
@@ -38,7 +38,7 @@ package androidx.work.testing {
 
   public final class TestWorkerBuilderKt {
     ctor public TestWorkerBuilderKt();
-    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
+    method public static inline <reified W extends androidx.work.Worker> androidx.work.testing.TestWorkerBuilder<W> TestWorkerBuilder(android.content.Context context, java.util.concurrent.Executor executor, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = listOf(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = listOf(), java.util.List<java.lang.String> triggeredContentAuthorities = listOf());
   }
 
   public final class WorkManagerTestInitHelper {

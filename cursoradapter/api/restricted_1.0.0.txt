@@ -1,21 +1,72 @@
 // Signature format: 3.0
 package androidx.cursoradapter.widget {
 
-  public abstract class CursorAdapter {
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected boolean mAutoRequery;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected androidx.cursoradapter.widget.CursorAdapter.ChangeObserver! mChangeObserver;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected android.content.Context! mContext;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected android.database.Cursor! mCursor;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected androidx.cursoradapter.widget.CursorFilter! mCursorFilter;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected android.database.DataSetObserver! mDataSetObserver;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected boolean mDataValid;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected android.widget.FilterQueryProvider! mFilterQueryProvider;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected int mRowIDColumn;
+  public abstract class CursorAdapter extends android.widget.BaseAdapter implements android.widget.Filterable {
+    ctor @Deprecated public CursorAdapter(android.content.Context!, android.database.Cursor!);
+    ctor public CursorAdapter(android.content.Context!, android.database.Cursor!, boolean);
+    ctor public CursorAdapter(android.content.Context!, android.database.Cursor!, int);
+    method public abstract void bindView(android.view.View!, android.content.Context!, android.database.Cursor!);
+    method public void changeCursor(android.database.Cursor!);
+    method public CharSequence! convertToString(android.database.Cursor!);
+    method public int getCount();
+    method public android.database.Cursor! getCursor();
+    method public android.widget.Filter! getFilter();
+    method public android.widget.FilterQueryProvider! getFilterQueryProvider();
+    method public Object! getItem(int);
+    method public long getItemId(int);
+    method public android.view.View! getView(int, android.view.View!, android.view.ViewGroup!);
+    method @Deprecated protected void init(android.content.Context!, android.database.Cursor!, boolean);
+    method public android.view.View! newDropDownView(android.content.Context!, android.database.Cursor!, android.view.ViewGroup!);
+    method public abstract android.view.View! newView(android.content.Context!, android.database.Cursor!, android.view.ViewGroup!);
+    method protected void onContentChanged();
+    method public android.database.Cursor! runQueryOnBackgroundThread(CharSequence!);
+    method public void setFilterQueryProvider(android.widget.FilterQueryProvider!);
+    method public android.database.Cursor! swapCursor(android.database.Cursor!);
+    field @Deprecated public static final int FLAG_AUTO_REQUERY = 1; // 0x1
+    field public static final int FLAG_REGISTER_CONTENT_OBSERVER = 2; // 0x2
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected boolean mAutoRequery;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected androidx.cursoradapter.widget.CursorAdapter.ChangeObserver! mChangeObserver;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected android.content.Context! mContext;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected android.database.Cursor! mCursor;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected androidx.cursoradapter.widget.CursorFilter! mCursorFilter;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected android.database.DataSetObserver! mDataSetObserver;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected boolean mDataValid;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected android.widget.FilterQueryProvider! mFilterQueryProvider;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected int mRowIDColumn;
+  }
+
+  public abstract class ResourceCursorAdapter extends androidx.cursoradapter.widget.CursorAdapter {
+    ctor @Deprecated public ResourceCursorAdapter(android.content.Context!, int, android.database.Cursor!);
+    ctor @Deprecated public ResourceCursorAdapter(android.content.Context!, int, android.database.Cursor!, boolean);
+    ctor public ResourceCursorAdapter(android.content.Context!, int, android.database.Cursor!, int);
+    method public android.view.View! newView(android.content.Context!, android.database.Cursor!, android.view.ViewGroup!);
+    method public void setDropDownViewResource(int);
+    method public void setViewResource(int);
   }
 
   public class SimpleCursorAdapter extends androidx.cursoradapter.widget.ResourceCursorAdapter {
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected int[]! mFrom;
-    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) protected int[]! mTo;
+    ctor @Deprecated public SimpleCursorAdapter(android.content.Context!, int, android.database.Cursor!, String![]!, int[]!);
+    ctor public SimpleCursorAdapter(android.content.Context!, int, android.database.Cursor!, String![]!, int[]!, int);
+    method public void bindView(android.view.View!, android.content.Context!, android.database.Cursor!);
+    method public void changeCursorAndColumns(android.database.Cursor!, String![]!, int[]!);
+    method public androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter! getCursorToStringConverter();
+    method public int getStringConversionColumn();
+    method public androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder! getViewBinder();
+    method public void setCursorToStringConverter(androidx.cursoradapter.widget.SimpleCursorAdapter.CursorToStringConverter!);
+    method public void setStringConversionColumn(int);
+    method public void setViewBinder(androidx.cursoradapter.widget.SimpleCursorAdapter.ViewBinder!);
+    method public void setViewImage(android.widget.ImageView!, String!);
+    method public void setViewText(android.widget.TextView!, String!);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected int[]! mFrom;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected int[]! mTo;
+  }
+
+  public static interface SimpleCursorAdapter.CursorToStringConverter {
+    method public CharSequence! convertToString(android.database.Cursor!);
+  }
+
+  public static interface SimpleCursorAdapter.ViewBinder {
+    method public boolean setViewValue(android.view.View!, android.database.Cursor!, int);
   }
 
 }

@@ -3,8 +3,8 @@ package androidx.lifecycle {
 
   public final class LiveDataReactiveSteamsKt {
     ctor public LiveDataReactiveSteamsKt();
-    method public static <T> androidx.lifecycle.LiveData<T> toLiveData(org.reactivestreams.Publisher<T>);
-    method public static <T> org.reactivestreams.Publisher<T> toPublisher(androidx.lifecycle.LiveData<T>, androidx.lifecycle.LifecycleOwner lifecycle);
+    method public static inline <T> androidx.lifecycle.LiveData<T> toLiveData(org.reactivestreams.Publisher<T>);
+    method public static inline <T> org.reactivestreams.Publisher<T> toPublisher(androidx.lifecycle.LiveData<T>, androidx.lifecycle.LifecycleOwner lifecycle);
   }
 
 }

@@ -1,1 +1,60 @@
 // Signature format: 3.0
+package androidx.enterprise.feedback {
+
+  public abstract class KeyedAppState {
+    method public static androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder builder();
+    method public abstract String? data();
+    method public abstract String key();
+    method public abstract String? message();
+    method public abstract int severity();
+    field public static final int MAX_DATA_LENGTH = 1000; // 0x3e8
+    field public static final int MAX_KEY_LENGTH = 100; // 0x64
+    field public static final int MAX_MESSAGE_LENGTH = 1000; // 0x3e8
+    field public static final int SEVERITY_ERROR = 2; // 0x2
+    field public static final int SEVERITY_INFO = 1; // 0x1
+  }
+
+  public abstract static class KeyedAppState.KeyedAppStateBuilder {
+    method public androidx.enterprise.feedback.KeyedAppState build();
+    method public abstract androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder setData(String?);
+    method public abstract androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder setKey(String);
+    method public abstract androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder setMessage(String?);
+    method public abstract androidx.enterprise.feedback.KeyedAppState.KeyedAppStateBuilder setSeverity(int);
+  }
+
+  public class KeyedAppStatesReporter {
+    method public static androidx.enterprise.feedback.KeyedAppStatesReporter getInstance(android.content.Context);
+    method public static void initialize(android.content.Context, java.util.concurrent.Executor);
+    method public void set(java.util.Collection<androidx.enterprise.feedback.KeyedAppState!>);
+    method public void setImmediate(java.util.Collection<androidx.enterprise.feedback.KeyedAppState!>);
+    field public static final String APP_STATES_ACTION = "androidx.enterprise.feedback.action.APP_STATES";
+  }
+
+  public abstract class KeyedAppStatesService extends android.app.Service {
+    ctor public KeyedAppStatesService();
+    method public android.os.IBinder onBind(android.content.Intent);
+    method public abstract void onReceive(java.util.Collection<androidx.enterprise.feedback.ReceivedKeyedAppState!>, boolean);
+  }
+
+  public abstract class ReceivedKeyedAppState {
+    method public static androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder builder();
+    method public abstract String? data();
+    method public abstract String key();
+    method public abstract String? message();
+    method public abstract String packageName();
+    method public abstract int severity();
+    method public abstract long timestamp();
+  }
+
+  public abstract static class ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder {
+    method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState build();
+    method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setData(String?);
+    method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setKey(String);
+    method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setMessage(String?);
+    method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setPackageName(String);
+    method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setSeverity(int);
+    method public abstract androidx.enterprise.feedback.ReceivedKeyedAppState.ReceivedKeyedAppStateBuilder setTimestamp(long);
+  }
+
+}
+

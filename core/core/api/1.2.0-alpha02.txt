@@ -155,7 +155,7 @@ package androidx.core.app {
 
   public abstract class JobIntentService extends android.app.Service {
     ctor public JobIntentService();
-    method public static void enqueueWork(android.content.Context, Class<?>, int, android.content.Intent);
+    method public static void enqueueWork(android.content.Context, Class, int, android.content.Intent);
     method public static void enqueueWork(android.content.Context, android.content.ComponentName, int, android.content.Intent);
     method public boolean isStopped();
     method public android.os.IBinder! onBind(android.content.Intent);
@@ -1258,10 +1258,6 @@ package androidx.core.net {
     method @Deprecated public static void untagSocket(java.net.Socket!) throws java.net.SocketException;
   }
 
-  public final class UriCompat {
-    method public static String toSafeString(android.net.Uri);
-  }
-
 }
 
 package androidx.core.os {
@@ -2317,8 +2313,6 @@ package androidx.core.view {
     method public boolean isRound();
     method public androidx.core.view.WindowInsetsCompat! replaceSystemWindowInsets(int, int, int, int);
     method public androidx.core.view.WindowInsetsCompat! replaceSystemWindowInsets(android.graphics.Rect!);
-    method @RequiresApi(20) public android.view.WindowInsets? toWindowInsets();
-    method @RequiresApi(20) public static androidx.core.view.WindowInsetsCompat toWindowInsetsCompat(android.view.WindowInsets);
   }
 
 }

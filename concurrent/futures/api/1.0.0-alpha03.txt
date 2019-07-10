@@ -1,6 +1,23 @@
 // Signature format: 3.0
 package androidx.concurrent.futures {
 
+  public abstract class AbstractResolvableFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {
+    ctor protected AbstractResolvableFuture();
+    method public final void addListener(Runnable!, java.util.concurrent.Executor!);
+    method protected void afterDone();
+    method public final boolean cancel(boolean);
+    method public final V! get(long, java.util.concurrent.TimeUnit!) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
+    method public final V! get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
+    method protected void interruptTask();
+    method public final boolean isCancelled();
+    method public final boolean isDone();
+    method protected String? pendingToString();
+    method protected boolean set(V?);
+    method protected boolean setException(Throwable!);
+    method protected boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
+    method protected final boolean wasInterrupted();
+  }
+
   public final class CallbackToFutureAdapter {
     method public static <T> com.google.common.util.concurrent.ListenableFuture<T!> getFuture(androidx.concurrent.futures.CallbackToFutureAdapter.Resolver<T!>);
   }
@@ -15,6 +32,13 @@ package androidx.concurrent.futures {
 
   public static interface CallbackToFutureAdapter.Resolver<T> {
     method public Object? attachCompleter(androidx.concurrent.futures.CallbackToFutureAdapter.Completer<T!>) throws java.lang.Exception;
+  }
+
+  public final class ResolvableFuture<V> extends androidx.concurrent.futures.AbstractResolvableFuture<V> {
+    method public static <V> androidx.concurrent.futures.ResolvableFuture<V!>! create();
+    method public boolean set(V?);
+    method public boolean setException(Throwable!);
+    method public boolean setFuture(com.google.common.util.concurrent.ListenableFuture<? extends V>!);
   }
 
 }

@@ -8,6 +8,43 @@ package androidx.lifecycle {
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface GenericLifecycleObserver extends androidx.lifecycle.LifecycleEventObserver {
   }
 
+  public abstract class Lifecycle {
+    ctor public Lifecycle();
+    method @MainThread public abstract void addObserver(androidx.lifecycle.LifecycleObserver);
+    method @MainThread public abstract androidx.lifecycle.Lifecycle.State getCurrentState();
+    method @MainThread public abstract void removeObserver(androidx.lifecycle.LifecycleObserver);
+  }
+
+  public enum Lifecycle.Event {
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_CREATE;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_DESTROY;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_PAUSE;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_RESUME;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_START;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_STOP;
+  }
+
+  public enum Lifecycle.State {
+    method public boolean isAtLeast(androidx.lifecycle.Lifecycle.State);
+    enum_constant public static final androidx.lifecycle.Lifecycle.State CREATED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State DESTROYED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State INITIALIZED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State RESUMED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State STARTED;
+  }
+
+  public interface LifecycleEventObserver extends androidx.lifecycle.LifecycleObserver {
+    method public void onStateChanged(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event);
+  }
+
+  public interface LifecycleObserver {
+  }
+
+  public interface LifecycleOwner {
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Lifecycling {
     method public static String! getAdapterName(String!);
   }
@@ -15,6 +52,10 @@ package androidx.lifecycle {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MethodCallsLogger {
     ctor public MethodCallsLogger();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean approveCall(String!, int);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
+    method public abstract androidx.lifecycle.Lifecycle.Event! value();
   }
 
 }

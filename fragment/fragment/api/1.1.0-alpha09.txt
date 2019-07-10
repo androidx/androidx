@@ -167,6 +167,7 @@ package androidx.fragment.app {
     method @CallSuper public void onMultiWindowModeChanged(boolean);
     method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method protected void onResumeFragments();
+    method public void onStateNotSaved();
     method public void setEnterSharedElementCallback(androidx.core.app.SharedElementCallback?);
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback?);
     method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent!, int);

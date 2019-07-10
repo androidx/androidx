@@ -1,1 +1,32 @@
 // Signature format: 3.0
+package androidx.lifecycle {
+
+  public abstract class LifecycleCoroutineScope implements kotlinx.coroutines.CoroutineScope {
+    method public final kotlinx.coroutines.Job launchWhenCreated(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method public final kotlinx.coroutines.Job launchWhenResumed(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method public final kotlinx.coroutines.Job launchWhenStarted(kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+  public final class LifecycleKt {
+    ctor public LifecycleKt();
+    method public static androidx.lifecycle.LifecycleCoroutineScope getCoroutineScope(androidx.lifecycle.Lifecycle);
+  }
+
+  public final class LifecycleOwnerKt {
+    ctor public LifecycleOwnerKt();
+    method public static androidx.lifecycle.LifecycleCoroutineScope getLifecycleScope(androidx.lifecycle.LifecycleOwner);
+  }
+
+  public final class PausingDispatcherKt {
+    ctor public PausingDispatcherKt();
+    method public static suspend <T> Object! whenCreated(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object! whenCreated(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object! whenResumed(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object! whenResumed(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object! whenStarted(androidx.lifecycle.LifecycleOwner, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object! whenStarted(androidx.lifecycle.Lifecycle, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
+    method public static suspend <T> Object! whenStateAtLeast(androidx.lifecycle.Lifecycle, androidx.lifecycle.Lifecycle.State minState, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super T>,?> block, kotlin.coroutines.Continuation<? super T> p);
+  }
+
+}
+

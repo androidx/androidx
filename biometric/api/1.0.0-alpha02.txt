@@ -1,3 +1,4 @@
+// Signature format: 3.0
 package androidx.biometrics {
 
   public class BiometricPrompt {
@@ -19,40 +20,40 @@ package androidx.biometrics {
     field public static final int ERROR_VENDOR = 8; // 0x8
   }
 
-  public static abstract class BiometricPrompt.AuthenticationCallback {
+  public abstract static class BiometricPrompt.AuthenticationCallback {
     ctor public BiometricPrompt.AuthenticationCallback();
-    method public void onAuthenticationError(int, java.lang.CharSequence);
+    method public void onAuthenticationError(int, CharSequence);
     method public void onAuthenticationFailed();
     method public void onAuthenticationSucceeded(androidx.biometrics.BiometricPrompt.AuthenticationResult);
   }
 
   public static class BiometricPrompt.AuthenticationResult {
-    method public androidx.biometrics.BiometricPrompt.CryptoObject getCryptoObject();
+    method public androidx.biometrics.BiometricPrompt.CryptoObject? getCryptoObject();
   }
 
   public static class BiometricPrompt.CryptoObject {
     ctor public BiometricPrompt.CryptoObject(java.security.Signature);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Cipher);
     ctor public BiometricPrompt.CryptoObject(javax.crypto.Mac);
-    method public javax.crypto.Cipher getCipher();
-    method public javax.crypto.Mac getMac();
-    method public java.security.Signature getSignature();
+    method public javax.crypto.Cipher? getCipher();
+    method public javax.crypto.Mac? getMac();
+    method public java.security.Signature? getSignature();
   }
 
   public static class BiometricPrompt.PromptInfo {
-    method public java.lang.CharSequence getDescription();
-    method public java.lang.CharSequence getNegativeButtonText();
-    method public java.lang.CharSequence getSubtitle();
-    method public java.lang.CharSequence getTitle();
+    method public CharSequence? getDescription();
+    method public CharSequence getNegativeButtonText();
+    method public CharSequence? getSubtitle();
+    method public CharSequence getTitle();
   }
 
   public static class BiometricPrompt.PromptInfo.Builder {
     ctor public BiometricPrompt.PromptInfo.Builder();
     method public androidx.biometrics.BiometricPrompt.PromptInfo build();
-    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setDescription(java.lang.CharSequence);
-    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setNegativeButtonText(java.lang.CharSequence);
-    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setSubtitle(java.lang.CharSequence);
-    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setTitle(java.lang.CharSequence);
+    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setDescription(CharSequence?);
+    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setNegativeButtonText(CharSequence);
+    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setSubtitle(CharSequence?);
+    method public androidx.biometrics.BiometricPrompt.PromptInfo.Builder setTitle(CharSequence);
   }
 
 }

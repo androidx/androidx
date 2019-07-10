@@ -1,10 +1,101 @@
 // Signature format: 3.0
+package androidx.viewpager2.adapter {
+
+  public abstract class FragmentStateAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.viewpager2.adapter.FragmentViewHolder> implements androidx.viewpager2.adapter.StatefulAdapter {
+    ctor public FragmentStateAdapter(androidx.fragment.app.FragmentActivity);
+    ctor public FragmentStateAdapter(androidx.fragment.app.Fragment);
+    ctor public FragmentStateAdapter(androidx.fragment.app.FragmentManager, androidx.lifecycle.Lifecycle);
+    method public boolean containsItem(long);
+    method public abstract androidx.fragment.app.Fragment createFragment(int);
+    method public final void onBindViewHolder(androidx.viewpager2.adapter.FragmentViewHolder, int);
+    method public final androidx.viewpager2.adapter.FragmentViewHolder onCreateViewHolder(android.view.ViewGroup, int);
+    method public final boolean onFailedToRecycleView(androidx.viewpager2.adapter.FragmentViewHolder);
+    method public final void onViewAttachedToWindow(androidx.viewpager2.adapter.FragmentViewHolder);
+    method public final void onViewRecycled(androidx.viewpager2.adapter.FragmentViewHolder);
+    method public final void restoreState(android.os.Parcelable);
+    method public final android.os.Parcelable saveState();
+    method public final void setHasStableIds(boolean);
+  }
+
+  public final class FragmentViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+  }
+
+  public interface StatefulAdapter {
+    method public void restoreState(android.os.Parcelable);
+    method public android.os.Parcelable saveState();
+  }
+
+}
+
 package androidx.viewpager2.widget {
+
+  public final class CompositePageTransformer implements androidx.viewpager2.widget.ViewPager2.PageTransformer {
+    ctor public CompositePageTransformer();
+    method public void addTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer);
+    method public void removeTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer);
+    method public void transformPage(android.view.View, @FloatRange(from=-1.0, to=1.0) float);
+  }
+
+  public final class MarginPageTransformer implements androidx.viewpager2.widget.ViewPager2.PageTransformer {
+    ctor public MarginPageTransformer(@Px int);
+    method public void transformPage(android.view.View, @FloatRange(from=-1.0, to=1.0) float);
+  }
+
+  public final class ViewPager2 extends android.view.ViewGroup {
+    ctor public ViewPager2(android.content.Context);
+    ctor public ViewPager2(android.content.Context, android.util.AttributeSet?);
+    ctor public ViewPager2(android.content.Context, android.util.AttributeSet?, int);
+    ctor @RequiresApi(21) public ViewPager2(android.content.Context, android.util.AttributeSet?, int, int);
+    method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
+    method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration, int);
+    method public boolean beginFakeDrag();
+    method public boolean endFakeDrag();
+    method public boolean fakeDragBy(@Px float);
+    method public androidx.recyclerview.widget.RecyclerView.Adapter? getAdapter();
+    method public int getCurrentItem();
+    method public androidx.recyclerview.widget.RecyclerView.ItemDecoration getItemDecorationAt(int);
+    method public int getItemDecorationCount();
+    method @androidx.viewpager2.widget.ViewPager2.OffscreenPageLimit public int getOffscreenPageLimit();
+    method @androidx.viewpager2.widget.ViewPager2.Orientation public int getOrientation();
+    method @androidx.viewpager2.widget.ViewPager2.ScrollState public int getScrollState();
+    method public void invalidateItemDecorations();
+    method public boolean isFakeDragging();
+    method public boolean isUserInputEnabled();
+    method public void registerOnPageChangeCallback(androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback);
+    method public void removeItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
+    method public void removeItemDecorationAt(int);
+    method public void requestTransform();
+    method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?);
+    method public void setCurrentItem(int);
+    method public void setCurrentItem(int, boolean);
+    method public void setOffscreenPageLimit(@androidx.viewpager2.widget.ViewPager2.OffscreenPageLimit int);
+    method public void setOrientation(@androidx.viewpager2.widget.ViewPager2.Orientation int);
+    method public void setPageTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer?);
+    method public void setUserInputEnabled(boolean);
+    method public void unregisterOnPageChangeCallback(androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback);
+    field public static final int OFFSCREEN_PAGE_LIMIT_DEFAULT = -1; // 0xffffffff
+    field public static final int ORIENTATION_HORIZONTAL = 0; // 0x0
+    field public static final int ORIENTATION_VERTICAL = 1; // 0x1
+    field public static final int SCROLL_STATE_DRAGGING = 1; // 0x1
+    field public static final int SCROLL_STATE_IDLE = 0; // 0x0
+    field public static final int SCROLL_STATE_SETTLING = 2; // 0x2
+  }
 
   @IntDef({androidx.viewpager2.widget.ViewPager2.OFFSCREEN_PAGE_LIMIT_DEFAULT}) @IntRange(from=1) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewPager2.OffscreenPageLimit {
   }
 
+  public abstract static class ViewPager2.OnPageChangeCallback {
+    ctor public ViewPager2.OnPageChangeCallback();
+    method public void onPageScrollStateChanged(@androidx.viewpager2.widget.ViewPager2.ScrollState int);
+    method public void onPageScrolled(int, float, @Px int);
+    method public void onPageSelected(int);
+  }
+
   @IntDef({androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL, androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewPager2.Orientation {
+  }
+
+  public static interface ViewPager2.PageTransformer {
+    method public void transformPage(android.view.View, @FloatRange(from=-1.0, to=1.0) float);
   }
 
   @IntDef({androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE, androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING, androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ViewPager2.ScrollState {

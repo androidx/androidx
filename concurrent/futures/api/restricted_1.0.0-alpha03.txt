@@ -1,7 +1,7 @@
 // Signature format: 3.0
 package androidx.concurrent.futures {
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class AbstractResolvableFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {
+  public abstract class AbstractResolvableFuture<V> implements com.google.common.util.concurrent.ListenableFuture<V> {
     ctor protected AbstractResolvableFuture();
     method public final void addListener(Runnable!, java.util.concurrent.Executor!);
     method protected void afterDone();
@@ -18,7 +18,23 @@ package androidx.concurrent.futures {
     method protected final boolean wasInterrupted();
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ResolvableFuture<V> extends androidx.concurrent.futures.AbstractResolvableFuture<V> {
+  public final class CallbackToFutureAdapter {
+    method public static <T> com.google.common.util.concurrent.ListenableFuture<T!> getFuture(androidx.concurrent.futures.CallbackToFutureAdapter.Resolver<T!>);
+  }
+
+  public static final class CallbackToFutureAdapter.Completer<T> {
+    method public void addCancellationListener(Runnable, java.util.concurrent.Executor);
+    method protected void finalize();
+    method public boolean set(T!);
+    method public boolean setCancelled();
+    method public boolean setException(Throwable);
+  }
+
+  public static interface CallbackToFutureAdapter.Resolver<T> {
+    method public Object? attachCompleter(androidx.concurrent.futures.CallbackToFutureAdapter.Completer<T!>) throws java.lang.Exception;
+  }
+
+  public final class ResolvableFuture<V> extends androidx.concurrent.futures.AbstractResolvableFuture<V> {
     method public static <V> androidx.concurrent.futures.ResolvableFuture<V!>! create();
     method public boolean set(V?);
     method public boolean setException(Throwable!);

@@ -19,6 +19,10 @@ package androidx.versionedparcelable {
   public class ParcelUtils {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromInputStream(java.io.InputStream!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T extends androidx.versionedparcelable.VersionedParcelable> T! fromParcelable(android.os.Parcelable!);
+    method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? getVersionedParcelable(android.os.Bundle, String);
+    method public static <T extends androidx.versionedparcelable.VersionedParcelable> java.util.List<T!>? getVersionedParcelableList(android.os.Bundle!, String!);
+    method public static void putVersionedParcelable(android.os.Bundle, String, androidx.versionedparcelable.VersionedParcelable?);
+    method public static void putVersionedParcelableList(android.os.Bundle, String, java.util.List<? extends androidx.versionedparcelable.VersionedParcelable>);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void toOutputStream(androidx.versionedparcelable.VersionedParcelable!, java.io.OutputStream!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.os.Parcelable! toParcelable(androidx.versionedparcelable.VersionedParcelable!);
   }
@@ -138,6 +142,9 @@ package androidx.versionedparcelable {
 
   public static class VersionedParcel.ParcelException extends java.lang.RuntimeException {
     ctor public VersionedParcel.ParcelException(Throwable!);
+  }
+
+  public interface VersionedParcelable {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface VersionedParcelize {

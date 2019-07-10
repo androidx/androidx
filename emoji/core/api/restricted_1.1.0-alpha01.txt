@@ -2,15 +2,70 @@
 package androidx.emoji.text {
 
   @AnyThread public class EmojiCompat {
+    method public static androidx.emoji.text.EmojiCompat! get();
+    method public String getAssetSignature();
+    method @androidx.emoji.text.EmojiCompat.LoadState public int getLoadState();
+    method public static boolean handleDeleteSurroundingText(android.view.inputmethod.InputConnection, android.text.Editable, @IntRange(from=0) int, @IntRange(from=0) int, boolean);
+    method public static boolean handleOnKeyDown(android.text.Editable, int, android.view.KeyEvent!);
+    method public boolean hasEmojiGlyph(CharSequence);
+    method public boolean hasEmojiGlyph(CharSequence, @IntRange(from=0) int);
+    method public static androidx.emoji.text.EmojiCompat! init(androidx.emoji.text.EmojiCompat.Config);
+    method public void load();
+    method @CheckResult public CharSequence! process(CharSequence);
+    method @CheckResult public CharSequence! process(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int);
+    method @CheckResult public CharSequence! process(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int);
+    method @CheckResult public CharSequence! process(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int, @IntRange(from=0) int, @androidx.emoji.text.EmojiCompat.ReplaceStrategy int);
+    method public void registerInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static androidx.emoji.text.EmojiCompat! reset(androidx.emoji.text.EmojiCompat.Config);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static androidx.emoji.text.EmojiCompat! reset(androidx.emoji.text.EmojiCompat!);
+    method public void unregisterInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void updateEditorInfoAttrs(android.view.inputmethod.EditorInfo);
+    field public static final String EDITOR_INFO_METAVERSION_KEY = "android.support.text.emoji.emojiCompat_metadataVersion";
+    field public static final String EDITOR_INFO_REPLACE_ALL_KEY = "android.support.text.emoji.emojiCompat_replaceAll";
+    field public static final int LOAD_STATE_DEFAULT = 3; // 0x3
+    field public static final int LOAD_STATE_FAILED = 2; // 0x2
+    field public static final int LOAD_STATE_LOADING = 0; // 0x0
+    field public static final int LOAD_STATE_SUCCEEDED = 1; // 0x1
+    field public static final int LOAD_STRATEGY_DEFAULT = 0; // 0x0
+    field public static final int LOAD_STRATEGY_MANUAL = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_ALL = 1; // 0x1
+    field public static final int REPLACE_STRATEGY_DEFAULT = 0; // 0x0
+    field public static final int REPLACE_STRATEGY_NON_EXISTENT = 2; // 0x2
+  }
+
+  public abstract static class EmojiCompat.Config {
+    ctor protected EmojiCompat.Config(androidx.emoji.text.EmojiCompat.MetadataRepoLoader);
+    method protected final androidx.emoji.text.EmojiCompat.MetadataRepoLoader! getMetadataRepoLoader();
+    method public androidx.emoji.text.EmojiCompat.Config! registerInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
+    method public androidx.emoji.text.EmojiCompat.Config! setEmojiSpanIndicatorColor(@ColorInt int);
+    method public androidx.emoji.text.EmojiCompat.Config! setEmojiSpanIndicatorEnabled(boolean);
+    method public androidx.emoji.text.EmojiCompat.Config! setMetadataLoadStrategy(@androidx.emoji.text.EmojiCompat.LoadStrategy int);
+    method public androidx.emoji.text.EmojiCompat.Config! setReplaceAll(boolean);
+    method public androidx.emoji.text.EmojiCompat.Config! setUseEmojiAsDefaultStyle(boolean);
+    method public androidx.emoji.text.EmojiCompat.Config! setUseEmojiAsDefaultStyle(boolean, java.util.List<java.lang.Integer!>?);
+    method public androidx.emoji.text.EmojiCompat.Config! unregisterInitCallback(androidx.emoji.text.EmojiCompat.InitCallback);
+  }
+
+  public abstract static class EmojiCompat.InitCallback {
+    ctor public EmojiCompat.InitCallback();
+    method public void onFailed(Throwable?);
+    method public void onInitialized();
   }
 
   @IntDef({androidx.emoji.text.EmojiCompat.LOAD_STATE_DEFAULT, androidx.emoji.text.EmojiCompat.LOAD_STATE_LOADING, androidx.emoji.text.EmojiCompat.LOAD_STATE_SUCCEEDED, androidx.emoji.text.EmojiCompat.LOAD_STATE_FAILED}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface EmojiCompat.LoadState {
   }
 
   @IntDef({androidx.emoji.text.EmojiCompat.LOAD_STRATEGY_DEFAULT, androidx.emoji.text.EmojiCompat.LOAD_STRATEGY_MANUAL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface EmojiCompat.LoadStrategy {
+  }
+
+  public static interface EmojiCompat.MetadataRepoLoader {
+    method public void load(androidx.emoji.text.EmojiCompat.MetadataRepoLoaderCallback);
+  }
+
+  public abstract static class EmojiCompat.MetadataRepoLoaderCallback {
+    ctor public EmojiCompat.MetadataRepoLoaderCallback();
+    method public abstract void onFailed(Throwable?);
+    method public abstract void onLoaded(androidx.emoji.text.MetadataRepo);
   }
 
   @IntDef({androidx.emoji.text.EmojiCompat.REPLACE_STRATEGY_DEFAULT, androidx.emoji.text.EmojiCompat.REPLACE_STRATEGY_NON_EXISTENT, androidx.emoji.text.EmojiCompat.REPLACE_STRATEGY_ALL}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface EmojiCompat.ReplaceStrategy {
@@ -39,10 +94,19 @@ package androidx.emoji.text {
 
   @RequiresApi(19) public abstract class EmojiSpan extends android.text.style.ReplacementSpan {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public final int getId();
+    method public int getSize(android.graphics.Paint, CharSequence!, int, int, android.graphics.Paint.FontMetricsInt!);
   }
 
   public class FontRequestEmojiCompatConfig extends androidx.emoji.text.EmojiCompat.Config {
+    ctor public FontRequestEmojiCompatConfig(android.content.Context, androidx.core.provider.FontRequest);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public FontRequestEmojiCompatConfig(android.content.Context, androidx.core.provider.FontRequest, androidx.emoji.text.FontRequestEmojiCompatConfig.FontProviderHelper);
+    method public androidx.emoji.text.FontRequestEmojiCompatConfig! setHandler(android.os.Handler!);
+    method public androidx.emoji.text.FontRequestEmojiCompatConfig! setRetryPolicy(androidx.emoji.text.FontRequestEmojiCompatConfig.RetryPolicy!);
+  }
+
+  public static class FontRequestEmojiCompatConfig.ExponentialBackoffRetryPolicy extends androidx.emoji.text.FontRequestEmojiCompatConfig.RetryPolicy {
+    ctor public FontRequestEmojiCompatConfig.ExponentialBackoffRetryPolicy(long);
+    method public long getRetryDelay();
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static class FontRequestEmojiCompatConfig.FontProviderHelper {
@@ -53,7 +117,15 @@ package androidx.emoji.text {
     method public void unregisterObserver(android.content.Context, android.database.ContentObserver);
   }
 
+  public abstract static class FontRequestEmojiCompatConfig.RetryPolicy {
+    ctor public FontRequestEmojiCompatConfig.RetryPolicy();
+    method public abstract long getRetryDelay();
+  }
+
   @AnyThread @RequiresApi(19) public final class MetadataRepo {
+    method public static androidx.emoji.text.MetadataRepo! create(android.graphics.Typeface, java.io.InputStream) throws java.io.IOException;
+    method public static androidx.emoji.text.MetadataRepo! create(android.graphics.Typeface, java.nio.ByteBuffer) throws java.io.IOException;
+    method public static androidx.emoji.text.MetadataRepo! create(android.content.res.AssetManager, String!) throws java.io.IOException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public char[]! getEmojiCharArray();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.text.emoji.flatbuffer.MetadataList! getMetadataList();
   }
@@ -72,6 +144,30 @@ package androidx.emoji.widget {
     method public int getMaxEmojiCount();
   }
 
+  public class EmojiButton extends android.widget.Button {
+    ctor public EmojiButton(android.content.Context!);
+    ctor public EmojiButton(android.content.Context!, android.util.AttributeSet!);
+    ctor public EmojiButton(android.content.Context!, android.util.AttributeSet!, int);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public EmojiButton(android.content.Context!, android.util.AttributeSet!, int, int);
+  }
+
+  public class EmojiEditText extends android.widget.EditText {
+    ctor public EmojiEditText(android.content.Context!);
+    ctor public EmojiEditText(android.content.Context!, android.util.AttributeSet!);
+    ctor public EmojiEditText(android.content.Context!, android.util.AttributeSet!, int);
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public EmojiEditText(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public int getMaxEmojiCount();
+    method public void setMaxEmojiCount(@IntRange(from=0) int);
+  }
+
+  public final class EmojiEditTextHelper {
+    ctor public EmojiEditTextHelper(android.widget.EditText);
+    method public android.text.method.KeyListener getKeyListener(android.text.method.KeyListener);
+    method public int getMaxEmojiCount();
+    method public android.view.inputmethod.InputConnection? onCreateInputConnection(android.view.inputmethod.InputConnection?, android.view.inputmethod.EditorInfo);
+    method public void setMaxEmojiCount(@IntRange(from=0) int);
+  }
+
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class EmojiExtractEditText extends android.inputmethodservice.ExtractEditText {
     ctor public EmojiExtractEditText(android.content.Context!);
     ctor public EmojiExtractEditText(android.content.Context!, android.util.AttributeSet!);
@@ -81,6 +177,31 @@ package androidx.emoji.widget {
     method public int getMaxEmojiCount();
     method public void setEmojiReplaceStrategy(@androidx.emoji.text.EmojiCompat.ReplaceStrategy int);
     method public void setMaxEmojiCount(@IntRange(from=0) int);
+  }
+
+  public class EmojiExtractTextLayout extends android.widget.LinearLayout {
+    ctor public EmojiExtractTextLayout(android.content.Context!);
+    ctor public EmojiExtractTextLayout(android.content.Context!, android.util.AttributeSet?);
+    ctor public EmojiExtractTextLayout(android.content.Context!, android.util.AttributeSet?, int);
+    ctor @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public EmojiExtractTextLayout(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public int getEmojiReplaceStrategy();
+    method public void onUpdateExtractingViews(android.inputmethodservice.InputMethodService!, android.view.inputmethod.EditorInfo!);
+    method public void setEmojiReplaceStrategy(@androidx.emoji.text.EmojiCompat.ReplaceStrategy int);
+  }
+
+  public class EmojiTextView extends android.widget.TextView {
+    ctor public EmojiTextView(android.content.Context!);
+    ctor public EmojiTextView(android.content.Context!, android.util.AttributeSet!);
+    ctor public EmojiTextView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public EmojiTextView(android.content.Context!, android.util.AttributeSet!, int, int);
+  }
+
+  public final class EmojiTextViewHelper {
+    ctor public EmojiTextViewHelper(android.widget.TextView);
+    method public android.text.InputFilter![] getFilters(android.text.InputFilter![]);
+    method public void setAllCaps(boolean);
+    method public void updateTransformationMethod();
+    method public android.text.method.TransformationMethod? wrapTransformationMethod(android.text.method.TransformationMethod?);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ExtractButtonCompat extends android.widget.Button {

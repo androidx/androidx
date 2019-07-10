@@ -1,1 +1,183 @@
 // Signature format: 3.0
+package androidx.collection {
+
+  public class ArrayMap<K, V> extends androidx.collection.SimpleArrayMap<K,V> implements java.util.Map<K,V> {
+    ctor public ArrayMap();
+    ctor public ArrayMap(int);
+    ctor public ArrayMap(androidx.collection.SimpleArrayMap!);
+    method public boolean containsAll(java.util.Collection<?>);
+    method public java.util.Set<java.util.Map.Entry<K!,V!>!>! entrySet();
+    method public java.util.Set<K!>! keySet();
+    method public void putAll(java.util.Map<? extends K,? extends V>!);
+    method public boolean removeAll(java.util.Collection<?>);
+    method public boolean retainAll(java.util.Collection<?>);
+    method public java.util.Collection<V!>! values();
+  }
+
+  public final class ArraySet<E> implements java.util.Collection<E> java.util.Set<E> {
+    ctor public ArraySet();
+    ctor public ArraySet(int);
+    ctor public ArraySet(androidx.collection.ArraySet<E!>?);
+    ctor public ArraySet(java.util.Collection<E!>?);
+    method public boolean add(E?);
+    method public void addAll(androidx.collection.ArraySet<? extends E>);
+    method public boolean addAll(java.util.Collection<? extends E>);
+    method public void clear();
+    method public boolean contains(Object?);
+    method public boolean containsAll(java.util.Collection<?>);
+    method public void ensureCapacity(int);
+    method public int indexOf(Object?);
+    method public boolean isEmpty();
+    method public java.util.Iterator<E!>! iterator();
+    method public boolean remove(Object?);
+    method public boolean removeAll(androidx.collection.ArraySet<? extends E>);
+    method public boolean removeAll(java.util.Collection<?>);
+    method public E! removeAt(int);
+    method public boolean retainAll(java.util.Collection<?>);
+    method public int size();
+    method public Object![] toArray();
+    method public <T> T![] toArray(T![]);
+    method public E? valueAt(int);
+  }
+
+  public final class CircularArray<E> {
+    ctor public CircularArray();
+    ctor public CircularArray(int);
+    method public void addFirst(E!);
+    method public void addLast(E!);
+    method public void clear();
+    method public E! get(int);
+    method public E! getFirst();
+    method public E! getLast();
+    method public boolean isEmpty();
+    method public E! popFirst();
+    method public E! popLast();
+    method public void removeFromEnd(int);
+    method public void removeFromStart(int);
+    method public int size();
+  }
+
+  public final class CircularIntArray {
+    ctor public CircularIntArray();
+    ctor public CircularIntArray(int);
+    method public void addFirst(int);
+    method public void addLast(int);
+    method public void clear();
+    method public int get(int);
+    method public int getFirst();
+    method public int getLast();
+    method public boolean isEmpty();
+    method public int popFirst();
+    method public int popLast();
+    method public void removeFromEnd(int);
+    method public void removeFromStart(int);
+    method public int size();
+  }
+
+  public class LongSparseArray<E> implements java.lang.Cloneable {
+    ctor public LongSparseArray();
+    ctor public LongSparseArray(int);
+    method public void append(long, E!);
+    method public void clear();
+    method public androidx.collection.LongSparseArray<E!>! clone();
+    method public boolean containsKey(long);
+    method public boolean containsValue(E!);
+    method @Deprecated public void delete(long);
+    method public E? get(long);
+    method public E! get(long, E!);
+    method public int indexOfKey(long);
+    method public int indexOfValue(E!);
+    method public boolean isEmpty();
+    method public long keyAt(int);
+    method public void put(long, E!);
+    method public void putAll(androidx.collection.LongSparseArray<? extends E>);
+    method public E? putIfAbsent(long, E!);
+    method public void remove(long);
+    method public boolean remove(long, Object!);
+    method public void removeAt(int);
+    method public E? replace(long, E!);
+    method public boolean replace(long, E!, E!);
+    method public void setValueAt(int, E!);
+    method public int size();
+    method public E! valueAt(int);
+  }
+
+  public class LruCache<K, V> {
+    ctor public LruCache(int);
+    method protected V? create(K);
+    method public final int createCount();
+    method protected void entryRemoved(boolean, K, V, V?);
+    method public final void evictAll();
+    method public final int evictionCount();
+    method public final V? get(K);
+    method public final int hitCount();
+    method public final int maxSize();
+    method public final int missCount();
+    method public final V? put(K, V);
+    method public final int putCount();
+    method public final V? remove(K);
+    method public void resize(int);
+    method public final int size();
+    method protected int sizeOf(K, V);
+    method public final java.util.Map<K!,V!>! snapshot();
+    method public final String toString();
+    method public void trimToSize(int);
+  }
+
+  public class SimpleArrayMap<K, V> {
+    ctor public SimpleArrayMap();
+    ctor public SimpleArrayMap(int);
+    ctor public SimpleArrayMap(androidx.collection.SimpleArrayMap<K!,V!>!);
+    method public void clear();
+    method public boolean containsKey(Object?);
+    method public boolean containsValue(Object!);
+    method public void ensureCapacity(int);
+    method public V? get(Object!);
+    method public V! getOrDefault(Object!, V!);
+    method public int indexOfKey(Object?);
+    method public boolean isEmpty();
+    method public K! keyAt(int);
+    method public V? put(K!, V!);
+    method public void putAll(androidx.collection.SimpleArrayMap<? extends K,? extends V>);
+    method public V? putIfAbsent(K!, V!);
+    method public V? remove(Object!);
+    method public boolean remove(Object!, Object!);
+    method public V! removeAt(int);
+    method public V? replace(K!, V!);
+    method public boolean replace(K!, V!, V!);
+    method public V! setValueAt(int, V!);
+    method public int size();
+    method public V! valueAt(int);
+  }
+
+  public class SparseArrayCompat<E> implements java.lang.Cloneable {
+    ctor public SparseArrayCompat();
+    ctor public SparseArrayCompat(int);
+    method public void append(int, E!);
+    method public void clear();
+    method public androidx.collection.SparseArrayCompat<E!>! clone();
+    method public boolean containsKey(int);
+    method public boolean containsValue(E!);
+    method @Deprecated public void delete(int);
+    method public E? get(int);
+    method public E! get(int, E!);
+    method public int indexOfKey(int);
+    method public int indexOfValue(E!);
+    method public boolean isEmpty();
+    method public int keyAt(int);
+    method public void put(int, E!);
+    method public void putAll(androidx.collection.SparseArrayCompat<? extends E>);
+    method public E? putIfAbsent(int, E!);
+    method public void remove(int);
+    method public boolean remove(int, Object!);
+    method public void removeAt(int);
+    method public void removeAtRange(int, int);
+    method public E? replace(int, E!);
+    method public boolean replace(int, E!, E!);
+    method public void setValueAt(int, E!);
+    method public int size();
+    method public E! valueAt(int);
+  }
+
+}
+

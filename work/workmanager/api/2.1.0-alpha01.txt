@@ -15,7 +15,6 @@ package androidx.work {
     method public java.util.concurrent.Executor getExecutor();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
-    method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
   }
@@ -27,7 +26,6 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
-    method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
 
@@ -102,12 +100,6 @@ package androidx.work {
     method public androidx.work.Data.Builder putStringArray(String, String![]);
   }
 
-  public class DelegatingWorkerFactory extends androidx.work.WorkerFactory {
-    ctor public DelegatingWorkerFactory();
-    method public final void addFactory(androidx.work.WorkerFactory);
-    method public final androidx.work.ListenableWorker? createWorker(android.content.Context, String, androidx.work.WorkerParameters);
-  }
-
   public enum ExistingPeriodicWorkPolicy {
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
@@ -162,6 +154,8 @@ package androidx.work {
 
   public static final class OneTimeWorkRequest.Builder extends androidx.work.WorkRequest.Builder<androidx.work.OneTimeWorkRequest.Builder,androidx.work.OneTimeWorkRequest> {
     ctor public OneTimeWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker>);
+    method public androidx.work.OneTimeWorkRequest.Builder setInitialDelay(long, java.util.concurrent.TimeUnit);
+    method @RequiresApi(26) public androidx.work.OneTimeWorkRequest.Builder setInitialDelay(java.time.Duration);
     method public androidx.work.OneTimeWorkRequest.Builder setInputMerger(Class<? extends androidx.work.InputMerger>);
   }
 
@@ -272,8 +266,6 @@ package androidx.work {
     method public final B setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit);
     method @RequiresApi(26) public final B setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration);
     method public final B setConstraints(androidx.work.Constraints);
-    method public B setInitialDelay(long, java.util.concurrent.TimeUnit);
-    method @RequiresApi(26) public B setInitialDelay(java.time.Duration);
     method public final B setInputData(androidx.work.Data);
   }
 

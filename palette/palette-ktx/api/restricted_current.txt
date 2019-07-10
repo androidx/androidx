@@ -1,1 +1,10 @@
 // Signature format: 3.0
+package androidx.palette.graphics {
+
+  public final class PaletteKt {
+    ctor public PaletteKt();
+    method public static inline operator androidx.palette.graphics.Palette.Swatch? get(androidx.palette.graphics.Palette, androidx.palette.graphics.Target target);
+  }
+
+}
+

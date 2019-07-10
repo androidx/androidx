@@ -1,1 +1,71 @@
 // Signature format: 3.0
+package androidx.percentlayout.widget {
+
+  @Deprecated public class PercentFrameLayout extends android.widget.FrameLayout {
+    ctor @Deprecated public PercentFrameLayout(android.content.Context!);
+    ctor @Deprecated public PercentFrameLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor @Deprecated public PercentFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
+    method @Deprecated protected androidx.percentlayout.widget.PercentFrameLayout.LayoutParams! generateDefaultLayoutParams();
+    method @Deprecated public androidx.percentlayout.widget.PercentFrameLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
+  }
+
+  @Deprecated public static class PercentFrameLayout.LayoutParams extends android.widget.FrameLayout.LayoutParams implements androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutParams {
+    ctor @Deprecated public PercentFrameLayout.LayoutParams(android.content.Context!, android.util.AttributeSet!);
+    ctor @Deprecated public PercentFrameLayout.LayoutParams(int, int);
+    ctor @Deprecated public PercentFrameLayout.LayoutParams(int, int, int);
+    ctor @Deprecated public PercentFrameLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor @Deprecated public PercentFrameLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    ctor @Deprecated public PercentFrameLayout.LayoutParams(android.widget.FrameLayout.LayoutParams!);
+    ctor @Deprecated @RequiresApi(19) public PercentFrameLayout.LayoutParams(androidx.percentlayout.widget.PercentFrameLayout.LayoutParams!);
+    method @Deprecated public androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo! getPercentLayoutInfo();
+  }
+
+  @Deprecated public class PercentLayoutHelper {
+    ctor @Deprecated public PercentLayoutHelper(android.view.ViewGroup);
+    method @Deprecated public void adjustChildren(int, int);
+    method @Deprecated public static void fetchWidthAndHeight(android.view.ViewGroup.LayoutParams!, android.content.res.TypedArray!, int, int);
+    method @Deprecated public static androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo! getPercentLayoutInfo(android.content.Context!, android.util.AttributeSet!);
+    method @Deprecated public boolean handleMeasuredStateTooSmall();
+    method @Deprecated public void restoreOriginalParams();
+  }
+
+  @Deprecated public static class PercentLayoutHelper.PercentLayoutInfo {
+    ctor @Deprecated public PercentLayoutHelper.PercentLayoutInfo();
+    method @Deprecated public void fillLayoutParams(android.view.ViewGroup.LayoutParams!, int, int);
+    method @Deprecated public void fillMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams!, int, int);
+    method @Deprecated public void fillMarginLayoutParams(android.view.View!, android.view.ViewGroup.MarginLayoutParams!, int, int);
+    method @Deprecated public void restoreLayoutParams(android.view.ViewGroup.LayoutParams!);
+    method @Deprecated public void restoreMarginLayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    field @Deprecated public float aspectRatio;
+    field @Deprecated public float bottomMarginPercent;
+    field @Deprecated public float endMarginPercent;
+    field @Deprecated public float heightPercent;
+    field @Deprecated public float leftMarginPercent;
+    field @Deprecated public float rightMarginPercent;
+    field @Deprecated public float startMarginPercent;
+    field @Deprecated public float topMarginPercent;
+    field @Deprecated public float widthPercent;
+  }
+
+  @Deprecated public static interface PercentLayoutHelper.PercentLayoutParams {
+    method @Deprecated public androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo! getPercentLayoutInfo();
+  }
+
+  @Deprecated public class PercentRelativeLayout extends android.widget.RelativeLayout {
+    ctor @Deprecated public PercentRelativeLayout(android.content.Context!);
+    ctor @Deprecated public PercentRelativeLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor @Deprecated public PercentRelativeLayout(android.content.Context!, android.util.AttributeSet!, int);
+    method @Deprecated protected androidx.percentlayout.widget.PercentRelativeLayout.LayoutParams! generateDefaultLayoutParams();
+    method @Deprecated public androidx.percentlayout.widget.PercentRelativeLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
+  }
+
+  @Deprecated public static class PercentRelativeLayout.LayoutParams extends android.widget.RelativeLayout.LayoutParams implements androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutParams {
+    ctor @Deprecated public PercentRelativeLayout.LayoutParams(android.content.Context!, android.util.AttributeSet!);
+    ctor @Deprecated public PercentRelativeLayout.LayoutParams(int, int);
+    ctor @Deprecated public PercentRelativeLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor @Deprecated public PercentRelativeLayout.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
+    method @Deprecated public androidx.percentlayout.widget.PercentLayoutHelper.PercentLayoutInfo! getPercentLayoutInfo();
+  }
+
+}
+

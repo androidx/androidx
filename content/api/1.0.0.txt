@@ -5,7 +5,7 @@ package androidx.contentpager.content {
     ctor public ContentPager(android.content.ContentResolver!, androidx.contentpager.content.ContentPager.QueryRunner!);
     ctor public ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner, int);
     method public static android.os.Bundle createArgs(int, int);
-    method @MainThread public androidx.contentpager.content.Query query(@RequiresPermission.Read android.net.Uri, String[]?, android.os.Bundle, android.os.CancellationSignal?, androidx.contentpager.content.ContentPager.ContentCallback);
+    method @MainThread public androidx.contentpager.content.Query query(@RequiresPermission.Read android.net.Uri, String![]?, android.os.Bundle, android.os.CancellationSignal?, androidx.contentpager.content.ContentPager.ContentCallback);
     method @MainThread public void reset();
     field public static final int CURSOR_DISPOSITION_COPIED = 1; // 0x1
     field public static final int CURSOR_DISPOSITION_PAGED = 2; // 0x2

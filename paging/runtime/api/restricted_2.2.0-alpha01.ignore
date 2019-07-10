@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.paging.AsyncPagedListDiffer#AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter, androidx.recyclerview.widget.DiffUtil.ItemCallback<T>):
+    Removed constructor androidx.paging.AsyncPagedListDiffer(androidx.recyclerview.widget.RecyclerView.Adapter,androidx.recyclerview.widget.DiffUtil.ItemCallback<T>)

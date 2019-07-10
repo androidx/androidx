@@ -1,28 +1,62 @@
 // Signature format: 3.0
 package androidx.lifecycle {
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class CompositeGeneratedAdaptersObserver implements androidx.lifecycle.GenericLifecycleObserver {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class CompositeGeneratedAdaptersObserver implements androidx.lifecycle.GenericLifecycleObserver {
     method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public interface GeneratedAdapter {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public interface GeneratedAdapter {
     method public void callMethods(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!, boolean, androidx.lifecycle.MethodCallsLogger!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public interface GenericLifecycleObserver extends androidx.lifecycle.LifecycleObserver {
-    method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
+
+  public abstract class Lifecycle {
+    ctor public Lifecycle();
+    method @MainThread public abstract void addObserver(androidx.lifecycle.LifecycleObserver);
+    method @MainThread public abstract androidx.lifecycle.Lifecycle.State getCurrentState();
+    method @MainThread public abstract void removeObserver(androidx.lifecycle.LifecycleObserver);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Lifecycling {
+  public enum Lifecycle.Event {
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_CREATE;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_DESTROY;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_PAUSE;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_RESUME;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_START;
+    enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_STOP;
+  }
+
+  public enum Lifecycle.State {
+    method public boolean isAtLeast(androidx.lifecycle.Lifecycle.State);
+    enum_constant public static final androidx.lifecycle.Lifecycle.State CREATED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State DESTROYED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State INITIALIZED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State RESUMED;
+    enum_constant public static final androidx.lifecycle.Lifecycle.State STARTED;
+  }
+
+  public interface LifecycleObserver {
+  }
+
+  public interface LifecycleOwner {
+    method public androidx.lifecycle.Lifecycle getLifecycle();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class Lifecycling {
     method public static String! getAdapterName(String!);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MethodCallsLogger {
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class MethodCallsLogger {
     ctor public MethodCallsLogger();
-    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean approveCall(String!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean approveCall(String!, int);
   }
 
-  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SingleGeneratedAdapterObserver implements androidx.lifecycle.GenericLifecycleObserver {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface OnLifecycleEvent {
+    method public abstract androidx.lifecycle.Lifecycle.Event! value();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class SingleGeneratedAdapterObserver implements androidx.lifecycle.GenericLifecycleObserver {
     method public void onStateChanged(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!);
   }
 

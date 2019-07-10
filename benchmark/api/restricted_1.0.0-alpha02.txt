@@ -1,6 +1,32 @@
 // Signature format: 3.0
 package androidx.benchmark {
 
+  public class AndroidBenchmarkRunner extends androidx.test.runner.AndroidJUnitRunner {
+    ctor public AndroidBenchmarkRunner();
+  }
+
+  public final class BenchmarkRule implements org.junit.rules.TestRule {
+    ctor public BenchmarkRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
+    method public androidx.benchmark.BenchmarkState getState();
+  }
+
+  public final class BenchmarkRule.Scope {
+    method public inline <T> T! runWithTimingDisabled(kotlin.jvm.functions.Function0<? extends T> block);
+  }
+
+  public final class BenchmarkRuleKt {
+    ctor public BenchmarkRuleKt();
+    method public static inline void measureRepeated(androidx.benchmark.BenchmarkRule, kotlin.jvm.functions.Function1<? super androidx.benchmark.BenchmarkRule.Scope,kotlin.Unit> block);
+  }
+
+  public final class BenchmarkState {
+    method public boolean keepRunning();
+    method public void pauseTiming();
+    method public static void reportData(String className, String testName, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=1) int repeatIterations);
+    method public void resumeTiming();
+  }
+
 
   public static final class IsolationActivity.Companion {
     method @AnyThread public void finishSingleton();

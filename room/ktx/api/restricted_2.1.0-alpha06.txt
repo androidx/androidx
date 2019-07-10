@@ -10,5 +10,14 @@ package androidx.room {
     method public suspend <R> Object! execute(androidx.room.RoomDatabase db, boolean inTransaction, java.util.concurrent.Callable<R> callable, kotlin.coroutines.Continuation<? super R> p);
   }
 
+  public final class CoroutinesRoomKt {
+    ctor public CoroutinesRoomKt();
+  }
+
+  public final class RoomDatabaseKt {
+    ctor public RoomDatabaseKt();
+    method public static suspend <R> Object! withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super kotlinx.coroutines.CoroutineScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R> p);
+  }
+
 }
 

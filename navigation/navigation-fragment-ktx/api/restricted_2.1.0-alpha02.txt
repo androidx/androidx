@@ -1,1 +1,40 @@
 // Signature format: 3.0
+package androidx.navigation {
+
+  public final class NavGraphViewModelLazyKt {
+    ctor public NavGraphViewModelLazyKt();
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> navGraphViewModels(androidx.fragment.app.Fragment, @IdRes int navGraphId, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
+  }
+
+}
+
+package androidx.navigation.fragment {
+
+  public final class FragmentKt {
+    ctor public FragmentKt();
+    method public static androidx.navigation.NavController findNavController(androidx.fragment.app.Fragment);
+  }
+
+  public final class FragmentNavArgsLazyKt {
+    ctor public FragmentNavArgsLazyKt();
+    method @MainThread public static inline <reified Args extends androidx.navigation.NavArgs> androidx.navigation.NavArgsLazy<Args> navArgs(androidx.fragment.app.Fragment);
+  }
+
+  public final class FragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
+    ctor public FragmentNavigatorDestinationBuilder(androidx.navigation.fragment.FragmentNavigator navigator, @IdRes int id, kotlin.reflect.KClass<? extends androidx.fragment.app.Fragment> fragmentClass);
+    method public androidx.navigation.fragment.FragmentNavigator.Destination build();
+  }
+
+  public final class FragmentNavigatorDestinationBuilderKt {
+    ctor public FragmentNavigatorDestinationBuilderKt();
+    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+  }
+
+  public final class FragmentNavigatorExtrasKt {
+    ctor public FragmentNavigatorExtrasKt();
+    method public static androidx.navigation.fragment.FragmentNavigator.Extras FragmentNavigatorExtras(kotlin.Pair<? extends android.view.View,java.lang.String>... sharedElements);
+  }
+
+}
+

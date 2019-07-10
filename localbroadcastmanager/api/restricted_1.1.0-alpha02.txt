@@ -1,1 +1,13 @@
 // Signature format: 3.0
+package androidx.localbroadcastmanager.content {
+
+  @Deprecated public final class LocalBroadcastManager {
+    method @Deprecated public static androidx.localbroadcastmanager.content.LocalBroadcastManager getInstance(android.content.Context);
+    method @Deprecated public void registerReceiver(android.content.BroadcastReceiver, android.content.IntentFilter);
+    method @Deprecated public boolean sendBroadcast(android.content.Intent);
+    method @Deprecated public void sendBroadcastSync(android.content.Intent);
+    method @Deprecated public void unregisterReceiver(android.content.BroadcastReceiver);
+  }
+
+}
+

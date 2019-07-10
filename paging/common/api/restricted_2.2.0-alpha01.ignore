@@ -1,3 +1,25 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.paging.DataSource#load$lintWithKotlin(androidx.paging.DataSource.Params<Key>, kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>):
+    Added method androidx.paging.DataSource.load$lintWithKotlin(androidx.paging.DataSource.Params<Key>,kotlin.coroutines.Continuation<? super androidx.paging.DataSource.BaseResult<Value>>)
+AddedAbstractMethod: androidx.paging.PagedList#isContiguous():
+    Added method androidx.paging.PagedList.isContiguous()
+
+
+ChangedAbstract: androidx.paging.PagedList#detach():
+    Method androidx.paging.PagedList.detach has changed 'abstract' qualifier
+ChangedAbstract: androidx.paging.PagedList#isDetached():
+    Method androidx.paging.PagedList.isDetached has changed 'abstract' qualifier
+
+
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadAfter$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.Result<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.ItemKeyedDataSource.Result.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadBefore$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.Result<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.ItemKeyedDataSource.Result.
+HiddenTypeParameter: androidx.paging.ItemKeyedDataSource#loadInitial$lintWithKotlin(androidx.paging.ItemKeyedDataSource.LoadInitialParams<Key>, kotlin.coroutines.Continuation<? super androidx.paging.ItemKeyedDataSource.InitialResult<Value>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.ItemKeyedDataSource.InitialResult.
+HiddenTypeParameter: androidx.paging.PositionalDataSource#loadInitial$lintWithKotlin(androidx.paging.PositionalDataSource.LoadInitialParams, kotlin.coroutines.Continuation<? super androidx.paging.PositionalDataSource.InitialResult<T>>) parameter #1:
+    Parameter p references hidden type class androidx.paging.PositionalDataSource.InitialResult.
+
+
 RemovedDeprecatedClass: androidx.paging.TiledDataSource:
     Removed deprecated class androidx.paging.TiledDataSource

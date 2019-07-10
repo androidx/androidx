@@ -1,1 +1,10 @@
 // Signature format: 3.0
+package androidx.fragment.app {
+
+  public final class FragmentManagerKt {
+    ctor public FragmentManagerKt();
+    method public static inline void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
+  }
+
+}
+
