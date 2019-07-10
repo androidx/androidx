@@ -33,9 +33,6 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCaptureConfig;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * Provides defaults for {@link VideoCaptureConfig} in the Camera2 implementation.
  * @hide
@@ -74,24 +71,13 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
         builder.setDefaultCaptureConfig(captureBuilder.build());
         builder.setCaptureOptionUnpacker(Camera2CaptureOptionUnpacker.INSTANCE);
 
-        List<LensFacing> lensFacingList;
-
-        // Add default lensFacing if we can
-        if (lensFacing == LensFacing.FRONT) {
-            lensFacingList = Arrays.asList(LensFacing.FRONT, LensFacing.BACK);
-        } else {
-            lensFacingList = Arrays.asList(LensFacing.BACK, LensFacing.FRONT);
-        }
-
         try {
-            String defaultId = null;
-
-            for (LensFacing lensFacingCandidate : lensFacingList) {
-                defaultId = mCameraFactory.cameraIdForLensFacing(lensFacingCandidate);
-                if (defaultId != null) {
-                    builder.setLensFacing(lensFacingCandidate);
-                    break;
-                }
+            // Add default lensFacing if we can
+            LensFacing checkedLensFacing =
+                    (lensFacing != null) ? lensFacing : CameraX.getDefaultLensFacing();
+            String defaultId = mCameraFactory.cameraIdForLensFacing(checkedLensFacing);
+            if (defaultId != null) {
+                builder.setLensFacing(checkedLensFacing);
             }
 
             int targetRotation = mWindowManager.getDefaultDisplay().getRotation();

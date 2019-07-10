@@ -516,6 +516,34 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
+    public void checkDefaultLensFacingForMixedUseCase() {
+        setupCamera(/* supportsRaw= */ false);
+
+        Preview preview = new Preview(new PreviewConfig.Builder().build());
+        ImageCapture imageCapture = new ImageCapture(new ImageCaptureConfig.Builder().build());
+        ImageAnalysis imageAnalysis = new ImageAnalysis(new ImageAnalysisConfig.Builder().build());
+        VideoCapture videoCapture = new VideoCapture(new VideoCaptureConfig.Builder().build());
+
+        PreviewConfig previewConfig = (PreviewConfig) preview.getUseCaseConfig();
+        ImageCaptureConfig imageCaptureConfig =
+                (ImageCaptureConfig) imageCapture.getUseCaseConfig();
+        ImageAnalysisConfig imageAnalysisConfig =
+                (ImageAnalysisConfig) imageAnalysis.getUseCaseConfig();
+        VideoCaptureConfig videoCaptureConfig =
+                (VideoCaptureConfig) videoCapture.getUseCaseConfig();
+
+        LensFacing previewLensFacing = previewConfig.getLensFacing(null);
+        LensFacing imageCaptureLensFacing = imageCaptureConfig.getLensFacing(null);
+        LensFacing imageAnalysisLensFacing = imageAnalysisConfig.getLensFacing(null);
+        LensFacing videoCaptureLensFacing = videoCaptureConfig.getLensFacing(null);
+
+        assertThat(previewLensFacing).isNotNull();
+        assertThat(imageCaptureLensFacing).isNotNull();
+        assertThat(imageAnalysisLensFacing).isNotNull();
+        assertThat(videoCaptureLensFacing).isNotNull();
+    }
+
+    @Test
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         setupCamera(/* supportsRaw= */ false);
         SupportedSurfaceCombination supportedSurfaceCombination =
