@@ -34,8 +34,8 @@ interface RippleEffectFactory {
      *
      * Subclasses should override this method to return a new instance of an [RippleEffect].
      *
-     * @param rippleSurface The [RippleSurfaceOwner] associated with this [RippleEffect].
-     * @param coordinates The layout coordinates of the target layout.
+     * @param coordinates The layout coordinates of the parent for this ripple.
+     * @param surfaceCoordinates The surface layout coordinates.
      * @param touchPosition The position the animation will start from.
      * @param color The color for this [RippleEffect].
      * @param density The [Density] object to convert the dimensions.
@@ -44,16 +44,18 @@ interface RippleEffectFactory {
      * @param bounded If true, then the ripple will be sized to fit the bounds of the target
      *  layout, then clipped to it when drawn. If false, then the ripple is clipped only
      *  to the edges of the surface.
-     * @param onRemoved Called when the ripple is no longer visible on the surface.
+     * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
+     * @param onAnimationFinished Call when the effect animation has been finished.
      */
     fun create(
-        rippleSurface: RippleSurfaceOwner,
         coordinates: LayoutCoordinates,
+        surfaceCoordinates: LayoutCoordinates,
         touchPosition: PxPosition,
         color: Color,
         density: Density,
-        radius: Dp? = null,
-        bounded: Boolean = false,
-        onRemoved: (() -> Unit)? = null
+        radius: Dp?,
+        bounded: Boolean,
+        requestRedraw: (() -> Unit),
+        onAnimationFinished: ((RippleEffect) -> Unit)
     ): RippleEffect
 }

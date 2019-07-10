@@ -58,24 +58,26 @@ internal fun DensityReceiver.getRippleTargetRadius(size: PxSize) =
 object DefaultRippleEffectFactory : RippleEffectFactory {
 
     override fun create(
-        rippleSurface: RippleSurfaceOwner,
         coordinates: LayoutCoordinates,
+        surfaceCoordinates: LayoutCoordinates,
         touchPosition: PxPosition,
         color: Color,
         density: Density,
         radius: Dp?,
         bounded: Boolean,
-        onRemoved: (() -> Unit)?
+        requestRedraw: (() -> Unit),
+        onAnimationFinished: ((RippleEffect) -> Unit)
     ): RippleEffect {
         return DefaultRippleEffect(
-            rippleSurface,
             coordinates,
+            surfaceCoordinates,
             touchPosition,
             color,
             density,
             radius,
             bounded,
-            onRemoved
+            requestRedraw,
+            onAnimationFinished
         )
     }
 }
@@ -92,9 +94,9 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
  * animates to the center of its target layout for the bounded version
  * and stays in the center for the unbounded one.
  *
- * @param rippleSurface The [RippleSurfaceOwner] associated with this [RippleEffect].
  * @param coordinates The layout coordinates of the target layout.
- * @param touchPosition To start an animation from this position.
+ * @param surfaceCoordinates The surface layout coordinates.
+ * @param touchPosition The position the animation will start from.
  * @param color The color for this [RippleEffect].
  * @param density The [Density] object to convert the dimensions.
  * @param radius Effects grow up to this size. By default the size is
@@ -102,18 +104,20 @@ object DefaultRippleEffectFactory : RippleEffectFactory {
  * @param bounded If true, then the ripple will be sized to fit the bounds of the target
  *  layout, then clipped to it when drawn. If false, then the ripple is clipped only
  *  to the edges of the surface.
- * @param onRemoved Called when the ripple is no longer visible on the surface.
+ * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
+ * @param onAnimationFinished Call when the effect animation has been finished.
  */
 private class DefaultRippleEffect(
-    rippleSurface: RippleSurfaceOwner,
-    coordinates: LayoutCoordinates,
+    private val coordinates: LayoutCoordinates,
+    surfaceCoordinates: LayoutCoordinates,
     touchPosition: PxPosition,
     color: Color,
     density: Density,
     radius: Dp? = null,
     private val bounded: Boolean = false,
-    onRemoved: (() -> Unit)? = null
-) : RippleEffect(rippleSurface, coordinates, color, onRemoved) {
+    private val requestRedraw: (() -> Unit),
+    private val onAnimationFinished: ((RippleEffect) -> Unit)
+) : RippleEffect(coordinates, surfaceCoordinates, color, requestRedraw) {
 
     private val animation: TransitionAnimation<RippleTransition.State>
     private var transitionState = RippleTransition.State.Initial
@@ -134,17 +138,15 @@ private class DefaultRippleEffect(
             startCenter = if (bounded) touchPosition else center,
             endCenter = center
         ).createAnimation()
-        animation.onUpdate = { rippleSurface.markNeedsRedraw() }
+        animation.onUpdate = requestRedraw
         animation.onStateChangeFinished = { stage ->
             transitionState = stage
             if (transitionState == RippleTransition.State.Finished) {
-                dispose()
+                onAnimationFinished(this)
             }
         }
         // currently we are in Initial state, now we start the animation:
         animation.toState(RippleTransition.State.Revealed)
-
-        rippleSurface.addEffect(this)
     }
 
     override fun finish(canceled: Boolean) {
@@ -186,6 +188,10 @@ private class DefaultRippleEffect(
                 canvas.nativeCanvas.restore()
             }
         }
+    }
+
+    override fun dispose() {
+        // TODO: Stop animation here. there is no public method for it yet. b/137183289
     }
 }
 
