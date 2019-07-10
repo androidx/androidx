@@ -86,7 +86,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
                     ViewCompat.performAccessibilityAction(viewPager,
                         getPreviousPageAction(config.orientation, viewPager.isRtl), null)
                 }
-                latch.await(1, TimeUnit.SECONDS)
+                latch.await(2, TimeUnit.SECONDS)
                 assertBasicState(targetPage)
             }
         }
