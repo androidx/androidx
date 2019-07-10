@@ -2944,7 +2944,7 @@ public final class MediaPlayer extends SessionPlayer {
 
         final TrackInfo trackInfo = expected.mTrackInfo;
         if (what != expected.mCallType) {
-            Log.w(TAG, "Call type does not match. expeced:" + expected.mCallType
+            Log.w(TAG, "Call type does not match. expected:" + expected.mCallType
                     + " actual:" + what);
             status = MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN;
         }
