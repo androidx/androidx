@@ -17,7 +17,6 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Direction
-import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Px
@@ -38,7 +37,12 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.Clip
+import androidx.ui.core.Density
+import androidx.ui.core.PxSize
 import androidx.ui.core.RepaintBoundary
+import androidx.ui.engine.geometry.Outline
+import androidx.ui.engine.geometry.Shape
 
 /**
  * Tracks the vertical drag gesture offset, allowing a range between `0.px` and [max].
@@ -104,47 +108,48 @@ fun VerticalScroller(
     @Children child: @Composable() () -> Unit
 ) {
     val maxPosition = +state { 0.px }
-    VerticalDragGestureDetector(
-        max = maxPosition.value,
-        offsetChange = { newOffset -> onScrollChanged(newOffset, maxPosition.value) }) {
-        Layout(children = {
-            Draw { canvas, parentSize ->
-                // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
-                canvas.nativeCanvas.save()
-                canvas.clipRect(parentSize.toRect())
-            }
-            RepaintBoundary(name = "VerticalScroller") {
-                child()
-            }
-            Draw { canvas, _ ->
-                // TODO (njawad) replace with save lambda when multi children DrawNodes are supported
-                canvas.nativeCanvas.restore()
-            }
-        }, layoutBlock = { measurables, constraints ->
-            if (measurables.size > 1) {
-                throw IllegalStateException("Only one child is allowed in a VerticalScroller")
-            }
-            val childConstraints = constraints.copy(maxHeight = IntPx.Infinity)
-            val childMeasurable = measurables.firstOrNull()
-            val placeable = childMeasurable?.measure(childConstraints)
-            val width: IntPx
-            val height: IntPx
-            if (placeable == null) {
-                width = constraints.minWidth
-                height = constraints.minHeight
-            } else {
-                width = placeable.width
-                height = min(placeable.height, constraints.maxHeight)
-            }
-            layout(width, height) {
-                val childHeight = placeable?.height?.toPx() ?: 0.px
-                val newMaxPosition = childHeight - height.toPx()
-                if (maxPosition.value != newMaxPosition) {
-                    maxPosition.value = newMaxPosition
-                    onScrollChanged(scrollerPosition.position, maxPosition.value)
+    Layout(children = {
+            Clip(RectangleShape) {
+                VerticalDragGestureDetector(
+                    max = maxPosition.value,
+                    offsetChange = { newOffset -> onScrollChanged(newOffset, maxPosition.value) }) {
+                    Container {
+                        RepaintBoundary {
+                            child()
+                        }
+                    }
                 }
-                placeable?.place(0.ipx, -scrollerPosition.position.round())
             }
-        })
+        }) { measurables, constraints ->
+        if (measurables.size > 1) {
+            throw IllegalStateException("Only one child is allowed in a VerticalScroller")
+        }
+        val childConstraints = constraints.copy(maxHeight = IntPx.Infinity)
+        val childMeasurable = measurables.firstOrNull()
+        val placeable = childMeasurable?.measure(childConstraints)
+        val width: IntPx
+        val height: IntPx
+        if (placeable == null) {
+            width = constraints.minWidth
+            height = constraints.minHeight
+        } else {
+            width = placeable.width
+            height = min(placeable.height, constraints.maxHeight)
+        }
+        layout(width, height) {
+            val childHeight = placeable?.height?.toPx() ?: 0.px
+            val newMaxPosition = childHeight - height.toPx()
+            if (maxPosition.value != newMaxPosition) {
+                maxPosition.value = newMaxPosition
+                onScrollChanged(scrollerPosition.position, maxPosition.value)
+            }
+            placeable?.place(0.ipx, -scrollerPosition.position.round())
+        }
     }
+}
+
+// TODO(andreykulikov): make RectangleShape from ui-foundation accessible to this class
+private val RectangleShape: Shape = object : Shape {
+    override fun createOutline(size: PxSize, density: Density) =
+        Outline.Rectangle(size.toRect())
 }
