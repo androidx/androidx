@@ -91,8 +91,8 @@ class ClipTest {
                 CraneWrapper {
                     FillColor(Color.Green)
                     Padding(size = 10.ipx) {
-                        Clip(rectShape) {
-                            AtLeastSize(size = 10.ipx) {
+                        AtLeastSize(size = 10.ipx) {
+                            Clip(rectShape) {
                                 FillColor(Color.Cyan)
                             }
                         }
@@ -117,9 +117,9 @@ class ClipTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    FillColor(Color.Green)
-                    Clip(shape) {
-                        AtLeastSize(size = 30.ipx) {
+                    AtLeastSize(size = 30.ipx) {
+                        FillColor(Color.Green)
+                        Clip(shape) {
                             FillColor(Color.Cyan)
                         }
                     }
@@ -159,9 +159,9 @@ class ClipTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    FillColor(Color.Green)
-                    Clip(shape) {
-                        AtLeastSize(size = 30.ipx) {
+                    AtLeastSize(size = 30.ipx) {
+                        FillColor(Color.Green)
+                        Clip(shape) {
                             FillColor(Color.Cyan)
                         }
                     }
@@ -186,9 +186,9 @@ class ClipTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    FillColor(Color.Green)
-                    Clip(triangleShape) {
-                        AtLeastSize(size = 30.ipx) {
+                    AtLeastSize(size = 30.ipx) {
+                        FillColor(Color.Green)
+                        Clip(triangleShape) {
                             FillColor(Color.Cyan)
                         }
                     }
@@ -209,9 +209,9 @@ class ClipTest {
         rule.runOnUiThreadIR {
             activity.setContent {
                 CraneWrapper {
-                    FillColor(Color.Green)
-                    Clip(model.shape) {
-                        AtLeastSize(size = 30.ipx) {
+                    AtLeastSize(size = 30.ipx) {
+                        FillColor(Color.Green)
+                        Clip(model.shape) {
                             FillColor(Color.Cyan)
                         }
                     }
@@ -248,8 +248,8 @@ class ClipTest {
             activity.setContent {
                 CraneWrapper {
                     FillColor(Color.Green)
-                    Clip(model.shape) {
-                        AtLeastSize(size = 30.ipx) {
+                    AtLeastSize(size = 30.ipx) {
+                        Clip(model.shape) {
                             FillColor(Color.Cyan)
                         }
                     }
@@ -278,8 +278,8 @@ class ClipTest {
             activity.setContent {
                 CraneWrapper {
                     FillColor(Color.Green)
-                    Clip(model.shape) {
-                        AtLeastSize(size = 30.ipx) {
+                    AtLeastSize(size = 30.ipx) {
+                        Clip(model.shape) {
                             FillColor(Color.Cyan)
                         }
                     }
@@ -327,16 +327,23 @@ class ClipTest {
 @Model
 private data class ShapeModel(var shape: Shape)
 
-fun Bitmap.assertRect(color: Color, holeSize: Int = 0, size: Int = width) {
-    Assert.assertEquals(width, height)
-    Assert.assertTrue(width >= size)
-    val center = width / 2
+fun Bitmap.assertRect(
+    color: Color,
+    holeSize: Int = 0,
+    size: Int = width,
+    centerX: Int = width / 2,
+    centerY: Int = height / 2
+) {
+    Assert.assertTrue(centerX + size / 2 <= width)
+    Assert.assertTrue(centerX - size / 2 >= 0)
+    Assert.assertTrue(centerY + size / 2 <= height)
+    Assert.assertTrue(centerY - size / 2 >= 0)
     val halfHoleSize = holeSize / 2
-    val outerOffset = center - size / 2
-    for (x in outerOffset until width - outerOffset) {
-        for (y in outerOffset until width - outerOffset) {
-            if (abs(x - center) > halfHoleSize &&
-                abs(y - center) > halfHoleSize) {
+    for (x in centerX - size / 2 until centerX + size / 2) {
+        for (y in centerY - size / 2 until centerY + size / 2) {
+            if (abs(x - centerX) > halfHoleSize &&
+                abs(y - centerY) > halfHoleSize
+            ) {
                 assertColor(color, x, y)
             }
         }
