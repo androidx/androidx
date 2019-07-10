@@ -22,4 +22,3 @@
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
     </application>
 </manifest>
-
