@@ -95,15 +95,15 @@ final class BackStackState implements Parcelable {
         mReorderingAllowed = in.readInt() != 0;
     }
 
-    public BackStackRecord instantiate(FragmentManagerImpl fm) {
+    public BackStackRecord instantiate(FragmentManager fm) {
         BackStackRecord bse = new BackStackRecord(fm);
         int pos = 0;
         int num = 0;
         while (pos < mOps.length) {
             BackStackRecord.Op op = new BackStackRecord.Op();
             op.mCmd = mOps[pos++];
-            if (FragmentManagerImpl.DEBUG) {
-                Log.v(FragmentManagerImpl.TAG, "Instantiate " + bse
+            if (FragmentManager.DEBUG) {
+                Log.v(FragmentManager.TAG, "Instantiate " + bse
                         + " op #" + num + " base fragment #" + mOps[pos]);
             }
             String fWho = mFragmentWhos.get(num);

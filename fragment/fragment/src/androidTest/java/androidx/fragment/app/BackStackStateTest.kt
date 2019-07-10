@@ -37,7 +37,6 @@ class BackStackStateTest {
     @get:Rule
     var activityRule = ActivityTestRule(EmptyFragmentTestActivity::class.java)
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
-            as FragmentManagerImpl
 
     @Test
     fun testParcel() {

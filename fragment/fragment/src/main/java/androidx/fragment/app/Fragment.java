@@ -157,14 +157,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // The fragment manager we are associated with.  Set as soon as the
     // fragment is used in a transaction; cleared after it has been removed
     // from all transactions.
-    FragmentManagerImpl mFragmentManager;
+    FragmentManager mFragmentManager;
 
     // Host this fragment is attached to.
     FragmentHostCallback<?> mHost;
 
     // Private fragment manager for child fragments inside of this one.
     @NonNull
-    FragmentManagerImpl mChildFragmentManager = new FragmentManagerImpl();
+    FragmentManager mChildFragmentManager = new FragmentManagerImpl();
 
     // If this Fragment is contained in another Fragment, this is that container.
     Fragment mParentFragment;
@@ -1622,7 +1622,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     /**
      * Restore the state of the child FragmentManager. Called by either
      * {@link #onCreate(Bundle)} for non-retained instance fragments or by
-     * {@link FragmentManagerImpl#moveToState(Fragment, int, int, int, boolean)}
+     * {@link FragmentManager#moveToState(Fragment, int, int, int, boolean)}
      * for retained instance fragments.
      *
      * <p><strong>Postcondition:</strong> if there were child fragments to restore,
