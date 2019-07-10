@@ -18,6 +18,7 @@ package androidx.ui.core
 
 import android.util.Log
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
@@ -82,6 +83,36 @@ internal class InputFieldDelegate {
                 )
             }
             textPainter.paint(canvas, Offset.zero)
+        }
+
+        /**
+         * Notify system that focused input area.
+         *
+         * System is typically scrolled up not to be covered by keyboard.
+         */
+        @JvmStatic
+        fun notifyFocusedRect(
+            value: EditorState,
+            textPainter: TextPainter,
+            layoutCoordinates: LayoutCoordinates,
+            textInputService: TextInputService,
+            hasFocus: Boolean
+        ) {
+            if (!hasFocus) {
+                return
+            }
+
+            val bbox = textPainter.getBoundingBox(value.selection.end)
+            val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left.px, bbox.top.px))
+
+            textInputService.notifyFocusedRect(
+                Rect.fromLTWH(
+                    globalLT.x.value,
+                    globalLT.y.value,
+                    bbox.width,
+                    bbox.height
+                )
+            )
         }
 
         /**

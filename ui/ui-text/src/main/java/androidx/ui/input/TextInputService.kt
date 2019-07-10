@@ -17,6 +17,7 @@
 package androidx.ui.input
 
 import androidx.annotation.RestrictTo
+import androidx.ui.engine.geometry.Rect
 
 /**
  * An interface for text input service.
@@ -50,4 +51,9 @@ interface TextInputService {
      * Notify the new editor state to IME.
      */
     fun onStateUpdated(state: EditorState)
+
+    /**
+     * Notify the focused rectangle to the system.
+     */
+    fun notifyFocusedRect(rect: Rect)
 }
