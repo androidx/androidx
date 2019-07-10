@@ -16,13 +16,12 @@
 
 package androidx.ui.material.ripple
 
-import androidx.annotation.CallSuper
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
+import androidx.ui.graphics.Color
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Canvas
-import androidx.ui.graphics.Color
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.Vector3
 
@@ -31,32 +30,20 @@ import androidx.ui.vectormath64.Vector3
  *
  * To add an [RippleEffect] to a piece of [Surface], obtain the [RippleSurfaceOwner] via
  * [ambientRippleSurface] and call [RippleSurfaceOwner.addEffect].
- * @param rippleSurface The [RippleSurfaceOwner] associated with this [RippleEffect].
- * @param coordinates The layout coordinates of the parent for this ripple.
- * @param color the color for this [RippleEffect].
- * @param onRemoved Called when the ripple is no longer visible on the surface.
+ * @param coordinates The layout coordinates of the target layout.
+ * @param surfaceCoordinates The surface layout coordinates.
+ * @param color The color for this [RippleEffect].
+ * @param requestRedraw Call when the ripple should be redrawn to display the next frame.
  */
 abstract class RippleEffect(
-    val rippleSurface: RippleSurfaceOwner,
-    val coordinates: LayoutCoordinates,
+    private val coordinates: LayoutCoordinates,
+    private val surfaceCoordinates: LayoutCoordinates,
     color: Color,
-    val onRemoved: (() -> Unit)? = null
+    private val requestRedraw: (() -> Unit)
 ) {
 
-    internal var debugDisposed = false
-
-    /** Free up the resources associated with this ripple. */
-    @CallSuper
-    open fun dispose() {
-        assert(!debugDisposed)
-        debugDisposed = true
-        rippleSurface.removeEffect(this)
-        onRemoved?.invoke()
-    }
-
     internal fun draw(canvas: Canvas) {
-        assert(!debugDisposed)
-        val offset = rippleSurface.layoutCoordinates
+        val offset = surfaceCoordinates
             .childToLocal(coordinates, PxPosition(0.px, 0.px))
         val transform = Matrix4.translation(Vector3(
             offset.x.value,
@@ -81,12 +68,17 @@ abstract class RippleEffect(
      */
     open fun finish(canceled: Boolean) {}
 
+    /**
+     * Free up the resources associated with this ripple.
+     */
+    abstract fun dispose()
+
     /** The ripple's color. */
     var color: Color = color
         set(value) {
             if (value == field)
                 return
             field = value
-            rippleSurface.markNeedsRedraw()
+            requestRedraw()
         }
 }
