@@ -26,6 +26,8 @@ import androidx.annotation.RestrictTo;
 import androidx.room.ColumnInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,6 +58,7 @@ public class TableInfo {
     /**
      * Identifies from where the info object was created.
      */
+    @Retention(RetentionPolicy.SOURCE)
     @IntDef(value = {CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE})
     @interface CreatedFrom {
     }
@@ -390,7 +393,7 @@ public class TableInfo {
 
         // if you change this constructor, you must change TableInfoWriter.kt
         public Column(String name, String type, boolean notNull, int primaryKeyPosition,
-                String defaultValue, int createdFrom) {
+                String defaultValue, @CreatedFrom int createdFrom) {
             this.name = name;
             this.type = type;
             this.notNull = notNull;
