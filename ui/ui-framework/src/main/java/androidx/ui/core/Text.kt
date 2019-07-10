@@ -60,6 +60,11 @@ private val DefaultSelectionColor = Color(0x6633B5E5)
 @Composable
 fun Text(
     /**
+     * Text to render in this widget. If there are also [Span]s in this widget, they will be append
+     * after the given [text].
+     */
+    text: String? = null,
+    /**
      * Style configuration that applies at character level such as color, font etc.
      */
     style: TextStyle? = null,
@@ -95,7 +100,7 @@ fun Text(
      */
     @Children child: @Composable TextSpanScope.() -> Unit
 ) {
-    val rootTextSpan = +memo { TextSpan() }
+    val rootTextSpan = +memo(text) { TextSpan(text = text) }
     val ref = +compositionReference()
     compose(rootTextSpan, ref, child)
     +onDispose { disposeComposition(rootTextSpan, ref) }
