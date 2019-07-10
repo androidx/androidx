@@ -24,7 +24,6 @@ import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
-import androidx.ui.core.Size
 import androidx.ui.core.dp
 import androidx.ui.core.round
 import androidx.ui.core.withDensity
@@ -64,16 +63,6 @@ fun ComposeTestRule.setMaterialContentAndTestSizes(
         }
     }
     return SizeTestSpec(realSize!!, density)
-}
-
-fun ComposeTestRule.setMaterialContentAndCollectDpSize(
-    parentConstraints: DpConstraints = BigConstraints,
-    children: @Composable() () -> Unit
-): Size {
-    return withDensity(density) {
-        val pxSize = setMaterialContentAndCollectPixelSize(parentConstraints, children)
-        Size(pxSize.width.toDp(), pxSize.height.toDp())
-    }
 }
 
 fun ComposeTestRule.setMaterialContentAndCollectPixelSize(
