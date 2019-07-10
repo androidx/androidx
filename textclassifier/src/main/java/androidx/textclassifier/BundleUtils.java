@@ -71,7 +71,7 @@ import java.util.Map;
         if (mapBundle == null) {
             throw new IllegalArgumentException("Missing " + key);
         }
-        final Map<String, Float> map = new ArrayMap<>();
+        final Map<String, Float> map = new ArrayMap<>(mapBundle.size());
         for (String mapKey : mapBundle.keySet()) {
             map.put(mapKey, mapBundle.getFloat(mapKey));
         }

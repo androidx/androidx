@@ -250,8 +250,8 @@ public final class ToolbarController {
             final BackgroundSpan highlight,
             List<RemoteActionCompat> actions) {
         final MenuBuilder menu = new MenuBuilder(textView.getContext());
-        final Map<MenuItem, PendingIntent> menuActions = new ArrayMap<>();
         final int size = actions.size();
+        final Map<MenuItem, PendingIntent> menuActions = new ArrayMap<>(size);
         for (int i = 0; i < size; i++) {
             final RemoteActionCompat action = actions.get(i);
             final MenuItem item = menu.add(
