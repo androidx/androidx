@@ -41,6 +41,7 @@ dependencies {
     // Internal library
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-extensions"))
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.1.0'
 
     // Android Support Library
     api(CONSTRAINT_LAYOUT, { transitive = true })
@@ -48,5 +49,13 @@ dependencies {
 
     // Guava
     implementation(GUAVA_ANDROID)
+
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(project(":camera:camera-testing"))
 }
 
