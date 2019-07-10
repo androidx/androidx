@@ -28,6 +28,13 @@ if [ "$gradleArgs" == "" ]; then
   usage
 fi
 
+workingDir="$(pwd)"
+if [ ! -e "$workingDir/gradlew" ]; then
+  echo "Error; ./gradlew does not exist. Must cd to a dir containing a ./gradlew first"
+  # so that this script knows which gradlew to use (in frameworks/support or frameworks/support/ui)
+  exit 1
+fi
+
 scriptPath="$(cd $(dirname $0) && pwd)"
 supportRoot="$(cd $scriptPath/../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
@@ -76,13 +83,13 @@ function runBuild() {
 function backupState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/backup-state.sh "$backupDir"
+  ./impl/backup-state.sh "$backupDir" "$workingDir"
 }
 
 function restoreState() {
   cd "$scriptPath"
   backupDir="$1"
-  ./impl/restore-state.sh "$backupDir"
+  ./impl/restore-state.sh "$backupDir" "$workingDir"
 }
 
 function clearState() {
@@ -184,7 +191,7 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-if runBuild "$supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct $successState $tempDir/prev \"$scriptPath/impl/restore-state.sh . && cd $supportRoot && ./gradlew --no-daemon $gradleArgs\""; then
+if runBuild "$supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct $successState $tempDir/prev \"$scriptPath/impl/restore-state.sh . $workingDir && cd $supportRoot && ./gradlew --no-daemon $gradleArgs\""; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"
