@@ -602,10 +602,10 @@ class AndroidLayoutDrawTest {
             latch: CountDownLatch
         ) {
             Layout(children = {
-                Draw(children = { }, onPaint = { _, _ ->
+                Draw { _, _ ->
                     drawn.value = true
                     latch.countDown()
-                })
+                }
             }, layoutBlock = { _, constraints ->
                 measured.value = true
                 val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)

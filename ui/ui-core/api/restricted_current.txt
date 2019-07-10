@@ -253,6 +253,10 @@ package androidx.ui.core {
     method public static String toString-impl(float p);
   }
 
+  public interface DrawReceiver extends androidx.ui.core.DensityReceiver {
+    method public void drawChildren();
+  }
+
   public final class Duration implements java.lang.Comparable<androidx.ui.core.Duration> {
     ctor public Duration(long nanoseconds);
     method public int compareTo(androidx.ui.core.Duration other);
