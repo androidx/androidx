@@ -464,7 +464,7 @@ open class BaseTest {
             "viewPager.getCurrentItem() should return $pageIx",
             viewPager.currentItem, equalTo(pageIx)
         )
-        assertThat(viewPager.scrollState, equalTo(SCROLL_STATE_IDLE))
+        assertThat("viewPager should be IDLE", viewPager.scrollState, equalTo(SCROLL_STATE_IDLE))
         if (value != null) {
             onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
                 matches(withText(value))
