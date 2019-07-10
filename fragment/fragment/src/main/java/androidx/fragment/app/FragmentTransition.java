@@ -90,7 +90,7 @@ class FragmentTransition {
      * that the added Fragments have not created their Views yet and the hierarchy
      * is unknown.
      *
-     * @param fragmentManager The executing FragmentManagerImpl
+     * @param fragmentManager The executing FragmentManager
      * @param records The list of transactions being executed.
      * @param isRecordPop For each transaction, whether it is a pop transaction or not.
      * @param startIndex The first index into records and isRecordPop to execute as
@@ -101,7 +101,7 @@ class FragmentTransition {
      *                    Views of incoming fragments have been added. false if the
      *                    transaction has yet to be run and Views haven't been created.
      */
-    static void startTransitions(FragmentManagerImpl fragmentManager,
+    static void startTransitions(FragmentManager fragmentManager,
             ArrayList<BackStackRecord> records, ArrayList<Boolean> isRecordPop,
             int startIndex, int endIndex, boolean isReordered) {
         if (fragmentManager.mCurState < Fragment.CREATED) {
@@ -198,7 +198,7 @@ class FragmentTransition {
      * reordered. That means that all Fragment Views have been added and incoming fragment
      * Views are marked invisible.
      *
-     * @param fragmentManager The executing FragmentManagerImpl
+     * @param fragmentManager The executing FragmentManager
      * @param containerId The container ID that is executing the transition.
      * @param fragments A structure holding the transitioning fragments in this container.
      * @param nonExistentView A View that does not exist in the hierarchy. This is used to
@@ -208,7 +208,7 @@ class FragmentTransition {
      *                      the final fragment's Views as given in
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
-    private static void configureTransitionsReordered(FragmentManagerImpl fragmentManager,
+    private static void configureTransitionsReordered(FragmentManager fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
         ViewGroup sceneRoot = null;
@@ -296,7 +296,7 @@ class FragmentTransition {
      * ordered. That means that the transaction has not been executed yet, so incoming
      * Views are not yet known.
      *
-     * @param fragmentManager The executing FragmentManagerImpl
+     * @param fragmentManager The executing FragmentManager
      * @param containerId The container ID that is executing the transition.
      * @param fragments A structure holding the transitioning fragments in this container.
      * @param nonExistentView A View that does not exist in the hierarchy. This is used to
@@ -306,7 +306,7 @@ class FragmentTransition {
      *                      the final fragment's Views as given in
      *                      {@link FragmentTransaction#addSharedElement(View, String)}.
      */
-    private static void configureTransitionsOrdered(FragmentManagerImpl fragmentManager,
+    private static void configureTransitionsOrdered(FragmentManager fragmentManager,
             int containerId, FragmentContainerTransition fragments,
             View nonExistentView, ArrayMap<String, String> nameOverrides) {
         ViewGroup sceneRoot = null;
@@ -1190,7 +1190,7 @@ class FragmentTransition {
              * Ensure that fragments that are entering are at least at the CREATED state
              * so that they may load Transitions using TransitionInflater.
              */
-            FragmentManagerImpl manager = transaction.mManager;
+            FragmentManager manager = transaction.mManager;
             if (fragment.mState < Fragment.CREATED && manager.mCurState >= Fragment.CREATED
                     && !transaction.mReorderingAllowed) {
                 manager.makeActive(fragment);

@@ -671,8 +671,7 @@ class SaveStateFragmentTest {
         popEnter: Int,
         popExit: Int
     ) {
-        val fmImpl = fm as FragmentManagerImpl
-        val record = fmImpl.mBackStack[fmImpl.mBackStack.size - 1]
+        val record = fm.mBackStack[fm.mBackStack.size - 1]
 
         assertThat(record.mEnterAnim).isEqualTo(enter)
         assertThat(record.mExitAnim).isEqualTo(exit)

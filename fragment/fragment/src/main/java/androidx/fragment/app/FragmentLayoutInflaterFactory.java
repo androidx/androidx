@@ -28,11 +28,11 @@ import androidx.annotation.Nullable;
 import androidx.fragment.R;
 
 class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
-    private static final String TAG = FragmentManagerImpl.TAG;
+    private static final String TAG = FragmentManager.TAG;
 
-    private final FragmentManagerImpl mFragmentManager;
+    private final FragmentManager mFragmentManager;
 
-    FragmentLayoutInflaterFactory(FragmentManagerImpl fragmentManager) {
+    FragmentLayoutInflaterFactory(FragmentManager fragmentManager) {
         mFragmentManager = fragmentManager;
     }
 
@@ -84,7 +84,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragment = mFragmentManager.findFragmentById(containerId);
         }
 
-        if (FragmentManagerImpl.DEBUG) {
+        if (FragmentManager.DEBUG) {
             Log.v(TAG, "onCreateView: id=0x"
                     + Integer.toHexString(id) + " fname=" + fname
                     + " existing=" + fragment);

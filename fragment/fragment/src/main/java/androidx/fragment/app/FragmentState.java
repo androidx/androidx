@@ -106,8 +106,8 @@ final class FragmentState implements Parcelable {
             mInstance.mHidden = mHidden;
             mInstance.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
 
-            if (FragmentManagerImpl.DEBUG) {
-                Log.v(FragmentManagerImpl.TAG, "Instantiated fragment " + mInstance);
+            if (FragmentManager.DEBUG) {
+                Log.v(FragmentManager.TAG, "Instantiated fragment " + mInstance);
             }
         }
         return mInstance;

@@ -85,8 +85,8 @@ class FragmentManagerViewModel extends ViewModel {
 
     @Override
     protected void onCleared() {
-        if (FragmentManagerImpl.DEBUG) {
-            Log.d(FragmentManagerImpl.TAG, "onCleared called for " + this);
+        if (FragmentManager.DEBUG) {
+            Log.d(FragmentManager.TAG, "onCleared called for " + this);
         }
         mHasBeenCleared = true;
     }
@@ -145,8 +145,8 @@ class FragmentManagerViewModel extends ViewModel {
     }
 
     void clearNonConfigState(@NonNull Fragment f) {
-        if (FragmentManagerImpl.DEBUG) {
-            Log.d(FragmentManagerImpl.TAG, "Clearing non-config state for " + f);
+        if (FragmentManager.DEBUG) {
+            Log.d(FragmentManager.TAG, "Clearing non-config state for " + f);
         }
         // Clear and remove the Fragment's child non config state
         FragmentManagerViewModel childNonConfig = mChildNonConfigs.get(f.mWho);
