@@ -20,9 +20,9 @@ import androidx.annotation.CheckResult
 import androidx.compose.Ambient
 import androidx.compose.Children
 import androidx.compose.Composable
-import androidx.compose.composer
 import androidx.compose.Recompose
 import androidx.compose.ambient
+import androidx.compose.composer
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
@@ -60,7 +60,7 @@ interface RippleSurfaceOwner {
     fun removeEffect(effect: RippleEffect)
 
     /** Notifies the [RippleSurface] that one of its effects needs to redraw. */
-    fun markNeedsRedraw()
+    fun requestRedraw()
 }
 
 /**
@@ -111,23 +111,21 @@ private class RippleSurfaceOwnerImpl : RippleSurfaceOwner {
     override val layoutCoordinates
         get() = _layoutCoordinates
             ?: throw IllegalStateException("The surface wasn't yet positioned!")
-    internal var recompose: () -> Unit = {}
+    var recompose: () -> Unit = {}
 
-    internal var _layoutCoordinates: LayoutCoordinates? = null
-    internal var effects = mutableListOf<RippleEffect>()
+    var _layoutCoordinates: LayoutCoordinates? = null
+    var effects = mutableListOf<RippleEffect>()
 
-    override fun markNeedsRedraw() = recompose()
+    override fun requestRedraw() = recompose()
 
     override fun addEffect(effect: RippleEffect) {
-        assert(!effect.debugDisposed)
-        assert(effect.rippleSurface == this)
-        assert(!effects.contains(effect))
+        require(!effects.contains(effect))
         effects.add(effect)
-        markNeedsRedraw()
+        requestRedraw()
     }
 
     override fun removeEffect(effect: RippleEffect) {
         effects.remove(effect)
-        markNeedsRedraw()
+        requestRedraw()
     }
 }

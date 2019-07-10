@@ -107,26 +107,27 @@ private class RippleState {
             "handleStart() called before the layout coordinates were provided!"
         )
         val color = theme.colorCallback.invoke(rippleSurface.backgroundColor)
-        var effect: RippleEffect? = null
-        val onRemoved = {
+        val onAnimationFinished = { effect: RippleEffect ->
             val contains = effects.remove(effect)
-            assert(contains)
+            require(contains)
             if (currentEffect == effect) {
                 currentEffect = null
             }
         }
 
-        effect = theme.factory.create(
-            rippleSurface,
+        val effect = theme.factory.create(
             coordinates,
+            rippleSurface.layoutCoordinates,
             position,
             color,
             density,
             radius,
             bounded,
-            onRemoved
+            rippleSurface::requestRedraw,
+            onAnimationFinished
         )
 
+        rippleSurface.addEffect(effect)
         effects.add(effect)
         currentEffect = effect
     }

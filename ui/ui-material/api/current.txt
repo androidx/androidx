@@ -217,7 +217,7 @@ package androidx.ui.material {
 package androidx.ui.material.ripple {
 
   public final class DefaultRippleEffectFactory implements androidx.ui.material.ripple.RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.core.Dp? radius, boolean bounded, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.LayoutCoordinates surfaceCoordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.core.Dp? radius, boolean bounded, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
     field public static final androidx.ui.material.ripple.DefaultRippleEffectFactory! INSTANCE;
   }
 
@@ -226,20 +226,17 @@ package androidx.ui.material.ripple {
   }
 
   public abstract class RippleEffect {
-    ctor public RippleEffect(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method @CallSuper public void dispose();
+    ctor public RippleEffect(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.LayoutCoordinates surfaceCoordinates, androidx.ui.graphics.Color color, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw);
+    method public abstract void dispose();
     method protected abstract void drawEffect(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform);
     method public void finish(boolean canceled);
     method public final androidx.ui.graphics.Color getColor();
-    method public final androidx.ui.core.LayoutCoordinates getCoordinates();
-    method public final kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRemoved();
-    method public final androidx.ui.material.ripple.RippleSurfaceOwner getRippleSurface();
     method public final void setColor(androidx.ui.graphics.Color value);
     property public final androidx.ui.graphics.Color color;
   }
 
   public interface RippleEffectFactory {
-    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.material.ripple.RippleSurfaceOwner rippleSurface, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.core.Dp? radius = null, boolean bounded = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved = null);
+    method public androidx.ui.material.ripple.RippleEffect create(androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.LayoutCoordinates surfaceCoordinates, androidx.ui.core.PxPosition touchPosition, androidx.ui.graphics.Color color, androidx.ui.core.Density density, androidx.ui.core.Dp? radius, boolean bounded, kotlin.jvm.functions.Function0<kotlin.Unit> requestRedraw, kotlin.jvm.functions.Function1<? super androidx.ui.material.ripple.RippleEffect,kotlin.Unit> onAnimationFinished);
   }
 
   public final class RippleKt {
@@ -257,8 +254,8 @@ package androidx.ui.material.ripple {
     method public void addEffect(androidx.ui.material.ripple.RippleEffect effect);
     method public androidx.ui.graphics.Color? getBackgroundColor();
     method public androidx.ui.core.LayoutCoordinates getLayoutCoordinates();
-    method public void markNeedsRedraw();
     method public void removeEffect(androidx.ui.material.ripple.RippleEffect effect);
+    method public void requestRedraw();
     property public abstract androidx.ui.graphics.Color? backgroundColor;
     property public abstract androidx.ui.core.LayoutCoordinates layoutCoordinates;
   }
