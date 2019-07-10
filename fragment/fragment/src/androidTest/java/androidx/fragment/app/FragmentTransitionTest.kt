@@ -777,6 +777,50 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         }
     }
 
+    // No crash when there is no shared element transition and transitioning a shared element after
+    // a pop
+    @Test
+    fun noSharedElementTransitionOnPop() {
+        val fragment1 = setupInitialFragment()
+
+        val startBlue = findBlue()
+        val startGreen = findGreen()
+        val startGreenBounds = getBoundsOnScreen(startGreen)
+
+        val fragment2 = TransitionFragment(R.layout.scene2)
+
+        activityRule.runOnUiThread {
+            fragmentManager.popBackStack()
+            fragmentManager.beginTransaction()
+                .setReorderingAllowed(reorderingAllowed)
+                .addSharedElement(startBlue, "blueSquare")
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit()
+        }
+
+        fragment1.waitForTransition()
+
+        // This shouldn't give an error.
+        activityRule.executePendingTransactions()
+
+        // It does not transition properly for ordered transactions, though.
+        if (reorderingAllowed) {
+            verifyAndClearTransition(fragment1.returnTransition, null, startGreen)
+            val endGreen = findGreen()
+            verifyAndClearTransition(fragment2.enterTransition, startGreenBounds, endGreen)
+            assertThat(fragment2.sharedElementEnter.targets.size).isEqualTo(2)
+            fragment2.sharedElementEnter.clearTargets()
+            verifyNoOtherTransitions(fragment1)
+            verifyNoOtherTransitions(fragment2)
+        } else {
+            // fragment2 doesn't get a transition since it conflicts with the pop transition
+            verifyNoOtherTransitions(fragment2)
+            // Everything else is just doing its best. Ordered transactions can't handle
+            // multiple transitions acting together except for popping multiple together.
+        }
+    }
+
     // When there is no matching shared element, the transition name should not be changed
     @Test
     fun noMatchingSharedElementRetainName() {
