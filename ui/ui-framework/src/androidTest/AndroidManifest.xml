@@ -13,10 +13,13 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="androidx.ui.framework" xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.framework">
 
     <application>
-        <activity android:name="androidx.ui.framework.test.TestActivity" android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
+        <activity
+            android:name="androidx.ui.framework.test.TestActivity"
+            android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
     </application>
 </manifest>
-
