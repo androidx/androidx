@@ -136,7 +136,7 @@ public abstract class FragmentManager {
 
     /**
      * @hide -- remove once prebuilts are in.
-     * @deprecated
+     * @deprecated Use {@link #beginTransaction()}.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Deprecated
@@ -198,7 +198,7 @@ public abstract class FragmentManager {
      * the stack is reached.  Otherwise, all entries up to but not including that entry
      * will be removed.
      */
-    public static final int POP_BACK_STACK_INCLUSIVE = 1<<0;
+    public static final int POP_BACK_STACK_INCLUSIVE = 1;
 
     /**
      * Pop the top state off the back stack. This function is asynchronous -- it enqueues the
