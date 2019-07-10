@@ -160,17 +160,17 @@ public final class CarMultipleChoiceDialog extends Dialog {
                     (ViewGroup.MarginLayoutParams) negativeButtonView.getLayoutParams();
 
             int buttonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_2);
-
             positiveButtonLayoutParams.setMarginStart(buttonSpacing);
             positiveButtonView.requestLayout();
 
-            negativeButtonLayoutParams.setMarginStart(buttonOffset);
+            int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(negativeButtonView);
+            negativeButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace / 2);
             negativeButtonLayoutParams.setMarginEnd(buttonSpacing);
             negativeButtonView.requestLayout();
         } else {
             negativeButtonView.setVisibility(View.GONE);
-
-            positiveButtonLayoutParams.setMarginStart(buttonOffset);
+            int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(positiveButtonView);
+            positiveButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace / 2);
             positiveButtonView.requestLayout();
         }
     }
