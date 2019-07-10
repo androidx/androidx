@@ -665,16 +665,14 @@ fun TextDemoSelection2DArrayHorizontal() {
 
 @Composable
 fun TextDemoComposableTextSpan() {
-    Text {
-        Span(text = "This is a ", style = TextStyle(fontSize = fontSize8)) {
-            Span(text = "composable ", style = TextStyle(fontStyle = FontStyle.Italic))
-            val color1 = Color(0xFFEF50AD.toInt())
-            val color2 = Color(0xFF10AF52.toInt())
-            val text = "TextSpan"
-            text.forEachIndexed { index, ch ->
-                val color = lerp(color1, color2, index.toFloat() / text.lastIndex)
-                Span(text = "$ch", style = TextStyle(color = color))
-            }
+    Text(text = "This is a ", style = TextStyle(fontSize = fontSize8)) {
+        Span(text = "composable ", style = TextStyle(fontStyle = FontStyle.Italic))
+        val color1 = Color(0xFFEF50AD.toInt())
+        val color2 = Color(0xFF10AF52.toInt())
+        val text = "TextSpan"
+        text.forEachIndexed { index, ch ->
+            val color = lerp(color1, color2, index.toFloat() / text.lastIndex)
+            Span(text = "$ch", style = TextStyle(color = color))
         }
     }
 }
