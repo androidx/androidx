@@ -136,8 +136,6 @@ fun Button(
     border: Border? = null,
     elevation: Dp = 0.dp
 ) {
-    val hasBackground = color.alpha > 0 || border != null
-    val horPaddings = if (hasBackground) ButtonHorPadding else ButtonHorPaddingNoBg
     Button(
         onClick = onClick,
         elevation = elevation,
@@ -145,12 +143,11 @@ fun Button(
         border = border,
         shape = shape
     ) {
-        val constraints = DpConstraints
-            .tightConstraintsForHeight(ButtonHeight)
-            .copy(minWidth = ButtonMinWidth)
+        val hasBackground = color.alpha > 0 || border != null
         Container(
-            padding = EdgeInsets(left = horPaddings, right = horPaddings),
-            constraints = constraints) {
+            constraints = ButtonConstraints,
+            padding = if (hasBackground) ButtonPaddings else ButtonPaddingsNoBg
+        ) {
             Text(text = text, style = textStyle)
         }
     }
@@ -196,7 +193,22 @@ fun TransparentButton(
 }
 
 // Specification for Material Button:
-private val ButtonHeight = 36.dp
-private val ButtonMinWidth = 64.dp
+private val ButtonConstraints = DpConstraints(
+    minWidth = 64.dp,
+    minHeight = 36.dp
+)
 private val ButtonHorPadding = 16.dp
 private val ButtonHorPaddingNoBg = 8.dp
+private val ButtonVerPadding = 8.dp
+private val ButtonPaddings = EdgeInsets(
+    left = ButtonHorPadding,
+    top = ButtonVerPadding,
+    right = ButtonHorPadding,
+    bottom = ButtonVerPadding
+)
+private val ButtonPaddingsNoBg = EdgeInsets(
+    left = ButtonHorPaddingNoBg,
+    top = ButtonVerPadding,
+    right = ButtonHorPaddingNoBg,
+    bottom = ButtonVerPadding
+)
