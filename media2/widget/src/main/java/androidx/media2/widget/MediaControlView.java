@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -146,6 +147,10 @@ public class MediaControlView extends ViewGroup {
     private static final int SIZE_TYPE_EMBEDDED = 0;
     private static final int SIZE_TYPE_FULL = 1;
     private static final int SIZE_TYPE_MINIMAL = 2;
+
+    private static final int PLAY_BUTTON_PAUSE = 0;
+    private static final int PLAY_BUTTON_PLAY = 1;
+    private static final int PLAY_BUTTON_REPLAY = 2;
 
     // Int for defining the UX state where all the views (TitleBar, ProgressBar, BottomBar) are
     // all visible.
@@ -883,7 +888,7 @@ public class MediaControlView extends ViewGroup {
             public void onAnimationEnd(Animator animation) {
                 mBasicControls.setVisibility(View.INVISIBLE);
 
-                findControlButton(SIZE_TYPE_FULL, R.id.ffwd).setVisibility(
+                findFullSizedControlButton(R.id.ffwd).setVisibility(
                         mPlayer != null && mPlayer.canSeekForward() ? View.INVISIBLE : View.GONE);
             }
         });
@@ -901,7 +906,7 @@ public class MediaControlView extends ViewGroup {
             public void onAnimationStart(Animator animation) {
                 mBasicControls.setVisibility(View.VISIBLE);
 
-                findControlButton(SIZE_TYPE_FULL, R.id.ffwd).setVisibility(
+                findFullSizedControlButton(R.id.ffwd).setVisibility(
                         mPlayer != null && mPlayer.canSeekForward() ? View.VISIBLE : View.GONE);
             }
 
@@ -983,8 +988,8 @@ public class MediaControlView extends ViewGroup {
                 } else {
                     if (mAdSkipView.getVisibility() == View.VISIBLE) {
                         mAdSkipView.setVisibility(View.GONE);
-                        findControlButton(SIZE_TYPE_FULL, R.id.next).setEnabled(true);
-                        findControlButton(SIZE_TYPE_FULL, R.id.next).clearColorFilter();
+                        findFullSizedControlButton(R.id.next).setEnabled(true);
+                        findFullSizedControlButton(R.id.next).clearColorFilter();
                     }
                 }
             }
@@ -1004,22 +1009,15 @@ public class MediaControlView extends ViewGroup {
     void togglePausePlayState() {
         ensurePlayerIsNotNull();
 
-        ImageButton playPauseButton = findControlButton(mSizeType, R.id.pause);
         if (mPlayer.isPlaying()) {
             mPlayer.pause();
-            playPauseButton.setImageDrawable(
-                    mResources.getDrawable(R.drawable.ic_play_circle_filled));
-            playPauseButton.setContentDescription(
-                    mResources.getString(R.string.mcv2_play_button_desc));
+            updatePlayButton(PLAY_BUTTON_PLAY);
         } else {
             if (mIsShowingReplayButton) {
                 mPlayer.seekTo(0);
             }
             mPlayer.play();
-            playPauseButton.setImageDrawable(
-                    mResources.getDrawable(R.drawable.ic_pause_circle_filled));
-            playPauseButton.setContentDescription(
-                    mResources.getString(R.string.mcv2_pause_button_desc));
+            updatePlayButton(PLAY_BUTTON_PAUSE);
         }
     }
 
@@ -1417,13 +1415,13 @@ public class MediaControlView extends ViewGroup {
         ensurePlayerIsNotNull();
 
         if (mIsAdvertisement) {
-            findControlButton(SIZE_TYPE_FULL, R.id.rew).setVisibility(View.GONE);
-            findControlButton(SIZE_TYPE_FULL, R.id.ffwd).setVisibility(View.GONE);
-            findControlButton(SIZE_TYPE_FULL, R.id.prev).setVisibility(View.GONE);
+            findFullSizedControlButton(R.id.rew).setVisibility(View.GONE);
+            findFullSizedControlButton(R.id.ffwd).setVisibility(View.GONE);
+            findFullSizedControlButton(R.id.prev).setVisibility(View.GONE);
 
-            findControlButton(SIZE_TYPE_FULL, R.id.next).setVisibility(View.VISIBLE);
-            findControlButton(SIZE_TYPE_FULL, R.id.next).setEnabled(false);
-            findControlButton(SIZE_TYPE_FULL, R.id.next).setColorFilter(R.color.gray);
+            findFullSizedControlButton(R.id.next).setVisibility(View.VISIBLE);
+            findFullSizedControlButton(R.id.next).setEnabled(false);
+            findFullSizedControlButton(R.id.next).setColorFilter(R.color.gray);
 
             mTimeView.setVisibility(View.GONE);
             mAdSkipView.setVisibility(View.VISIBLE);
@@ -1432,17 +1430,17 @@ public class MediaControlView extends ViewGroup {
 
             mProgress.setEnabled(false);
         } else {
-            findControlButton(SIZE_TYPE_FULL, R.id.rew).setVisibility(
+            findFullSizedControlButton(R.id.rew).setVisibility(
                     mPlayer.canSeekBackward() ? View.VISIBLE : View.GONE);
-            findControlButton(SIZE_TYPE_FULL, R.id.ffwd).setVisibility(
+            findFullSizedControlButton(R.id.ffwd).setVisibility(
                     mPlayer.canSeekForward() ? View.VISIBLE : View.GONE);
-            findControlButton(SIZE_TYPE_FULL, R.id.prev).setVisibility(
+            findFullSizedControlButton(R.id.prev).setVisibility(
                     mPlayer.canSkipToPrevious() ? View.VISIBLE : View.GONE);
 
-            findControlButton(SIZE_TYPE_FULL, R.id.next).setVisibility(
+            findFullSizedControlButton(R.id.next).setVisibility(
                     mPlayer.canSkipToNext() ? View.VISIBLE : View.GONE);
-            findControlButton(SIZE_TYPE_FULL, R.id.next).setEnabled(true);
-            findControlButton(SIZE_TYPE_FULL, R.id.next).clearColorFilter();
+            findFullSizedControlButton(R.id.next).setEnabled(true);
+            findFullSizedControlButton(R.id.next).clearColorFilter();
 
             mTimeView.setVisibility(View.VISIBLE);
             mAdSkipView.setVisibility(View.GONE);
@@ -1532,8 +1530,22 @@ public class MediaControlView extends ViewGroup {
         mCustomPlaybackSpeedIndex = -1;
     }
 
+    @Nullable
     ImageButton findControlButton(int sizeType, @IdRes int id) {
-        return mTransportControlsMap.get(sizeType).findViewById(id);
+        View transportControl = mTransportControlsMap.get(sizeType);
+        if (transportControl == null) {
+            return null;
+        }
+        return transportControl.findViewById(id);
+    }
+
+    @NonNull
+    ImageButton findFullSizedControlButton(@IdRes int id) {
+        ImageButton button = findControlButton(SIZE_TYPE_FULL, id);
+        if (button == null) {
+            throw new IllegalArgumentException("Couldn't find a view that has the given id");
+        }
+        return button;
     }
 
     /**
@@ -1591,10 +1603,10 @@ public class MediaControlView extends ViewGroup {
         mTimeView.setAlpha(1 - animatedValue);
         mBasicControls.setAlpha(1 - animatedValue);
 
-        int transportControlLeftWidth = findControlButton(SIZE_TYPE_FULL, R.id.pause).getLeft();
+        int transportControlLeftWidth = findFullSizedControlButton(R.id.pause).getLeft();
         int transportControlTranslationX = (-1) * (int) (transportControlLeftWidth * animatedValue);
         mFullTransportControls.setTranslationX(transportControlTranslationX);
-        findControlButton(SIZE_TYPE_FULL, R.id.ffwd).setAlpha(1 - animatedValue);
+        findFullSizedControlButton(R.id.ffwd).setAlpha(1 - animatedValue);
     }
 
     void resetHideCallbacks() {
@@ -1701,40 +1713,49 @@ public class MediaControlView extends ViewGroup {
     }
 
     void updateReplayButton(boolean toBeShown) {
-        ImageButton playPauseButton = findControlButton(mSizeType, R.id.pause);
         ImageButton ffwdButton = findControlButton(mSizeType, R.id.ffwd);
         if (toBeShown) {
             mIsShowingReplayButton = true;
-            if (playPauseButton != null) {
-                playPauseButton.setImageDrawable(
-                        mResources.getDrawable(R.drawable.ic_replay_circle_filled));
-                playPauseButton.setContentDescription(
-                        mResources.getString(R.string.mcv2_replay_button_desc));
-            }
+            updatePlayButton(PLAY_BUTTON_REPLAY);
             if (ffwdButton != null) {
                 ffwdButton.setAlpha(0.5f);
                 ffwdButton.setEnabled(false);
             }
         } else {
             mIsShowingReplayButton = false;
-            if (playPauseButton != null) {
-                if (mPlayer != null && mPlayer.isPlaying()) {
-                    playPauseButton.setImageDrawable(
-                            mResources.getDrawable(R.drawable.ic_pause_circle_filled));
-                    playPauseButton.setContentDescription(
-                            mResources.getString(R.string.mcv2_pause_button_desc));
-                } else {
-                    playPauseButton.setImageDrawable(
-                            mResources.getDrawable(R.drawable.ic_play_circle_filled));
-                    playPauseButton.setContentDescription(
-                            mResources.getString(R.string.mcv2_play_button_desc));
-                }
+            if (mPlayer != null && mPlayer.isPlaying()) {
+                updatePlayButton(PLAY_BUTTON_PAUSE);
+            } else {
+                updatePlayButton(PLAY_BUTTON_PLAY);
             }
             if (ffwdButton != null) {
                 ffwdButton.setAlpha(1.0f);
                 ffwdButton.setEnabled(true);
             }
         }
+    }
+
+    void updatePlayButton(int type) {
+        ImageButton playButton = findControlButton(mSizeType, R.id.pause);
+        if (playButton == null) {
+            return;
+        }
+        Drawable drawable;
+        String description;
+        if (type == PLAY_BUTTON_PAUSE) {
+            drawable = mResources.getDrawable(R.drawable.ic_pause_circle_filled);
+            description = mResources.getString(R.string.mcv2_pause_button_desc);
+        } else if (type == PLAY_BUTTON_PLAY) {
+            drawable = mResources.getDrawable(R.drawable.ic_play_circle_filled);
+            description = mResources.getString(R.string.mcv2_play_button_desc);
+        } else if (type == PLAY_BUTTON_REPLAY) {
+            drawable = mResources.getDrawable(R.drawable.ic_replay_circle_filled);
+            description = mResources.getString(R.string.mcv2_replay_button_desc);
+        } else {
+            throw new IllegalArgumentException("unknown type " + type);
+        }
+        playButton.setImageDrawable(drawable);
+        playButton.setContentDescription(description);
     }
 
     void postDelayedRunnable(Runnable runnable, long interval) {
@@ -1979,7 +2000,6 @@ public class MediaControlView extends ViewGroup {
             //   1) Need to handle case where app customizes playback state behavior when app
             //      activity is resumed.
             //   2) Need to handle case where the media file reaches end of duration.
-            ImageButton playPauseButton = findControlButton(mSizeType, R.id.pause);
             switch (state) {
                 case SessionPlayer.PLAYER_STATE_PLAYING:
                     removeCallbacks(mUpdateProgress);
@@ -1988,20 +2008,14 @@ public class MediaControlView extends ViewGroup {
                     updateReplayButton(false);
                     break;
                 case SessionPlayer.PLAYER_STATE_PAUSED:
-                    playPauseButton.setImageDrawable(
-                            mResources.getDrawable(R.drawable.ic_play_circle_filled));
-                    playPauseButton.setContentDescription(
-                            mResources.getString(R.string.mcv2_play_button_desc));
+                    updatePlayButton(PLAY_BUTTON_PLAY);
                     removeCallbacks(mUpdateProgress);
                     removeCallbacks(mHideMainBars);
                     removeCallbacks(mHideProgressBar);
                     post(mShowAllBars);
                     break;
                 case SessionPlayer.PLAYER_STATE_ERROR:
-                    playPauseButton.setImageDrawable(
-                            mResources.getDrawable(R.drawable.ic_play_circle_filled));
-                    playPauseButton.setContentDescription(
-                            mResources.getString(R.string.mcv2_play_button_desc));
+                    updatePlayButton(PLAY_BUTTON_PLAY);
                     removeCallbacks(mUpdateProgress);
                     if (getWindowToken() != null) {
                         new AlertDialog.Builder(getContext())
