@@ -256,15 +256,18 @@ final class BackStackRecord extends FragmentTransaction implements
         if (!mAddToBackStack) {
             return;
         }
-        if (FragmentManagerImpl.DEBUG) Log.v(TAG, "Bump nesting in " + this
-                + " by " + amt);
+        if (FragmentManagerImpl.DEBUG) {
+            Log.v(TAG, "Bump nesting in " + this + " by " + amt);
+        }
         final int numOps = mOps.size();
         for (int opNum = 0; opNum < numOps; opNum++) {
             final Op op = mOps.get(opNum);
             if (op.mFragment != null) {
                 op.mFragment.mBackStackNesting += amt;
-                if (FragmentManagerImpl.DEBUG) Log.v(TAG, "Bump nesting of "
-                        + op.mFragment + " to " + op.mFragment.mBackStackNesting);
+                if (FragmentManagerImpl.DEBUG) {
+                    Log.v(TAG, "Bump nesting of "
+                            + op.mFragment + " to " + op.mFragment.mBackStackNesting);
+                }
             }
         }
     }

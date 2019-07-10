@@ -445,7 +445,7 @@ final class FragmentManagerImpl extends FragmentManager {
     @Nullable
     public Fragment.SavedState saveFragmentInstanceState(@NonNull Fragment fragment) {
         if (fragment.mFragmentManager != this) {
-            throwException( new IllegalStateException("Fragment " + fragment
+            throwException(new IllegalStateException("Fragment " + fragment
                     + " is not currently in the FragmentManager"));
         }
         if (fragment.mState > Fragment.INITIALIZING) {
@@ -481,21 +481,23 @@ final class FragmentManagerImpl extends FragmentManager {
         String innerPrefix = prefix + "    ";
 
         if (!mActive.isEmpty()) {
-            writer.print(prefix); writer.print("Active Fragments in ");
+            writer.print(prefix);
+            writer.print("Active Fragments in ");
             writer.print(Integer.toHexString(System.identityHashCode(this)));
             writer.println(":");
             for (Fragment f : mActive.values()) {
-                writer.print(prefix); writer.println(f);
+                writer.print(prefix);
+                writer.println(f);
                 if (f != null) {
                     f.dump(innerPrefix, fd, writer, args);
                 }
             }
         }
 
-        int N = mAdded.size();
-        if (N > 0) {
+        int count = mAdded.size();
+        if (count > 0) {
             writer.print(prefix); writer.println("Added Fragments:");
-            for (int i = 0; i < N; i++) {
+            for (int i = 0; i < count; i++) {
                 Fragment f = mAdded.get(i);
                 writer.print(prefix);
                 writer.print("  #");
@@ -506,71 +508,97 @@ final class FragmentManagerImpl extends FragmentManager {
         }
 
         if (mCreatedMenus != null) {
-            N = mCreatedMenus.size();
-            if (N > 0) {
+            count = mCreatedMenus.size();
+            if (count > 0) {
                 writer.print(prefix); writer.println("Fragments Created Menus:");
-                for (int i=0; i<N; i++) {
+                for (int i = 0; i < count; i++) {
                     Fragment f = mCreatedMenus.get(i);
-                    writer.print(prefix); writer.print("  #"); writer.print(i);
-                    writer.print(": "); writer.println(f.toString());
+                    writer.print(prefix);
+                    writer.print("  #");
+                    writer.print(i);
+                    writer.print(": ");
+                    writer.println(f.toString());
                 }
             }
         }
 
         if (mBackStack != null) {
-            N = mBackStack.size();
-            if (N > 0) {
+            count = mBackStack.size();
+            if (count > 0) {
                 writer.print(prefix); writer.println("Back Stack:");
-                for (int i=0; i<N; i++) {
+                for (int i = 0; i < count; i++) {
                     BackStackRecord bs = mBackStack.get(i);
-                    writer.print(prefix); writer.print("  #"); writer.print(i);
-                    writer.print(": "); writer.println(bs.toString());
+                    writer.print(prefix);
+                    writer.print("  #");
+                    writer.print(i);
+                    writer.print(": ");
+                    writer.println(bs.toString());
                     bs.dump(innerPrefix, writer);
                 }
             }
         }
 
         synchronized (mBackStackIndices) {
-            N = mBackStackIndices.size();
-            if (N > 0) {
+            count = mBackStackIndices.size();
+            if (count > 0) {
                 writer.print(prefix); writer.println("Back Stack Indices:");
-                for (int i = 0; i < N; i++) {
+                for (int i = 0; i < count; i++) {
                     BackStackRecord bs = mBackStackIndices.get(i);
-                    writer.print(prefix); writer.print("  #"); writer.print(i);
-                    writer.print(": "); writer.println(bs);
+                    writer.print(prefix);
+                    writer.print("  #");
+                    writer.print(i);
+                    writer.print(": ");
+                    writer.println(bs);
                 }
             }
 
             if (!mAvailBackStackIndices.isEmpty()) {
-                writer.print(prefix); writer.print("mAvailBackStackIndices: ");
+                writer.print(prefix);
+                writer.print("mAvailBackStackIndices: ");
                 writer.println(Arrays.toString(mAvailBackStackIndices.toArray()));
             }
         }
 
         synchronized (mPendingActions) {
-            N = mPendingActions.size();
-            if (N > 0) {
+            count = mPendingActions.size();
+            if (count > 0) {
                 writer.print(prefix); writer.println("Pending Actions:");
-                for (int i = 0; i < N; i++) {
+                for (int i = 0; i < count; i++) {
                     OpGenerator r = mPendingActions.get(i);
-                    writer.print(prefix); writer.print("  #"); writer.print(i);
-                    writer.print(": "); writer.println(r);
+                    writer.print(prefix);
+                    writer.print("  #");
+                    writer.print(i);
+                    writer.print(": ");
+                    writer.println(r);
                 }
             }
         }
 
-        writer.print(prefix); writer.println("FragmentManager misc state:");
-        writer.print(prefix); writer.print("  mHost="); writer.println(mHost);
-        writer.print(prefix); writer.print("  mContainer="); writer.println(mContainer);
+        writer.print(prefix);
+        writer.println("FragmentManager misc state:");
+        writer.print(prefix);
+        writer.print("  mHost=");
+        writer.println(mHost);
+        writer.print(prefix);
+        writer.print("  mContainer=");
+        writer.println(mContainer);
         if (mParent != null) {
-            writer.print(prefix); writer.print("  mParent="); writer.println(mParent);
+            writer.print(prefix);
+            writer.print("  mParent=");
+            writer.println(mParent);
         }
-        writer.print(prefix); writer.print("  mCurState="); writer.print(mCurState);
-        writer.print(" mStateSaved="); writer.print(mStateSaved);
-        writer.print(" mStopped="); writer.print(mStopped);
-        writer.print(" mDestroyed="); writer.println(mDestroyed);
+        writer.print(prefix);
+        writer.print("  mCurState=");
+        writer.print(mCurState);
+        writer.print(" mStateSaved=");
+        writer.print(mStateSaved);
+        writer.print(" mStopped=");
+        writer.print(mStopped);
+        writer.print(" mDestroyed=");
+        writer.println(mDestroyed);
         if (mNeedMenuInvalidate) {
-            writer.print(prefix); writer.print("  mNeedMenuInvalidate=");
+            writer.print(prefix);
+            writer.print("  mNeedMenuInvalidate=");
             writer.println(mNeedMenuInvalidate);
         }
     }
@@ -1017,7 +1045,7 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param newState The final state after animating.
      */
     private void animateRemoveFragment(@NonNull final Fragment fragment,
-                                       @NonNull AnimationOrAnimator anim, final int newState) {
+            @NonNull AnimationOrAnimator anim, final int newState) {
         final View viewToAnimate = fragment.mView;
         final ViewGroup container = fragment.mContainer;
         container.startViewTransition(viewToAnimate);
@@ -1447,7 +1475,7 @@ final class FragmentManagerImpl extends FragmentManager {
     public Fragment findFragmentByTag(@Nullable String tag) {
         if (tag != null) {
             // First look through added fragments.
-            for (int i=mAdded.size()-1; i>=0; i--) {
+            for (int i = mAdded.size() - 1; i >= 0; i--) {
                 Fragment f = mAdded.get(i);
                 if (f != null && tag.equals(f.mTag)) {
                     return f;
@@ -1542,7 +1570,7 @@ final class FragmentManagerImpl extends FragmentManager {
                 return index;
 
             } else {
-                int index = mAvailBackStackIndices.remove(mAvailBackStackIndices.size()-1);
+                int index = mAvailBackStackIndices.remove(mAvailBackStackIndices.size() - 1);
                 if (DEBUG) Log.v(TAG, "Adding back stack index " + index + " with " + bse);
                 mBackStackIndices.set(index, bse);
                 return index;
@@ -1552,16 +1580,16 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void setBackStackIndex(int index, BackStackRecord bse) {
         synchronized (mBackStackIndices) {
-            int N = mBackStackIndices.size();
-            if (index < N) {
+            int count = mBackStackIndices.size();
+            if (index < count) {
                 if (DEBUG) Log.v(TAG, "Setting back stack index " + index + " to " + bse);
                 mBackStackIndices.set(index, bse);
             } else {
-                while (N < index) {
+                while (count < index) {
                     mBackStackIndices.add(null);
-                    if (DEBUG) Log.v(TAG, "Adding available back stack index " + N);
-                    mAvailBackStackIndices.add(N);
-                    N++;
+                    if (DEBUG) Log.v(TAG, "Adding available back stack index " + count);
+                    mAvailBackStackIndices.add(count);
+                    count++;
                 }
                 if (DEBUG) Log.v(TAG, "Adding back stack index " + index + " with " + bse);
                 mBackStackIndices.add(bse);
@@ -1671,7 +1699,7 @@ final class FragmentManagerImpl extends FragmentManager {
      * now ready.
      */
     private void executePostponedTransaction(ArrayList<BackStackRecord> records,
-                                             ArrayList<Boolean> isRecordPop) {
+            ArrayList<Boolean> isRecordPop) {
         int numPostponed = mPostponedTransactions == null ? 0 : mPostponedTransactions.size();
         for (int i = 0; i < numPostponed; i++) {
             StartEnterTransitionListener listener = mPostponedTransactions.get(i);
@@ -1715,7 +1743,7 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param isRecordPop The direction that these records are being run.
      */
     private void removeRedundantOperationsAndExecute(ArrayList<BackStackRecord> records,
-                                                     ArrayList<Boolean> isRecordPop) {
+            ArrayList<Boolean> isRecordPop) {
         if (records == null || records.isEmpty()) {
             return;
         }
@@ -1765,7 +1793,7 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param endIndex One more than the final record index in <code>records</code> to executed.
      */
     private void executeOpsTogether(ArrayList<BackStackRecord> records,
-                                    ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
+            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
         final boolean allowReordering = records.get(startIndex).mReorderingAllowed;
         boolean addToBackStack = false;
         if (mTmpAddedFragments == null) {
@@ -1855,8 +1883,8 @@ final class FragmentManagerImpl extends FragmentManager {
      * postponed.
      */
     private int postponePostponableTransactions(ArrayList<BackStackRecord> records,
-                                                ArrayList<Boolean> isRecordPop, int startIndex, int endIndex,
-                                                ArraySet<Fragment> added) {
+            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex,
+            ArraySet<Fragment> added) {
         int postponeIndex = endIndex;
         for (int i = endIndex - 1; i >= startIndex; i--) {
             final BackStackRecord record = records.get(i);
@@ -1989,7 +2017,7 @@ final class FragmentManagerImpl extends FragmentManager {
      * @param endIndex One past the index of the final entry in records to run.
      */
     private static void executeOps(ArrayList<BackStackRecord> records,
-                                   ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
+            ArrayList<Boolean> isRecordPop, int startIndex, int endIndex) {
         for (int i = startIndex; i < endIndex; i++) {
             final BackStackRecord record = records.get(i);
             final boolean isPop = isRecordPop.get(i);
@@ -2079,7 +2107,7 @@ final class FragmentManagerImpl extends FragmentManager {
      *              pop action.
      */
     private boolean generateOpsForPendingActions(ArrayList<BackStackRecord> records,
-                                                 ArrayList<Boolean> isPop) {
+            ArrayList<Boolean> isPop) {
         boolean didSomething = false;
         synchronized (mPendingActions) {
             if (mPendingActions.isEmpty()) {
@@ -2105,7 +2133,7 @@ final class FragmentManagerImpl extends FragmentManager {
 
     private void reportBackStackChanged() {
         if (mBackStackChangeListeners != null) {
-            for (int i=0; i<mBackStackChangeListeners.size(); i++) {
+            for (int i = 0; i < mBackStackChangeListeners.size(); i++) {
                 mBackStackChangeListeners.get(i).onBackStackChanged();
             }
         }
@@ -2136,7 +2164,7 @@ final class FragmentManagerImpl extends FragmentManager {
             if (name != null || id >= 0) {
                 // If a name or ID is specified, look for that place in
                 // the stack.
-                index = mBackStack.size()-1;
+                index = mBackStack.size() - 1;
                 while (index >= 0) {
                     BackStackRecord bss = mBackStack.get(index);
                     if (name != null && name.equals(bss.getName())) {
@@ -2150,7 +2178,7 @@ final class FragmentManagerImpl extends FragmentManager {
                 if (index < 0) {
                     return false;
                 }
-                if ((flags&POP_BACK_STACK_INCLUSIVE) != 0) {
+                if ((flags & POP_BACK_STACK_INCLUSIVE) != 0) {
                     index--;
                     // Consume all following entries that match.
                     while (index >= 0) {
@@ -2164,7 +2192,7 @@ final class FragmentManagerImpl extends FragmentManager {
                     }
                 }
             }
-            if (index == mBackStack.size()-1) {
+            if (index == mBackStack.size() - 1) {
                 return false;
             }
             for (int i = mBackStack.size() - 1; i > index; i--) {
@@ -2295,8 +2323,9 @@ final class FragmentManagerImpl extends FragmentManager {
                     fs.mSavedFragmentState = f.mSavedFragmentState;
                 }
 
-                if (DEBUG) Log.v(TAG, "Saved state of " + f + ": "
-                        + fs.mSavedFragmentState);
+                if (DEBUG) {
+                    Log.v(TAG, "Saved state of " + f + ": " + fs.mSavedFragmentState);
+                }
             }
         }
 
@@ -2333,8 +2362,10 @@ final class FragmentManagerImpl extends FragmentManager {
                 backStack = new BackStackState[size];
                 for (int i = 0; i < size; i++) {
                     backStack[i] = new BackStackState(mBackStack.get(i));
-                    if (DEBUG) Log.v(TAG, "saveAllState: adding back stack #" + i
-                            + ": " + mBackStack.get(i));
+                    if (DEBUG) {
+                        Log.v(TAG, "saveAllState: adding back stack #" + i
+                                + ": " + mBackStack.get(i));
+                    }
                 }
             }
         }
@@ -2362,7 +2393,7 @@ final class FragmentManagerImpl extends FragmentManager {
     void restoreSaveState(Parcelable state) {
         // If there is no saved state at all, then there's nothing else to do
         if (state == null) return;
-        FragmentManagerState fms = (FragmentManagerState)state;
+        FragmentManagerState fms = (FragmentManagerState) state;
         if (fms.mActive == null) return;
 
         // First re-attach any non-config instances we are retaining back
@@ -2444,7 +2475,7 @@ final class FragmentManagerImpl extends FragmentManager {
         // Build the back stack.
         if (fms.mBackStack != null) {
             mBackStack = new ArrayList<>(fms.mBackStack.length);
-            for (int i=0; i<fms.mBackStack.length; i++) {
+            for (int i = 0; i < fms.mBackStack.length; i++) {
                 BackStackRecord bse = fms.mBackStack[i].instantiate(this);
                 if (DEBUG) {
                     Log.v(TAG, "restoreAllState: back stack #" + i
@@ -2643,7 +2674,7 @@ final class FragmentManagerImpl extends FragmentManager {
         }
 
         if (mCreatedMenus != null) {
-            for (int i=0; i<mCreatedMenus.size(); i++) {
+            for (int i = 0; i < mCreatedMenus.size(); i++) {
                 Fragment f = mCreatedMenus.get(i);
                 if (newMenus == null || !newMenus.contains(f)) {
                     f.onDestroyOptionsMenu();
@@ -2781,14 +2812,14 @@ final class FragmentManagerImpl extends FragmentManager {
 
     @Override
     public void registerFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb,
-                                                   boolean recursive) {
+            boolean recursive) {
         mLifecycleCallbacks.add(new FragmentLifecycleCallbacksHolder(cb, recursive));
     }
 
     @Override
     public void unregisterFragmentLifecycleCallbacks(@NonNull FragmentLifecycleCallbacks cb) {
         synchronized (mLifecycleCallbacks) {
-            for (int i = 0, N = mLifecycleCallbacks.size(); i < N; i++) {
+            for (int i = 0, count = mLifecycleCallbacks.size(); i < count; i++) {
                 if (mLifecycleCallbacks.get(i).mCallback == cb) {
                     mLifecycleCallbacks.remove(i);
                     break;
@@ -2798,7 +2829,7 @@ final class FragmentManagerImpl extends FragmentManager {
     }
 
     private void dispatchOnFragmentPreAttached(@NonNull Fragment f, @NonNull Context context,
-                                       boolean onlyRecursive) {
+            boolean onlyRecursive) {
         if (mParent != null) {
             FragmentManager parentManager = mParent.getFragmentManager();
             if (parentManager instanceof FragmentManagerImpl) {
@@ -3108,7 +3139,7 @@ final class FragmentManagerImpl extends FragmentManager {
 
         @Override
         public boolean generateOps(ArrayList<BackStackRecord> records,
-                                   ArrayList<Boolean> isRecordPop) {
+                ArrayList<Boolean> isRecordPop) {
             if (mPrimaryNav != null // We have a primary nav fragment
                     && mId < 0 // No valid id (since they're local)
                     && mName == null) { // no name to pop to (since they're local)
@@ -3237,7 +3268,7 @@ final class FragmentManagerImpl extends FragmentManager {
         private boolean mAnimating = true;
 
         EndViewTransitionAnimation(@NonNull Animation animation,
-                                  @NonNull ViewGroup parent, @NonNull View child) {
+                @NonNull ViewGroup parent, @NonNull View child) {
             super(false);
             mParent = parent;
             mChild = child;
@@ -3262,8 +3293,8 @@ final class FragmentManagerImpl extends FragmentManager {
         }
 
         @Override
-        public boolean getTransformation(long currentTime, Transformation outTransformation,
-                                         float scale) {
+        public boolean getTransformation(long currentTime,
+                Transformation outTransformation, float scale) {
             mAnimating = true;
             if (mEnded) {
                 return !mTransitionEnded;
