@@ -2314,7 +2314,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * @param dy Pixels to scroll vertically
      */
     public void smoothScrollBy(@Px int dx, @Px int dy) {
-        smoothScrollBy(dx, dy, null, UNDEFINED_DURATION, false);
+        smoothScrollBy(dx, dy, null);
     }
 
     /**
@@ -2326,7 +2326,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      *                     {@code null}, RecyclerView will use an internal default interpolator.
      */
     public void smoothScrollBy(@Px int dx, @Px int dy, @Nullable Interpolator interpolator) {
-        smoothScrollBy(dx, dy, interpolator, UNDEFINED_DURATION, false);
+        smoothScrollBy(dx, dy, interpolator, UNDEFINED_DURATION);
     }
 
     /**
