@@ -436,7 +436,7 @@ package androidx.car.widget {
     method public boolean getShowDivider(@IntRange(from=0) int);
     method public void onBindViewHolder(androidx.car.widget.ListItem.ViewHolder!, int);
     method public androidx.car.widget.ListItem.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
-    method public void registerListItemViewType(@IntRange(from=java.lang.Integer.MIN_VALUE, to=0xffffffff) int, @LayoutRes int, java.util.function.Function<android.view.View!,androidx.car.widget.ListItem.ViewHolder!>!);
+    method public void registerListItemViewType(@IntRange(from=java.lang.Integer.MIN_VALUE, to=0xffffffff) int, @LayoutRes int, androidx.arch.core.util.Function<android.view.View!,androidx.car.widget.ListItem.ViewHolder!>!);
     method public void setMaxItems(int);
     method public void start();
     method public void stop();

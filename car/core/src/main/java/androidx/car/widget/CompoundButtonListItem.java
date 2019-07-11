@@ -36,6 +36,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
 import androidx.car.R;
 import androidx.car.widget.ListItemAdapter.ListItemType;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -44,7 +45,6 @@ import androidx.constraintlayout.widget.Guideline;
 import java.lang.annotation.Retention;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Class to build a list item with {@link CompoundButton}.
