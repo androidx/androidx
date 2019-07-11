@@ -33,6 +33,7 @@ import static org.mockito.Mockito.verify;
 import android.graphics.Rect;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.MeteringRectangle;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -446,10 +447,13 @@ public final class Camera2CameraControlTest {
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
-                .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    resultCaptureConfig.getCaptureRequestOption(
+                            CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
+                    .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
+        }
     }
 
     @Test
@@ -489,10 +493,13 @@ public final class Camera2CameraControlTest {
                 resultCaptureConfig.getCaptureRequestOption(
                         CaptureRequest.CONTROL_AF_TRIGGER, null))
                 .isNull();
-        assertThat(
-                resultCaptureConfig.getCaptureRequestOption(
-                        CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
-                .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
+
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    resultCaptureConfig.getCaptureRequestOption(
+                            CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER, null))
+                    .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
+        }
     }
 
     @Test
