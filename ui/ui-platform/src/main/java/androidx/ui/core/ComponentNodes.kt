@@ -206,10 +206,10 @@ sealed class ComponentNode : Emittable {
         val attached = owner != null
         for (i in index + count - 1 downTo index) {
             val child = children.removeAt(i)
-            child.parent = null
             if (attached) {
                 child.detach()
             }
+            child.parent = null
         }
     }
 
