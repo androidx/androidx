@@ -18,11 +18,8 @@ package androidx.core.app;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-import static androidx.core.util.Preconditions.checkNotNull;
-
 import android.app.Activity;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -36,9 +33,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.IntentCompat;
 
@@ -126,34 +120,13 @@ public final class ShareCompat {
      * @param calledActivity Current activity that was launched to share content
      * @return Name of the calling package
      */
-    @Nullable
-    public static String getCallingPackage(@NonNull Activity calledActivity) {
-        Intent intent = calledActivity.getIntent();
+    public static String getCallingPackage(Activity calledActivity) {
         String result = calledActivity.getCallingPackage();
-        if (result == null && intent != null) {
-            result = getCallingPackage(intent);
-        }
-        return result;
-    }
-
-    /**
-     * Retrieve the name of the package that launched intent from a share intent.
-     * Apps that provide social sharing functionality can use this to provide attribution
-     * for the app that shared the content.
-     *
-     * <p><em>Note:</em> This data may have been provided voluntarily by the calling
-     * application. As such it should not be trusted for accuracy in the context of
-     * security or verification.</p>
-     *
-     * @param intent Intent that was launched to share content
-     * @return Name of the calling package
-     */
-    @SuppressWarnings("WeakerAccess")
-    @Nullable
-    static String getCallingPackage(@NonNull Intent intent) {
-        String result = intent.getStringExtra(EXTRA_CALLING_PACKAGE);
         if (result == null) {
-            result = intent.getStringExtra(EXTRA_CALLING_PACKAGE_INTEROP);
+            result = calledActivity.getIntent().getStringExtra(EXTRA_CALLING_PACKAGE);
+            if (result == null) {
+                result = calledActivity.getIntent().getStringExtra(EXTRA_CALLING_PACKAGE_INTEROP);
+            }
         }
         return result;
     }
@@ -170,34 +143,14 @@ public final class ShareCompat {
      * @param calledActivity Current activity that was launched to share content
      * @return ComponentName of the calling activity
      */
-    @Nullable
-    public static ComponentName getCallingActivity(@NonNull Activity calledActivity) {
-        Intent intent = calledActivity.getIntent();
+    public static ComponentName getCallingActivity(Activity calledActivity) {
         ComponentName result = calledActivity.getCallingActivity();
         if (result == null) {
-            result = getCallingActivity(intent);
-        }
-        return result;
-    }
-
-    /**
-     * Retrieve the ComponentName of the activity that launched intent from a share intent.
-     * Apps that provide social sharing functionality can use this to provide attribution
-     * for the app that shared the content.
-     *
-     * <p><em>Note:</em> This data may have been provided voluntarily by the calling
-     * application. As such it should not be trusted for accuracy in the context of
-     * security or verification.</p>
-     *
-     * @param intent Intent that was launched to share content
-     * @return ComponentName of the calling activity
-     */
-    @SuppressWarnings("WeakerAccess")
-    @Nullable
-    static ComponentName getCallingActivity(@NonNull Intent intent) {
-        ComponentName result = intent.getParcelableExtra(EXTRA_CALLING_ACTIVITY);
-        if (result == null) {
-            result = intent.getParcelableExtra(EXTRA_CALLING_ACTIVITY_INTEROP);
+            result = calledActivity.getIntent().getParcelableExtra(EXTRA_CALLING_ACTIVITY);
+            if (result == null) {
+                result = calledActivity.getIntent().getParcelableExtra(
+                        EXTRA_CALLING_ACTIVITY_INTEROP);
+            }
         }
         return result;
     }
@@ -228,17 +181,16 @@ public final class ShareCompat {
      * @param item MenuItem to configure for sharing
      * @param shareIntent IntentBuilder with data about the content to share
      */
-    public static void configureMenuItem(@NonNull MenuItem item,
-            @NonNull IntentBuilder shareIntent) {
+    public static void configureMenuItem(MenuItem item, IntentBuilder shareIntent) {
         ActionProvider itemProvider = item.getActionProvider();
         ShareActionProvider provider;
         if (!(itemProvider instanceof ShareActionProvider)) {
-            provider = new ShareActionProvider(shareIntent.getContext());
+            provider = new ShareActionProvider(shareIntent.getActivity());
         } else {
             provider = (ShareActionProvider) itemProvider;
         }
         provider.setShareHistoryFileName(HISTORY_FILENAME_PREFIX
-                + shareIntent.getContext().getClass().getName());
+                + shareIntent.getActivity().getClass().getName());
         provider.setShareIntent(shareIntent.getIntent());
         item.setActionProvider(provider);
 
@@ -257,8 +209,7 @@ public final class ShareCompat {
      * @param shareIntent IntentBuilder with data about the content to share
      * @see #configureMenuItem(MenuItem, IntentBuilder)
      */
-    public static void configureMenuItem(@NonNull Menu menu, @IdRes int menuItemId,
-            @NonNull IntentBuilder shareIntent) {
+    public static void configureMenuItem(Menu menu, int menuItemId, IntentBuilder shareIntent) {
         MenuItem item = menu.findItem(menuItemId);
         if (item == null) {
             throw new IllegalArgumentException("Could not find menu item with id " + menuItemId
@@ -274,14 +225,14 @@ public final class ShareCompat {
      * will be included.
      */
     public static class IntentBuilder {
-        private final @NonNull Context mContext;
-        private final @NonNull Intent mIntent;
+        private Activity mActivity;
+        private Intent mIntent;
+        private CharSequence mChooserTitle;
+        private ArrayList<String> mToAddresses;
+        private ArrayList<String> mCcAddresses;
+        private ArrayList<String> mBccAddresses;
 
-        private @Nullable CharSequence mChooserTitle;
-        private @Nullable ArrayList<String> mToAddresses;
-        private @Nullable ArrayList<String> mCcAddresses;
-        private @Nullable ArrayList<String> mBccAddresses;
-        private @Nullable ArrayList<Uri> mStreams;
+        private ArrayList<Uri> mStreams;
 
         /**
          * Create a new IntentBuilder for launching a sharing action from launchingActivity.
@@ -289,32 +240,17 @@ public final class ShareCompat {
          * @param launchingActivity Activity that the share will be launched from
          * @return a new IntentBuilder instance
          */
-        @NonNull
-        public static IntentBuilder from(@NonNull Activity launchingActivity) {
-            return from(checkNotNull(launchingActivity), launchingActivity.getComponentName());
+        public static IntentBuilder from(Activity launchingActivity) {
+            return new IntentBuilder(launchingActivity);
         }
 
-        /**
-         * Create a new IntentBuilder for launching a sharing action from launchingContext.
-         *
-         * @param launchingContext Context that the share will be launched from
-         * @param componentName Component that the share will be launched from, if any
-         * @return a new IntentBuilder instance
-         */
-        @NonNull
-        private static IntentBuilder from(@NonNull Context launchingContext,
-                @Nullable ComponentName componentName) {
-            return new IntentBuilder(launchingContext, componentName);
-        }
-
-        private IntentBuilder(@NonNull Context launchingContext,
-                @Nullable ComponentName componentName) {
-            mContext = checkNotNull(launchingContext);
+        private IntentBuilder(Activity launchingActivity) {
+            mActivity = launchingActivity;
             mIntent = new Intent().setAction(Intent.ACTION_SEND);
-            mIntent.putExtra(EXTRA_CALLING_PACKAGE, launchingContext.getPackageName());
-            mIntent.putExtra(EXTRA_CALLING_PACKAGE_INTEROP, launchingContext.getPackageName());
-            mIntent.putExtra(EXTRA_CALLING_ACTIVITY, componentName);
-            mIntent.putExtra(EXTRA_CALLING_ACTIVITY_INTEROP, componentName);
+            mIntent.putExtra(EXTRA_CALLING_PACKAGE, launchingActivity.getPackageName());
+            mIntent.putExtra(EXTRA_CALLING_PACKAGE_INTEROP, launchingActivity.getPackageName());
+            mIntent.putExtra(EXTRA_CALLING_ACTIVITY, launchingActivity.getComponentName());
+            mIntent.putExtra(EXTRA_CALLING_ACTIVITY_INTEROP, launchingActivity.getComponentName());
             mIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }
 
@@ -327,7 +263,6 @@ public final class ShareCompat {
          *
          * @return The current Intent being configured by this builder
          */
-        @NonNull
         public Intent getIntent() {
             if (mToAddresses != null) {
                 combineArrayExtra(Intent.EXTRA_EMAIL, mToAddresses);
@@ -344,7 +279,7 @@ public final class ShareCompat {
 
             // Check if we need to change the action.
             boolean needsSendMultiple = mStreams != null && mStreams.size() > 1;
-            boolean isSendMultiple = Intent.ACTION_SEND_MULTIPLE.equals(mIntent.getAction());
+            boolean isSendMultiple = mIntent.getAction().equals(Intent.ACTION_SEND_MULTIPLE);
 
             if (!needsSendMultiple && isSendMultiple) {
                 // Change back to a single send action; place the first stream into the
@@ -372,9 +307,8 @@ public final class ShareCompat {
             return mIntent;
         }
 
-        @NonNull
-        Context getContext() {
-            return mContext;
+        Activity getActivity() {
+            return mActivity;
         }
 
         private void combineArrayExtra(String extra, ArrayList<String> add) {
@@ -388,7 +322,7 @@ public final class ShareCompat {
             mIntent.putExtra(extra, finalAddresses);
         }
 
-        private void combineArrayExtra(@Nullable String extra, @NonNull String[] add) {
+        private void combineArrayExtra(String extra, String[] add) {
             // Add any items still pending
             Intent intent = getIntent();
             String[] old = intent.getStringArrayExtra(extra);
@@ -406,7 +340,6 @@ public final class ShareCompat {
          *
          * @return A chooser Intent for the currently configured sharing action
          */
-        @NonNull
         public Intent createChooserIntent() {
             return Intent.createChooser(getIntent(), mChooserTitle);
         }
@@ -421,7 +354,7 @@ public final class ShareCompat {
          * of invoking this directly.</p>
          */
         public void startChooser() {
-            mContext.startActivity(createChooserIntent());
+            mActivity.startActivity(createChooserIntent());
         }
 
         /**
@@ -430,8 +363,7 @@ public final class ShareCompat {
          * @param title Title string
          * @return This IntentBuilder for method chaining
          */
-        @NonNull
-        public IntentBuilder setChooserTitle(@Nullable CharSequence title) {
+        public IntentBuilder setChooserTitle(CharSequence title) {
             mChooserTitle = title;
             return this;
         }
@@ -442,9 +374,8 @@ public final class ShareCompat {
          * @param resId Resource ID of the title string to use
          * @return This IntentBuilder for method chaining
          */
-        @NonNull
         public IntentBuilder setChooserTitle(@StringRes int resId) {
-            return setChooserTitle(mContext.getText(resId));
+            return setChooserTitle(mActivity.getText(resId));
         }
 
         /**
@@ -454,8 +385,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#setType(String)
          */
-        @NonNull
-        public IntentBuilder setType(@Nullable String mimeType) {
+        public IntentBuilder setType(String mimeType) {
             mIntent.setType(mimeType);
             return this;
         }
@@ -468,8 +398,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_TEXT
          */
-        @NonNull
-        public IntentBuilder setText(@Nullable CharSequence text) {
+        public IntentBuilder setText(CharSequence text) {
             mIntent.putExtra(Intent.EXTRA_TEXT, text);
             return this;
         }
@@ -485,8 +414,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see #setText(CharSequence)
          */
-        @NonNull
-        public IntentBuilder setHtmlText(@Nullable String htmlText) {
+        public IntentBuilder setHtmlText(String htmlText) {
             mIntent.putExtra(IntentCompat.EXTRA_HTML_TEXT, htmlText);
             if (!mIntent.hasExtra(Intent.EXTRA_TEXT)) {
                 // Supply a default if EXTRA_TEXT isn't set
@@ -505,9 +433,8 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_STREAM
          */
-        @NonNull
-        public IntentBuilder setStream(@Nullable Uri streamUri) {
-            if (!Intent.ACTION_SEND.equals(mIntent.getAction())) {
+        public IntentBuilder setStream(Uri streamUri) {
+            if (!mIntent.getAction().equals(Intent.ACTION_SEND)) {
                 mIntent.setAction(Intent.ACTION_SEND);
             }
             mStreams = null;
@@ -526,14 +453,13 @@ public final class ShareCompat {
          * @see Intent#ACTION_SEND
          * @see Intent#ACTION_SEND_MULTIPLE
          */
-        @NonNull
-        public IntentBuilder addStream(@NonNull Uri streamUri) {
+        public IntentBuilder addStream(Uri streamUri) {
             Uri currentStream = mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
             if (mStreams == null && currentStream == null) {
                 return setStream(streamUri);
             }
             if (mStreams == null) {
-                mStreams = new ArrayList<>();
+                mStreams = new ArrayList<Uri>();
             }
             if (currentStream != null) {
                 mIntent.removeExtra(Intent.EXTRA_STREAM);
@@ -551,8 +477,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_EMAIL
          */
-        @NonNull
-        public IntentBuilder setEmailTo(@Nullable String[] addresses) {
+        public IntentBuilder setEmailTo(String[] addresses) {
             if (mToAddresses != null) {
                 mToAddresses = null;
             }
@@ -567,10 +492,9 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_EMAIL
          */
-        @NonNull
-        public IntentBuilder addEmailTo(@NonNull String address) {
+        public IntentBuilder addEmailTo(String address) {
             if (mToAddresses == null) {
-                mToAddresses = new ArrayList<>();
+                mToAddresses = new ArrayList<String>();
             }
             mToAddresses.add(address);
             return this;
@@ -583,8 +507,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_EMAIL
          */
-        @NonNull
-        public IntentBuilder addEmailTo(@NonNull String[] addresses) {
+        public IntentBuilder addEmailTo(String[] addresses) {
             combineArrayExtra(Intent.EXTRA_EMAIL, addresses);
             return this;
         }
@@ -597,8 +520,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_CC
          */
-        @NonNull
-        public IntentBuilder setEmailCc(@Nullable String[] addresses) {
+        public IntentBuilder setEmailCc(String[] addresses) {
             mIntent.putExtra(Intent.EXTRA_CC, addresses);
             return this;
         }
@@ -610,10 +532,9 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_CC
          */
-        @NonNull
-        public IntentBuilder addEmailCc(@NonNull String address) {
+        public IntentBuilder addEmailCc(String address) {
             if (mCcAddresses == null) {
-                mCcAddresses = new ArrayList<>();
+                mCcAddresses = new ArrayList<String>();
             }
             mCcAddresses.add(address);
             return this;
@@ -626,8 +547,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_CC
          */
-        @NonNull
-        public IntentBuilder addEmailCc(@NonNull String[] addresses) {
+        public IntentBuilder addEmailCc(String[] addresses) {
             combineArrayExtra(Intent.EXTRA_CC, addresses);
             return this;
         }
@@ -640,8 +560,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_BCC
          */
-        @NonNull
-        public IntentBuilder setEmailBcc(@Nullable String[] addresses) {
+        public IntentBuilder setEmailBcc(String[] addresses) {
             mIntent.putExtra(Intent.EXTRA_BCC, addresses);
             return this;
         }
@@ -653,10 +572,9 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_BCC
          */
-        @NonNull
-        public IntentBuilder addEmailBcc(@NonNull String address) {
+        public IntentBuilder addEmailBcc(String address) {
             if (mBccAddresses == null) {
-                mBccAddresses = new ArrayList<>();
+                mBccAddresses = new ArrayList<String>();
             }
             mBccAddresses.add(address);
             return this;
@@ -669,8 +587,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_BCC
          */
-        @NonNull
-        public IntentBuilder addEmailBcc(@NonNull String[] addresses) {
+        public IntentBuilder addEmailBcc(String[] addresses) {
             combineArrayExtra(Intent.EXTRA_BCC, addresses);
             return this;
         }
@@ -682,8 +599,7 @@ public final class ShareCompat {
          * @return This IntentBuilder for method chaining
          * @see Intent#EXTRA_SUBJECT
          */
-        @NonNull
-        public IntentBuilder setSubject(@Nullable String subject) {
+        public IntentBuilder setSubject(String subject) {
             mIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
             return this;
         }
@@ -709,12 +625,12 @@ public final class ShareCompat {
     public static class IntentReader {
         private static final String TAG = "IntentReader";
 
-        private final @NonNull Context mContext;
-        private final @NonNull Intent mIntent;
-        private final @Nullable String mCallingPackage;
-        private final @Nullable ComponentName mCallingActivity;
+        private Activity mActivity;
+        private Intent mIntent;
+        private String mCallingPackage;
+        private ComponentName mCallingActivity;
 
-        private @Nullable ArrayList<Uri> mStreams;
+        private ArrayList<Uri> mStreams;
 
         /**
          * Get an IntentReader for parsing and interpreting the sharing intent
@@ -723,29 +639,15 @@ public final class ShareCompat {
          * @param activity Activity that was started to share content
          * @return IntentReader for parsing sharing data
          */
-        @NonNull
-        public static IntentReader from(@NonNull Activity activity) {
-            return from(checkNotNull(activity), activity.getIntent());
+        public static IntentReader from(Activity activity) {
+            return new IntentReader(activity);
         }
 
-        /**
-         * Get an IntentReader for parsing and interpreting the sharing intent
-         * used to start the given activity.
-         *
-         * @param context Context that was started to share content
-         * @param intent Intent that was used to start the context
-         * @return IntentReader for parsing sharing data
-         */
-        @NonNull
-        private static IntentReader from(@NonNull Context context, @NonNull Intent intent) {
-            return new IntentReader(context, intent);
-        }
-
-        private IntentReader(@NonNull Context context, @NonNull Intent intent) {
-            mContext = checkNotNull(context);
-            mIntent = checkNotNull(intent);
-            mCallingPackage = ShareCompat.getCallingPackage(intent);
-            mCallingActivity = ShareCompat.getCallingActivity(intent);
+        private IntentReader(Activity activity) {
+            mActivity = activity;
+            mIntent = activity.getIntent();
+            mCallingPackage = ShareCompat.getCallingPackage(activity);
+            mCallingActivity = ShareCompat.getCallingActivity(activity);
         }
 
         /**
@@ -790,7 +692,6 @@ public final class ShareCompat {
          * @return mimetype of the shared data
          * @see Intent#getType()
          */
-        @Nullable
         public String getType() {
             return mIntent.getType();
         }
@@ -801,7 +702,6 @@ public final class ShareCompat {
          * @return Literal shared text or null if none was supplied
          * @see Intent#EXTRA_TEXT
          */
-        @Nullable
         public CharSequence getText() {
             return mIntent.getCharSequenceExtra(Intent.EXTRA_TEXT);
         }
@@ -816,7 +716,6 @@ public final class ShareCompat {
          *
          * @return Styled text provided by the sender as HTML.
          */
-        @Nullable
         public String getHtmlText() {
             String result = mIntent.getStringExtra(IntentCompat.EXTRA_HTML_TEXT);
             if (result == null) {
@@ -836,8 +735,8 @@ public final class ShareCompat {
             return result;
         }
 
-        @SuppressWarnings("SameParameterValue")
-        private static void withinStyle(StringBuilder out, CharSequence text, int start, int end) {
+        private static void withinStyle(StringBuilder out, CharSequence text,
+                int start, int end) {
             for (int i = start; i < end; i++) {
                 char c = text.charAt(i);
 
@@ -848,7 +747,7 @@ public final class ShareCompat {
                 } else if (c == '&') {
                     out.append("&amp;");
                 } else if (c > 0x7E || c < ' ') {
-                    out.append("&#").append((int) c).append(";");
+                    out.append("&#" + ((int) c) + ";");
                 } else if (c == ' ') {
                     while (i + 1 < end && text.charAt(i + 1) == ' ') {
                         out.append("&nbsp;");
@@ -873,9 +772,8 @@ public final class ShareCompat {
          * @return A URI referring to a data stream to be shared or null if one was not supplied
          * @see Intent#EXTRA_STREAM
          */
-        @Nullable
         public Uri getStream() {
-            return (Uri) mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
+            return mIntent.getParcelableExtra(Intent.EXTRA_STREAM);
         }
 
         /**
@@ -887,7 +785,6 @@ public final class ShareCompat {
          * @see Intent#EXTRA_STREAM
          * @see Intent#ACTION_SEND_MULTIPLE
          */
-        @Nullable
         public Uri getStream(int index) {
             if (mStreams == null && isMultipleShare()) {
                 mStreams = mIntent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
@@ -925,7 +822,6 @@ public final class ShareCompat {
          * @return An array of email addresses or null if none were supplied.
          * @see Intent#EXTRA_EMAIL
          */
-        @Nullable
         public String[] getEmailTo() {
             return mIntent.getStringArrayExtra(Intent.EXTRA_EMAIL);
         }
@@ -936,7 +832,6 @@ public final class ShareCompat {
          * @return An array of email addresses or null if none were supplied.
          * @see Intent#EXTRA_CC
          */
-        @Nullable
         public String[] getEmailCc() {
             return mIntent.getStringArrayExtra(Intent.EXTRA_CC);
         }
@@ -947,7 +842,6 @@ public final class ShareCompat {
          * @return An array of email addresses or null if none were supplied.
          * @see Intent#EXTRA_BCC
          */
-        @Nullable
         public String[] getEmailBcc() {
             return mIntent.getStringArrayExtra(Intent.EXTRA_BCC);
         }
@@ -958,7 +852,6 @@ public final class ShareCompat {
          * @return The subject heading for this share or null if one was not supplied.
          * @see Intent#EXTRA_SUBJECT
          */
-        @Nullable
         public String getSubject() {
             return mIntent.getStringExtra(Intent.EXTRA_SUBJECT);
         }
@@ -977,7 +870,6 @@ public final class ShareCompat {
          * @see ShareCompat#EXTRA_CALLING_PACKAGE
          * @see ShareCompat#EXTRA_CALLING_PACKAGE_INTEROP
          */
-        @Nullable
         public String getCallingPackage() {
             return mCallingPackage;
         }
@@ -996,7 +888,6 @@ public final class ShareCompat {
          * @see ShareCompat#EXTRA_CALLING_ACTIVITY
          * @see ShareCompat#EXTRA_CALLING_ACTIVITY_INTEROP
          */
-        @Nullable
         public ComponentName getCallingActivity() {
             return mCallingActivity;
         }
@@ -1011,11 +902,10 @@ public final class ShareCompat {
          *
          * @return The calling Activity's icon or null if unknown
          */
-        @Nullable
         public Drawable getCallingActivityIcon() {
             if (mCallingActivity == null) return null;
 
-            PackageManager pm = mContext.getPackageManager();
+            PackageManager pm = mActivity.getPackageManager();
             try {
                 return pm.getActivityIcon(mCallingActivity);
             } catch (NameNotFoundException e) {
@@ -1034,11 +924,10 @@ public final class ShareCompat {
          *
          * @return The calling application's icon or null if unknown
          */
-        @Nullable
         public Drawable getCallingApplicationIcon() {
             if (mCallingPackage == null) return null;
 
-            PackageManager pm = mContext.getPackageManager();
+            PackageManager pm = mActivity.getPackageManager();
             try {
                 return pm.getApplicationIcon(mCallingPackage);
             } catch (NameNotFoundException e) {
@@ -1057,11 +946,10 @@ public final class ShareCompat {
          *
          * @return The calling application's label or null if unknown
          */
-        @Nullable
         public CharSequence getCallingApplicationLabel() {
             if (mCallingPackage == null) return null;
 
-            PackageManager pm = mContext.getPackageManager();
+            PackageManager pm = mActivity.getPackageManager();
             try {
                 return pm.getApplicationLabel(pm.getApplicationInfo(mCallingPackage, 0));
             } catch (NameNotFoundException e) {
