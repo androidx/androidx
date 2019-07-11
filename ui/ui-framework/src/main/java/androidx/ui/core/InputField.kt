@@ -136,6 +136,19 @@ fun InputField(
     ) {
         Layout(
             children = @Composable {
+                OnPositioned {
+                    if (textInputService != null) {
+                        // TODO(nona): notify focused rect in onPreDraw equivalent callback for
+                        //             supporting multiline text.
+                        InputFieldDelegate.notifyFocusedRect(
+                            value,
+                            textPainter,
+                            it,
+                            textInputService,
+                            hasFocus.value
+                        )
+                    }
+                }
                 Draw { canvas, _ -> InputFieldDelegate.draw(
                     canvas,
                     value,

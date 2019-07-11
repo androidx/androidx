@@ -43,6 +43,11 @@ interface LayoutCoordinates {
     fun localToGlobal(local: PxPosition): PxPosition
 
     /**
+     * Converts a local position within this layout into an offset from the root widget.
+     */
+    fun localToRoot(local: PxPosition): PxPosition
+
+    /**
      * Converts a child layout position into a local position within this layout.
      */
     fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition
@@ -73,6 +78,8 @@ internal class LayoutNodeCoordinates(
     override fun globalToLocal(global: PxPosition) = layoutNode.globalToLocal(global)
 
     override fun localToGlobal(local: PxPosition) = layoutNode.localToGlobal(local)
+
+    override fun localToRoot(local: PxPosition) = layoutNode.localToGlobal(local, false)
 
     override fun childToLocal(child: LayoutCoordinates, childLocal: PxPosition): PxPosition {
         if (child !is LayoutNodeCoordinates) {

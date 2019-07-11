@@ -16,6 +16,7 @@
 
 package androidx.ui.core
 
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
@@ -52,6 +53,7 @@ class InputFieldDelegateTest {
     private lateinit var onValueChange: (EditorState) -> Unit
     private lateinit var onEditorActionPerformed: (Any) -> Unit
     private lateinit var textInputService: TextInputService
+    private lateinit var layoutCoordinates: LayoutCoordinates
 
     @Before
     fun setup() {
@@ -61,6 +63,7 @@ class InputFieldDelegateTest {
         onValueChange = mock()
         onEditorActionPerformed = mock()
         textInputService = mock()
+        layoutCoordinates = mock()
     }
 
     @Test
@@ -211,5 +214,33 @@ class InputFieldDelegateTest {
     fun on_blur() {
         InputFieldDelegate.onBlur(textInputService)
         verify(textInputService).stopInput()
+    }
+
+    @Test
+    fun notify_focused_rect() {
+        val dummyRect = Rect(0f, 1f, 2f, 3f)
+        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        val dummyPoint = PxPosition(5.px, 6.px)
+        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
+        InputFieldDelegate.notifyFocusedRect(
+            dummyEditorState,
+            painter,
+            layoutCoordinates,
+            textInputService,
+            true /* hasFocus */)
+        verify(textInputService).notifyFocusedRect(any())
+    }
+
+    @Test
+    fun notify_focused_rect_without_focus() {
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
+        InputFieldDelegate.notifyFocusedRect(
+            dummyEditorState,
+            painter,
+            layoutCoordinates,
+            textInputService,
+            false /* hasFocus */)
+        verify(textInputService, never()).notifyFocusedRect(any())
     }
 }
