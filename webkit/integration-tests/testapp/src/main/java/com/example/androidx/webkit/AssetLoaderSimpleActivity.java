@@ -45,12 +45,12 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
         @RequiresApi(21)
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                             WebResourceRequest request) {
-            return mAssetLoader.shouldInterceptRequest(request);
+            return mAssetLoader.shouldInterceptRequest(request.getUrl());
         }
 
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String request) {
-            return mAssetLoader.shouldInterceptRequest(request);
+            return mAssetLoader.shouldInterceptRequest(Uri.parse(request));
         }
     }
 
@@ -65,14 +65,20 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
         setTitle(R.string.asset_loader_simple_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        mAssetLoader = (new WebViewAssetLoader.Builder(this)).build();
         mWebView = findViewById(R.id.webview_asset_loader_webview);
         mWebView.setWebViewClient(new MyWebViewClient());
 
         // Host application assets under http://appassets.androidplatform.net/assets/...
-        Uri path = mAssetLoader.getAssetsHttpsPrefix().buildUpon()
-                                                .appendPath("www")
-                                                .appendPath("some_text.html").build();
+        mAssetLoader = new WebViewAssetLoader.Builder()
+                .register("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                .build();
+        Uri path = new Uri.Builder()
+                .scheme("https")
+                .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
+                .appendPath("assets")
+                .appendPath("www")
+                .appendPath("some_text.html")
+                .build();
 
         mWebView.loadUrl(path.toString());
     }
