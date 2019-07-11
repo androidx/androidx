@@ -16,14 +16,19 @@
 
 package androidx.recyclerview.widget
 
+import android.animation.LayoutTransition
 import android.content.Context
+import android.os.Build
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -77,6 +82,35 @@ class RecyclerViewWithTransitionsTest {
         // request third view and validate viewForOverlay is used instead of creating a new one
         changeItemCount(3)
         assertEquals(recyclerView, viewForOverlay.parent)
+    }
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @Test
+    fun providingEmptyLayoutTransitionCallsSuppress() {
+        val emptyLayoutTransition = LayoutTransition()
+        emptyLayoutTransition.setAnimator(LayoutTransition.APPEARING, null)
+        emptyLayoutTransition.setAnimator(LayoutTransition.CHANGE_APPEARING, null)
+        emptyLayoutTransition.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, null)
+        emptyLayoutTransition.setAnimator(LayoutTransition.DISAPPEARING, null)
+        emptyLayoutTransition.setAnimator(4 /*LayoutTransition.Changing*/, null)
+
+        val recyclerView = RecyclerView(activity)
+        @Suppress("DEPRECATION")
+        recyclerView.layoutTransition = emptyLayoutTransition
+
+        assertTrue(recyclerView.isLayoutSuppressed)
+    }
+
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
+    @Test
+    fun clearingLayoutTransitionCallsUnsuppress() {
+        val recyclerView = RecyclerView(activity)
+        recyclerView.suppressLayout(true)
+
+        @Suppress("DEPRECATION")
+        recyclerView.layoutTransition = null
+
+        assertFalse(recyclerView.isLayoutSuppressed)
     }
 
     private class TransitionHolder(context: Context) : RecyclerView.ViewHolder(TextView(context))
