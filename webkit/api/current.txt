@@ -123,22 +123,30 @@ package androidx.webkit {
   }
 
   public final class WebViewAssetLoader {
-    method public android.net.Uri? getAssetsHttpPrefix();
-    method public android.net.Uri getAssetsHttpsPrefix();
-    method public android.net.Uri? getResourcesHttpPrefix();
-    method public android.net.Uri getResourcesHttpsPrefix();
-    method @RequiresApi(21) @WorkerThread public android.webkit.WebResourceResponse? shouldInterceptRequest(android.webkit.WebResourceRequest);
-    method @WorkerThread public android.webkit.WebResourceResponse? shouldInterceptRequest(String);
-    field public static final String KNOWN_UNUSED_AUTHORITY = "appassets.androidplatform.net";
+    method @WorkerThread public android.webkit.WebResourceResponse? shouldInterceptRequest(android.net.Uri);
+    field public static final String DEFAULT_DOMAIN = "appassets.androidplatform.net";
+  }
+
+  public static final class WebViewAssetLoader.AssetsPathHandler implements androidx.webkit.WebViewAssetLoader.PathHandler {
+    ctor public WebViewAssetLoader.AssetsPathHandler(android.content.Context);
+    method @WorkerThread public android.webkit.WebResourceResponse? handle(String);
   }
 
   public static final class WebViewAssetLoader.Builder {
-    ctor public WebViewAssetLoader.Builder(android.content.Context);
-    method public androidx.webkit.WebViewAssetLoader.Builder allowHttp();
+    ctor public WebViewAssetLoader.Builder();
+    method public androidx.webkit.WebViewAssetLoader.Builder allowHttp(boolean);
     method public androidx.webkit.WebViewAssetLoader build();
-    method public androidx.webkit.WebViewAssetLoader.Builder setAssetsHostingPath(String);
-    method public androidx.webkit.WebViewAssetLoader.Builder setDomain(String);
-    method public androidx.webkit.WebViewAssetLoader.Builder setResourcesHostingPath(String);
+    method public androidx.webkit.WebViewAssetLoader.Builder onDomain(String);
+    method public androidx.webkit.WebViewAssetLoader.Builder register(String, androidx.webkit.WebViewAssetLoader.PathHandler);
+  }
+
+  public static interface WebViewAssetLoader.PathHandler {
+    method @WorkerThread public android.webkit.WebResourceResponse? handle(String);
+  }
+
+  public static final class WebViewAssetLoader.ResourcesPathHandler implements androidx.webkit.WebViewAssetLoader.PathHandler {
+    ctor public WebViewAssetLoader.ResourcesPathHandler(android.content.Context);
+    method @WorkerThread public android.webkit.WebResourceResponse? handle(String);
   }
 
   public class WebViewClientCompat extends android.webkit.WebViewClient {

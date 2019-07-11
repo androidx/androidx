@@ -16,6 +16,10 @@
 
 package androidx.webkit;
 
+import static androidx.webkit.WebViewAssetLoader.AssetsPathHandler;
+import static androidx.webkit.WebViewAssetLoader.ResourcesPathHandler;
+
+import android.net.Uri;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -40,7 +44,6 @@ public class WebViewAssetLoaderIntegrationTest {
                                     new ActivityTestRule<>(WebViewTestActivity.class);
 
     private WebViewOnUiThread mOnUiThread;
-    private WebViewAssetLoader mAssetLoader;
 
     private static class AssetLoadingWebViewClient extends WebViewOnUiThread.WaitForLoadedClient {
         private final WebViewAssetLoader mAssetLoader;
@@ -53,21 +56,19 @@ public class WebViewAssetLoaderIntegrationTest {
         @SuppressWarnings({"deprecated"})
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
-            return mAssetLoader.shouldInterceptRequest(url);
+            return mAssetLoader.shouldInterceptRequest(Uri.parse(url));
         }
 
         @Override
         public WebResourceResponse shouldInterceptRequest(WebView view,
                                             WebResourceRequest request) {
-            return mAssetLoader.shouldInterceptRequest(request);
+            return mAssetLoader.shouldInterceptRequest(request.getUrl());
         }
     }
 
     @Before
     public void setUp() {
-        mAssetLoader = (new WebViewAssetLoader.Builder(mActivityRule.getActivity())).build();
         mOnUiThread = new WebViewOnUiThread(mActivityRule.getActivity().getWebView());
-        mOnUiThread.setWebViewClient(new AssetLoadingWebViewClient(mOnUiThread, mAssetLoader));
     }
 
     @After
@@ -79,16 +80,23 @@ public class WebViewAssetLoaderIntegrationTest {
 
     @Test
     @MediumTest
-    public void testAssetHosting() throws Exception {
+    public void testAssetsHosting() throws Exception {
         final WebViewTestActivity activity = mActivityRule.getActivity();
 
-        String url =
-                mAssetLoader.getAssetsHttpsPrefix().buildUpon()
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+                .register("/assets/", new AssetsPathHandler(activity))
+                .build();
+
+        mOnUiThread.setWebViewClient(new AssetLoadingWebViewClient(mOnUiThread, assetLoader));
+
+        String url = new Uri.Builder()
+                        .scheme("https")
+                        .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
+                        .appendPath("assets")
                         .appendPath("www")
                         .appendPath("test_with_title.html")
                         .build()
                         .toString();
-
         mOnUiThread.loadUrlAndWaitForCompletion(url);
 
         Assert.assertEquals("WebViewAssetLoaderTest", mOnUiThread.getTitle());
@@ -99,13 +107,20 @@ public class WebViewAssetLoaderIntegrationTest {
     public void testResourcesHosting() throws Exception {
         final WebViewTestActivity activity = mActivityRule.getActivity();
 
-        String url =
-                mAssetLoader.getResourcesHttpsPrefix().buildUpon()
-                .appendPath("raw")
-                .appendPath("test_with_title.html")
-                .build()
-                .toString();
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+                .register("/res/", new ResourcesPathHandler(activity))
+                .build();
 
+        mOnUiThread.setWebViewClient(new AssetLoadingWebViewClient(mOnUiThread, assetLoader));
+
+        String url = new Uri.Builder()
+                        .scheme("https")
+                        .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
+                        .appendPath("res")
+                        .appendPath("raw")
+                        .appendPath("test_with_title.html")
+                        .build()
+                        .toString();
         mOnUiThread.loadUrlAndWaitForCompletion(url);
 
         Assert.assertEquals("WebViewAssetLoaderTest", mOnUiThread.getTitle());
