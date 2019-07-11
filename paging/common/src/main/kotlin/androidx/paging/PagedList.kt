@@ -300,11 +300,12 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         private var initialKey: Key? = null
 
         /**
-         * Create a PagedList.Builder with the provided [DataSource] and [Config].
+         * Create a [PagedList.Builder] with the provided [DataSource] and [Config].
          *
          * @param dataSource [DataSource] the [PagedList] will load from.
          * @param config [Config] that defines how the [PagedList] loads data from its [DataSource].
          */
+        @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
         constructor(dataSource: DataSource<Key, Value>, config: Config) {
             this.dataSource = dataSource
             this.config = config
@@ -323,8 +324,39 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * @param pageSize [Config] that defines how the [PagedList] loads data from its
          * [DataSource].
          */
+        @Suppress("DEPRECATION")
+        @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
         constructor(dataSource: DataSource<Key, Value>, pageSize: Int) : this(
             dataSource,
+            PagedList.Config.Builder().setPageSize(pageSize).build()
+        )
+
+        /**
+         * Create a [PagedList.Builder] with the provided [PagedSource] and [Config].
+         *
+         * @param pagedSource [PagedSource] the [PagedList] will load from.
+         * @param config [Config] that defines how the [PagedList] loads data from its
+         * [PagedSource].
+         */
+        constructor(pagedSource: PagedSource<Key, Value>, config: Config) {
+            this.dataSource = DataSourceWrapper(pagedSource)
+            this.config = config
+        }
+
+        /**
+         * Create a [PagedList.Builder] with the provided [PagedSource] and page size.
+         *
+         * This method is a convenience for:
+         * ```
+         * PagedList.Builder(pagedSource, PagedList.Config.Builder().setPageSize(pageSize).build())
+         * ```
+         *
+         * @param pagedSource [PagedSource] the [PagedList] will load from.
+         * @param pageSize [Config] that defines how the [PagedList] loads data from its
+         * [PagedSource].
+         */
+        constructor(pagedSource: PagedSource<Key, Value>, pageSize: Int) : this(
+            pagedSource,
             PagedList.Config.Builder().setPageSize(pageSize).build()
         )
 
