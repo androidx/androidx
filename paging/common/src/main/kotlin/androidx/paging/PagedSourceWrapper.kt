@@ -16,7 +16,11 @@
 
 package androidx.paging
 
+import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
+
 /**
+ * TODO: Move all call-sites dependent on this to use [PagedSource] directly.
+ *
  * A wrapper around [DataSource] which adapts it to the [PagedSource] API.
  */
 internal class PagedSourceWrapper<Key : Any, Value : Any>(
@@ -57,4 +61,61 @@ internal class PagedSourceWrapper<Key : Any, Value : Any>(
     }
 
     override fun isRetryableError(error: Throwable) = dataSource.isRetryableError(error)
+}
+
+/**
+ * TODO: This should no longer be necessary once internal implementation has been moved to used
+ * [PagedSource] directly.
+ *
+ * A wrapper around [PagedSource] which adapts it to the [DataSource] API.
+ */
+internal class DataSourceWrapper<Key : Any, Value : Any>(
+    private val pagedSource: PagedSource<Key, Value>
+) : DataSource<Key, Value>(
+    when (pagedSource.keyProvider) {
+        is PagedSource.KeyProvider.Positional -> KeyType.POSITIONAL
+        is PagedSource.KeyProvider.PageKey -> KeyType.PAGE_KEYED
+        is PagedSource.KeyProvider.ItemKey -> KeyType.ITEM_KEYED
+    }
+
+) {
+    override suspend fun load(params: Params<Key>): BaseResult<Value> {
+        val loadType = when (params.type) {
+            LoadType.INITIAL -> PagedSource.LoadType.INITIAL
+            LoadType.START -> PagedSource.LoadType.START
+            LoadType.END -> PagedSource.LoadType.END
+        }
+
+        val dataSourceParams = PagedSource.LoadParams(
+            loadType,
+            params.key,
+            params.initialLoadSize,
+            params.placeholdersEnabled,
+            params.pageSize
+        )
+
+        val initialResult = pagedSource.load(dataSourceParams)
+        return BaseResult(
+            initialResult.data,
+            initialResult.prevKey,
+            initialResult.nextKey,
+            if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0,
+            if (initialResult.itemsAfter != COUNT_UNDEFINED) initialResult.itemsAfter else 0,
+            initialResult.offset,
+            initialResult.counted
+        )
+    }
+
+    /**
+     * @throws IllegalStateException
+     */
+    override fun getKeyInternal(item: Value): Key {
+        return when (val keyProvider = pagedSource.keyProvider) {
+            is PagedSource.KeyProvider.Positional ->
+                throw IllegalStateException("Cannot get key by item in positionalDataSource")
+            is PagedSource.KeyProvider.PageKey ->
+                throw IllegalStateException("Cannot get key by item in pageKeyedDataSource")
+            is PagedSource.KeyProvider.ItemKey -> keyProvider.getKey(item)
+        }
+    }
 }

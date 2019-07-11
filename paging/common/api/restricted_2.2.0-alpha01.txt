@@ -22,7 +22,6 @@ package androidx.paging {
   }
 
   public static class DataSource.BaseResult<Value> {
-    ctor protected DataSource.BaseResult(java.util.List<? extends Value> data, Object? prevKey, Object? nextKey, int leadingNulls, int trailingNulls, int offset, boolean counted);
     method public final boolean getCounted();
     method public final int getLeadingNulls();
     method public final Object? getNextKey();
@@ -184,8 +183,10 @@ package androidx.paging {
   }
 
   public static final class PagedList.Builder<Key, Value> {
-    ctor public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config);
-    ctor public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, int pageSize);
+    ctor @Deprecated public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config);
+    ctor @Deprecated public PagedList.Builder(androidx.paging.DataSource<Key,Value> dataSource, int pageSize);
+    ctor public PagedList.Builder(androidx.paging.PagedSource<Key,Value> pagedSource, androidx.paging.PagedList.Config config);
+    ctor public PagedList.Builder(androidx.paging.PagedSource<Key,Value> pagedSource, int pageSize);
     method @Deprecated @WorkerThread public androidx.paging.PagedList<Value> build();
     method public suspend Object buildAsync(kotlin.coroutines.Continuation<? super androidx.paging.PagedList<Value>> p);
     method public androidx.paging.PagedList.Builder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
