@@ -169,6 +169,8 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
         mInstrumentation.waitForIdleSync();
 
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
+        mInstrumentation.waitForIdleSync();
+
         assertTrue(mActivity.isFinishing());
     }
 
