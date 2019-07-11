@@ -34,6 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.DataInput;
@@ -4450,12 +4451,12 @@ public class ExifInterface {
 
         FileInputStream in = null;
         FileOutputStream out = null;
+        File originalFile = new File(mFilename);
         File tempFile = null;
         try {
             // Move the original file to temporary file.
             if (mFilename != null) {
                 tempFile = new File(mFilename + ".tmp");
-                File originalFile = new File(mFilename);
                 if (!originalFile.renameTo(tempFile)) {
                     throw new IOException("Couldn't rename to " + tempFile.getAbsolutePath());
                 }
@@ -4467,7 +4468,7 @@ public class ExifInterface {
                 copy(in, out);
             }
         } catch (Exception e) {
-            throw new IOException("Failed to copy file");
+            throw new IOException("Failed to copy original file to temp file", e);
         } finally {
             closeQuietly(in);
             closeQuietly(out);
@@ -4475,6 +4476,8 @@ public class ExifInterface {
 
         in = null;
         out = null;
+        BufferedInputStream bufferedIn = null;
+        BufferedOutputStream bufferedOut = null;
         try {
             // Save the new file.
             in = new FileInputStream(tempFile);
@@ -4484,12 +4487,20 @@ public class ExifInterface {
                 Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
                 out = new FileOutputStream(mSeekableFileDescriptor);
             }
-            saveJpegAttributes(in, out);
+            bufferedIn = new BufferedInputStream(in);
+            bufferedOut = new BufferedOutputStream(out);
+            saveJpegAttributes(bufferedIn, bufferedOut);
         } catch (Exception e) {
-            throw new IOException("Failed to copy file");
+            if (mFilename != null) {
+                if (!tempFile.renameTo(originalFile)) {
+                    throw new IOException("Couldn't restore original file: "
+                            + originalFile.getAbsolutePath());
+                }
+            }
+            throw new IOException("Failed to save new file", e);
         } finally {
-            closeQuietly(in);
-            closeQuietly(out);
+            closeQuietly(bufferedIn);
+            closeQuietly(bufferedOut);
             tempFile.delete();
         }
 
