@@ -22,12 +22,14 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
-import androidx.ui.text.TextRange
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditorState
 import androidx.ui.input.InputEventListener
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.TextInputService
+import androidx.ui.text.TextRange
+import kotlin.math.roundToInt
 
 /**
  * Provide Android specific input service with the Operating System.
@@ -111,6 +113,14 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     override fun onStateUpdated(state: EditorState) {
         this.state = state.toInputState()
         ic?.updateInputState(this.state, imm, view)
+    }
+
+    override fun notifyFocusedRect(rect: Rect) {
+        view.requestRectangleOnScreen(android.graphics.Rect(
+            rect.left.roundToInt(),
+            rect.top.roundToInt(),
+            rect.right.roundToInt(),
+            rect.bottom.roundToInt()))
     }
 
     /**
