@@ -17,7 +17,7 @@
 
 <!--Taken from https://googleplex-android.googlesource.com/platform/frameworks/base/+/HEAD/core/res/res/anim/fade_out.xml-->
 <alpha xmlns:android="http://schemas.android.com/apk/res/android"
-    android:interpolator="@interpolator/accelerate_quad"
+    android:interpolator="@android:anim/accelerate_interpolator"
     android:fromAlpha="1.0"
     android:toAlpha="0.0"
     android:duration="@android:integer/config_mediumAnimTime"
