@@ -6282,14 +6282,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                     ViewCompat.setImportantForAccessibility(itemView,
                             ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
                 }
-                AccessibilityDelegateCompat delegate =
-                        ViewCompat.getAccessibilityDelegate(itemView);
-                if (delegate == null
-                        || delegate.getClass().equals(AccessibilityDelegateCompat.class)) {
-                    holder.addFlags(ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE);
-                    ViewCompat.setAccessibilityDelegate(itemView,
-                            mAccessibilityDelegate.getItemDelegate());
+                if (mAccessibilityDelegate == null) {
+                    return;
                 }
+                RecyclerViewAccessibilityDelegate.ItemDelegate itemDelegate =
+                        mAccessibilityDelegate.mItemDelegate;
+                // If there was already an a11y delegate set on the itemView, store it in the
+                // itemDelegate and then set the itemDelegate as the a11y delegate.
+                itemDelegate.setOriginalDelegateForItem(itemView,
+                        ViewCompat.getAccessibilityDelegate(itemView));
+                ViewCompat.setAccessibilityDelegate(itemView, itemDelegate);
             }
         }
 
@@ -6498,9 +6500,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          */
         void addViewHolderToRecycledViewPool(@NonNull ViewHolder holder, boolean dispatchRecycled) {
             clearNestedRecyclerViewIfNotNested(holder);
-            if (holder.hasAnyOfTheFlags(ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE)) {
-                holder.setFlags(0, ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE);
-                ViewCompat.setAccessibilityDelegate(holder.itemView, null);
+            View itemView = holder.itemView;
+            if (mAccessibilityDelegate != null) {
+                AccessibilityDelegateCompat originalDelegate = mAccessibilityDelegate
+                        .mItemDelegate.getAndRemoveOriginalDelegateForItem(itemView);
+                // Set the a11y delegate back to whatever the original delegate was.
+                ViewCompat.setAccessibilityDelegate(itemView, originalDelegate);
             }
             if (dispatchRecycled) {
                 dispatchViewRecycled(holder);
@@ -11021,12 +11026,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * already there.
          */
         static final int FLAG_BOUNCED_FROM_HIDDEN_LIST = 1 << 13;
-
-        /**
-         * Flags that RecyclerView assigned {@link RecyclerViewAccessibilityDelegate
-         * #getItemDelegate()} in onBindView when app does not provide a delegate.
-         */
-        static final int FLAG_SET_A11Y_ITEM_DELEGATE = 1 << 14;
 
         int mFlags;
 

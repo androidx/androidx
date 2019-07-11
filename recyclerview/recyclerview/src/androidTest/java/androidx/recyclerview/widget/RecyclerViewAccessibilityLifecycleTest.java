@@ -161,7 +161,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
     }
 
     @Test
-    public void notClearCustomViewDelegate() throws Throwable {
+    public void notClearCustomViewDelegateAndMaintainItemDelegate() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity()) {
             @Override
             boolean isAccessibilityEnabled() {
@@ -203,7 +203,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
         recyclerView.setItemViewCacheSize(0); // no cache, directly goes to pool
         recyclerView.setLayoutManager(layoutManager);
         setRecyclerView(recyclerView);
-         mActivityRule.runOnUiThread(new Runnable() {
+        mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 recyclerView.setAdapter(adapter);
@@ -223,9 +223,9 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     AccessibilityNodeInfo info = recyclerView.getChildAt(i)
                             .createAccessibilityNodeInfo();
                     assertTrue("custom delegate sets isChecked", info.isChecked());
-                    assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
-                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-                    assertTrue(delegateCompat.equals(ViewCompat.getAccessibilityDelegate(view)));
+                    if (Build.VERSION.SDK_INT >= 19) {
+                        assertNotNull(info.getCollectionItemInfo());
+                    }
                     children.add(view);
                 }
             }
@@ -248,9 +248,9 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     assertTrue(children.contains(view));
                     AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
                     assertTrue("custom delegate sets isChecked", info.isChecked());
-                    assertFalse(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
-                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
-                    assertTrue(delegateCompat.equals(ViewCompat.getAccessibilityDelegate(view)));
+                    if (Build.VERSION.SDK_INT >= 19) {
+                        assertNotNull(info.getCollectionItemInfo());
+                    }
                 }
             }
         });
@@ -287,6 +287,7 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
             @Override
             public void run() {
                 recyclerView.setAdapter(adapter);
+
             }
         });
         layoutManager.waitForLayout(1);
@@ -298,8 +299,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 for (int i = 0; i < recyclerView.getChildCount(); i++) {
                     View view = recyclerView.getChildAt(i);
                     assertEquals(i, recyclerView.getChildAdapterPosition(view));
-                    assertTrue(recyclerView.findContainingViewHolder(view).hasAnyOfTheFlags(
-                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
                     assertTrue(accessibiltyDelegateIsItemDelegate(recyclerView, view));
                     AccessibilityNodeInfo info = view.createAccessibilityNodeInfo();
                     if (Build.VERSION.SDK_INT >= 19) {
@@ -326,8 +325,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                     View view = vh.itemView;
                     assertEquals(RecyclerView.NO_POSITION,
                             recyclerView.getChildAdapterPosition(view));
-                    assertFalse(vh.hasAnyOfTheFlags(
-                            RecyclerView.ViewHolder.FLAG_SET_A11Y_ITEM_DELEGATE));
                     assertFalse(accessibiltyDelegateIsItemDelegate(recyclerView, view));
                 }
             }
