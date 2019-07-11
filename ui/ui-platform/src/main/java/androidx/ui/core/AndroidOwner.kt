@@ -368,17 +368,31 @@ class AndroidCraneView constructor(context: Context)
         trace("AndroidOwner:callDraw") {
             when (node) {
                 is DrawNode -> {
-                    val onPaint = node.onPaint
                     val previousNode = currentNode
                     currentNode = node
                     clearNodeModels(node)
-                    val receiver = DrawNodeScopeImpl(
-                        node, canvas, parentSize,
-                        densityReceiver.density
-                    )
-                    receiver.onPaint(canvas, parentSize)
-                    if (!receiver.childDrawn) {
-                        receiver.drawChildren()
+                    val onPaintWithChildren = node.onPaintWithChildren
+                    if (onPaintWithChildren != null) {
+                        val ownerData = node.ownerData
+                        val receiver: DrawReceiverImpl
+                        if (ownerData == null) {
+                            receiver =
+                                DrawReceiverImpl(node, canvas, parentSize, densityReceiver.density)
+                            node.ownerData = receiver
+                        } else {
+                            receiver = ownerData as DrawReceiverImpl
+                            receiver.childDrawn = false
+                            receiver.canvas = canvas
+                            receiver.parentSize = parentSize
+                            receiver.density = densityReceiver.density
+                        }
+                        onPaintWithChildren(receiver, canvas, parentSize)
+                        if (!receiver.childDrawn) {
+                            receiver.drawChildren()
+                        }
+                    } else {
+                        val onPaint = node.onPaint!!
+                        densityReceiver.onPaint(canvas, parentSize)
                     }
                     node.needsPaint = false
                     currentNode = previousNode
@@ -529,12 +543,12 @@ class AndroidCraneView constructor(context: Context)
         }
     }
 
-    private inner class DrawNodeScopeImpl(
+    private inner class DrawReceiverImpl(
         private val drawNode: DrawNode,
-        private val canvas: Canvas,
-        private val parentSize: PxSize,
-        override val density: Density
-    ) : DensityReceiver, DrawNodeScope {
+        var canvas: Canvas,
+        var parentSize: PxSize,
+        override var density: Density
+    ) : DensityReceiver, DrawReceiver {
         internal var childDrawn = false
 
         override fun drawChildren() {

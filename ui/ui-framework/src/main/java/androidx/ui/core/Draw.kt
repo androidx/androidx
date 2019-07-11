@@ -29,9 +29,24 @@ import androidx.compose.composer
  *         canvas.drawRect(Rect(0.0f, 0.0f, parentSize.width, parentSize.height, paint)
  *     }
  *
- * Draw also accepts children as an argument. By default the children are drawn
- * after the draw commands. If it is important to order canvas operations in a
- * different way, use [DrawScope.drawChildren]:
+ *  The [onPaint] lambda uses a [DensityReceiver] receiver scope, to allow easy translation
+ *  between [Dp], [Sp], and [Px]. The [parentSize] parameter indicates the layout size of
+ *  the parent.
+ */
+@Composable
+fun Draw(
+    @Children(composable = false)
+    onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
+) {
+    // Hide the internals of DrawNode
+    <DrawNode onPaint=onPaint/>
+}
+
+/**
+ * A Draw scope that accepts children to allow modifying the canvas for children.
+ * The [children] are drawn when [DrawReceiver.drawChildren] is called.
+ * If the [onPaint] does not call [DrawReceiver.drawChildren] then it will be called
+ * after the lambda.
  *
  *     Draw(children) { canvas, parentSize ->
  *         canvas.save()
@@ -44,30 +59,12 @@ import androidx.compose.composer
  */
 @Composable
 fun Draw(
-    children: @Composable() () -> Unit = {},
+    children: @Composable() () -> Unit,
     @Children(composable = false)
-    onPaint: DrawScope.(canvas: Canvas, parentSize: PxSize) -> Unit
+    onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
-    <DrawNode onPaint={ canvas, parentSize ->
-        DrawScope(this).onPaint(canvas, parentSize)
-    }>
+    <DrawNode onPaintWithChildren=onPaint>
         children()
     </DrawNode>
-}
-
-/**
- * Receiver scope for [Draw] lamda that allows ordering the child drawing between
- * canvas operations.
- */
-class DrawScope internal constructor(private val drawNodeScope: DrawNodeScope) : DensityReceiver {
-    /**
-     * Causes child drawing operations to run.
-     */
-    fun drawChildren() {
-        drawNodeScope.drawChildren()
-    }
-
-    override val density: Density
-        get() = drawNodeScope.density
 }

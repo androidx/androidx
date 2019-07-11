@@ -102,16 +102,15 @@ package androidx.ui.core {
   public final class DrawNode extends androidx.ui.core.ComponentNode {
     ctor public DrawNode();
     method public boolean getNeedsPaint();
-    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawNodeScope,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> getOnPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaint();
+    method public kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? getOnPaintWithChildren();
     method public void invalidate();
     method public void setNeedsPaint(boolean p);
-    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawNodeScope,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit> value);
+    method public void setOnPaint(kotlin.jvm.functions.Function3<? super androidx.ui.core.DensityReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
+    method public void setOnPaintWithChildren(kotlin.jvm.functions.Function3<? super androidx.ui.core.DrawReceiver,? super androidx.ui.painting.Canvas,? super androidx.ui.core.PxSize,kotlin.Unit>? value);
     property public final boolean needsPaint;
-    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawNodeScope,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit> onPaint;
-  }
-
-  public interface DrawNodeScope extends androidx.ui.core.DensityReceiver {
-    method public void drawChildren();
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DensityReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaint;
+    property public final kotlin.jvm.functions.Function3<androidx.ui.core.DrawReceiver,androidx.ui.painting.Canvas,androidx.ui.core.PxSize,kotlin.Unit>? onPaintWithChildren;
   }
 
   public final class LayoutNode extends androidx.ui.core.ComponentNode {
