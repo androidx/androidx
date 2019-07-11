@@ -36,6 +36,7 @@ import androidx.ui.core.withTight
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.trace
+import androidx.ui.core.Modifier
 
 /**
  * A convenience widget that combines common layout widgets for one child:
@@ -59,6 +60,7 @@ import androidx.compose.trace
  */
 @Composable
 fun Container(
+    modifier: Modifier = Modifier.None,
     padding: EdgeInsets = EdgeInsets(0.dp),
     alignment: Alignment = Alignment.Center,
     expanded: Boolean = false,
@@ -68,7 +70,7 @@ fun Container(
     children: @Composable() () -> Unit
 ) {
     trace("UI:Container") {
-        Layout(children) { measurables, incomingConstraints ->
+        Layout(children, modifier) { measurables, incomingConstraints ->
             val containerConstraints = Constraints(constraints)
                 .withTight(width?.toIntPx(), height?.toIntPx())
                 .enforce(incomingConstraints)

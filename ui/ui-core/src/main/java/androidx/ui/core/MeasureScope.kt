@@ -20,11 +20,11 @@ package androidx.ui.core
  * The receiver scope of a layout's measure lambda. The return value of the
  * measure lambda is [LayoutResult], which should be returned by [layout]
  */
-interface MeasureBlockScope : DensityReceiver {
+interface MeasureScope : DensityScope {
     /**
      * Sets the size and alignment lines of the measured layout, and assigns the positioning block.
-     * The [positioningBlock] is a lambda used for positioning children. [Placeable.place] should
-     * be called on children inside [positioningBlock].
+     * The [placementBlock] is a lambda used for positioning children. [Placeable.place] should
+     * be called on children inside [placementBlock].
      * The alignment lines can be used by the parent layouts to decide layout, and can be queried
      * using the [Placeable.get] operator. Note that alignment lines will be inherited by parent
      * layouts, such that indirect parents will be able to query them as well.
@@ -32,12 +32,24 @@ interface MeasureBlockScope : DensityReceiver {
      * @param width the measured width of the layout
      * @param height the measured height of the layout
      * @param alignmentLines the alignment lines defined by the layout
-     * @param positioningBlock block defining the children positioning of the current layout
+     * @param placementBlock block defining the children positioning of the current layout
      */
     fun layout(
         width: IntPx,
         height: IntPx,
         vararg alignmentLines: Pair<AlignmentLine, IntPx>,
-        positioningBlock: PositioningBlockScope.() -> Unit
+        placementBlock: Placeable.PlacementScope.() -> Unit
     ): LayoutResult
+
+    /**
+     * Value returned by [MeasureScope.layout] to encourage developers to call
+     * it during the measure pass.
+     */
+    object LayoutResult
 }
+
+/**
+ * A function for performing layout measurement.
+ */
+typealias MeasureFunction =
+        MeasureScope.(List<Measurable>, Constraints) -> MeasureScope.LayoutResult

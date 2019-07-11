@@ -17,8 +17,8 @@ package androidx.ui.core
 
 import android.annotation.SuppressLint
 import androidx.compose.Ambient
-import androidx.compose.Composable
 import androidx.compose.ambient
+import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.compositionReference
 import androidx.compose.effectOf
@@ -42,8 +42,8 @@ import androidx.ui.text.TextRange
 import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
 import androidx.ui.text.style.TextAlign
-import androidx.ui.text.toAnnotatedString
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.text.toAnnotatedString
 
 private val DefaultSoftWrap: Boolean = true
 private val DefaultOverflow: TextOverflow = TextOverflow.Clip
@@ -60,6 +60,7 @@ private val DefaultSelectionColor = Color(0x6633B5E5)
  */
 @Composable
 fun Text(
+    modifier: Modifier = Modifier.None,
     /**
      * Text to render in this widget. If there are also [Span]s in this widget, they will be append
      * after the given [text].
@@ -108,6 +109,7 @@ fun Text(
 
     Text(
         text = rootTextSpan.toAnnotatedString(),
+        modifier = modifier,
         style = style,
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
@@ -126,6 +128,7 @@ fun Text(
 @Composable
 fun Text(
     text: String,
+    modifier: Modifier = Modifier.None,
     style: TextStyle? = null,
     paragraphStyle: ParagraphStyle? = null,
     softWrap: Boolean = DefaultSoftWrap,
@@ -137,6 +140,7 @@ fun Text(
 ) {
     Text(
         text = AnnotatedString(text),
+        modifier = modifier,
         style = style,
         paragraphStyle = paragraphStyle,
         softWrap = softWrap,
@@ -157,6 +161,10 @@ fun Text(
      * AnnotatedString encoding a styled text.
      */
     text: AnnotatedString,
+    /**
+     * Modifier to apply to this layout node
+     */
+    modifier: Modifier = Modifier.None,
     /** The default text style applied to all text in this widget. */
     style: TextStyle? = null,
     /**
@@ -238,7 +246,7 @@ fun Text(
                 textDelegate.paint(canvas)
             }
         }
-        ComplexLayout(children) {
+        ComplexLayout(children, modifier) {
             measure { _, constraints ->
                 textDelegate.layout(constraints)
                 layout(

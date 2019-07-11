@@ -61,7 +61,7 @@ import androidx.ui.autofill.unregisterCallback
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidComposeView constructor(context: Context)
-    : ViewGroup(context), Owner, SemanticsTreeProvider, DensityReceiver {
+    : ViewGroup(context), Owner, SemanticsTreeProvider, DensityScope {
     override var density: Density = Density(context)
         private set
 
@@ -129,7 +129,7 @@ class AndroidComposeView constructor(context: Context)
         if (node != null) {
             nodeToModels.add(node, readValue)
             if (node is LayoutNode) {
-                if (node.isInMeasure) {
+                if (node.isMeasuring) {
                     relayoutOnly.remove(readValue, node)
                     modelToNodes.add(readValue, node)
                 } else if (!modelToNodes.contains(readValue, node)) {
@@ -467,15 +467,17 @@ class AndroidComposeView constructor(context: Context)
                     }
                 }
                 is LayoutNode -> {
-                    if (node.visible) {
-                        val doTranslate = node.x != 0.ipx || node.y != 0.ipx
+                    if (node.isPlaced) {
+                        val contentPos = node.contentPosition
+                        val doTranslate = contentPos.x != 0.ipx || contentPos.y != 0.ipx
                         if (doTranslate) {
                             canvas.save()
-                            canvas.translate(node.x.value.toFloat(), node.y.value.toFloat())
+                            canvas.translate(contentPos.x.value.toFloat(),
+                                contentPos.y.value.toFloat())
                         }
-                        val size = PxSize(node.width, node.height)
+                        val contentSize = node.contentSize.toPxSize()
                         node.visitChildren { child ->
-                            callDraw(canvas, child, size)
+                            callDraw(canvas, child, contentSize)
                         }
                         if (doTranslate) {
                             canvas.restore()
@@ -627,7 +629,7 @@ class AndroidComposeView constructor(context: Context)
         var canvas: Canvas,
         var parentSize: PxSize,
         override var density: Density
-    ) : DensityReceiver, DrawReceiver {
+    ) : DensityScope, DrawReceiver {
         internal var childDrawn = false
 
         override fun drawChildren() {
@@ -644,17 +646,16 @@ class AndroidComposeView constructor(context: Context)
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 
     internal companion object {
-        private val RootMeasureBlock:
-                MeasureBlockScope.(List<Measurable>, Constraints) -> LayoutResult =
-            { measurables, constraints ->
-                if (measurables.isEmpty()) {
-                    layout(IntPx.Zero, IntPx.Zero) {}
-                } else if (measurables.size == 1) {
+        private val RootMeasureBlock: MeasureFunction = { measurables, constraints ->
+            when {
+                measurables.isEmpty() -> layout(IntPx.Zero, IntPx.Zero) {}
+                measurables.size == 1 -> {
                     val placeable = measurables[0].measure(constraints)
                     layout(placeable.width, placeable.height) {
                         placeable.place(IntPx.Zero, IntPx.Zero)
                     }
-                } else {
+                }
+                else -> {
                     val placeables = measurables.map { it.measure(constraints) }
                     var maxWidth = IntPx.Zero
                     var maxHeight = IntPx.Zero
@@ -669,6 +670,7 @@ class AndroidComposeView constructor(context: Context)
                     }
                 }
             }
+        }
     }
 }
 

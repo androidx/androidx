@@ -51,15 +51,15 @@ fun Density(context: Context): Density =
  *
  */
 // can't make this inline as tests are failing with "DensityKt.$jacocoInit()' is inaccessible"
-/*inline*/ fun <R> withDensity(density: Density, block: DensityReceiver.() -> R) =
-    DensityReceiverImpl(density).block()
+/*inline*/ fun <R> withDensity(density: Density, block: DensityScope.() -> R) =
+    DensityScopeImpl(density).block()
 
 /**
  * Used to add density resolution logic within a receiver scope.
  *
  * @see [withDensity] for a simple usage
  */
-interface DensityReceiver {
+interface DensityScope {
 
     /**
      * A [Density] object. Useful if you need to pass it as a param.
@@ -148,6 +148,11 @@ interface DensityReceiver {
 }
 
 /**
- * A simple implementation for [DensityReceiver].
+ * Returns a [DensityScope] reflecting [density].
  */
-class DensityReceiverImpl(override val density: Density) : DensityReceiver
+fun DensityScope(density: Density): DensityScope = DensityScopeImpl(density)
+
+/**
+ * A simple implementation for [DensityScope].
+ */
+private class DensityScopeImpl(override val density: Density) : DensityScope

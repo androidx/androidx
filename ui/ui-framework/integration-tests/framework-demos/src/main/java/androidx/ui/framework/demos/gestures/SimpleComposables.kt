@@ -37,11 +37,9 @@ import androidx.ui.graphics.PaintingStyle
  */
 @Composable
 internal fun MatchParent(children: @Composable() () -> Unit) {
-    Layout({
-        children()
-    }, { _, constraints ->
+    Layout(children) { _, constraints ->
         layout(constraints.maxWidth, constraints.maxHeight) {}
-    })
+    }
 }
 
 @Composable
@@ -161,7 +159,7 @@ internal fun SimpleContainer(
                 children()
             }
         }
-    }, { measurables, constraints ->
+    }) { measurables, constraints ->
         val newConstraints =
             constraints.copy(
                 maxWidth = if (width.value >= 0) width.toIntPx() else constraints.maxWidth,
@@ -174,7 +172,7 @@ internal fun SimpleContainer(
         layout(newConstraints.maxWidth, newConstraints.maxHeight) {
             placeable.place(0.ipx, 0.ipx)
         }
-    })
+    }
 }
 
 @Composable

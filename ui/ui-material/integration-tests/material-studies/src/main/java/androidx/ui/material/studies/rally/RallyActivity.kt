@@ -24,11 +24,12 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.setContent
+import androidx.ui.foundation.VerticalScroller
 import androidx.ui.layout.Column
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.LayoutSize
-import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
+import androidx.ui.layout.padding
 import androidx.ui.material.studies.Scaffold
 import androidx.ui.material.themeTextStyle
 
@@ -58,7 +59,7 @@ class RallyActivity : Activity() {
         // TODO: Transform to tabs
         Row(mainAxisSize = LayoutSize.Expand) {
             // Icon()
-            Text(text = "Overview", style = +themeTextStyle{ h4 })
+            Text(text = "Overview", style = +themeTextStyle { h4 })
             // TODO: Other items
         }
     }
@@ -66,8 +67,8 @@ class RallyActivity : Activity() {
 
 @Composable
 fun RallyBody() {
-    Padding(padding = 16.dp) {
-        Column(mainAxisSize = LayoutSize.Expand) {
+    VerticalScroller {
+        Column(modifier = padding(16.dp), mainAxisSize = LayoutSize.Expand) {
             // TODO: scrolling container
             RallyAlertCard()
             HeightSpacer(height = 10.dp)

@@ -20,6 +20,7 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.trace
 import androidx.ui.core.Dp
+import androidx.ui.core.Modifier
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
@@ -43,9 +44,14 @@ import androidx.ui.layout.Container
  * @param height height of this rect, by default it will match incoming layout constraints
  */
 @Composable
-fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
+fun ColoredRect(
+    brush: Brush,
+    modifier: Modifier = Modifier.None,
+    width: Dp? = null,
+    height: Dp? = null
+) {
     trace("UI:ColoredRect") {
-        Container(width = width, height = height, expanded = true) {
+        Container(modifier = modifier, width = width, height = height, expanded = true) {
             DrawFillRect(brush = brush)
         }
     }
@@ -61,8 +67,13 @@ fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
  * @param height height of this rect, by default it will match parent's constraints
  */
 @Composable
-fun ColoredRect(color: Color, width: Dp? = null, height: Dp? = null) {
-    ColoredRect(brush = SolidColor(color), width = width, height = height)
+fun ColoredRect(
+    color: Color,
+    modifier: Modifier = Modifier.None,
+    width: Dp? = null,
+    height: Dp? = null
+) {
+    ColoredRect(brush = SolidColor(color), modifier = modifier, width = width, height = height)
 }
 
 @Composable

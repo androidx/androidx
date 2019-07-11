@@ -112,6 +112,8 @@ data /*inline*/ class Px(val value: Float) {
     inline operator fun minus(other: IntPx) =
         Px(value = this.value - other.value)
 
+    override fun toString() = "$value.px"
+
     companion object {
         /**
          * Infinite px dimension.
@@ -517,16 +519,17 @@ data class PxPosition(val x: Px, val y: Px) {
 /**
  * The magnitude of the offset represented by this [PxPosition].
  */
-fun PxPosition.getDistance(): Px {
-    return Px(sqrt(x.value * x.value + y.value * y.value))
-}
+fun PxPosition.getDistance(): Px = Px(sqrt(x.value * x.value + y.value * y.value))
 
 /**
  * Convert a [PxPosition] to a [Offset].
  */
-inline fun PxPosition.toOffset(): Offset {
-    return Offset(x.value, y.value)
-}
+inline fun PxPosition.toOffset(): Offset = Offset(x.value, y.value)
+
+/**
+ * Round a [PxPosition] down to the nearest [Int] coordinates.
+ */
+inline fun PxPosition.round(): IntPxPosition = IntPxPosition(x.round(), y.round())
 
 /**
  * Linearly interpolate between two [PxPosition]s.

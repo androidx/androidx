@@ -1,10 +1,6 @@
 // Baseline format: 1.0
 DocumentExceptions: androidx.ui.core.AndroidComposeView#onAttach(androidx.ui.core.ComponentNode):
     Method AndroidComposeView.onAttach appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.core.ComponentNodesKt#childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode, androidx.ui.core.PxPosition):
-    Method ComponentNodesKt.childToLocal appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.ui.core.LayoutNode#measure(androidx.ui.core.Constraints):
-    Method LayoutNode.measure appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
 EndsWithImpl: androidx.ui.core.SemanticsTreeNodeImpl:

@@ -100,6 +100,8 @@ data /*inline*/ class IntPx(val value: Int) {
      */
     inline operator fun compareTo(other: IntPx) = value.compareTo(other.value)
 
+    override fun toString() = "$value.ipx"
+
     companion object {
         /**
          * An IntPx that indicates that there is no bound in the dimension. This is

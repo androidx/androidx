@@ -8,8 +8,8 @@ package androidx.ui.foundation {
 
   public final class ColoredRectKt {
     ctor public ColoredRectKt();
-    method public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
-    method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
+    method public static void ColoredRect(androidx.ui.graphics.Brush brush, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
+    method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Modifier modifier = Modifier.None, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
   }
 
   public final class DarkThemeKt {

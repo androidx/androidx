@@ -25,7 +25,7 @@ import androidx.animation.PxPropKey
 import androidx.animation.TransitionAnimation
 import androidx.animation.transitionDefinition
 import androidx.ui.core.Density
-import androidx.ui.core.DensityReceiver
+import androidx.ui.core.DensityScope
 import androidx.ui.core.Dp
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
@@ -49,7 +49,7 @@ import androidx.ui.vectormath64.getAsTranslation
 internal fun getRippleStartRadius(size: PxSize) =
     max(size.width, size.height) * 0.3f
 
-internal fun DensityReceiver.getRippleTargetRadius(size: PxSize) =
+internal fun DensityScope.getRippleTargetRadius(size: PxSize) =
     PxPosition(size.width, size.height).getDistance() / 2f + 10.dp.toPx()
 
 /**
