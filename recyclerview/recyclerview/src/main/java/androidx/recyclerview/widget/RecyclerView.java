@@ -2298,6 +2298,26 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     @Deprecated
     @Override
     public void setLayoutTransition(LayoutTransition transition) {
+        if (Build.VERSION.SDK_INT < 18) {
+            // Transitions on APIs below 18 are using an empty LayoutTransition as a replacement
+            // for suppressLayout(true) and null LayoutTransition to then unsuppress it.
+            // We can detect this cases and use our suppressLayout() implementation instead.
+            if (transition == null) {
+                suppressLayout(false);
+                return;
+            } else {
+                int layoutTransitionChanging = 4; // LayoutTransition.CHANGING (Added in API 16)
+                if (transition.getAnimator(LayoutTransition.CHANGE_APPEARING) == null
+                        && transition.getAnimator(LayoutTransition.CHANGE_DISAPPEARING) == null
+                        && transition.getAnimator(LayoutTransition.APPEARING) == null
+                        && transition.getAnimator(LayoutTransition.DISAPPEARING) == null
+                        && transition.getAnimator(layoutTransitionChanging) == null) {
+                    suppressLayout(true);
+                    return;
+                }
+            }
+        }
+
         if (transition == null) {
             super.setLayoutTransition(null);
         } else {
