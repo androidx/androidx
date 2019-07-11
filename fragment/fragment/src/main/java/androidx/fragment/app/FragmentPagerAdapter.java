@@ -186,12 +186,17 @@ public abstract class FragmentPagerAdapter extends PagerAdapter {
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        Fragment fragment = (Fragment) object;
+
         if (mCurTransaction == null) {
             mCurTransaction = mFragmentManager.beginTransaction();
         }
         if (DEBUG) Log.v(TAG, "Detaching item #" + getItemId(position) + ": f=" + object
-                + " v=" + ((Fragment)object).getView());
-        mCurTransaction.detach((Fragment)object);
+                + " v=" + (fragment.getView()));
+        mCurTransaction.detach(fragment);
+        if (fragment == mCurrentPrimaryItem) {
+            mCurrentPrimaryItem = null;
+        }
     }
 
     @SuppressWarnings({"ReferenceEquality", "deprecation"})
