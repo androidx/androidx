@@ -108,8 +108,7 @@ private class RippleState {
         )
         val color = theme.colorCallback.invoke(rippleSurface.backgroundColor)
         val onAnimationFinished = { effect: RippleEffect ->
-            val contains = effects.remove(effect)
-            require(contains)
+            effects.remove(effect)
             if (currentEffect == effect) {
                 currentEffect = null
             }
