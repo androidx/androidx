@@ -19,12 +19,12 @@ package androidx.car.widget;
 import android.view.View;
 
 import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
 import androidx.car.uxrestrictions.OnUxRestrictionsChangedListener;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Definition of items that can be inserted into {@link ListItemAdapter}.
