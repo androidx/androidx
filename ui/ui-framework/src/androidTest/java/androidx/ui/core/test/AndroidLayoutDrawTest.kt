@@ -776,6 +776,50 @@ class AndroidLayoutDrawTest {
         validateSquareColors(outerColor = outerColor, innerColor = outerColor, size = 10)
     }
 
+    // When a child is removed, the parent must be remeasured.
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testRelayoutOnRemovedChild() {
+        val drawChild = DoDraw(true)
+
+        val outerColor = Color(0xFF000080.toInt())
+        val innerColor = Color(0xFFFFFFFF.toInt())
+        activityTestRule.runOnUiThreadIR {
+            activity.setContent {
+                CraneWrapper {
+                    AtLeastSize(size = 30.ipx) {
+                        Draw { canvas, parentSize ->
+                            drawLatch.countDown()
+                            val paint = Paint()
+                            paint.color = outerColor
+                            canvas.drawRect(parentSize.toRect(), paint)
+                        }
+                        Padding(size = 20.ipx) {
+                            if (drawChild.value) {
+                                AtLeastSize(size = 20.ipx) {
+                                    Draw { canvas, parentSize ->
+                                        drawLatch.countDown()
+                                        val paint = Paint()
+                                        paint.color = innerColor
+                                        canvas.drawRect(parentSize.toRect(), paint)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        validateSquareColors(outerColor = outerColor, innerColor = innerColor, size = 20)
+
+        drawLatch = CountDownLatch(1)
+        activityTestRule.runOnUiThreadIR { drawChild.value = false }
+
+        // The padded area doesn't draw
+        validateSquareColors(outerColor = outerColor, innerColor = outerColor, size = 10)
+    }
+
     private fun composeSquares(model: SquareModel) {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
