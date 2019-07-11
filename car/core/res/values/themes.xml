@@ -29,7 +29,9 @@ limitations under the License.
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored
         </item>
         <item name="android:buttonStyle">@style/Widget.Car.Button</item>
+        <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="android:checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
+        <item name="radioButtonStyle">@style/Widget.Car.RadioButton.Light</item>
         <item name="android:radioButtonStyle">@style/Widget.Car.RadioButton.Light</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background_light</item>
@@ -60,6 +62,7 @@ limitations under the License.
         <item name="android:textColorPrimary">@color/car_primary_text_light</item>
         <item name="android:textColorHighlight">@color/car_grey_700</item>
         <item name="android:textColorHint">@color/car_secondary_text_light</item>
+        <item name="spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
@@ -114,7 +117,9 @@ limitations under the License.
     <style name="Theme.Car.Light.NoActionBar" parent="Theme.Car.NoActionBar">
         <item name="android:windowBackground">@color/car_card</item>
         <item name="android:alertDialogTheme">@style/Theme.Car.Dialog.Alert</item>
+        <item name="checkboxStyle">@style/Widget.Car.CheckBox</item>
         <item name="android:checkboxStyle">@style/Widget.Car.CheckBox</item>
+        <item name="radioButtonStyle">@style/Widget.Car.RadioButton</item>
         <item name="android:radioButtonStyle">@style/Widget.Car.RadioButton</item>
         <item name="android:colorAccent">@color/car_accent</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
@@ -141,6 +146,7 @@ limitations under the License.
         <item name="android:selectableItemBackgroundBorderless">
             @drawable/car_button_ripple_background
         </item>
+        <item name="spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
