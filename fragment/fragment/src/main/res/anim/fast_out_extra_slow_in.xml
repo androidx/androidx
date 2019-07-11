@@ -14,9 +14,5 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<!--Taken from https://googleplex-android.googlesource.com/platform/frameworks/base/+/HEAD/core/res/res/interpolator/linear_out_slow_in.xml-->
-<pathInterpolator xmlns:android="http://schemas.android.com/apk/res/android"
-    android:controlX1="0"
-    android:controlY1="0"
-    android:controlX2="0.2"
-    android:controlY2="1"/>
+<!--Taken from https://googleplex-android.googlesource.com/platform/frameworks/base/+/HEAD/core/res/res/interpolator/decelerate_quad.xml-->
+<decelerateInterpolator/>
