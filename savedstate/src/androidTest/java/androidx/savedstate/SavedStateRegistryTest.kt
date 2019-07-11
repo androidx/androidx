@@ -143,7 +143,6 @@ class SavedStateRegistryTest {
     }
 
     @Test
-    @Suppress("DEPRECATION")
     fun throwSavedStateRegistry() {
         val owner = FakeSavedStateRegistryOwner()
         // shouldn't throw, though we aren't even created
