@@ -34,12 +34,20 @@ android {
 }
 
 dependencies {
-    api(project(":fragment:fragment")) {
-        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
-    }
+    api(project(":fragment:fragment"))
     api(project(":activity:activity-ktx")) {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
+    api("androidx.core:core-ktx:1.1.0-rc01") {
+        because 'Mirror fragment dependency graph for -ktx artifacts'
+    }
+    api("androidx.collection:collection-ktx:1.1.0") {
+        because 'Mirror fragment dependency graph for -ktx artifacts'
+    }
+    api(project(":lifecycle:lifecycle-livedata-core-ktx")) {
+        because 'Mirror fragment dependency graph for -ktx artifacts'
+    }
+    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
