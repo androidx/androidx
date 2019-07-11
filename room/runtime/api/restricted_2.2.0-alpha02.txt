@@ -22,12 +22,12 @@ package androidx.room {
     method public final void insert(T![]!);
     method public final void insert(Iterable<? extends T>!);
     method public final long insertAndReturnId(T!);
-    method public final long[]! insertAndReturnIdsArray(java.util.Collection<T!>!);
+    method public final long[]! insertAndReturnIdsArray(java.util.Collection<? extends T>!);
     method public final long[]! insertAndReturnIdsArray(T![]!);
-    method public final Long![]! insertAndReturnIdsArrayBox(java.util.Collection<T!>!);
+    method public final Long![]! insertAndReturnIdsArrayBox(java.util.Collection<? extends T>!);
     method public final Long![]! insertAndReturnIdsArrayBox(T![]!);
     method public final java.util.List<java.lang.Long!>! insertAndReturnIdsList(T![]!);
-    method public final java.util.List<java.lang.Long!>! insertAndReturnIdsList(java.util.Collection<T!>!);
+    method public final java.util.List<java.lang.Long!>! insertAndReturnIdsList(java.util.Collection<? extends T>!);
   }
 
   public class InvalidationTracker {
