@@ -24,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -121,7 +120,7 @@ public abstract class DeferrableSurface {
             }
 
             if (DEBUG) {
-                Log.d(TAG, "attach count-1,  attachedCount=" + getAttachedCount() + " " + this);
+                Log.d(TAG, "attach count-1,  attachedCount=" + mAttachedCount + " " + this);
 
                 if (mAttachedCount == 0) {
                     Log.d(TAG, "Surface detached, count = " + sSurfaceCount.decrementAndGet() + " "
@@ -175,7 +174,8 @@ public abstract class DeferrableSurface {
         });
     }
 
-    @VisibleForTesting
+    /** @hide */
+    @RestrictTo(Scope.TESTS)
     public int getAttachedCount() {
         synchronized (mLock) {
             return mAttachedCount;
