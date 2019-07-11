@@ -25,6 +25,7 @@ dependencies {
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
     api(project(":activity:activity"))
+    api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
     androidTestImplementation(KOTLIN_STDLIB)
