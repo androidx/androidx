@@ -41,6 +41,7 @@ dependencies {
     api(KOTLIN_STDLIB)
 
     androidTestImplementation(TRUTH)
+    androidTestImplementation(ARCH_LIFECYCLE_RUNTIME)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
