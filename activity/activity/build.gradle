@@ -18,10 +18,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.1.0-rc01") {
-        exclude group: 'androidx.annotation'
-        exclude group: 'com.google.guava', module: 'listenablefuture'
-    }
+    api("androidx.core:core:1.1.0-rc01")
     api(project(":lifecycle:lifecycle-runtime"))
     api(project(":lifecycle:lifecycle-viewmodel"))
     api(project(":savedstate"))
