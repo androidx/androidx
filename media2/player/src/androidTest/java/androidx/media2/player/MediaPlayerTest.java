@@ -199,6 +199,16 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onVideoSizeChanged(MediaPlayer mp, MediaItem dsd, VideoSize size) {
+                assertVideoSizeEquals(size);
+            }
+
+            @Override
+            public void onVideoSizeChanged(@NonNull SessionPlayer player,
+                    @NonNull androidx.media2.common.VideoSize size) {
+                assertVideoSizeEquals(new VideoSize(size.getWidth(), size.getHeight()));
+            }
+
+            private void assertVideoSizeEquals(VideoSize size) {
                 if (size.getWidth() == 0 && size.getHeight() == 0) {
                     // A size of 0x0 can be sent initially one time when using NuPlayer.
                     assertFalse(onVideoSizeChangedCalled.isSignalled());
@@ -226,7 +236,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.prepare();
         mPlayer.play();
 
-        onVideoSizeChangedCalled.waitForSignal();
+        onVideoSizeChangedCalled.waitForCountedSignals(2);
         onVideoRenderingStartCalled.waitForSignal();
 
         mPlayer.setPlayerVolume(volume);
@@ -299,6 +309,16 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onVideoSizeChanged(MediaPlayer mp, MediaItem dsd, VideoSize size) {
+                assertVideoSizeEquals(size);
+            }
+
+            @Override
+            public void onVideoSizeChanged(@NonNull SessionPlayer player,
+                    @NonNull androidx.media2.common.VideoSize size) {
+                assertVideoSizeEquals(new VideoSize(size.getWidth(), size.getHeight()));
+            }
+
+            private void assertVideoSizeEquals(VideoSize size) {
                 if (size.getWidth() == 0 && size.getHeight() == 0) {
                     // A size of 0x0 can be sent initially one time when using NuPlayer.
                     assertFalse(onVideoSizeChangedCalled.isSignalled());
@@ -326,7 +346,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.prepare();
         mPlayer.play();
 
-        onVideoSizeChangedCalled.waitForSignal();
+        onVideoSizeChangedCalled.waitForCountedSignals(2);
         onVideoRenderingStartCalled.waitForSignal();
     }
 

@@ -622,6 +622,7 @@ public class MockPlayer extends SessionPlayer {
                 @Override
                 public void run() {
                     callback.onVideoSizeChangedInternal(MockPlayer.this, dummyItem, videoSize);
+                    callback.onVideoSizeChanged(MockPlayer.this, videoSize);
                 }
             });
         }

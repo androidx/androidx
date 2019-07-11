@@ -3014,13 +3014,14 @@ public final class MediaPlayer extends SessionPlayer {
                 case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
                 case MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT:
                     final List<SessionPlayer.TrackInfo> tracks = mp.getTrackInfo();
+                    final androidx.media2.common.VideoSize videoSize = getVideoSizeInternal();
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(
                                 SessionPlayer.PlayerCallback callback) {
                             callback.onCurrentMediaItemChanged(MediaPlayer.this, item);
-                            callback.onVideoSizeChangedInternal(MediaPlayer.this,
-                                    getCurrentMediaItem(), getVideoSizeInternal());
+                            callback.onVideoSizeChanged(MediaPlayer.this, videoSize);
+                            callback.onVideoSizeChangedInternal(MediaPlayer.this, item, videoSize);
                             callback.onTrackInfoChanged(MediaPlayer.this, tracks);
                         }
                     });
@@ -3129,6 +3130,7 @@ public final class MediaPlayer extends SessionPlayer {
                 notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                     @Override
                     public void callCallback(SessionPlayer.PlayerCallback callback) {
+                        callback.onVideoSizeChanged(MediaPlayer.this, commonSize);
                         callback.onVideoSizeChangedInternal(MediaPlayer.this, item, commonSize);
                     }
                 });
@@ -3257,9 +3259,12 @@ public final class MediaPlayer extends SessionPlayer {
                 @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
 
         /**
+         * @deprecated Use
+         * {@link #onVideoSizeChanged(SessionPlayer, androidx.media2.common.VideoSize)} instead.
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
+        @Deprecated
         @Override
         public void onVideoSizeChangedInternal(
                 @NonNull SessionPlayer player, @NonNull MediaItem item,

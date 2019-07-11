@@ -452,8 +452,8 @@ public abstract class SessionPlayer implements AutoCloseable {
      * @return the size of the video. The width and height of size could be 0 if there is no video
      * or the size has not been determined yet.
      * The {@link PlayerCallback} can be registered via {@link #registerPlayerCallback} to
-     * receive a notification {@link PlayerCallback#onVideoSizeChangedInternal} when the size
-     * is available.
+     * receive a notification {@link PlayerCallback#onVideoSizeChanged(SessionPlayer, VideoSize)}
+     * when the size is available.
      *
      * @hide
      */
@@ -1338,6 +1338,16 @@ public abstract class SessionPlayer implements AutoCloseable {
         }
 
         /**
+         * @deprecated Use {@link #onVideoSizeChanged(SessionPlayer, VideoSize)} instead.
+         * @hide
+         */
+        @Deprecated
+        @RestrictTo(LIBRARY_GROUP)
+        public void onVideoSizeChangedInternal(
+                @NonNull SessionPlayer player, @NonNull MediaItem item, @NonNull VideoSize size) {
+        }
+
+        /**
          * Called to indicate the video size
          * <p>
          * The video size (width and height) could be 0 if there was no video,
@@ -1348,16 +1358,14 @@ public abstract class SessionPlayer implements AutoCloseable {
          * is called.
          *
          * @param player the player associated with this callback
-         * @param item the MediaItem of this media item
          * @param size the size of the video
          * @see #getVideoSizeInternal()
          *
          * @hide
          */
-        // TODO: Add onVideoSizeChanged and deprecate this method (b/132928418)
+        // TODO: Unhide this method (b/132928418)
         @RestrictTo(LIBRARY_GROUP)
-        public void onVideoSizeChangedInternal(
-                @NonNull SessionPlayer player, @NonNull MediaItem item, @NonNull VideoSize size) {
+        public void onVideoSizeChanged(@NonNull SessionPlayer player, @NonNull VideoSize size) {
         }
 
         /**

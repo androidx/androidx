@@ -1532,14 +1532,19 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
         }
 
         @Override
-        public void onVideoSizeChangedInternal(@NonNull final SessionPlayer player,
-                @NonNull final MediaItem item, @NonNull final VideoSize videoSize) {
+        public void onVideoSizeChanged(@NonNull SessionPlayer player, @NonNull VideoSize size) {
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onVideoSizeChanged(seq, item, videoSize);
+                    callback.onVideoSizeChanged(seq, size);
                 }
             });
+        }
+
+        @Override
+        public void onVideoSizeChangedInternal(@NonNull final SessionPlayer player,
+                @NonNull final MediaItem item, @NonNull final VideoSize videoSize) {
+            onVideoSizeChanged(player, videoSize);
         }
 
         @Override

@@ -865,7 +865,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         prepareLooper();
 
         final VideoSize testSize = new VideoSize(100, 42);
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(2);
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
                     @Override
@@ -875,10 +875,18 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                         assertEquals(testSize, videoSize);
                         latch.countDown();
                     }
+
+                    @Override
+                    public void onVideoSizeChanged(@NonNull MediaController controller,
+                            @NonNull VideoSize videoSize) {
+                        assertEquals(testSize, videoSize);
+                        latch.countDown();
+                    }
                 };
 
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
                 callback);
+        mRemoteSession2.getMockPlayer().notifyCurrentMediaItemChanged(INDEX_FOR_UNKONWN_ITEM);
         mRemoteSession2.getMockPlayer().notifyVideoSizeChanged(testSize);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }

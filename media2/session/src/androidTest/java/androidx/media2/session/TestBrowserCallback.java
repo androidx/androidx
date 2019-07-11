@@ -183,6 +183,12 @@ public class TestBrowserCallback extends BrowserCallback
     }
 
     @Override
+    public void onVideoSizeChanged(@NonNull MediaController controller,
+            @NonNull VideoSize videoSize) {
+        mCallbackProxy.onVideoSizeChanged(controller, videoSize);
+    }
+
+    @Override
     public void onSubtitleData(@NonNull MediaController controller, @NonNull MediaItem item,
             @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
         mCallbackProxy.onSubtitleData(controller, item, track, data);
