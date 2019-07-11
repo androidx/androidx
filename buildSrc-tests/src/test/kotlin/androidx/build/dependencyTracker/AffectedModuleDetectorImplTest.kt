@@ -16,6 +16,8 @@
 
 package androidx.build.dependencyTracker
 
+import androidx.build.gitclient.Commit
+import androidx.build.gitclient.GitClient
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.testfixtures.ProjectBuilder
@@ -833,5 +835,13 @@ class AffectedModuleDetectorImplTest {
         ) = changedFiles
 
         override fun findPreviousMergeCL() = lastMergeSha
+
+        // Implement unused abstract method
+        override fun getGitLog(
+            sha: String,
+            top: String,
+            keepMerges: Boolean,
+            fullProjectDir: File
+        ): List<Commit> = listOf()
     }
 }
