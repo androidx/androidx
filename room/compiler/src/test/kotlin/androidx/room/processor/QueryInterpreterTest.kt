@@ -490,7 +490,10 @@ class QueryInterpreterTest {
     @Test
     fun joinAndAbandonEntity() {
         val all = ENTITIES
-        simpleRun(*all) { invocation ->
+        simpleRun(
+            jfos = *all,
+            options = listOf("-Aroom.expandProjection=true")
+        ) { invocation ->
             val entities = invocation.roundEnv
                 .getElementsAnnotatedWith(androidx.room.Entity::class.java)
                 .map { element ->
@@ -511,7 +514,7 @@ class QueryInterpreterTest {
             val query = SqlParser.parse("SELECT * FROM User JOIN Team ON User.id = Team.id")
             val verifier = createVerifierFromEntitiesAndViews(invocation)
             query.resultInfo = verifier.analyze(query.original)
-            val interpreter = QueryInterpreter(entities)
+            val interpreter = QueryInterpreter(invocation.context, entities)
             val expanded = interpreter.interpret(query, entity)
             val expected = """
                 SELECT `User`.`id` AS `id`, `User`.`firstName` AS `firstName`,
@@ -580,7 +583,10 @@ class QueryInterpreterTest {
         handler: (expanded: String, invocation: TestInvocation) -> Unit
     ): CompileTester {
         val all = ENTITIES + JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input)
-        return simpleRun(*all) { invocation ->
+        return simpleRun(
+            jfos = *all,
+            options = listOf("-Aroom.expandProjection=true")
+        ) { invocation ->
             val entities = invocation.roundEnv
                 .getElementsAnnotatedWith(androidx.room.Entity::class.java)
                 .map { element ->
@@ -601,7 +607,7 @@ class QueryInterpreterTest {
             val query = SqlParser.parse(original)
             val verifier = createVerifierFromEntitiesAndViews(invocation)
             query.resultInfo = verifier.analyze(query.original)
-            val interpreter = QueryInterpreter(entities)
+            val interpreter = QueryInterpreter(invocation.context, entities)
             val expanded = interpreter.interpret(query, pojo)
             handler(expanded, invocation)
         }

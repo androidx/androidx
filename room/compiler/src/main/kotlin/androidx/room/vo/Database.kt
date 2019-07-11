@@ -78,7 +78,7 @@ data class Database(
                 }
         val viewDescriptions = views
                 .sortedBy { it.viewName }
-                .map { it.viewName + it.query.interpreted }
+                .map { it.viewName + it.query.original }
         val input = (entityDescriptions + indexDescriptions + viewDescriptions)
                 .joinToString("¯\\_(ツ)_/¯")
         DigestUtils.md5Hex(input)

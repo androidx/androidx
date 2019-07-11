@@ -31,6 +31,7 @@ import java.util.Locale
  * Interprets and rewrites SQL queries in the context of the provided entities and views.
  */
 class QueryInterpreter(
+    val context: Context,
     val tables: List<EntityOrView>
 ) {
 
@@ -45,7 +46,9 @@ class QueryInterpreter(
     }
 
     /**
-     * Analyzes and rewrites the specified [query] in the context of the provided [pojo].
+     * Rewrites the specified [query] in the context of the provided [pojo]. Expanding its start
+     * projection ('SELECT *') and converting its named binding templates to positional
+     * templates (i.e. ':VVV' to '?').
      */
     fun interpret(
         query: ParsedQuery,
@@ -57,51 +60,62 @@ class QueryInterpreter(
                 is Section.Text -> section.text
                 is Section.BindVar -> "?"
                 is Section.Newline -> "\n"
-                is Section.Projection -> if (pojo == null) {
-                    section.text
+                is Section.Projection -> {
+                    if (!context.expandProjection || pojo == null) {
+                        section.text
+                    } else {
+                        interpretProjection(query, section, pojo, queriedTableNames)
+                    }
+                }
+            }
+        }
+    }
+
+    private fun interpretProjection(
+        query: ParsedQuery,
+        section: Section.Projection,
+        pojo: Pojo,
+        queriedTableNames: List<String>
+    ): String {
+        val aliasToName = query.tables
+            .map { (name, alias) -> alias to name }
+            .toMap(IdentifierMap())
+        val nameToAlias = query.tables
+            .groupBy { it.name.toLowerCase(Locale.ENGLISH) }
+            .filter { (_, pairs) -> pairs.size == 1 }
+            .map { (name, pairs) -> name to pairs.first().alias }
+            .toMap(IdentifierMap())
+        return when (section) {
+            is Section.Projection.All -> {
+                expand(
+                    pojo = pojo,
+                    ignoredColumnNames = query.explicitColumns,
+                    // The columns come directly from the specified table.
+                    // We should not prepend the prefix-dot to the columns.
+                    shallow = findEntityOrView(pojo)?.tableName in queriedTableNames,
+                    nameToAlias = nameToAlias,
+                    resultInfo = query.resultInfo
+                )
+            }
+            is Section.Projection.Table -> {
+                val embedded = findEmbeddedField(pojo, section.tableAlias)
+                if (embedded != null) {
+                    expandEmbeddedField(
+                        embedded = embedded,
+                        table = findEntityOrView(embedded.pojo),
+                        shallow = false,
+                        tableToAlias = nameToAlias
+                    ).joinToString(", ")
                 } else {
-                    val aliasToName = query.tables
-                        .map { (name, alias) -> alias to name }
-                        .toMap(IdentifierMap())
-                    val nameToAlias = query.tables
-                        .groupBy { it.name.toLowerCase(Locale.ENGLISH) }
-                        .filter { (_, pairs) -> pairs.size == 1 }
-                        .map { (name, pairs) -> name to pairs.first().alias }
-                        .toMap(IdentifierMap())
-                    when (section) {
-                        is Section.Projection.All -> {
-                            expand(
-                                pojo,
-                                query.explicitColumns,
-                                // The columns come directly from the specified table.
-                                // We should not prepend the prefix-dot to the columns.
-                                findEntityOrView(pojo)?.tableName in queriedTableNames,
-                                nameToAlias,
-                                query.resultInfo
-                            )
-                        }
-                        is Section.Projection.Table -> {
-                            val embedded = findEmbeddedField(pojo, section.tableAlias)
-                            if (embedded != null) {
-                                expandEmbeddedField(
-                                    embedded,
-                                    findEntityOrView(embedded.pojo),
-                                    false,
-                                    nameToAlias
-                                ).joinToString(", ")
-                            } else {
-                                val tableName =
-                                    aliasToName[section.tableAlias] ?: section.tableAlias
-                                val table = tables.find { it.tableName == tableName }
-                                pojo.fields.filter { field ->
-                                    field.parent == null &&
-                                            field.columnName !in query.explicitColumns &&
-                                            table?.columnNames?.contains(field.columnName) == true
-                                }.joinToString(", ") { field ->
-                                    "`${section.tableAlias}`.`${field.columnName}`"
-                                }
-                            }
-                        }
+                    val tableName =
+                        aliasToName[section.tableAlias] ?: section.tableAlias
+                    val table = tables.find { it.tableName == tableName }
+                    pojo.fields.filter { field ->
+                        field.parent == null &&
+                                field.columnName !in query.explicitColumns &&
+                                table?.columnNames?.contains(field.columnName) == true
+                    }.joinToString(", ") { field ->
+                        "`${section.tableAlias}`.`${field.columnName}`"
                     }
                 }
             }

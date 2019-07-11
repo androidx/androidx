@@ -183,7 +183,7 @@ fun createInterpreterFromEntitiesAndViews(invocation: TestInvocation): QueryInte
     val views = invocation.roundEnv.getElementsAnnotatedWith(DatabaseView::class.java).map {
         DatabaseViewProcessor(invocation.context, MoreElements.asType(it)).process()
     }
-    return QueryInterpreter(entities + views)
+    return QueryInterpreter(invocation.context, entities + views)
 }
 
 fun createVerifierFromEntitiesAndViews(invocation: TestInvocation): DatabaseVerifier {

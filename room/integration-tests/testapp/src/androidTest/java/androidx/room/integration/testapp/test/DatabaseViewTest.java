@@ -189,9 +189,9 @@ public class DatabaseViewTest {
     }
 
     @DatabaseView(
-            "SELECT * FROM Team "
-                    + "INNER JOIN Department AS department_ "
-                    + "ON Team.departmentId = department_.id"
+            "SELECT Team.*, dep.id AS department_id, dep.name as department_name FROM Team "
+                    + "INNER JOIN Department AS dep "
+                    + "ON Team.departmentId = dep.id"
     )
     static class TeamDetail2 {
         @Embedded
@@ -200,8 +200,12 @@ public class DatabaseViewTest {
         public Department department;
     }
 
-    @DatabaseView("SELECT * FROM TeamDetail AS first_, TeamDetail AS second_ "
-            + "WHERE first_.id <> second_.id")
+    @DatabaseView("SELECT td1.id AS first_id, td1.name AS first_name, "
+            + "td1.departmentId AS first_departmentId, td1.departmentName AS first_departmentName, "
+            + "td2.id AS second_id, td2.name AS second_name, "
+            + "td2.departmentId AS second_departmentId, "
+            + "td2.departmentName AS second_departmentName "
+            + "FROM TeamDetail AS td1, TeamDetail AS td2 WHERE td1.id <> td2.id")
     static class TeamPair {
         @Embedded(prefix = "first_")
         public TeamDetail first;
@@ -430,7 +434,7 @@ public class DatabaseViewTest {
 
     @Test
     @MediumTest
-    public void expandProjection() {
+    public void expandedProjection() {
         final CompanyDatabase db = getDatabase();
         db.department().insert(new Department(3L, "Sales"));
         db.team().insert(new Team(5L, 3L, "Books"));
@@ -444,7 +448,7 @@ public class DatabaseViewTest {
 
     @Test
     @MediumTest
-    public void expandProjection_embedView() {
+    public void expandedProjection_embedView() {
         final CompanyDatabase db = getDatabase();
         db.department().insert(new Department(3L, "Sales"));
         db.team().insert(new Team(5L, 3L, "Books"));
