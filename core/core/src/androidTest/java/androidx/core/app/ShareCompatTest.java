@@ -36,11 +36,11 @@ import org.junit.runner.RunWith;
 public class ShareCompatTest extends BaseInstrumentationTestCase<TestActivity> {
     @Rule
     public ActivityTestRule<TestActivity> testRuleForReading =
-            new ActivityTestRule<>(TestActivity.class, false, false);
+            new ActivityTestRule<TestActivity>(TestActivity.class, false, false);
 
     @Rule
     public ActivityTestRule<TestActivity> testRuleForReadingInterop =
-            new ActivityTestRule<>(TestActivity.class, false, false);
+            new ActivityTestRule<TestActivity>(TestActivity.class, false, false);
 
     public ShareCompatTest() {
         super(TestActivity.class);
