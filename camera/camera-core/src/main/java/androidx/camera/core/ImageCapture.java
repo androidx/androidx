@@ -518,7 +518,7 @@ public class ImageCapture extends UseCase {
                 .transformAsync(new AsyncFunction<Void, Void>() {
                     @Override
                     public ListenableFuture<Void> apply(Void v) throws Exception {
-                        return ImageCapture.this.issueTakePicture();
+                        return ImageCapture.this.issueTakePicture(state);
                     }
                 }, mExecutor)
                 .transformAsync(new AsyncFunction<Void, Void>() {
@@ -531,11 +531,43 @@ public class ImageCapture extends UseCase {
                         new FutureCallback<Void>() {
                             @Override
                             public void onSuccess(Void result) {
+                                onTakePictureFinish(null);
                             }
 
                             @Override
                             public void onFailure(Throwable t) {
                                 Log.e(TAG, "takePictureInternal onFailure", t);
+                                onTakePictureFinish(t);
+                            }
+
+                            private void onTakePictureFinish(Throwable t) {
+                                boolean failed = state.mCaptureSuccess.isEmpty()
+                                        || state.mCaptureSuccess.contains(null)
+                                        || state.mCaptureSuccess.contains(false);
+
+                                if (failed) {
+                                    // To handle the error and issue the next capture request
+                                    // when the capture stages have any fail.
+                                    // TODO: Need to notify the ProcessingImageReader the capture
+                                    //  request was failed (if the CaptureProcessor exists)
+                                    final Throwable error = state.mError != null ? state.mError : t;
+                                    mMainHandler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            ImageCaptureRequest request =
+                                                    mImageCaptureRequests.poll();
+                                            if (request != null) {
+                                                request.callbackError(UseCaseError.UNKNOWN_ERROR,
+                                                        (error != null) ? error.getMessage()
+                                                                : "Unknown error", error);
+                                                // Handle the next request.
+                                                issueImageCaptureRequests();
+                                            }
+                                        }
+                                    });
+
+
+                                }
                             }
                         },
                         mExecutor);
@@ -869,8 +901,8 @@ public class ImageCapture extends UseCase {
     }
 
     /** Issues a take picture request. */
-    ListenableFuture<Void> issueTakePicture() {
-        final List<ListenableFuture<Void>> futureList = new ArrayList<>();
+    ListenableFuture<Void> issueTakePicture(TakePictureState state) {
+        final List<ListenableFuture<Boolean>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
 
         CaptureBundle captureBundle;
@@ -880,21 +912,24 @@ public class ImageCapture extends UseCase {
             captureBundle = getCaptureBundle(null);
 
             if (captureBundle == null) {
-                throw new IllegalArgumentException(
+                state.mError = new IllegalArgumentException(
                         "ImageCapture cannot set empty CaptureBundle.");
+                return Futures.immediateFuture(null);
             }
 
             if (captureBundle.getCaptureStages().size() > mMaxCaptureStages) {
-                throw new IllegalArgumentException(
+                state.mError = new IllegalArgumentException(
                         "ImageCapture has CaptureStages > Max CaptureStage size");
+                return Futures.immediateFuture(null);
             }
 
             ((ProcessingImageReader) mImageReader).setCaptureBundle(captureBundle);
         } else {
             captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
             if (captureBundle.getCaptureStages().size() > 1) {
-                throw new IllegalArgumentException(
+                state.mError = new IllegalArgumentException(
                         "ImageCapture have no CaptureProcess set with CaptureBundle size > 1.");
+                return Futures.immediateFuture(null);
             }
         }
 
@@ -912,25 +947,25 @@ public class ImageCapture extends UseCase {
             builder.setTag(captureStage.getCaptureConfig().getTag());
             builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
 
-            ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
-                    new CallbackToFutureAdapter.Resolver<Void>() {
+            ListenableFuture<Boolean> future = CallbackToFutureAdapter.getFuture(
+                    new CallbackToFutureAdapter.Resolver<Boolean>() {
+
                         @Override
-                        public Object attachCompleter(
-                                @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
+                        public Object attachCompleter(@NonNull final
+                                CallbackToFutureAdapter.Completer<Boolean> completer) {
                             CameraCaptureCallback completerCallback = new CameraCaptureCallback() {
                                 @Override
                                 public void onCaptureCompleted(
                                         @NonNull CameraCaptureResult result) {
-                                    completer.set(null);
+                                    completer.set(true);
                                 }
 
                                 @Override
-                                public void onCaptureFailed(
-                                        @NonNull CameraCaptureFailure failure) {
+                                public void onCaptureFailed(@NonNull CameraCaptureFailure failure) {
                                     Log.e(TAG,
                                             "capture picture get onCaptureFailed with reason "
                                                     + failure.getReason());
-                                    completer.set(null);
+                                    completer.set(false);
                                 }
                             };
                             builder.addCameraCaptureCallback(completerCallback);
@@ -948,11 +983,13 @@ public class ImageCapture extends UseCase {
             @Override
             public Object attachCompleter(
                     @NonNull final CallbackToFutureAdapter.Completer<Void> completer) {
-                ListenableFuture<List<Void>> combinedFuture = Futures.successfulAsList(futureList);
+                ListenableFuture<List<Boolean>> combinedFuture = Futures.successfulAsList(
+                        futureList);
 
-                Futures.addCallback(combinedFuture, new FutureCallback<List<Void>>() {
+                Futures.addCallback(combinedFuture, new FutureCallback<List<Boolean>>() {
                     @Override
-                    public void onSuccess(@Nullable List<Void> result) {
+                    public void onSuccess(@Nullable List<Boolean> result) {
+                        state.mCaptureSuccess.addAll(result);
                         completer.set(null);
                     }
 
@@ -1127,6 +1164,8 @@ public class ImageCapture extends UseCase {
         boolean mIsAfTriggered = false;
         boolean mIsAePrecaptureTriggered = false;
         boolean mIsFlashTriggered = false;
+        final List<Boolean> mCaptureSuccess = new ArrayList<>();
+        Throwable mError = null;
     }
 
     /**
@@ -1309,6 +1348,24 @@ public class ImageCapture extends UseCase {
             }
 
             mListener.onCaptureSuccess(image, mRotationDegrees);
+        }
+
+        void callbackError(final UseCaseError useCaseError, final String message,
+                final Throwable cause) {
+            if (mHandler != null && Looper.myLooper() != mHandler.getLooper()) {
+                boolean posted = mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ImageCaptureRequest.this.callbackError(useCaseError, message, cause);
+                    }
+                });
+                if (!posted) {
+                    Log.e(TAG, "Unable to post to the supplied handler.");
+                }
+                return;
+            }
+
+            mListener.onError(useCaseError, message, cause);
         }
     }
 }
