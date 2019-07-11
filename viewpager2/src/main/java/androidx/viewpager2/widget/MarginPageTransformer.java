@@ -56,7 +56,7 @@ public final class MarginPageTransformer implements ViewPager2.PageTransformer {
         float offset = mMarginPx * position;
 
         if (viewPager.getOrientation() == ViewPager2.ORIENTATION_HORIZONTAL) {
-            page.setTranslationX(viewPager.isLayoutRtl() ? -offset : offset);
+            page.setTranslationX(viewPager.isRtl() ? -offset : offset);
         } else {
             page.setTranslationY(offset);
         }

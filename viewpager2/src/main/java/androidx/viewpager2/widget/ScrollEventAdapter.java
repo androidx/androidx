@@ -170,7 +170,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         if (mDispatchSelected) {
             // Drag started settling, need to calculate target page and dispatch onPageSelected now
             mDispatchSelected = false;
-            boolean scrollingForward = dy > 0 || (dy == 0 && dx < 0 == mViewPager.isLayoutRtl());
+            boolean scrollingForward = dy > 0 || (dy == 0 && dx < 0 == mViewPager.isRtl());
 
             // "&& values.mOffsetPx != 0": filters special case where we're scrolling forward and
             // the first scroll event after settling already got us at the target
@@ -234,7 +234,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         int start, sizePx;
         if (isHorizontal) {
             sizePx = firstVisibleView.getWidth() + margin.leftMargin + margin.rightMargin;
-            if (!mViewPager.isLayoutRtl()) {
+            if (!mViewPager.isRtl()) {
                 start = firstVisibleView.getLeft() - margin.leftMargin;
             } else {
                 start = sizePx - firstVisibleView.getRight() - margin.rightMargin;
