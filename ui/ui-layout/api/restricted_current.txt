@@ -175,6 +175,15 @@ package androidx.ui.layout {
     method public static void Stack(kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> block);
   }
 
+  public final class TableChildren {
+    method public void tableRow(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class TableKt {
+    ctor public TableKt();
+    method public static void Table(androidx.ui.layout.Alignment childAlignment = Alignment.TopLeft, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> block);
+  }
+
   public final class WrapKt {
     ctor public WrapKt();
     method public static void Wrap(androidx.ui.layout.Alignment alignment = Alignment.TopLeft, kotlin.jvm.functions.Function0<kotlin.Unit> children);
