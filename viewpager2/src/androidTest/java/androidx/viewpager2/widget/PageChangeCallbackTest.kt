@@ -701,7 +701,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         var recorder = test.viewPager.addNewRecordingCallback()
 
         val vc = ViewConfiguration.get(test.viewPager.context)
-        val touchSlop = vc.scaledTouchSlop
+        val touchSlop = vc.scaledPagingTouchSlop
 
         // when
         tryNTimes(3, resetBlock = {

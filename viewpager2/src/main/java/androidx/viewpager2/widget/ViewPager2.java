@@ -181,6 +181,7 @@ public final class ViewPager2 extends ViewGroup {
 
         mLayoutManager = new LinearLayoutManagerImpl(context);
         mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setScrollingTouchSlop(RecyclerView.TOUCH_SLOP_PAGING);
         setOrientation(context, attrs);
 
         mRecyclerView.setLayoutParams(
