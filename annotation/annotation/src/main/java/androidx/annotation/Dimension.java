@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.annotation;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 import java.lang.annotation.Documented;
@@ -26,18 +28,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that the annotated method should only be called on a worker thread.
- * If the annotated element is a class, then all methods in the class should be called
- * on a worker thread.
- * <p>
- * Example:
- * <pre><code>
- *  &#64;WorkerThread
- *  protected abstract FilterResults performFiltering(CharSequence constraint);
- * </code></pre>
+ * Denotes that an integer parameter, field or method return value is expected
+ * to represent a dimension.
  */
 @Documented
 @Retention(CLASS)
-@Target({METHOD,CONSTRUCTOR,TYPE,PARAMETER})
-public @interface WorkerThread {
+@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE, ANNOTATION_TYPE})
+public @interface Dimension {
+    @DimensionUnit
+    int unit() default PX;
+
+    int DP = 0;
+    int PX = 1;
+    int SP = 2;
 }

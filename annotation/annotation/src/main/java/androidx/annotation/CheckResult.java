@@ -40,7 +40,8 @@ import java.lang.annotation.Target;
 @Retention(CLASS)
 @Target({METHOD})
 public @interface CheckResult {
-    /** Defines the name of the suggested method to use instead, if applicable (using
+    /**
+     * Defines the name of the suggested method to use instead, if applicable (using
      * the same signature format as javadoc.) If there is more than one possibility,
      * list them all separated by commas.
      * <p>

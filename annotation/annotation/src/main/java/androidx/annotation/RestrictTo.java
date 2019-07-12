@@ -47,7 +47,7 @@ import java.lang.annotation.Target;
  * </code></pre>
  */
 @Retention(CLASS)
-@Target({ANNOTATION_TYPE,TYPE,METHOD,CONSTRUCTOR,FIELD,PACKAGE})
+@Target({ANNOTATION_TYPE, TYPE, METHOD, CONSTRUCTOR, FIELD, PACKAGE})
 public @interface RestrictTo {
 
     /**

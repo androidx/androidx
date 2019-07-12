@@ -74,7 +74,7 @@ import java.lang.annotation.Target;
  * </code></pre>
  */
 @Retention(CLASS)
-@Target({ANNOTATION_TYPE,METHOD,CONSTRUCTOR,FIELD,PARAMETER})
+@Target({ANNOTATION_TYPE, METHOD, CONSTRUCTOR, FIELD, PARAMETER})
 public @interface RequiresPermission {
     /**
      * The name of the permission that is required, if precisely one permission
