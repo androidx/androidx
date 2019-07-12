@@ -30,7 +30,7 @@ import kotlin.reflect.KClass
  * Returns a property delegate to access [ViewModel] by **default** scoped to this [Fragment]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: NYViewModel by viewmodels()
+ *     val viewmodel: MYViewModel by viewmodels()
  * }
  * ```
  *
