@@ -32,7 +32,7 @@ dependencies {
     }
     implementation(ARCH_CORE_RUNTIME)
 
-    api(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
+    api(SUPPORT_ANNOTATIONS)
     api(GUAVA_ANDROID)
 }
 

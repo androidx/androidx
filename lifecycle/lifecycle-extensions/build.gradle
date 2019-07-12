@@ -48,7 +48,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(SUPPORT_APPCOMPAT, libs.support_exclude_config)
+    androidTestImplementation(SUPPORT_APPCOMPAT)
     androidTestImplementation(project(":internal-testutils"))
 }
 

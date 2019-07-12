@@ -29,8 +29,9 @@ dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
     implementation(ARCH_CORE_RUNTIME)
-    api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
+    api(SUPPORT_CORE_UTILS)
     api(RX_JAVA)
+
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(ARCH_CORE_TESTING)

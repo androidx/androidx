@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(SUPPORT_CORE_UTILS, libs.support_exclude_config)
+    androidTestImplementation(SUPPORT_CORE_UTILS)
 }
 
 androidx {
