@@ -32,6 +32,8 @@ import androidx.compose.composer
 import androidx.compose.compositionReference
 import androidx.compose.effectOf
 import androidx.compose.memo
+import androidx.compose.onDispose
+import androidx.compose.onPreCommit
 import androidx.compose.unaryPlus
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.text.font.Font
@@ -63,6 +65,15 @@ fun CraneWrapper(@Children children: @Composable() () -> Unit) {
         Observe {
             reference = +compositionReference()
             cc?.recomposeSync()
+            +onPreCommit(true) {
+                onDispose {
+                    rootRef.value?.let {
+                        val layoutRootNode = it.root
+                        val context = it.context
+                        Compose.disposeComposition(layoutRootNode, context)
+                    }
+                }
+            }
         }
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
         val context = rootRef.value?.context ?: composer.composer.context
