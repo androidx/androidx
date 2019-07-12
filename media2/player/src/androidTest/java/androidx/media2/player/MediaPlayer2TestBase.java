@@ -37,6 +37,7 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
@@ -351,11 +352,11 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                 }
             }
             @Override
-            public  void onSubtitleData(MediaPlayer2 mp, MediaItem item, int trackIdx,
-                    final SubtitleData data) {
+            public  void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
+                    @NonNull MediaPlayer2.TrackInfo track, @NonNull SubtitleData data) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
-                        ecb.onSubtitleData(mp, item, trackIdx, data);
+                        ecb.onSubtitleData(mp, item, track, data);
                     }
                 }
             }

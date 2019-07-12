@@ -737,13 +737,20 @@ public abstract class MediaPlayer2 {
      */
     public abstract static class TrackInfo {
         /**
+         * Gets the id of the track.
+         */
+        public abstract int getId();
+
+        /**
          * Gets the track type.
-         * @return TrackType which indicates if the track is video, audio, timed text.
+         *
+         * @return TrackType which indicates if the track is video, audio, subtitle.
          */
         public abstract int getTrackType();
 
         /**
          * Gets the language code of the track.
+         *
          * @return a language code in either way of ISO-639-1 or ISO-639-2.
          * When the language is unknown or could not be determined,
          * ISO-639-2 language code, "und", is returned.
@@ -765,35 +772,45 @@ public abstract class MediaPlayer2 {
 
         @Override
         public abstract String toString();
-    };
+
+        @Override
+        public int hashCode() {
+            return getId();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) return true;
+            if (!(obj instanceof TrackInfo)) return false;
+            TrackInfo other = (TrackInfo) obj;
+            return getId() == other.getId();
+        }
+    }
 
     /**
      * Returns a List of track information.
      *
      * @return List of track info. The total number of tracks is the array length.
-     * Must be called again if an external timed text source has been added after
-     * addTimedTextSource method is called.
      */
+    @NonNull
     public abstract List<TrackInfo> getTrackInfo();
 
     /**
-     * Returns the index of the audio, video, or subtitle track currently selected for playback,
-     * The return value is an index into the array returned by {@link #getTrackInfo()}, and can
-     * be used in calls to {@link #selectTrack(int)} or {@link #deselectTrack(int)}.
+     * Returns the metadata of the audio, video, or subtitle track currently selected for playback,
+     * The return value is an item of the array returned by {@link #getTrackInfo()}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
      * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or
      * {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}
-     * @return index of the audio, video, or subtitle track currently selected for playback;
-     * a negative integer is returned when there is no selected track for {@code trackType} or
+     * @return metadata of the audio, video, or subtitle track currently selected for playback;
+     * {@code null} is returned when there is no selected track for {@code trackType} or
      * when {@code trackType} is not one of audio, video, or subtitle.
      * @throws IllegalStateException if called after {@link #close()}
      *
      * @see #getTrackInfo()
-     * @see #selectTrack(int)
-     * @see #deselectTrack(int)
      */
-    public abstract int getSelectedTrack(int trackType);
+    @Nullable
+    public abstract TrackInfo getSelectedTrack(int trackType);
 
     /**
      * Selects a track.
@@ -805,42 +822,51 @@ public abstract class MediaPlayer2 {
      * </p>
      * <p>
      * In any valid state, if it is called multiple times on the same type of track (ie. Video,
-     * Audio, Timed Text), the most recent one will be chosen.
+     * Audio, Subtitle), the most recent one will be chosen.
      * </p>
      * <p>
      * The first audio and video tracks are selected by default if available, even though
-     * this method is not called. However, no timed text track will be selected until
+     * this method is not called. However, no subtitle track will be selected until
      * this function is called.
      * </p>
      * <p>
-     * Currently, only timed text tracks or audio tracks can be selected via this method.
+     * Currently, only subtitle tracks or audio tracks can be selected via this method.
      * </p>
-     * @param index the index of the track to be selected. The valid range of the index
-     * is 0..total number of track - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
+     * @param trackId the id of the track to be selected. The id can be obtained by calling
+     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTrackInfo()}.
+     * Note that the {@link TrackInfo}s may become invalid
+     * when {@link EventCallback#onInfo(MediaPlayer2, MediaItem, int, int)} is called with
+     * {@code what} of {@link #MEDIA_INFO_PREPARED} or {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
-     * @see MediaPlayer2#getTrackInfo
+     * @see TrackInfo#getId()
+     * @see #getTrackInfo
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
     // This is an asynchronous call.
-    public abstract Object selectTrack(int index);
+    @NonNull
+    public abstract Object selectTrack(int trackId);
 
     /**
      * Deselects a track.
      * <p>
-     * Currently, the track must be a timed text track and no audio or video tracks can be
-     * deselected. If the timed text track identified by index has not been
+     * Currently, the track must be a subtitle track and no audio or video tracks can be
+     * deselected. If the subtitle track identified by index has not been
      * selected before, it throws an exception.
      * </p>
-     * @param index the index of the track to be deselected. The valid range of the index
-     * is 0..total number of tracks - 1. The total number of tracks as well as the type of
-     * each individual track can be found by calling {@link #getTrackInfo()} method.
+     * @param trackId the id of the track to be deselected. The id can be obtained by calling
+     * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTrackInfo()} or
+     * {@link #getSelectedTrack(int)}. Note that the {@link TrackInfo}s may become invalid
+     * when {@link EventCallback#onInfo(MediaPlayer2, MediaItem, int, int)} is called with
+     * {@code what} of {@link #MEDIA_INFO_PREPARED} or {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
-     * @see MediaPlayer2#getTrackInfo
+     * @see TrackInfo#getId()
+     * @see #getTrackInfo
+     * @see #getSelectedTrack(int)
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
     // This is an asynchronous call.
-    public abstract Object deselectTrack(int index);
+    @NonNull
+    public abstract Object deselectTrack(int trackId);
 
     /**
      * Interface definition for callbacks to be invoked when the player has the corresponding
@@ -952,11 +978,11 @@ public abstract class MediaPlayer2 {
          * Called when when a player subtitle track has new subtitle data available.
          * @param mp the player that reports the new subtitle data
          * @param item the MediaItem of this media item
-         * @param trackIdx the index of the track that has the subtitle data
+         * @param track the track that has the subtitle data
          * @param data the subtitle data
          */
         public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
-                int trackIdx, @NonNull SubtitleData data) { }
+                @NonNull TrackInfo track, @NonNull SubtitleData data) { }
     }
 
     /**

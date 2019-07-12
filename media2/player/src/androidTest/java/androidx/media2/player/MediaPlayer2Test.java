@@ -46,6 +46,7 @@ import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
+import androidx.media2.player.MediaPlayer2.TrackInfo;
 import androidx.media2.player.TestUtils.Monitor;
 import androidx.media2.player.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -68,7 +69,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -85,11 +85,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     private static final long PLAYBACK_COMPLETE_TOLERANCE_MS = 100;
 
     private String mRecordedFilePath;
-    private final Vector<Integer> mVideoTrackIndices = new Vector<>();
-    private final Vector<Integer> mAudioTrackIndices = new Vector<>();
-    private final Vector<Integer> mSubtitleTrackIndices = new Vector<>();
+    private final List<TrackInfo> mVideoTrackInfos = new ArrayList<>();
+    private final List<TrackInfo> mAudioTrackInfos = new ArrayList<>();
+    private final List<TrackInfo> mSubtitleTrackInfos = new ArrayList<>();
     private final Monitor mOnSubtitleDataCalled = new Monitor();
-    private int mSelectedSubtitleIndex;
 
     private File mOutFile;
     private Camera mCamera;
@@ -1685,43 +1684,35 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     private void readTracks() {
-        mVideoTrackIndices.clear();
-        mAudioTrackIndices.clear();
-        mSubtitleTrackIndices.clear();
-        List<MediaPlayer2.TrackInfo> trackInfos = mPlayer.getTrackInfo();
-        if (trackInfos == null || trackInfos.size() == 0) {
-            return;
-        }
-        for (int i = 0; i < trackInfos.size(); ++i) {
-            assertNotNull(trackInfos.get(i));
-            switch (trackInfos.get(i).getTrackType()) {
+        mVideoTrackInfos.clear();
+        mAudioTrackInfos.clear();
+        mSubtitleTrackInfos.clear();
+        List<TrackInfo> trackInfos = mPlayer.getTrackInfo();
+        assertNotNull(trackInfos);
+        for (TrackInfo trackInfo : trackInfos) {
+            assertNotNull(trackInfo);
+            switch (trackInfo.getTrackType()) {
                 case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO:
-                    mVideoTrackIndices.add(i);
+                    mVideoTrackInfos.add(trackInfo);
                     break;
                 case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO:
-                    mAudioTrackIndices.add(i);
+                    mAudioTrackInfos.add(trackInfo);
                     break;
                 case MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE:
-                    mSubtitleTrackIndices.add(i);
+                    mSubtitleTrackInfos.add(trackInfo);
                     break;
             }
         }
     }
 
-    private void selectSubtitleTrack(int index) throws Exception {
-        int trackIndex = mSubtitleTrackIndices.get(index);
-        mPlayer.selectTrack(trackIndex);
-        mSelectedSubtitleIndex = index;
+    private void selectSubtitleTrack(int trackId) {
+        mPlayer.selectTrack(trackId);
     }
 
-    private void deselectSubtitleTrack(int index) throws Exception {
-        int trackIndex = mSubtitleTrackIndices.get(index);
+    private void deselectSubtitleTrack(int trackId) throws Exception {
         mOnDeselectTrackCalled.reset();
-        mPlayer.deselectTrack(trackIndex);
+        mPlayer.deselectTrack(trackId);
         mOnDeselectTrackCalled.waitForSignal();
-        if (mSelectedSubtitleIndex == index) {
-            mSelectedSubtitleIndex = -1;
-        }
     }
 
     @Test
@@ -1758,11 +1749,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             }
 
             @Override
-            public void onSubtitleData(
-                    MediaPlayer2 mp, MediaItem item, int trackIdx, SubtitleData data) {
-                if (data != null && data.getData() != null) {
-                    mOnSubtitleDataCalled.signal();
-                }
+            public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
+                    @NonNull TrackInfo track, @NonNull SubtitleData data) {
+                assertNotNull(data);
+                assertNotNull(data.getData());
+                mOnSubtitleDataCalled.signal();
             }
         };
         synchronized (mEventCbLock) {
@@ -1792,19 +1783,19 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         // Run twice to check if repeated selection-deselection on the same track works well.
         for (int i = 0; i < 2; i++) {
             // Waits until at least one subtitle is fired. Timeout is 2.5 seconds.
-            selectSubtitleTrack(i);
+            selectSubtitleTrack(mSubtitleTrackInfos.get(i).getId());
             mOnSubtitleDataCalled.reset();
             assertTrue(mOnSubtitleDataCalled.waitForSignal(2500));
 
             // Try deselecting track.
-            deselectSubtitleTrack(i);
+            deselectSubtitleTrack(mSubtitleTrackInfos.get(i).getId());
             mOnSubtitleDataCalled.reset();
             assertFalse(mOnSubtitleDataCalled.waitForSignal(1500));
         }
 
         // Deselecting unselected track: expected error status
         mCallStatus = MediaPlayer2.CALL_STATUS_NO_ERROR;
-        deselectSubtitleTrack(0);
+        deselectSubtitleTrack(mSubtitleTrackInfos.get(0).getId());
         assertNotEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, mCallStatus);
 
         mPlayer.reset();
@@ -1817,6 +1808,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
         }
+
+        mInstrumentation.waitForIdleSync();
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
@@ -1837,11 +1830,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             }
 
             @Override
-            public void onSubtitleData(
-                    MediaPlayer2 mp, MediaItem item, int trackIdx, SubtitleData data) {
-                if (data != null) {
-                    mOnSubtitleDataCalled.signal();
-                }
+            public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
+                    @NonNull TrackInfo track, @NonNull SubtitleData data) {
+                assertNotNull(data);
+                assertNotNull(data.getData());
+                mOnSubtitleDataCalled.signal();
             }
         };
         synchronized (mEventCbLock) {
@@ -1868,19 +1861,19 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         readTracks();
 
-        assertTrue(mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) < 0);
+        assertNull(mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
 
         // Waits until at least two captions are fired. Timeout is 2.5 sec.
-        selectSubtitleTrack(0);
+        selectSubtitleTrack(mSubtitleTrackInfos.get(0).getId());
         assertTrue(mOnSubtitleDataCalled.waitForCountedSignals(2, 2500) >= 2);
-        assertEquals(mSubtitleTrackIndices.get(0).intValue(),
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        assertEquals(mSubtitleTrackInfos.get(0),
+                mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
 
         mOnSubtitleDataCalled.reset();
-        selectSubtitleTrack(1);
+        selectSubtitleTrack(mSubtitleTrackInfos.get(1).getId());
         assertTrue(mOnSubtitleDataCalled.waitForCountedSignals(2, 2500) >= 2);
-        assertEquals(mSubtitleTrackIndices.get(1).intValue(),
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        assertEquals(mSubtitleTrackInfos.get(1),
+                mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
 
         mPlayer.reset();
     }
@@ -1892,6 +1885,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
         }
+
+        mInstrumentation.waitForIdleSync();
 
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
@@ -1935,7 +1930,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnInfoCalled.waitForSignal(1500);
 
         readTracks();
-        assertEquals(2, mSubtitleTrackIndices.size());
+        assertEquals(2, mSubtitleTrackInfos.size());
 
         mPlayer.reset();
     }
@@ -1969,16 +1964,16 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         // R.raw.testvideo contains the following tracks:
         //  MEDIA_TRACK_TYPE_VIDEO: 1
         //  MEDIA_TRACK_TYPE_AUDIO: 1
-        assertEquals(1, mVideoTrackIndices.size());
-        assertEquals(1, mAudioTrackIndices.size());
-        assertEquals(0, mSubtitleTrackIndices.size());
+        assertEquals(1, mVideoTrackInfos.size());
+        assertEquals(1, mAudioTrackInfos.size());
+        assertEquals(0, mSubtitleTrackInfos.size());
 
         // Test getSelectedTrack
-        assertEquals(mVideoTrackIndices.get(0).intValue(),
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
-        assertEquals(mAudioTrackIndices.get(0).intValue(),
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
-        assertTrue(mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) < 0);
+        assertEquals(mVideoTrackInfos.get(0),
+                mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
+        assertEquals(mAudioTrackInfos.get(0),
+                mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+        assertNull(mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
 
         mPlayer.reset();
     }

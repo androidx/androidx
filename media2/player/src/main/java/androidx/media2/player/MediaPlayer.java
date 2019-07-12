@@ -2201,17 +2201,15 @@ public final class MediaPlayer extends SessionPlayer {
         List<TrackInfo> infos = new ArrayList<>();
         for (int index = 0; index < info2s.size(); index++) {
             MediaPlayer2.TrackInfo info2 = info2s.get(index);
-            infos.add(new TrackInfo(index, item, info2.getTrackType(), info2.getFormat()));
+            infos.add(new TrackInfo(info2.getId(), item, info2.getTrackType(), info2.getFormat()));
         }
         return infos;
     }
 
     @NonNull
-    TrackInfo getTrackInfo(int index) {
-        List<MediaPlayer2.TrackInfo> info2s = mPlayer.getTrackInfo();
-        MediaPlayer2.TrackInfo info2 = info2s.get(index);
+    TrackInfo createTrackInfoFromInfo2(@NonNull MediaPlayer2.TrackInfo info2) {
         MediaItem item = mPlayer.getCurrentMediaItem();
-        return new TrackInfo(index, item, info2.getTrackType(), info2.getFormat());
+        return new TrackInfo(info2.getId(), item, info2.getTrackType(), info2.getFormat());
     }
 
     /**
@@ -2237,8 +2235,11 @@ public final class MediaPlayer extends SessionPlayer {
                 return null;
             }
         }
-        final int ret = mPlayer.getSelectedTrack(trackType);
-        return ret < 0 ? null : getTrackInfo(ret);
+        MediaPlayer2.TrackInfo info2 = mPlayer.getSelectedTrack(trackType);
+        if (info2 == null) {
+            return null;
+        }
+        return createTrackInfoFromInfo2(info2);
     }
 
     /**
@@ -2263,16 +2264,16 @@ public final class MediaPlayer extends SessionPlayer {
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTrackInfo()}.
-     * <p>
-     * On success, a {@link SessionPlayer.PlayerResult} is returned with
-     * the current media item when the command completed.
+     * Note that the {@link TrackInfo}s may become invalid
+     * when {@link PlayerCallback#onInfo(MediaPlayer, MediaItem, int, int)} is called with
+     * {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link SessionPlayer.PlayerResult} will be delivered when the command
-     * completed.
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      */
     // TODO: support subtitle track selection  (b/130312596)
+    // TODO: revise doc when onTrackInfoChanged is becoming public (b/132928418)
     @NonNull
     public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
         if (trackInfo == null) {
@@ -2283,15 +2284,13 @@ public final class MediaPlayer extends SessionPlayer {
                 return createFutureForClosed();
             }
         }
-        final int trackId = trackInfo.getId();
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
-                    // TODO (b/131873726): trackId may be invalid
-                    Object token = mPlayer.selectTrack(trackId);
+                    Object token = mPlayer.selectTrack(trackInfo.getId());
                     addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
                             future, trackInfo, token);
                 }
@@ -2311,17 +2310,17 @@ public final class MediaPlayer extends SessionPlayer {
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTrackInfo()}.
-     * <p>
-     * On success, a {@link SessionPlayer.PlayerResult} is returned with
-     * the current media item when the command completed.
+     * Note that the {@link TrackInfo}s may become invalid
+     * when {@link PlayerCallback#onInfo(MediaPlayer, MediaItem, int, int)} is called with
+     * {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link SessionPlayer.PlayerResult} will be delivered when the command
-     * completed.
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      *
      * @hide  TODO: unhide this when we support subtitle track selection (b/130312596)
      */
+    // TODO: revise doc when onTrackInfoChanged is becoming public (b/132928418)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
@@ -2333,15 +2332,13 @@ public final class MediaPlayer extends SessionPlayer {
                 return createFutureForClosed();
             }
         }
-        final int trackId = trackInfo.getId();
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
-                    // TODO (b/131873726): trackId may be invalid
-                    Object token = mPlayer.deselectTrack(trackId);
+                    Object token = mPlayer.deselectTrack(trackInfo.getId());
                     addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
                             future, trackInfo, token);
                 }
@@ -3203,11 +3200,12 @@ public final class MediaPlayer extends SessionPlayer {
 
         @Override
         public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull final MediaItem item,
-                final int trackIdx, @NonNull final SubtitleData data) {
+                @NonNull final MediaPlayer2.TrackInfo info2, @NonNull final SubtitleData data) {
             notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(SessionPlayer.PlayerCallback callback) {
-                    SessionPlayer.TrackInfo track = createTrackInfoInternal(getTrackInfo(trackIdx));
+                    SessionPlayer.TrackInfo track = createTrackInfoInternal(
+                            createTrackInfoFromInfo2(info2));
                     callback.onSubtitleData(MediaPlayer.this, item, track, data);
                 }
             });

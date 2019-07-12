@@ -20,6 +20,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.media.MediaFormat;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media2.player.MediaPlayer2;
 
@@ -29,14 +30,21 @@ import androidx.media2.player.MediaPlayer2;
  * @see MediaPlayer2#getTrackInfo
  * @hide
  */
+// TODO: Remove this class and use SessionPlayer.TrackInfo instead.
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
+    private final int mId;
     private final int mTrackType;
     private final MediaFormat mFormat;
 
+    @Override
+    public int getId() {
+        return mId;
+    }
+
     /**
      * Gets the track type.
-     * @return TrackType which indicates if the track is video, audio, timed text.
+     * @return TrackType which indicates if the track is video, audio, subtitle.
      */
     @Override
     public int getTrackType() {
@@ -67,7 +75,8 @@ public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
         return null;
     }
 
-    public TrackInfoImpl(int type, MediaFormat format) {
+    public TrackInfoImpl(int id, int type, @Nullable MediaFormat format) {
+        mId = id;
         mTrackType = type;
         mFormat = format;
     }

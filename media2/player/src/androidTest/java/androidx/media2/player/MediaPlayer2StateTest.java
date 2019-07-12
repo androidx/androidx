@@ -35,6 +35,7 @@ import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PA
 import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SET_PLAYER_VOLUME;
 import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SET_SURFACE;
 import static androidx.media2.player.MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT;
+import static androidx.media2.player.MediaPlayer2.CALL_STATUS_INVALID_OPERATION;
 import static androidx.media2.player.MediaPlayer2.CALL_STATUS_NO_ERROR;
 import static androidx.media2.player.MediaPlayer2.PLAYER_STATE_ERROR;
 import static androidx.media2.player.MediaPlayer2.PLAYER_STATE_IDLE;
@@ -671,7 +672,8 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sSelectTrackOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.selectTrack(1);
+            // The trackId may be an illegal argument
+            player.selectTrack(/* trackId= */ 0);
         }
 
         @Override
@@ -687,7 +689,8 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
     private static final PlayerOperation sDeselectTrackOperation = new PlayerOperation() {
         @Override
         public void doOperation(MediaPlayer2 player) {
-            player.deselectTrack(1);
+            // The trackId may be an illegal argument
+            player.deselectTrack(/* trackId= */ 0);
         }
 
         @Override
@@ -1161,9 +1164,9 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
             callCompleteCalled.waitForSignal();
             assertEquals(mTestOperation.getCallCompleteCode(), callCompletes.get(0).first);
             if (mIsValidOperation) {
-                assertEquals(CALL_STATUS_NO_ERROR, (int) callCompletes.get(0).second);
+                assertNotEquals(CALL_STATUS_INVALID_OPERATION, (int) callCompletes.get(0).second);
             } else {
-                assertNotEquals(CALL_STATUS_NO_ERROR, (int) callCompletes.get(0).second);
+                assertEquals(CALL_STATUS_INVALID_OPERATION, (int) callCompletes.get(0).second);
             }
         } else if (!mIsValidOperation) {
             fail();
