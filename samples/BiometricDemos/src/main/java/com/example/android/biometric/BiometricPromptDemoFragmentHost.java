@@ -63,6 +63,8 @@ public class BiometricPromptDemoFragmentHost extends DialogFragment {
         final CheckBox deviceCredentialAllowedCheckbox = view.findViewById(
                 R.id.checkbox_enable_fallback);
         final RadioGroup radioGroup = view.findViewById(R.id.radio_group);
+        final Button clearLogButton = view.findViewById(R.id.log_clear);
+        final TextView logView = view.findViewById(R.id.log_text);
 
         mController = new BiometricPromptDemoFragmentController(
                 mContext,
@@ -73,16 +75,12 @@ public class BiometricPromptDemoFragmentHost extends DialogFragment {
                 useCryptoCheckbox,
                 confirmationRequiredCheckbox,
                 deviceCredentialAllowedCheckbox,
-                radioGroup);
+                radioGroup,
+                clearLogButton,
+                logView);
         mController.init(savedInstanceState);
-
+        mController.reconnect();
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mController.onResume();
     }
 
     @Override

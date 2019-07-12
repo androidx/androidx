@@ -20,6 +20,7 @@ import android.content.Context;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
@@ -41,15 +42,13 @@ class BiometricPromptDemoActivityController extends BiometricPromptDemoControlle
             @NonNull CheckBox useCryptoCheckbox,
             @NonNull CheckBox confirmationRequiredCheckbox,
             @NonNull CheckBox deviceCredentialAllowedCheckbox,
-            @NonNull RadioGroup radioGroup) {
+            @NonNull RadioGroup radioGroup,
+            @NonNull Button clearLogButton,
+            @NonNull TextView logView) {
+        super(createKeysButton, authenticateButton, canAuthenticateButton, useCryptoCheckbox,
+                confirmationRequiredCheckbox, deviceCredentialAllowedCheckbox, radioGroup,
+                clearLogButton, logView);
         mActivity = activity;
-        mCreateKeysButton = createKeysButton;
-        mAuthenticateButton = authenticateButton;
-        mCanAuthenticateButton = canAuthenticateButton;
-        mUseCryptoCheckbox = useCryptoCheckbox;
-        mConfirmationRequiredCheckbox = confirmationRequiredCheckbox;
-        mDeviceCredentialAllowedCheckbox = deviceCredentialAllowedCheckbox;
-        mRadioGroup = radioGroup;
     }
 
     @Override
@@ -58,11 +57,7 @@ class BiometricPromptDemoActivityController extends BiometricPromptDemoControlle
     }
 
     @Override
-    void onResume() {
-        // Developers should (re)create the BiometricPrompt every time the application is resumed.
-        // This is necessary because it is possible for the executor and callback to be GC'd.
-        // Instantiating the prompt here allows the library to handle things such as configuration
-        // changes.
+    void reconnect() {
         mBiometricPrompt = new BiometricPrompt(mActivity, mAuthenticationCallback, mExecutor);
     }
 }
