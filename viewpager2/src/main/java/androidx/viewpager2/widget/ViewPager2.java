@@ -561,9 +561,8 @@ public final class ViewPager2 extends ViewGroup {
         return mLayoutManager.getOrientation();
     }
 
-    boolean isLayoutRtl() {
-        return mLayoutManager.getLayoutDirection()
-                == androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
+    boolean isRtl() {
+        return mLayoutManager.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
     /**
@@ -1457,7 +1456,7 @@ public final class ViewPager2 extends ViewGroup {
             }
 
             if (getOrientation() == ORIENTATION_HORIZONTAL) {
-                boolean isLayoutRtl = isLayoutRtl();
+                boolean isLayoutRtl = isRtl();
                 int actionIdPageForward = isLayoutRtl ? actionIdPageLeft : actionIdPageRight;
                 int actionIdPageBackward = isLayoutRtl ? actionIdPageRight : actionIdPageLeft;
 
