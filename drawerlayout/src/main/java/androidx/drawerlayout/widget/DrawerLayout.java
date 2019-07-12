@@ -2464,9 +2464,6 @@ public class DrawerLayout extends ViewGroup {
                 AccessibilityNodeInfoCompat src) {
             final Rect rect = mTmpRect;
 
-            src.getBoundsInParent(rect);
-            dest.setBoundsInParent(rect);
-
             src.getBoundsInScreen(rect);
             dest.setBoundsInScreen(rect);
 
