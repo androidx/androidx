@@ -35,6 +35,7 @@ import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_URI;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_PLAYABLE;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_TITLE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_SET_SPEED;
+import static androidx.media2.session.SessionCommand.COMMAND_VERSION_1;
 import static androidx.media2.session.SessionCommand.COMMAND_VERSION_CURRENT;
 
 import android.annotation.SuppressLint;
@@ -807,7 +808,8 @@ public class MediaUtils {
         commandsBuilder.addAllPlayerBasicCommands(COMMAND_VERSION_CURRENT);
         boolean includePlaylistCommands = (sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0;
         if (includePlaylistCommands) {
-            commandsBuilder.addAllPlayerPlaylistCommands(COMMAND_VERSION_CURRENT);
+            // MediaSessionCompat only support playlist COMMAND_VERSION_1.
+            commandsBuilder.addAllPlayerPlaylistCommands(COMMAND_VERSION_1);
         }
         commandsBuilder.addAllVolumeCommands(COMMAND_VERSION_CURRENT);
         commandsBuilder.addAllSessionCommands(COMMAND_VERSION_CURRENT);

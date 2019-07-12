@@ -40,6 +40,7 @@ interface IRemoteMediaController {
     void addPlaylistItem(String controllerId, int index, String mediaId);
     void removePlaylistItem(String controllerId, int index);
     void replacePlaylistItem(String controllerId, int index, String mediaId);
+    void movePlaylistItem(String controllerId, int fromIndex, int toIndex);
     void skipToPreviousItem(String controllerId);
     void skipToNextItem(String controllerId);
     void skipToPlaylistItem(String controllerId, int index);

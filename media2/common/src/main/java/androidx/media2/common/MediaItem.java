@@ -134,7 +134,8 @@ public class MediaItem extends CustomVersionedParcelable {
     public String toString() {
         final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
         synchronized (mLock) {
-            sb.append("{mMetadata=").append(mMetadata);
+            sb.append("{Media Id=").append(getMediaId());
+            sb.append(", mMetadata=").append(mMetadata);
             sb.append(", mStartPositionMs=").append(mStartPositionMs);
             sb.append(", mEndPositionMs=").append(mEndPositionMs);
             sb.append('}');

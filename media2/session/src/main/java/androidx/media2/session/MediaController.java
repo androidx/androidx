@@ -925,6 +925,28 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
+     * Moves the media item at {@code fromIdx} to {@code toIdx} in the playlist.
+     * <p>
+     * {@link ControllerCallback#onPlaylistChanged} will be called when it's completed.
+     * <p>
+     * On success, a {@link SessionResult} should be returned with {@code item} set.
+     *
+     * @param fromIndex the media item's initial index in the playlist
+     * @param toIndex the media item's target index in the playlist
+     */
+    @NonNull
+    public ListenableFuture<SessionResult> movePlaylistItem(@IntRange(from = 0) int fromIndex,
+            @IntRange(from = 0) int toIndex) {
+        if (fromIndex < 0 || toIndex < 0) {
+            throw new IllegalArgumentException("indexes shouldn't be negative");
+        }
+        if (isConnected()) {
+            return getImpl().movePlaylistItem(fromIndex, toIndex);
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
      * Gets the lastly cached current item from
      * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController, MediaItem)}.
      *
@@ -1397,6 +1419,7 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<SessionResult> removePlaylistItem(int index);
         ListenableFuture<SessionResult> replacePlaylistItem(int index,
                 @NonNull String mediaId);
+        ListenableFuture<SessionResult> movePlaylistItem(int fromIndex, int toIndex);
         MediaItem getCurrentMediaItem();
         int getCurrentMediaItemIndex();
         int getPreviousMediaItemIndex();
@@ -1413,7 +1436,7 @@ public class MediaController implements AutoCloseable {
         @NonNull
         VideoSize getVideoSize();
         ListenableFuture<SessionResult> setSurface(@Nullable Surface surface);
-        @Nullable
+        @NonNull
         List<TrackInfo> getTrackInfo();
         ListenableFuture<SessionResult> selectTrack(TrackInfo trackInfo);
         ListenableFuture<SessionResult> deselectTrack(TrackInfo trackInfo);
