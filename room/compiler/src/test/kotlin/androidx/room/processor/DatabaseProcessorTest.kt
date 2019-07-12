@@ -48,6 +48,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
+import java.io.File
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.DeclaredType
 import javax.tools.JavaFileObject
@@ -243,7 +244,7 @@ class DatabaseProcessorTest {
 
     @Test
     fun detectMissingEntityAnnotationInLibraryClass() {
-        val libraryClassLoader = compileLibrarySource(
+        val libraryClasspath = compileLibrarySource(
                 "test.library.MissingEntityAnnotationPojo",
                 """
                 public class MissingEntityAnnotationPojo {
@@ -258,7 +259,7 @@ class DatabaseProcessorTest {
                 @Database(entities = {test.library.MissingEntityAnnotationPojo.class}, version = 1)
                 public abstract class MyDb extends RoomDatabase {}
                 """,
-                classLoader = libraryClassLoader) { _, _ ->
+                classpathFiles = libraryClasspath) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY +
                         " - test.library.MissingEntityAnnotationPojo")
@@ -266,7 +267,7 @@ class DatabaseProcessorTest {
 
     @Test
     fun detectMissingDaoAnnotationInLibraryClass() {
-        val libraryClassLoader = compileLibrarySource(
+        val libraryClasspath = compileLibrarySource(
                 "test.library.MissingAnnotationsBaseDao",
                 """
                 public interface MissingAnnotationsBaseDao {
@@ -279,7 +280,7 @@ class DatabaseProcessorTest {
                 public abstract class MyDb extends RoomDatabase {
                     abstract test.library.MissingAnnotationsBaseDao getBadDao();
                 }
-                """, USER, classLoader = libraryClassLoader) { _, _ ->
+                """, USER, classpathFiles = libraryClasspath) { _, _ ->
         }.failsToCompile().withErrorContaining(
                 ProcessorErrors.DAO_MUST_BE_ANNOTATED_WITH_DAO +
                         " - test.library.MissingAnnotationsBaseDao")
@@ -897,7 +898,6 @@ class DatabaseProcessorTest {
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(DB3, BOOK))
-                .withClasspathFrom(javaClass.classLoader)
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Database::class)
                         .nextRunHandler { invocation ->
@@ -948,7 +948,7 @@ class DatabaseProcessorTest {
     fun singleDb(
         input: String,
         vararg otherFiles: JavaFileObject,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Database, TestInvocation) -> Unit
     ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -956,7 +956,11 @@ class DatabaseProcessorTest {
                         JavaFileObjects.forSourceString("foo.bar.MyDb",
                         DATABASE_PREFIX + input
                 ))
-                .withClasspathFrom(classLoader)
+                .apply {
+                    if (classpathFiles.isNotEmpty()) {
+                        withClasspath(classpathFiles)
+                    }
+                }
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Database::class)
                         .nextRunHandler { invocation ->

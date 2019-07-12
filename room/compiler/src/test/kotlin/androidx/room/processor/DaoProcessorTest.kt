@@ -37,6 +37,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.io.File
 
 @RunWith(Parameterized::class)
 class DaoProcessorTest(val enableVerification: Boolean) {
@@ -70,7 +71,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testAbstractMethodWithoutQueryInLibraryClass() {
-        val libraryClassLoader = compileLibrarySource(
+        val libraryClasspath = compileLibrarySource(
                 "test.library.MissingAnnotationsBaseDao",
                 """
                 public interface MissingAnnotationsBaseDao {
@@ -79,7 +80,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                 """)
         singleDao(
                 "@Dao public interface MyDao extends test.library.MissingAnnotationsBaseDao {}",
-                classLoader = libraryClassLoader) { _, _ -> }
+                classpathFiles = libraryClasspath) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD +
                         " - getFoo() in test.library.MissingAnnotationsBaseDao")
@@ -299,15 +300,18 @@ class DaoProcessorTest(val enableVerification: Boolean) {
 
     fun singleDao(
         vararg inputs: String,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Dao, TestInvocation) -> Unit
-    ):
-            CompileTester {
+    ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyDao",
                         DAO_PREFIX + inputs.joinToString("\n")
                 ), COMMON.USER))
-                .withClasspathFrom(classLoader)
+                .apply {
+                    if (classpathFiles.isNotEmpty()) {
+                        withClasspath(classpathFiles)
+                    }
+                }
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Dao::class,
                                 androidx.room.Entity::class,

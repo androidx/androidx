@@ -24,8 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
-import java.lang.Exception
-import java.net.URLClassLoader
 import javax.tools.StandardLocation
 
 @RunWith(JUnit4::class)
@@ -120,7 +118,7 @@ class ValidCasesTest {
     @Test
     fun testJar() {
         JavaSourcesSubject.assertThat(load("foo.DerivedFromJar", ""))
-                .withClasspathFrom(libraryClassLoader())
+                .withClasspath(libraryClasspathFiles())
                 .processedWith(LifecycleProcessor())
                 .compilesWithoutError().and()
                 .generatesSources(load("foo.DerivedFromJar_LifecycleAdapter", "expected"))
@@ -129,7 +127,7 @@ class ValidCasesTest {
     @Test
     fun testExtendFromJarFailToGenerateAdapter() {
         val compileTester = JavaSourcesSubject.assertThat(load("foo.DerivedFromJar1", ""))
-                .withClasspathFrom(libraryClassLoader())
+                .withClasspath(libraryClasspathFiles())
                 .processedWith(LifecycleProcessor())
                 .compilesWithoutError()
         compileTester.withWarningContaining("Failed to generate an Adapter for")
@@ -151,8 +149,11 @@ class ValidCasesTest {
         }
     }
 
-    private fun libraryClassLoader(): URLClassLoader {
-        val jarUrl = File("src/tests/test-data/lib/test-library.jar").toURI().toURL()
-        return URLClassLoader(arrayOf(jarUrl), this.javaClass.classLoader)
+    private fun libraryClasspathFiles() =
+        getSystemClasspathFiles() + File("src/tests/test-data/lib/test-library.jar")
+
+    private fun getSystemClasspathFiles(): Set<File> {
+        val pathSeparator = System.getProperty("path.separator")
+        return System.getProperty("java.class.path").split(pathSeparator).map { File(it) }.toSet()
     }
 }
