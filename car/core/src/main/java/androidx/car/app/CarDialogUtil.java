@@ -21,6 +21,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
@@ -140,5 +141,19 @@ class CarDialogUtil {
                 /* animate= */ false);
 
         scrollBarView.invalidate();
+    }
+
+    /**
+     * Returns the additional empty space in a button, beyond padding, that is present to meet
+     * minWidth requirements. This method performs a measure pass on the button argument and
+     * should be used sparingly to avoid a performance impact.
+     */
+    static int calculateExtraButtonSpace(@NonNull Button button) {
+        int buttonMinWidth = button.getContext().getResources().getDimensionPixelSize(
+                R.dimen.car_dialog_button_min_width);
+        int textWidth = (int) button.getPaint().measureText(button.getText().toString());
+        return Math.max(
+                buttonMinWidth - textWidth - button.getPaddingLeft() - button.getPaddingRight(), 0);
+
     }
 }
