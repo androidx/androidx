@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
@@ -31,6 +32,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.view.GravityCompat;
@@ -145,19 +148,25 @@ public class LinearLayoutCompat extends ViewGroup {
     private int mShowDividers;
     private int mDividerPadding;
 
-    public LinearLayoutCompat(Context context) {
+    public LinearLayoutCompat(@NonNull Context context) {
         this(context, null);
     }
 
-    public LinearLayoutCompat(Context context, AttributeSet attrs) {
+    public LinearLayoutCompat(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public LinearLayoutCompat(Context context, AttributeSet attrs, int defStyleAttr) {
+    public LinearLayoutCompat(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.LinearLayoutCompat, defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.LinearLayoutCompat, attrs,
+                    a.getWrappedTypeArray(), defStyleAttr, 0);
+        }
 
         int index = a.getInt(R.styleable.LinearLayoutCompat_android_orientation, -1);
         if (index >= 0) {

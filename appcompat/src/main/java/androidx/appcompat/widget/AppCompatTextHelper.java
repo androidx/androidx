@@ -53,6 +53,7 @@ class AppCompatTextHelper {
     private static final int SERIF = 2;
     private static final int MONOSPACE = 3;
 
+    @NonNull
     private final TextView mView;
 
     private TintInfo mDrawableLeftTint;
@@ -71,19 +72,25 @@ class AppCompatTextHelper {
     private Typeface mFontTypeface;
     private boolean mAsyncFontPending;
 
-    AppCompatTextHelper(TextView view) {
+    AppCompatTextHelper(@NonNull TextView view) {
         mView = view;
         mAutoSizeTextHelper = new AppCompatTextViewAutoSizeHelper(mView);
     }
 
     @SuppressLint("NewApi")
-    void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
+    void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
         final Context context = mView.getContext();
         final AppCompatDrawableManager drawableManager = AppCompatDrawableManager.get();
 
         // First read the TextAppearance style id
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,
                 R.styleable.AppCompatTextHelper, defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mView.saveAttributeDataForStyleable(mView.getContext(),
+                    R.styleable.AppCompatTextHelper, attrs, a.getWrappedTypeArray(),
+                    defStyleAttr, 0);
+        }
+
         final int ap = a.getResourceId(R.styleable.AppCompatTextHelper_android_textAppearance, -1);
         // Now read the compound drawable and grab any tints
         if (a.hasValue(R.styleable.AppCompatTextHelper_android_drawableLeft)) {

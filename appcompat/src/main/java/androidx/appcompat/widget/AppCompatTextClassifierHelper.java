@@ -39,7 +39,7 @@ final class AppCompatTextClassifierHelper {
     @Nullable
     private TextClassifier mTextClassifier;
 
-    AppCompatTextClassifierHelper(TextView textView) {
+    AppCompatTextClassifierHelper(@NonNull TextView textView) {
         mTextView = Preconditions.checkNotNull(textView);
     }
 

@@ -26,6 +26,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewPropertyAnimatorCompat;
@@ -48,15 +50,15 @@ abstract class AbsActionBarView extends ViewGroup {
     private boolean mEatingTouch;
     private boolean mEatingHover;
 
-    AbsActionBarView(Context context) {
+    AbsActionBarView(@NonNull Context context) {
         this(context, null);
     }
 
-    AbsActionBarView(Context context, AttributeSet attrs) {
+    AbsActionBarView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    AbsActionBarView(Context context, AttributeSet attrs, int defStyle) {
+    AbsActionBarView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         final TypedValue tv = new TypedValue();

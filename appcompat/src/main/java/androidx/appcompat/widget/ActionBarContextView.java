@@ -28,6 +28,8 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.view.ActionMode;
@@ -39,8 +41,6 @@ import androidx.core.view.ViewCompat;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ActionBarContextView extends AbsActionBarView {
-    private static final String TAG = "ActionBarContextView";
-
     private CharSequence mTitle;
     private CharSequence mSubtitle;
 
@@ -54,15 +54,16 @@ public class ActionBarContextView extends AbsActionBarView {
     private boolean mTitleOptional;
     private int mCloseItemLayout;
 
-    public ActionBarContextView(Context context) {
+    public ActionBarContextView(@NonNull Context context) {
         this(context, null);
     }
 
-    public ActionBarContextView(Context context, AttributeSet attrs) {
+    public ActionBarContextView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.actionModeStyle);
     }
 
-    public ActionBarContextView(Context context, AttributeSet attrs, int defStyle) {
+    public ActionBarContextView(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,

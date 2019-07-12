@@ -24,6 +24,8 @@ import android.view.inputmethod.InputConnection;
 import android.widget.CheckedTextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.widget.TextViewCompat;
 
@@ -43,15 +45,16 @@ public class AppCompatCheckedTextView extends CheckedTextView {
 
     private final AppCompatTextHelper mTextHelper;
 
-    public AppCompatCheckedTextView(Context context) {
+    public AppCompatCheckedTextView(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatCheckedTextView(Context context, AttributeSet attrs) {
+    public AppCompatCheckedTextView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, android.R.attr.checkedTextViewStyle);
     }
 
-    public AppCompatCheckedTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatCheckedTextView(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         mTextHelper = new AppCompatTextHelper(this);

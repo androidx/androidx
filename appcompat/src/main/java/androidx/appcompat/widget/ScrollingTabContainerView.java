@@ -42,6 +42,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.app.ActionBar;
@@ -78,7 +79,7 @@ public class ScrollingTabContainerView extends HorizontalScrollView
 
     private static final int FADE_DURATION = 200;
 
-    public ScrollingTabContainerView(Context context) {
+    public ScrollingTabContainerView(@NonNull Context context) {
         super(context);
 
         setHorizontalScrollBarEnabled(false);

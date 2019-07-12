@@ -28,6 +28,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 
@@ -49,11 +51,11 @@ public final class ViewStubCompat extends View {
     private LayoutInflater mInflater;
     private OnInflateListener mInflateListener;
 
-    public ViewStubCompat(Context context, AttributeSet attrs) {
+    public ViewStubCompat(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ViewStubCompat(Context context, AttributeSet attrs, int defStyle) {
+    public ViewStubCompat(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewStubCompat,

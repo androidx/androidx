@@ -20,6 +20,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * A {@link ToggleButton} which supports compatible features on older versions of the platform,
  * including:
@@ -34,15 +37,16 @@ public class AppCompatToggleButton extends ToggleButton {
 
     private final AppCompatTextHelper mTextHelper;
 
-    public AppCompatToggleButton(Context context) {
+    public AppCompatToggleButton(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatToggleButton(Context context, AttributeSet attrs) {
+    public AppCompatToggleButton(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, android.R.attr.buttonStyleToggle);
     }
 
-    public AppCompatToggleButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatToggleButton(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         mTextHelper = new AppCompatTextHelper(this);

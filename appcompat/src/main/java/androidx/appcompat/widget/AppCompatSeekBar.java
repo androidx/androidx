@@ -21,6 +21,8 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.SeekBar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 
 /**
@@ -35,15 +37,16 @@ public class AppCompatSeekBar extends SeekBar {
 
     private final AppCompatSeekBarHelper mAppCompatSeekBarHelper;
 
-    public AppCompatSeekBar(Context context) {
+    public AppCompatSeekBar(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatSeekBar(Context context, AttributeSet attrs) {
+    public AppCompatSeekBar(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.seekBarStyle);
     }
 
-    public AppCompatSeekBar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatSeekBar(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         mAppCompatSeekBarHelper = new AppCompatSeekBarHelper(this);
