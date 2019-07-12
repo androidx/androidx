@@ -48,9 +48,18 @@ import javax.crypto.Mac;
  * A class that manages a system-provided biometric prompt. On devices running P and above, this
  * will show a system-provided authentication prompt, using a device's supported biometric
  * (fingerprint, iris, face, etc). On devices before P, this will show a dialog prompting for
- * fingerprint authentication. The prompt will persist across orientation changes unless explicitly
- * canceled by the client. For security reasons, the prompt will automatically dismiss when the
- * activity is no longer in the foreground.
+ * fingerprint authentication. The prompt will persist across configuration changes unless
+ * explicitly canceled by the client. For security reasons, the prompt will automatically dismiss
+ * when the application is no longer in the foreground.
+ *
+ * To persist authentication across configuration changes, developers should (re)create the
+ * BiometricPrompt every time the activity/fragment is created. Instantiating the library with a new
+ * callback early in the fragment/activity lifecycle (e.g. onCreate) allows the ongoing authenticate
+ * session's callbacks to be received by the new fragment/activity. Note that
+ * {@link BiometricPrompt#cancelAuthentication()} should not be called, and
+ * {@link BiometricPrompt#authenticate(PromptInfo)} or
+ * {@link BiometricPrompt#authenticate(PromptInfo, CryptoObject)} does not need to be invoked after
+ * the new activity/fragment is created, since we are keeping/continuing the same session.
  */
 @SuppressLint("SyntheticAccessor")
 public class BiometricPrompt implements BiometricConstants {

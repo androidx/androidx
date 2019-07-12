@@ -23,6 +23,7 @@
     <string name="button_can_authenticate">Can Authenticate</string>
     <string name="button_host_in_activity">Host in a FragmentActivity</string>
     <string name="button_host_in_fragment">Host in a Fragment</string>
+    <string name="button_clear_log">Clear logs</string>
 
     <string name="checkbox_text_use_crypto">Use crypto</string>
     <string name="checkbox_text_require_confirmation">Require confirmation</string>

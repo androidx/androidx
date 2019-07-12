@@ -29,7 +29,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -66,6 +66,7 @@ abstract class BiometricPromptDemoController {
     private static final String TAG = "bio_prompt_demo_control";
 
     private static final String KEY_COUNTER = "saved_counter";
+    private static final String KEY_LOG = "saved_log";
 
     private static final String DEFAULT_KEY_NAME = "default_key";
 
@@ -88,13 +89,14 @@ abstract class BiometricPromptDemoController {
     private int mCounter;
     private int mNumberFailedAttempts;
 
-    Button mCreateKeysButton;
-    Button mAuthenticateButton;
-    Button mCanAuthenticateButton;
-    CheckBox mUseCryptoCheckbox;
-    CheckBox mConfirmationRequiredCheckbox;
-    CheckBox mDeviceCredentialAllowedCheckbox;
-    RadioGroup mRadioGroup;
+    private Button mCreateKeysButton;
+    private Button mAuthenticateButton;
+    private Button mCanAuthenticateButton;
+    private CheckBox mUseCryptoCheckbox;
+    private CheckBox mConfirmationRequiredCheckbox;
+    private CheckBox mDeviceCredentialAllowedCheckbox;
+    private RadioGroup mRadioGroup;
+    private TextView mLogView;
 
     BiometricPrompt mBiometricPrompt;
 
@@ -103,15 +105,13 @@ abstract class BiometricPromptDemoController {
             new BiometricPrompt.AuthenticationCallback() {
                 @Override
                 public void onAuthenticationError(int err, @NonNull CharSequence message) {
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                    Log.v(TAG, "Error " + err + ": " + message);
+                    log("onAuthenticationError " + err + ": " + message);
                     mNumberFailedAttempts = 0;
                 }
 
                 @Override
                 public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
-                    Toast.makeText(getApplicationContext(), "Yay, Crypto: "
-                            + result.getCryptoObject(), Toast.LENGTH_SHORT).show();
+                    log("onAuthenticationSucceeded, crypto: " + result.getCryptoObject());
                     mNumberFailedAttempts = 0;
 
                     if (result.getCryptoObject() != null) {
@@ -121,19 +121,16 @@ abstract class BiometricPromptDemoController {
                                     "hello".getBytes(Charset.defaultCharset()));
                             String message = Arrays.toString(
                                     Base64.encode(encrypted, 0 /* flags */));
-                            Toast.makeText(getApplicationContext(), "Message: " + message,
-                                    Toast.LENGTH_SHORT).show();
+                            log("Message: " + message);
                         } catch (BadPaddingException | IllegalBlockSizeException e) {
-                            Toast.makeText(getApplicationContext(), "Error encrypting",
-                                    Toast.LENGTH_SHORT).show();
+                            log("Error encrypting");
                         }
                     }
                 }
 
                 @Override
                 public void onAuthenticationFailed() {
-                    Toast.makeText(getApplicationContext(), "failed", Toast.LENGTH_SHORT).show();
-                    Log.v(TAG, "onAuthenticationFailed");
+                    log("onAuthenticationFailed");
                     mNumberFailedAttempts++;
 
                     // Cancel authentication after 3 failed attempts to test the cancel() method.
@@ -146,12 +143,44 @@ abstract class BiometricPromptDemoController {
 
     abstract Context getApplicationContext();
 
-    abstract void onResume();
+    /**
+     * (Re)establish a connection between the host fragment/activity and the BiometricPrompt
+     * library.
+     *
+     * Developers should (re)create the BiometricPrompt every time the activity/fragment is
+     * created. This allows authentication to work across configuration changes. The internal
+     * implementation of the library uses fragments, which can be saved/restored. Instantiating
+     * the library with a new callback and executor early in the fragment/activity lifecycle (e.g.
+     * onCreate or onCreateView) allows the new instance to receive callbacks properly.
+     */
+    abstract void reconnect();
+
+    BiometricPromptDemoController(@NonNull Button createKeysButton,
+            @NonNull Button authenticateButton,
+            @NonNull Button canAuthenticateButton,
+            @NonNull CheckBox useCryptoCheckbox,
+            @NonNull CheckBox confirmationRequiredCheckbox,
+            @NonNull CheckBox deviceCredentialAllowedCheckbox,
+            @NonNull RadioGroup radioGroup,
+            @NonNull Button clearLogButton,
+            @NonNull TextView logView) {
+        mCreateKeysButton = createKeysButton;
+        mAuthenticateButton = authenticateButton;
+        mCanAuthenticateButton = canAuthenticateButton;
+        mUseCryptoCheckbox = useCryptoCheckbox;
+        mConfirmationRequiredCheckbox = confirmationRequiredCheckbox;
+        mDeviceCredentialAllowedCheckbox = deviceCredentialAllowedCheckbox;
+        mRadioGroup = radioGroup;
+        mLogView = logView;
+
+        clearLogButton.setOnClickListener((view1) -> logView.setText(""));
+    }
 
     /** Sets up button callbacks and other state for the biometric prompt demo controller. */
     void init(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             mCounter = savedInstanceState.getInt(KEY_COUNTER);
+            mLogView.setText(savedInstanceState.getCharSequence(KEY_LOG));
         }
 
         try {
@@ -191,8 +220,7 @@ abstract class BiometricPromptDemoController {
                 default:
                     message = BIOMETRIC_ERROR_UNKNOWN;
             }
-            Toast.makeText(getApplicationContext(), "canAuthenticate : " + message,
-                    Toast.LENGTH_SHORT).show();
+            log("canAuthenticate: " + message);
         });
 
 
@@ -210,6 +238,7 @@ abstract class BiometricPromptDemoController {
 
     void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(KEY_COUNTER, mCounter);
+        outState.putCharSequence(KEY_LOG, mLogView.getText());
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
@@ -220,14 +249,13 @@ abstract class BiometricPromptDemoController {
         try {
             createKey(DEFAULT_KEY_NAME, true);
         } catch (RuntimeException e) {
-            Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            log(e.getMessage());
         }
     }
 
     private void startAuthentication() {
         if (getMode() == MODE_NONE) {
-            Toast.makeText(getApplicationContext(), "Select a test first", Toast.LENGTH_SHORT)
-                    .show();
+            log("Select a test first");
             return;
         }
 
@@ -269,7 +297,7 @@ abstract class BiometricPromptDemoController {
                     mBiometricPrompt.authenticate(info, crypto);
                 }
             } catch (RuntimeException e) {
-                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                log(e.getMessage());
                 return;
             } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
                 throw new RuntimeException("Failed to get an instance of Cipher", e);
@@ -370,5 +398,10 @@ abstract class BiometricPromptDemoController {
             default:
                 return MODE_NONE;
         }
+    }
+
+    private void log(String s) {
+        Log.d(TAG, s);
+        mLogView.append(s + '\n');
     }
 }
