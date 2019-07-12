@@ -165,13 +165,14 @@ public final class CarSingleChoiceDialog extends Dialog {
             positiveButtonLayoutParams.setMarginStart(buttonSpacing);
             positiveButtonView.requestLayout();
 
-            negativeButtonLayoutParams.setMarginStart(buttonOffset);
+            int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(negativeButtonView);
+            negativeButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace);
             negativeButtonLayoutParams.setMarginEnd(buttonSpacing);
             negativeButtonView.requestLayout();
         } else {
             negativeButtonView.setVisibility(View.GONE);
-
-            positiveButtonLayoutParams.setMarginStart(buttonOffset);
+            int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(positiveButtonView);
+            positiveButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace / 2);
             positiveButtonView.requestLayout();
         }
     }

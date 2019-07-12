@@ -56,7 +56,7 @@ public class CarAlertDialog extends Dialog {
 
     private final int mTopPadding;
     private final int mButtonPanelTopMargin;
-    private final int mBottomPadding;
+    private final int mButtonPadding;
     private final int mButtonSpacing;
 
     private View mContentView;
@@ -85,7 +85,7 @@ public class CarAlertDialog extends Dialog {
         Resources res = context.getResources();
         mTopPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
         mButtonPanelTopMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
-        mBottomPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
+        mButtonPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
         mButtonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_2);
     }
 
@@ -111,6 +111,7 @@ public class CarAlertDialog extends Dialog {
         setNegativeButton(mNegativeButtonText);
         setHeaderIcon(mIconDrawable);
         setTitleInternal(mTitle);
+        updateButtonSpacing();
         // setupHeader() should be called last because we want to center title and adjust
         // padding depending on icon/body/button configuration.
         setupHeader();
@@ -192,7 +193,6 @@ public class CarAlertDialog extends Dialog {
         mPositiveButton.setVisibility(showButton ? View.VISIBLE : View.GONE);
 
         updateButtonPanelVisibility();
-        updateButtonSpacing();
     }
 
     private void setNegativeButton(CharSequence text) {
@@ -200,7 +200,6 @@ public class CarAlertDialog extends Dialog {
         mNegativeButton.setVisibility(TextUtils.isEmpty(text) ? View.GONE : View.VISIBLE);
 
         updateButtonPanelVisibility();
-        updateButtonSpacing();
     }
 
     /**
@@ -225,32 +224,30 @@ public class CarAlertDialog extends Dialog {
      * Updates the start and end margins for the positive and negative buttons.
      */
     private void updateButtonSpacing() {
-        // If both buttons are visible, then there needs to be spacing between them.
-
-        Resources res = getContext().getResources();
-
-        int buttonOffset = mBottomPadding - mButtonSpacing;
+        int buttonOffset = mButtonPadding - mButtonSpacing;
 
         ViewGroup.MarginLayoutParams positiveButtonLayoutParams =
                 (ViewGroup.MarginLayoutParams) mPositiveButton.getLayoutParams();
         ViewGroup.MarginLayoutParams negativeButtonLayoutParams =
                 (ViewGroup.MarginLayoutParams) mNegativeButton.getLayoutParams();
 
-
+        // If both buttons are visible, then there needs to be spacing between them.
         if ((mPositiveButton.getVisibility() == View.VISIBLE
                 && mNegativeButton.getVisibility() == View.VISIBLE)) {
-
-            positiveButtonLayoutParams.setMarginStart(buttonOffset);
+            int extraSpacingOffset = CarDialogUtil.calculateExtraButtonSpace(mPositiveButton) / 2;
+            positiveButtonLayoutParams.setMarginStart(buttonOffset - extraSpacingOffset);
             positiveButtonLayoutParams.setMarginEnd(mButtonSpacing);
             mPositiveButton.requestLayout();
 
             negativeButtonLayoutParams.setMarginStart(mButtonSpacing);
             mNegativeButton.requestLayout();
         } else if (mPositiveButton.getVisibility() == View.VISIBLE) {
-            positiveButtonLayoutParams.setMarginStart(buttonOffset);
+            int extraSpacingOffset = CarDialogUtil.calculateExtraButtonSpace(mPositiveButton) / 2;
+            positiveButtonLayoutParams.setMarginStart(buttonOffset - extraSpacingOffset);
             mPositiveButton.requestLayout();
         } else if (mNegativeButton.getVisibility() == View.VISIBLE) {
-            negativeButtonLayoutParams.setMarginStart(buttonOffset);
+            int extraSpacingOffset = CarDialogUtil.calculateExtraButtonSpace(mNegativeButton) / 2;
+            negativeButtonLayoutParams.setMarginStart(buttonOffset - extraSpacingOffset);
             mNegativeButton.requestLayout();
         }
     }
@@ -273,7 +270,7 @@ public class CarAlertDialog extends Dialog {
         mButtonPanel.setVisibility(visibility);
 
         // If there are buttons, then remove the padding at the bottom of the content view.
-        int buttonPadding = hasButtons ? 0 : mBottomPadding;
+        int buttonPadding = hasButtons ? 0 : mButtonPadding;
         mContentView.setPaddingRelative(
                 mContentView.getPaddingStart(),
                 mContentView.getPaddingTop(),
