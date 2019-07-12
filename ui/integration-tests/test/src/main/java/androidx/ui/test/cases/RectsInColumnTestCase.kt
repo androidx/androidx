@@ -14,54 +14,66 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.test.cases
 
-import androidx.compose.composer
 import android.app.Activity
-import androidx.compose.CompositionContext
+import androidx.compose.composer
+import androidx.compose.Composable
 import androidx.compose.FrameManager
-import androidx.compose.Model
-import androidx.ui.core.dp
+import androidx.compose.State
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import androidx.ui.foundation.ColoredRect
+import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-
-@Model
-class RectanglesInColumnTestCaseColorModel(var color: Color)
+import androidx.ui.test.ComposeMaterialIntoActivity
+import androidx.ui.test.ComposeTestCase
 
 /**
  * Test case that puts the given amount of rectangles into a column layout and makes changes by
  * modifying the color used in the model.
+ *
+ * Note: Each rectangle has its own model so changes should always affect only the first one.
  */
-class RectanglesInColumnTestCase(
-    private val activity: Activity,
+class RectsInColumnTestCase(
+    activity: Activity,
     private val amountOfRectangles: Int
-) {
+) : ComposeTestCase(activity) {
 
-    private val model = RectanglesInColumnTestCaseColorModel(Color.Black)
-    lateinit var compositionContext: CompositionContext
+    private val states = mutableListOf<State<Color>>()
 
-    fun runSetup() {
+    override fun runSetup() {
         compositionContext = ComposeMaterialIntoActivity(activity) {
             Column {
-                repeat(amountOfRectangles) { i ->
-                    if (i == 0) {
-                        ColoredRect(color = model.color, width = 100.dp, height = 50.dp)
-                    } else {
-                        ColoredRect(color = Color.Green, width = 100.dp, height = 50.dp)
-                    }
+                repeat(amountOfRectangles) {
+                    ColoredRectWithModel()
                 }
             }
         }!!
         FrameManager.nextFrame()
+
+        view = activity.findViewById(android.R.id.content)
+
+        measure()
+        layout()
+        drawSlow()
     }
 
     fun toggleState() {
-        if (model.color == Color.Purple) {
-            model.color = Color.Blue
+        val state = states.first()
+        if (state.value == Color.Purple) {
+            state.value = Color.Blue
         } else {
-            model.color = Color.Purple
+            state.value = Color.Purple
         }
         FrameManager.nextFrame()
+    }
+
+    @Composable
+    fun ColoredRectWithModel() {
+        val state = +state { Color.Black }
+        states.add(state)
+        ColoredRect(color = state.value, width = 100.dp, height = 50.dp)
     }
 }
