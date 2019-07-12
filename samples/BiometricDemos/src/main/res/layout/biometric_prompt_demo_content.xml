@@ -24,74 +24,96 @@
     <TextView
         android:id="@+id/host_type_text_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
-    <Button
-        android:id="@+id/button_enable_biometric_with_crypto"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_enable_biometric_with_crypto"/>
+        android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/can_authenticate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_can_authenticate"/>
-
-    <Button
-        android:id="@+id/button_authenticate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_authenticate"/>
-
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical">
-        <CheckBox
-                android:id="@+id/checkbox_use_crypto"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/checkbox_text_use_crypto" />
-        <CheckBox
-                android:id="@+id/checkbox_require_confirmation"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/checkbox_text_require_confirmation"
-                android:checked="true"/>
-        <CheckBox
-                android:id="@+id/checkbox_enable_fallback"
-                android:layout_weight="1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/checkbox_text_allow_device_credential"/>
-    </LinearLayout>
-
-
-    <RadioGroup
-        android:id="@+id/radio_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <RadioButton
-            android:id="@+id/radio_persist_across_configuration_changes"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/radio_text_persist_across_configuration_changes" />
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/radio_cancel_on_configuration_change"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/radio_text_cancel_on_configuration_change" />
+            <Button
+                android:id="@+id/button_enable_biometric_with_crypto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_enable_biometric_with_crypto"/>
 
-        <RadioButton
-            android:id="@+id/radio_cancel_after_three_failures"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/radio_text_cancel_after_three_failures" />
+            <Button
+                android:id="@+id/can_authenticate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_can_authenticate"/>
 
-    </RadioGroup>
+            <Button
+                android:id="@+id/button_authenticate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_authenticate"/>
+
+            <LinearLayout android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+                <CheckBox
+                    android:id="@+id/checkbox_use_crypto"
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/checkbox_text_use_crypto"/>
+                <CheckBox
+                    android:id="@+id/checkbox_require_confirmation"
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/checkbox_text_require_confirmation"
+                    android:checked="true"/>
+                <CheckBox
+                    android:id="@+id/checkbox_enable_fallback"
+                    android:layout_weight="1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/checkbox_text_allow_device_credential"/>
+            </LinearLayout>
+
+            <RadioGroup
+                android:id="@+id/radio_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <RadioButton
+                    android:id="@+id/radio_persist_across_configuration_changes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_text_persist_across_configuration_changes"/>
+
+                <RadioButton
+                    android:id="@+id/radio_cancel_on_configuration_change"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_text_cancel_on_configuration_change"/>
+
+                <RadioButton
+                    android:id="@+id/radio_cancel_after_three_failures"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/radio_text_cancel_after_three_failures"/>
+            </RadioGroup>
+
+            <Button
+                android:id="@+id/log_clear"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/button_clear_log"/>
+
+            <TextView
+                android:id="@+id/log_text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

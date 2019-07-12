@@ -23,18 +23,18 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/label_choose_host_type" />
+        android:text="@string/label_choose_host_type"/>
 
     <Button
         android:id="@+id/host_in_activity_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_host_in_activity" />
+        android:text="@string/button_host_in_activity"/>
 
     <Button
         android:id="@+id/host_in_fragment_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_host_in_fragment" />
+        android:text="@string/button_host_in_fragment"/>
 
 </LinearLayout>

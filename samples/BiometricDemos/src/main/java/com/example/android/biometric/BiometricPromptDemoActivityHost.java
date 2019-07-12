@@ -51,6 +51,8 @@ public class BiometricPromptDemoActivityHost extends FragmentActivity {
         final CheckBox deviceCredentialAllowedCheckbox = findViewById(
                 R.id.checkbox_enable_fallback);
         final RadioGroup radioGroup = findViewById(R.id.radio_group);
+        final Button clearLogButton = findViewById(R.id.log_clear);
+        final TextView logView = findViewById(R.id.log_text);
 
         mController = new BiometricPromptDemoActivityController(
                 this,
@@ -60,14 +62,11 @@ public class BiometricPromptDemoActivityHost extends FragmentActivity {
                 useCryptoCheckbox,
                 confirmationRequiredCheckbox,
                 deviceCredentialAllowedCheckbox,
-                radioGroup);
+                radioGroup,
+                clearLogButton,
+                logView);
         mController.init(savedInstanceState);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        mController.onResume();
+        mController.reconnect();
     }
 
     @Override
