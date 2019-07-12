@@ -28,6 +28,8 @@ import androidx.compose.composer
  * Combines [PressReleasedGestureDetector] and [Semantics] for the clickable
  * components like Button.
  *
+ * @sample androidx.ui.foundation.samples.ClickableSample
+ *
  * @param onClick will be called when user clicked on the button. The button will not be
  *  clickable when it is null.
  * @param consumeDownOnStart true means [PressReleasedGestureDetector] should consume
