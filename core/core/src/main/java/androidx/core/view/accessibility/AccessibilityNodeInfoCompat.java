@@ -16,6 +16,8 @@
 
 package androidx.core.view.accessibility;
 
+import static android.view.View.NO_ID;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Rect;
@@ -923,6 +925,7 @@ public class AccessibilityNodeInfoCompat {
          * @return If the item is a heading.
          * @deprecated Use {@link AccessibilityNodeInfoCompat#isHeading()}
          */
+        @Deprecated
         public boolean isHeading() {
             if (Build.VERSION.SDK_INT >= 19) {
                 return ((AccessibilityNodeInfo.CollectionItemInfo) mInfo).isHeading();
@@ -1173,7 +1176,9 @@ public class AccessibilityNodeInfoCompat {
      *  @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public int mParentVirtualDescendantId = -1;
+    public int mParentVirtualDescendantId = NO_ID;
+
+    private int mVirtualDescendantId = NO_ID;
 
     // Actions introduced in IceCreamSandwich
 
@@ -1691,6 +1696,8 @@ public class AccessibilityNodeInfoCompat {
      * @param source The info source.
      */
     public void setSource(View source) {
+        mVirtualDescendantId = NO_ID;
+
         mInfo.setSource(source);
     }
 
@@ -1703,17 +1710,21 @@ public class AccessibilityNodeInfoCompat {
      * hierarchy for accessibility purposes. This enables custom views that draw complex
      * content to report themselves as a tree of virtual views, thus conveying their
      * logical structure.
-     * </p>
      * <p>
-     *   <strong>Note:</strong> Cannot be called from an
-     *   {@link android.accessibilityservice.AccessibilityService}.
-     *   This class is made immutable before being delivered to an AccessibilityService.
-     * </p>
+     * <strong>Note:</strong> Cannot be called from an
+     * {@link android.accessibilityservice.AccessibilityService}.
+     * This class is made immutable before being delivered to an AccessibilityService.
+     * <p>
+     * This method is not supported on devices running API level < 16 since the platform did
+     * not support virtual descendants of real views.
      *
      * @param root The root of the virtual subtree.
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setSource(View root, int virtualDescendantId) {
+        // Store the ID anyway, since we may need it for equality checks.
+        mVirtualDescendantId = virtualDescendantId;
+
         if (Build.VERSION.SDK_INT >= 16) {
             mInfo.setSource(root, virtualDescendantId);
         }
@@ -2091,6 +2102,8 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setParent(View parent) {
+        mParentVirtualDescendantId = NO_ID;
+
         mInfo.setParent(parent);
     }
 
@@ -2103,18 +2116,21 @@ public class AccessibilityNodeInfoCompat {
      * hierarchy for accessibility purposes. This enables custom views that draw complex
      * content to report them selves as a tree of virtual views, thus conveying their
      * logical structure.
-     * </p>
      * <p>
-     *   <strong>Note:</strong> Cannot be called from an
-     *   {@link android.accessibilityservice.AccessibilityService}.
-     *   This class is made immutable before being delivered to an AccessibilityService.
-     * </p>
+     * <strong>Note:</strong> Cannot be called from an
+     * {@link android.accessibilityservice.AccessibilityService}.
+     * This class is made immutable before being delivered to an AccessibilityService.
+     * <p>
+     * This method is not supported on devices running API level < 16 since the platform did
+     * not support virtual descendants of real views.
      *
      * @param root The root of the virtual subtree.
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setParent(View root, int virtualDescendantId) {
+        // Store the ID anyway, since we may need it for equality checks.
         mParentVirtualDescendantId = virtualDescendantId;
+
         if (Build.VERSION.SDK_INT >= 16) {
             mInfo.setParent(root, virtualDescendantId);
         }
@@ -3967,6 +3983,12 @@ public class AccessibilityNodeInfoCompat {
                 return false;
             }
         } else if (!mInfo.equals(other.mInfo)) {
+            return false;
+        }
+        if (mVirtualDescendantId != other.mVirtualDescendantId) {
+            return false;
+        }
+        if (mParentVirtualDescendantId != other.mParentVirtualDescendantId) {
             return false;
         }
         return true;
