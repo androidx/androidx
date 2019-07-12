@@ -13,12 +13,8 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<resources>
-    <style name="TestActivityTheme" parent="Theme.AppCompat.Light">
-        <item name="android:windowAnimationStyle">@null</item>
-    </style>
 
-    <style name="TestActivityThemeWithBackground" parent="TestActivityTheme">
-        <item name="swipeRefreshLayoutProgressSpinnerBackgroundColor">#FF808080</item>
-    </style>
+<!-- Definitions of attributes to be exposed as public -->
+<resources>
+    <public type="attr" name="swipeRefreshLayoutProgressSpinnerBackgroundColor" format="color"/>
 </resources>
