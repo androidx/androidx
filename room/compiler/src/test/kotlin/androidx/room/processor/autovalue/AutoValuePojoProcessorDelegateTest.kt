@@ -32,6 +32,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
 import toJFO
+import java.io.File
 import javax.lang.model.element.ElementKind
 import javax.tools.JavaFileObject
 
@@ -88,7 +89,7 @@ class AutoValuePojoProcessorDelegateTest {
 
     @Test
     fun goodLibraryPojo() {
-        val libraryClassLoader = compileLibrarySources(
+        val libraryClasspath = compileLibrarySources(
             JavaFileObjects.forSourceString(MY_POJO.toString(),
                 """
                     $HEADER
@@ -97,19 +98,9 @@ class AutoValuePojoProcessorDelegateTest {
                     abstract long getArg0();
                     static MyPojo create(long arg0) { return new AutoValue_MyPojo(arg0); }
                     $FOOTER
-                    """),
-            JavaFileObjects.forSourceString(AUTOVALUE_MY_POJO.toString(),
-                """
-                    $AUTO_VALUE_HEADER
-                    @PrimaryKey
-                    private final long arg0;
-                    AutoValue_MyPojo(long arg0) { this.arg0 = arg0; }
-                    @PrimaryKey
-                    long getArg0() { return this.arg0; }
-                    $FOOTER
                     """)
         )
-        simpleRun(classLoader = libraryClassLoader) { invocation ->
+        simpleRun(classpathFiles = libraryClasspath) { invocation ->
                 PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
@@ -241,7 +232,7 @@ class AutoValuePojoProcessorDelegateTest {
         pojoCode: String,
         autoValuePojoCode: String,
         vararg jfos: JavaFileObject,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
         return singleRunFullClass(
@@ -256,7 +247,7 @@ class AutoValuePojoProcessorDelegateTest {
                     $FOOTER
                     """,
                 jfos = *jfos,
-                classLoader = classLoader,
+                classpathFiles = classpathFiles,
                 handler = handler
         )
     }
@@ -265,13 +256,13 @@ class AutoValuePojoProcessorDelegateTest {
         pojoCode: String,
         autoValuePojoCode: String,
         vararg jfos: JavaFileObject,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
         val pojoJFO = pojoCode.toJFO(MY_POJO.toString())
         val autoValuePojoJFO = autoValuePojoCode.toJFO(AUTOVALUE_MY_POJO.toString())
         val all = (jfos.toList() + pojoJFO + autoValuePojoJFO).toTypedArray()
-        return simpleRun(*all, classLoader = classLoader) { invocation ->
+        return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
             handler.invoke(
                     PojoProcessor.createFor(context = invocation.context,
                             element = invocation.typeElement(MY_POJO.toString()),
