@@ -115,7 +115,7 @@ public class TypefaceCompat {
             final int timeout = isRequestFromLayoutInflator ? providerEntry.getTimeout()
                     : FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE;
             typeface = FontsContractCompat.getFontSync(context, providerEntry.getRequest(),
-                    fontCallback, handler, isBlocking, timeout, style, isRequestFromLayoutInflator);
+                    fontCallback, handler, isBlocking, timeout, style);
         } else {
             typeface = sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(
                     context, (FontFamilyFilesResourceEntry) entry, resources, style);
