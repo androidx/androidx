@@ -25,12 +25,13 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.support.customtabs.trusted.ITrustedWebActivityService;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
- * TrustedWebActivityServiceWrapper is used by a Trusted Web Activity provider app to wrap calls to
+ * TrustedWebActivityServiceWrapper is used by a Trusted Web Activity provider to wrap calls to
  * the {@link TrustedWebActivityService} in the client app.
  * All of these calls except {@link #getComponentName()} forward over IPC
  * to corresponding calls on {@link TrustedWebActivityService}, eg {@link #getSmallIconId()}
@@ -38,10 +39,7 @@ import androidx.annotation.RestrictTo;
  * <p>
  * These IPC calls are synchronous, though the {@link TrustedWebActivityService} method may hit the
  * disk. Therefore it is recommended to call them on a background thread (without StrictMode).
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TrustedWebActivityServiceWrapper {
     // Inputs.
     private static final String KEY_PLATFORM_TAG =
@@ -59,11 +57,16 @@ public class TrustedWebActivityServiceWrapper {
     private static final String KEY_NOTIFICATION_SUCCESS =
             "android.support.customtabs.trusted.NOTIFICATION_SUCCESS";
 
+    private static final String REMOTE_EXCEPTION_MESSAGE = "RemoteException while trying to "
+            + "communicate with the TrustedWebActivityService, this is probably because the "
+            + "service died while attempting to respond. Check to see if the service crashed for "
+            + "some reason.";
+
     private final ITrustedWebActivityService mService;
     private final ComponentName mComponentName;
 
-    TrustedWebActivityServiceWrapper(ITrustedWebActivityService service,
-            ComponentName componentName) {
+    TrustedWebActivityServiceWrapper(@NonNull ITrustedWebActivityService service,
+            @NonNull ComponentName componentName) {
         mService = service;
         mComponentName = componentName;
     }
@@ -72,11 +75,14 @@ public class TrustedWebActivityServiceWrapper {
      * Checks whether notifications are enabled.
      * @param channelName The name of the channel to check enabled status. Only used on Android O+.
      * @return Whether notifications or the notification channel is blocked for the client app.
-     * @throws RemoteException If the Service dies while responding to the request.
      */
-    public boolean areNotificationsEnabled(String channelName) throws RemoteException {
-        Bundle args = new NotificationsEnabledArgs(channelName).toBundle();
-        return ResultArgs.fromBundle(mService.areNotificationsEnabled(args)).success;
+    public boolean areNotificationsEnabled(@NonNull String channelName) {
+        try {
+            Bundle args = new NotificationsEnabledArgs(channelName).toBundle();
+            return ResultArgs.fromBundle(mService.areNotificationsEnabled(args)).success;
+        } catch (RemoteException e) {
+            throw new RuntimeException("Failure when connecting to TrustedWebActivityService", e);
+        }
     }
 
     /**
@@ -87,27 +93,32 @@ public class TrustedWebActivityServiceWrapper {
      * @param channel The name of the channel in the Trusted Web Activity client app to display the
      *                notification on.
      * @return Whether notifications or the notification channel are blocked for the client app.
-     * @throws RemoteException If the Service dies while responding to the request.
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      */
-    public boolean notify(String platformTag, int platformId, Notification notification,
-            String channel) throws RemoteException, SecurityException {
-        Bundle args = new NotifyNotificationArgs(platformTag, platformId, notification, channel)
-                .toBundle();
-        return ResultArgs.fromBundle(mService.notifyNotificationWithChannel(args)).success;
+    public boolean notify(@NonNull String platformTag, int platformId,
+            @NonNull Notification notification, @NonNull String channel) {
+        try {
+            Bundle args = new NotifyNotificationArgs(platformTag, platformId, notification, channel)
+                    .toBundle();
+            return ResultArgs.fromBundle(mService.notifyNotificationWithChannel(args)).success;
+        } catch (RemoteException e) {
+            throw new RuntimeException(REMOTE_EXCEPTION_MESSAGE, e);
+        }
     }
 
     /**
      * Requests a notification be cancelled.
      * @param platformTag The tag to identify the notification.
      * @param platformId The id to identify the notification.
-     * @throws RemoteException If the Service dies while responding to the request.
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      */
-    public void cancel(String platformTag, int platformId)
-            throws RemoteException, SecurityException {
-        Bundle args = new CancelNotificationArgs(platformTag, platformId).toBundle();
-        mService.cancelNotification(args);
+    public void cancel(@NonNull String platformTag, int platformId) {
+        try {
+            Bundle args = new CancelNotificationArgs(platformTag, platformId).toBundle();
+            mService.cancelNotification(args);
+        } catch (RemoteException e) {
+            throw new RuntimeException(REMOTE_EXCEPTION_MESSAGE, e);
+        }
     }
 
     /**
@@ -115,47 +126,57 @@ public class TrustedWebActivityServiceWrapper {
      * Android M and above.
      * @return An StatusBarNotification[] as a Parcelable[]. This is so this code can compile for
      *         Jellybean (even if it must not be called for pre-Marshmallow).
-     * @throws RemoteException If the Service dies while responding to the request.
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      * @throws IllegalStateException If called on Android pre-M.
      *
-     * TODO(peconn): Figure out want to handle the return type before making this public.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(Build.VERSION_CODES.M)
-    public Parcelable[] getActiveNotifications()
-            throws RemoteException, SecurityException, IllegalStateException {
-        Bundle notifications = mService.getActiveNotifications();
-        return ActiveNotificationsArgs.fromBundle(notifications).notifications;
+    public Parcelable[] getActiveNotifications() {
+        try {
+            Bundle notifications = mService.getActiveNotifications();
+            return ActiveNotificationsArgs.fromBundle(notifications).notifications;
+        } catch (RemoteException e) {
+            throw new RuntimeException(REMOTE_EXCEPTION_MESSAGE, e);
+        }
     }
 
     /**
      * Requests an Android resource id to be used for the notification small icon.
      * @return An Android resource id for the notification small icon. -1 if non found.
-     * @throws RemoteException If the Service dies while responding to the request.
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      */
-    public int getSmallIconId() throws RemoteException, SecurityException {
-        return mService.getSmallIconId();
+    public int getSmallIconId() {
+        try {
+            return mService.getSmallIconId();
+        } catch (RemoteException e) {
+            throw new RuntimeException(REMOTE_EXCEPTION_MESSAGE, e);
+        }
     }
 
     /**
      * Requests a bitmap of a small icon to be used for the notification
      * small icon. The bitmap is decoded on the side of Trusted Web Activity client using
      * the resource id from {@link TrustedWebActivityService#getSmallIconId}.
-     * @return {@link SmallIconData} with both an id and a bitmap
-     * @throws RemoteException If the Service dies while responding to the request.
+     * @return A {@link Bitmap} to be used for the small icon.
      * @throws SecurityException If verification with the TrustedWebActivityService fails.
      */
     @Nullable
-    public Bitmap getSmallIconBitmap() throws RemoteException, SecurityException {
-        return mService.getSmallIconBitmap()
-                .getParcelable(TrustedWebActivityService.KEY_SMALL_ICON_BITMAP);
+    public Bitmap getSmallIconBitmap() {
+        try {
+            return mService.getSmallIconBitmap()
+                    .getParcelable(TrustedWebActivityService.KEY_SMALL_ICON_BITMAP);
+        } catch (RemoteException e) {
+            throw new RuntimeException(REMOTE_EXCEPTION_MESSAGE, e);
+        }
     }
 
     /**
      * Gets the {@link ComponentName} of the connected Trusted Web Activity client app.
      * @return The Trusted Web Activity client app component name.
      */
+    @NonNull
     public ComponentName getComponentName() {
         return mComponentName;
     }

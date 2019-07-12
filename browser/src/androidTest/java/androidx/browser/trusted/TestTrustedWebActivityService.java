@@ -19,26 +19,28 @@ package androidx.browser.trusted;
 import android.app.Notification;
 import android.os.Parcelable;
 
+import androidx.annotation.NonNull;
+
 public class TestTrustedWebActivityService extends TrustedWebActivityService {
     public static final int SMALL_ICON_ID = 666;
 
     @Override
-    protected boolean notifyNotificationWithChannel(String platformTag, int platformId,
-            Notification notification, String channelName) {
+    public boolean notifyNotificationWithChannel(@NonNull String platformTag, int platformId,
+            @NonNull Notification notification, @NonNull String channelName) {
         return true;
     }
 
     @Override
-    protected void cancelNotification(String platformTag, int platformId) {
+    public void cancelNotification(@NonNull String platformTag, int platformId) {
     }
 
     @Override
-    protected Parcelable[] getActiveNotifications() {
+    public Parcelable[] getActiveNotifications() {
         return new Parcelable[] { null };
     }
 
     @Override
-    protected int getSmallIconId() {
+    public int getSmallIconId() {
         return SMALL_ICON_ID;
     }
 }
