@@ -308,15 +308,16 @@ public class MediaControllerTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testSetMediaItem() throws InterruptedException {
+    public void testSetMediaItem() throws Exception {
         prepareLooper();
-        final MediaItem item = TestUtils.createMediaItemWithMetadata();
-        mController.setMediaItem(item.getMetadata()
-                .getString(MediaMetadata.METADATA_KEY_MEDIA_ID));
+        String mediaId = "testSetMediaItem";
+        int resultCode = mController.setMediaItem(mediaId).get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                .getResultCode();
+        assertEquals(RESULT_SUCCESS, resultCode);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertNull(mPlayer.mMetadata);
-        assertEquals(item.getMediaId(), mPlayer.mItem.getMediaId());
+        assertEquals(mediaId, mPlayer.mItem.getMediaId());
     }
 
     /**
