@@ -136,6 +136,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private static boolean sInstalledExceptionHandler;
 
+    /**
+     * AppCompat selectively uses applyOverrideConfiguration() for DayNight functionality.
+     * Unfortunately the framework has a few bugs around Resources instances on SDKs 21-25,
+     * resulting in the root Resources instance (i.e. Application) being modified when it
+     * shouldn't be. We can work around it by always calling applyOverrideConfiguration()
+     * where available.
+     */
+    private static final boolean sAlwaysOverrideConfiguration = Build.VERSION.SDK_INT >= 21
+            && Build.VERSION.SDK_INT <= 25;
+
     static final String EXCEPTION_HANDLER_MESSAGE_SUFFIX= ". If the resource you are"
             + " trying to use is a vector resource, you may be referencing it in an unsupported"
             + " way. See AppCompatDelegate.setCompatVectorFromResourcesEnabled() for more info.";
@@ -2258,7 +2268,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         final boolean activityHandlingUiMode = isActivityManifestHandlingUiMode();
 
-        if (newNightMode != applicationNightMode
+        if ((sAlwaysOverrideConfiguration || newNightMode != applicationNightMode)
                 && !activityHandlingUiMode
                 && Build.VERSION.SDK_INT >= 17
                 && !mBaseContextAttached
