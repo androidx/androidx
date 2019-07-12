@@ -247,19 +247,19 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
 
     private fun RecordingCallback.assertScrollTowardsSelectedPage() {
         var target = 0
-        var prevPosition = 0f
+        var prevPosition = 0.0
         events.forEach {
             when (it) {
                 is OnPageSelectedEvent -> target = it.position
-                is Event.OnPageScrolledEvent -> {
-                    val currentPosition = it.position + it.positionOffset
+                is OnPageScrolledEvent -> {
+                    val currentPosition = it.position + it.positionOffset.toDouble()
                     assertThat(
                         "Scroll event fired before page selected event",
                         target, not(equalTo(-1))
                     )
                     assertThat(
                         "Scroll event not between start and destination",
-                        currentPosition, isBetweenInInMinMax(prevPosition, target.toFloat())
+                        currentPosition, isBetweenInInMinMax(prevPosition, target.toDouble())
                     )
                     prevPosition = currentPosition
                 }

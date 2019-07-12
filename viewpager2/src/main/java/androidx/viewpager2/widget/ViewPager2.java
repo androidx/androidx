@@ -627,7 +627,7 @@ public final class ViewPager2 extends ViewGroup {
 
         // 2. Update the item internally
 
-        float previousItem = mCurrentItem;
+        double previousItem = mCurrentItem;
         mCurrentItem = item;
         mAccessibilityProvider.onSetNewCurrentItem();
 
@@ -891,9 +891,9 @@ public final class ViewPager2 extends ViewGroup {
         if (mPageTransformerAdapter.getPageTransformer() == null) {
             return;
         }
-        float relativePosition = mScrollEventAdapter.getRelativeScrollPosition();
+        double relativePosition = mScrollEventAdapter.getRelativeScrollPosition();
         int position = (int) relativePosition;
-        float positionOffset = relativePosition - position;
+        float positionOffset = (float) (relativePosition - position);
         int positionOffsetPx = Math.round(getPageSize() * positionOffset);
         mPageTransformerAdapter.onPageScrolled(position, positionOffset, positionOffsetPx);
     }

@@ -194,7 +194,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             val tracker = PositionTracker().also { test.viewPager.registerOnPageChangeCallback(it) }
             val targetPage = test.viewPager.currentItem + 1
             startFakeDragWhileSettling(targetPage,
-                { targetPage - tracker.lastPosition }, targetPage, true)
+                { (targetPage - tracker.lastPosition).toFloat() }, targetPage, true)
             test.viewPager.unregisterOnPageChangeCallback(tracker)
         }
     }
@@ -216,7 +216,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             val targetPage = test.viewPager.currentItem + 1
             val nextPage = targetPage + 1
             startFakeDragWhileSettling(targetPage,
-                { nextPage - tracker.lastPosition }, nextPage, true)
+                { (nextPage - tracker.lastPosition).toFloat() }, nextPage, true)
             test.viewPager.unregisterOnPageChangeCallback(tracker)
         }
     }
@@ -428,11 +428,11 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                             "state already left SETTLING")
                 }
                 // Check 2: setCurrentItem should not have finished
-                if (settleTarget - currPosition <= 0f) {
+                if (settleTarget - currPosition <= 0) {
                     throw RetryException("Interruption of SETTLING too late: already at target")
                 }
                 // Check 3: fake drag should not overshoot its target
-                if (expectedFinalPage - currPosition < dragDistance) {
+                if ((expectedFinalPage - currPosition).toFloat() < dragDistance) {
                     throw RetryException("Interruption of SETTLING too late: already closer than " +
                             "$dragDistance from target")
                 }
@@ -559,10 +559,10 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
-    private val ViewPager2.relativeScrollPosition: Float
+    private val ViewPager2.relativeScrollPosition: Double
         get() {
             val scrollEventAdapter = mScrollEventAdapterField.get(this)
-            return getRelativeScrollPositionMethod.invoke(scrollEventAdapter) as Float
+            return getRelativeScrollPositionMethod.invoke(scrollEventAdapter) as Double
         }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
@@ -690,16 +690,16 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         otherPage: Int,
         pageSize: Int
     ) = forEach {
-        assertThat(it.position + it.positionOffset,
-            isBetweenInInMinMax(initialPage.toFloat(), otherPage.toFloat()))
+        assertThat(it.position + it.positionOffset.toDouble(),
+            isBetweenInInMinMax(initialPage.toDouble(), otherPage.toDouble()))
         assertThat(it.positionOffset, isBetweenInEx(0f, 1f))
         assertThat((it.positionOffset * pageSize).roundToInt(), equalTo(it.positionOffsetPixels))
     }
 
     private class PositionTracker : ViewPager2.OnPageChangeCallback() {
-        var lastPosition = 0f
+        var lastPosition = 0.0
         override fun onPageScrolled(position: Int, offset: Float, offsetPx: Int) {
-            lastPosition = position + offset
+            lastPosition = position + offset.toDouble()
         }
     }
 }
