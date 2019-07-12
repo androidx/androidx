@@ -257,7 +257,6 @@ includeProject(":support-transition-demos", new File(samplesRoot, "SupportTransi
 includeProject(":support-vector-drawable-demos", new File(samplesRoot, "SupportVectorDrawableDemos"))
 includeProject(":support-v4-demos", new File(samplesRoot, "Support4Demos"))
 includeProject(":support-v7-demos", new File(samplesRoot, "Support7Demos"))
-includeProject(":support-v13-demos", new File(samplesRoot, "Support13Demos"))
 includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"))
 
 /////////////////////////////
