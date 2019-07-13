@@ -490,7 +490,7 @@ class QueryInterpreterTest {
     @Test
     fun joinAndAbandonEntity() {
         val all = ENTITIES
-        simpleRun(*all, classLoader = javaClass.classLoader) { invocation ->
+        simpleRun(*all) { invocation ->
             val entities = invocation.roundEnv
                 .getElementsAnnotatedWith(androidx.room.Entity::class.java)
                 .map { element ->
@@ -577,11 +577,10 @@ class QueryInterpreterTest {
         name: String,
         input: String,
         original: String,
-        classLoader: ClassLoader = javaClass.classLoader,
         handler: (expanded: String, invocation: TestInvocation) -> Unit
     ): CompileTester {
         val all = ENTITIES + JavaFileObjects.forSourceString(name, DATABASE_PREFIX + input)
-        return simpleRun(*all, classLoader = classLoader) { invocation ->
+        return simpleRun(*all) { invocation ->
             val entities = invocation.roundEnv
                 .getElementsAnnotatedWith(androidx.room.Entity::class.java)
                 .map { element ->

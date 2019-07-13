@@ -26,6 +26,7 @@ import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubjectFactory
+import java.io.File
 import javax.tools.JavaFileObject
 
 abstract class BaseEntityParserTest {
@@ -46,7 +47,7 @@ abstract class BaseEntityParserTest {
         attributes: Map<String, String> = mapOf(),
         baseClass: String = "",
         jfos: List<JavaFileObject> = emptyList(),
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Entity, TestInvocation) -> Unit
     ): CompileTester {
         val attributesReplacement: String
@@ -68,7 +69,11 @@ abstract class BaseEntityParserTest {
                         ENTITY_PREFIX.format(attributesReplacement, baseClassReplacement) +
                                 input + ENTITY_SUFFIX
                 ))
-                .withClasspathFrom(classLoader)
+                .apply {
+                    if (classpathFiles.isNotEmpty()) {
+                        withClasspath(classpathFiles)
+                    }
+                }
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Entity::class,
                                 androidx.room.PrimaryKey::class,

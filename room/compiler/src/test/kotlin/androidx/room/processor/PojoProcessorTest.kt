@@ -51,6 +51,7 @@ import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import simpleRun
 import toJFO
+import java.io.File
 import javax.lang.model.element.Element
 import javax.tools.JavaFileObject
 
@@ -1494,7 +1495,7 @@ class PojoProcessorTest {
     private fun singleRun(
         code: String,
         vararg jfos: JavaFileObject,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
         val pojoCode = """
@@ -1505,7 +1506,7 @@ class PojoProcessorTest {
         return singleRunFullClass(
             code = pojoCode,
             jfos = *jfos,
-            classLoader = classLoader,
+            classpathFiles = classpathFiles,
             handler = handler
         )
     }
@@ -1513,12 +1514,12 @@ class PojoProcessorTest {
     private fun singleRunFullClass(
         code: String,
         vararg jfos: JavaFileObject,
-        classLoader: ClassLoader = javaClass.classLoader,
+        classpathFiles: Set<File> = emptySet(),
         handler: (Pojo, TestInvocation) -> Unit
     ): CompileTester {
         val pojoJFO = code.toJFO(MY_POJO.toString())
         val all = (jfos.toList() + pojoJFO).toTypedArray()
-        return simpleRun(*all, classLoader = classLoader) { invocation ->
+        return simpleRun(*all, classpathFiles = classpathFiles) { invocation ->
             handler.invoke(
                 PojoProcessor.createFor(context = invocation.context,
                         element = invocation.typeElement(MY_POJO.toString()),

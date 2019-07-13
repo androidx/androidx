@@ -76,7 +76,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
 
     @Test
     fun noGetterInLibraryClass() {
-        val libraryClassLoader = compileLibrarySource(
+        val libraryClasspath = compileLibrarySource(
                 "test.library.MissingGetterEntity",
                 """
                 @Entity
@@ -88,7 +88,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """)
         singleEntity("",
                 baseClass = "test.library.MissingGetterEntity",
-                classLoader = libraryClassLoader) { _, _ -> }
+                classpathFiles = libraryClasspath) { _, _ -> }
                 .failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD +
                         " - id in test.library.MissingGetterEntity")
