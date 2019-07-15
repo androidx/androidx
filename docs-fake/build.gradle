@@ -35,6 +35,7 @@ def reentrance = false
 project.tasks.whenTaskAdded { task ->
     if (task instanceof org.gradle.api.tasks.testing.Test
             || task.name.startsWith("assemble")
+            || task.name == "lint"
             || task.name == "transformDexArchiveWithExternalLibsDexMergerForPublicDebug"
             || task.name == "transformResourcesWithMergeJavaResForPublicDebug"
             || task.name == "checkPublicDebugDuplicateClasses") {
@@ -45,6 +46,9 @@ project.tasks.whenTaskAdded { task ->
         }
     }
 }
+
+// Also replace some tasks that will have already been created (and not trigger `whenTaskAdded`)
+project.tasks.replace("lint")
 
 android {
     defaultConfig {

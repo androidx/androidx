@@ -52,5 +52,3 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testAnnotationProcessor(project(":lifecycle:lifecycle-compiler"))
 }
-
-tasks['check'].dependsOn(tasks['connectedCheck'])
