@@ -167,7 +167,9 @@ sealed class ComponentNode : Emittable {
      * Execute [block] on all children of this ComponentNode.
      */
     fun visitChildren(block: (ComponentNode) -> Unit) {
-        children.forEach(block)
+        for (i in 0 until children.size) {
+            block(children[i])
+        }
     }
 
     /**
