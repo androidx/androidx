@@ -17,11 +17,11 @@
 package androidx.media2.player.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
 import static androidx.media2.player.exoplayer.RenderersFactory.AUDIO_RENDERER_INDEX;
 import static androidx.media2.player.exoplayer.RenderersFactory.METADATA_RENDERER_INDEX;
 import static androidx.media2.player.exoplayer.RenderersFactory.TEXT_RENDERER_INDEX;
@@ -39,6 +39,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.Format;
 import androidx.media2.exoplayer.external.source.TrackGroup;
@@ -48,8 +49,6 @@ import androidx.media2.exoplayer.external.trackselection.MappingTrackSelector;
 import androidx.media2.exoplayer.external.trackselection.TrackSelection;
 import androidx.media2.exoplayer.external.trackselection.TrackSelectionArray;
 import androidx.media2.exoplayer.external.util.MimeTypes;
-import androidx.media2.player.MediaPlayer2;
-import androidx.media2.player.common.TrackInfoImpl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -244,7 +243,7 @@ import java.util.List;
         return pendingMetadataUpdate;
     }
 
-    public MediaPlayer2.TrackInfo getSelectedTrack(int trackType) {
+    public TrackInfo getSelectedTrack(int trackType) {
         switch (trackType) {
             case MEDIA_TRACK_TYPE_AUDIO:
                 return mSelectedAudioTrack == null ? null
@@ -264,8 +263,8 @@ import java.util.List;
         }
     }
 
-    public List<MediaPlayer2.TrackInfo> getTrackInfos() {
-        ArrayList<MediaPlayer2.TrackInfo> externalTracks = new ArrayList<>();
+    public List<TrackInfo> getTrackInfos() {
+        ArrayList<TrackInfo> externalTracks = new ArrayList<>();
         for (SparseArray<? extends InternalTrackInfo> tracks : Arrays.asList(
                 mAudioTracks, mVideoTracks, mMetadataTracks, mTextTracks)) {
             for (int i = 0; i < tracks.size(); i++) {
@@ -374,12 +373,12 @@ import java.util.List;
 
     static class InternalTrackInfo {
         final int mPlayerTrackIndex;
-        final TrackInfoImpl mExternalTrackInfo;
+        final TrackInfo mExternalTrackInfo;
 
         InternalTrackInfo(int playerTrackIndex, int trackInfoType, @Nullable MediaFormat format,
                 int trackId) {
             mPlayerTrackIndex = playerTrackIndex;
-            mExternalTrackInfo = new TrackInfoImpl(trackId, trackInfoType, format);
+            mExternalTrackInfo = new TrackInfo(trackId, trackInfoType, format);
         }
     }
 
@@ -407,8 +406,8 @@ import java.util.List;
         private static int getTrackInfoType(@TextRenderer.TextTrackType int type) {
             // Hide WebVTT tracks, like the NuPlayer-based implementation
             // (see [internal: b/120081663]).
-            return type == TRACK_TYPE_WEBVTT ? MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN
-                    : MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
+            return type == TRACK_TYPE_WEBVTT ? TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN
+                    : TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
         }
 
         private static MediaFormat getMediaFormat(@TextRenderer.TextTrackType int type,

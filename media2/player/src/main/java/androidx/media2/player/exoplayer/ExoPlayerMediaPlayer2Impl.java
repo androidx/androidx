@@ -38,6 +38,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.player.MediaPlayer2;

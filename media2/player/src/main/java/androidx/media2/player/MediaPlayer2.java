@@ -23,7 +23,6 @@ import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
-import android.media.MediaFormat;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.view.Surface;
@@ -36,6 +35,7 @@ import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.player.exoplayer.ExoPlayerMediaPlayer2Impl;
 
@@ -729,63 +729,6 @@ public abstract class MediaPlayer2 {
      */
     // This is an asynchronous call.
     public abstract Object setAuxEffectSendLevel(float level);
-
-    /**
-     * Class for MediaPlayer2 to return each audio/video/subtitle track's metadata.
-     *
-     * @see MediaPlayer2#getTrackInfo
-     */
-    public abstract static class TrackInfo {
-        /**
-         * Gets the id of the track.
-         */
-        public abstract int getId();
-
-        /**
-         * Gets the track type.
-         *
-         * @return TrackType which indicates if the track is video, audio, subtitle.
-         */
-        public abstract int getTrackType();
-
-        /**
-         * Gets the language code of the track.
-         *
-         * @return a language code in either way of ISO-639-1 or ISO-639-2.
-         * When the language is unknown or could not be determined,
-         * ISO-639-2 language code, "und", is returned.
-         */
-        public abstract String getLanguage();
-
-        /**
-         * Gets the {@link MediaFormat} of the track.  If the format is
-         * unknown or could not be determined, null is returned.
-         */
-        public abstract MediaFormat getFormat();
-
-        public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
-        public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
-        public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
-
-        public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
-        public static final int MEDIA_TRACK_TYPE_METADATA = 5;
-
-        @Override
-        public abstract String toString();
-
-        @Override
-        public int hashCode() {
-            return getId();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (!(obj instanceof TrackInfo)) return false;
-            TrackInfo other = (TrackInfo) obj;
-            return getId() == other.getId();
-        }
-    }
 
     /**
      * Returns a List of track information.

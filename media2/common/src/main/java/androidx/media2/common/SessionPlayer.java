@@ -23,7 +23,6 @@ import android.media.MediaFormat;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 
@@ -1003,6 +1002,7 @@ public abstract class SessionPlayer implements AutoCloseable {
         @ParcelField(1)
         int mId;
         @ParcelField(2)
+        @Deprecated
         MediaItem mUpCastMediaItem;
         @ParcelField(3)
         int mTrackType;
@@ -1010,9 +1010,8 @@ public abstract class SessionPlayer implements AutoCloseable {
         Bundle mParcelledFormat;
 
         @NonParcelField
+        @Nullable
         MediaFormat mFormat;
-        @NonParcelField
-        MediaItem mMediaItem;
 
         /**
          * Used for VersionedParcelable
@@ -1021,9 +1020,8 @@ public abstract class SessionPlayer implements AutoCloseable {
             // no-op
         }
 
-        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {
+        public TrackInfo(int id, int type, @Nullable MediaFormat format) {
             mId = id;
-            mMediaItem = item;
             mTrackType = type;
             mFormat = format;
         }
@@ -1062,22 +1060,26 @@ public abstract class SessionPlayer implements AutoCloseable {
             return null;
         }
 
+        /**
+         * Gets the id of the track.
+         * The id is used by {@link #selectTrackInternal(TrackInfo)} and
+         * {@link #deselectTrackInternal(TrackInfo)} to identify the track to be (de)selected.
+         * So, it's highly recommended to ensure that the id of each track is unique across
+         * {@link MediaItem}s to avoid potential mis-selection when a stale {@link TrackInfo} is
+         * used.
+         *
+         * @return id of the track
+         */
         public int getId() {
             return mId;
-        }
-
-        @Nullable
-        public MediaItem getMediaItem() {
-            return mMediaItem;
         }
 
         @Override
         public String toString() {
             StringBuilder out = new StringBuilder(128);
             out.append(getClass().getName());
-            out.append(", id: ").append(mId);
-            out.append(", MediaItem: " + mMediaItem);
-            out.append(", TrackType: ");
+            out.append('#').append(mId);
+            out.append('{');
             switch (mTrackType) {
                 case MEDIA_TRACK_TYPE_VIDEO:
                     out.append("VIDEO");
@@ -1088,29 +1090,21 @@ public abstract class SessionPlayer implements AutoCloseable {
                 case MEDIA_TRACK_TYPE_SUBTITLE:
                     out.append("SUBTITLE");
                     break;
+                case MEDIA_TRACK_TYPE_METADATA:
+                    out.append("METADATA");
+                    break;
                 default:
                     out.append("UNKNOWN");
                     break;
             }
-            out.append(", Format: " + mFormat);
+            out.append(", ").append(mFormat);
+            out.append("}");
             return out.toString();
         }
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + mId;
-            int hashCode = 0;
-            if (mMediaItem != null) {
-                if (mMediaItem.getMediaId() != null) {
-                    hashCode = mMediaItem.getMediaId().hashCode();
-                } else {
-                    hashCode = mMediaItem.hashCode();
-                }
-            }
-            result = prime * result + hashCode;
-            return result;
+            return mId;
         }
 
         @Override
@@ -1118,47 +1112,11 @@ public abstract class SessionPlayer implements AutoCloseable {
             if (this == obj) {
                 return true;
             }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!(obj instanceof TrackInfo)) {
                 return false;
             }
             TrackInfo other = (TrackInfo) obj;
-            if (mId != other.mId) {
-                return false;
-            }
-            if (mTrackType != other.mTrackType) {
-                return false;
-            }
-            if (mFormat == null && other.mFormat == null) {
-                // continue
-            } else if (mFormat == null && other.mFormat != null) {
-                return false;
-            } else if (mFormat != null && other.mFormat == null) {
-                return false;
-            } else {
-                if (!stringEquals(MediaFormat.KEY_LANGUAGE, mFormat, other.mFormat)
-                        || !stringEquals(MediaFormat.KEY_MIME, mFormat, other.mFormat)
-                        || !intEquals(MediaFormat.KEY_IS_FORCED_SUBTITLE, mFormat, other.mFormat)
-                        || !intEquals(MediaFormat.KEY_IS_AUTOSELECT, mFormat, other.mFormat)
-                        || !intEquals(MediaFormat.KEY_IS_DEFAULT, mFormat, other.mFormat)) {
-                    return false;
-                }
-            }
-            // TODO (b/131873726): Replace this with MediaItem#getMediaId once media id is
-            // guaranteed to be NonNull.
-            if (mMediaItem == null && other.mMediaItem == null) {
-                return true;
-            } else if (mMediaItem == null || other.mMediaItem == null) {
-                return false;
-            } else {
-                String mediaId = mMediaItem.getMediaId();
-                if (mediaId != null) {
-                    return mediaId.equals(other.mMediaItem.getMediaId());
-                }
-                return mMediaItem.equals(other.mMediaItem);
-            }
+            return mId == other.mId;
         }
 
         @Override
@@ -1171,11 +1129,6 @@ public abstract class SessionPlayer implements AutoCloseable {
                 parcelIntValue(MediaFormat.KEY_IS_AUTOSELECT);
                 parcelIntValue(MediaFormat.KEY_IS_DEFAULT);
             }
-
-            // Up-cast MediaItem's subclass object to MediaItem class.
-            if (mMediaItem != null && mUpCastMediaItem == null) {
-                mUpCastMediaItem = new MediaItem(mMediaItem);
-            }
         }
 
         @Override
@@ -1187,23 +1140,6 @@ public abstract class SessionPlayer implements AutoCloseable {
                 unparcelIntValue(MediaFormat.KEY_IS_FORCED_SUBTITLE);
                 unparcelIntValue(MediaFormat.KEY_IS_AUTOSELECT);
                 unparcelIntValue(MediaFormat.KEY_IS_DEFAULT);
-            }
-            if (mMediaItem == null) {
-                mMediaItem = mUpCastMediaItem;
-            }
-        }
-
-        private boolean stringEquals(String key, MediaFormat format1, MediaFormat format2) {
-            return TextUtils.equals(format1.getString(key), format2.getString(key));
-        }
-
-        private boolean intEquals(String key, MediaFormat format1, MediaFormat format2) {
-            boolean exists1 = format1.containsKey(key);
-            boolean exists2 = format2.containsKey(key);
-            if (exists1 && exists2) {
-                return format1.getInteger(key) == format2.getInteger(key);
-            } else {
-                return !exists1 && !exists2;
             }
         }
 

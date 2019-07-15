@@ -17,17 +17,17 @@
 package androidx.media2.player.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
+import static androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
 import static androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_608;
 import static androidx.media2.common.SubtitleData.MIMETYPE_TEXT_CEA_708;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_IO;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_MALFORMED;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_TIMED_OUT;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -189,7 +189,7 @@ import java.net.SocketTimeoutException;
         return MEDIA_ERROR_UNKNOWN;
     }
 
-    /** Returns the ExoPlayer track type for the given MediaPlayer2 track type. */
+    /** Returns the ExoPlayer track type for the given track type. */
     public static int getExoPlayerTrackType(int trackType) {
         switch (trackType) {
             case MEDIA_TRACK_TYPE_AUDIO:
