@@ -15,7 +15,6 @@
  */
 package androidx.annotation;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
@@ -26,26 +25,16 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that the annotated element should have a given size or length.
- * Note that "-1" means "unset". Typically used with a parameter or
- * return value of type array or collection.
+ * Denotes that the annotated element represents a packed color
+ * int, {@code AARRGGBB}. If applied to an int array, every element
+ * in the array represents a color integer.
  * <p>
  * Example:
  * <pre>{@code
- *  public void getLocationInWindow(@Size(2) int[] location) {
- *      ...
- *  }
+ *  public abstract void setTextColor(@ColorInt int color);
  * }</pre>
  */
 @Retention(CLASS)
-@Target({PARAMETER,LOCAL_VARIABLE,METHOD,FIELD,ANNOTATION_TYPE})
-public @interface Size {
-    /** An exact size (or -1 if not specified) */
-    long value() default -1;
-    /** A minimum size, inclusive */
-    long min() default Long.MIN_VALUE;
-    /** A maximum size, inclusive */
-    long max() default Long.MAX_VALUE;
-    /** The size must be a multiple of this factor */
-    long multiple() default 1;
+@Target({PARAMETER, METHOD, LOCAL_VARIABLE, FIELD})
+public @interface ColorInt {
 }

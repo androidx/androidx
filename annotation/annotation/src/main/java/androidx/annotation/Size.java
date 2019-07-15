@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.annotation;
 
 import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
@@ -23,22 +22,33 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to represent a dimension.
+ * Denotes that the annotated element should have a given size or length.
+ * Note that "-1" means "unset". Typically used with a parameter or
+ * return value of type array or collection.
+ * <p>
+ * Example:
+ * <pre>{@code
+ *  public void getLocationInWindow(@Size(2) int[] location) {
+ *      ...
+ *  }
+ * }</pre>
  */
-@Documented
 @Retention(CLASS)
-@Target({METHOD,PARAMETER,FIELD,LOCAL_VARIABLE,ANNOTATION_TYPE})
-public @interface Dimension {
-    @DimensionUnit
-    int unit() default PX;
+@Target({PARAMETER, LOCAL_VARIABLE, METHOD, FIELD, ANNOTATION_TYPE})
+public @interface Size {
+    /** An exact size (or -1 if not specified) */
+    long value() default -1;
 
-    int DP = 0;
-    int PX = 1;
-    int SP = 2;
+    /** A minimum size, inclusive */
+    long min() default Long.MIN_VALUE;
+
+    /** A maximum size, inclusive */
+    long max() default Long.MAX_VALUE;
+
+    /** The size must be a multiple of this factor */
+    long multiple() default 1;
 }

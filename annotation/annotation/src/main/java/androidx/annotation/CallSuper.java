@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,21 +15,24 @@
  */
 package androidx.annotation;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
 /**
- * Typedef for the {@link Dimension#unit} attribute.
- *
- * @hide
+ * Denotes that any overriding methods should invoke this method as well.
+ * <p>
+ * Example:
+ * <pre><code>
+ *  &#64;CallSuper
+ *  public abstract void onFocusLost();
+ * </code></pre>
  */
-@IntDef({Dimension.PX,
-         Dimension.DP,
-         Dimension.SP}
-// Important: If updating these constants, also update
-// ../../../../external-annotations/android/support/annotation/annotations.xml
-)
-@Retention(SOURCE)
-@interface DimensionUnit {
+@Documented
+@Retention(CLASS)
+@Target({METHOD})
+public @interface CallSuper {
 }

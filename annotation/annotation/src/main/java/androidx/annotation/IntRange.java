@@ -15,37 +15,33 @@
  */
 package androidx.annotation;
 
-import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
-import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that the annotated method should only be called on the main thread.
- * If the annotated element is a class, then all methods in the class should be called
- * on the main thread.
+ * Denotes that the annotated element should be an int or long in the given range
  * <p>
  * Example:
  * <pre><code>
- *  &#64;MainThread
- *  public void deliverResult(D data) { ... }
+ *  &#64;IntRange(from=0,to=255)
+ *  public int getAlpha() {
+ *      ...
+ *  }
  * </code></pre>
- *
- * <p class="note"><b>Note:</b> Ordinarily, an app's main thread is also the UI
- * thread. However, under special circumstances, an app's main thread
- * might not be its UI thread; for more information, see
- * <a href="/studio/write/annotations.html#thread-annotations">Thread
- * annotations</a>.
- *
- * @see androidx.annotation.UiThread
  */
-@Documented
 @Retention(CLASS)
-@Target({METHOD,CONSTRUCTOR,TYPE,PARAMETER})
-public @interface MainThread {
+@Target({METHOD, PARAMETER, FIELD, LOCAL_VARIABLE, ANNOTATION_TYPE})
+public @interface IntRange {
+    /** Smallest value, inclusive */
+    long from() default Long.MIN_VALUE;
+
+    /** Largest value, inclusive */
+    long to() default Long.MAX_VALUE;
 }

@@ -40,7 +40,7 @@ import java.lang.annotation.Target;
  *     return object;
  * }</pre>
  */
-@Target({ ElementType.FIELD, ElementType.METHOD })
+@Target({ElementType.FIELD, ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface GuardedBy {
     String value();

@@ -66,6 +66,6 @@ tasks.findByName("compileTestKotlin").dependsOn(generateSdkResource)
 // lifecycle-common and annotation are the dependencies of lifecycle-compiler
 tasks.findByPath("test").dependsOn(tasks.findByPath(":lifecycle:lifecycle-compiler:uploadArchives"),
         tasks.findByPath(":lifecycle:lifecycle-common:uploadArchives"),
-        tasks.findByPath(":annotation:uploadArchives"))
+        tasks.findByPath(":annotation:annotation:uploadArchives"))
 
 uploadArchives.enabled = false
