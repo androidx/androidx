@@ -16,7 +16,6 @@
 
 package androidx.biometric;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -36,6 +35,7 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
@@ -144,7 +144,9 @@ public class FingerprintDialogFragment extends DialogFragment {
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE));
 
-        final View layout = LayoutInflater.from(getContext())
+        // We have to use builder.getContext() instead of the usual getContext() in order to get
+        // the appropriately themed context for this dialog.
+        final View layout = LayoutInflater.from(builder.getContext())
                 .inflate(R.layout.fingerprint_dialog_layout, null);
 
         final TextView subtitleView = layout.findViewById(R.id.fingerprint_subtitle);
