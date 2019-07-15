@@ -56,6 +56,7 @@ import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -130,6 +131,11 @@ public final class Camera2DeviceSurfaceManagerTest {
         when(mMockCamcorderProfileHelper.hasProfile(anyInt(), anyInt())).thenReturn(true);
 
         setupCamera();
+    }
+
+    @After
+    public void tearDown() {
+        CameraX.deinit();
     }
 
     @Test

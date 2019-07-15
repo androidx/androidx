@@ -63,6 +63,17 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
             }
         }
     }
+    /**
+     * Clear all cameras from the repository.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void clear() {
+        synchronized (mCamerasLock) {
+            mCameras.clear();
+        }
+    }
 
     /**
      * Gets a {@link BaseCamera} for the given id.
