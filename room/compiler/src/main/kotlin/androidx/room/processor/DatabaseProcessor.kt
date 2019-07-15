@@ -75,12 +75,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         val allMembers = context.processingEnv.elementUtils.getAllMembers(element)
 
         val views = resolveDatabaseViews(viewsMap.values.toList())
-        val queryInterpreter = QueryInterpreter(entities + views)
-        if (context.expandProjection) {
-            views.forEach { view ->
-                view.query.interpreted = queryInterpreter.interpret(view.query, view)
-            }
-        }
+        val queryInterpreter = QueryInterpreter(context, entities + views)
         val dbVerifier = if (element.hasAnnotation(SkipQueryVerification::class)) {
             null
         } else {
@@ -89,7 +84,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         context.databaseVerifier = dbVerifier
 
         if (dbVerifier != null) {
-            verifyDatabaseViews(viewsMap, dbVerifier, queryInterpreter)
+            verifyDatabaseViews(viewsMap, dbVerifier)
         }
         validateUniqueTableAndViewNames(element, entities, views)
 
@@ -299,37 +294,17 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
 
     private fun verifyDatabaseViews(
         map: Map<TypeElement, DatabaseView>,
-        dbVerifier: DatabaseVerifier,
-        queryInterpreter: QueryInterpreter
+        dbVerifier: DatabaseVerifier
     ) {
-        fun queryIsValid(viewElement: TypeElement, view: DatabaseView): Boolean {
-            val error = view.query.resultInfo?.error
-            return if (error == null) {
-                true
-            } else {
-                context.logger.e(
-                    viewElement,
-                    DatabaseVerificationErrors.cannotVerifyQuery(error)
-                )
-                false
-            }
-        }
         for ((viewElement, view) in map) {
             if (viewElement.hasAnnotation(SkipQueryVerification::class)) {
                 continue
             }
-            // The query has already been interpreted before creating the DatabaseVerifier.
-            // Verify the original query.
             view.query.resultInfo = dbVerifier.analyze(view.query.original)
-            if (!queryIsValid(viewElement, view)) {
-                continue
-            }
-            if (context.expandProjection) {
-                // Reinterpret with the resultInfo.
-                view.query.interpreted = queryInterpreter.interpret(view.query, view)
-                // Verify the interpreted query.
-                view.query.resultInfo = dbVerifier.analyze(view.query.interpreted)
-                queryIsValid(viewElement, view)
+            if (view.query.resultInfo?.error != null) {
+                context.logger.e(viewElement,
+                    DatabaseVerificationErrors.cannotVerifyQuery(
+                        view.query.resultInfo!!.error!!))
             }
         }
     }

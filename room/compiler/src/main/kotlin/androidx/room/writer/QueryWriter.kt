@@ -118,7 +118,7 @@ class QueryWriter constructor(
                 }
             } else {
                 addStatement("final $T $L = $S", String::class.typeName(),
-                        outSqlQueryName, query.interpreted)
+                        outSqlQueryName, query.transformed)
                 if (outArgsName != null) {
                     addStatement("final $T $L = $T.acquire($L, $L)",
                             ROOM_SQL_QUERY, outArgsName, ROOM_SQL_QUERY, outSqlQueryName,

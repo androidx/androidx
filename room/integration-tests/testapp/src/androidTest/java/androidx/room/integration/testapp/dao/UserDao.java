@@ -315,4 +315,7 @@ public abstract class UserDao {
 
     @Update
     public abstract ListenableFuture<Void> updateWithVoidFuture(User user);
+
+    @Query("UPDATE user SET mName = :name, mLastName = :name WHERE mId = :userId")
+    public abstract void setSameNames(String name, int userId);
 }

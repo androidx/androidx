@@ -16,7 +16,9 @@
 
 package androidx.room.parser
 
+import androidx.room.processor.QueryInterpreter
 import androidx.room.verifier.QueryResultInfo
+import androidx.room.vo.Pojo
 
 sealed class Section {
 
@@ -70,12 +72,13 @@ data class SectionInfo(
 )
 
 data class ParsedQuery(
+    // original query as written by user, code writers should use transformed query that has been
+    // processed and optimized.
     val original: String,
     val type: QueryType,
     val inputs: List<SectionInfo>,
     val projections: List<SectionInfo>,
     val explicitColumns: List<String>,
-    // pairs of table name and alias,
     val tables: Set<Table>,
     val syntaxErrors: List<String>,
     val runtimeQueryPlaceholder: Boolean
@@ -102,9 +105,20 @@ data class ParsedQuery(
     var resultInfo: QueryResultInfo? = null
 
     /**
-     * Rewritten when the query is interpreted and rewritten by QueryInterpreter.
+     * The transformed query when it is interpreted and rewritten by QueryInterpreter.
      */
-    var interpreted = original
+    var transformed: String = original
+        private set
+
+    /**
+     * Transform the parsed query given an interpreter.
+     */
+    fun transform(interpreter: QueryInterpreter, pojo: Pojo?): String {
+        transformed = interpreter.interpret(this, pojo)
+        return transformed
+    }
+
+    fun isTransformed() = transformed != original
 
     val sections by lazy {
         val specialSections: List<SectionInfo> = (inputs + projections).sortedBy { it.start }

@@ -55,11 +55,12 @@ class QueryMethodProcessor(
         context.checker.check(annotation != null, executableElement,
                 ProcessorErrors.MISSING_QUERY_ANNOTATION)
 
+        val skipQueryVerification = executableElement.hasAnnotation(SkipQueryVerification::class)
         val query = if (annotation != null) {
             val query = SqlParser.parse(annotation.value)
             context.checker.check(query.errors.isEmpty(), executableElement,
                     query.errors.joinToString("\n"))
-            if (!executableElement.hasAnnotation(SkipQueryVerification::class)) {
+            if (!skipQueryVerification) {
                 query.resultInfo = dbVerifier?.analyze(query.original)
             }
             if (query.resultInfo?.error != null) {
@@ -84,6 +85,17 @@ class QueryMethodProcessor(
             getPreparedQueryMethod(delegate, returnType, query)
         } else {
             getQueryMethod(delegate, returnType, query)
+        }
+
+        if (!skipQueryVerification && query.isTransformed()) {
+            // If the query was transformed we need to re-verify it.
+            query.resultInfo = dbVerifier?.analyze(query.transformed)
+            query.resultInfo?.error?.let { error ->
+                context.logger.e(
+                    executableElement,
+                    DatabaseVerificationErrors.cannotVerifyQuery(error)
+                )
+            }
         }
 
         val missing = queryMethod.sectionToParamMapping
@@ -117,6 +129,8 @@ class QueryMethodProcessor(
 
         val parameters = delegate.extractQueryParams()
 
+        query.transform(queryInterpreter, null)
+
         return WriteQueryMethod(
             element = executableElement,
             query = query,
@@ -132,6 +146,7 @@ class QueryMethodProcessor(
         query: ParsedQuery
     ): QueryMethod {
         val resultBinder = delegate.findResultBinder(returnType, query)
+        val rowAdapter = resultBinder.adapter?.rowAdapter
         context.checker.check(
             resultBinder.adapter != null,
             executableElement,
@@ -140,34 +155,20 @@ class QueryMethodProcessor(
         val inTransaction = executableElement.hasAnnotation(Transaction::class)
         if (query.type == QueryType.SELECT && !inTransaction) {
             // put a warning if it is has relations and not annotated w/ transaction
-            resultBinder.adapter?.rowAdapter?.let { rowAdapter ->
-                if (rowAdapter is PojoRowAdapter && rowAdapter.relationCollectors.isNotEmpty()) {
-                    context.logger.w(Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
-                        executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
-                }
+            if (rowAdapter is PojoRowAdapter && rowAdapter.relationCollectors.isNotEmpty()) {
+                context.logger.w(Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
+                    executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
             }
         }
 
         val parameters = delegate.extractQueryParams()
 
-        if (context.expandProjection) {
-            resultBinder.adapter?.rowAdapter?.let { rowAdapter ->
-                if (rowAdapter is PojoRowAdapter) {
-                    query.interpreted = queryInterpreter.interpret(query, rowAdapter.pojo)
-                    if (dbVerifier != null) {
-                        query.resultInfo = dbVerifier.analyze(query.interpreted)
-                        if (query.resultInfo?.error != null) {
-                            context.logger.e(
-                                executableElement,
-                                DatabaseVerificationErrors.cannotVerifyQuery(
-                                    query.resultInfo!!.error!!
-                                )
-                            )
-                        }
-                    }
-                }
-            }
+        val pojo = if (rowAdapter is PojoRowAdapter) {
+            rowAdapter.pojo
+        } else {
+            null
         }
+        query.transform(queryInterpreter, pojo)
 
         return ReadQueryMethod(
             element = executableElement,
