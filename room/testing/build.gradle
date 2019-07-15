@@ -32,7 +32,7 @@ dependencies {
     api(ANDROIDX_SQLITE_FRAMEWORK)
     api(project(":room:room-migration"))
     implementation(ARCH_CORE_RUNTIME)
-    api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
+    api(SUPPORT_CORE_UTILS)
     api(JUNIT)
 }
 

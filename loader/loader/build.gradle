@@ -17,10 +17,10 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
+    api(ARCH_LIFECYCLE_VIEWMODEL)
     implementation("androidx.core:core:1.0.0")
     implementation("androidx.collection:collection:1.0.0")
-    implementation(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
-    api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
+    implementation(ARCH_LIFECYCLE_LIVEDATA_CORE,)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

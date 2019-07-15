@@ -28,7 +28,7 @@ dependencies {
     implementation(project(":slice-core"))
     implementation(project(":slice-builders"))
     implementation(project(":recyclerview:recyclerview"))
-    api(ARCH_LIFECYCLE_LIVEDATA_CORE, libs.exclude_annotations_transitive)
+    api(ARCH_LIFECYCLE_LIVEDATA_CORE)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

@@ -42,7 +42,7 @@ dependencies {
     kapt(ARCH_ROOM_COMPILER)
 
     implementation(MULTIDEX)
-    implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
+    implementation(SUPPORT_RECYCLERVIEW)
     implementation(project(":fragment:fragment-ktx"))
     implementation(project(":appcompat"))
     implementation(KOTLIN_STDLIB)
