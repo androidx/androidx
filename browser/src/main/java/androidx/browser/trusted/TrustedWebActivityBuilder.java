@@ -16,54 +16,77 @@
 
 package androidx.browser.trusted;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.browser.customtabs.TrustedWebUtils;
+import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Constructs and launches an intent to start a Trusted Web Activity.
- *
- * @hide
+ * Constructs and launches an intent to start a Trusted Web Activity (see {@link TrustedWebUtils}
+ * for more details).
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TrustedWebActivityBuilder {
+    /**
+     * Extra for the Trusted Web Activity launch Intent to specify a {@link Bundle} of parameters
+     * for the browser to use in constructing a splash screen.
+     *
+     * It is recommended to use {@link TrustedWebActivityBuilder} instead of manually piecing the
+     * Intent together.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_SPLASH_SCREEN_PARAMS =
+            "androidx.browser.trusted.EXTRA_SPLASH_SCREEN_PARAMS";
+
+    /**
+     * Extra for the Trusted Web Activity launch Intent to specify a list of origins for the
+     * browser to treat as trusted, in addition to the origin of the launching URL.
+     *
+     * It is recommended to use {@link TrustedWebActivityBuilder} instead of manually piecing the
+     * Intent together.
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS =
+            "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
+
     private final Context mContext;
     private final Uri mUri;
 
-    @Nullable
-    private Integer mStatusBarColor;
-
-    @Nullable
-    private List<String> mAdditionalTrustedOrigins;
-
-    @Nullable
-    private Bundle mSplashScreenParams;
+    @Nullable private Integer mStatusBarColor;
+    @Nullable private List<String> mAdditionalTrustedOrigins;
+    @Nullable private Bundle mSplashScreenParams;
 
     /**
      * Creates a Builder given the required parameters.
      * @param context {@link Context} to use.
      * @param uri The web page to launch as Trusted Web Activity.
      */
-    public TrustedWebActivityBuilder(Context context, Uri uri) {
+    public TrustedWebActivityBuilder(@NonNull Context context, @NonNull Uri uri) {
         mContext = context;
         mUri = uri;
     }
 
     /**
      * Sets the status bar color to be seen while the Trusted Web Activity is running.
+     *
+     * @hide
      */
-    public TrustedWebActivityBuilder setStatusBarColor(int color) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
+    public TrustedWebActivityBuilder setStatusBarColor(@ColorInt int color) {
         mStatusBarColor = color;
         return this;
     }
@@ -80,15 +103,16 @@ public class TrustedWebActivityBuilder {
      * Alternatively, use {@link CustomTabsSession#validateRelationship} to validate additional
      * origins asynchronously, but that would delay launching the Trusted Web Activity.
      */
-    public TrustedWebActivityBuilder setAdditionalTrustedOrigins(List<String> origins) {
+    @NonNull
+    public TrustedWebActivityBuilder setAdditionalTrustedOrigins(
+            @NonNull List<String> origins) {
         mAdditionalTrustedOrigins = origins;
         return this;
     }
 
     /**
      * Sets the parameters of a splash screen shown while the web page is loading, such as
-     * background color. See {@link TrustedWebUtils.SplashScreenParamKey} for a list of supported
-     * parameters.
+     * background color. See {@link SplashScreenParamKey} for a list of supported parameters.
      *
      * To provide the image for the splash screen, use {@link TrustedWebUtils#transferSplashImage},
      * prior to calling {@link #launchActivity} on the builder.
@@ -101,7 +125,8 @@ public class TrustedWebActivityBuilder {
      * The splash screen will be removed on the first paint of the page, or when the page load
      * fails.
      */
-    public TrustedWebActivityBuilder setSplashScreenParams(Bundle splashScreenParams) {
+    @NonNull
+    public TrustedWebActivityBuilder setSplashScreenParams(@NonNull Bundle splashScreenParams) {
         mSplashScreenParams = splashScreenParams;
         return this;
     }
@@ -112,7 +137,7 @@ public class TrustedWebActivityBuilder {
      *
      * @param session The {@link CustomTabsSession} to use for launching a Trusted Web Activity.
      */
-    public void launchActivity(CustomTabsSession session) {
+    public void launchActivity(@NonNull CustomTabsSession session) {
         if (session == null) {
             throw new NullPointerException("CustomTabsSession is required for launching a TWA");
         }
@@ -127,12 +152,12 @@ public class TrustedWebActivityBuilder {
         intent.setData(mUri);
         intent.putExtra(TrustedWebUtils.EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY, true);
         if (mAdditionalTrustedOrigins != null) {
-            intent.putExtra(TrustedWebUtils.EXTRA_ADDITIONAL_TRUSTED_ORIGINS,
+            intent.putExtra(EXTRA_ADDITIONAL_TRUSTED_ORIGINS,
                     new ArrayList<>(mAdditionalTrustedOrigins));
         }
 
         if (mSplashScreenParams != null) {
-            intent.putExtra(TrustedWebUtils.EXTRA_SPLASH_SCREEN_PARAMS, mSplashScreenParams);
+            intent.putExtra(EXTRA_SPLASH_SCREEN_PARAMS, mSplashScreenParams);
         }
         ContextCompat.startActivity(mContext, intent, null);
     }
@@ -140,16 +165,20 @@ public class TrustedWebActivityBuilder {
     /**
      * Returns the {@link Uri} to be launched with this Builder.
      */
+    @NonNull
     public Uri getUrl() {
         return mUri;
     }
 
     /**
-     * Returns the color set via {@link #setStatusBarColor(int)} or null if not set.
+     * Returns the color set via {@link #setStatusBarColor(int)} or {@code null} if not set.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
+    @ColorInt
     public Integer getStatusBarColor() {
         return mStatusBarColor;
     }
-
 }

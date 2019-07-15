@@ -68,11 +68,8 @@ public abstract class CustomTabsService extends Service {
 
     /**
      * An Intent filter category to signify that the Custom Tabs provider supports Trusted Web
-     * Activities.
-     *
-     * @hide
+     * Activities (see {@link TrustedWebUtils} for more details).
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String TRUSTED_WEB_ACTIVITY_CATEGORY =
             "androidx.browser.trusted.category.TrustedWebActivities";
 
@@ -134,18 +131,16 @@ public abstract class CustomTabsService extends Service {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FILE_PURPOSE_TWA_SPLASH_IMAGE})
+    @IntDef({FILE_PURPOSE_TRUSTED_WEB_ACTIVITY_SPLASH_IMAGE})
     public @interface FilePurpose {
     }
 
     /**
-     * File is a splash image to be shown on top of a Trusted Web Activity while the web contents
+     * A constant to be used with {@link CustomTabsSession#receiveFile} indicating that the file
+     * is a splash image to be shown on top of a Trusted Web Activity while the web contents
      * are loading.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public static final int FILE_PURPOSE_TWA_SPLASH_IMAGE = 1;
+    public static final int FILE_PURPOSE_TRUSTED_WEB_ACTIVITY_SPLASH_IMAGE = 1;
 
     final SimpleArrayMap<IBinder, DeathRecipient> mDeathRecipientMap = new SimpleArrayMap<>();
 
@@ -415,10 +410,7 @@ public abstract class CustomTabsService extends Service {
      *                {@code CustomTabsService#FilePurpose}.
      * @param extras Reserved for future use.
      * @return {@code true} if the file was received successfully.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected abstract boolean receiveFile(@NonNull CustomTabsSessionToken sessionToken,
             @NonNull Uri uri, @FilePurpose int purpose, @Nullable Bundle extras);
 }

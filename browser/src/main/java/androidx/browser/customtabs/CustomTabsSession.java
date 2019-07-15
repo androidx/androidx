@@ -277,10 +277,7 @@ public final class CustomTabsSession {
      *                {@code CustomTabsService#FilePurpose}.
      * @param extras Reserved for future use.
      * @return {@code true} if the file was received successfully.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean receiveFile(@NonNull Uri uri, @CustomTabsService.FilePurpose int purpose,
             @Nullable Bundle extras) {
         if (extras == null) {
