@@ -25,6 +25,7 @@ import androidx.ui.core.EditorStyle
 import androidx.ui.core.InputField
 import androidx.ui.text.TextRange
 import androidx.ui.input.EditorState
+import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
 import androidx.ui.layout.CrossAxisAlignment
@@ -37,6 +38,17 @@ val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.Number, "Number"),
     Pair(KeyboardType.Email, "Email"),
     Pair(KeyboardType.Phone, "Phone")
+)
+
+val IME_ACTIONS = listOf(
+    Pair(ImeAction.Unspecified, "Unspecified"),
+    Pair(ImeAction.NoAction, "NoAction"),
+    Pair(ImeAction.Go, "Go"),
+    Pair(ImeAction.Search, "Search"),
+    Pair(ImeAction.Send, "Send"),
+    Pair(ImeAction.Next, "Next"),
+    Pair(ImeAction.Done, "Done"),
+    Pair(ImeAction.Previous, "Previous")
 )
 
 @Composable
@@ -53,17 +65,27 @@ fun InputFieldDemo() {
                     TagLine(tag = "Keyboard Type: $name")
                     EditLine(initText = "Keyboard Type: $name", keyboardType = type)
                 }
+
+                for ((action, name) in IME_ACTIONS) {
+                    TagLine(tag = "Ime Action: $name")
+                    EditLine(initText = "ImeAction: $name", imeAction = action)
+                }
             }
         }
     }
 }
 
 @Composable
-fun EditLine(initText: String, keyboardType: KeyboardType = KeyboardType.Text) {
+fun EditLine(
+    initText: String,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Unspecified
+) {
     val state = +state { EditorState(text = initText, selection = TextRange(2, 2)) }
     InputField(
         value = state.value,
         keyboardType = keyboardType,
+        imeAction = imeAction,
         onValueChange = { state.value = it },
         editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
     )

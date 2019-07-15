@@ -34,7 +34,7 @@ package androidx.ui.core {
 
   public final class InputFieldKt {
     ctor public InputFieldKt();
-    method public static void InputField(androidx.ui.input.EditorState value, androidx.ui.core.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit> onEditorActionPerformed = {});
+    method public static void InputField(androidx.ui.input.EditorState value, androidx.ui.core.EditorStyle editorStyle, androidx.ui.input.KeyboardType keyboardType = KeyboardType.Text, androidx.ui.input.ImeAction imeAction = ImeAction.Unspecified, kotlin.jvm.functions.Function1<? super androidx.ui.input.EditorState,kotlin.Unit> onValueChange = {}, kotlin.jvm.functions.Function1<? super androidx.ui.input.ImeAction,kotlin.Unit> onImeActionPerformed = {});
   }
 
   public final class IntrinsicMeasurementsReceiver implements androidx.ui.core.DensityReceiver {

@@ -31,8 +31,9 @@ interface TextInputService {
     fun startInput(
         initState: EditorState,
         keyboardType: KeyboardType,
+        imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
-        onEditorActionPerformed: (Any) -> Unit /* TODO(nona): decide type */
+        onImeActionPerformed: (ImeAction) -> Unit
     )
 
     /**

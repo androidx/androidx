@@ -24,6 +24,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.CompletionInfo
 import android.view.inputmethod.CorrectionInfo
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
@@ -36,6 +37,7 @@ import androidx.ui.input.DeleteSurroundingTextEditOp
 import androidx.ui.input.DeleteSurroundingTextInCodePointsEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.FinishComposingTextEditOp
+import androidx.ui.input.ImeAction
 import androidx.ui.input.InputEventListener
 import androidx.ui.input.MoveCursorEditOp
 import androidx.ui.input.SetComposingRegionEditOp
@@ -256,7 +258,21 @@ internal class RecordingInputConnection(
 
     override fun performEditorAction(editorAction: Int): Boolean {
         if (DEBUG) { Log.d(TAG, "performEditorAction($editorAction)") }
-        TODO("not implemented")
+        val imeAction = when (editorAction) {
+            EditorInfo.IME_ACTION_UNSPECIFIED -> ImeAction.Unspecified
+            EditorInfo.IME_ACTION_DONE -> ImeAction.Done
+            EditorInfo.IME_ACTION_SEND -> ImeAction.Send
+            EditorInfo.IME_ACTION_SEARCH -> ImeAction.Search
+            EditorInfo.IME_ACTION_PREVIOUS -> ImeAction.Previous
+            EditorInfo.IME_ACTION_NEXT -> ImeAction.Next
+            EditorInfo.IME_ACTION_GO -> ImeAction.Go
+            else -> {
+                Log.w(TAG, "IME sends unsupported Editor Action: $editorAction")
+                ImeAction.Unspecified
+            }
+        }
+        eventListener.onImeAction(imeAction)
+        return true
     }
 
     // /////////////////////////////////////////////////////////////////////////////////////////////

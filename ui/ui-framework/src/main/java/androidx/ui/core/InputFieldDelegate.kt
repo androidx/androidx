@@ -22,6 +22,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
@@ -187,14 +188,16 @@ internal class InputFieldDelegate {
             value: EditorState,
             editProcessor: EditProcessor,
             keyboardType: KeyboardType,
+            imeAction: ImeAction,
             onValueChange: (EditorState) -> Unit,
-            onEditorActionPerformed: (Any) -> Unit
+            onImeActionPerformed: (ImeAction) -> Unit
         ) {
             textInputService?.startInput(
                 initState = value,
                 keyboardType = keyboardType,
+                imeAction = imeAction,
                 onEditCommand = { onEditCommand(it, editProcessor, onValueChange) },
-                onEditorActionPerformed = onEditorActionPerformed)
+                onImeActionPerformed = onImeActionPerformed)
         }
 
         /**

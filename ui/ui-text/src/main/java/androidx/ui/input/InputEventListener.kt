@@ -32,5 +32,10 @@ interface InputEventListener {
      */
     fun onEditOperations(editOps: List<EditOperation>)
 
-    // TODO(nona): add more input event callbacks, editor action etc.
+    /**
+     * Called when IME triggered IME action.
+     *
+     * @param imeAction An IME action.
+     */
+    fun onImeAction(imeAction: ImeAction)
 }
