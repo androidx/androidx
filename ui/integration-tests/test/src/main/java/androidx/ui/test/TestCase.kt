@@ -124,6 +124,13 @@ fun TestCase.invalidateViews() {
     invalidateViews(view)
 }
 
+/**
+ * Invalidate the layout so that measure() and layout() do something
+ */
+fun TestCase.requestLayout() {
+    view.requestLayout()
+}
+
 private fun invalidateViews(view: View) {
     view.invalidate()
     if (view is ViewGroup) {
