@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.hamcrest.CoreMatchers.`is`
@@ -45,6 +46,7 @@ class CoroutineWorkerTest {
     private lateinit var configuration: Configuration
     private lateinit var database: WorkDatabase
     private lateinit var workManagerImpl: WorkManagerImpl
+    private lateinit var progressUpdater: ProgressUpdater
 
     @Before
     fun setUp() {
@@ -73,6 +75,12 @@ class CoroutineWorkerTest {
         )
         WorkManagerImpl.setDelegate(workManagerImpl)
         database = workManagerImpl.workDatabase
+        // No op
+        progressUpdater = ProgressUpdater { _, _, _ ->
+            val future = SettableFuture.create<Void>()
+            future.set(null)
+            future
+        }
     }
 
     @After
@@ -95,7 +103,8 @@ class CoroutineWorkerTest {
                 1,
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
-                workerFactory)) as SynchronousCoroutineWorker
+                workerFactory,
+                progressUpdater)) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCompleted, `is`(false))
 
@@ -124,7 +133,8 @@ class CoroutineWorkerTest {
                 1,
                 configuration.executor,
                 workManagerImpl.workTaskExecutor,
-                workerFactory)) as SynchronousCoroutineWorker
+                workerFactory,
+                progressUpdater)) as SynchronousCoroutineWorker
 
         assertThat(worker.job.isCancelled, `is`(false))
         worker.future.cancel(true)

@@ -30,6 +30,7 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import java.util.UUID
 
 @RunWith(AndroidJUnit4::class)
@@ -38,11 +39,13 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
 
     private lateinit var context: Context
     private lateinit var factory: DelegatingWorkerFactory
+    private lateinit var progressUpdater: ProgressUpdater
 
     @Before
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         factory = DelegatingWorkerFactory()
+        progressUpdater = mock(ProgressUpdater::class.java)
     }
 
     @Test
@@ -52,7 +55,7 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
 
         val request = OneTimeWorkRequest.from(TestWorker::class.java)
         insertWork(request)
-        val params: WorkerParameters = newWorkerParams(factory)
+        val params: WorkerParameters = newWorkerParams(factory, progressUpdater)
         val worker = factory.createWorkerWithDefaultFallback(
             context,
             TestWorker::class.java.name,
@@ -68,7 +71,7 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
         factory = DelegatingWorkerFactory()
         val request = OneTimeWorkRequest.from(TestWorker::class.java)
         insertWork(request)
-        val params: WorkerParameters = newWorkerParams(factory)
+        val params: WorkerParameters = newWorkerParams(factory, progressUpdater)
         val worker = factory.createWorkerWithDefaultFallback(
             context,
             TestWorker::class.java.name,
@@ -79,16 +82,18 @@ class DelegatingWorkerFactoryTest : DatabaseTest() {
         assertThat(worker, instanceOf(TestWorker::class.java))
     }
 
-    private fun newWorkerParams(factory: WorkerFactory) = WorkerParameters(
-        UUID.randomUUID(),
-        Data.EMPTY,
-        listOf<String>(),
-        WorkerParameters.RuntimeExtras(),
-        1,
-        SynchronousExecutor(),
-        WorkManagerTaskExecutor(SynchronousExecutor()),
-        factory
-    )
+    private fun newWorkerParams(factory: WorkerFactory, updater: ProgressUpdater) =
+        WorkerParameters(
+            UUID.randomUUID(),
+            Data.EMPTY,
+            listOf<String>(),
+            WorkerParameters.RuntimeExtras(),
+            1,
+            SynchronousExecutor(),
+            WorkManagerTaskExecutor(SynchronousExecutor()),
+            factory,
+            updater
+        )
 }
 
 class NoOpFactory : WorkerFactory() {

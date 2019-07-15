@@ -47,6 +47,7 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
 import androidx.work.impl.utils.PackageManagerHelper;
+import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -224,7 +225,8 @@ public class WorkerWrapper implements Runnable {
                 mWorkSpec.runAttemptCount,
                 mConfiguration.getExecutor(),
                 mWorkTaskExecutor,
-                mConfiguration.getWorkerFactory());
+                mConfiguration.getWorkerFactory(),
+                new WorkProgressUpdater(mWorkDatabase, mWorkTaskExecutor));
 
         // Not always creating a worker here, as the WorkerWrapper.Builder can set a worker override
         // in test mode.
