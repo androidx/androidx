@@ -32,8 +32,6 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.1.0-beta01")
     implementation("androidx.collection:collection:1.1.0")
 
-    androidTestImplementation(project(":appcompat"))
-    androidTestImplementation(project(":core:core"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
