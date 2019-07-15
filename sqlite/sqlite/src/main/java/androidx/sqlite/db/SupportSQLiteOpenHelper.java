@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -38,7 +39,7 @@ import java.util.List;
  * the methods that should be overridden.
  */
 @SuppressWarnings("unused")
-public interface SupportSQLiteOpenHelper {
+public interface SupportSQLiteOpenHelper extends Closeable {
     /**
      * Return the name of the SQLite database being opened, as given to
      * the constructor.
@@ -102,7 +103,7 @@ public interface SupportSQLiteOpenHelper {
     /**
      * Close any open database object.
      */
-    void close();
+    @Override void close();
 
     /**
      * Handles various lifecycle events for the SQLite connection, similar to

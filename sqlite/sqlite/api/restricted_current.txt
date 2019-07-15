@@ -51,7 +51,7 @@ package androidx.sqlite.db {
     method public boolean yieldIfContendedSafely(long);
   }
 
-  public interface SupportSQLiteOpenHelper {
+  public interface SupportSQLiteOpenHelper extends java.io.Closeable {
     method public void close();
     method public String! getDatabaseName();
     method public androidx.sqlite.db.SupportSQLiteDatabase! getReadableDatabase();
