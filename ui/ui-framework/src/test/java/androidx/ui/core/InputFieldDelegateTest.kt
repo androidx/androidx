@@ -22,6 +22,7 @@ import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
@@ -201,10 +202,11 @@ class InputFieldDelegateTest {
     fun on_focus() {
         val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
         InputFieldDelegate.onFocus(textInputService, dummyEditorState, processor,
-            KeyboardType.Text, onValueChange, onEditorActionPerformed)
+            KeyboardType.Text, ImeAction.Unspecified, onValueChange, onEditorActionPerformed)
         verify(textInputService).startInput(
             eq(dummyEditorState),
             eq(KeyboardType.Text),
+            eq(ImeAction.Unspecified),
             any(),
             eq(onEditorActionPerformed)
         )

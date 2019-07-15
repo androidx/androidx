@@ -19,6 +19,17 @@ package androidx.ui.input {
   }
 
 
+  public enum ImeAction {
+    enum_constant public static final androidx.ui.input.ImeAction Done;
+    enum_constant public static final androidx.ui.input.ImeAction Go;
+    enum_constant public static final androidx.ui.input.ImeAction Next;
+    enum_constant public static final androidx.ui.input.ImeAction NoAction;
+    enum_constant public static final androidx.ui.input.ImeAction Previous;
+    enum_constant public static final androidx.ui.input.ImeAction Search;
+    enum_constant public static final androidx.ui.input.ImeAction Send;
+    enum_constant public static final androidx.ui.input.ImeAction Unspecified;
+  }
+
 
   public enum KeyboardType {
     enum_constant public static final androidx.ui.input.KeyboardType Ascii;
