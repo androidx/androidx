@@ -38,6 +38,12 @@ dependencies {
     api(project(":navigation:navigation-runtime"))
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":navigation:navigation-common-ktx"))
+    api("androidx.activity:activity-ktx:1.0.0-rc01") {
+        because 'Mirror navigation-runtime dependency graph for -ktx artifacts'
+    }
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.1.0-rc01") {
+        because 'Mirror navigation-runtime dependency graph for -ktx artifacts'
+    }
     api(KOTLIN_STDLIB)
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(TRUTH)
