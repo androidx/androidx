@@ -29,6 +29,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.test.ComposeMaterialIntoActivity
 import androidx.ui.test.ComposeTestCase
+import androidx.ui.test.ToggleableTestCase
 
 /**
  * Test case that puts the given amount of rectangles into a column layout and makes changes by
@@ -39,7 +40,7 @@ import androidx.ui.test.ComposeTestCase
 class RectsInColumnTestCase(
     activity: Activity,
     private val amountOfRectangles: Int
-) : ComposeTestCase(activity) {
+) : ComposeTestCase(activity), ToggleableTestCase {
 
     private val states = mutableListOf<State<Color>>()
 
@@ -60,7 +61,7 @@ class RectsInColumnTestCase(
         drawSlow()
     }
 
-    fun toggleState() {
+    override fun toggleState() {
         val state = states.first()
         if (state.value == Color.Purple) {
             state.value = Color.Blue

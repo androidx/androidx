@@ -22,6 +22,7 @@ import androidx.benchmark.BenchmarkRule
 import androidx.benchmark.measureRepeated
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.TestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.invalidateViews
 import androidx.ui.test.recomposeSyncAssertHadChanges
 import androidx.ui.test.recomposeSyncAssertNoChanges
@@ -91,6 +92,18 @@ fun BenchmarkRule.measureDrawPerf(activity: Activity, testCase: TestCase) {
 /**
  *  Measures recomposition time of the hierarchy after changing a state.
  */
+fun <T> BenchmarkRule.toggleStateMeasureRecompose(
+    activity: Activity,
+    testCase: T
+) where T : ComposeTestCase, T : ToggleableTestCase {
+    toggleStateMeasureMeasure(activity, testCase) {
+        testCase.toggleState()
+    }
+}
+
+/**
+ *  Measures recomposition time of the hierarchy after changing a state.
+ */
 fun BenchmarkRule.toggleStateMeasureRecompose(
     activity: Activity,
     testCase: ComposeTestCase,
@@ -106,6 +119,18 @@ fun BenchmarkRule.toggleStateMeasureRecompose(
             }
             testCase.recomposeSyncAssertHadChanges()
         }
+    }
+}
+
+/**
+ *  Measures measure time of the hierarchy after changing a state.
+ */
+fun <T> BenchmarkRule.toggleStateMeasureMeasure(
+    activity: Activity,
+    testCase: T
+) where T : ComposeTestCase, T : ToggleableTestCase {
+    toggleStateMeasureMeasure(activity, testCase) {
+        testCase.toggleState()
     }
 }
 
@@ -135,6 +160,18 @@ fun BenchmarkRule.toggleStateMeasureMeasure(
 /**
  *  Measures layout time of the hierarchy after changing a state.
  */
+fun <T> BenchmarkRule.toggleStateMeasureLayout(
+    activity: Activity,
+    testCase: T
+) where T : ComposeTestCase, T : ToggleableTestCase {
+    toggleStateMeasureLayout(activity, testCase) {
+        testCase.toggleState()
+    }
+}
+
+/**
+ *  Measures layout time of the hierarchy after changing a state.
+ */
 fun BenchmarkRule.toggleStateMeasureLayout(
     activity: Activity,
     testCase: ComposeTestCase,
@@ -153,6 +190,18 @@ fun BenchmarkRule.toggleStateMeasureLayout(
             }
             testCase.layout()
         }
+    }
+}
+
+/**
+ *  Measures draw time of the hierarchy after changing a state.
+ */
+fun <T> BenchmarkRule.toggleStateMeasureDraw(
+    activity: Activity,
+    testCase: T
+) where T : ComposeTestCase, T : ToggleableTestCase {
+    toggleStateMeasureDraw(activity, testCase) {
+        testCase.toggleState()
     }
 }
 

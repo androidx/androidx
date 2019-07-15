@@ -38,7 +38,7 @@ class AndroidCheckboxesInLinearLayoutBenchmark(private val numberOfCheckboxes: I
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
+        @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> = arrayOf(1, 10)
     }
 
@@ -53,15 +53,13 @@ class AndroidCheckboxesInLinearLayoutBenchmark(private val numberOfCheckboxes: I
 
     @Test
     fun layout() {
-        val testCase = AndroidCheckboxesInLinearLayoutTestCase(activityRule.activity,
-            numberOfCheckboxes)
-        benchmarkRule.measureLayoutPerf(activityRule.activity, testCase)
+        benchmarkRule.measureLayoutPerf(activityRule.activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activityRule.activity, numberOfCheckboxes))
     }
 
     @Test
     fun draw() {
-        val testCase = AndroidCheckboxesInLinearLayoutTestCase(activityRule.activity,
-            numberOfCheckboxes)
-        benchmarkRule.measureDrawPerf(activityRule.activity, testCase)
+        benchmarkRule.measureDrawPerf(activityRule.activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activityRule.activity, numberOfCheckboxes))
     }
 }

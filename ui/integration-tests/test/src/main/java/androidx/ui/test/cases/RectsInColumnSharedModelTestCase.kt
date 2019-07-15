@@ -26,6 +26,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.test.ComposeMaterialIntoActivity
 import androidx.ui.test.ComposeTestCase
+import androidx.ui.test.ToggleableTestCase
 
 @Model
 private class RectanglesInColumnTestCaseColorModel(var color: Color)
@@ -40,7 +41,7 @@ private class RectanglesInColumnTestCaseColorModel(var color: Color)
 class RectsInColumnSharedModelTestCase(
     activity: Activity,
     private val amountOfRectangles: Int
-) : ComposeTestCase(activity) {
+) : ComposeTestCase(activity), ToggleableTestCase {
 
     private val model = RectanglesInColumnTestCaseColorModel(Color.Black)
 
@@ -65,7 +66,7 @@ class RectsInColumnSharedModelTestCase(
         drawSlow()
     }
 
-    fun toggleState() {
+    override fun toggleState() {
         if (model.color == Color.Purple) {
             model.color = Color.Blue
         } else {
