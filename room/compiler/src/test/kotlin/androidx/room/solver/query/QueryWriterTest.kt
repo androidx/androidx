@@ -279,8 +279,7 @@ class QueryWriterTest {
     fun singleQueryMethod(
         vararg input: String,
         handler: (QueryWriter) -> Unit
-    ):
-            CompileTester {
+    ): CompileTester {
         return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
                 .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
@@ -307,8 +306,6 @@ class QueryWriterTest {
                                     executableElement = MoreElements.asExecutable(methods.first()),
                                     queryInterpreter = queryInterpreter)
                             val method = parser.process()
-                            method.query.interpreted =
-                                queryInterpreter.interpret(method.query, null)
                             handler(QueryWriter(method))
                             true
                         }

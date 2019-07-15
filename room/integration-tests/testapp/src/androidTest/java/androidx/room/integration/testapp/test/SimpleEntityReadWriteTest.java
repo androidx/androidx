@@ -693,6 +693,16 @@ public class SimpleEntityReadWriteTest {
         assertThat(loadedUsers, hasItems(users));
     }
 
+    @Test
+    public void updateQuery() {
+        User user1 = TestUtil.createUser(1);
+        mUserDao.insert(user1);
+        mUserDao.setSameNames("same", 1);
+        User result = mUserDao.load(1);
+        assertThat(result.getName(), is("same"));
+        assertThat(result.getLastName(), is("same"));
+    }
+
     private Set<Day> toSet(Day... days) {
         return new HashSet<>(Arrays.asList(days));
     }

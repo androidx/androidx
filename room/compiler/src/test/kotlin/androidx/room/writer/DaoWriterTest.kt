@@ -106,10 +106,6 @@ class DaoWriterTest {
                                     queryInterpreter = queryInterpreter,
                                     dbVerifier = createVerifierFromEntitiesAndViews(invocation))
                             val parsedDao = parser.process()
-                            parsedDao.queryMethods.forEach { method ->
-                                method.query.interpreted =
-                                    queryInterpreter.interpret(method.query, null)
-                            }
                             DaoWriter(parsedDao, db, invocation.processingEnv)
                                 .write(invocation.processingEnv)
                             true
