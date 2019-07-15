@@ -48,16 +48,7 @@ import kotlin.experimental.ExperimentalTypeInference
  *  }
  * ```
  **/
-class TransitionSpec<S> internal constructor() {
-    /**
-     * The state that the transition is going from. It defaults to null, meaning any state.
-     */
-    internal var fromState: S? = null
-
-    /**
-     * The state that the transition is going to. It defaults to null, meaning any state.
-     */
-    internal var toState: S? = null
+class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out Pair<S?, S?>>) {
 
     /**
      * Optional state where should we start switching after this transition finishing.
@@ -87,6 +78,9 @@ class TransitionSpec<S> internal constructor() {
         @Suppress("UNCHECKED_CAST")
         return (propAnimation.getOrPut(prop, defaultAnimation)) as Animation<T>
     }
+
+    internal fun defines(from: S?, to: S?) =
+        fromToPairs.any { it.first == from && it.second == to }
 
     /**
      * Associates a property with a [AnimationBuilder]
@@ -137,7 +131,6 @@ class TransitionSpec<S> internal constructor() {
 
 /**
  * Static definitions of states and transitions.
- *
  */
 class TransitionDefinition<T> {
     internal val states: MutableMap<T, StateImpl<T>> = mutableMapOf()
@@ -146,7 +139,9 @@ class TransitionDefinition<T> {
 
     // TODO: Consider also having the initial defined at call site for cases where many components
     // share the same transition def
-    private val defaultTransitionSpec = TransitionSpec<T>()
+    // TODO: (Optimization) Type param in TransitionSpec requires this defaultTransitionSpec to be re-created at least
+    // for each state type T. Consider dropping this T beyond initial sanity check.
+    private val defaultTransitionSpec = TransitionSpec<T>(arrayOf(null to null))
 
     /**
      * Defines all the properties and their values associated with the state with the name: [name]
@@ -178,10 +173,7 @@ class TransitionDefinition<T> {
      * @param init Lambda to initialize the transition
      */
     fun transition(fromState: T? = null, toState: T? = null, init: TransitionSpec<T>.() -> Unit) {
-        val newSpec = TransitionSpec<T>().apply(init)
-        newSpec.fromState = fromState
-        newSpec.toState = toState
-        transitionSpecs.add(newSpec)
+        transition(fromState to toState, init = init)
     }
 
     /**
@@ -196,12 +188,13 @@ class TransitionDefinition<T> {
      *         ...
      *     }
      *
-     * @param fromToPair The pair of states for this transition
+     * @param fromToPairs The pairs of from and to states for this transition
      * @param init Lambda to initialize the transition
      */
-    // TODO: support a list of (from, to) pairs
-    fun transition(fromToPair: Pair<T?, T?>, init: TransitionSpec<T>.() -> Unit) =
-        transition(fromToPair.first, fromToPair.second, init)
+    fun transition(vararg fromToPairs: Pair<T?, T?>, init: TransitionSpec<T>.() -> Unit) {
+        val newSpec = TransitionSpec(fromToPairs).apply(init)
+        transitionSpecs.add(newSpec)
+    }
 
     /**
      * With this transition definition we are saying that every time we reach the
@@ -210,20 +203,20 @@ class TransitionDefinition<T> {
      * Sample of usage with [Pair]s infix extension [to]:
      *     snapTransition(State.Released to State.Pressed)
      *
-     * @param fromToPair The pair of states for this transition
+     * @param fromToPairs The pairs of states for this transition
      * @param nextState Optional state where should we start switching after snap
      */
-    fun snapTransition(fromToPair: Pair<T?, T?>, nextState: T? = null) =
-        transition(fromToPair) {
+    fun snapTransition(vararg fromToPairs: Pair<T?, T?>, nextState: T? = null) =
+        transition(*fromToPairs) {
             this.nextState = nextState
             defaultAnimation = { Snap() }
         }
 
     internal fun getSpec(fromState: T, toState: T): TransitionSpec<T> {
-        return transitionSpecs.firstOrNull { it.fromState == fromState && it.toState == toState }
-            ?: transitionSpecs.firstOrNull { it.fromState == fromState && it.toState == null }
-            ?: transitionSpecs.firstOrNull { it.fromState == null && it.toState == toState }
-            ?: transitionSpecs.firstOrNull { it.fromState == null && it.toState == null }
+        return transitionSpecs.firstOrNull { it.defines(fromState, toState) }
+            ?: transitionSpecs.firstOrNull { it.defines(fromState, null) }
+            ?: transitionSpecs.firstOrNull { it.defines(null, toState) }
+            ?: transitionSpecs.firstOrNull { it.defines(null, null) }
             ?: defaultTransitionSpec
     }
 
@@ -317,23 +310,13 @@ private val example = transitionDefinition {
     }
 
     transition(ButtonState.Released to ButtonState.Pressed) {
-        //
-//        // TODO: how do we define sequential tween, alpha then radius snap
-//        alpha using tween {
-//            easing = LinearEasing
-//            duration = 150
-//            onAnimationEnd {
-//                // TODO: Does this look better as its own entry?
-//                radius to 60f
-//            }
-//            // TODO: Default behavior for transition: when the transition finishes
-//            // normally, all values should be snapped to the pre-defined values.
-//        }
-//
-    }
 
-    // TODO: Support wild card transition
-}.createAnimation().apply {
-    // Usage
-    toState(ButtonState.Released)
+        // TODO: how do we define sequential tween, alpha then radius snap
+        alpha using tween {
+            easing = LinearEasing
+            duration = 150
+            // TODO: Default behavior for transition: when the transition finishes
+            // normally, all values should be snapped to the pre-defined values.
+        }
+    }
 }
