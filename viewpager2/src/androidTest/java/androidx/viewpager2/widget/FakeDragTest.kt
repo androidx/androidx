@@ -24,9 +24,6 @@ import android.view.animation.Interpolator
 import android.view.animation.LinearInterpolator
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -336,11 +333,11 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         val isHorizontal = test.viewPager.isHorizontal
 
         return if (useEnhancedA11y && isHorizontal && test.viewPager.isRtl) {
-            ACTION_PAGE_LEFT.id
+            ACTION_ID_PAGE_LEFT
         } else if (useEnhancedA11y && isHorizontal) {
-            ACTION_PAGE_RIGHT.id
+            ACTION_ID_PAGE_RIGHT
         } else if (useEnhancedA11y) {
-            ACTION_PAGE_DOWN.id
+            ACTION_ID_PAGE_DOWN
         } else {
             ACTION_SCROLL_FORWARD
         }
