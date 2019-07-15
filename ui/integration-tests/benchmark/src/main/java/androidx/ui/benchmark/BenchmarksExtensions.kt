@@ -25,6 +25,7 @@ import androidx.ui.test.TestCase
 import androidx.ui.test.invalidateViews
 import androidx.ui.test.recomposeSyncAssertHadChanges
 import androidx.ui.test.recomposeSyncAssertNoChanges
+import androidx.ui.test.requestLayout
 import androidx.ui.test.runOnUiThreadSync
 
 /**
@@ -39,6 +40,7 @@ fun BenchmarkRule.measureLayoutPerf(activity: Activity, testCase: TestCase) {
         var widthSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
         var heightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
 
+        testCase.requestLayout()
         testCase.measureWithSpec(widthSpec, heightSpec)
         testCase.layout()
 
@@ -58,6 +60,7 @@ fun BenchmarkRule.measureLayoutPerf(activity: Activity, testCase: TestCase) {
                     View.MeasureSpec.makeMeasureSpec(lastWidth, View.MeasureSpec.EXACTLY)
                 heightSpec =
                     View.MeasureSpec.makeMeasureSpec(lastHeight, View.MeasureSpec.EXACTLY)
+                testCase.requestLayout()
             }
             testCase.measureWithSpec(widthSpec, heightSpec)
             testCase.layout()
@@ -122,6 +125,7 @@ fun BenchmarkRule.toggleStateMeasureMeasure(
             runWithTimingDisabled {
                 toggleState()
                 testCase.recomposeSyncAssertHadChanges()
+                testCase.requestLayout()
             }
             testCase.measure()
         }
@@ -144,6 +148,7 @@ fun BenchmarkRule.toggleStateMeasureLayout(
             runWithTimingDisabled {
                 toggleState()
                 testCase.recomposeSyncAssertHadChanges()
+                testCase.requestLayout()
                 testCase.measure()
             }
             testCase.layout()
@@ -167,6 +172,7 @@ fun BenchmarkRule.toggleStateMeasureDraw(
             runWithTimingDisabled {
                 toggleState()
                 testCase.recomposeSyncAssertHadChanges()
+                testCase.requestLayout()
                 testCase.measure()
                 testCase.layout()
                 testCase.prepareDraw()
