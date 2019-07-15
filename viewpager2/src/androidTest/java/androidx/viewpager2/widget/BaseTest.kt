@@ -27,10 +27,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_DOWN
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_LEFT
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_RIGHT
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_PAGE_UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.core.app.ApplicationProvider
@@ -81,6 +77,10 @@ import kotlin.math.abs
 open class BaseTest {
     companion object {
         const val TAG = "VP2_TESTS"
+        const val ACTION_ID_PAGE_LEFT = android.R.id.accessibilityActionPageLeft
+        const val ACTION_ID_PAGE_RIGHT = android.R.id.accessibilityActionPageRight
+        const val ACTION_ID_PAGE_UP = android.R.id.accessibilityActionPageUp
+        const val ACTION_ID_PAGE_DOWN = android.R.id.accessibilityActionPageDown
     }
 
     lateinit var localeUtil: LocaleTestUtils
@@ -284,20 +284,20 @@ open class BaseTest {
                         currentPage < numPages - 1
 
             assertThat("Left action expected: $expectPageLeftAction",
-                hasPageAction(customActions, ACTION_PAGE_LEFT.id),
+                hasPageAction(customActions, ACTION_ID_PAGE_LEFT),
                 equalTo(expectPageLeftAction)
             )
 
             assertThat("Right action expected: $expectPageRightAction",
-                hasPageAction(customActions, ACTION_PAGE_RIGHT.id),
+                hasPageAction(customActions, ACTION_ID_PAGE_RIGHT),
                 equalTo(expectPageRightAction)
             )
             assertThat("Up action expected: $expectPageUpAction",
-                hasPageAction(customActions, ACTION_PAGE_UP.id),
+                hasPageAction(customActions, ACTION_ID_PAGE_UP),
                 equalTo(expectPageUpAction)
             )
             assertThat("Down action expected: $expectPageDownAction",
-                hasPageAction(customActions, ACTION_PAGE_DOWN.id),
+                hasPageAction(customActions, ACTION_ID_PAGE_DOWN),
                 equalTo(expectPageDownAction)
             )
 
