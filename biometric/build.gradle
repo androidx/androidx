@@ -8,9 +8,10 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.0.0") { transitive = true}
-    api("androidx.core:core:1.1.0-rc02") { transitive = true}
-    api("androidx.fragment:fragment:1.0.0") { transitive = true}
+    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.appcompat:appcompat:1.1.0-rc01")
+    api("androidx.core:core:1.1.0-rc02")
+    api("androidx.fragment:fragment:1.1.0-rc01")
 }
 
 android {
