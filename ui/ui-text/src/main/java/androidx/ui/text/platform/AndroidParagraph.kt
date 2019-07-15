@@ -267,9 +267,16 @@ internal class AndroidParagraph constructor(
 
     override fun getLineRight(lineIndex: Int): Float = ensureLayout.getLineRight(lineIndex)
 
+    override fun getLineBottom(lineIndex: Int): Float = ensureLayout.getLineBottom(lineIndex)
+
     override fun getLineHeight(lineIndex: Int): Float = ensureLayout.getLineHeight(lineIndex)
 
     override fun getLineWidth(lineIndex: Int): Float = ensureLayout.getLineWidth(lineIndex)
+
+    override fun getLineForOffset(offset: Int): Int = ensureLayout.getLineForOffset(offset)
+
+    override fun getPrimaryHorizontal(offset: Int): Float =
+        ensureLayout.getPrimaryHorizontal(offset)
 
     /**
      * @return true if the given line is ellipsized, else false.

@@ -21,7 +21,6 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
-import androidx.ui.engine.geometry.Rect
 
 internal class SelectionManager : SelectionRegistrar {
     /**
@@ -99,11 +98,15 @@ internal class SelectionManager : SelectionRegistrar {
         onSelectionChange(result)
     }
 
-    // Get the coordinates of a character. Currently, it's the middle point of the left edge of the
-    // bounding box of the character. This is a temporary solution.
-    // TODO(qqd): Read how Android solve this problem.
-    fun getCoordinatesForCharacter(box: Rect): PxPosition {
-        return PxPosition(box.left.px, box.top.px + (box.bottom.px - box.top.px) / 2)
+    /**
+     * Adjust coordinates for given text offset.
+     *
+     * Currently [android.text.Layout.getLineBottom] returns y coordinates of the next
+     * line's top offset, which is not included in current line's hit area. To be able to
+     * hit current line, move up this y coordinates by 1 pixel.
+     */
+    fun getAdjustedCoordinates(p: PxPosition): PxPosition {
+        return PxPosition(p.x, p.y - 1.px)
     }
 
     fun handleDragObserver(dragStartHandle: Boolean): DragObserver {
@@ -121,11 +124,11 @@ internal class SelectionManager : SelectionRegistrar {
                 // The position of the character where the drag gesture should begin. This is in
                 // the widget coordinates.
                 val beginCoordinates =
-                    getCoordinatesForCharacter(
+                    getAdjustedCoordinates(
                         if (dragStartHandle) {
-                            selection!!.startOffset
+                            selection!!.startCoordinates
                         } else {
-                            selection!!.endOffset
+                            selection!!.endCoordinates
                         }
                     )
                 // Convert the position where drag gesture begins from widget coordinates to
@@ -150,7 +153,7 @@ internal class SelectionManager : SelectionRegistrar {
                     } else {
                         containerLayoutCoordinates.childToLocal(
                             selection!!.startLayoutCoordinates!!,
-                            getCoordinatesForCharacter(selection!!.startOffset)
+                            getAdjustedCoordinates(selection!!.startCoordinates)
                         )
                     }
 
@@ -158,7 +161,7 @@ internal class SelectionManager : SelectionRegistrar {
                     if (dragStartHandle) {
                         containerLayoutCoordinates.childToLocal(
                             selection!!.endLayoutCoordinates!!,
-                            getCoordinatesForCharacter(selection!!.endOffset)
+                            getAdjustedCoordinates(selection!!.endCoordinates)
                         )
                     } else {
                         dragBeginPosition + dragTotalDistance

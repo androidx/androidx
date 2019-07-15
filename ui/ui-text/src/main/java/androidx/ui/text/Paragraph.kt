@@ -15,6 +15,7 @@
  */
 package androidx.ui.text
 
+import androidx.annotation.RestrictTo
 import androidx.ui.core.Density
 import androidx.ui.core.PxPosition
 import androidx.ui.engine.geometry.Rect
@@ -103,11 +104,36 @@ interface Paragraph {
     /** Returns the right x Coordinate of the given line. */
     fun getLineRight(lineIndex: Int): Float
 
+    /**
+     * Returns the bottom y coordinate of the given line.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getLineBottom(lineIndex: Int): Float
+
     /** Returns the height of the given line. */
     fun getLineHeight(lineIndex: Int): Float
 
     /** Returns the width of the given line. */
     fun getLineWidth(lineIndex: Int): Float
+
+    /**
+     * Returns the line number on which the specified text offset appears.
+     * If you ask for a position before 0, you get 0; if you ask for a position
+     * beyond the end of the text, you get the last line.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getLineForOffset(offset: Int): Int
+
+    /**
+     * Get the primary horizontal position for the specified text offset.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getPrimaryHorizontal(offset: Int): Float
 
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: PxPosition): Int
@@ -115,7 +141,10 @@ interface Paragraph {
     /**
      * Returns the bounding box as Rect of the character for given character offset. Rect
      * includes the top, bottom, left and right of a character.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getBoundingBox(offset: Int): Rect
 
     /**
