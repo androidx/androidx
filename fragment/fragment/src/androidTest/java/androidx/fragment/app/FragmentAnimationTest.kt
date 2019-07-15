@@ -30,6 +30,7 @@ import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -704,7 +705,8 @@ class FragmentAnimationTest {
         var resourceId: Int = 0
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
-            if (nextAnim == 0) {
+            if (nextAnim == 0 ||
+                viewLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
                 return null
             }
             numAnimators++
@@ -771,14 +773,16 @@ class FragmentAnimationTest {
                     }
 
                     override fun onAnimationEnd(animation: Animation) {
-                        if (enter) {
-                            enterEndCount++
-                            enterLatch.countDown()
-                        } else {
-                            exitEndCount++
-                            // When exiting, the view is detached after onAnimationEnd,
-                            // so wait one frame to count down the latch
-                            createdView.post { exitLatch.countDown() }
+                        if (!onDestroyViewCalled) {
+                            if (enter) {
+                                enterEndCount++
+                                enterLatch.countDown()
+                            } else {
+                                exitEndCount++
+                                // When exiting, the view is detached after onAnimationEnd,
+                                // so wait one frame to count down the latch
+                                createdView.post { exitLatch.countDown() }
+                            }
                         }
                     }
 
