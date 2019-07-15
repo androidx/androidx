@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.lifecycle:lifecycle-common:2.0.0", libs.exclude_annotations_transitive)
+    api("androidx.lifecycle:lifecycle-common:2.0.0")
     implementation("androidx.exifinterface:exifinterface:1.0.0")
     implementation("androidx.annotation:annotation:1.0.0")
     implementation("androidx.core:core:1.1.0-rc01")
