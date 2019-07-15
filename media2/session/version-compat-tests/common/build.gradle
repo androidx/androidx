@@ -22,8 +22,8 @@ plugins {
 }
 
 dependencies {
-    api(project(':annotation'))
-    api(project(':versionedparcelable'))
+    api(project(":annotation:annotation"))
+    api(project(":versionedparcelable"))
     implementation(JUNIT)
 }
 

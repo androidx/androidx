@@ -15,38 +15,32 @@
  */
 package androidx.annotation;
 
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
-import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.PACKAGE;
 import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
-import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that the annotated method or constructor should only be called on the UI thread.
- * If the annotated element is a class, then all methods in the class should be called
- * on the UI thread.
+ * Denotes that the annotated element should not be removed when
+ * the code is minified at build time. This is typically used
+ * on methods and classes that are accessed only via reflection
+ * so a compiler may think that the code is unused.
  * <p>
  * Example:
  * <pre><code>
- *  &#64;UiThread
- *
- *  public abstract void setText(@NonNull String text) { ... }
+ *  &#64;Keep
+ *  public void foo() {
+ *      ...
+ *  }
  * </code></pre>
- *
- * <p class="note"><b>Note:</b> Ordinarily, an app's UI thread is also the main
- * thread. However, under special circumstances, an app's UI thread
- * might not be its main thread; for more information, see
- * <a href="/studio/write/annotations.html#thread-annotations">Thread
- * annotations</a>.
- *
- * @see androidx.annotation.MainThread
  */
-@Documented
 @Retention(CLASS)
-@Target({METHOD,CONSTRUCTOR,TYPE,PARAMETER})
-public @interface UiThread {
+@Target({PACKAGE, TYPE, ANNOTATION_TYPE, CONSTRUCTOR, METHOD, FIELD})
+public @interface Keep {
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2016 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,32 +15,33 @@
  */
 package androidx.annotation;
 
-import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
-import static java.lang.annotation.ElementType.FIELD;
-import static java.lang.annotation.ElementType.LOCAL_VARIABLE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that the annotated element should be an int or long in the given range
+ * Denotes that the annotated method can be called from any thread (e.g. it is "thread safe".)
+ * If the annotated element is a class, then all methods in the class can be called
+ * from any thread.
+ * <p>
+ * The main purpose of this method is to indicate that you believe a method can be called
+ * from any thread; static tools can then check that nothing you call from within this method
+ * or class have more strict threading requirements.
  * <p>
  * Example:
  * <pre><code>
- *  &#64;IntRange(from=0,to=255)
- *  public int getAlpha() {
- *      ...
- *  }
+ *  &#64;AnyThread
+ *  public void deliverResult(D data) { ... }
  * </code></pre>
  */
+@Documented
 @Retention(CLASS)
-@Target({METHOD,PARAMETER,FIELD,LOCAL_VARIABLE,ANNOTATION_TYPE})
-public @interface IntRange {
-    /** Smallest value, inclusive */
-    long from() default Long.MIN_VALUE;
-    /** Largest value, inclusive */
-    long to() default Long.MAX_VALUE;
+@Target({METHOD, CONSTRUCTOR, TYPE, PARAMETER})
+public @interface AnyThread {
 }

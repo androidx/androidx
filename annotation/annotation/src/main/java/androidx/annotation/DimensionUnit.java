@@ -20,17 +20,17 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 import java.lang.annotation.Retention;
 
 /**
- * Typedef for the {@link VisibleForTesting#otherwise} attribute.
+ * Typedef for the {@link Dimension#unit} attribute.
  *
  * @hide
  */
-@IntDef({VisibleForTesting.PRIVATE,
-         VisibleForTesting.PACKAGE_PRIVATE,
-         VisibleForTesting.PROTECTED,
-         VisibleForTesting.NONE}
+@IntDef({Dimension.PX,
+        Dimension.DP,
+        Dimension.SP}
 // Important: If updating these constants, also update
 // ../../../../external-annotations/android/support/annotation/annotations.xml
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 @Retention(SOURCE)
-@interface ProductionVisibility {
+@interface DimensionUnit {
 }

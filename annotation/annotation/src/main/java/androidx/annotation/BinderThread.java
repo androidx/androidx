@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2015 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,22 +26,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Denotes that the annotated method can be called from any thread (e.g. it is "thread safe".)
- * If the annotated element is a class, then all methods in the class can be called
- * from any thread.
- * <p>
- * The main purpose of this method is to indicate that you believe a method can be called
- * from any thread; static tools can then check that nothing you call from within this method
- * or class have more strict threading requirements.
+ * Denotes that the annotated method should only be called on the binder thread.
+ * If the annotated element is a class, then all methods in the class should be called
+ * on the binder thread.
  * <p>
  * Example:
  * <pre><code>
- *  &#64;AnyThread
- *  public void deliverResult(D data) { ... }
+ *  &#64;BinderThread
+ *  public BeamShareData createBeamShareData() { ... }
  * </code></pre>
  */
 @Documented
 @Retention(CLASS)
-@Target({METHOD,CONSTRUCTOR,TYPE,PARAMETER})
-public @interface AnyThread {
+@Target({METHOD, CONSTRUCTOR, TYPE, PARAMETER})
+public @interface BinderThread {
 }
