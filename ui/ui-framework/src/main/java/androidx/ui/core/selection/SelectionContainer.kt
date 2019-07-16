@@ -22,7 +22,6 @@ import androidx.compose.composer
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.Constraints
-import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.OnPositioned
@@ -32,12 +31,6 @@ import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.round
-import androidx.ui.core.toRect
-import androidx.ui.graphics.Color
-import androidx.ui.painting.Paint
-
-private val HANDLE_WIDTH = 100.px
-private val HANDLE_HEIGHT = 100.px
 
 /**
  * Selection Widget.
@@ -89,7 +82,7 @@ fun SelectionContainer(
                 dragObserver = manager.handleDragObserver(dragStartHandle = true)
             ) {
                 Layout(
-                    children = { SelectionHandle() },
+                    children = { LeftPointingSelectionHandle() },
                     layoutBlock = { _, constraints ->
                         layout(constraints.minWidth, constraints.minHeight) {}
                     })
@@ -101,7 +94,7 @@ fun SelectionContainer(
                 dragObserver = manager.handleDragObserver(dragStartHandle = false)
             ) {
                 Layout(
-                    children = { SelectionHandle() },
+                    children = { RightPointingSelectionHandle() },
                     layoutBlock = { _, constraints ->
                         layout(constraints.minWidth, constraints.minHeight) {}
                     })
@@ -148,19 +141,10 @@ fun SelectionContainer(
                             selection.endOffset.bottom.px
                         )
                     )
-                    start.place(startOffset.x - HANDLE_WIDTH, startOffset.y - HANDLE_HEIGHT)
-                    end.place(endOffset.x, endOffset.y - HANDLE_HEIGHT)
+                    start.place(startOffset.x - HANDLE_WIDTH, startOffset.y)
+                    end.place(endOffset.x, endOffset.y)
                 }
             }
         }))
-    }
-}
-
-@Composable
-internal fun SelectionHandle() {
-    val paint = +memo { Paint() }
-    paint.color = Color(0xAAD94633.toInt())
-    Draw { canvas, parentSize ->
-        canvas.drawRect(parentSize.toRect(), paint)
     }
 }
