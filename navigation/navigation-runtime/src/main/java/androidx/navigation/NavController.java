@@ -255,12 +255,12 @@ public class NavController {
             // Nothing to pop if the back stack is empty
             return false;
         }
-        ArrayList<Navigator> popOperations = new ArrayList<>();
+        ArrayList<Navigator<?>> popOperations = new ArrayList<>();
         Iterator<NavBackStackEntry> iterator = mBackStack.descendingIterator();
         boolean foundDestination = false;
         while (iterator.hasNext()) {
             NavDestination destination = iterator.next().getDestination();
-            Navigator navigator = mNavigatorProvider.getNavigator(
+            Navigator<?> navigator = mNavigatorProvider.getNavigator(
                     destination.getNavigatorName());
             if (inclusive || destination.getId() != destinationId) {
                 popOperations.add(navigator);
@@ -279,7 +279,7 @@ public class NavController {
             return false;
         }
         boolean popped = false;
-        for (Navigator navigator : popOperations) {
+        for (Navigator<?> navigator : popOperations) {
             if (navigator.popBackStack()) {
                 NavBackStackEntry entry = mBackStack.removeLast();
                 if (mViewModel != null) {
@@ -466,7 +466,7 @@ public class NavController {
                     KEY_NAVIGATOR_STATE_NAMES);
             if (navigatorNames != null) {
                 for (String name : navigatorNames) {
-                    Navigator navigator = mNavigatorProvider.getNavigator(name);
+                    Navigator<?> navigator = mNavigatorProvider.getNavigator(name);
                     Bundle bundle = mNavigatorStateToRestore.getBundle(name);
                     if (bundle != null) {
                         navigator.onRestoreState(bundle);
