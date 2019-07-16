@@ -84,7 +84,7 @@ public class WebViewAssetLoaderIntegrationTest {
         final WebViewTestActivity activity = mActivityRule.getActivity();
 
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                .register("/assets/", new AssetsPathHandler(activity))
+                .addPathHandler("/assets/", new AssetsPathHandler(activity))
                 .build();
 
         mOnUiThread.setWebViewClient(new AssetLoadingWebViewClient(mOnUiThread, assetLoader));
@@ -108,7 +108,7 @@ public class WebViewAssetLoaderIntegrationTest {
         final WebViewTestActivity activity = mActivityRule.getActivity();
 
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                .register("/res/", new ResourcesPathHandler(activity))
+                .addPathHandler("/res/", new ResourcesPathHandler(activity))
                 .build();
 
         mOnUiThread.setWebViewClient(new AssetLoadingWebViewClient(mOnUiThread, assetLoader));

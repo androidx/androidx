@@ -134,10 +134,10 @@ package androidx.webkit {
 
   public static final class WebViewAssetLoader.Builder {
     ctor public WebViewAssetLoader.Builder();
-    method public androidx.webkit.WebViewAssetLoader.Builder allowHttp(boolean);
+    method public androidx.webkit.WebViewAssetLoader.Builder addPathHandler(String, androidx.webkit.WebViewAssetLoader.PathHandler);
     method public androidx.webkit.WebViewAssetLoader build();
-    method public androidx.webkit.WebViewAssetLoader.Builder onDomain(String);
-    method public androidx.webkit.WebViewAssetLoader.Builder register(String, androidx.webkit.WebViewAssetLoader.PathHandler);
+    method public androidx.webkit.WebViewAssetLoader.Builder setDomain(String);
+    method public androidx.webkit.WebViewAssetLoader.Builder setHttpAllowed(boolean);
   }
 
   public static interface WebViewAssetLoader.PathHandler {
