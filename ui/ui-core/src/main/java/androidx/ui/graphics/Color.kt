@@ -20,6 +20,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.Size
+import androidx.compose.Immutable
 import androidx.ui.lerp
 import androidx.ui.util.Float16
 import kotlin.math.max
@@ -112,6 +113,7 @@ import kotlin.math.min
  */
 @UseExperimental(kotlin.ExperimentalUnsignedTypes::class)
 @AnyThread
+@Immutable
 class Color constructor(private val value: ULong) {
     /**
      * Returns this color's color space.
