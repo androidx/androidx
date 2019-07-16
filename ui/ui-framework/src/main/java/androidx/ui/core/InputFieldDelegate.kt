@@ -103,7 +103,13 @@ internal class InputFieldDelegate {
                 return
             }
 
-            val bbox = textPainter.getBoundingBox(value.selection.end)
+            val bbox = if (value.selection.end < value.text.length) {
+                textPainter.getBoundingBox(value.selection.end)
+            } else if (value.selection.end != 0) {
+                textPainter.getBoundingBox(value.selection.end - 1)
+            } else {
+                Rect(0f, 0f, 0f, 0f)
+            }
             val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left.px, bbox.top.px))
 
             textInputService.notifyFocusedRect(
