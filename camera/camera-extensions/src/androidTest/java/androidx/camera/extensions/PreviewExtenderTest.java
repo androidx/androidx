@@ -193,7 +193,7 @@ public class PreviewExtenderTest {
         public List<Pair<CaptureRequest.Key, Object>> getParameters() {
             List<Pair<CaptureRequest.Key, Object>> parameters = new ArrayList<>();
             parameters.add(Pair.create(CaptureRequest.CONTROL_EFFECT_MODE,
-                    CaptureRequest.CONTROL_EFFECT_MODE_BLACKBOARD));
+                    CaptureRequest.CONTROL_EFFECT_MODE_SEPIA));
 
             return parameters;
         }
