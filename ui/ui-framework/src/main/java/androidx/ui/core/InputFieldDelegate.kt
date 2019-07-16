@@ -27,6 +27,7 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextPainter
 
 internal class InputFieldDelegate {
@@ -40,8 +41,30 @@ internal class InputFieldDelegate {
          */
         @JvmStatic
         fun layout(textPainter: TextPainter, constraints: Constraints): Pair<IntPx, IntPx> {
+            val isEmptyText = textPainter.text?.text?.isEmpty() ?: true
+            val activeTextPainter = if (isEmptyText) {
+                // Even with empty text, edit filed must have at least non-zero height widget. Use
+                // "H" height for this empty text height.
+                TextPainter(
+                    text = AnnotatedString(text = "H"),
+                    style = textPainter.style,
+                    density = textPainter.density,
+                    resourceLoader = textPainter.resourceLoader
+                ).apply {
+                    layout(constraints)
+                }
+            } else {
+                textPainter
+            }
+
+            // We anyway need to compute layout for preventing NPE during draw which require layout
+            // result.
+            // TODO(nona): Fix this?
             textPainter.layout(constraints)
-            return Pair(textPainter.width.px.round(), textPainter.height.px.round())
+
+            val height = activeTextPainter.height.px.round()
+            val width = constraints.maxWidth
+            return Pair(width, height)
         }
 
         /**

@@ -57,18 +57,18 @@ fun InputFieldDemo() {
         VerticalScroller {
             Column(crossAxisAlignment = CrossAxisAlignment.Start) {
                 TagLine(tag = "simple editing")
-                EditLine("Simple Input Field")
+                EditLine()
                 TagLine(tag = "simple editing2")
-                EditLine("Another Simple Input Field")
+                EditLine()
 
                 for ((type, name) in KEYBOARD_TYPES) {
                     TagLine(tag = "Keyboard Type: $name")
-                    EditLine(initText = "Keyboard Type: $name", keyboardType = type)
+                    EditLine(keyboardType = type)
                 }
 
                 for ((action, name) in IME_ACTIONS) {
                     TagLine(tag = "Ime Action: $name")
-                    EditLine(initText = "ImeAction: $name", imeAction = action)
+                    EditLine(imeAction = action)
                 }
             }
         }
@@ -77,11 +77,10 @@ fun InputFieldDemo() {
 
 @Composable
 fun EditLine(
-    initText: String,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
-    val state = +state { EditorState(text = initText, selection = TextRange(2, 2)) }
+    val state = +state { EditorState() }
     InputField(
         value = state.value,
         keyboardType = keyboardType,
