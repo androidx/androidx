@@ -24,15 +24,20 @@ import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assume.assumeTrue;
 
+import android.content.Intent;
+
 import androidx.camera.integration.extensions.idlingresource.WaitForViewToShow;
 import androidx.camera.testing.CameraUtil;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
+import androidx.test.uiautomator.UiDevice;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,6 +51,8 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public final class ToggleButtonTest {
+
+    private static final int DISMISS_LOCK_SCREEN_CODE = 82;
 
     @Rule
     public ActivityTestRule<CameraExtensionsActivity> mActivityRule =
@@ -70,6 +77,14 @@ public final class ToggleButtonTest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
+
+        // In case the lock screen on top, the action to dismiss it.
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressKeyCode(
+                DISMISS_LOCK_SCREEN_CODE);
+
+        // Close system dialogs first to avoid interrupt.
+        ApplicationProvider.getApplicationContext().sendBroadcast(
+                new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
     }
 
     @After
