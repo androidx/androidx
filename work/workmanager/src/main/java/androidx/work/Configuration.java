@@ -51,6 +51,7 @@ public final class Configuration {
     private final @NonNull Executor mExecutor;
     private final @NonNull Executor mTaskExecutor;
     private final @NonNull WorkerFactory mWorkerFactory;
+    private final @NonNull InputMergerFactory mInputMergerFactory;
     private final int mLoggingLevel;
     private final int mMinJobSchedulerId;
     private final int mMaxJobSchedulerId;
@@ -76,6 +77,12 @@ public final class Configuration {
             mWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
         } else {
             mWorkerFactory = builder.mWorkerFactory;
+        }
+
+        if (builder.mInputMergerFactory == null) {
+            mInputMergerFactory = InputMergerFactory.getDefaultInputMergerFactory();
+        } else {
+            mInputMergerFactory = builder.mInputMergerFactory;
         }
 
         mLoggingLevel = builder.mLoggingLevel;
@@ -112,6 +119,14 @@ public final class Configuration {
      */
     public @NonNull WorkerFactory getWorkerFactory() {
         return mWorkerFactory;
+    }
+
+    /**
+     * @return The {@link InputMergerFactory} used by {@link WorkManager} to create instances of
+     * {@link InputMerger}s.
+     */
+    public @NonNull InputMergerFactory getInputMergerFactory() {
+        return mInputMergerFactory;
     }
 
     /**
@@ -186,6 +201,7 @@ public final class Configuration {
 
         Executor mExecutor;
         WorkerFactory mWorkerFactory;
+        InputMergerFactory mInputMergerFactory;
         Executor mTaskExecutor;
 
         int mLoggingLevel = Log.INFO;
@@ -201,6 +217,17 @@ public final class Configuration {
          */
         public @NonNull Builder setWorkerFactory(@NonNull WorkerFactory workerFactory) {
             mWorkerFactory = workerFactory;
+            return this;
+        }
+
+        /**
+         * Specifies a custom {@link InputMergerFactory} for WorkManager.
+         * @param inputMergerFactory A {@link InputMergerFactory} for creating {@link InputMerger}s
+         * @return This {@link Builder} instance
+         */
+        @NonNull
+        public Builder setInputMergerFactory(@NonNull InputMergerFactory inputMergerFactory) {
+            mInputMergerFactory = inputMergerFactory;
             return this;
         }
 

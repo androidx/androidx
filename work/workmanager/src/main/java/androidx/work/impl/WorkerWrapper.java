@@ -35,6 +35,7 @@ import androidx.annotation.WorkerThread;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.InputMerger;
+import androidx.work.InputMergerFactory;
 import androidx.work.ListenableWorker;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
@@ -199,7 +200,10 @@ public class WorkerWrapper implements Runnable {
         if (mWorkSpec.isPeriodic()) {
             input = mWorkSpec.input;
         } else {
-            InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.inputMergerClassName);
+            InputMergerFactory inputMergerFactory = mConfiguration.getInputMergerFactory();
+            String inputMergerClassName = mWorkSpec.inputMergerClassName;
+            InputMerger inputMerger =
+                    inputMergerFactory.createInputMergerWithDefaultFallback(inputMergerClassName);
             if (inputMerger == null) {
                 Logger.get().error(TAG, String.format("Could not create Input Merger %s",
                         mWorkSpec.inputMergerClassName));
