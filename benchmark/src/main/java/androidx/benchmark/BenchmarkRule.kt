@@ -19,7 +19,7 @@ package androidx.benchmark
 import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.benchmark.WarningState.WARNING_PREFIX
+import androidx.benchmark.Errors.WARNING_PREFIX
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertTrue
 import org.junit.rules.RuleChain

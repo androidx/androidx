@@ -24,6 +24,7 @@ import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert
 import java.io.File
 import java.text.NumberFormat
 import java.util.ArrayList
@@ -288,6 +289,10 @@ class BenchmarkState internal constructor() {
     internal fun keepRunningInternal(): Boolean {
         when (state) {
             NOT_STARTED -> {
+                if (Errors.UNSUPPRESSED_WARNING_MESSAGE != null) {
+                    Assert.fail(Errors.UNSUPPRESSED_WARNING_MESSAGE)
+                }
+
                 if (totalRunTimeStartNs == 0L) {
                     // This is the beginning of the benchmark, we remember it.
                     totalRunTimeStartNs = System.nanoTime()
@@ -295,7 +300,7 @@ class BenchmarkState internal constructor() {
                 if (performThrottleChecks &&
                     !CpuInfo.locked &&
                     !AndroidBenchmarkRunner.sustainedPerformanceModeInUse &&
-                    !WarningState.isEmulator
+                    !Errors.isEmulator
                 ) {
                     ThrottleDetector.computeThrottleBaseline()
                 }
@@ -375,7 +380,7 @@ class BenchmarkState internal constructor() {
         Log.i(TAG, key + summaryLine())
         val status = Bundle()
 
-        val prefix = WarningState.WARNING_PREFIX
+        val prefix = Errors.WARNING_PREFIX
         status.putLong("${prefix}median", stats.median)
         status.putLong("${prefix}mean", stats.mean.toLong())
         status.putLong("${prefix}min", stats.min)
@@ -463,7 +468,7 @@ class BenchmarkState internal constructor() {
 
             // Report value to Studio console
             val bundle = Bundle()
-            val fullTestName = WarningState.WARNING_PREFIX +
+            val fullTestName = Errors.WARNING_PREFIX +
                     if (className.isNotEmpty()) "$className.$testName" else testName
             bundle.putIdeSummaryLine(fullTestName, report.stats.min)
             InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
@@ -474,7 +479,7 @@ class BenchmarkState internal constructor() {
 
         internal fun ideSummaryLineWrapped(key: String, nanos: Long): String {
             val warningLines =
-                WarningState.acquireWarningStringForLogging()?.split("\n") ?: listOf()
+                Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
             return (warningLines + ideSummaryLine(key, nanos))
                 // remove first line if empty
                 .filterIndexed { index, it -> index != 0 || !it.isEmpty() }
