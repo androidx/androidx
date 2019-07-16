@@ -19,7 +19,6 @@
 package androidx.ui.framework.demos
 
 import androidx.ui.core.Constraints
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
@@ -98,16 +97,14 @@ fun HeaderFooterLayout(
 
 @Composable
 fun MultipleCollectTest() {
-    CraneWrapper {
-        val header = @Composable {
-            ColoredRect(color = Color(android.graphics.Color.GRAY))
-        }
-        val footer = @Composable {
-            ColoredRect(color = Color(android.graphics.Color.BLUE))
-        }
-        HeaderFooterLayout(header = header, footer = footer) {
-            ColoredRect(color = Color(android.graphics.Color.GREEN))
-            ColoredRect(color = Color(android.graphics.Color.YELLOW))
-        }
+    val header = @Composable {
+        ColoredRect(color = Color(android.graphics.Color.GRAY))
+    }
+    val footer = @Composable {
+        ColoredRect(color = Color(android.graphics.Color.BLUE))
+    }
+    HeaderFooterLayout(header = header, footer = footer) {
+        ColoredRect(color = Color(android.graphics.Color.GREEN))
+        ColoredRect(color = Color(android.graphics.Color.YELLOW))
     }
 }

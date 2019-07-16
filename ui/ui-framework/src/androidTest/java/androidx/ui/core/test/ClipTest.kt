@@ -21,16 +21,15 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.Clip
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.ipx
+import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.Outline
 import androidx.ui.engine.geometry.RRect
@@ -88,13 +87,11 @@ class ClipTest {
     fun simpleRectClip() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    FillColor(Color.Green)
-                    Padding(size = 10.ipx) {
-                        AtLeastSize(size = 10.ipx) {
-                            Clip(rectShape) {
-                                FillColor(Color.Cyan)
-                            }
+                FillColor(Color.Green)
+                Padding(size = 10.ipx) {
+                    AtLeastSize(size = 10.ipx) {
+                        Clip(rectShape) {
+                            FillColor(Color.Cyan)
                         }
                     }
                 }
@@ -116,12 +113,10 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    AtLeastSize(size = 30.ipx) {
-                        FillColor(Color.Green)
-                        Clip(shape) {
-                            FillColor(Color.Cyan)
-                        }
+                AtLeastSize(size = 30.ipx) {
+                    FillColor(Color.Green)
+                    Clip(shape) {
+                        FillColor(Color.Cyan)
                     }
                 }
             }
@@ -158,12 +153,10 @@ class ClipTest {
         }
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    AtLeastSize(size = 30.ipx) {
-                        FillColor(Color.Green)
-                        Clip(shape) {
-                            FillColor(Color.Cyan)
-                        }
+                AtLeastSize(size = 30.ipx) {
+                    FillColor(Color.Green)
+                    Clip(shape) {
+                        FillColor(Color.Cyan)
                     }
                 }
             }
@@ -185,12 +178,10 @@ class ClipTest {
     fun triangleClip() {
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    AtLeastSize(size = 30.ipx) {
-                        FillColor(Color.Green)
-                        Clip(triangleShape) {
-                            FillColor(Color.Cyan)
-                        }
+                AtLeastSize(size = 30.ipx) {
+                    FillColor(Color.Green)
+                    Clip(triangleShape) {
+                        FillColor(Color.Cyan)
                     }
                 }
             }
@@ -208,12 +199,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    AtLeastSize(size = 30.ipx) {
-                        FillColor(Color.Green)
-                        Clip(model.shape) {
-                            FillColor(Color.Cyan)
-                        }
+                AtLeastSize(size = 30.ipx) {
+                    FillColor(Color.Green)
+                    Clip(model.shape) {
+                        FillColor(Color.Cyan)
                     }
                 }
             }
@@ -246,12 +235,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    FillColor(Color.Green)
-                    AtLeastSize(size = 30.ipx) {
-                        Clip(model.shape) {
-                            FillColor(Color.Cyan)
-                        }
+                FillColor(Color.Green)
+                AtLeastSize(size = 30.ipx) {
+                    Clip(model.shape) {
+                        FillColor(Color.Cyan)
                     }
                 }
             }
@@ -276,12 +263,10 @@ class ClipTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    FillColor(Color.Green)
-                    AtLeastSize(size = 30.ipx) {
-                        Clip(model.shape) {
-                            FillColor(Color.Cyan)
-                        }
+                FillColor(Color.Green)
+                AtLeastSize(size = 30.ipx) {
+                    Clip(model.shape) {
+                        FillColor(Color.Cyan)
                     }
                 }
             }

@@ -17,7 +17,6 @@ package androidx.ui.layout.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -27,7 +26,7 @@ import androidx.ui.layout.Padding
 import androidx.ui.layout.VerticalScroller
 import androidx.compose.composer
 import androidx.ui.text.TextStyle
-import androidx.compose.setContent
+import androidx.ui.core.setContent
 import androidx.ui.core.sp
 
 class ScrollerActivity : Activity() {
@@ -70,13 +69,11 @@ class ScrollerActivity : Activity() {
         withDensity(density) {
             val style = TextStyle(fontSize = 30.sp)
             setContent {
-                CraneWrapper {
-                    Padding(padding = 10.dp) {
-                        VerticalScroller {
-                            Column {
-                                phrases.forEach { phrase ->
-                                    Text(text = phrase, style = style)
-                                }
+                Padding(padding = 10.dp) {
+                    VerticalScroller {
+                        Column {
+                            phrases.forEach { phrase ->
+                                Text(text = phrase, style = style)
                             }
                         }
                     }

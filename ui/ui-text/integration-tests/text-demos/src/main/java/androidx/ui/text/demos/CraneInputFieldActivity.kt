@@ -19,7 +19,7 @@ package androidx.ui.text.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.composer
-import androidx.compose.setContent
+import androidx.ui.core.setContent
 
 class CraneInputFieldActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

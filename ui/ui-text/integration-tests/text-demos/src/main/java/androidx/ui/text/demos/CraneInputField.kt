@@ -20,7 +20,6 @@ import androidx.compose.composer
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.EditorStyle
 import androidx.ui.core.InputField
 import androidx.ui.text.TextRange
@@ -53,23 +52,21 @@ val IME_ACTIONS = listOf(
 
 @Composable
 fun InputFieldDemo() {
-    CraneWrapper {
-        VerticalScroller {
-            Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-                TagLine(tag = "simple editing")
-                EditLine()
-                TagLine(tag = "simple editing2")
-                EditLine()
+    VerticalScroller {
+        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+            TagLine(tag = "simple editing")
+            EditLine()
+            TagLine(tag = "simple editing2")
+            EditLine()
 
-                for ((type, name) in KEYBOARD_TYPES) {
-                    TagLine(tag = "Keyboard Type: $name")
-                    EditLine(keyboardType = type)
-                }
+            for ((type, name) in KEYBOARD_TYPES) {
+                TagLine(tag = "Keyboard Type: $name")
+                EditLine(keyboardType = type)
+            }
 
-                for ((action, name) in IME_ACTIONS) {
-                    TagLine(tag = "Ime Action: $name")
-                    EditLine(imeAction = action)
-                }
+            for ((action, name) in IME_ACTIONS) {
+                TagLine(tag = "Ime Action: $name")
+                EditLine(imeAction = action)
             }
         }
     }

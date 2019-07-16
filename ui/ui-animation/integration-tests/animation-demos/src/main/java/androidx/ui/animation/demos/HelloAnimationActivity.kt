@@ -25,7 +25,6 @@ import androidx.animation.FloatPropKey
 import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.Transition
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Layout
 import androidx.ui.core.Draw
 import androidx.ui.core.toRect
@@ -35,7 +34,7 @@ import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.Recompose
 import androidx.compose.composer
-import androidx.compose.setContent
+import androidx.ui.core.setContent
 
 class HelloAnimationActivity : Activity() {
 
@@ -47,11 +46,9 @@ class HelloAnimationActivity : Activity() {
 
 @Composable
 fun HelloAnimation() {
-    CraneWrapper {
-        Layout(children = { ColorRect() }, layoutBlock = { _, constraints ->
-            layout(constraints.maxWidth, constraints.maxHeight) {}
-        })
-    }
+    Layout(children = { ColorRect() }, layoutBlock = { _, constraints ->
+        layout(constraints.maxWidth, constraints.maxHeight) {}
+    })
 }
 
 private val background = ColorPropKey()

@@ -19,11 +19,9 @@ package androidx.ui.core.test
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.ComplexLayout
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
@@ -35,6 +33,7 @@ import androidx.ui.core.ipx
 import androidx.ui.core.looseMin
 import androidx.ui.core.px
 import androidx.ui.core.round
+import androidx.ui.core.setContent
 import androidx.ui.core.withDensity
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.text.TextStyle
@@ -168,15 +167,13 @@ class TextLayoutTest {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent {
-                    CraneWrapper {
-                        Layout(composable) { measurables, constraints ->
-                            val placeables = measurables.map { it.measure(constraints.looseMin()) }
-                            layout(constraints.maxWidth, constraints.maxHeight) {
-                                var top = 0.px
-                                placeables.forEach {
-                                    it.place(0.px, top)
-                                    top += it.height
-                                }
+                    Layout(composable) { measurables, constraints ->
+                        val placeables = measurables.map { it.measure(constraints.looseMin()) }
+                        layout(constraints.maxWidth, constraints.maxHeight) {
+                            var top = 0.px
+                            placeables.forEach {
+                                it.place(0.px, top)
+                                top += it.height
                             }
                         }
                     }

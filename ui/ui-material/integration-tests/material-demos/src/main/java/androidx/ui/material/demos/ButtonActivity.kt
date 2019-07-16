@@ -34,13 +34,13 @@ package androidx.ui.material.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.setContent
 import androidx.compose.composer
+import androidx.ui.core.setContent
 
 class ButtonActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { ButtonDemo()}
+        setContent { ButtonDemo() }
     }
 }

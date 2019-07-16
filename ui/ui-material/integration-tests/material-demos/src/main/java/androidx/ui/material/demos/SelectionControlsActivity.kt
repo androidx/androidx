@@ -18,19 +18,16 @@ package androidx.ui.material.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.ui.core.CraneWrapper
-import androidx.ui.material.MaterialTheme
-import androidx.compose.setContent
 import androidx.compose.composer
+import androidx.ui.core.setContent
+import androidx.ui.material.MaterialTheme
 
 open class SelectionControlsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    SelectionsControlsDemo()
-                }
+            MaterialTheme {
+                SelectionsControlsDemo()
             }
         }
     }

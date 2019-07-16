@@ -19,7 +19,6 @@ package androidx.ui.text.demos
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Span
 import androidx.ui.core.Text
 import androidx.ui.core.px
@@ -60,48 +59,46 @@ val fontSize10: Sp = 30.sp
 
 @Composable
 fun TextDemo() {
-    CraneWrapper {
-        VerticalScroller {
-            Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-                TagLine(tag = "color, fontSize, fontWeight and fontStyle")
-                TextDemoBasic()
-                TagLine(tag = "Chinese, Arabic, and Hindi")
-                TextDemoLanguage()
-                TagLine(tag = "FontFamily: sans-serif, serif, and monospace")
-                TextDemoFontFamily()
-                TagLine(tag = "decoration, decorationColor and decorationStyle")
-                TextDemoTextDecoration()
-                TagLine(tag = "letterSpacing")
-                TextDemoLetterSpacing()
-                TagLine(tag = "baselineShift")
-                TextDemoBaselineShift()
-                TagLine(tag = "lineHeight")
-                TextDemoHeight()
-                TagLine(tag = "background")
-                TextDemoBackground()
-                TagLine(tag = "Locale: Japanese, Simplified and Traditional Chinese")
-                TextDemoLocale()
-                TagLine(tag = "textAlign and textDirection")
-                TextDemoTextAlign()
-                TagLine(tag = "softWrap: on and off")
-                TextDemoSoftWrap()
-                TagLine(tag = "TextOverFlow: Fade")
-                TexDemoTextOverflowFade()
-                TagLine(tag = "shadow")
-                TextDemoShadowEffect()
-                TagLine(tag = "selection")
-                TextDemoSelection()
-                TagLine(tag = "selection with string input")
-                TextDemoSelectionWithStringInput()
-                TagLine(tag = "selection in 2D Array Vertical")
-                TextDemoSelection2DArrayVertical()
-                TagLine(tag = "selection in 2D Array Horizontal")
-                TextDemoSelection2DArrayHorizontal()
-                TagLine(tag = "composable textspan")
-                TextDemoComposableTextSpan()
-                TagLine(tag = "fontSizeScale")
-                TextDemoFontSizeScale()
-            }
+    VerticalScroller {
+        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+            TagLine(tag = "color, fontSize, fontWeight and fontStyle")
+            TextDemoBasic()
+            TagLine(tag = "Chinese, Arabic, and Hindi")
+            TextDemoLanguage()
+            TagLine(tag = "FontFamily: sans-serif, serif, and monospace")
+            TextDemoFontFamily()
+            TagLine(tag = "decoration, decorationColor and decorationStyle")
+            TextDemoTextDecoration()
+            TagLine(tag = "letterSpacing")
+            TextDemoLetterSpacing()
+            TagLine(tag = "baselineShift")
+            TextDemoBaselineShift()
+            TagLine(tag = "lineHeight")
+            TextDemoHeight()
+            TagLine(tag = "background")
+            TextDemoBackground()
+            TagLine(tag = "Locale: Japanese, Simplified and Traditional Chinese")
+            TextDemoLocale()
+            TagLine(tag = "textAlign and textDirection")
+            TextDemoTextAlign()
+            TagLine(tag = "softWrap: on and off")
+            TextDemoSoftWrap()
+            TagLine(tag = "TextOverFlow: Fade")
+            TexDemoTextOverflowFade()
+            TagLine(tag = "shadow")
+            TextDemoShadowEffect()
+            TagLine(tag = "selection")
+            TextDemoSelection()
+            TagLine(tag = "selection with string input")
+            TextDemoSelectionWithStringInput()
+            TagLine(tag = "selection in 2D Array Vertical")
+            TextDemoSelection2DArrayVertical()
+            TagLine(tag = "selection in 2D Array Horizontal")
+            TextDemoSelection2DArrayHorizontal()
+            TagLine(tag = "composable textspan")
+            TextDemoComposableTextSpan()
+            TagLine(tag = "fontSizeScale")
+            TextDemoFontSizeScale()
         }
     }
 }

@@ -20,11 +20,10 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.compose.unaryPlus
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.core.setContent
 import androidx.ui.layout.Column
 import androidx.ui.layout.HeightSpacer
 import androidx.ui.layout.Padding
@@ -40,9 +39,7 @@ class RallyActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                RallyApp()
-            }
+            RallyApp()
         }
     }
 

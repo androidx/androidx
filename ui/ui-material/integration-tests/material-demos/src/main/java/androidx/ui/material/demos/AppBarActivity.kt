@@ -19,12 +19,11 @@ package androidx.ui.material.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
-import androidx.compose.setContent
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
+import androidx.ui.core.setContent
 import androidx.ui.layout.Column
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.HeightSpacer
@@ -40,30 +39,28 @@ class AppBarActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    val favouriteImage = { imageFromResource(resources, R.drawable.ic_favorite) }
-                    val navigationImage = { imageFromResource(resources, R.drawable.ic_menu) }
-                    FlexColumn {
-                        expanded(1f) {
-                            Column {
-                                SpacedText("TopAppBar")
-                                HeightSpacer(height = 28.dp)
-                                SimpleTopAppBar(favouriteImage, navigationImage)
-                            }
-                            Column {
-                                SpacedText("BottomAppBar - No FAB")
-                                HeightSpacer(height = 28.dp)
-                                SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
-                            }
-                            Column {
-                                SpacedText("BottomAppBar - Center FAB")
-                                SimpleBottomAppBarCenterFab(favouriteImage, navigationImage)
-                            }
-                            Column {
-                                SpacedText("BottomAppBar - End FAB")
-                                SimpleBottomAppBarEndFab(favouriteImage)
-                            }
+            MaterialTheme {
+                val favouriteImage = { imageFromResource(resources, R.drawable.ic_favorite) }
+                val navigationImage = { imageFromResource(resources, R.drawable.ic_menu) }
+                FlexColumn {
+                    expanded(1f) {
+                        Column {
+                            SpacedText("TopAppBar")
+                            HeightSpacer(height = 28.dp)
+                            SimpleTopAppBar(favouriteImage, navigationImage)
+                        }
+                        Column {
+                            SpacedText("BottomAppBar - No FAB")
+                            HeightSpacer(height = 28.dp)
+                            SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
+                        }
+                        Column {
+                            SpacedText("BottomAppBar - Center FAB")
+                            SimpleBottomAppBarCenterFab(favouriteImage, navigationImage)
+                        }
+                        Column {
+                            SpacedText("BottomAppBar - End FAB")
+                            SimpleBottomAppBarEndFab(favouriteImage)
                         }
                     }
                 }

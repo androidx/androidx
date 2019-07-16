@@ -17,11 +17,8 @@
 package androidx.ui.layout.test
 
 import android.widget.FrameLayout
-import androidx.compose.Composable
-import androidx.compose.compose
-import androidx.compose.composer
 import androidx.test.filters.SmallTest
-import androidx.ui.core.CraneWrapper
+import androidx.compose.composer
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
@@ -29,6 +26,7 @@ import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.ipx
 import androidx.ui.core.px
+import androidx.ui.core.setContent
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
@@ -177,15 +175,14 @@ class OnPositionedTest : LayoutTest() {
                 val frameLayout = FrameLayout(activity)
                 frameLayout.setPadding(padding, padding, padding, padding)
                 activity.setContentView(frameLayout)
-                frameLayout.compose @Composable {
-                    CraneWrapper {
-                        OnChildPositioned(onPositioned = {
-                            realGlobalPosition = it.localToGlobal(localPosition)
-                            realLocalPosition = it.globalToLocal(globalPosition)
-                            drawLatch.countDown()
-                        }) {
-                            Container(expanded = true) {}
-                        }
+
+                frameLayout.setContent {
+                    OnChildPositioned(onPositioned = {
+                        realGlobalPosition = it.localToGlobal(localPosition)
+                        realLocalPosition = it.globalToLocal(globalPosition)
+                        drawLatch.countDown()
+                    }) {
+                        Container(expanded = true) {}
                     }
                 }
             }

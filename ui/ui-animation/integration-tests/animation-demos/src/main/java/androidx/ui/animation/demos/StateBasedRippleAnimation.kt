@@ -25,7 +25,6 @@ import androidx.animation.TransitionDefinition
 import androidx.animation.TransitionState
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.Transition
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.PressGestureDetector
@@ -35,11 +34,11 @@ import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
-import androidx.compose.setContent
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.ambientDensity
 import androidx.ui.core.dp
+import androidx.ui.core.setContent
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container
 
@@ -53,10 +52,8 @@ class StateBasedRippleAnimation : Activity() {
 
 @Composable
 fun StateBasedRippleDemo() {
-    CraneWrapper {
-        Container(expanded = true) {
-            RippleRect()
-        }
+    Container(expanded = true) {
+        RippleRect()
     }
 }
 

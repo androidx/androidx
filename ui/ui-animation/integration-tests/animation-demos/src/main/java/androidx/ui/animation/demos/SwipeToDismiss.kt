@@ -26,11 +26,9 @@ import androidx.animation.fling
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
-import androidx.compose.setContent
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
@@ -40,6 +38,7 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
+import androidx.ui.core.setContent
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
@@ -54,13 +53,11 @@ class SwipeToDismiss : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                Column {
-                        SwipeToDismiss()
+            Column {
+                SwipeToDismiss()
 
-                    Padding(40.dp) {
-                        Text("Swipe up to dismiss", style = TextStyle(fontSize = 20.sp))
-                    }
+                Padding(40.dp) {
+                    Text("Swipe up to dismiss", style = TextStyle(fontSize = 80.sp))
                 }
             }
         }

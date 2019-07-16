@@ -17,10 +17,12 @@ package androidx.ui.core
 
 import android.app.Activity
 import android.content.Context
+import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.compose.Ambient
+import androidx.compose.composer
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Compose
@@ -28,23 +30,23 @@ import androidx.compose.CompositionContext
 import androidx.compose.CompositionReference
 import androidx.compose.Observe
 import androidx.compose.ambient
-import androidx.compose.composer
 import androidx.compose.compositionReference
 import androidx.compose.effectOf
 import androidx.compose.memo
-import androidx.compose.onDispose
 import androidx.compose.onPreCommit
 import androidx.compose.unaryPlus
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.text.font.Font
 
+/**
+ * Composes a view containing ui composables into a view composition.
+ * <p>
+ * This is supposed to be used only in view compositions. If compose ui is supposed to be the root of composition use
+ * [Activity.setContent] or [ViewGroup.setContent] extensions.
+ */
 @Composable
-fun CraneWrapper(@Children children: @Composable() () -> Unit) {
+fun ComposeView(@Children children: @Composable() () -> Unit) {
     val rootRef = +memo { Ref<AndroidCraneView>() }
-
-    // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work with
-    //             nested AndroidCraneView case
-    val focusManager = +memo { FocusManager() }
 
     <AndroidCraneView ref=rootRef>
         var reference: CompositionReference? = null
@@ -77,17 +79,10 @@ fun CraneWrapper(@Children children: @Composable() () -> Unit) {
         }
         val rootLayoutNode = rootRef.value?.root ?: error("Failed to create root platform view")
         val context = rootRef.value?.context ?: composer.composer.context
+
         cc = Compose.composeInto(container = rootLayoutNode, context = context, parent = reference) {
-            ContextAmbient.Provider(value = context) {
-                DensityAmbient.Provider(value = Density(context)) {
-                    FocusManagerAmbient.Provider(value = focusManager) {
-                        TextInputServiceAmbient.Provider(value = rootRef.value?.textInputService) {
-                            FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
-                                children()
-                            }
-                        }
-                    }
-                }
+            WrapWithAmbients(rootRef.value!!, context) {
+                children()
             }
         }
     </AndroidCraneView>
@@ -97,29 +92,57 @@ fun CraneWrapper(@Children children: @Composable() () -> Unit) {
  * Composes the given composable into the given activity. The composable will become the root view
  * of the given activity.
  *
- * @param activity Activity that will host the given content.
- * @param children Composable that will be the content of the activity.
+ * @param content Composable that will be the content of the activity.
  */
-fun composeIntoActivity(
-    activity: Activity,
-    @Children children: @Composable() () -> Unit
+fun Activity.setContent(
+    @Children content: @Composable() () -> Unit
 ): CompositionContext? {
-    val craneView = AndroidCraneView(activity)
-    activity.setContentView(craneView)
+    val craneView = window.decorView
+        .findViewById<ViewGroup>(android.R.id.content)
+        .getChildAt(0) as? AndroidCraneView
+        ?: AndroidCraneView(this).also { setContentView(it) }
 
-    return Compose.composeInto(craneView.root, activity) {
-        // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
-        //             with nested AndroidCraneView case
-        val focusManager = +memo { FocusManager() }
+    return Compose.composeInto(craneView.root, this) {
+        WrapWithAmbients(craneView, this) {
+            content()
+        }
+    }
+}
 
-        val context = craneView.context ?: composer.composer.context
-        ContextAmbient.Provider(value = context) {
-            DensityAmbient.Provider(value = Density(context)) {
-                FocusManagerAmbient.Provider(value = focusManager) {
-                    TextInputServiceAmbient.Provider(value = craneView.textInputService) {
-                        FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
-                            children()
-                        }
+/**
+ * Composes the given composable into the given view.
+ *
+ * @param content Composable that will be the content of the view.
+ */
+fun ViewGroup.setContent(
+    @Children content: @Composable() () -> Unit
+): CompositionContext? {
+    val craneView =
+        if (childCount > 0) { getChildAt(0) as? AndroidCraneView } else { removeAllViews(); null }
+        ?: AndroidCraneView(context).also { addView(it) }
+
+    return Compose.composeInto(craneView.root, context) {
+        WrapWithAmbients(craneView, context) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun WrapWithAmbients(
+    craneView: AndroidCraneView,
+    context: Context,
+    @Children content: @Composable() () -> Unit
+) {
+    // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
+    //             with nested AndroidCraneView case
+    val focusManager = +memo { FocusManager() }
+    ContextAmbient.Provider(value = context) {
+        DensityAmbient.Provider(value = Density(context)) {
+            FocusManagerAmbient.Provider(value = focusManager) {
+                TextInputServiceAmbient.Provider(value = craneView.textInputService) {
+                    FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
+                        content()
                     }
                 }
             }
