@@ -245,4 +245,36 @@ class InputFieldDelegateTest {
             false /* hasFocus */)
         verify(textInputService, never()).notifyFocusedRect(any())
     }
+
+    @Test
+    fun notify_rect_tail() {
+        val dummyRect = Rect(0f, 1f, 2f, 3f)
+        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        val dummyPoint = PxPosition(5.px, 6.px)
+        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(12, 12))
+        InputFieldDelegate.notifyFocusedRect(
+            dummyEditorState,
+            painter,
+            layoutCoordinates,
+            textInputService,
+            true /* hasFocus */)
+        verify(textInputService).notifyFocusedRect(any())
+    }
+
+    @Test
+    fun notify_rect_empty() {
+        val dummyRect = Rect(0f, 1f, 2f, 3f)
+        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        val dummyPoint = PxPosition(5.px, 6.px)
+        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
+        val dummyEditorState = EditorState(text = "", selection = TextRange(0, 0))
+        InputFieldDelegate.notifyFocusedRect(
+            dummyEditorState,
+            painter,
+            layoutCoordinates,
+            textInputService,
+            true /* hasFocus */)
+        verify(textInputService).notifyFocusedRect(any())
+    }
 }
