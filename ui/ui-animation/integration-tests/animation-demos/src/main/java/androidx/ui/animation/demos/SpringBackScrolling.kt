@@ -64,7 +64,7 @@ class SpringBackScrolling : Activity() {
     fun SpringBackExample() {
         Column {
             Padding(40.dp) {
-                Text("<== Scroll horizontally ==>", style = TextStyle(fontSize = 80.sp))
+                Text("<== Scroll horizontally ==>", style = TextStyle(fontSize = 20.sp))
             }
             val animScroll = +animatedFloat(0f)
             val itemWidth = +state { 0f }
