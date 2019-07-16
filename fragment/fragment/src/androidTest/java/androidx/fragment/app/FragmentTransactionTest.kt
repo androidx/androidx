@@ -86,8 +86,9 @@ class FragmentTransactionTest {
     @Test
     @UiThreadTest
     fun testAddTransactionByClassName() {
+        val args = Bundle()
         activity.supportFragmentManager.beginTransaction()
-            .add(R.id.content, CorrectFragment::class.java)
+            .add(R.id.content, CorrectFragment::class.java, args)
             .addToBackStack(null)
             .commit()
         activity.supportFragmentManager.executePendingTransactions()
@@ -95,6 +96,8 @@ class FragmentTransactionTest {
         val fragment = activity.supportFragmentManager.findFragmentById(R.id.content)
         assertThat(fragment)
             .isInstanceOf(CorrectFragment::class.java)
+        assertThat(fragment?.arguments)
+            .isSameInstanceAs(args)
     }
 
     @Test
@@ -237,8 +240,9 @@ class FragmentTransactionTest {
         assertThat(activity.supportFragmentManager.findFragmentById(R.id.content))
             .isSameInstanceAs(firstFragment)
 
+        val args = Bundle()
         activity.supportFragmentManager.beginTransaction()
-            .add(R.id.content, CorrectFragment::class.java)
+            .add(R.id.content, CorrectFragment::class.java, args)
             .addToBackStack(null)
             .commit()
         activity.supportFragmentManager.executePendingTransactions()
@@ -246,6 +250,8 @@ class FragmentTransactionTest {
         val fragment = activity.supportFragmentManager.findFragmentById(R.id.content)
         assertThat(fragment)
             .isInstanceOf(CorrectFragment::class.java)
+        assertThat(fragment?.arguments)
+            .isSameInstanceAs(args)
     }
 
     @Test
