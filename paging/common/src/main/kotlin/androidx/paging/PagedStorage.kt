@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
+import androidx.paging.PagedSource.LoadResult
 import java.util.AbstractList
 
 /**
@@ -300,10 +301,7 @@ class PagedStorage<T : Any> : AbstractList<T>, Pager.AdjacentProvider<T> {
         )
     }
 
-    override fun onPageResultResolution(
-        type: PagedList.LoadType,
-        result: DataSource.BaseResult<T>
-    ) {
+    override fun onPageResultResolution(type: PagedList.LoadType, result: LoadResult<*, T>) {
         // ignored
     }
 

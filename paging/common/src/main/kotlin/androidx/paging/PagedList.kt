@@ -393,7 +393,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * Does not affect initial load, which will be done immediately on whichever thread the
          * [PagedList] is created on.
          *
-         * @param fetchExecutor [Executor] used to fetch from [DataSources], generally a background
+         * @param fetchExecutor [Executor] used to fetch from [DataSource]s, generally a background
          * thread pool for e.g. I/O or network loading.
          * @return this
          */
