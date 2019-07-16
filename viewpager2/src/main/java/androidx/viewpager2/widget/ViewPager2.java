@@ -143,6 +143,7 @@ public final class ViewPager2 extends ViewGroup {
     private RecyclerView mRecyclerView;
     private PagerSnapHelper mPagerSnapHelper;
     private ScrollEventAdapter mScrollEventAdapter;
+    private CompositeOnPageChangeCallback mPageChangeEventDispatcher;
     private FakeDrag mFakeDragger;
     private PageTransformerAdapter mPageTransformerAdapter;
     private boolean mUserInputEnabled = true;
@@ -199,9 +200,8 @@ public final class ViewPager2 extends ViewGroup {
         // don't want to respond on the events sent out during the attach process
         mRecyclerView.addOnScrollListener(mScrollEventAdapter);
 
-        CompositeOnPageChangeCallback pageChangeEventDispatcher =
-                new CompositeOnPageChangeCallback(3);
-        mScrollEventAdapter.setOnPageChangeCallback(pageChangeEventDispatcher);
+        mPageChangeEventDispatcher = new CompositeOnPageChangeCallback(3);
+        mScrollEventAdapter.setOnPageChangeCallback(mPageChangeEventDispatcher);
 
         // Callback that updates mCurrentItem after swipes. Also triggered in other cases, but in
         // all those cases mCurrentItem will only be overwritten with the same value.
@@ -213,20 +213,27 @@ public final class ViewPager2 extends ViewGroup {
                     mAccessibilityProvider.onSetNewCurrentItem();
                 }
             }
+
+            @Override
+            public void onPageScrollStateChanged(int newState) {
+                if (newState == SCROLL_STATE_IDLE) {
+                    updateCurrentItem();
+                }
+            }
         };
 
         // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
-        pageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
+        mPageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
         // Allow a11y to register its listeners just after currentItemUpdater (so it has the
         // right data). TODO: replace ordering comments with a test.
-        mAccessibilityProvider.onInitialize(pageChangeEventDispatcher, mRecyclerView);
-        pageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
+        mAccessibilityProvider.onInitialize(mPageChangeEventDispatcher, mRecyclerView);
+        mPageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
         // Add mPageTransformerAdapter after mExternalPageChangeCallbacks, because page transform
         // events must be fired after scroll events
         mPageTransformerAdapter = new PageTransformerAdapter(mLayoutManager);
-        pageChangeEventDispatcher.addOnPageChangeCallback(mPageTransformerAdapter);
+        mPageChangeEventDispatcher.addOnPageChangeCallback(mPageTransformerAdapter);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
     }
@@ -525,20 +532,17 @@ public final class ViewPager2 extends ViewGroup {
             throw new IllegalStateException("Design assumption violated.");
         }
 
-        int snapPosition = mPagerSnapHelper.findTargetSnapPosition(mLayoutManager, 0, 0);
+        View snapView = mPagerSnapHelper.findSnapView(mLayoutManager);
+        if (snapView == null) {
+            return; // nothing we can do
+        }
+        int snapPosition = mLayoutManager.getPosition(snapView);
 
-        // Extra checks verifying assumptions
-        // TODO: remove after testing
-        View snapView1 = mPagerSnapHelper.findSnapView(mLayoutManager);
-        View snapView2 = mLayoutManager.findViewByPosition(snapPosition);
-        if (snapView1 != snapView2) {
-            throw new IllegalStateException("Design assumption violated.");
+        if (snapPosition != mCurrentItem && getScrollState() == SCROLL_STATE_IDLE) {
+            /** TODO: revisit if push to {@link ScrollEventAdapter} / separate component */
+            mPageChangeEventDispatcher.onPageSelected(snapPosition);
         }
 
-        if (snapPosition != mCurrentItem) {
-            // TODO: handle fakeDrag
-            setCurrentItem(snapPosition, false);
-        }
         mCurrentItemDirty = false;
     }
 
