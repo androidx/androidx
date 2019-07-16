@@ -17,6 +17,7 @@
 package androidx.media2.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -26,7 +27,14 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.os.Build;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
+import android.util.Log;
+import android.view.PixelCopy;
+import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,15 +63,16 @@ import java.util.concurrent.TimeUnit;
 @RunWith(Parameterized.class)
 @LargeTest
 public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
+    static final String TAG = "VideoView_WithPlayerTest";
     @Parameterized.Parameters(name = "PlayerType={0}")
     public static List<String> getPlayerTypes() {
         return Arrays.asList(PLAYER_TYPE_MEDIA_CONTROLLER, PLAYER_TYPE_MEDIA_PLAYER);
     }
-
     private String mPlayerType;
     private Activity mActivity;
     private VideoView mVideoView;
     private MediaItem mMediaItem;
+    private SynchronousPixelCopy mPixelCopyHelper;
 
     @Rule
     public ActivityTestRule<VideoViewTestActivity> mActivityRule =
@@ -78,6 +87,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         mActivity = mActivityRule.getActivity();
         mVideoView = mActivity.findViewById(R.id.videoview);
         mMediaItem = createTestMediaItem();
+        mPixelCopyHelper = new SynchronousPixelCopy();
 
         setKeepScreenOn(mActivityRule);
         checkAttachedToWindow(mVideoView);
@@ -91,6 +101,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 closeAll();
             }
         });
+        mPixelCopyHelper.release();
     }
 
     @Test
@@ -105,6 +116,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        checkVideoRendering();
     }
 
     @Test
@@ -126,6 +138,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        checkVideoRendering();
     }
 
     @Test
@@ -154,6 +167,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        checkVideoRendering();
     }
 
     @Test
@@ -186,6 +200,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        checkVideoRendering();
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -195,6 +210,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         });
         verify(mockViewTypeListener, timeout(WAIT_TIME_MS))
                 .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_TEXTUREVIEW);
+        checkVideoRendering();
     }
 
     // @UiThreadTest will be ignored by Parameterized test runner (b/30746303)
@@ -257,5 +273,103 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item) {
         return createPlayerWrapperOfType(callback, item, mPlayerType);
+    }
+
+    private void checkVideoRendering() throws InterruptedException {
+        if (Build.VERSION.SDK_INT == 28) {
+            // TODO: This if-block for API 28 should be removed. (b/137321781)
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= 24) {
+            final int bufferQueueToleranceMs = 200;
+            final int elapsedTimeForSecondScreenshotMs = 100;
+
+            // Tolerance until the video buffers are actually queued.
+            Thread.sleep(bufferQueueToleranceMs);
+            Bitmap beforeBitmap = getVideoScreenshot();
+            Thread.sleep(elapsedTimeForSecondScreenshotMs);
+            Bitmap afterBitmap = getVideoScreenshot();
+            assertFalse(afterBitmap.sameAs(beforeBitmap));
+        }
+    }
+
+    private Bitmap getVideoScreenshot() {
+        Bitmap bitmap = Bitmap.createBitmap(mVideoView.getWidth(),
+                mVideoView.getHeight(), Bitmap.Config.RGB_565);
+        if (mVideoView.getViewType() == mVideoView.VIEW_TYPE_SURFACEVIEW) {
+            int copyResult = mPixelCopyHelper.request(mVideoView.mSurfaceView, bitmap);
+            assertEquals("PixelCopy failed.", PixelCopy.SUCCESS, copyResult);
+        } else {
+            bitmap = mVideoView.mTextureView.getBitmap(bitmap);
+        }
+        return bitmap;
+    }
+
+    private static class SynchronousPixelCopy {
+        private Handler mHandler;
+        private HandlerThread mHandlerThread;
+        private int mStatus = PixelCopy.SUCCESS;
+
+        SynchronousPixelCopy() {
+            if (Build.VERSION.SDK_INT == 28) {
+                // TODO: This if-block for API 28 should be removed. (b/137321781)
+                return;
+            }
+            if (Build.VERSION.SDK_INT >= 24) {
+                this.mHandlerThread = new HandlerThread("PixelCopyHelper");
+                mHandlerThread.start();
+                this.mHandler = new Handler(mHandlerThread.getLooper());
+            }
+        }
+
+        public void release() {
+            if (Build.VERSION.SDK_INT == 28) {
+                // TODO: This if-block for API 28 should be removed. (b/137321781)
+                return;
+            }
+            if (Build.VERSION.SDK_INT >= 24) {
+                if (mHandlerThread.isAlive()) {
+                    mHandlerThread.quitSafely();
+                }
+            }
+        }
+
+        public int request(SurfaceView source, Bitmap dest) {
+            if (Build.VERSION.SDK_INT == 28) {
+                // TODO: This if-block for API 28 should be removed. (b/137321781)
+                return -1;
+            }
+            if (Build.VERSION.SDK_INT < 24) {
+                return -1;
+            }
+            synchronized (this) {
+                try {
+                    PixelCopy.request(source, dest, new PixelCopy.OnPixelCopyFinishedListener() {
+                        @Override
+                        public void onPixelCopyFinished(int copyResult) {
+                            synchronized (this) {
+                                mStatus = copyResult;
+                                this.notify();
+                            }
+                        }
+                    }, mHandler);
+                    return getResultLocked();
+                } catch (Exception e) {
+                    Log.e(TAG, "Exception occurred when copying a SurfaceView.", e);
+                    return -1;
+                }
+            }
+        }
+
+        private int getResultLocked() {
+            try {
+                this.wait(1000);
+            } catch (InterruptedException e) {
+                /* PixelCopy request didn't complete within 1s */
+                mStatus = PixelCopy.ERROR_TIMEOUT;
+            }
+            Log.e(TAG, "PixelCopyResult: " + mStatus);
+            return mStatus;
+        }
     }
 }
