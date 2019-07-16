@@ -409,16 +409,16 @@ enum class CrossAxisAlignment {
  * Box [Constraints], but which abstract away width and height in favor of main axis and cross axis.
  */
 private data class OrientationIndependentConstraints(
-    var mainAxisMin: IntPx,
-    var mainAxisMax: IntPx,
-    var crossAxisMin: IntPx,
-    var crossAxisMax: IntPx
+    val mainAxisMin: IntPx,
+    val mainAxisMax: IntPx,
+    val crossAxisMin: IntPx,
+    val crossAxisMax: IntPx
 ) {
     constructor(c: Constraints, orientation: FlexOrientation) : this(
-        if (orientation == FlexOrientation.Horizontal) c.minWidth else c.minHeight,
-        if (orientation == FlexOrientation.Horizontal) c.maxWidth else c.maxHeight,
-        if (orientation == FlexOrientation.Horizontal) c.minHeight else c.minWidth,
-        if (orientation == FlexOrientation.Horizontal) c.maxHeight else c.maxWidth
+        if (orientation === FlexOrientation.Horizontal) c.minWidth else c.minHeight,
+        if (orientation === FlexOrientation.Horizontal) c.maxWidth else c.maxHeight,
+        if (orientation === FlexOrientation.Horizontal) c.minHeight else c.minWidth,
+        if (orientation === FlexOrientation.Horizontal) c.maxHeight else c.maxWidth
     )
 
     // Creates a new instance with the same cross axis constraints and unbounded main axis.
@@ -436,7 +436,7 @@ private data class OrientationIndependentConstraints(
 
     // Given an orientation, resolves the current instance to traditional constraints.
     fun toBoxConstraints(orientation: FlexOrientation) =
-        if (orientation == FlexOrientation.Horizontal) {
+        if (orientation === FlexOrientation.Horizontal) {
             Constraints(mainAxisMin, mainAxisMax, crossAxisMin, crossAxisMax)
         } else {
             Constraints(crossAxisMin, crossAxisMax, mainAxisMin, mainAxisMax)
@@ -444,7 +444,7 @@ private data class OrientationIndependentConstraints(
 
     // Given an orientation, resolves the max width constraint this instance represents.
     fun maxWidth(orientation: FlexOrientation) =
-        if (orientation == FlexOrientation.Horizontal) {
+        if (orientation === FlexOrientation.Horizontal) {
             mainAxisMax
         } else {
             crossAxisMax
@@ -452,7 +452,7 @@ private data class OrientationIndependentConstraints(
 
     // Given an orientation, resolves the max height constraint this instance represents.
     fun maxHeight(orientation: FlexOrientation) =
-        if (orientation == FlexOrientation.Horizontal) {
+        if (orientation === FlexOrientation.Horizontal) {
             crossAxisMax
         } else {
             mainAxisMax

@@ -66,8 +66,9 @@ internal class ComplexLayoutState(
     internal val layoutNode: LayoutNode
         get() = layoutNodeRef.value!!
 
-    internal val childrenMeasurables: List<Measurable> get() =
-        ComplexLayoutStateMeasurablesList(layoutNode.childrenLayouts().map { it as Measurable })
+    // TODO(mount/popam): This is inefficient
+    internal val childrenMeasurables: List<Measurable>
+        get() = ComplexLayoutStateMeasurablesList(layoutNode)
 
     private var measureIteration = 0L
 
@@ -77,7 +78,8 @@ internal class ComplexLayoutState(
     }
 
     fun measure(constraints: Constraints): Placeable {
-        val iteration = layoutNode.owner?.measureIteration ?: 0L
+        val owner = layoutNode.owner
+        val iteration = if (owner == null) 0L else owner.measureIteration
         if (measureIteration == iteration) {
             throw IllegalStateException("measure() may not be called multiple times " +
                     "on the same Measurable")
@@ -170,8 +172,32 @@ internal class ComplexLayoutState(
 }
 
 internal class ComplexLayoutStateMeasurablesList(
-    internal val measurables: List<Measurable>
-) : List<Measurable> by (measurables.filter { it.parentData !is ChildrenEndParentData })
+    layoutNode: LayoutNode
+) : MutableList<Measurable> by mutableListOf() {
+    private val composableRanges = mutableMapOf<@Composable() () -> Unit, IntRange>()
+    fun composables(composable: @Composable() () -> Unit): List<Measurable> {
+        val range = composableRanges[composable] ?: return emptyList()
+        return subList(range.first, range.last)
+    }
+
+    init {
+        // var start = 0 doesn't work because of IR
+        val start = intArrayOf(0)
+        layoutNode.visitLayoutChildren { child ->
+            val layout = child.layout
+            if (layout != null) {
+                layout as Measurable
+                val parentData = layout.parentData
+                if (parentData is ChildrenEndParentData) {
+                    composableRanges[parentData.children] = IntRange(start[0], size)
+                    start[0] = size
+                } else {
+                    this += layout
+                }
+            }
+        }
+    }
+}
 
 /**
  * Receiver scope for the [ComplexLayout] lambda.
@@ -436,17 +462,10 @@ class LayoutReceiver internal constructor(
      * Returns all the [Measurable]s emitted for a particular children lambda.
      * TODO(popam): finding measurables for each individual composable is O(n^2), consider improving
      */
-    operator fun List<Measurable>.get(children: () -> Unit): List<Measurable> {
+    operator fun List<Measurable>.get(children: @Composable() () -> Unit): List<Measurable> {
         if (this !is ComplexLayoutStateMeasurablesList) error("Invalid list of measurables")
 
-        val childrenMeasurablesEnd = measurables.indexOfFirst {
-            it.parentData is ChildrenEndParentData &&
-                    (it.parentData as ChildrenEndParentData).children == children
-        }
-        val childrenMeasurablesStart = measurables.take(childrenMeasurablesEnd).indexOfLast {
-            it.parentData is ChildrenEndParentData
-        } + 1
-        return measurables.subList(childrenMeasurablesStart, childrenMeasurablesEnd)
+        return composables(children)
     }
     /**
      * Measure the child [Measurable] with a specific set of [Constraints]. The result

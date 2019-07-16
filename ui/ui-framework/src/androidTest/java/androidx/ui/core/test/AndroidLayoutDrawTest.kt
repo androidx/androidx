@@ -454,11 +454,11 @@ class AndroidLayoutDrawTest {
                         measurables.forEachIndexed { index, measurable ->
                             measurable.measure(childConstraints[index])
                         }
-                        assertEquals(headerChildrenCount, measurables[header as () -> Unit].size)
-                        assertSame(measurables[0], measurables[header as () -> Unit][0])
-                        assertEquals(footerChildrenCount, measurables[footer as () -> Unit].size)
-                        assertSame(measurables[1], measurables[footer as () -> Unit][0])
-                        assertSame(measurables[2], measurables[footer as () -> Unit][1])
+                        assertEquals(headerChildrenCount, measurables[header].size)
+                        assertSame(measurables[0], measurables[header][0])
+                        assertEquals(footerChildrenCount, measurables[footer].size)
+                        assertSame(measurables[1], measurables[footer][0])
+                        assertSame(measurables[2], measurables[footer][1])
                     }
                 }
             }
