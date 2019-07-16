@@ -126,7 +126,7 @@ class SwitchUiTest {
 
     private fun materialSizesTestForValue(checked: Boolean) {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 Switch(checked = checked, onCheckedChange = null)
             }
             .assertWidthEqualsTo { 34.dp.toIntPx() + 2.dp.toIntPx() * 2 }

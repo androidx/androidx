@@ -18,21 +18,13 @@ package androidx.ui.material
 
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.ui.core.Density
-import androidx.ui.core.DensityReceiver
-import androidx.ui.core.Dp
-import androidx.ui.core.IntPx
-import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxSize
-import androidx.ui.core.dp
-import androidx.ui.core.round
-import androidx.ui.core.withDensity
-import androidx.ui.layout.ConstrainedBox
+import androidx.ui.test.BigTestConstraints
+import androidx.ui.test.CollectedSizes
+import androidx.ui.test.setContentAndGetPixelSize
 import androidx.ui.layout.DpConstraints
-import androidx.ui.layout.Wrap
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestRule
-import com.google.common.truth.Truth
 
 fun ComposeTestRule.setMaterialContent(composable: @Composable() () -> Unit) {
     setContent {
@@ -44,77 +36,24 @@ fun ComposeTestRule.setMaterialContent(composable: @Composable() () -> Unit) {
     }
 }
 
-private val BigConstraints = DpConstraints(maxWidth = 5000.dp, maxHeight = 5000.dp)
-
-fun ComposeTestRule.setMaterialContentAndTestSizes(
-    parentConstraints: DpConstraints = BigConstraints,
+fun ComposeTestRule.setMaterialContentAndCollectSizes(
+    parentConstraints: DpConstraints = BigTestConstraints,
     children: @Composable() () -> Unit
-): SizeTestSpec {
-    var realSize: PxSize? = null
-    setMaterialContent {
-        Wrap {
-            ConstrainedBox(constraints = parentConstraints) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    realSize = coordinates.size
-                }) {
-                    children()
-                }
-            }
-        }
-    }
-    return SizeTestSpec(realSize!!, density)
+): CollectedSizes {
+    val sizes = setMaterialContentAndGetPixelSize(parentConstraints, children)
+    return CollectedSizes(sizes, density)
 }
 
-fun ComposeTestRule.setMaterialContentAndCollectPixelSize(
-    parentConstraints: DpConstraints = BigConstraints,
+fun ComposeTestRule.setMaterialContentAndGetPixelSize(
+    parentConstraints: DpConstraints = BigTestConstraints,
     children: @Composable() () -> Unit
-): PxSize {
-    var realSize: PxSize? = null
-    setMaterialContent {
-        Wrap {
-            ConstrainedBox(constraints = parentConstraints) {
-                OnChildPositioned(onPositioned = { coordinates ->
-                    realSize = coordinates.size
-                }) {
-                    children()
-                }
-            }
+): PxSize = setContentAndGetPixelSize(
+    parentConstraints,
+    { setMaterialContent(it) }
+) {
+    MaterialTheme {
+        Surface {
+            children()
         }
-    }
-    return realSize!!
-}
-
-class SizeTestSpec(private val size: PxSize, private val density: Density) {
-    fun assertHeightEqualsTo(expectedHeight: Dp) =
-        assertHeightEqualsTo { expectedHeight.toIntPx() }
-
-    fun assertWidthEqualsTo(expectedWidth: Dp): SizeTestSpec =
-        assertWidthEqualsTo { expectedWidth.toIntPx() }
-
-    fun assertIsSquareWithSize(expectedSize: Dp) = assertIsSquareWithSize { expectedSize.toIntPx() }
-
-    fun assertWidthEqualsTo(expectedWidthPx: DensityReceiver.() -> IntPx): SizeTestSpec {
-        val widthPx = withDensity(density) {
-            expectedWidthPx()
-        }
-        Truth.assertThat(size.width.round()).isEqualTo(widthPx)
-        return this
-    }
-
-    fun assertHeightEqualsTo(expectedHeightPx: DensityReceiver.() -> IntPx): SizeTestSpec {
-        val heightPx = withDensity(density) {
-            expectedHeightPx()
-        }
-        Truth.assertThat(size.height.round()).isEqualTo(heightPx)
-        return this
-    }
-
-    fun assertIsSquareWithSize(expectedSquarePx: DensityReceiver.() -> IntPx): SizeTestSpec {
-        val squarePx = withDensity(density) {
-            expectedSquarePx()
-        }
-        Truth.assertThat(size.width.round()).isEqualTo(squarePx)
-        Truth.assertThat(size.height.round()).isEqualTo(squarePx)
-        return this
     }
 }

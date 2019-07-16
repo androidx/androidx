@@ -23,6 +23,16 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsNodeInteraction assertValueEquals(androidx.ui.test.SemanticsNodeInteraction, String value);
   }
 
+  public final class CollectedSizes {
+    ctor public CollectedSizes(androidx.ui.core.PxSize size, androidx.ui.core.Density density);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(androidx.ui.core.Dp expectedHeight);
+    method public androidx.ui.test.CollectedSizes assertHeightEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,androidx.ui.core.IntPx> expectedHeightPx);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(androidx.ui.core.Dp expectedSize);
+    method public androidx.ui.test.CollectedSizes assertIsSquareWithSize(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,androidx.ui.core.IntPx> expectedSquarePx);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(androidx.ui.core.Dp expectedWidth);
+    method public androidx.ui.test.CollectedSizes assertWidthEqualsTo(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,androidx.ui.core.IntPx> expectedWidthPx);
+  }
+
   public interface ComposeTestRule extends org.junit.rules.TestRule {
     method public androidx.ui.core.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
@@ -77,6 +87,13 @@ package androidx.ui.test {
 
   public final class SemanticsTreeInteractionKt {
     ctor public SemanticsTreeInteractionKt();
+  }
+
+  public final class SizesTestingKt {
+    ctor public SizesTestingKt();
+    method public static androidx.ui.layout.DpConstraints getBigTestConstraints();
+    method public static androidx.ui.test.CollectedSizes setContentAndCollectSizes(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static androidx.ui.core.PxSize setContentAndGetPixelSize(androidx.ui.test.ComposeTestRule, androidx.ui.layout.DpConstraints parentConstraints = BigTestConstraints, kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> performSetContent = { setContent(it) }, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

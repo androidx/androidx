@@ -129,7 +129,7 @@ class DrawerTest {
     @Test
     fun staticDrawer_testWidth_whenOpened() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 StaticDrawer {
                     Container(expanded = true) {}
                 }
