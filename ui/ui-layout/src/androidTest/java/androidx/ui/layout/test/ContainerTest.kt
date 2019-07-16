@@ -27,7 +27,6 @@ import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.coerceIn
 import androidx.ui.core.dp
-import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.round
 import androidx.ui.core.toPx
@@ -43,7 +42,7 @@ import androidx.ui.layout.Row
 import androidx.ui.layout.Wrap
 import androidx.compose.Composable
 import androidx.compose.composer
-import org.junit.Assert.assertEquals
+import androidx.ui.core.ipx
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -224,8 +223,11 @@ class ContainerTest : LayoutTest() {
 
     @Test
     fun testContainer_respectsIncomingMinConstraints() = withDensity(density) {
-        val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
+        // Start with an even number of IntPx to avoid rounding issues due to different DPI
+        // I.e, if we fix Dp instead, it's possible that when we convert to Px, sizeDp can round
+        // down but sizeDp * 2 can round up, causing a 1 pixel test error.
+        val size = 200.ipx
+        val sizeDp = size.toDp()
 
         val positionedLatch = CountDownLatch(2)
         val containerSize = Ref<PxSize>()
@@ -260,7 +262,7 @@ class ContainerTest : LayoutTest() {
             containerSize.value
         )
         assertEquals(PxSize(size, size), childSize.value)
-        assertEquals(PxPosition(size + 1.ipx, size + 1.ipx), childPosition.value)
+        assertEquals(PxPosition(size, size), childPosition.value)
     }
 
     @Test

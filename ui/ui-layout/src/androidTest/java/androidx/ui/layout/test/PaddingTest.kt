@@ -278,27 +278,48 @@ class PaddingTest : LayoutTest() {
 
     @Test
     fun testPadding_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+
+        val padding = 100.ipx.toDp()
+
         testIntrinsics(@Composable {
-            Padding(padding = 20.dp) {
+            Padding(padding = padding) {
                 AspectRatio(2f) { }
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
+            // Padding is applied on both sides of an axis
+            val totalAxisPadding = (padding * 2).toIntPx()
+
+            // When the width/height is measured as 3 x the padding
+            val testDimension = (padding * 3).toIntPx()
+            // The actual dimension for the AspectRatio will be: test dimension - total padding
+            val actualAspectRatioDimension = testDimension - totalAxisPadding
+
+            // When we measure the width first, the height will be half
+            val expectedAspectRatioHeight = actualAspectRatioDimension / 2f
+            // When we measure the height first, the width will be double
+            val expectedAspectRatioWidth = actualAspectRatioDimension * 2
+
+            // Add back the padding on both sides to get the total expected height
+            val expectedTotalHeight = expectedAspectRatioHeight + totalAxisPadding
+            // Add back the padding on both sides to get the total expected height
+            val expectedTotalWidth = expectedAspectRatioWidth + totalAxisPadding
+
             // Min width.
-            assertEquals(20.dp.toIntPx() * 2, minIntrinsicWidth(0.dp.toIntPx()))
-            assertEquals( 100.dp.toIntPx(), minIntrinsicWidth(70.dp.toIntPx()))
-            assertEquals( 20.dp.toIntPx() * 2, minIntrinsicWidth(IntPx.Infinity))
+            assertEquals(totalAxisPadding, minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(expectedTotalWidth, minIntrinsicWidth(testDimension))
+            assertEquals(totalAxisPadding, minIntrinsicWidth(IntPx.Infinity))
             // Min height.
-            assertEquals( 20.dp.toIntPx() * 2, minIntrinsicHeight(0.dp.toIntPx()))
-            assertEquals( 55.dp.toIntPx(), minIntrinsicHeight(70.dp.toIntPx()))
-            assertEquals( 20.dp.toIntPx() * 2, minIntrinsicHeight(IntPx.Infinity))
+            assertEquals(totalAxisPadding, minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(expectedTotalHeight, minIntrinsicHeight(testDimension))
+            assertEquals(totalAxisPadding, minIntrinsicHeight(IntPx.Infinity))
             // Max width.
-            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicWidth(0.dp.toIntPx()))
-            assertEquals( 100.dp.toIntPx(), maxIntrinsicWidth(70.dp.toIntPx()) )
-            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicWidth(IntPx.Infinity))
+            assertEquals(totalAxisPadding, maxIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(expectedTotalWidth, maxIntrinsicWidth(testDimension))
+            assertEquals(totalAxisPadding, maxIntrinsicWidth(IntPx.Infinity))
             // Max height.
-            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicHeight(0.dp.toIntPx()))
-            assertEquals( 55.dp.toIntPx(), maxIntrinsicHeight(70.dp.toIntPx()))
-            assertEquals( 20.dp.toIntPx() * 2, maxIntrinsicHeight(IntPx.Infinity))
+            assertEquals(totalAxisPadding, maxIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(expectedTotalHeight, maxIntrinsicHeight(testDimension))
+            assertEquals(totalAxisPadding, maxIntrinsicHeight(IntPx.Infinity))
         }
     }
 }

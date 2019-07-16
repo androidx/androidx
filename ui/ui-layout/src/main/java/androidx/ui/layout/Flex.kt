@@ -30,6 +30,9 @@ import androidx.ui.core.max
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.ParentData
 import androidx.ui.core.isFinite
+import androidx.ui.core.px
+import androidx.ui.core.round
+import androidx.ui.core.toPx
 
 /**
  * Parent data associated with children to assign flex and fit values for them.
@@ -291,9 +294,9 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
         override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val positions = mutableListOf<IntPx>()
-            var current = (totalSize - consumedSize) / 2
+            var current = (totalSize - consumedSize).toPx() / 2
             size.forEach {
-                positions.add(current)
+                positions.add(current.round())
                 current += it
             }
             return positions
@@ -328,12 +331,12 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
     private class MainAxisSpaceEvenlyAligner : Aligner {
         override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
-            val gapSize = (totalSize - consumedSize) / (size.size + 1)
+            val gapSize = (totalSize - consumedSize).toPx() / (size.size + 1)
             val positions = mutableListOf<IntPx>()
             var current = gapSize
             size.forEach {
-                positions.add(current)
-                current += it + gapSize
+                positions.add(current.round())
+                current += it.toPx() + gapSize
             }
             return positions
         }
@@ -343,15 +346,15 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
         override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val gapSize = if (size.size > 1) {
-                (totalSize - consumedSize) / (size.size - 1)
+                (totalSize - consumedSize).toPx() / (size.size - 1)
             } else {
-                0.ipx
+                0.px
             }
             val positions = mutableListOf<IntPx>()
-            var current = 0.ipx
+            var current = 0.px
             size.forEach {
-                positions.add(current)
-                current += it + gapSize
+                positions.add(current.round())
+                current += it.toPx() + gapSize
             }
             return positions
         }
@@ -361,15 +364,15 @@ enum class MainAxisAlignment(internal val aligner: Aligner) {
         override fun align(totalSize: IntPx, size: List<IntPx>): List<IntPx> {
             val consumedSize = size.fold(0.ipx) { a, b -> a + b }
             val gapSize = if (size.isNotEmpty()) {
-                (totalSize - consumedSize) / size.size
+                (totalSize - consumedSize).toPx() / size.size
             } else {
-                0.ipx
+                0.px
             }
             val positions = mutableListOf<IntPx>()
             var current = gapSize / 2
             size.forEach {
-                positions.add(current)
-                current += it + gapSize
+                positions.add(current.round())
+                current += it.toPx() + gapSize
             }
             return positions
         }

@@ -103,8 +103,8 @@ class StackTest : LayoutTest() {
 
     @Test
     fun testStack_withMultipleAlignedChildren() = withDensity(density) {
-        val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
+        val size = 250.ipx
+        val sizeDp = size.toDp()
         val doubleSizeDp = sizeDp * 2
         val doubleSize = (sizeDp * 2).toIntPx()
 
@@ -143,19 +143,19 @@ class StackTest : LayoutTest() {
 
         assertEquals(PxSize(doubleSize, doubleSize), stackSize.value)
         assertEquals(PxSize(size, size), childSize[0].value)
-        assertEquals(PxPosition(size + 1.ipx, size + 1.ipx), childPosition[0].value)
+        assertEquals(PxPosition(size, size), childPosition[0].value)
         assertEquals(PxSize(doubleSize, doubleSize), childSize[1].value)
         assertEquals(PxPosition(0.px, 0.px), childPosition[1].value)
     }
 
     @Test
     fun testStack_withPositionedChildren() = withDensity(density) {
-        val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
+        val size = 250.ipx
+        val sizeDp = size.toDp()
         val halfSizeDp = sizeDp / 2
         val halfSize = (sizeDp / 2).toIntPx()
-        val insetDp = 10.dp
-        val inset = insetDp.toIntPx()
+        val inset = 50.ipx
+        val insetDp = inset.toDp()
 
         val positionedLatch = CountDownLatch(8)
         val stackSize = Ref<PxSize>()
@@ -213,7 +213,10 @@ class StackTest : LayoutTest() {
                                 )
                             }
                         }
-                        positioned(rightInset = insetDp, fallbackAlignment = Alignment.BottomRight) {
+                        positioned(
+                            rightInset = insetDp,
+                            fallbackAlignment = Alignment.BottomRight
+                        ) {
                             Container(width = halfSizeDp, height = halfSizeDp) {
                                 SaveLayoutInfo(
                                     size = childSize[5],
@@ -222,7 +225,10 @@ class StackTest : LayoutTest() {
                                 )
                             }
                         }
-                        positioned(bottomInset = insetDp, fallbackAlignment = Alignment.BottomRight) {
+                        positioned(
+                            bottomInset = insetDp,
+                            fallbackAlignment = Alignment.BottomRight
+                        ) {
                             Container(width = halfSizeDp, height = halfSizeDp) {
                                 SaveLayoutInfo(
                                     size = childSize[6],
@@ -259,12 +265,12 @@ class StackTest : LayoutTest() {
 
     @Test
     fun testStack_withPositionedChildren_fallbackAlignment() = withDensity(density) {
-        val sizeDp = 50.dp
-        val size = sizeDp.toIntPx()
+        val size = 250.ipx
+        val sizeDp = size.toDp()
         val halfSizeDp = sizeDp / 2
         val halfSize = (sizeDp / 2).toIntPx()
-        val insetDp = 10.dp
-        val inset = insetDp.toIntPx()
+        val inset = 50.ipx
+        val insetDp = inset.toDp()
 
         val positionedLatch = CountDownLatch(6)
         val stackSize = Ref<PxSize>()
@@ -352,8 +358,12 @@ class StackTest : LayoutTest() {
         val childConstraints = Array(3) { Constraints() }
         show {
             Align(alignment = Alignment.TopLeft) {
-                ConstrainedBox(constraints = DpConstraints(minWidth = halfSizeDp, maxWidth = sizeDp,
-                    minHeight = halfSizeDp, maxHeight = sizeDp)) {
+                ConstrainedBox(
+                    constraints = DpConstraints(
+                        minWidth = halfSizeDp, maxWidth = sizeDp,
+                        minHeight = halfSizeDp, maxHeight = sizeDp
+                    )
+                ) {
                     Stack {
                         aligned(Alignment.Center, loose = true) {
                             WithConstraints { constraints ->
@@ -386,13 +396,22 @@ class StackTest : LayoutTest() {
 
     @Test
     fun testStack_hasCorrectIntrinsicMeasurements() = withDensity(density) {
+        val testWidth = 90.ipx.toDp()
+        val testHeight = 80.ipx.toDp()
+
+        val testDimension = 200.ipx
+        // When measuring the height with testDimension, width should be double
+        val expectedWidth = testDimension * 2
+        // When measuring the width with testDimension, height should be half
+        val expectedHeight = testDimension / 2
+
         testIntrinsics(@Composable {
             Stack {
                 aligned(Alignment.TopLeft) {
                     AspectRatio(2f) { }
                 }
                 aligned(Alignment.BottomCenter) {
-                    ConstrainedBox(DpConstraints.tightConstraints(90.dp, 80.dp)) { }
+                    ConstrainedBox(DpConstraints.tightConstraints(testWidth, testHeight)) { }
                 }
                 positioned(10.dp, 10.dp, 10.dp, 10.dp) {
                     ConstrainedBox(DpConstraints.tightConstraints(200.dp, 200.dp)) { }
@@ -400,21 +419,21 @@ class StackTest : LayoutTest() {
             }
         }) { minIntrinsicWidth, minIntrinsicHeight, maxIntrinsicWidth, maxIntrinsicHeight ->
             // Min width.
-            assertEquals(90.dp.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
-            assertEquals(100.dp.toIntPx(), minIntrinsicWidth(50.dp.toIntPx()))
-            assertEquals(90.dp.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
+            assertEquals(testWidth.toIntPx(), minIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(expectedWidth, minIntrinsicWidth(testDimension))
+            assertEquals(testWidth.toIntPx(), minIntrinsicWidth(IntPx.Infinity))
             // Min height.
-            assertEquals(80.dp.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
-            assertEquals(200.dp.toIntPx() / 2, minIntrinsicHeight(200.dp.toIntPx()))
-            assertEquals(80.dp.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
+            assertEquals(testHeight.toIntPx(), minIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(expectedHeight, minIntrinsicHeight(testDimension))
+            assertEquals(testHeight.toIntPx(), minIntrinsicHeight(IntPx.Infinity))
             // Max width.
-            assertEquals(90.dp.toIntPx(), maxIntrinsicWidth(0.dp.toIntPx()))
-            assertEquals(100.dp.toIntPx(), maxIntrinsicWidth(50.dp.toIntPx()))
-            assertEquals(90.dp.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
+            assertEquals(testWidth.toIntPx(), maxIntrinsicWidth(0.dp.toIntPx()))
+            assertEquals(expectedWidth, maxIntrinsicWidth(testDimension))
+            assertEquals(testWidth.toIntPx(), maxIntrinsicWidth(IntPx.Infinity))
             // Max height.
-            assertEquals(80.dp.toIntPx(), maxIntrinsicHeight(0.dp.toIntPx()))
-            assertEquals(200.dp.toIntPx() / 2, maxIntrinsicHeight(200.dp.toIntPx()))
-            assertEquals(80.dp.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
+            assertEquals(testHeight.toIntPx(), maxIntrinsicHeight(0.dp.toIntPx()))
+            assertEquals(expectedHeight, maxIntrinsicHeight(testDimension))
+            assertEquals(testHeight.toIntPx(), maxIntrinsicHeight(IntPx.Infinity))
         }
     }
 

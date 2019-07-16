@@ -97,6 +97,9 @@ private fun BaseTopAppBar(
             inflexible {
                 // TODO: what should the spacing be when there is no icon provided here?
                 startContent()
+                // TODO: this accidentally works now because expanded fills up the space, but this
+                // is actually adding another item for flex row to measure, meaning that when the
+                // expanded block is empty, we are emitting an empty spacer in the middle of the row
                 WidthSpacer(width = 32.dp)
             }
             expanded(1f) {
@@ -277,6 +280,9 @@ private fun BaseBottomAppBarWithoutFab(
                 startContent()
                 // TODO: if startContent() doesn't have any layout, then the endContent won't be
                 // placed at the end, so we need to trick it with a spacer
+                // TODO: if startContent() does have layout, this currently inserts an extra
+                // useless spacer which is placed evenly in the middle of the AppBar - this may
+                // cause rounding alignment issues.
                 WidthSpacer(width = 1.dp)
             }
             inflexible { endContent() }
