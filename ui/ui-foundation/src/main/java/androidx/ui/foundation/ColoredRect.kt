@@ -24,6 +24,8 @@ import androidx.ui.core.Draw
 import androidx.ui.core.toRect
 import androidx.ui.core.vectorgraphics.Brush
 import androidx.ui.core.vectorgraphics.SolidColor
+import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.painting.Paint
@@ -36,6 +38,8 @@ import androidx.ui.painting.Paint
  * if these are finite, or to the min constraints otherwise.
  * Note that even if width and height are specified, these will not be satisfied
  * if the component's incoming layout constraints do not allow that.
+ *
+ * @sample androidx.ui.foundation.samples.ColoredRectBrushSample
  *
  * @param brush brush to paint rect with
  * @param width width of this rect, by default it will match incoming layout constraints
@@ -53,6 +57,8 @@ fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {
 /**
  * Component that represents a rectangle painted with a solid color.
  *
+ * @sample androidx.ui.foundation.samples.ColoredRectColorSample
+ *
  * @param color color to paint rect with
  * @param width width of this rect, by default it will match parent's constraints
  * @param height height of this rect, by default it will match parent's constraints
@@ -64,9 +70,5 @@ fun ColoredRect(color: Color, width: Dp? = null, height: Dp? = null) {
 
 @Composable
 private fun DrawFillRect(brush: Brush) {
-    Draw { canvas, parentSize ->
-        val paint = Paint()
-        brush.applyBrush(paint)
-        canvas.drawRect(parentSize.toRect(), paint)
-    }
+    DrawShape(RectangleShape, brush)
 }
