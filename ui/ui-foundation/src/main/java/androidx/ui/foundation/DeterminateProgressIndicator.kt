@@ -26,6 +26,8 @@ import androidx.compose.composer
  * Contains the [Semantics] required for a determinate progress indicator, that represents progress
  * ranging from 0.0 to 1.0.
  *
+ * @sample androidx.ui.foundation.samples.DeterminateProgressSample
+ *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
  * represents full progress
  * @param children The progress indicator that is drawn on screen, representing [progress]
