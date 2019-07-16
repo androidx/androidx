@@ -59,4 +59,13 @@ open class StrictViewFragment(
         checkState("onDestroyView", State.CREATED)
         onDestroyViewCalled = true
     }
+
+    override fun onDestroy() {
+        if (onCreateViewCalled) {
+            assertWithMessage("onDestroyView should be called before on Destroy")
+                .that(onDestroyViewCalled)
+                .isTrue()
+        }
+        super.onDestroy()
+    }
 }

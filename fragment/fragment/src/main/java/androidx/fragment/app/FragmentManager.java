@@ -1142,7 +1142,7 @@ public abstract class FragmentManager {
             if (f.mFromLayout && !f.mInLayout) {
                 return;
             }
-            if (f.getAnimatingAway() != null || f.getAnimator() != null) {
+            if (f.mState < newState && (f.getAnimatingAway() != null || f.getAnimator() != null)) {
                 // The fragment is currently being animated...  but!  Now we
                 // want to move our state back up.  Give up on waiting for the
                 // animation, move to whatever the final state should be once
@@ -2536,6 +2536,7 @@ public abstract class FragmentManager {
                         animatingAway.clearAnimation();
                     }
                     fragment.setAnimatingAway(null);
+                    destroyFragmentView(fragment);
                     moveToState(fragment, stateAfterAnimating, 0, false);
                 } else if (fragment.getAnimator() != null) {
                     fragment.getAnimator().end();

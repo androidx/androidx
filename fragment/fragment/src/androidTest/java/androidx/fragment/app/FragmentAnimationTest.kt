@@ -773,7 +773,8 @@ class FragmentAnimationTest {
                     }
 
                     override fun onAnimationEnd(animation: Animation) {
-                        if (!onDestroyViewCalled) {
+                        if (viewLifecycleOwner.lifecycle.currentState
+                            != Lifecycle.State.DESTROYED) {
                             if (enter) {
                                 enterEndCount++
                                 enterLatch.countDown()
