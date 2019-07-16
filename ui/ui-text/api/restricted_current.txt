@@ -35,6 +35,8 @@ package androidx.ui.input {
     enum_constant public static final androidx.ui.input.KeyboardType Ascii;
     enum_constant public static final androidx.ui.input.KeyboardType Email;
     enum_constant public static final androidx.ui.input.KeyboardType Number;
+    enum_constant public static final androidx.ui.input.KeyboardType NumberPassword;
+    enum_constant public static final androidx.ui.input.KeyboardType Password;
     enum_constant public static final androidx.ui.input.KeyboardType Phone;
     enum_constant public static final androidx.ui.input.KeyboardType Text;
     enum_constant public static final androidx.ui.input.KeyboardType Uri;

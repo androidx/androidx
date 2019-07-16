@@ -157,6 +157,42 @@ class TextInputServiceAndroidTest {
     }
 
     @Test
+    fun test_fill_editor_info_password() {
+        textInputService.startInput(
+            EditorState(""),
+            KeyboardType.Password,
+            ImeAction.Unspecified,
+            onEditCommand = {},
+            onImeActionPerformed = {})
+
+        EditorInfo().let { info ->
+            textInputService.createInputConnection(info)
+            assertTrue((InputType.TYPE_CLASS_TEXT and info.inputType) != 0)
+            assertTrue((InputType.TYPE_TEXT_VARIATION_PASSWORD and info.inputType) != 0)
+            assertTrue((EditorInfo.IME_MASK_ACTION and info.imeOptions)
+                    == EditorInfo.IME_ACTION_UNSPECIFIED)
+        }
+    }
+
+    @Test
+    fun test_fill_editor_info_number_password() {
+        textInputService.startInput(
+            EditorState(""),
+            KeyboardType.NumberPassword,
+            ImeAction.Unspecified,
+            onEditCommand = {},
+            onImeActionPerformed = {})
+
+        EditorInfo().let { info ->
+            textInputService.createInputConnection(info)
+            assertTrue((InputType.TYPE_CLASS_NUMBER and info.inputType) != 0)
+            assertTrue((InputType.TYPE_NUMBER_VARIATION_PASSWORD and info.inputType) != 0)
+            assertTrue((EditorInfo.IME_MASK_ACTION and info.imeOptions)
+                    == EditorInfo.IME_ACTION_UNSPECIFIED)
+        }
+    }
+
+    @Test
     fun test_fill_editor_info_action_none() {
         textInputService.startInput(
             EditorState(""),
