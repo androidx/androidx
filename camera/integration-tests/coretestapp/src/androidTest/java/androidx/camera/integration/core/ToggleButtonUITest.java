@@ -34,6 +34,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
@@ -58,7 +59,6 @@ import org.junit.runner.RunWith;
 @LargeTest
 public final class ToggleButtonUITest {
 
-    private static final int LAUNCH_TIMEOUT_MS = 5000;
     private static final int IDLE_TIMEOUT_MS = 1000;
     private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.core";
 
@@ -92,6 +92,8 @@ public final class ToggleButtonUITest {
     @Before
     public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
+        CoreAppTestUtil.assumeCompatibleDevice();
+
         // Launch Activity
         mActivityRule.launchActivity(mIntent);
     }
@@ -183,7 +185,7 @@ public final class ToggleButtonUITest {
 
         // Returns to Home to restart next test.
         mDevice.pressHome();
-        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), LAUNCH_TIMEOUT_MS);
+        mDevice.wait(Until.hasObject(By.pkg(mLauncherPackageName).depth(0)), IDLE_TIMEOUT_MS);
     }
 
     private void pressBackAndReturnHome() {
@@ -192,5 +194,6 @@ public final class ToggleButtonUITest {
         // Returns to Home to restart next test.
         mDevice.pressHome();
     }
+
 }
 
