@@ -16,10 +16,14 @@
 
 package androidx.navigation;
 
+import android.app.Application;
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 
@@ -28,7 +32,8 @@ import java.util.UUID;
 /**
  * Representation of an entry in the back stack of a {@link NavController}.
  */
-final class NavBackStackEntry implements ViewModelStoreOwner {
+final class NavBackStackEntry implements ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+    private final Context mContext;
     private final NavDestination mDestination;
     private final Bundle mArgs;
 
@@ -37,13 +42,17 @@ final class NavBackStackEntry implements ViewModelStoreOwner {
     final UUID mId;
     private NavControllerViewModel mNavControllerViewModel;
 
-    NavBackStackEntry(@NonNull NavDestination destination, @Nullable Bundle args,
+    NavBackStackEntry(@NonNull Context context,
+            @NonNull NavDestination destination, @Nullable Bundle args,
             @Nullable NavControllerViewModel navControllerViewModel) {
-        this(UUID.randomUUID(), destination, args, navControllerViewModel);
+        this(context, destination, args, navControllerViewModel, UUID.randomUUID());
     }
 
-    NavBackStackEntry(@NonNull UUID uuid, @NonNull NavDestination destination,
-            @Nullable Bundle args, @Nullable NavControllerViewModel navControllerViewModel) {
+    NavBackStackEntry(@NonNull Context context,
+            @NonNull NavDestination destination, @Nullable Bundle args,
+            @Nullable NavControllerViewModel navControllerViewModel,
+            @NonNull UUID uuid) {
+        mContext = context;
         mId = uuid;
         mDestination = destination;
         mArgs = args;
@@ -76,5 +85,12 @@ final class NavBackStackEntry implements ViewModelStoreOwner {
     @Override
     public ViewModelStore getViewModelStore() {
         return mNavControllerViewModel.getViewModelStore(mId);
+    }
+
+    @NonNull
+    @Override
+    public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+        return ViewModelProvider.AndroidViewModelFactory.getInstance(
+                (Application) mContext.getApplicationContext());
     }
 }

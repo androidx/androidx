@@ -16,11 +16,14 @@
 
 package androidx.navigation
 
+import android.app.Application
 import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.test.R
 import androidx.navigation.testing.TestNavigator
@@ -890,6 +893,25 @@ class NavControllerTest {
     }
 
     @Test
+    fun testGetViewModelStoreOwnerAndroidViewModel() {
+        val navController = createNavController()
+        navController.setViewModelStore(ViewModelStore())
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val owner = navController.getViewModelStoreOwner(navGraph.id)
+        assertThat(owner).isNotNull()
+        val viewModelProvider = ViewModelProvider(owner)
+        val viewModel = viewModelProvider[TestAndroidViewModel::class.java]
+        assertThat(viewModel).isNotNull()
+    }
+
+    @Test
     fun testSaveRestoreGetViewModelStoreOwner() {
         val hostStore = ViewModelStore()
         val navController = createNavController()
@@ -965,6 +987,8 @@ class NavControllerTest {
         return navController
     }
 }
+
+class TestAndroidViewModel(application: Application) : AndroidViewModel(application)
 
 /**
  * [TestNavigator] that helps with testing saving and restoring state.
