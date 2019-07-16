@@ -30,6 +30,7 @@ import android.content.Intent;
 
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingRegistry;
@@ -76,6 +77,7 @@ public final class NewActivityLifecycleTest {
     @Before
     public void setup() {
         assumeTrue(CameraUtil.deviceHasCamera());
+        CoreAppTestUtil.assumeCompatibleDevice();
 
         assertThat(mLauncherPackageName, notNullValue());
         returnHomeScreen();
