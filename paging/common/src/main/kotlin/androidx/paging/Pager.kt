@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadType
+import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -31,11 +32,10 @@ internal class Pager<K : Any, V : Any>(
     val notifyExecutor: Executor,
     private val fetchExecutor: Executor,
     val pageConsumer: PageConsumer<V>,
-    adjacentProvider: AdjacentProvider<V>?,
-    result: DataSource.BaseResult<V>
+    result: PagedSource.LoadResult<K, V>,
+    private val adjacentProvider: AdjacentProvider<V> = SimpleAdjacentProvider()
 ) {
     private val totalCount: Int
-    private val adjacentProvider: AdjacentProvider<V>
     private var prevKey: K? = null
     private var nextKey: K? = null
     private val detached = AtomicBoolean(false)
@@ -49,17 +49,18 @@ internal class Pager<K : Any, V : Any>(
         get() = detached.get()
 
     init {
-        this.adjacentProvider = adjacentProvider ?: SimpleAdjacentProvider()
-        @Suppress("UNCHECKED_CAST")
-        prevKey = result.prevKey as K?
-        @Suppress("UNCHECKED_CAST")
-        nextKey = result.nextKey as K?
+        prevKey = result.prevKey
+        nextKey = result.nextKey
         this.adjacentProvider.onPageResultResolution(LoadType.REFRESH, result)
-        totalCount = result.totalCount()
+        totalCount = when (result.counted) {
+            // only one of leadingNulls / offset may be used
+            true -> result.itemsBefore + result.offset + result.data.size + result.itemsAfter
+            else -> COUNT_UNDEFINED
+        }
     }
 
     private fun listenTo(type: LoadType, future: suspend () -> PagedSource.LoadResult<K, V>) {
-        // First listen on the BG thread if the DataSource is invalid, since it can be expensive
+        // Listen on the BG thread if the paged source is invalid, since it can be expensive.
         pagedListScope.launch(fetchExecutor.asCoroutineDispatcher()) {
             try {
                 val value = future()
@@ -71,16 +72,8 @@ internal class Pager<K : Any, V : Any>(
                 }
 
                 // Source has been verified to be valid after producing data, so sent data to UI
-                pagedListScope.launch(notifyExecutor.asCoroutineDispatcher()) {
-                    onLoadSuccess(type, object : DataSource.BaseResult<V>(
-                        value.data,
-                        value.prevKey,
-                        value.nextKey,
-                        value.itemsBefore,
-                        value.itemsAfter,
-                        value.offset,
-                        value.counted
-                    ) {})
+                launch(notifyExecutor.asCoroutineDispatcher()) {
+                    onLoadSuccess(type, value)
                 }
             } catch (throwable: Throwable) {
                 onLoadError(type, throwable)
@@ -92,7 +85,7 @@ internal class Pager<K : Any, V : Any>(
         /**
          * @return `true` if we need to fetch more
          */
-        fun onPageResult(type: LoadType, pageResult: DataSource.BaseResult<V>): Boolean
+        fun onPageResult(type: LoadType, pageResult: PagedSource.LoadResult<*, V>): Boolean
 
         fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?)
     }
@@ -110,10 +103,10 @@ internal class Pager<K : Any, V : Any>(
          * implementation of the AdjacentProvider to handle this (generally by ignoring this call if
          * dropping is supported).
          */
-        fun onPageResultResolution(type: LoadType, result: DataSource.BaseResult<V>)
+        fun onPageResultResolution(type: LoadType, result: PagedSource.LoadResult<*, V>)
     }
 
-    private fun onLoadSuccess(type: LoadType, value: DataSource.BaseResult<V>) {
+    private fun onLoadSuccess(type: LoadType, value: PagedSource.LoadResult<K, V>) {
         if (isDetached) return // abort!
 
         adjacentProvider.onPageResultResolution(type, value)
@@ -121,13 +114,11 @@ internal class Pager<K : Any, V : Any>(
         if (pageConsumer.onPageResult(type, value)) {
             when (type) {
                 LoadType.START -> {
-                    @Suppress("UNCHECKED_CAST")
-                    prevKey = value.prevKey as K?
+                    prevKey = value.prevKey
                     schedulePrepend()
                 }
                 LoadType.END -> {
-                    @Suppress("UNCHECKED_CAST")
-                    nextKey = value.nextKey as K?
+                    nextKey = value.nextKey
                     scheduleAppend()
                 }
                 else -> throw IllegalStateException("Can only fetch more during append/prepend")
@@ -159,21 +150,21 @@ internal class Pager<K : Any, V : Any>(
 
     private fun canPrepend() = when (totalCount) {
         // don't know count / position from initial load, so be conservative, return true
-        DataSource.BaseResult.TOTAL_COUNT_UNKNOWN -> true
+        COUNT_UNDEFINED -> true
         // position is known, do we have space left?
         else -> adjacentProvider.firstLoadedItemIndex > 0
     }
 
     private fun canAppend() = when (totalCount) {
         // don't know count / position from initial load, so be conservative, return true
-        DataSource.BaseResult.TOTAL_COUNT_UNKNOWN -> true
+        COUNT_UNDEFINED -> true
         // count is known, do we have space left?
         else -> adjacentProvider.lastLoadedItemIndex < totalCount - 1
     }
 
     private fun schedulePrepend() {
         if (!canPrepend()) {
-            onLoadSuccess(LoadType.START, DataSource.BaseResult.empty())
+            onLoadSuccess(LoadType.START, PagedSource.LoadResult.empty())
             return
         }
 
@@ -204,7 +195,7 @@ internal class Pager<K : Any, V : Any>(
 
     private fun scheduleAppend() {
         if (!canAppend()) {
-            onLoadSuccess(LoadType.END, DataSource.BaseResult.empty())
+            onLoadSuccess(LoadType.END, PagedSource.LoadResult.empty())
             return
         }
 
@@ -253,7 +244,7 @@ internal class Pager<K : Any, V : Any>(
         private var leadingUnloadedCount: Int = 0
         private var trailingUnloadedCount: Int = 0
 
-        override fun onPageResultResolution(type: LoadType, result: DataSource.BaseResult<V>) {
+        override fun onPageResultResolution(type: LoadType, result: PagedSource.LoadResult<*, V>) {
             if (result.data.isEmpty()) return
 
             if (type == LoadType.START) {
@@ -269,15 +260,15 @@ internal class Pager<K : Any, V : Any>(
                     trailingUnloadedCount -= result.data.size
                 }
             } else {
-                firstLoadedItemIndex = result.leadingNulls + result.offset
+                firstLoadedItemIndex = result.itemsBefore + result.offset
                 lastLoadedItemIndex = firstLoadedItemIndex + result.data.size - 1
                 firstLoadedItem = result.data[0]
                 lastLoadedItem = result.data.last()
 
                 if (result.counted) {
                     counted = true
-                    leadingUnloadedCount = result.leadingNulls
-                    trailingUnloadedCount = result.trailingNulls
+                    leadingUnloadedCount = result.itemsBefore
+                    trailingUnloadedCount = result.itemsAfter
                 }
             }
         }

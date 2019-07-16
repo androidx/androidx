@@ -75,8 +75,9 @@ internal class LivePagedList<Key : Any, Value : Any>(
         currentJob?.cancel()
         currentJob = coroutineScope.launch(fetchExecutor.asCoroutineDispatcher()) {
             try {
+                val pagedList = createPagedList()
                 withContext(notifyExecutor.asCoroutineDispatcher()) {
-                    onSuccess(createPagedList())
+                    onSuccess(pagedList)
                 }
             } catch (throwable: Throwable) {
                 withContext(notifyExecutor.asCoroutineDispatcher()) {
