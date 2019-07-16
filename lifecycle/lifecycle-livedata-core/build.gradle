@@ -33,12 +33,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":arch:core-common"))
-    implementation(project(":arch:core-runtime"))
+    implementation("androidx.arch.core:core-common:2.1.0-rc01")
+    implementation("androidx.arch.core:core-runtime:2.1.0-rc01")
     api(project(":lifecycle:lifecycle-common"))
 
     testImplementation(project(":lifecycle:lifecycle-runtime"))
-    testImplementation(project(":arch:core-testing"))
+    testImplementation("androidx.arch.core:core-testing:2.1.0-rc01")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 }
