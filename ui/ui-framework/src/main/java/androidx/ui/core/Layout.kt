@@ -202,7 +202,7 @@ internal class ComplexLayoutStateMeasurablesList(
 /**
  * Receiver scope for the [ComplexLayout] lambda.
  */
-class ComplexLayoutReceiver internal constructor(private val layoutState: ComplexLayoutState) {
+class ComplexLayoutReceiver internal constructor(internal val layoutState: ComplexLayoutState) {
     fun layout(layoutBlock: LayoutBlock) {
         layoutState.layoutBlock = layoutBlock
     }
@@ -333,6 +333,9 @@ internal class DummyPlaceable(override val width: IntPx, override val height: In
     override fun place(x: IntPx, y: IntPx) { }
 }
 
+// Measure lambda used in Layout
+private val LayoutMeasure = { m: Measurable, c: Constraints -> (m as ComplexLayoutState).measure(c) }
+
 /**
  * A simpler version of [ComplexLayout], intrinsic dimensions do not need to be defined.
  * If a layout of this [Layout] queries the intrinsics, an exception will be thrown.
@@ -346,33 +349,36 @@ fun Layout(
 ) {
     trace("UI:Layout") {
         ComplexLayout(children = children, block = {
+            val layoutReceiver = LayoutReceiver(
+                layoutState,
+                LayoutMeasure, /* measure lambda */
+                { _, _, _ -> }
+            )
             layout { measurables, constraints ->
-                val layoutReceiver = LayoutReceiver(
-                    layoutState,
-                    { m, c -> m.measure(c) }, /* measure lambda */
-                    this::layoutResult,
-                    density
-                )
+                layoutReceiver.complexMeasure = LayoutMeasure
+                layoutReceiver.complexLayoutResult = this::layoutResult
                 layoutReceiver.layoutBlock(measurables, constraints)
             }
 
             minIntrinsicWidth { measurables, h ->
                 var intrinsicWidth = IntPx.Zero
-                val measureBoxReceiver = LayoutReceiver(layoutState, { m, c ->
+                layoutReceiver.complexMeasure = { m, c ->
                     val width = m.minIntrinsicWidth(c.maxHeight)
                     DummyPlaceable(width, h)
-                }, { width, _, _ -> intrinsicWidth = width }, density)
+                }
+                layoutReceiver.complexLayoutResult = { width, _, _ -> intrinsicWidth = width }
                 val constraints = Constraints(maxHeight = h)
-                layoutBlock(measureBoxReceiver, measurables, constraints)
+                layoutBlock(layoutReceiver, measurables, constraints)
                 intrinsicWidth
             }
 
             maxIntrinsicWidth { measurables, h ->
                 var intrinsicWidth = IntPx.Zero
-                val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
+                layoutReceiver.complexMeasure = { m, c ->
                     val width = m.maxIntrinsicWidth(c.maxHeight)
                     DummyPlaceable(width, h)
-                }, { width, _, _ -> intrinsicWidth = width }, density)
+                }
+                layoutReceiver.complexLayoutResult = { width, _, _ -> intrinsicWidth = width }
                 val constraints = Constraints(maxHeight = h)
                 layoutBlock(layoutReceiver, measurables, constraints)
                 intrinsicWidth
@@ -380,10 +386,11 @@ fun Layout(
 
             minIntrinsicHeight { measurables, w ->
                 var intrinsicHeight = IntPx.Zero
-                val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
+                layoutReceiver.complexMeasure = { m, c ->
                     val height = m.minIntrinsicHeight(c.maxWidth)
                     DummyPlaceable(w, height)
-                }, { _, height, _ -> intrinsicHeight = height }, density)
+                }
+                layoutReceiver.complexLayoutResult = { _, height, _ -> intrinsicHeight = height }
                 val constraints = Constraints(maxWidth = w)
                 layoutBlock(layoutReceiver, measurables, constraints)
                 intrinsicHeight
@@ -391,10 +398,11 @@ fun Layout(
 
             maxIntrinsicHeight { measurables, w ->
                 var intrinsicHeight = IntPx.Zero
-                val layoutReceiver = LayoutReceiver(layoutState, { m, c ->
+                layoutReceiver.complexMeasure = { m, c ->
                     val height = m.maxIntrinsicHeight(c.maxWidth)
                     DummyPlaceable(w, height)
-                }, { _, height, _ -> intrinsicHeight = height }, density)
+                }
+                layoutReceiver.complexLayoutResult = { _, height, _ -> intrinsicHeight = height }
                 val constraints = Constraints(maxWidth = w)
                 layoutBlock(layoutReceiver, measurables, constraints)
                 intrinsicHeight
@@ -454,10 +462,12 @@ fun Layout(
  */
 class LayoutReceiver internal constructor(
     internal val layoutState: ComplexLayoutState,
-    private val complexMeasure: (Measurable, Constraints) -> Placeable,
-    private val complexLayoutResult: (IntPx, IntPx, PositioningBlockReceiver.() -> Unit) -> Unit,
-    override val density: Density
+    internal var complexMeasure: (Measurable, Constraints) -> Placeable,
+    internal var complexLayoutResult: (IntPx, IntPx, PositioningBlockReceiver.() -> Unit) -> Unit
 ) : DensityReceiver {
+    override val density: Density
+        get() = layoutState.density
+
     /**
      * Returns all the [Measurable]s emitted for a particular children lambda.
      * TODO(popam): finding measurables for each individual composable is O(n^2), consider improving

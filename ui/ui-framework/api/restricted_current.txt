@@ -84,6 +84,7 @@ package androidx.ui.core {
     method public androidx.ui.core.Density getDensity();
     method public void layout(androidx.ui.core.IntPx width, androidx.ui.core.IntPx height, kotlin.jvm.functions.Function1<? super androidx.ui.core.PositioningBlockReceiver,kotlin.Unit> block);
     method public androidx.ui.core.Placeable measure(androidx.ui.core.Measurable, androidx.ui.core.Constraints constraints);
+    property public androidx.ui.core.Density density;
   }
 
   public interface Measurable {
