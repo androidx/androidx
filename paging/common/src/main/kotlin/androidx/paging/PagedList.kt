@@ -205,7 +205,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
                 fetchExecutor,
                 boundaryCallback,
                 config,
-                initialResult,
+                initialResult.toLoadResult(),
                 lastLoad
             )
         }

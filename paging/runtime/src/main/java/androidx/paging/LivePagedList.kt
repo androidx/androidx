@@ -42,8 +42,12 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val refreshRetryCallback = Runnable { invalidate(true) }
 
     init {
-        currentData =
-            InitialPagedList(dataSourceFactory.create(), coroutineScope, config, initialKey)
+        currentData = InitialPagedList(
+            PagedSourceWrapper(dataSourceFactory.create()),
+            coroutineScope,
+            config,
+            initialKey
+        )
         onSuccess(currentData)
     }
 

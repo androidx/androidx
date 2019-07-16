@@ -30,20 +30,19 @@ import kotlinx.coroutines.CoroutineScope
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class InitialPagedList<K : Any, V : Any>(
-    dataSource: DataSource<K, V>,
+    pagedSource: PagedSource<K, V>,
     coroutineScope: CoroutineScope,
     config: Config,
     initialKey: K?
-) :
-    ContiguousPagedList<K, V>(
-        dataSource,
-        coroutineScope,
-        DirectExecutor,
-        DirectExecutor,
-        null,
-        config,
-        DataSource.BaseResult.empty<V>(),
-        0 // no previous load, so pass 0
-    ) {
+) : ContiguousPagedList<K, V>(
+    DataSourceWrapper(pagedSource),
+    coroutineScope,
+    DirectExecutor,
+    DirectExecutor,
+    null,
+    config,
+    PagedSource.LoadResult.empty(),
+    0 // no previous load, so pass 0
+) {
     override val lastKey = initialKey
 }
