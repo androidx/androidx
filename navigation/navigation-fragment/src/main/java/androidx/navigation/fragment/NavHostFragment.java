@@ -23,13 +23,13 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentContainerView;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.NavHost;
@@ -297,13 +297,13 @@ public class NavHostFragment extends Fragment implements NavHost {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        FrameLayout frameLayout = new FrameLayout(inflater.getContext());
-        // When added via XML, this has no effect (since this FrameLayout is given the ID
+        FragmentContainerView containerView = new FragmentContainerView(inflater.getContext());
+        // When added via XML, this has no effect (since this FragmentContainerView is given the ID
         // automatically), but this ensures that the View exists as part of this Fragment's View
         // hierarchy in cases where the NavHostFragment is added programmatically as is required
         // for child fragment transactions
-        frameLayout.setId(getId());
-        return frameLayout;
+        containerView.setId(getId());
+        return containerView;
     }
 
     @Override
