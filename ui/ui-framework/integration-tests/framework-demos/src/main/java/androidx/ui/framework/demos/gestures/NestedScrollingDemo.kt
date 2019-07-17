@@ -18,7 +18,6 @@ package androidx.ui.framework.demos.gestures
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
@@ -28,7 +27,7 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.coerceIn
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
@@ -109,7 +108,7 @@ private fun Draggable(children: @Composable() () -> Unit) {
         }
     }
 
-    DragGestureDetector(canDrag, dragObserver) {
+    TouchSlopDragGestureDetector(dragObserver, canDrag) {
         Layout(children = {
             Draw { canvas, parentSize ->
                 canvas.save()

@@ -25,7 +25,7 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
 import androidx.ui.core.round
@@ -75,8 +75,7 @@ fun SelectionContainer(
             })
         }
         val startHandle = @Composable {
-            DragGestureDetector(
-                canDrag = { true },
+            TouchSlopDragGestureDetector(
                 dragObserver = manager.handleDragObserver(dragStartHandle = true)
             ) {
                 Layout(
@@ -87,8 +86,7 @@ fun SelectionContainer(
             }
         }
         val endHandle = @Composable {
-            DragGestureDetector(
-                canDrag = { true },
+            TouchSlopDragGestureDetector(
                 dragObserver = manager.handleDragObserver(dragStartHandle = false)
             ) {
                 Layout(

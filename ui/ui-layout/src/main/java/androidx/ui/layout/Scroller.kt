@@ -22,7 +22,7 @@ import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.min
 import androidx.ui.core.px
@@ -54,7 +54,7 @@ private fun DirectionalDragGestureDetector(
     children: @Composable() () -> Unit
 ) {
     val offset = +state { 0.px }
-    DragGestureDetector(
+    TouchSlopDragGestureDetector(
         dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: PxPosition): PxPosition {
                 val draggedAmount = if (vertical) dragDistance.y else dragDistance.x
