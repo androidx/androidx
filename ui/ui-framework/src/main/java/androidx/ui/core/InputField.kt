@@ -140,7 +140,10 @@ fun InputField(
         },
         onBlur = {
             hasFocus.value = false
-            InputFieldDelegate.onBlur(textInputService)
+            InputFieldDelegate.onBlur(
+                textInputService,
+                processor,
+                onValueChange)
         },
         onDragAt = { InputFieldDelegate.onDragAt(it) },
         onRelease = { InputFieldDelegate.onRelease(it, textPainter, processor, onValueChange) }
