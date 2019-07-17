@@ -25,6 +25,8 @@ plugins {
 }
 
 dependencies {
+    implementation(ANDROIDX_TEST_RUNNER)
+
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
