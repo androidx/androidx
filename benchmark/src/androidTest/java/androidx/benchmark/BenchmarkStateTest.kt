@@ -57,6 +57,8 @@ class BenchmarkStateTest {
     @Test
     fun iterationCheck() {
         val state = BenchmarkState()
+        // disable thermal throttle checks, since it can cause loops to be thrown out
+        state.performThrottleChecks = false
         var total = 0
         while (state.keepRunning()) {
             total++
