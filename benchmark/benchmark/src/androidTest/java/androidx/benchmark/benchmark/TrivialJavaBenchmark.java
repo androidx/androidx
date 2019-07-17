@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.benchmark;
+package androidx.benchmark.benchmark;
 
+import androidx.benchmark.BenchmarkRule;
+import androidx.benchmark.BenchmarkState;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Rule;
@@ -25,7 +27,7 @@ import org.junit.runners.JUnit4;
 
 @LargeTest
 @RunWith(JUnit4.class)
-public class TrivialBenchmarkJava {
+public class TrivialJavaBenchmark {
     @Rule
     public BenchmarkRule mBenchmarkRule = new BenchmarkRule();
 

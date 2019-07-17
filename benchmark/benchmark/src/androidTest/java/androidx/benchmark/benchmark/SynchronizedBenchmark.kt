@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.benchmark
 
+import androidx.benchmark.BenchmarkRule
+import androidx.benchmark.measureRepeated
 import androidx.test.filters.LargeTest
 import org.junit.Rule
 import org.junit.Test

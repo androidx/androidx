@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import static androidx.build.dependencies.DependenciesKt.*
 
-package androidx.benchmark
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("kotlin-android")
+}
 
-import androidx.test.filters.LargeTest
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-
-@LargeTest
-@RunWith(JUnit4::class)
-class TrivialBenchmark {
-    @get:Rule
-    val benchmarkRule = BenchmarkRule()
-
-    @Test
-    fun nothing() = benchmarkRule.measureRepeated { }
-
-    @Test
-    fun increment() {
-        var i = 0
-        benchmarkRule.measureRepeated {
-            i++
-        }
-    }
+dependencies {
+    androidTestImplementation(project(":benchmark"))
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(KOTLIN_STDLIB)
 }
