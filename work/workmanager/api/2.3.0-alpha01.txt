@@ -13,6 +13,7 @@ package androidx.work {
 
   public final class Configuration {
     method public java.util.concurrent.Executor getExecutor();
+    method public androidx.work.InputMergerFactory getInputMergerFactory();
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
     method public java.util.concurrent.Executor getTaskExecutor();
@@ -24,6 +25,7 @@ package androidx.work {
     ctor public Configuration.Builder();
     method public androidx.work.Configuration build();
     method public androidx.work.Configuration.Builder setExecutor(java.util.concurrent.Executor);
+    method public androidx.work.Configuration.Builder setInputMergerFactory(androidx.work.InputMergerFactory);
     method public androidx.work.Configuration.Builder setJobSchedulerJobIdRange(int, int);
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
@@ -122,6 +124,11 @@ package androidx.work {
   public abstract class InputMerger {
     ctor public InputMerger();
     method public abstract androidx.work.Data merge(java.util.List<androidx.work.Data!>);
+  }
+
+  public abstract class InputMergerFactory {
+    ctor public InputMergerFactory();
+    method public abstract androidx.work.InputMerger? createInputMerger(String);
   }
 
   public abstract class ListenableWorker {
