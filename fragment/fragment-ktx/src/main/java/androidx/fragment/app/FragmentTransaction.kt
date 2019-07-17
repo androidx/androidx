@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.os.Bundle
 import androidx.annotation.IdRes
 
 /**
@@ -31,13 +32,15 @@ import androidx.annotation.IdRes
  * to be placed in.
  * @param tag Optional tag name for the fragment, to later retrieve the
  * fragment with [FragmentManager.findFragmentByTag].
+ * @param args Optional arguments to be set on the fragment.
  *
  * @return Returns the same [FragmentTransaction] instance.
  */
 inline fun <reified F : Fragment> FragmentTransaction.add(
     @IdRes containerViewId: Int,
-    tag: String? = null
-) = add(containerViewId, F::class.java, tag)
+    tag: String? = null,
+    args: Bundle? = null
+) = add(containerViewId, F::class.java, args, tag)
 
 /**
  * Add a fragment to the associated [FragmentManager] without
@@ -48,12 +51,14 @@ inline fun <reified F : Fragment> FragmentTransaction.add(
  *
  * @param tag Tag name for the fragment, to later retrieve the
  * fragment with [FragmentManager.findFragmentByTag].
+ * @param args Optional arguments to be set on the fragment.
  *
  * @return Returns the same [FragmentTransaction] instance.
  */
 inline fun <reified F : Fragment> FragmentTransaction.add(
-    tag: String
-) = add(F::class.java, tag)
+    tag: String,
+    args: Bundle? = null
+) = add(F::class.java, args, tag)
 
 /**
  * Replace an existing fragment that was added to a container.  This is
@@ -68,10 +73,12 @@ inline fun <reified F : Fragment> FragmentTransaction.add(
  * to be replaced.
  * @param tag Optional tag name for the fragment, to later retrieve the
  * fragment with [FragmentManager.findFragmentByTag].
+ * @param args Optional arguments to be set on the fragment.
  *
  * @return Returns the same [FragmentTransaction] instance.
  */
 inline fun <reified F : Fragment> FragmentTransaction.replace(
     @IdRes containerViewId: Int,
-    tag: String? = null
-) = replace(containerViewId, F::class.java, tag)
+    tag: String? = null,
+    args: Bundle? = null
+) = replace(containerViewId, F::class.java, args, tag)
