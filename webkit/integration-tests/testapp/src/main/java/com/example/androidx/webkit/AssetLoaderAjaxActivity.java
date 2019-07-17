@@ -72,11 +72,11 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         // The developer should ALWAYS use a domain which they are in control of or use
         // the default androidplatform.net reserved by Google for this purpose.
         mAssetLoader = new WebViewAssetLoader.Builder()
-                .onDomain("example.com") // use "example.com" instead of the default domain
+                .setDomain("example.com") // use "example.com" instead of the default domain
                 // Host app resources ... under https://example.com/androidx_webkit/example/res/...
-                .register("/androidx_webkit/example/res/", new ResourcesPathHandler(this))
+                .addPathHandler("/androidx_webkit/example/res/", new ResourcesPathHandler(this))
                 // Host app assets under https://example.com/androidx_webkit/example/assets/...
-                .register("/androidx_webkit/example/assets/", new AssetsPathHandler(this))
+                .addPathHandler("/androidx_webkit/example/assets/", new AssetsPathHandler(this))
                 .build();
 
         mWebView = findViewById(R.id.webview_asset_loader_webview);

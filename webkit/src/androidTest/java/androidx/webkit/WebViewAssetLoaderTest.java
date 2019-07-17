@@ -97,7 +97,7 @@ public class WebViewAssetLoaderTest {
     public void testCustomPathHandler() throws Throwable {
         PathHandler pathHandler = new TestPathHandler();
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                                                .register("/test/", pathHandler)
+                                                .addPathHandler("/test/", pathHandler)
                                                 .build();
 
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
@@ -113,15 +113,15 @@ public class WebViewAssetLoaderTest {
     public void testCustomDomain() throws Throwable {
         PathHandler pathHandler = new TestPathHandler();
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                                                .onDomain("test.myDomain.net")
-                                                .register("/test/", pathHandler)
+                                                .setDomain("test.myDomain.net")
+                                                .addPathHandler("/test/", pathHandler)
                                                 .build();
 
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
                 Uri.parse("https://test.myDomain.net/test/"));
         assertResponse(response, CONTENTS);
 
-        Assert.assertNull("non-registered URL should return null response",
+        Assert.assertNull("non-addPathHandlered URL should return null response",
                 assetLoader.shouldInterceptRequest(
                         Uri.parse("https://appassets.androidplatform.net/test/")));
     }
@@ -131,8 +131,8 @@ public class WebViewAssetLoaderTest {
     public void testAllowingHttp() throws Throwable {
         PathHandler pathHandler = new TestPathHandler();
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                                                .allowHttp(true)
-                                                .register("/test/", pathHandler)
+                                                .setHttpAllowed(true)
+                                                .addPathHandler("/test/", pathHandler)
                                                 .build();
 
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
@@ -149,7 +149,7 @@ public class WebViewAssetLoaderTest {
     public void testDisallowingHttp() throws Throwable {
         PathHandler pathHandler = new TestPathHandler();
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                                                .register("/test/", pathHandler)
+                                                .addPathHandler("/test/", pathHandler)
                                                 .build();
 
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
@@ -180,7 +180,7 @@ public class WebViewAssetLoaderTest {
             }
         });
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                                                      .register("/assets/", assetsPathHandler)
+                                                      .addPathHandler("/assets/", assetsPathHandler)
                                                       .build();
 
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
@@ -207,7 +207,7 @@ public class WebViewAssetLoaderTest {
             }
         });
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                                                      .register("/res/", resourcesPathHandler)
+                                                      .addPathHandler("/res/", resourcesPathHandler)
                                                       .build();
 
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
@@ -221,7 +221,7 @@ public class WebViewAssetLoaderTest {
         WebViewAssetLoader.Builder builder = new WebViewAssetLoader.Builder();
         for (int i = 1; i <= 5; ++i) {
             final String testContent = CONTENTS + Integer.toString(i);
-            builder.register("/test_path_" + Integer.toString(i) + "/", new PathHandler() {
+            builder.addPathHandler("/test_path_" + Integer.toString(i) + "/", new PathHandler() {
                 @Override
                 public WebResourceResponse handle(@NonNull String path) {
                     try {
@@ -283,8 +283,8 @@ public class WebViewAssetLoaderTest {
     @SmallTest
     public void testMultiplePathHandlersOnTheSamePath() throws Throwable {
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                .register("/test_path/", new FakeZipPathHandler())
-                .register("/test_path/", new FakeTextPathHandler())
+                .addPathHandler("/test_path/", new FakeZipPathHandler())
+                .addPathHandler("/test_path/", new FakeTextPathHandler())
                 .build();
 
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
@@ -301,8 +301,8 @@ public class WebViewAssetLoaderTest {
 
         // Register in reverse order to make sure it works regardless of order.
         assetLoader = new WebViewAssetLoader.Builder()
-                .register("/test_path/", new FakeTextPathHandler())
-                .register("/test_path/", new FakeZipPathHandler())
+                .addPathHandler("/test_path/", new FakeTextPathHandler())
+                .addPathHandler("/test_path/", new FakeZipPathHandler())
                 .build();
 
         response = assetLoader.shouldInterceptRequest(

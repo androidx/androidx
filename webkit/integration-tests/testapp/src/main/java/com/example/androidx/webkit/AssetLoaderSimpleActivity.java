@@ -70,7 +70,7 @@ public class AssetLoaderSimpleActivity extends AppCompatActivity {
 
         // Host application assets under http://appassets.androidplatform.net/assets/...
         mAssetLoader = new WebViewAssetLoader.Builder()
-                .register("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
+                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
                 .build();
         Uri path = new Uri.Builder()
                 .scheme("https")
