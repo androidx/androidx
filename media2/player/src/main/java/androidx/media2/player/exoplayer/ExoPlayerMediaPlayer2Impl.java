@@ -107,7 +107,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     // Command queue and events implementation.
-    // TODO: Consider refactoring to share implementation with MediaPlayer2Impl.
 
     @Override
     public Object notifyWhenCommandLabelReached(@NonNull final Object label) {
