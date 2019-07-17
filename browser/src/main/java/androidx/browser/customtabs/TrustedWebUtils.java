@@ -29,7 +29,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
-import androidx.browser.trusted.TrustedWebActivityBuilder;
+import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
 import androidx.core.app.BundleCompat;
 import androidx.core.content.FileProvider;
 
@@ -134,9 +134,9 @@ public class TrustedWebUtils {
      * Transfers the splash image to a Custom Tabs provider. The reading and decoding of the image
      * happens synchronously, so it's recommended to call this method on a worker thread.
      *
-     * This method should be called prior to {@link TrustedWebActivityBuilder#launchActivity}.
+     * This method should be called prior to launching the Activity.
      * Pass additional parameters, such as background color, using
-     * {@link TrustedWebActivityBuilder#setSplashScreenParams(Bundle)}.
+     * {@link TrustedWebActivityIntentBuilder#setSplashScreenParams(Bundle)}.
      *
      * @param context {@link Context} to use.
      * @param file {@link File} with the image.
@@ -169,8 +169,7 @@ public class TrustedWebUtils {
      *                         associated with browser toolbar controls will be ignored.
      * @param uri The web page to launch as Trusted Web Activity.
      *
-     * @deprecated Use {@link TrustedWebActivityBuilder} and
-     * {@link TrustedWebActivityBuilder#launchActivity} instead.
+     * @deprecated Use {@link TrustedWebActivityIntentBuilder} instead.
      */
     @Deprecated
     public static void launchAsTrustedWebActivity(@NonNull Context context,

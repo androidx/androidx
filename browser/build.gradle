@@ -12,6 +12,8 @@ android {
     defaultConfig {
         minSdkVersion 16
     }
+
+    testOptions.unitTests.includeAndroidResources = true
 }
 
 dependencies {

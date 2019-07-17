@@ -17,7 +17,6 @@
 package androidx.browser.trusted;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,27 +24,26 @@ import android.os.Bundle;
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.browser.customtabs.TrustedWebUtils;
 import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
-import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Constructs and launches an intent to start a Trusted Web Activity (see {@link TrustedWebUtils}
- * for more details).
+ * Constructs an intent to start a Trusted Web Activity (see {@link TrustedWebUtils} for more
+ * details).
  */
-public class TrustedWebActivityBuilder {
+public class TrustedWebActivityIntentBuilder {
     /**
      * Extra for the Trusted Web Activity launch Intent to specify a {@link Bundle} of parameters
      * for the browser to use in constructing a splash screen.
      *
-     * It is recommended to use {@link TrustedWebActivityBuilder} instead of manually piecing the
-     * Intent together.
+     * It is recommended to use {@link TrustedWebActivityIntentBuilder} instead of manually piecing
+     * the Intent together.
      */
     @SuppressLint("ActionValue")
     public static final String EXTRA_SPLASH_SCREEN_PARAMS =
@@ -55,42 +53,76 @@ public class TrustedWebActivityBuilder {
      * Extra for the Trusted Web Activity launch Intent to specify a list of origins for the
      * browser to treat as trusted, in addition to the origin of the launching URL.
      *
-     * It is recommended to use {@link TrustedWebActivityBuilder} instead of manually piecing the
-     * Intent together.
+     * It is recommended to use {@link TrustedWebActivityIntentBuilder} instead of manually piecing
+     * the Intent together.
      */
     @SuppressLint("ActionValue")
     public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS =
             "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
 
-    private final Context mContext;
-    private final Uri mUri;
+    @NonNull private final Uri mUri;
+    @NonNull private final CustomTabsIntent.Builder mIntentBuilder = new CustomTabsIntent.Builder();
 
-    @Nullable private Integer mStatusBarColor;
     @Nullable private List<String> mAdditionalTrustedOrigins;
     @Nullable private Bundle mSplashScreenParams;
 
     /**
      * Creates a Builder given the required parameters.
-     * @param context {@link Context} to use.
      * @param uri The web page to launch as Trusted Web Activity.
      */
-    public TrustedWebActivityBuilder(@NonNull Context context, @NonNull Uri uri) {
-        mContext = context;
+    public TrustedWebActivityIntentBuilder(@NonNull Uri uri) {
         mUri = uri;
     }
 
     /**
-     * Sets the status bar color to be seen while the Trusted Web Activity is running.
+     * Sets the color applied to the toolbar and the status bar, see
+     * {@link CustomTabsIntent.Builder#setToolbarColor}.
      *
-     * @hide
+     * When a Trusted Web Activity is on the verified origin, the toolbar is hidden, so the color
+     * applies only to the status bar. When it's on an unverified origin, the toolbar is shown, and
+     * the color applies to both toolbar and status bar.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    public TrustedWebActivityBuilder setStatusBarColor(@ColorInt int color) {
-        mStatusBarColor = color;
+    public TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int color) {
+        mIntentBuilder.setToolbarColor(color);
         return this;
     }
 
+    /**
+     * Sets the navigation bar color, see {@link CustomTabsIntent.Builder#setNavigationBarColor}.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int color) {
+        mIntentBuilder.setNavigationBarColor(color);
+        return this;
+    }
+
+    /**
+     * Sets the color scheme, see {@link CustomTabsIntent.Builder#setColorScheme}.
+     * In Trusted Web Activities color scheme may effect such UI elements as info bars and context
+     * menus.
+     *
+     * @param colorScheme Must be one of {@link CustomTabsIntent#COLOR_SCHEME_SYSTEM},
+     * {@link CustomTabsIntent#COLOR_SCHEME_LIGHT}, and {@link CustomTabsIntent#COLOR_SCHEME_DARK}.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setColorScheme(int colorScheme) {
+        mIntentBuilder.setColorScheme(colorScheme);
+        return this;
+    }
+
+    /**
+     * Sets {@link CustomTabColorSchemeParams} for the given color scheme.
+     * This allows, for example, to set two navigation bar colors - for light and dark scheme.
+     * Trusted Web Activity will automatically apply the correct color according to current system
+     * settings. For more details see {@link CustomTabsIntent.Builder#setColorSchemeParams}.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setColorSchemeParams(int colorScheme,
+            @NonNull CustomTabColorSchemeParams params) {
+        mIntentBuilder.setColorSchemeParams(colorScheme, params);
+        return this;
+    }
     /**
      * Sets a list of additional trusted origins that the user may navigate or be redirected to
      * from the starting uri.
@@ -104,7 +136,7 @@ public class TrustedWebActivityBuilder {
      * origins asynchronously, but that would delay launching the Trusted Web Activity.
      */
     @NonNull
-    public TrustedWebActivityBuilder setAdditionalTrustedOrigins(
+    public TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(
             @NonNull List<String> origins) {
         mAdditionalTrustedOrigins = origins;
         return this;
@@ -115,7 +147,7 @@ public class TrustedWebActivityBuilder {
      * background color. See {@link SplashScreenParamKey} for a list of supported parameters.
      *
      * To provide the image for the splash screen, use {@link TrustedWebUtils#transferSplashImage},
-     * prior to calling {@link #launchActivity} on the builder.
+     * prior to launching the intent.
      *
      * It is recommended to also show the same splash screen in the app as soon as possible,
      * prior to establishing a CustomTabConnection. The Trusted Web Activity provider should
@@ -126,29 +158,25 @@ public class TrustedWebActivityBuilder {
      * fails.
      */
     @NonNull
-    public TrustedWebActivityBuilder setSplashScreenParams(@NonNull Bundle splashScreenParams) {
+    public TrustedWebActivityIntentBuilder setSplashScreenParams(
+            @NonNull Bundle splashScreenParams) {
         mSplashScreenParams = splashScreenParams;
         return this;
     }
 
     /**
-     * Launches a Trusted Web Activity. Once it is launched, browser side implementations may
-     * have their own fallback behavior (e.g. showing the page in a custom tab UI with toolbar).
+     * Builds the Intent.
      *
      * @param session The {@link CustomTabsSession} to use for launching a Trusted Web Activity.
      */
-    public void launchActivity(@NonNull CustomTabsSession session) {
+    @NonNull
+    public Intent build(@NonNull CustomTabsSession session) {
         if (session == null) {
             throw new NullPointerException("CustomTabsSession is required for launching a TWA");
         }
 
-        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder(session);
-        if (mStatusBarColor != null) {
-            // Toolbar color applies also to the status bar.
-            intentBuilder.setToolbarColor(mStatusBarColor);
-        }
-
-        Intent intent = intentBuilder.build().intent;
+        mIntentBuilder.setSession(session);
+        Intent intent = mIntentBuilder.build().intent;
         intent.setData(mUri);
         intent.putExtra(TrustedWebUtils.EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY, true);
         if (mAdditionalTrustedOrigins != null) {
@@ -159,7 +187,17 @@ public class TrustedWebActivityBuilder {
         if (mSplashScreenParams != null) {
             intent.putExtra(EXTRA_SPLASH_SCREEN_PARAMS, mSplashScreenParams);
         }
-        ContextCompat.startActivity(mContext, intent, null);
+        return intent;
+    }
+
+    /**
+     * Builds a {@link CustomTabsIntent} based on provided parameters.
+     * Can be useful for falling back to Custom Tabs when Trusted Web Activity providers are
+     * unavailable.
+     */
+    @NonNull
+    public CustomTabsIntent buildCustomTabsIntent() {
+        return mIntentBuilder.build();
     }
 
     /**
@@ -168,17 +206,5 @@ public class TrustedWebActivityBuilder {
     @NonNull
     public Uri getUrl() {
         return mUri;
-    }
-
-    /**
-     * Returns the color set via {@link #setStatusBarColor(int)} or {@code null} if not set.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @Nullable
-    @ColorInt
-    public Integer getStatusBarColor() {
-        return mStatusBarColor;
     }
 }
