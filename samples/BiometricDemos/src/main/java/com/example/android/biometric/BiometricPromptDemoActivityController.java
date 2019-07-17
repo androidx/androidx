@@ -58,6 +58,6 @@ class BiometricPromptDemoActivityController extends BiometricPromptDemoControlle
 
     @Override
     void reconnect() {
-        mBiometricPrompt = new BiometricPrompt(mActivity, mAuthenticationCallback, mExecutor);
+        mBiometricPrompt = new BiometricPrompt(mActivity, mExecutor, mAuthenticationCallback);
     }
 }

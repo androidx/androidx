@@ -522,19 +522,20 @@ public class BiometricPrompt implements BiometricConstants {
      * such as {@link FragmentActivity#onCreate(Bundle)}.
      *
      * @param fragmentActivity A reference to the client's activity.
-     * @param callback An object to receive authentication events.
      * @param executor An executor to handle callback events.
+     * @param callback An object to receive authentication events.
      */
+    @SuppressLint("LambdaLast")
     public BiometricPrompt(@NonNull FragmentActivity fragmentActivity,
-            @NonNull AuthenticationCallback callback, @NonNull Executor executor) {
+            @NonNull Executor executor, @NonNull AuthenticationCallback callback) {
         if (fragmentActivity == null) {
             throw new IllegalArgumentException("FragmentActivity must not be null");
         }
-        if (callback == null) {
-            throw new IllegalArgumentException("AuthenticationCallback must not be null");
-        }
         if (executor == null) {
             throw new IllegalArgumentException("Executor must not be null");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("AuthenticationCallback must not be null");
         }
         mFragmentActivity = fragmentActivity;
         mAuthenticationCallback = callback;
@@ -555,19 +556,20 @@ public class BiometricPrompt implements BiometricConstants {
      * such as {@link Fragment#onCreate(Bundle)}.
      *
      * @param fragment A reference to the client's fragment.
-     * @param callback An object to receive authentication events.
      * @param executor An executor to handle callback events.
+     * @param callback An object to receive authentication events.
      */
+    @SuppressLint("LambdaLast")
     public BiometricPrompt(@NonNull Fragment fragment,
-            @NonNull AuthenticationCallback callback, @NonNull Executor executor) {
+            @NonNull Executor executor, @NonNull AuthenticationCallback callback) {
         if (fragment == null) {
             throw new IllegalArgumentException("FragmentActivity must not be null");
         }
-        if (callback == null) {
-            throw new IllegalArgumentException("AuthenticationCallback must not be null");
-        }
         if (executor == null) {
             throw new IllegalArgumentException("Executor must not be null");
+        }
+        if (callback == null) {
+            throw new IllegalArgumentException("AuthenticationCallback must not be null");
         }
         mFragment = fragment;
         mAuthenticationCallback = callback;

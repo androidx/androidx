@@ -61,6 +61,6 @@ class BiometricPromptDemoFragmentController extends BiometricPromptDemoControlle
 
     @Override
     void reconnect() {
-        mBiometricPrompt = new BiometricPrompt(mFragment, mAuthenticationCallback, mExecutor);
+        mBiometricPrompt = new BiometricPrompt(mFragment, mExecutor, mAuthenticationCallback);
     }
 }
