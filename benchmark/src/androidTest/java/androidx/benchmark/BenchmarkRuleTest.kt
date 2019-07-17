@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class BenchmarkRuleTest {
     @get:Rule
-    val benchmarkRule = BenchmarkRule()
+    val benchmarkRule = BenchmarkRule(enableReport = false)
 
     @Test
     fun runWithTimingDisabled() {

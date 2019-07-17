@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.benchmark
 
-import android.app.Activity
-import androidx.test.annotation.UiThreadTest
+import androidx.benchmark.BenchmarkRule
+import androidx.benchmark.measureRepeated
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
-import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -28,19 +26,15 @@ import org.junit.runners.JUnit4
 
 @LargeTest
 @RunWith(JUnit4::class)
-class ActivityTestRuleBenchmark {
+class TrivialKotlinBenchmark {
     @get:Rule
     val benchmarkRule = BenchmarkRule()
 
-    @get:Rule
-    val activityRule = ActivityTestRule(Activity::class.java)
-
-    @UiThreadTest
     @Test
-    fun activityTestRule() {
-        // isolation activity *not* on top
-        assertFalse(IsolationActivity.singleton.get()!!.resumed)
+    fun nothing() = benchmarkRule.measureRepeated { }
 
+    @Test
+    fun increment() {
         var i = 0
         benchmarkRule.measureRepeated {
             i++

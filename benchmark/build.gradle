@@ -32,7 +32,7 @@ dependencies {
     implementation(SUPPORT_ANNOTATIONS)
 
     androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation(JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
 }
 
 androidx {

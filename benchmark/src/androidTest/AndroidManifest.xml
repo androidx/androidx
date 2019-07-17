@@ -19,11 +19,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.benchmark.test">
 
-
-    <!-- Important: disable debuggable for accurate performance results -->
-    <application
-        android:debuggable="false"
-        tools:replace="android:debuggable">
+    <application>
         <activity android:name="android.app.Activity"/>
     </application>
 </manifest>
