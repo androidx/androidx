@@ -16,7 +16,6 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.widget.AutoSizeableTextView.PLATFORM_SUPPORTS_AUTOSIZE;
 
@@ -330,79 +329,6 @@ class AppCompatTextHelper {
         }
     }
 
-    // To accessible from callback */
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    public void setTypefaceByCallback(@NonNull Typeface typeface) {
-        if (mAsyncFontPending) {
-            mView.setTypeface(typeface);
-            mFontTypeface = typeface;
-        }
-    }
-
-    // To accessible from callback */
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    public void runOnUiThread(@NonNull Runnable runnable) {
-        mView.post(runnable);
-    }
-
-    /**
-     * Helper class for applying Typeface on UI thread.
-     */
-    private static class ApplyTextViewCallback extends ResourcesCompat.FontCallback {
-        private class TypefaceApplyCallback implements Runnable {
-            private final WeakReference<AppCompatTextHelper> mParent;
-            private final Typeface mTypeface;
-
-            TypefaceApplyCallback(@NonNull WeakReference<AppCompatTextHelper> parent,
-                    @NonNull Typeface tf) {
-                mParent = parent;
-                mTypeface = tf;
-            }
-
-            @Override
-            public void run() {
-                final AppCompatTextHelper parent = mParent.get();
-                if (parent == null) {
-                    return;  // The view has gone. Do nothing.
-                }
-                parent.setTypefaceByCallback(mTypeface);
-            }
-        }
-
-        private final WeakReference<AppCompatTextHelper> mParent;
-        private final int mFontWeight;
-        private final int mStyle;
-
-        ApplyTextViewCallback(@NonNull AppCompatTextHelper parent, int fontWeight,
-                int style) {
-            mParent = new WeakReference<>(parent);
-            mFontWeight = fontWeight;
-            mStyle = style;
-        }
-
-        @Override
-        public void onFontRetrieved(@NonNull Typeface typeface) {
-            final AppCompatTextHelper parent = mParent.get();
-            if (parent == null) {
-                return;  // The view has gone. Do nothing
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                if (mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
-                    typeface = Typeface.create(typeface, mFontWeight,
-                            (mStyle & Typeface.ITALIC) != 0);
-                }
-            }
-            parent.runOnUiThread(new TypefaceApplyCallback(mParent, typeface));
-        }
-
-        @Override
-        public void onFontRetrievalFailed(int reason) {
-            // Do nothing.
-        }
-    }
-
     private void updateTypefaceAndStyle(Context context, TintTypedArray a) {
         mStyle = a.getInt(R.styleable.TextAppearance_android_textStyle, mStyle);
 
@@ -423,8 +349,24 @@ class AppCompatTextHelper {
             final int fontWeight = mFontWeight;
             final int style = mStyle;
             if (!context.isRestricted()) {
-                ResourcesCompat.FontCallback replyCallback = new ApplyTextViewCallback(
-                        this, fontWeight, style);
+                final WeakReference<TextView> textViewWeak = new WeakReference<>(mView);
+                ResourcesCompat.FontCallback replyCallback = new ResourcesCompat.FontCallback() {
+                    @Override
+                    public void onFontRetrieved(@NonNull Typeface typeface) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            if (fontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                                typeface = Typeface.create(typeface, fontWeight,
+                                        (style & Typeface.ITALIC) != 0);
+                            }
+                        }
+                        onAsyncTypefaceReceived(textViewWeak, typeface);
+                    }
+
+                    @Override
+                    public void onFontRetrievalFailed(int reason) {
+                        // Do nothing.
+                    }
+                };
                 try {
                     // Note the callback will be triggered on the UI thread.
                     final Typeface typeface = a.getFont(fontFamilyId, mStyle, replyCallback);
@@ -477,6 +419,17 @@ class AppCompatTextHelper {
                 case MONOSPACE:
                     mFontTypeface = Typeface.MONOSPACE;
                     break;
+            }
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void onAsyncTypefaceReceived(WeakReference<TextView> textViewWeak, Typeface typeface) {
+        if (mAsyncFontPending) {
+            mFontTypeface = typeface;
+            final TextView textView = textViewWeak.get();
+            if (textView != null) {
+                textView.setTypeface(typeface, mStyle);
             }
         }
     }
