@@ -246,6 +246,12 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
 
         setupForInsets();
         super.setOnHierarchyChangeListener(new HierarchyChangeListener());
+
+        if (ViewCompat.getImportantForAccessibility(this)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(this,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
     }
 
     @Override
