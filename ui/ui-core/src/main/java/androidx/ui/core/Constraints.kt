@@ -44,6 +44,7 @@ data class Constraints(
     val maxHeight: IntPx = IntPx.Infinity
 ) {
     init {
+        // TODO(mount/popam): This verification is costly. Can we avoid it sometimes or at least on production?
         require(minWidth.isFinite()) { "Constraints#minWidth should be finite" }
         require(minHeight.isFinite()) { "Constraints#minHeight should be finite" }
         require(minWidth <= maxWidth) {

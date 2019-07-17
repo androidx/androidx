@@ -115,14 +115,14 @@ fun SelectionContainer(
             val width = placeable.width
             val height = placeable.height
             val start =
-                measurables[startHandle as () -> Unit].first().measure(
+                measurables[startHandle].first().measure(
                     Constraints.tightConstraints(
                         HANDLE_WIDTH.round(),
                         HANDLE_HEIGHT.round()
                     )
                 )
             val end =
-                measurables[endHandle as () -> Unit].first().measure(
+                measurables[endHandle].first().measure(
                     Constraints.tightConstraints(
                         HANDLE_WIDTH.round(),
                         HANDLE_HEIGHT.round()
