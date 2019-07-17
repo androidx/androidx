@@ -97,7 +97,7 @@ public final class NavInflater {
     private NavDestination inflate(@NonNull Resources res, @NonNull XmlResourceParser parser,
             @NonNull AttributeSet attrs, int graphResId)
             throws XmlPullParserException, IOException {
-        Navigator navigator = mNavigatorProvider.getNavigator(parser.getName());
+        Navigator<?> navigator = mNavigatorProvider.getNavigator(parser.getName());
         final NavDestination dest = navigator.createDestination();
 
         dest.onInflate(mContext, attrs);
