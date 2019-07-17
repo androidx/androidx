@@ -177,6 +177,7 @@ public abstract class FragmentManager {
      * Callback interface for listening to fragment state changes that happen
      * within a given FragmentManager.
      */
+    @SuppressWarnings("unused")
     public abstract static class FragmentLifecycleCallbacks {
         /**
          * Called right before the fragment's {@link Fragment#onAttach(Context)} method is called.
