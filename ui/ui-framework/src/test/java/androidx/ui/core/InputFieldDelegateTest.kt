@@ -27,8 +27,10 @@ import androidx.ui.input.KeyboardType
 import androidx.ui.input.SetSelectionEditOp
 import androidx.ui.input.TextInputService
 import androidx.ui.painting.Canvas
+import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextRange
+import androidx.ui.text.TextStyle
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
@@ -276,5 +278,28 @@ class InputFieldDelegateTest {
             textInputService,
             true /* hasFocus */)
         verify(textInputService).notifyFocusedRect(any())
+    }
+
+    @Test
+    fun layout() {
+        val constraints = Constraints(
+            minWidth = 0.px.round(),
+            maxWidth = 1024.px.round(),
+            minHeight = 0.px.round(),
+            maxHeight = 2048.px.round()
+        )
+
+        val dummyText = AnnotatedString(text = "Hello, World")
+        whenever(painter.text).thenReturn(dummyText)
+        whenever(painter.style).thenReturn(TextStyle())
+        whenever(painter.density).thenReturn(Density(1.0f))
+        whenever(painter.resourceLoader).thenReturn(mock())
+        whenever(painter.height).thenReturn(512.0f)
+
+        val res = InputFieldDelegate.layout(painter, constraints)
+        assertEquals(1024.px.round(), res.first)
+        assertEquals(512.px.round(), res.second)
+
+        verify(painter, times(1)).layout(constraints)
     }
 }
