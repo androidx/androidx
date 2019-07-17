@@ -19,13 +19,16 @@ package androidx.ui.foundation.samples
 import androidx.annotation.Sampled
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.memo
 import androidx.compose.unaryPlus
+import androidx.ui.animation.animatedFloat
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.gestures.AnchorsFlingConfig
-import androidx.ui.foundation.gestures.AnimatedDraggable
+import androidx.ui.foundation.animation.AnchorsFlingConfig
+import androidx.ui.foundation.animation.AnimatedFloatDragController
 import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
@@ -35,7 +38,34 @@ import androidx.ui.layout.Padding
 
 @Sampled
 @Composable
-fun AnimatedDraggableSample() {
+fun DraggableSample() {
+    // Composable that users can drag over 300 dp.
+    val max = 300.dp
+    val min = 0.dp
+    val (minPx, maxPx) = +withDensity {
+        min.toPx().value to max.toPx().value
+    }
+    Draggable(DragDirection.Horizontal, minPx, maxPx) { dragValue ->
+        // dragValue is the current value in progress of dragging
+        val draggedDp = +withDensity {
+            dragValue.toDp()
+        }
+        val squareSize = 50.dp
+
+        // Draw a seekbar-like widget that has a black background
+        // with a red square that moves along the drag
+        Container(width = max + squareSize, alignment = Alignment.CenterLeft) {
+            DrawShape(RectangleShape, Color.Black)
+            Padding(left = draggedDp) {
+                ColoredRect(Color.Red, width = squareSize, height = squareSize)
+            }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun AnchoredDraggableSample() {
     // Composable that users can drag over 300 dp. There are 3 anchors
     // and the value will gravitate to 0, 150 or 300 dp
     val max = 300.dp
@@ -43,23 +73,23 @@ fun AnimatedDraggableSample() {
     val (minPx, maxPx) = +withDensity {
         min.toPx().value to max.toPx().value
     }
+    // define anchors and related animation controller
+    val anchors = listOf(minPx, maxPx, maxPx / 2)
+    val flingConfig = +memo { AnchorsFlingConfig(anchors) }
+    val dragController = +memo { AnimatedFloatDragController(minPx, flingConfig) }
 
-    AnimatedDraggable(
+    Draggable(
         dragDirection = DragDirection.Horizontal,
-        startValue = minPx,
+        valueController = dragController,
         minValue = minPx,
-        maxValue = maxPx,
-        // Specify an anchored behavior for the fling with anchors at max, min and center.
-        flingConfig = AnchorsFlingConfig(listOf(minPx, maxPx / 2, maxPx))
+        maxValue = maxPx
     ) { dragValue ->
-
-        // dragValue is the AnimatedFloat with current value in progress
-        // of dragging or animating
+        // dragValue is the current value in progress
+        // of dragging or animation
         val draggedDp = +withDensity {
-            dragValue.value.toDp()
+            dragValue.toDp()
         }
         val squareSize = 50.dp
-
         // Draw a seekbar-like widget that has a black background
         // with a red square that moves along the drag
         Container(width = max + squareSize, alignment = Alignment.CenterLeft) {

@@ -16,27 +16,26 @@
 
 package androidx.ui.material
 
-import androidx.animation.ColorPropKey
-import androidx.animation.FastOutSlowInEasing
-import androidx.animation.FloatPropKey
-import androidx.animation.TransitionSpec
-import androidx.animation.transitionDefinition
+import androidx.animation.TweenBuilder
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.memo
 import androidx.compose.unaryPlus
-import androidx.ui.animation.Transition
 import androidx.ui.core.DensityReceiver
 import androidx.ui.core.Draw
 import androidx.ui.core.PxSize
 import androidx.ui.core.dp
+import androidx.ui.core.px
+import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.gestures.Draggable
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Wrap
+import androidx.ui.material.internal.anchoredControllerByState
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
@@ -63,9 +62,7 @@ fun Switch(
         Ripple(bounded = false) {
             Toggleable(value = value, onToggle = onCheckedChange?.let { { it(!checked) } }) {
                 Padding(padding = DefaultSwitchPadding) {
-                    Container(width = SwitchWidth, height = SwitchHeight) {
-                        DrawSwitch(checked = checked, checkedThumbColor = color)
-                    }
+                    SwitchImpl(checked, onCheckedChange, color)
                 }
             }
         }
@@ -73,49 +70,58 @@ fun Switch(
 }
 
 @Composable
-private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color) {
-    val uncheckedThumbColor = +themeColor { surface }
-    val transDef = +memo(checkedThumbColor, uncheckedThumbColor) {
-        generateTransitionDefinition(checkedThumbColor, uncheckedThumbColor)
+private fun SwitchImpl(checked: Boolean, onCheckedChange: ((Boolean) -> Unit)?, color: Color) {
+    val minBound = 0f
+    val maxBound = +withDensity { ThumbPathLength.toPx().value }
+    val (controller, callback) =
+        +anchoredControllerByState(
+            state = checked,
+            onStateChange = onCheckedChange ?: {},
+            anchorsToState = listOf(minBound to false, maxBound to true),
+            animationBuilder = AnimationBuilder
+        )
+    Draggable(
+        dragDirection = DragDirection.Horizontal,
+        minValue = minBound,
+        maxValue = maxBound,
+        valueController = controller,
+        callback = callback
+    ) { thumbPosition ->
+        Container(width = SwitchWidth, height = SwitchHeight, expanded = true) {
+            DrawSwitch(
+                checked = checked,
+                checkedThumbColor = color,
+                thumbPosition = thumbPosition
+            )
+        }
     }
+}
+
+@Composable
+private fun DrawSwitch(checked: Boolean, checkedThumbColor: Color, thumbPosition: Float) {
+    val thumbColor = if (checked) checkedThumbColor else +themeColor { surface }
     val trackColor = if (checked) {
         checkedThumbColor.copy(alpha = CheckedTrackOpacity)
     } else {
         (+themeColor { onSurface }).copy(alpha = UncheckedTrackOpacity)
     }
-    DrawTrack(color = trackColor)
-    Transition(definition = transDef, toState = checked) { state ->
-        DrawThumb(
-            color = state[ThumbColorProp],
-            relativePosition = state[RelativeThumbTranslationProp]
-        )
-    }
-}
-
-@Composable
-private fun DrawTrack(color: Color) {
     Draw { canvas, parentSize ->
-        drawTrack(canvas, parentSize, color)
-    }
-}
-
-@Composable
-private fun DrawThumb(relativePosition: Float, color: Color) {
-    Draw { canvas, parentSize ->
-        drawThumb(canvas, parentSize, relativePosition, color)
+        drawTrack(canvas, parentSize, trackColor)
+        drawThumb(canvas, parentSize, thumbPosition, thumbColor)
     }
 }
 
 private fun DensityReceiver.drawTrack(
     canvas: Canvas,
     parentSize: PxSize,
-    color: Color
+    trackColor: Color
 ) {
-    val paint = Paint()
-    paint.isAntiAlias = true
-    paint.color = color
-    paint.strokeCap = StrokeCap.round
-    paint.strokeWidth = TrackStrokeWidth.toPx().value
+    val paint = Paint().apply {
+        isAntiAlias = true
+        color = trackColor
+        strokeCap = StrokeCap.round
+        strokeWidth = TrackStrokeWidth.toPx().value
+    }
 
     val strokeRadius = TrackStrokeWidth / 2
     val centerHeight = parentSize.height / 2
@@ -130,50 +136,19 @@ private fun DensityReceiver.drawTrack(
 private fun DensityReceiver.drawThumb(
     canvas: Canvas,
     parentSize: PxSize,
-    relativePosition: Float,
-    color: Color
+    position: Float,
+    thumbColor: Color
 ) {
-    val paint = Paint()
-    paint.isAntiAlias = true
-    paint.color = color
-
-    val centerHeight = parentSize.height / 2
-    val thumbRadius = ThumbDiameter / 2
-    val thumbPathWidth = TrackWidth - ThumbDiameter
-
-    val start = thumbRadius + thumbPathWidth * relativePosition
-    canvas.drawCircle(
-        Offset(start.toPx().value, centerHeight.value),
-        // TODO(malkov): wierd +1 but necessary in order to properly cover track. Investigate
-        thumbRadius.toPx().value + 1,
-        paint
-    )
-}
-
-private val RelativeThumbTranslationProp = FloatPropKey()
-private val ThumbColorProp = ColorPropKey()
-private const val SwitchAnimationDuration = 100
-
-private fun generateTransitionDefinition(checkedColor: Color, uncheckedColor: Color) =
-    transitionDefinition {
-        fun <T> TransitionSpec<Boolean>.switchTween() = tween<T> {
-            duration = SwitchAnimationDuration
-            easing = FastOutSlowInEasing
-        }
-
-        state(false) {
-            this[RelativeThumbTranslationProp] = 0f
-            this[ThumbColorProp] = uncheckedColor
-        }
-        state(true) {
-            this[RelativeThumbTranslationProp] = 1f
-            this[ThumbColorProp] = checkedColor
-        }
-        transition {
-            RelativeThumbTranslationProp using switchTween()
-            ThumbColorProp using switchTween()
-        }
+    val paint = Paint().apply {
+        isAntiAlias = true
+        color = thumbColor
     }
+    val centerHeight = parentSize.height / 2
+    val thumbRadius = (ThumbDiameter / 2).toPx().value
+    val x = position.px.value + thumbRadius
+
+    canvas.drawCircle(Offset(x, centerHeight.value), thumbRadius, paint)
+}
 
 private val CheckedTrackOpacity = 0.54f
 private val UncheckedTrackOpacity = 0.38f
@@ -187,3 +162,6 @@ private val ThumbDiameter = 20.dp
 private val DefaultSwitchPadding = 2.dp
 private val SwitchWidth = TrackWidth
 private val SwitchHeight = ThumbDiameter
+private val ThumbPathLength = TrackWidth - ThumbDiameter
+
+private val AnimationBuilder = TweenBuilder<Float>().apply { duration = 100 }

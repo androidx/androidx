@@ -157,11 +157,11 @@ class SelectionControlsActivity : MaterialDemoActivity() {
             val (checked, onChecked) = +state { false }
             val (checked2, onChecked2) = +state { false }
             val (checked3, onChecked3) = +state { true }
-            val (checked4, onChecked4) = +state { true }
+            val (checked4, _) = +state { true }
             Switch(checked = checked, onCheckedChange = onChecked)
             Switch(checked = checked2, onCheckedChange = onChecked2, color = customColor)
             Switch(checked = checked3, onCheckedChange = onChecked3, color = customColor2)
-            Switch(checked = checked4, onCheckedChange = onChecked4, color = customColor3)
+            Switch(checked = checked4, onCheckedChange = {}, color = customColor3)
         }
     }
 

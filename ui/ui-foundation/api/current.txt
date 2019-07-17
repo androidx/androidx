@@ -29,43 +29,40 @@ package androidx.ui.foundation {
 
 }
 
-package androidx.ui.foundation.gestures {
+package androidx.ui.foundation.animation {
 
-  public final class AnchorsFlingConfig implements androidx.ui.foundation.gestures.FlingConfig {
-    ctor public AnchorsFlingConfig(java.util.List<java.lang.Float> animationAnchors, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Boolean,kotlin.Unit>? onAnimationFinished, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder, androidx.animation.DecayAnimation decayAnimation);
-    method public java.util.List<java.lang.Float> component1();
+  public final class AnimatedFloatDragController implements androidx.ui.foundation.gestures.DragValueController {
+    ctor public AnimatedFloatDragController(float initialValue, androidx.ui.foundation.animation.FlingConfig? flingConfig);
+    method public androidx.animation.AnimatedFloat getAnimatedFloat();
+    method public float getCurrentValue();
+    method public void onDrag(float target);
+    method public void onDragEnd(float velocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueSettled);
+    method public void setBounds(float min, float max);
+    property public final androidx.animation.AnimatedFloat animatedFloat;
+    property public float currentValue;
+  }
+
+  public final class FlingConfig {
+    ctor public FlingConfig(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Boolean,kotlin.Unit>? onAnimationFinished, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    ctor public FlingConfig();
+    method public androidx.animation.DecayAnimation component1();
     method public kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Boolean,kotlin.Unit>? component2();
-    method public androidx.animation.AnimationBuilder<java.lang.Float> component3();
-    method public androidx.animation.DecayAnimation component4();
-    method public androidx.ui.foundation.gestures.AnchorsFlingConfig copy(java.util.List<java.lang.Float> animationAnchors, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Boolean,kotlin.Unit>? onAnimationFinished, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder, androidx.animation.DecayAnimation decayAnimation);
-    method public void fling(androidx.animation.AnimatedFloat value, float startVelocity);
-    method public java.util.List<java.lang.Float> getAnimationAnchors();
-    method public androidx.animation.AnimationBuilder<java.lang.Float> getAnimationBuilder();
+    method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> component3();
+    method public androidx.ui.foundation.animation.FlingConfig copy(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Boolean,kotlin.Unit>? onAnimationFinished, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
+    method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> getAdjustTarget();
     method public androidx.animation.DecayAnimation getDecayAnimation();
     method public kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Boolean,kotlin.Unit>? getOnAnimationFinished();
   }
 
-  public final class AnimatedDraggableKt {
-    ctor public AnimatedDraggableKt();
-    method public static void AnimatedDraggable(androidx.ui.foundation.gestures.DragDirection dragDirection, float startValue, float minValue = Float.MIN_VALUE, float maxValue = Float.MAX_VALUE, androidx.ui.foundation.gestures.FlingConfig? flingConfig = null, kotlin.jvm.functions.Function1<? super androidx.animation.BaseAnimatedValue<java.lang.Float>,kotlin.Unit> children);
+  public final class FlingConfigKt {
+    ctor public FlingConfigKt();
+    method public static androidx.ui.foundation.animation.FlingConfig AnchorsFlingConfig(java.util.List<java.lang.Float> anchors, androidx.animation.AnimationBuilder<java.lang.Float> animationBuilder = PhysicsBuilder(), kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Boolean,kotlin.Unit>? onAnimationFinished = null, androidx.animation.DecayAnimation decayAnimation = ExponentialDecay());
+    method public static void fling(androidx.animation.AnimatedFloat, androidx.ui.foundation.animation.FlingConfig config, float startVelocity);
   }
 
-  public final class DecayFlingConfig implements androidx.ui.foundation.gestures.FlingConfig {
-    ctor public DecayFlingConfig(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Boolean,kotlin.Unit>? onFlingFinished, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
-    method public androidx.animation.DecayAnimation component1();
-    method public kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Boolean,kotlin.Unit>? component2();
-    method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> component3();
-    method public androidx.ui.foundation.gestures.DecayFlingConfig copy(androidx.animation.DecayAnimation decayAnimation, kotlin.jvm.functions.Function2<? super java.lang.Float,? super java.lang.Boolean,kotlin.Unit>? onFlingFinished, kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.animation.TargetAnimation> adjustTarget);
-    method public void fling(androidx.animation.AnimatedFloat value, float startVelocity);
-    method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.animation.TargetAnimation> getAdjustTarget();
-    method public androidx.animation.DecayAnimation getDecayAnimation();
-    method public kotlin.jvm.functions.Function2<java.lang.Float,java.lang.Boolean,kotlin.Unit>? getOnFlingFinished();
-  }
+}
 
-  public final class DefaultFlingConfig implements androidx.ui.foundation.gestures.FlingConfig {
-    method public void fling(androidx.animation.AnimatedFloat value, float startVelocity);
-    field public static final androidx.ui.foundation.gestures.DefaultFlingConfig! INSTANCE;
-  }
+package androidx.ui.foundation.gestures {
 
   public abstract sealed class DragDirection {
   }
@@ -78,8 +75,33 @@ package androidx.ui.foundation.gestures {
     field public static final androidx.ui.foundation.gestures.DragDirection.Vertical! INSTANCE;
   }
 
-  public interface FlingConfig {
-    method public void fling(androidx.animation.AnimatedFloat value, float startVelocity);
+  public interface DragValueController {
+    method public float getCurrentValue();
+    method public void onDrag(float target);
+    method public void onDragEnd(float velocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueSettled);
+    method public void setBounds(float min, float max);
+    property public abstract float currentValue;
+  }
+
+  public final class DraggableCallback {
+    ctor public DraggableCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onDragStarted, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onDragSettled);
+    ctor public DraggableCallback();
+  }
+
+  public final class DraggableKt {
+    ctor public DraggableKt();
+    method public static void Draggable(androidx.ui.foundation.gestures.DragDirection dragDirection, float minValue = Float.MIN_VALUE, float maxValue = Float.MAX_VALUE, androidx.ui.foundation.gestures.DragValueController valueController = +memo(minValue, { 
+    <init>(minValue)
+}), androidx.ui.foundation.gestures.DraggableCallback? callback = null, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> children);
+  }
+
+  public final class FloatDragValueController implements androidx.ui.foundation.gestures.DragValueController {
+    ctor public FloatDragValueController(float initialValue);
+    method public float getCurrentValue();
+    method public void onDrag(float target);
+    method public void onDragEnd(float velocity, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueSettled);
+    method public void setBounds(float min, float max);
+    property public float currentValue;
   }
 
 }
