@@ -56,8 +56,8 @@ import java.util.List;
  * A typical usage would be like:
  * <pre class="prettyprint">
  *     final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
- *              .register("/assets/", new AssetsPathHandler(this))
- *              .register("/res/", new ResourcesPathHandler(this))
+ *              .addPathHandler("/assets/", new AssetsPathHandler(this))
+ *              .addPathHandler("/res/", new ResourcesPathHandler(this))
  *              .build();
  *
  *     webView.setWebViewClient(new WebViewClient() {
@@ -304,12 +304,12 @@ public final class WebViewAssetLoader {
      * A builder class for constructing {@link WebViewAssetLoader} objects.
      */
     public static final class Builder {
-        private boolean mAllowHttp;
+        private boolean mHttpAllowed;
         private String mDomain;
         @NonNull private List<PathMatcher> mBuilderMatcherList;
 
         public Builder() {
-            mAllowHttp = false;
+            mHttpAllowed = false;
             mDomain = DEFAULT_DOMAIN;
             mBuilderMatcherList = new ArrayList<>();
         }
@@ -322,7 +322,7 @@ public final class WebViewAssetLoader {
          * @return {@link Builder} object.
          */
         @NonNull
-        public Builder onDomain(@NonNull String domain) {
+        public Builder setDomain(@NonNull String domain) {
             mDomain = domain;
             return this;
         }
@@ -334,8 +334,8 @@ public final class WebViewAssetLoader {
          * @return {@link Builder} object.
          */
         @NonNull
-        public Builder allowHttp(boolean allowHttp) {
-            mAllowHttp = allowHttp;
+        public Builder setHttpAllowed(boolean httpAllowed) {
+            mHttpAllowed = httpAllowed;
             return this;
         }
 
@@ -351,8 +351,8 @@ public final class WebViewAssetLoader {
          * @throws IllegalArgumentException if the path is invalid.
          */
         @NonNull
-        public Builder register(@NonNull String path, @NonNull PathHandler handler) {
-            mBuilderMatcherList.add(new PathMatcher(mDomain, path, mAllowHttp, handler));
+        public Builder addPathHandler(@NonNull String path, @NonNull PathHandler handler) {
+            mBuilderMatcherList.add(new PathMatcher(mDomain, path, mHttpAllowed, handler));
             return this;
         }
 
