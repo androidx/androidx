@@ -506,4 +506,15 @@ class RecordingInputConnectionTest {
         ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DPAD_RIGHT))
         verify(listener, never()).onEditOperations(any())
     }
+
+    @Test
+    fun key_event_printablekey_down() {
+        val captor = argumentCaptor<List<EditOperation>>()
+        ic.sendKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_1))
+        verify(listener, times(1)).onEditOperations(captor.capture())
+
+        val editOps = captor.lastValue
+        assertEquals(1, editOps.size)
+        assertEquals(CommitTextEditOp("1", 1), editOps[0])
+    }
 }
