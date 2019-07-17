@@ -153,11 +153,12 @@ abstract class PagedSource<Key : Any, Value : Any> {
          * [DataSource.BaseResult.counted] which simply forwards the params to backing
          * implementations of [PagedSource].
          */
-        val counted: Boolean
+        val counted: Boolean = itemsBefore != COUNT_UNDEFINED && itemsAfter != COUNT_UNDEFINED
     ) {
         internal companion object {
             @Suppress("MemberVisibilityCanBePrivate") // Prevent synthetic accessor generation.
             internal val EMPTY = LoadResult(0, 0, null, null, emptyList(), 0, true)
+
             @Suppress("UNCHECKED_CAST") // Can safely ignore, since the list is empty.
             internal fun <Key : Any, Value : Any> empty() = EMPTY as LoadResult<Key, Value>
         }
@@ -211,6 +212,7 @@ abstract class PagedSource<Key : Any, Value : Any> {
     abstract fun isRetryableError(error: Throwable): Boolean
 
     companion object {
+        // TODO: Remove this by making itemsBefore and itemsAfter nullable before releasing 3.0.0
         const val COUNT_UNDEFINED = -1
     }
 }

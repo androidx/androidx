@@ -144,9 +144,10 @@ package androidx.paging {
     method public abstract void detach();
     method public T? get(int index);
     method public androidx.paging.PagedList.Config getConfig();
-    method public abstract androidx.paging.DataSource<?,T> getDataSource();
+    method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
     method public abstract Object? getLastKey();
     method public int getLoadedCount();
+    method public final androidx.paging.PagedSource<?,T> getPagedSource();
     method public int getPositionOffset();
     method public int getSize();
     method public abstract boolean isContiguous();
@@ -158,12 +159,13 @@ package androidx.paging {
     method public void retry();
     method public java.util.List<T> snapshot();
     property public androidx.paging.PagedList.Config config;
-    property public abstract androidx.paging.DataSource<?,T> dataSource;
+    property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
     property public abstract boolean isContiguous;
     property public abstract boolean isDetached;
     property public boolean isImmutable;
     property public abstract Object? lastKey;
     property public int loadedCount;
+    property public final androidx.paging.PagedSource<?,T> pagedSource;
     property public int positionOffset;
     property public int size;
   }
@@ -236,7 +238,7 @@ package androidx.paging {
 
   public final class PagedListKt {
     ctor public PagedListKt();
-    method public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, Key? initialKey = null);
+    method @Deprecated public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, Key? initialKey = null);
   }
 
   public abstract class PagedSource<Key, Value> {
