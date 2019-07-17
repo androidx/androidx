@@ -335,7 +335,7 @@ package androidx.paging {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class PagedSourceWrapper<Key, Value> extends androidx.paging.PagedSource<Key,Value> {
-    ctor public PagedSourceWrapper(androidx.paging.DataSource<Key,Value> dataSource);
+    ctor public PagedSourceWrapper(internal androidx.paging.DataSource<Key,Value> dataSource);
     method public boolean getInvalid();
     method public androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
     method public void invalidate();

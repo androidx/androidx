@@ -31,7 +31,9 @@ import androidx.paging.PagedList.LoadType
 import androidx.paging.futures.DirectExecutor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 import java.util.AbstractList
 import java.util.ArrayList
@@ -181,6 +183,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
             config: Config,
             key: K?
         ): PagedList<T> {
+            val pagedSource = PagedSourceWrapper(dataSource)
+
             dataSource.initExecutor(initialLoadExecutor)
 
             val lastLoad = when {
@@ -188,24 +192,27 @@ abstract class PagedList<T : Any> : AbstractList<T> {
                 else -> ContiguousPagedList.LAST_LOAD_UNSPECIFIED
             }
 
-            val params = DataSource.Params(
-                DataSource.LoadType.INITIAL,
+            val params = PagedSource.LoadParams(
+                PagedSource.LoadType.INITIAL,
                 key,
                 config.initialLoadSizeHint,
                 config.enablePlaceholders,
                 config.pageSize
             )
 
-            val initialResult = dataSource.load(params)
+            val initialResult = withContext(initialLoadExecutor.asCoroutineDispatcher()) {
+                pagedSource.load(params)
+            }
+
             dataSource.initExecutor(fetchExecutor)
             return ContiguousPagedList(
-                dataSource,
+                pagedSource,
                 coroutineScope,
                 notifyExecutor,
                 fetchExecutor,
                 boundaryCallback,
                 config,
-                initialResult.toLoadResult(),
+                initialResult,
                 lastLoad
             )
         }
