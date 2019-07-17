@@ -47,6 +47,11 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 _db.execSQL("DROP TABLE IF EXISTS `Child1`");
                 _db.execSQL("DROP TABLE IF EXISTS `Child2`");
                 _db.execSQL("DROP VIEW IF EXISTS `UserSummary`");
+                if (mCallbacks != null) {
+                    for (int _i = 0, _size = mCallbacks.size(); _i < _size; _i++) {
+                        mCallbacks.get(_i).onDestructiveMigration(_db);
+                    }
+                }
             }
 
             @Override

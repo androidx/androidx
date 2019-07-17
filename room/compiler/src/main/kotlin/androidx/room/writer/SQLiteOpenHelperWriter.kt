@@ -75,7 +75,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
         return TypeSpec.anonymousClassBuilder(L, database.version).apply {
             superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
             addMethod(createCreateAllTables())
-            addMethod(createDropAllTables())
+            addMethod(createDropAllTables(scope.fork()))
             addMethod(createOnCreate(scope.fork()))
             addMethod(createOnOpen(scope.fork()))
             addMethod(createOnPreMigrate())
@@ -191,7 +191,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
         }.build()
     }
 
-    private fun createDropAllTables(): MethodSpec {
+    private fun createDropAllTables(scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("dropAllTables").apply {
             addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
@@ -202,6 +202,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
             database.views.forEach {
                 addStatement("_db.execSQL($S)", createDropViewQuery(it))
             }
+            invokeCallbacks(scope, "onDestructiveMigration")
         }.build()
     }
 

@@ -1053,5 +1053,13 @@ public abstract class RoomDatabase {
          */
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
         }
+
+        /**
+         * Called after the database was destructively migrated
+         *
+         * @param db The database.
+         */
+        public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db){
+        }
     }
 }
