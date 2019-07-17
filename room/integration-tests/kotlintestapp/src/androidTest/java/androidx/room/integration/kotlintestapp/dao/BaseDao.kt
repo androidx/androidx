@@ -30,6 +30,12 @@ interface BaseDao<T> {
     fun insertAll(t: List<T>)
 
     @Insert
+    fun insertAllSet(t: Set<T>): List<Long>
+
+    @Insert
+    fun insertAllCollection(t: Collection<T>): Array<Long>
+
+    @Insert
     fun insertAllArg(vararg t: T)
 
     @Update
