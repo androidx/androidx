@@ -38,12 +38,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 class MultiInstanceInvalidationClient {
 
     /**
-     * If this is {@link null}, this {@link MultiInstanceInvalidationClient} is no longer available.
+     * The application context.
      */
     // synthetic access
     @SuppressWarnings("WeakerAccess")
-    @Nullable
-    Context mContext;
+    final Context mAppContext;
 
     /**
      * The name of the database file.
@@ -109,7 +108,6 @@ class MultiInstanceInvalidationClient {
         public void onServiceDisconnected(ComponentName name) {
             mExecutor.execute(mRemoveObserverRunnable);
             mService = null;
-            mContext = null;
         }
 
     };
@@ -152,10 +150,7 @@ class MultiInstanceInvalidationClient {
             } catch (RemoteException e) {
                 Log.w(Room.LOG_TAG, "Cannot unregister multi-instance invalidation callback", e);
             }
-            if (mContext != null) {
-                mContext.unbindService(mServiceConnection);
-                mContext = null;
-            }
+            mAppContext.unbindService(mServiceConnection);
         }
     };
 
@@ -168,7 +163,7 @@ class MultiInstanceInvalidationClient {
      */
     MultiInstanceInvalidationClient(Context context, String name,
             InvalidationTracker invalidationTracker, Executor executor) {
-        mContext = context.getApplicationContext();
+        mAppContext = context.getApplicationContext();
         mName = name;
         mInvalidationTracker = invalidationTracker;
         mExecutor = executor;
@@ -179,8 +174,10 @@ class MultiInstanceInvalidationClient {
                     return;
                 }
                 try {
-                    mService.broadcastInvalidation(mClientId,
-                            tables.toArray(new String[0]));
+                    final IMultiInstanceInvalidationService service = mService;
+                    if (service != null) {
+                        service.broadcastInvalidation(mClientId, tables.toArray(new String[0]));
+                    }
                 } catch (RemoteException e) {
                     Log.w(Room.LOG_TAG, "Cannot broadcast invalidation", e);
                 }
@@ -191,8 +188,8 @@ class MultiInstanceInvalidationClient {
                 return true;
             }
         };
-        Intent intent = new Intent(mContext, MultiInstanceInvalidationService.class);
-        mContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(mAppContext, MultiInstanceInvalidationService.class);
+        mAppContext.bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 
     void stop() {
