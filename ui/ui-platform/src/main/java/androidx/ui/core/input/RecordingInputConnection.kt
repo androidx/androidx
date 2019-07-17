@@ -207,10 +207,10 @@ internal class RecordingInputConnection(
             KeyEvent.KEYCODE_DEL -> BackspaceKeyEditOp()
             KeyEvent.KEYCODE_DPAD_LEFT -> MoveCursorEditOp(-1)
             KeyEvent.KEYCODE_DPAD_RIGHT -> MoveCursorEditOp(1)
-            else -> null
+            else -> CommitTextEditOp(String(Character.toChars(event.getUnicodeChar())), 1)
         }
 
-        op?.let { addEditOpWithBatch(it) }
+        addEditOpWithBatch(op)
         return true
     }
 
