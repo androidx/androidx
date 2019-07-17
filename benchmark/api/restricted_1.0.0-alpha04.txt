@@ -23,7 +23,7 @@ package androidx.benchmark {
   public final class BenchmarkState {
     method public boolean keepRunning();
     method public void pauseTiming();
-    method public static void reportData(String className, String testName, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
+    method public static void reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
     method public void resumeTiming();
   }
 
