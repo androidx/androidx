@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.os.Bundle
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
@@ -30,12 +31,15 @@ class FragmentTransactionTest {
 
     @UiThreadTest
     @Test fun addWithContainerId() {
+        val args = Bundle()
         fragmentManager.beginTransaction()
-            .add<TestFragment>(android.R.id.content, "tag")
+            .add<TestFragment>(android.R.id.content, "tag", args)
             .commitNow()
         val fragment = fragmentManager.findFragmentById(android.R.id.content)
         assertThat(fragment)
             .isInstanceOf(TestFragment::class.java)
+        assertThat(fragment?.arguments)
+            .isSameInstanceAs(args)
         assertThat(fragmentManager.findFragmentByTag("tag"))
             .isSameInstanceAs(fragment)
     }
@@ -60,12 +64,15 @@ class FragmentTransactionTest {
 
     @UiThreadTest
     @Test fun replaceWithTag() {
+        val args = Bundle()
         fragmentManager.beginTransaction()
-            .replace<TestFragment>(android.R.id.content, "tag")
+            .replace<TestFragment>(android.R.id.content, "tag", args)
             .commitNow()
         val fragment = fragmentManager.findFragmentById(android.R.id.content)
         assertThat(fragment)
             .isInstanceOf(TestFragment::class.java)
+        assertThat(fragment?.arguments)
+            .isSameInstanceAs(args)
         assertThat(fragmentManager.findFragmentByTag("tag"))
             .isSameInstanceAs(fragment)
     }

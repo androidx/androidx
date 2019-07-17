@@ -136,7 +136,8 @@ public abstract class FragmentTransaction {
     }
 
     @NonNull
-    private Fragment createFragment(@NonNull Class<? extends Fragment> fragmentClass) {
+    private Fragment createFragment(@NonNull Class<? extends Fragment> fragmentClass,
+            @Nullable Bundle args) {
         if (mFragmentFactory == null) {
             throw new IllegalStateException("Creating a Fragment requires that this "
                     + "FragmentTransaction was built with FragmentManager.beginTransaction()");
@@ -145,16 +146,20 @@ public abstract class FragmentTransaction {
             throw new IllegalStateException("The FragmentManager must be attached to its"
                     + "host to create a Fragment");
         }
-        return mFragmentFactory.instantiate(mClassLoader, fragmentClass.getName());
+        Fragment fragment = mFragmentFactory.instantiate(mClassLoader, fragmentClass.getName());
+        if (args != null) {
+            fragment.setArguments(args);
+        }
+        return fragment;
     }
 
     /**
-     * Calls {@link #add(int, Class, String)} with a 0 containerViewId.
+     * Calls {@link #add(int, Class, Bundle, String)} with a 0 containerViewId.
      */
     @NonNull
     public final FragmentTransaction add(@NonNull Class<? extends Fragment> fragmentClass,
-            @Nullable String tag)  {
-        return add(createFragment(fragmentClass), tag);
+            @Nullable Bundle args, @Nullable String tag)  {
+        return add(createFragment(fragmentClass, args), tag);
     }
 
     /**
@@ -167,12 +172,12 @@ public abstract class FragmentTransaction {
     }
 
     /**
-     * Calls {@link #add(int, Class, String)} with a null tag.
+     * Calls {@link #add(int, Class, Bundle, String)} with a null tag.
      */
     @NonNull
     public final FragmentTransaction add(@IdRes int containerViewId,
-            @NonNull Class<? extends Fragment> fragmentClass)  {
-        return add(containerViewId, createFragment(fragmentClass));
+            @NonNull Class<? extends Fragment> fragmentClass, @Nullable Bundle args)  {
+        return add(containerViewId, createFragment(fragmentClass, args));
     }
 
     /**
@@ -193,6 +198,7 @@ public abstract class FragmentTransaction {
      * to be placed in.  If 0, it will not be placed in a container.
      * @param fragmentClass The fragment to be added, created via the
      * {@link FragmentManager#getFragmentFactory() FragmentManager's FragmentFactory}.
+     * @param args Optional arguments to be set on the fragment.
      * @param tag Optional tag name for the fragment, to later retrieve the
      * fragment with {@link FragmentManager#findFragmentByTag(String)
      * FragmentManager.findFragmentByTag(String)}.
@@ -201,8 +207,9 @@ public abstract class FragmentTransaction {
      */
     @NonNull
     public final FragmentTransaction add(@IdRes int containerViewId,
-            @NonNull Class<? extends Fragment> fragmentClass, @Nullable String tag) {
-        return add(containerViewId, createFragment(fragmentClass), tag);
+            @NonNull Class<? extends Fragment> fragmentClass,
+            @Nullable Bundle args, @Nullable String tag) {
+        return add(containerViewId, createFragment(fragmentClass, args), tag);
     }
 
     /**
@@ -263,12 +270,12 @@ public abstract class FragmentTransaction {
     }
 
     /**
-     * Calls {@link #replace(int, Class, String)} with a null tag.
+     * Calls {@link #replace(int, Class, Bundle, String)} with a null tag.
      */
     @NonNull
     public final FragmentTransaction replace(@IdRes int containerViewId,
-            @NonNull Class<? extends Fragment> fragmentClass) {
-        return replace(containerViewId, fragmentClass, null);
+            @NonNull Class<? extends Fragment> fragmentClass, @Nullable Bundle args) {
+        return replace(containerViewId, fragmentClass, args, null);
     }
 
     /**
@@ -290,6 +297,7 @@ public abstract class FragmentTransaction {
      * to be replaced.
      * @param fragmentClass The new fragment to place in the container, created via the
      * {@link FragmentManager#getFragmentFactory() FragmentManager's FragmentFactory}.
+     * @param args Optional arguments to be set on the fragment.
      * @param tag Optional tag name for the fragment, to later retrieve the
      * fragment with {@link FragmentManager#findFragmentByTag(String)
      * FragmentManager.findFragmentByTag(String)}.
@@ -298,8 +306,9 @@ public abstract class FragmentTransaction {
      */
     @NonNull
     public final FragmentTransaction replace(@IdRes int containerViewId,
-            @NonNull Class<? extends Fragment> fragmentClass, @Nullable String tag) {
-        return replace(containerViewId, createFragment(fragmentClass), tag);
+            @NonNull Class<? extends Fragment> fragmentClass,
+            @Nullable Bundle args, @Nullable String tag) {
+        return replace(containerViewId, createFragment(fragmentClass, args), tag);
     }
 
     /**
