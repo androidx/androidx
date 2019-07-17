@@ -55,7 +55,7 @@ dependencies {
 androidx {
     name = "Android Lifecycle Extensions"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.LIFECYCLE
+    mavenVersion = LibraryVersions.LIFECYCLE_EXTENSIONS
     mavenGroup = LibraryGroups.LIFECYCLE
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
