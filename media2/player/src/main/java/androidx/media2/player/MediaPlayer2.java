@@ -777,9 +777,8 @@ public abstract class MediaPlayer2 {
      * </p>
      * @param trackId the id of the track to be selected. The id can be obtained by calling
      * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTrackInfo()}.
-     * Note that the {@link TrackInfo}s may become invalid
-     * when {@link EventCallback#onInfo(MediaPlayer2, MediaItem, int, int)} is called with
-     * {@code what} of {@link #MEDIA_INFO_PREPARED} or {@link #MEDIA_INFO_METADATA_UPDATE}.
+     * Note that the {@link TrackInfo}s may become invalid when
+     * {@link EventCallback#onTrackInfoChanged} is called.
      *
      * @see TrackInfo#getId()
      * @see #getTrackInfo
@@ -798,9 +797,8 @@ public abstract class MediaPlayer2 {
      * </p>
      * @param trackId the id of the track to be deselected. The id can be obtained by calling
      * {@link TrackInfo#getId()} to an {@link TrackInfo} returned by {@link #getTrackInfo()} or
-     * {@link #getSelectedTrack(int)}. Note that the {@link TrackInfo}s may become invalid
-     * when {@link EventCallback#onInfo(MediaPlayer2, MediaItem, int, int)} is called with
-     * {@code what} of {@link #MEDIA_INFO_PREPARED} or {@link #MEDIA_INFO_METADATA_UPDATE}.
+     * {@link #getSelectedTrack(int)}. Note that the {@link TrackInfo}s may become invalid when
+     * {@link EventCallback#onTrackInfoChanged} is called.
      *
      * @see TrackInfo#getId()
      * @see #getTrackInfo
@@ -926,6 +924,20 @@ public abstract class MediaPlayer2 {
          */
         public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
                 @NonNull TrackInfo track, @NonNull SubtitleData data) { }
+
+        /**
+         * Called when the tracks of the current media item is changed such as
+         * 1) when tracks of a media item become available, or
+         * 2) when new tracks are found during playback.
+         * <p>
+         * When it's called, the previous tracks may be invalidated so it's recommended to use the
+         * most recent tracks to call {@link #selectTrack} or {@link #deselectTrack}.
+         *
+         * @param mp the player associated with this callback
+         * @param tracks the list of tracks. It can be empty.
+         */
+        public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+                @NonNull List<TrackInfo> tracks) { }
     }
 
     /**

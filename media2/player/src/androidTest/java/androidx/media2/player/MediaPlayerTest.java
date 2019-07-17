@@ -90,8 +90,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private final List<TrackInfo> mSubtitleTrackInfos = new ArrayList<>();
     private TrackInfo mSelectedTrack = null;
     private final Monitor mOnSubtitleDataCalled = new Monitor();
-    private final Monitor mOnInfoCalled = new Monitor();
-    private final Monitor mOnTrackInfoChangedCalled = new Monitor();
+    private final Monitor mTracksFullyFound = new Monitor();
     private final Monitor mOnMediaTimeDiscontinuityCalled = new Monitor();
     private final Monitor mOnErrorCalled = new Monitor();
 
@@ -616,14 +615,6 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mInstrumentation.waitForIdleSync();
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
-            // TODO: Change this to onTrackInfoChanged callback
-            @Override
-            public void onInfo(MediaPlayer mp, MediaItem dsd, int what, int extra) {
-                if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
-                    mOnInfoCalled.signal();
-                }
-            }
-
             @Override
             public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
                     @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
@@ -631,19 +622,27 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                     mOnSubtitleDataCalled.signal();
                 }
             }
+
+            @Override
+            public void onTrackInfoChanged(@NonNull SessionPlayer player,
+                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.size() < 3) {
+                    // This callback can be called before tracks are available after setMediaItem.
+                    return;
+                }
+                mTracksFullyFound.signal();
+            }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
-        mOnInfoCalled.waitForSignal(1500);
-
-        mOnInfoCalled.reset();
-        mOnInfoCalled.waitForSignal(1500);
+        assertTrue(mTracksFullyFound.waitForSignal(3000));
 
         readTracks();
 
@@ -673,14 +672,6 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         }
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
-            // TODO: Change this to onTrackInfoChanged callback
-            @Override
-            public void onInfo(MediaPlayer mp, MediaItem dsd, int what, int extra) {
-                if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
-                    mOnInfoCalled.signal();
-                }
-            }
-
             @Override
             public void onSubtitleData(@NonNull SessionPlayer player, @NonNull MediaItem item,
                     @NonNull SessionPlayer.TrackInfo track, @NonNull SubtitleData data) {
@@ -688,19 +679,27 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                     mOnSubtitleDataCalled.signal();
                 }
             }
+
+            @Override
+            public void onTrackInfoChanged(@NonNull SessionPlayer player,
+                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.size() < 3) {
+                    // This callback can be called before tracks are available after setMediaItem.
+                    return;
+                }
+                mTracksFullyFound.signal();
+            }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
-        mOnInfoCalled.waitForSignal(1500);
-
-        mOnInfoCalled.reset();
-        mOnInfoCalled.waitForSignal(1500);
+        assertTrue(mTracksFullyFound.waitForSignal(3000));
 
         readTracks();
         assertEquals(mSelectedTrack, mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
@@ -727,27 +726,27 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         }
 
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
-            // TODO: Change this to onTrackInfoChanged callback
             @Override
-            public void onInfo(MediaPlayer mp, MediaItem dsd, int what, int extra) {
-                if (what == MediaPlayer.MEDIA_INFO_METADATA_UPDATE) {
-                    mOnInfoCalled.signal();
+            public void onTrackInfoChanged(@NonNull SessionPlayer player,
+                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.size() < 3) {
+                    // This callback can be called before tracks are available after setMediaItem.
+                    return;
                 }
+                mTracksFullyFound.signal();
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // The media metadata will be changed while playing since closed caption tracks are in-band
         // and those tracks will be found after processing a number of frames. These tracks will be
         // found within one second.
-        mOnInfoCalled.waitForSignal(1500);
-
-        mOnInfoCalled.reset();
-        mOnInfoCalled.waitForSignal(1500);
+        assertTrue(mTracksFullyFound.waitForSignal(3000));
 
         readTracks();
         assertEquals(2, mSubtitleTrackInfos.size());
@@ -766,14 +765,19 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onTrackInfoChanged(@NonNull SessionPlayer player,
-                    @NonNull List<SessionPlayer.TrackInfo> trackInfos) {
-                mOnTrackInfoChangedCalled.signal();
+                    @NonNull List<SessionPlayer.TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.size() < 2) {
+                    // This callback can be called before tracks are available after setMediaItem.
+                    return;
+                }
+                mTracksFullyFound.signal();
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
         mPlayer.prepare();
 
-        mOnTrackInfoChangedCalled.waitForSignal(1500);
+        mTracksFullyFound.waitForSignal(1500);
 
         readTracks();
 

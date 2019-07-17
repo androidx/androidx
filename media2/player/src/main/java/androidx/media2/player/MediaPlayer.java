@@ -2309,16 +2309,15 @@ public final class MediaPlayer extends SessionPlayer {
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTrackInfo()}.
-     * Note that the {@link TrackInfo}s may become invalid
-     * when {@link PlayerCallback#onInfo(MediaPlayer, MediaItem, int, int)} is called with
-     * {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      */
     // TODO: support subtitle track selection  (b/130312596)
-    // TODO: revise doc when onTrackInfoChanged is becoming public (b/132928418)
+    // TODO: Revise doc to let developers know the tracks from getTrackInfo may be invalidated
+    //       when onTrackInfoChanged is called after onTrackInfoChanged is becoming public
+    //       (b/132928418).
     @NonNull
     public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
         return selectTrackInternal(trackInfo.toInternal());
@@ -2332,9 +2331,6 @@ public final class MediaPlayer extends SessionPlayer {
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTrackInfo()}.
-     * Note that the {@link TrackInfo}s may become invalid
-     * when {@link PlayerCallback#onInfo(MediaPlayer, MediaItem, int, int)} is called with
-     * {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
@@ -2342,7 +2338,9 @@ public final class MediaPlayer extends SessionPlayer {
      *
      * @hide  TODO: unhide this when we support subtitle track selection (b/130312596)
      */
-    // TODO: revise doc when onTrackInfoChanged is becoming public (b/132928418)
+    // TODO: Revise doc to let developers know the tracks from getTrackInfo may be invalidated
+    //       when onTrackInfoChanged is called after onTrackInfoChanged is becoming public
+    //       (b/132928418).
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
@@ -3015,6 +3013,7 @@ public final class MediaPlayer extends SessionPlayer {
                     break;
                 case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
                 case MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT:
+                    final List<SessionPlayer.TrackInfo> tracks = mp.getTrackInfo();
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(
@@ -3022,6 +3021,7 @@ public final class MediaPlayer extends SessionPlayer {
                             callback.onCurrentMediaItemChanged(MediaPlayer.this, item);
                             callback.onVideoSizeChangedInternal(MediaPlayer.this,
                                     getCurrentMediaItem(), getVideoSizeInternal());
+                            callback.onTrackInfoChanged(MediaPlayer.this, tracks);
                         }
                     });
                     break;
@@ -3167,14 +3167,6 @@ public final class MediaPlayer extends SessionPlayer {
                     setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_STARVED);
                     break;
                 case MediaPlayer2.MEDIA_INFO_PREPARED:
-                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                        @Override
-                        public void callCallback(SessionPlayer.PlayerCallback callback) {
-                            callback.onTrackInfoChanged(MediaPlayer.this, getTrackInfoInternal());
-                        }
-                    });
-                    setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
-                    break;
                 case MediaPlayer2.MEDIA_INFO_BUFFERING_END:
                     setBufferingState(item, BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
                     break;
@@ -3189,14 +3181,6 @@ public final class MediaPlayer extends SessionPlayer {
                         @Override
                         public void callCallback(SessionPlayer.PlayerCallback callback) {
                             callback.onPlaybackCompleted(MediaPlayer.this);
-                        }
-                    });
-                    break;
-                case MediaPlayer2.MEDIA_INFO_METADATA_UPDATE:
-                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                        @Override
-                        public void callCallback(SessionPlayer.PlayerCallback callback) {
-                            callback.onTrackInfoChanged(MediaPlayer.this, getTrackInfoInternal());
                         }
                     });
                     break;
@@ -3243,6 +3227,13 @@ public final class MediaPlayer extends SessionPlayer {
                     callback.onSubtitleData(MediaPlayer.this, item, track, data);
                 }
             });
+        }
+
+        @Override
+        public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+                @NonNull List<SessionPlayer.TrackInfo> tracks) {
+            notifySessionPlayerCallback(callback -> callback.onTrackInfoChanged(MediaPlayer.this,
+                    tracks));
         }
     }
 

@@ -74,7 +74,7 @@ import java.util.List;
     private final SparseArray<InternalTrackInfo> mMetadataTracks;
     private final SparseArray<InternalTextTrackInfo> mTextTracks;
 
-    private boolean mPendingMetadataUpdate;
+    private boolean mPendingTracksUpdate;
     private InternalTrackInfo mSelectedAudioTrack;
     private InternalTrackInfo mSelectedVideoTrack;
     private InternalTrackInfo mSelectedMetadataTrack;
@@ -109,7 +109,7 @@ import java.util.List;
         final boolean itemChanged = mCurrentMediaItem != item;
         mCurrentMediaItem = item;
 
-        mPendingMetadataUpdate = true;
+        mPendingTracksUpdate = true;
 
         // Clear all selection state.
         mDefaultTrackSelector.setParameters(
@@ -233,14 +233,14 @@ import java.util.List;
             InternalTextTrackInfo textTrack = new InternalTextTrackInfo(
                     mPlayerTextTrackIndex, type, /* format= */ null, channel, mNextTrackId++);
             mTextTracks.put(textTrack.mExternalTrackInfo.getId(), textTrack);
-            mPendingMetadataUpdate = true;
+            mPendingTracksUpdate = true;
         }
     }
 
-    public boolean hasPendingMetadataUpdate() {
-        boolean pendingMetadataUpdate = mPendingMetadataUpdate;
-        mPendingMetadataUpdate = false;
-        return pendingMetadataUpdate;
+    public boolean hasPendingTracksUpdate() {
+        boolean pendingTracksUpdate = mPendingTracksUpdate;
+        mPendingTracksUpdate = false;
+        return pendingTracksUpdate;
     }
 
     public TrackInfo getSelectedTrack(int trackType) {
