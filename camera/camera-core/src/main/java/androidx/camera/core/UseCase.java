@@ -20,6 +20,7 @@ import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -332,6 +333,27 @@ public abstract class UseCase {
         }
     }
 
+    /**
+     * Gets the camera id defined by the use case config.
+     *
+     * @param config the use case config
+     * @return the camera id defined by the config
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected static String getCameraIdUnchecked(UseCaseConfig config) {
+        if (config instanceof CameraDeviceConfig) {
+            try {
+                return CameraX.getCameraWithCameraDeviceConfig((CameraDeviceConfig) config);
+            } catch (CameraInfoUnavailableException e) {
+                throw new IllegalArgumentException(
+                        "Unable to get camera id for the camera device config.", e);
+            }
+        } else {
+            throw new IllegalArgumentException("Unable to get camera id for the config.");
+        }
+    }
+
     /** Clears internal state of this use case. */
     @CallSuper
     protected void clear() {
@@ -424,7 +446,7 @@ public abstract class UseCase {
     protected void onBind() {
         EventListener eventListener = mUseCaseConfig.getUseCaseEventListener(null);
         if (eventListener != null) {
-            eventListener.onBind(getCameraIdUnchecked());
+            eventListener.onBind(getCameraIdUnchecked(mUseCaseConfig));
         }
     }
 
@@ -504,7 +526,7 @@ public abstract class UseCase {
          * <p>Updating certain parameters of the use case require a full reset of the camera. This
          * includes updating the {@link android.view.Surface} used by the use case.
          */
-        void onUseCaseReset(UseCase useCase);
+        void onUseCaseReset(@NonNull UseCase useCase);
     }
 
     /**
@@ -520,7 +542,7 @@ public abstract class UseCase {
          *
          * @param cameraId that current used.
          */
-        void onBind(String cameraId);
+        void onBind(@NonNull String cameraId);
 
         /**
          * Called when use case was unbind from the life cycle and clear the resource of the use
@@ -528,18 +550,4 @@ public abstract class UseCase {
          */
         void onUnbind();
     }
-
-    private String getCameraIdUnchecked() {
-        String cameraId = null;
-        LensFacing lensFacing = mUseCaseConfig.retrieveOption(
-                CameraDeviceConfig.OPTION_LENS_FACING);
-        try {
-            cameraId = CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Invalid camera lens facing: " + lensFacing, e);
-        }
-
-        return cameraId;
-    }
-
 }

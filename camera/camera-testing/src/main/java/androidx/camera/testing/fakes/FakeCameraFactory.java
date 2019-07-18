@@ -16,12 +16,14 @@
 
 package androidx.camera.testing.fakes;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.LensFacingCameraIdFilter;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -42,7 +44,8 @@ public final class FakeCameraFactory implements CameraFactory {
 
     private Set<String> mCameraIds;
 
-    private final Map<String, BaseCamera> mCameraMap = new HashMap<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    final Map<String, BaseCamera> mCameraMap = new HashMap<>();
 
     public FakeCameraFactory() {
         HashSet<String> camIds = new HashSet<>();
@@ -50,6 +53,9 @@ public final class FakeCameraFactory implements CameraFactory {
         camIds.add(FRONT_ID);
 
         mCameraIds = Collections.unmodifiableSet(camIds);
+
+        insertCamera(BACK_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK), null));
+        insertCamera(FRONT_ID, new FakeCamera(new FakeCameraInfo(0, LensFacing.FRONT), null));
     }
 
     @Override
@@ -69,7 +75,7 @@ public final class FakeCameraFactory implements CameraFactory {
      * Inserts a camera with the given camera ID.
      *
      * @param cameraId Identifier to use for the camera.
-     * @param camera Camera implementation.
+     * @param camera   Camera implementation.
      */
     public void insertCamera(String cameraId, BaseCamera camera) {
         if (!mCameraIds.contains(cameraId)) {
@@ -86,16 +92,23 @@ public final class FakeCameraFactory implements CameraFactory {
         return mCameraIds;
     }
 
-    @Nullable
     @Override
-    public String cameraIdForLensFacing(LensFacing lensFacing) {
+    @Nullable
+    public String cameraIdForLensFacing(@NonNull LensFacing lensFacing) {
         switch (lensFacing) {
             case FRONT:
                 return FRONT_ID;
             case BACK:
                 return BACK_ID;
+            default:
+                return null;
         }
+    }
 
-        throw new IllegalArgumentException("Unknown lensFacing: " + lensFacing);
+    @Override
+    @NonNull
+    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
+        return LensFacingCameraIdFilter.createLensFacingCameraIdFilterWithCameraMap(lensFacing,
+                mCameraMap);
     }
 }

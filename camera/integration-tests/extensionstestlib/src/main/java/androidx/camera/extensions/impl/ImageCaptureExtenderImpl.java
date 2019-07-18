@@ -23,16 +23,7 @@ import java.util.List;
 /**
  * Provides abstract methods that the OEM needs to implement to enable extensions for image capture.
  */
-public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
-    /**
-     * Indicates whether the extension is supported on the device.
-     *
-     * @param cameraId The camera2 id string of the camera.
-     * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
-     * @return true if the extension is supported, otherwise false
-     */
-    boolean isExtensionAvailable(String cameraId, CameraCharacteristics cameraCharacteristics);
-
+public interface ImageCaptureExtenderImpl extends ExtenderStateListener, ExtensionAvailability {
     /**
      * Initializes the extender to be used with the specified camera.
      *

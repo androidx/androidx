@@ -161,15 +161,6 @@ public class Preview extends UseCase {
         return sessionConfigBuilder;
     }
 
-    private static String getCameraIdUnchecked(LensFacing lensFacing) {
-        try {
-            return CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for camera lens facing " + lensFacing, e);
-        }
-    }
-
     /**
      * Removes previously PreviewOutput listener.
      *
@@ -244,7 +235,7 @@ public class Preview extends UseCase {
 
     private CameraControlInternal getCurrentCameraControl() {
         PreviewConfig config = (PreviewConfig) getUseCaseConfig();
-        String cameraId = getCameraIdUnchecked(config.getLensFacing());
+        String cameraId = getCameraIdUnchecked(config);
         return getCameraControl(cameraId);
     }
 
@@ -425,7 +416,7 @@ public class Preview extends UseCase {
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
         PreviewConfig config = (PreviewConfig) getUseCaseConfig();
-        String cameraId = getCameraIdUnchecked(config.getLensFacing());
+        String cameraId = getCameraIdUnchecked(config);
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
@@ -460,7 +451,7 @@ public class Preview extends UseCase {
             // Attempt to get the camera ID. If this fails, we probably don't have permission, so we
             // will rely on the updated UseCaseConfig to set the correct rotation in
             // onSuggestedResolutionUpdated()
-            String cameraId = CameraX.getCameraWithLensFacing(useCaseConfig.getLensFacing());
+            String cameraId = getCameraIdUnchecked(useCaseConfig);
             CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
             relativeRotation =
                     cameraInfo.getSensorRotationDegrees(

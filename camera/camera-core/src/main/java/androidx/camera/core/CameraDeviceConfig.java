@@ -16,6 +16,7 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -44,6 +45,15 @@ public interface CameraDeviceConfig {
     Option<LensFacing> OPTION_LENS_FACING =
             Option.create("camerax.core.camera.lensFacing", CameraX.LensFacing.class);
 
+    /**
+     * Option: camerax.core.camera.cameraIdFilter
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Option<CameraIdFilter> OPTION_CAMERA_ID_FILTER =
+            Option.create("camerax.core.camera.cameraIdFilter", CameraIdFilter.class);
+
     // *********************************************************************************************
 
     /**
@@ -62,7 +72,27 @@ public interface CameraDeviceConfig {
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
+    @NonNull
     CameraX.LensFacing getLensFacing();
+
+    /**
+     * Retrieves the {@link CameraIdFilter} that filter out the unavailable camera ids.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    CameraIdFilter getCameraIdFilter(@Nullable CameraIdFilter valueIfMissing);
+
+    /**
+     * Retrieves the {@link CameraIdFilter} that filter out the unavailable camera ids.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    CameraIdFilter getCameraIdFilter();
 
     /**
      * Builder for a {@link CameraDeviceConfig}.
@@ -82,6 +112,14 @@ public interface CameraDeviceConfig {
          * @param lensFacing The direction of the camera's lens.
          * @return the current Builder.
          */
-        B setLensFacing(CameraX.LensFacing lensFacing);
+        B setLensFacing(@NonNull CameraX.LensFacing lensFacing);
+
+        /**
+         * Sets the {@link CameraIdFilter} that filter out the unavailable camera ids.
+         *
+         * @param cameraIdFilter The {@link CameraIdFilter}.
+         * @return the current Builder.
+         */
+        B setCameraIdFilter(@NonNull CameraIdFilter cameraIdFilter);
     }
 }

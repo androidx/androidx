@@ -79,7 +79,8 @@ public final class ExtensionsErrorListenerTest {
     static {
         String cameraId = sCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
         sCameraFactory.insertCamera(cameraId,
-                new FakeCamera(new FakeCameraInfo(), mock(CameraControlInternal.class)));
+                new FakeCamera(new FakeCameraInfo(0, LensFacing.BACK),
+                        mock(CameraControlInternal.class)));
     }
 
     private CountDownLatch mLatch;

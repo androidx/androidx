@@ -394,7 +394,7 @@ final class Camera implements BaseCamera {
     }
 
     @Override
-    public void onUseCaseReset(final UseCase useCase) {
+    public void onUseCaseReset(@NonNull final UseCase useCase) {
         if (Looper.myLooper() != mHandler.getLooper()) {
             mHandler.post(new Runnable() {
                 @Override

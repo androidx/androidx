@@ -18,12 +18,11 @@ package androidx.camera.camera2.impl;
 
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
-import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
-import android.hardware.camera2.CameraMetadata;
 import android.os.Handler;
 import android.os.HandlerThread;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -32,6 +31,7 @@ import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CameraXThreads;
+import androidx.camera.core.LensFacingCameraIdFilter;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -40,6 +40,7 @@ import java.util.Set;
 
 /**
  * The factory class that creates {@link Camera} instances.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
@@ -78,40 +79,23 @@ public final class Camera2CameraFactory implements CameraFactory {
         return new LinkedHashSet<>(camerasList);
     }
 
-    @Nullable
     @Override
-    public String cameraIdForLensFacing(LensFacing lensFacing)
+    @Nullable
+    public String cameraIdForLensFacing(@NonNull LensFacing lensFacing)
             throws CameraInfoUnavailableException {
-        Set<String> cameraIds = getAvailableCameraIds();
+        Set<String> availableCameraIds = getLensFacingCameraIdFilter(
+                lensFacing).filter(getAvailableCameraIds());
 
-        // Convert to from CameraX enum to Camera2 CameraMetadata
-        Integer lensFacingInteger = -1;
-        switch (lensFacing) {
-            case BACK:
-                lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
-                break;
-            case FRONT:
-                lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
-                break;
+        if (!availableCameraIds.isEmpty()) {
+            return availableCameraIds.iterator().next();
+        } else {
+            return null;
         }
+    }
 
-        for (String cameraId : cameraIds) {
-            CameraCharacteristics characteristics = null;
-            try {
-                characteristics = mCameraManager.getCameraCharacteristics(cameraId);
-            } catch (CameraAccessException e) {
-                throw new CameraInfoUnavailableException(
-                        "Unable to retrieve info for camera with id " + cameraId + ".", e);
-            }
-            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing == null) {
-                continue;
-            }
-            if (cameraLensFacing.equals(lensFacingInteger)) {
-                return cameraId;
-            }
-        }
-
-        return null;
+    @Override
+    @NonNull
+    public LensFacingCameraIdFilter getLensFacingCameraIdFilter(@NonNull LensFacing lensFacing) {
+        return new Camera2LensFacingCameraIdFilter(mCameraManager, lensFacing);
     }
 }
