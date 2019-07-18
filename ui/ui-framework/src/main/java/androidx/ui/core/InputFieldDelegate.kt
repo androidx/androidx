@@ -22,6 +22,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.SetSelectionEditOp
@@ -233,9 +234,16 @@ internal class InputFieldDelegate {
          * Called when the widget loses input focus
          *
          * @param textInputService The text input service
+         * @param editProcessor The edit processor
+         * @param onValueChange The callback called when the new editor state arrives.
          */
         @JvmStatic
-        fun onBlur(textInputService: TextInputService?) {
+        fun onBlur(
+            textInputService: TextInputService?,
+            editProcessor: EditProcessor,
+            onValueChange: (EditorState) -> Unit
+        ) {
+            onEditCommand(listOf(FinishComposingTextEditOp()), editProcessor, onValueChange)
             textInputService?.stopInput()
         }
     }
