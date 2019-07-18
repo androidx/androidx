@@ -19,25 +19,22 @@ package androidx.ui.material.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.Text
-import androidx.ui.core.CraneWrapper
-import androidx.ui.material.MaterialTheme
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.Color
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.compose.unaryPlus
+import androidx.ui.core.setContent
+import androidx.ui.material.MaterialTheme
 
 open class TextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    val textColor = Color(0xFFFF0000.toInt())
-                    Text(
-                        text = "Hello",
-                        style = +themeTextStyle { h1.copy(color = textColor) })
-                }
+            MaterialTheme {
+                val textColor = Color(0xFFFF0000.toInt())
+                Text(
+                    text = "Hello",
+                    style = +themeTextStyle { h1.copy(color = textColor) })
             }
         }
     }

@@ -17,14 +17,14 @@ package androidx.ui.core.test
 
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.CraneWrapper
 import androidx.ui.framework.test.TestActivity
 import androidx.compose.Recompose
 import androidx.compose.composer
 import androidx.compose.onActive
 import androidx.compose.onCommit
-import androidx.compose.setContent
+import androidx.compose.setViewContent
 import androidx.compose.unaryPlus
+import androidx.ui.core.ComposeView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -57,9 +57,9 @@ class WrapperTest {
         var innerCount = 0
 
         runOnUiThread {
-            activity.setContent {
+            activity.setViewContent {
                 +onCommit { rootCount++ }
-                CraneWrapper {
+                ComposeView {
                     +onCommit { craneWrapperCount++ }
                     Recompose { recompose ->
                         +onCommit {

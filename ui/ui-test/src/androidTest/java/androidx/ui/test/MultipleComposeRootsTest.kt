@@ -21,15 +21,14 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.compose.composer
 import androidx.compose.Model
-import androidx.compose.compose
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.TestTag
+import androidx.ui.core.setContent
 import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.TriStateCheckbox
@@ -114,39 +113,35 @@ class MultipleComposeRootsTest {
                     textView2.text = "Compose 2 - ${state2.value}"
                 }
 
-                frameLayout1.compose {
-                    CraneWrapper {
-                        MaterialTheme {
-                            Surface {
-                                TestTag(tag = "checkbox1") {
-                                    TriStateCheckbox(
-                                        value = state1.value,
-                                        onClick = {
-                                            state1.toggle()
-                                            state2.toggle()
-                                            updateTitle1()
-                                            updateTitle2()
-                                        })
-                                }
+                frameLayout1.setContent {
+                    MaterialTheme {
+                        Surface {
+                            TestTag(tag = "checkbox1") {
+                                TriStateCheckbox(
+                                    value = state1.value,
+                                    onClick = {
+                                        state1.toggle()
+                                        state2.toggle()
+                                        updateTitle1()
+                                        updateTitle2()
+                                    })
                             }
                         }
                     }
                 }
 
-                frameLayout2.compose {
-                    CraneWrapper {
-                        MaterialTheme {
-                            Surface {
-                                TestTag(tag = "checkbox2") {
-                                    TriStateCheckbox(
-                                        value = state2.value,
-                                        onClick = {
-                                            state1.toggle()
-                                            state2.toggle()
-                                            updateTitle1()
-                                            updateTitle2()
-                                        })
-                                }
+                frameLayout2.setContent {
+                    MaterialTheme {
+                        Surface {
+                            TestTag(tag = "checkbox2") {
+                                TriStateCheckbox(
+                                    value = state2.value,
+                                    onClick = {
+                                        state1.toggle()
+                                        state2.toggle()
+                                        updateTitle1()
+                                        updateTitle2()
+                                    })
                             }
                         }
                     }

@@ -18,9 +18,8 @@ package androidx.ui.material.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.setContent
 import androidx.compose.composer
-import androidx.ui.core.CraneWrapper
+import androidx.ui.core.setContent
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.StaticDrawerSample
 
@@ -29,10 +28,8 @@ class StaticDrawerActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    StaticDrawerSample()
-                }
+            MaterialTheme {
+                StaticDrawerSample()
             }
         }
     }

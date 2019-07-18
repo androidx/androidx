@@ -25,9 +25,10 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.core.dp
+import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
-import androidx.ui.test.ComposeMaterialIntoActivity
+import androidx.ui.material.MaterialTheme
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 
@@ -45,10 +46,12 @@ class RectsInColumnTestCase(
     private val states = mutableListOf<State<Color>>()
 
     override fun runSetup() {
-        compositionContext = ComposeMaterialIntoActivity(activity) {
-            Column {
-                repeat(amountOfRectangles) {
-                    ColoredRectWithModel()
+        compositionContext = activity.setContent {
+            MaterialTheme {
+                Column {
+                    repeat(amountOfRectangles) {
+                        ColoredRectWithModel()
+                    }
                 }
             }
         }!!

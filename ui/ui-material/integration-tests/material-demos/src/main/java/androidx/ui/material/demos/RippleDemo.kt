@@ -19,7 +19,7 @@ package androidx.ui.material.demos
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.core.CraneWrapper
+import androidx.ui.core.ComposeView
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.px
@@ -36,7 +36,7 @@ import androidx.ui.material.themeTextStyle
 
 @Composable
 fun RippleDemo() {
-    CraneWrapper {
+    ComposeView {
         MaterialTheme {
             Padding(padding = 50.dp) {
                 Card(

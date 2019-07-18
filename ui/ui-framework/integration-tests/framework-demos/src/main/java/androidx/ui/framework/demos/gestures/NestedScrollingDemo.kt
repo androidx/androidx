@@ -20,7 +20,6 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Children
 import androidx.compose.Composable
-import androidx.compose.setContent
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Direction
@@ -42,7 +41,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.composer
-import androidx.ui.core.CraneWrapper
+import androidx.ui.core.setContent
 
 /**
  * Demo app created to study some complex interactions of multiple DragGestureDetectors.
@@ -51,23 +50,21 @@ class NestedScrollingDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                // Outer composable that scrolls
-                Draggable {
-                    RepeatingList(repititions = 3) {
-                        SimpleContainer(
-                            width = -1.dp,
-                            height = 398.dp,
-                            padding = 72.dp
-                        ) {
-                            // Inner composable that scrolls
-                            Draggable {
-                                RepeatingList(repititions = 5) {
-                                    // Composable that indicates it is being pressed
-                                    Pressable(
-                                        height = 72.dp
-                                    )
-                                }
+            // Outer composable that scrolls
+            Draggable {
+                RepeatingList(repititions = 3) {
+                    SimpleContainer(
+                        width = -1.dp,
+                        height = 398.dp,
+                        padding = 72.dp
+                    ) {
+                        // Inner composable that scrolls
+                        Draggable {
+                            RepeatingList(repititions = 5) {
+                                // Composable that indicates it is being pressed
+                                Pressable(
+                                    height = 72.dp
+                                )
                             }
                         }
                     }

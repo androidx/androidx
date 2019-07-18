@@ -18,8 +18,8 @@ package androidx.ui.framework.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.setContent
 import androidx.compose.composer
+import androidx.ui.core.setContent
 
 open class MultipleCollectActivity : Activity() {
 

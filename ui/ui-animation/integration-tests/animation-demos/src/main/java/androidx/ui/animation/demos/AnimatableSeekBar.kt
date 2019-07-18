@@ -22,10 +22,8 @@ import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.memo
-import androidx.compose.setContent
 import androidx.compose.unaryPlus
 import androidx.ui.animation.animatedFloat
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
@@ -33,6 +31,7 @@ import androidx.ui.core.dp
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
+import androidx.ui.core.setContent
 import androidx.ui.core.sp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
@@ -48,15 +47,13 @@ class AnimatableSeekBar : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                Column {
-                    Padding(40.dp) {
-                        Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 8.sp))
-                    }
+            Column {
+                Padding(40.dp) {
+                    Text("Drag or tap on the seek bar", style = TextStyle(fontSize = 8.sp))
+                }
 
-                    Padding(left = 10.dp, right = 10.dp, bottom = 30.dp) {
-                        MovingTargetExample()
-                    }
+                Padding(left = 10.dp, right = 10.dp, bottom = 30.dp) {
+                    MovingTargetExample()
                 }
             }
         }

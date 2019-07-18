@@ -18,25 +18,8 @@ package androidx.ui.test
 
 import android.app.Activity
 import androidx.compose.composer
-import androidx.compose.Composable
-import androidx.compose.CompositionContext
-import androidx.ui.core.composeIntoActivity
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.surface.Surface
 
-fun ComposeMaterialIntoActivity(
-    activity: Activity,
-    composable: @Composable() () -> Unit
-): CompositionContext? {
-    return composeIntoActivity(activity) {
-        MaterialTheme {
-            Surface {
-                composable()
-            }
-        }
-    }
-}
 
 fun <T : Activity> ActivityTestRule<T>.runOnUiThreadSync(action: () -> Unit) {
     // Workaround for lambda bug in IR

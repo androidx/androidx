@@ -19,8 +19,7 @@ package androidx.ui.material.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.composer
-import androidx.compose.setContent
-import androidx.ui.core.CraneWrapper
+import androidx.ui.core.setContent
 import androidx.ui.layout.FlexColumn
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.CustomTabs
@@ -33,22 +32,20 @@ class TabActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                MaterialTheme {
-                    val favouriteImage = imageFromResource(resources, R.drawable.ic_favorite)
-                    FlexColumn {
-                        expanded(flex = 1f) {
-                            TextTabs()
-                        }
-                        expanded(flex = 1f) {
-                            IconTabs(favouriteImage)
-                        }
-                        expanded(flex = 1f) {
-                            TextAndIconTabs(favouriteImage)
-                        }
-                        expanded(flex = 1f) {
-                            CustomTabs()
-                        }
+            MaterialTheme {
+                val favouriteImage = imageFromResource(resources, R.drawable.ic_favorite)
+                FlexColumn {
+                    expanded(flex = 1f) {
+                        TextTabs()
+                    }
+                    expanded(flex = 1f) {
+                        IconTabs(favouriteImage)
+                    }
+                    expanded(flex = 1f) {
+                        TextAndIconTabs(favouriteImage)
+                    }
+                    expanded(flex = 1f) {
+                        CustomTabs()
                     }
                 }
             }

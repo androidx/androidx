@@ -30,7 +30,7 @@ import androidx.ui.core.vectorgraphics.PathDelegate
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.registerAdapter
-import androidx.compose.setContent
+import androidx.compose.setViewContent
 
 class VectorGraphicsActivity : Activity() {
 
@@ -38,7 +38,7 @@ class VectorGraphicsActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         val res = getResources()
-        setContent {
+        setViewContent {
             composer.registerAdapter { parent, child ->
                 adoptVectorGraphic(parent, child)
             }

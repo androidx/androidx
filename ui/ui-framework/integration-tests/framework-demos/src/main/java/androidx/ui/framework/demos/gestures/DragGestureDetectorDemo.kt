@@ -18,7 +18,6 @@ package androidx.ui.framework.demos.gestures
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.setContent
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
@@ -26,8 +25,8 @@ import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
 import androidx.ui.graphics.Color
 import androidx.compose.composer
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.setContent
 
 /**
  * Simple demo that shows off DragGestureDetector.
@@ -36,28 +35,26 @@ class DragGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                val xOffset = +state { 0.px }
-                val yOffset = +state { 0.px }
+            val xOffset = +state { 0.px }
+            val yOffset = +state { 0.px }
 
-                val dragObserver = object : DragObserver {
-                    override fun onDrag(dragDistance: PxPosition): PxPosition {
-                        xOffset.value += dragDistance.x
-                        yOffset.value += dragDistance.y
-                        return dragDistance
-                    }
+            val dragObserver = object : DragObserver {
+                override fun onDrag(dragDistance: PxPosition): PxPosition {
+                    xOffset.value += dragDistance.x
+                    yOffset.value += dragDistance.y
+                    return dragDistance
                 }
+            }
 
-                DragGestureDetector(dragObserver = dragObserver) {
-                    MatchParent {
-                        DrawBox(
-                            xOffset.value,
-                            yOffset.value,
-                            200.px,
-                            200.px,
-                            Color(0xFF9e9e9e.toInt())
-                        )
-                    }
+            DragGestureDetector(dragObserver = dragObserver) {
+                MatchParent {
+                    DrawBox(
+                        xOffset.value,
+                        yOffset.value,
+                        200.px,
+                        200.px,
+                        Color(0xFF9e9e9e.toInt())
+                    )
                 }
             }
         }
