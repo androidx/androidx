@@ -846,6 +846,42 @@ class PostponedTransitionTest {
         assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(0)
     }
 
+    // Ensure that if postponedEnterTransition is called twice the first one is removed.
+    @Test
+    fun testTimedPostponeEnterPostponedCalledTwice() {
+            val fm = activityRule.activity.supportFragmentManager
+            val startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
+
+            val fragment = PostponedFragment3()
+            fragment.startPostponedCountDownLatch = CountDownLatch(2)
+            fm.beginTransaction()
+                .addSharedElement(startBlue, "blueSquare")
+                .replace(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .setReorderingAllowed(true)
+                .commit()
+
+            fragment.postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
+
+            activityRule.waitForExecution()
+
+            assertWithMessage("Fragment should be postponed")
+                .that(fragment.isPostponed).isTrue()
+
+            assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(2)
+
+            assertPostponedTransition(beginningFragment, fragment)
+
+            fragment.waitForTransition()
+
+            assertWithMessage(
+                "After startPostponed is called the transition should not be postponed"
+            )
+                .that(fragment.isPostponed).isFalse()
+
+            assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(1)
+    }
+
     // Ensure postponedEnterTransaction(long, TimeUnit) works even if called in constructor
     @Test
     fun testTimedPostponeCalledInConstructor() {
@@ -1015,7 +1051,7 @@ class PostponedTransitionTest {
     }
 
     class PostponedFragment3 : TransitionFragment(R.layout.scene2) {
-        val startPostponedCountDownLatch = CountDownLatch(1)
+        var startPostponedCountDownLatch = CountDownLatch(1)
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,

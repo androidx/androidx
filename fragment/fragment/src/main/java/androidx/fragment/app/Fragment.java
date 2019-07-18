@@ -226,6 +226,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // without Views.
     AnimationInfo mAnimationInfo;
 
+    // Runnable that is used to indicate if the Fragment has a postponed transition that is on a
+    // timeout.
+    Runnable mPostponedDurationRunnable = new Runnable() {
+        @Override
+        public void run() {
+            startPostponedEnterTransition();
+        }
+    };
+
     // True if the View was added, and its animation has yet to be run. This could
     // also indicate that the fragment view hasn't been made visible, even if there is no
     // animation for this fragment.
@@ -2446,12 +2455,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         } else {
             handler = new Handler(Looper.getMainLooper());
         }
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                startPostponedEnterTransition();
-            }
-        }, timeUnit.toMillis(duration));
+        handler.removeCallbacks(mPostponedDurationRunnable);
+        handler.postDelayed(mPostponedDurationRunnable, timeUnit.toMillis(duration));
     }
 
     /**
