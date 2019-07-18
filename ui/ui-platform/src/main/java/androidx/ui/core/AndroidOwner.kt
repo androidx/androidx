@@ -250,7 +250,7 @@ class AndroidCraneView constructor(context: Context)
         if (node.ownerData != null) throw IllegalStateException()
 
         if (node is RepaintBoundaryNode) {
-            val ownerData = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+            val ownerData = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode()) {
                 RepaintBoundaryView(this, node)
             } else {
                 RepaintBoundaryRenderNode(this, node)
