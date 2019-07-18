@@ -34,16 +34,19 @@ public final class CameraXExecutors {
     }
 
     /** Returns a cached {@link ScheduledExecutorService} which posts to the main thread. */
+    @NonNull
     public static ScheduledExecutorService mainThreadExecutor() {
         return MainThreadExecutor.getInstance();
     }
 
     /** Returns a cached {@link Executor} suitable for disk I/O. */
+    @NonNull
     public static Executor ioExecutor() {
         return IoExecutor.getInstance();
     }
 
     /** Returns a cached executor that runs tasks directly from the calling thread. */
+    @NonNull
     public static Executor directExecutor() {
         return DirectExecutor.getInstance();
     }
@@ -57,6 +60,7 @@ public final class CameraXExecutors {
      * directly to the delegate or to different instances of the sequential executor do not have
      * any ordering guarantees.
      */
+    @NonNull
     public static Executor newSequentialExecutor(@NonNull Executor delegate) {
         return new SequentialExecutor(delegate);
     }
@@ -75,6 +79,7 @@ public final class CameraXExecutors {
      * @return An executor which posts to the thread's current looper.
      * @throws IllegalStateException if the current thread does not have a looper.
      */
+    @NonNull
     public static ScheduledExecutorService myLooperExecutor() {
         return HandlerScheduledExecutorService.currentThreadExecutor();
     }
@@ -84,6 +89,7 @@ public final class CameraXExecutors {
      *
      * @return An executor which posts to the given handler.
      */
+    @NonNull
     public static ScheduledExecutorService newHandlerExecutor(@NonNull Handler handler) {
         return new HandlerScheduledExecutorService(handler);
     }
