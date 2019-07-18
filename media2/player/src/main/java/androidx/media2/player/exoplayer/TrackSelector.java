@@ -249,7 +249,6 @@ import java.util.List;
         trackInfos.addAll(mAudioTrackInfos);
         trackInfos.addAll(mMetadataTrackInfos);
         trackInfos.addAll(mTextTrackInfos);
-        // Note: the list returned by MediaPlayer2Impl is modifiable so do the same here.
         return trackInfos;
     }
 
