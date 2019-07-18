@@ -118,6 +118,11 @@ public abstract class PreviewExtender {
         boolean isImageCaptureExtenderEnabled = false;
         boolean isMismatched = false;
 
+        // In case all use cases are unbound when doing the check.
+        if (activeUseCases == null || activeUseCases.isEmpty()) {
+            return;
+        }
+
         for (UseCase useCase : activeUseCases) {
             EffectMode imageCaptureExtenderMode = useCase.getUseCaseConfig().retrieveOption(
                     ImageCaptureExtender.OPTION_IMAGE_CAPTURE_EXTENDER_MODE, null);
