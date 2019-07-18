@@ -67,7 +67,7 @@ public class KeyedAppStatesReporterTest {
     public void createWithExecutor_nullContext_throwsNullPointerException() {
         TestExecutor testExecutor = new TestExecutor();
         try {
-            KeyedAppStatesReporter.createWithExecutor(null, testExecutor);
+            KeyedAppStatesReporter.create(null, testExecutor);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -77,7 +77,7 @@ public class KeyedAppStatesReporterTest {
     @SmallTest
     public void createWithExecutor_nullExecutor_throwsNullPointerException() {
         try {
-            KeyedAppStatesReporter.createWithExecutor(mContext, null);
+            KeyedAppStatesReporter.create(mContext, null);
             fail();
         } catch (NullPointerException expected) {
         }
@@ -88,7 +88,7 @@ public class KeyedAppStatesReporterTest {
     public void createWithExecutor_createsDefaultKeyedAppStatesReporter() {
         TestExecutor testExecutor = new TestExecutor();
         KeyedAppStatesReporter reporter =
-                KeyedAppStatesReporter.createWithExecutor(mContext, testExecutor);
+                KeyedAppStatesReporter.create(mContext, testExecutor);
 
         assertThat(reporter).isInstanceOf(DefaultKeyedAppStatesReporter.class);
     }
@@ -98,7 +98,7 @@ public class KeyedAppStatesReporterTest {
     public void setStates_createWithExecutor_usesExecutor() {
         TestExecutor testExecutor = new TestExecutor();
         KeyedAppStatesReporter reporter =
-                KeyedAppStatesReporter.createWithExecutor(mContext, testExecutor);
+                KeyedAppStatesReporter.create(mContext, testExecutor);
 
         reporter.setStates(singleton(mState));
 
