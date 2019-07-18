@@ -136,34 +136,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public FakeCamera(CameraInfo cameraInfo, @Nullable CameraControl cameraControl) {"
-        errorLine2="                      ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCamera.java"
-            line="66"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public FakeCamera(String cameraId,"
         errorLine2="                      ~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/fakes/FakeCamera.java"
             line="70"
             column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            CameraInfo cameraInfo,"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCamera.java"
-            line="71"
-            column="13"/>
     </issue>
 
     <issue

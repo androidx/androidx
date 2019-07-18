@@ -16,6 +16,10 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import org.robolectric.annotation.Implementation;
 import org.robolectric.annotation.Implements;
 
@@ -35,8 +39,8 @@ public class ShadowCameraX {
                         }
                     }).build();
 
-    private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfo() {
-
+    private static final CameraInfo DEFAULT_CAMERA_INFO = new CameraInfoInternal() {
+        MutableLiveData<Boolean> mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
         @Override
         public CameraX.LensFacing getLensFacing() {
             return CameraX.LensFacing.BACK;
@@ -50,6 +54,12 @@ public class ShadowCameraX {
         @Override
         public int getSensorRotationDegrees(int relativeRotation) {
             return 0;
+        }
+
+        @NonNull
+        @Override
+        public LiveData<Boolean> isFlashAvailable() {
+            return mFlashAvailability;
         }
     };
 

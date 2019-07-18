@@ -26,7 +26,6 @@ plugins {
 
 dependencies {
     implementation(ANDROIDX_TEST_CORE)
-    implementation("androidx.lifecycle:lifecycle-runtime:2.0.0")
     implementation("androidx.annotation:annotation:1.0.0")
     implementation(GUAVA_LISTENABLE_FUTURE)
     implementation(project(":camera:camera-core"))

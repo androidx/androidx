@@ -18,29 +18,35 @@ package androidx.camera.testing.fakes;
 
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraInfoInternal;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 /**
  * Information for a fake camera.
  *
  * <p>This camera info can be constructed with fake values.
  */
-public final class FakeCameraInfo implements CameraInfo {
+public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private final int mSensorRotation;
     private final LensFacing mLensFacing;
+    private MutableLiveData<Boolean> mFlashAvailability;
 
-    public FakeCameraInfo() {
+    public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ LensFacing.BACK);
+        mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
     }
 
-    public FakeCameraInfo(int sensorRotation, LensFacing lensFacing) {
+    public FakeCameraInfoInternal(int sensorRotation, @NonNull LensFacing lensFacing) {
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
+        mFlashAvailability = new MutableLiveData<>(Boolean.TRUE);
     }
 
     @Nullable
@@ -66,5 +72,11 @@ public final class FakeCameraInfo implements CameraInfo {
     @Override
     public int getSensorRotationDegrees() {
         return getSensorRotationDegrees(Surface.ROTATION_0);
+    }
+
+    @NonNull
+    @Override
+    public LiveData<Boolean> isFlashAvailable() {
+        return mFlashAvailability;
     }
 }

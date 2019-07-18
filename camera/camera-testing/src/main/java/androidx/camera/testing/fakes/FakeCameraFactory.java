@@ -57,16 +57,6 @@ public final class FakeCameraFactory implements CameraFactory {
     final Map<String, Pair<LensFacing, Callable<BaseCamera>>> mCameraMap = new HashMap<>();
 
     public FakeCameraFactory() {
-        HashSet<String> camIds = new HashSet<>();
-        camIds.add(DEFAULT_BACK_ID);
-        camIds.add(DEFAULT_FRONT_ID);
-
-        insertCamera(LensFacing.BACK, DEFAULT_BACK_ID, () -> new FakeCamera(new FakeCameraInfo(0,
-                LensFacing.BACK),
-                null));
-        insertCamera(LensFacing.FRONT, DEFAULT_FRONT_ID, () -> new FakeCamera(new FakeCameraInfo(0,
-                LensFacing.FRONT),
-                null));
     }
 
     @Override

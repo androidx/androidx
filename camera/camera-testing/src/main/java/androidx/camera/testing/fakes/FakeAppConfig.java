@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
-import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.UseCaseConfigFactory;
@@ -36,9 +35,19 @@ import androidx.camera.core.UseCaseConfigFactory;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeAppConfig {
 
+    private static final String CAMERA_ID_0 = "0";
+    private static final String CAMERA_ID_1 = "1";
+
     /** Generates a fake {@link AppConfig}. */
     public static AppConfig create() {
-        CameraFactory cameraFactory = new FakeCameraFactory();
+        FakeCameraFactory cameraFactory = new FakeCameraFactory();
+        cameraFactory.insertCamera(CameraX.LensFacing.BACK, CAMERA_ID_0,
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
+                        CameraX.LensFacing.BACK)));
+        cameraFactory.insertCamera(CameraX.LensFacing.FRONT, CAMERA_ID_1,
+                () -> new FakeCamera(null, new FakeCameraInfoInternal(0,
+                        CameraX.LensFacing.FRONT)));
+
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         UseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
 
