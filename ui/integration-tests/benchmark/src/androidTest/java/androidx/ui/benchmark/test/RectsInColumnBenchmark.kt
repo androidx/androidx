@@ -42,7 +42,7 @@ class RectsInColumnBenchmark(private val numberOfRectangles: Int) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
+        @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> = arrayOf(1, 10)
     }
 
@@ -59,45 +59,37 @@ class RectsInColumnBenchmark(private val numberOfRectangles: Int) {
 
     @Test
     fun toggleRectangleColor_recompose() {
-        val testCase = RectsInColumnTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureRecompose(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureRecompose(activity,
+            RectsInColumnTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun toggleRectangleColor_measure() {
-        val testCase = RectsInColumnTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureMeasure(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureMeasure(activity,
+            RectsInColumnTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun toggleRectangleColor_layout() {
-        val testCase = RectsInColumnTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureLayout(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureLayout(activity,
+            RectsInColumnTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun toggleRectangleColor_draw() {
-        val testCase = RectsInColumnTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureDraw(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureDraw(activity,
+            RectsInColumnTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun layout() {
-        val testCase = RectsInColumnTestCase(activity, numberOfRectangles)
-        benchmarkRule.measureLayoutPerf(activity, testCase)
+        benchmarkRule.measureLayoutPerf(activity,
+            RectsInColumnTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun draw() {
-        val testCase = RectsInColumnTestCase(activity, numberOfRectangles)
-        benchmarkRule.measureDrawPerf(activity, testCase)
+        benchmarkRule.measureDrawPerf(activity,
+            RectsInColumnTestCase(activity, numberOfRectangles))
     }
 }

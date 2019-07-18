@@ -31,6 +31,7 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.material.Checkbox
 import androidx.ui.test.ComposeMaterialIntoActivity
 import androidx.ui.test.ComposeTestCase
+import androidx.ui.test.ToggleableTestCase
 
 /**
  * Test case that puts the given amount of checkboxes into a column of rows and makes changes by
@@ -39,7 +40,7 @@ import androidx.ui.test.ComposeTestCase
 class CheckboxesInRowsTestCase(
     activity: Activity,
     private val amountOfCheckboxes: Int
-) : ComposeTestCase(activity) {
+) : ComposeTestCase(activity), ToggleableTestCase {
 
     private val states = mutableListOf<State<Boolean>>()
 
@@ -69,7 +70,7 @@ class CheckboxesInRowsTestCase(
         drawSlow()
     }
 
-    fun toggleState() {
+    override fun toggleState() {
         val state = states.first()
         state.value = !state.value
         FrameManager.nextFrame()

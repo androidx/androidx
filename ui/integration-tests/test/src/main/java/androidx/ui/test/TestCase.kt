@@ -115,6 +115,13 @@ abstract class ComposeTestCase(
     lateinit var compositionContext: CompositionContext
 }
 
+/**
+ * Test case that can trigger a change of state.
+ */
+interface ToggleableTestCase {
+    fun toggleState()
+}
+
 fun TestCase.assertMeasureSizeIsPositive() {
     Truth.assertThat(view.measuredWidth).isAtLeast(1)
     Truth.assertThat(view.measuredHeight).isAtLeast(1)
