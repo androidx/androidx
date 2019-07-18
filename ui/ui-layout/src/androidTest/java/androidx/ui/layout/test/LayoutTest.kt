@@ -175,13 +175,13 @@ open class LayoutTest {
             "Expected width ${expected.width.value} but obtained ${actual.width.value}",
             expected.width.value,
             actual.width.value,
-            1f
+            0f
         )
         assertEquals(
             "Expected height ${expected.height.value} but obtained ${actual.height.value}",
             expected.height.value,
             actual.height.value,
-            1f
+            0f
         )
         if (actual.width.value != actual.width.value.toInt().toFloat()) {
             fail("Expected integer width")
@@ -201,16 +201,16 @@ open class LayoutTest {
             "Expected x ${expected.x.value} but obtained ${actual.x.value}",
             expected.x.value,
             actual.x.value,
-            1f
+            0f
         )
         assertEquals(
             "Expected y ${expected.y.value} but obtained ${actual.y.value}",
             expected.y.value,
             actual.y.value,
-            1f
+            0f
         )
         if (actual.x.value != actual.x.value.toInt().toFloat()) {
-           fail("Expected integer x coordinate")
+            fail("Expected integer x coordinate")
         }
         if (actual.y.value != actual.y.value.toInt().toFloat()) {
             fail("Expected integer y coordinate")
@@ -219,10 +219,10 @@ open class LayoutTest {
 
     internal fun assertEquals(expected: IntPx, actual: IntPx) {
         assertEquals(
-            "Expected ${expected} but obtained ${actual}",
+            "Expected $expected but obtained $actual",
             expected.value.toFloat(),
             actual.value.toFloat(),
-            1f
+            0f
         )
     }
 }

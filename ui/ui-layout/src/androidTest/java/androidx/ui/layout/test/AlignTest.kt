@@ -80,7 +80,7 @@ class AlignTest : LayoutTest() {
         assertEquals(PxPosition(0.px, 0.px), alignPosition.value)
         assertEquals(PxSize(size, size), childSize.value)
         assertEquals(
-            PxPosition(root.width.px - size + 1.px, root.height.px - size + 1.px),
+            PxPosition(root.width.px - size, root.height.px - size),
             childPosition.value
         )
     }
@@ -134,7 +134,7 @@ class AlignTest : LayoutTest() {
 
     // TODO(popam): this should be unit test instead
     @Test
-    fun testAlignmentCoordinates() {
+    fun testAlignmentCoordinates_evenSize() {
         val size = IntPxSize(2.ipx, 2.ipx)
         assertEquals(IntPxPosition(0.ipx, 0.ipx), Alignment.TopLeft.align(size))
         assertEquals(IntPxPosition(1.ipx, 0.ipx), Alignment.TopCenter.align(size))
@@ -145,6 +145,21 @@ class AlignTest : LayoutTest() {
         assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.BottomLeft.align(size))
         assertEquals(IntPxPosition(1.ipx, 2.ipx), Alignment.BottomCenter.align(size))
         assertEquals(IntPxPosition(2.ipx, 2.ipx), Alignment.BottomRight.align(size))
+    }
+
+    // TODO(popam): this should be unit test instead
+    @Test
+    fun testAlignmentCoordinates_oddSize() {
+        val size = IntPxSize(3.ipx, 3.ipx)
+        assertEquals(IntPxPosition(0.ipx, 0.ipx), Alignment.TopLeft.align(size))
+        assertEquals(IntPxPosition(2.ipx, 0.ipx), Alignment.TopCenter.align(size))
+        assertEquals(IntPxPosition(3.ipx, 0.ipx), Alignment.TopRight.align(size))
+        assertEquals(IntPxPosition(0.ipx, 2.ipx), Alignment.CenterLeft.align(size))
+        assertEquals(IntPxPosition(2.ipx, 2.ipx), Alignment.Center.align(size))
+        assertEquals(IntPxPosition(3.ipx, 2.ipx), Alignment.CenterRight.align(size))
+        assertEquals(IntPxPosition(0.ipx, 3.ipx), Alignment.BottomLeft.align(size))
+        assertEquals(IntPxPosition(2.ipx, 3.ipx), Alignment.BottomCenter.align(size))
+        assertEquals(IntPxPosition(3.ipx, 3.ipx), Alignment.BottomRight.align(size))
     }
 
     @Test
@@ -183,5 +198,64 @@ class AlignTest : LayoutTest() {
             // Max height.
             assertEquals(0.dp.toIntPx(), maxIntrinsicHeight(25.dp.toIntPx()))
         }
+    }
+
+    @Test
+    fun testAlign_alignsCorrectly_whenOddDimensions_endAligned() = withDensity(density) {
+        // Given a 100 x 100 pixel container, we want to make sure that when aligning a 1 x 1 pixel
+        // child to both ends (bottom, and right) we correctly position children at the last
+        // possible pixel, and avoid rounding issues. Previously we first centered the coordinates,
+        // and then aligned after, so the maths would actually be (99 / 2) * 2, which incorrectly
+        // ends up at 100 (IntPx rounds up) - so the last pixels in both directions just wouldn't
+        // be visible.
+        val parentSize = 100.ipx.toDp()
+        val childSizeDp = 1.ipx.toDp()
+        val childSizeIpx = childSizeDp.toIntPx()
+
+        val positionedLatch = CountDownLatch(2)
+        val alignSize = Ref<PxSize>()
+        val alignPosition = Ref<PxPosition>()
+        val childSize = Ref<PxSize>()
+        val childPosition = Ref<PxPosition>()
+        show {
+            Layout(
+                children = {
+                    Container(width = parentSize, height = parentSize) {
+                        Align(alignment = Alignment.BottomRight) {
+                            SaveLayoutInfo(
+                                size = alignSize,
+                                position = alignPosition,
+                                positionedLatch = positionedLatch
+                            )
+                            Container(width = childSizeDp, height = childSizeDp) {
+                                SaveLayoutInfo(
+                                    size = childSize,
+                                    position = childPosition,
+                                    positionedLatch = positionedLatch
+                                )
+                            }
+                        }
+                    }
+                }, layoutBlock = { measurables, constraints ->
+                    val placeable = measurables.first().measure(Constraints())
+                    layout(constraints.maxWidth, constraints.maxHeight) {
+                        placeable.place(0.ipx, 0.ipx)
+                    }
+                }
+            )
+        }
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        val root = findAndroidCraneView()
+        waitForDraw(root)
+
+        assertEquals(PxSize(childSizeIpx, childSizeIpx), childSize.value)
+        assertEquals(
+            PxPosition(
+                alignSize.value!!.width - childSizeIpx,
+                alignSize.value!!.height - childSizeIpx
+            ),
+            childPosition.value
+        )
     }
 }

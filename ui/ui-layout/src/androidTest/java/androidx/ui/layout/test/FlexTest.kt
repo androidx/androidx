@@ -17,11 +17,8 @@
 package androidx.ui.layout.test
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.DensityReceiver
 import androidx.ui.core.IntPx
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.OnChildPositioned
-import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
@@ -32,22 +29,23 @@ import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.core.withDensity
 import androidx.ui.layout.AspectRatio
-import androidx.ui.layout.Center
-import androidx.ui.layout.Column
 import androidx.ui.layout.ConstrainedBox
-import androidx.ui.layout.Container
 import androidx.ui.layout.CrossAxisAlignment
 import androidx.ui.layout.DpConstraints
+import androidx.ui.layout.FlexSize
+import androidx.ui.layout.MainAxisAlignment
+import androidx.compose.Composable
+import androidx.compose.composer
+import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.OnPositioned
+import androidx.ui.core.min
+import androidx.ui.layout.Center
+import androidx.ui.layout.Column
+import androidx.ui.layout.Container
 import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
-import androidx.ui.layout.FlexSize
-import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Row
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.ui.core.max
-import androidx.ui.core.min
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -98,7 +96,7 @@ class FlexTest : LayoutTest() {
             childSize[1]
         )
         assertEquals(
-            PxPosition(0.px, (root.height.px / 2 - (size.toPx() - 1.px) / 2).round().toPx()),
+            PxPosition(0.px, (root.height.px / 2 - size.toPx() / 2).round().toPx()),
             childPosition[0]
         )
         assertEquals(
@@ -155,7 +153,7 @@ class FlexTest : LayoutTest() {
         assertEquals(
             PxPosition(
                 0.px,
-                (root.height.px / 2 - (childrenHeight.toPx() - 1.px) / 2).round().toPx()
+                (root.height.px / 2 - (childrenHeight.toPx()) / 2).round().toPx()
             ),
             childPosition[0]
         )
@@ -214,7 +212,7 @@ class FlexTest : LayoutTest() {
             childSize[1]
         )
         assertEquals(
-            PxPosition(0.px, ((root.height.px - childrenHeight.toPx() + 1.px) / 2).round().toPx()),
+            PxPosition(0.px, ((root.height.px - childrenHeight.toPx()) / 2).round().toPx()),
             childPosition[0]
         )
         assertEquals(
@@ -1440,10 +1438,10 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.width.px.round() - size * 3) / 4
-        assertEquals(PxPosition(gap.toPx(), 0.px), childPosition[0])
-        assertEquals(PxPosition(size.toPx() + gap.toPx() * 2, 0.px), childPosition[1])
-        assertEquals(PxPosition(size.toPx() * 2 + gap.toPx() * 3, 0.px), childPosition[2])
+        val gap = (root.width.px - size.toPx() * 3) / 4
+        assertEquals(PxPosition(gap.round().toPx(), 0.px), childPosition[0])
+        assertEquals(PxPosition((size.toPx() + gap * 2).round().toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition((size.toPx() * 2 + gap * 3).round().toPx(), 0.px), childPosition[2])
     }
 
     @Test
@@ -1482,10 +1480,10 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.width.px.round() - size * 3) / 2
+        val gap = (root.width.px - size.toPx() * 3) / 2
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(gap.toPx() + size.toPx(), 0.px), childPosition[1])
-        assertEquals(PxPosition(gap.toPx() * 2 + size.toPx() * 2, 0.px), childPosition[2])
+        assertEquals(PxPosition((gap + size.toPx()).round().toPx(), 0.px), childPosition[1])
+        assertEquals(PxPosition((gap * 2 + size.toPx() * 2).round().toPx(), 0.px), childPosition[2])
     }
 
     @Test
@@ -1690,10 +1688,10 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.height.px.round() - size * 3) / 4
-        assertEquals(PxPosition(0.px, gap.toPx()), childPosition[0])
-        assertEquals(PxPosition(0.px, size.toPx() + gap.toPx() * 2), childPosition[1])
-        assertEquals(PxPosition(0.px, size.toPx() * 2 + gap.toPx() * 3), childPosition[2])
+        val gap = (root.height.px - size.toPx() * 3) / 4
+        assertEquals(PxPosition(0.px, gap.round().toPx()), childPosition[0])
+        assertEquals(PxPosition(0.px, (size.toPx() + gap * 2).round().toPx()), childPosition[1])
+        assertEquals(PxPosition(0.px, (size.toPx() * 2 + gap * 3).round().toPx()), childPosition[2])
     }
 
     @Test
@@ -1732,10 +1730,10 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.height.px.round() - size * 3) / 2
+        val gap = (root.height.px - size.toPx() * 3) / 2
         assertEquals(PxPosition(0.px, 0.px), childPosition[0])
-        assertEquals(PxPosition(0.px, gap.toPx() + size.toPx()), childPosition[1])
-        assertEquals(PxPosition(0.px, gap.toPx() * 2 + size.toPx() * 2), childPosition[2])
+        assertEquals(PxPosition(0.px, (gap + size.toPx()).round().toPx()), childPosition[1])
+        assertEquals(PxPosition(0.px, (gap * 2 + size.toPx() * 2).round().toPx()), childPosition[2])
     }
 
     @Test
@@ -1774,10 +1772,16 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        val gap = (root.height.px.round() - size * 3) / 3
-        assertEquals(PxPosition(0.px, (gap / 2).toPx()), childPosition[0])
-        assertEquals(PxPosition(0.px, (gap * 3 / 2).toPx() + size.toPx()), childPosition[1])
-        assertEquals(PxPosition(0.px, (gap * 5 / 2).toPx() + size.toPx() * 2), childPosition[2])
+        val gap = (root.height.px - size.toPx() * 3) / 3
+        assertEquals(PxPosition(0.px, (gap / 2).round().toPx()), childPosition[0])
+        assertEquals(
+            PxPosition(0.px, ((gap * 3 / 2) + size.toPx()).round().toPx()),
+            childPosition[1]
+        )
+        assertEquals(
+            PxPosition(0.px, ((gap * 5 / 2) + size.toPx() * 2).round().toPx()),
+            childPosition[2]
+        )
     }
 
     @Test
