@@ -945,6 +945,21 @@ class MediaSessionStub extends IMediaSession.Stub {
     }
 
     @Override
+    public void movePlaylistItem(IMediaController caller, int seq, final int fromIndex,
+            final int toIndex) {
+        if (caller == null) {
+            return;
+        }
+        dispatchSessionTask(caller, seq, SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
+                new SessionPlayerTask() {
+                    @Override
+                    public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
+                        return mSessionImpl.movePlaylistItem(fromIndex, toIndex);
+                    }
+                });
+    }
+
+    @Override
     public void skipToPlaylistItem(IMediaController caller, int seq, final int index) {
         if (caller == null) {
             return;

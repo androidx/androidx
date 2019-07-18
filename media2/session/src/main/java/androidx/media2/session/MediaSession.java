@@ -447,7 +447,7 @@ public class MediaSession implements AutoCloseable {
         public SessionCommandGroup onConnect(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
             SessionCommandGroup commands = new SessionCommandGroup.Builder()
-                    .addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_1)
+                    .addAllPredefinedCommands(SessionCommand.COMMAND_VERSION_CURRENT)
                     .build();
             return commands;
         }

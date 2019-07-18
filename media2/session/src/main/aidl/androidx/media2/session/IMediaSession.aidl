@@ -65,6 +65,7 @@ oneway interface IMediaSession {
     void addPlaylistItem(IMediaController caller, int seq, int index, String mediaId) = 24;
     void removePlaylistItem(IMediaController caller, int seq, int index) = 25;
     void replacePlaylistItem(IMediaController caller, int seq, int index, String mediaId) = 26;
+    void movePlaylistItem(IMediaController caller, int seq, int fromIndex, int toIndex) = 43;
     void skipToPlaylistItem(IMediaController caller, int seq, int index) = 27;
     void skipToPreviousItem(IMediaController caller, int seq) = 28;
     void skipToNextItem(IMediaController caller, int seq) = 29;
@@ -90,5 +91,5 @@ oneway interface IMediaSession {
     void subscribe(IMediaController caller, int seq, String parentId,
             in ParcelImpl libraryParams) = 38;
     void unsubscribe(IMediaController caller, int seq, String parentId) = 39;
-    // Next Id : 43
+    // Next Id : 44
 }

@@ -22,6 +22,7 @@ import static androidx.media2.common.SessionPlayer.UNKNOWN_TIME;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK;
+import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PAUSE;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PLAY;
 import static androidx.media2.session.SessionCommand.COMMAND_CODE_PLAYER_PREPARE;
@@ -675,6 +676,18 @@ class MediaControllerImplBase implements MediaControllerImpl {
                     @Override
                     public void run(IMediaSession iSession, int seq) throws RemoteException {
                         iSession.replacePlaylistItem(mControllerStub, seq, index, mediaId);
+                    }
+                });
+    }
+
+    @Override
+    public ListenableFuture<SessionResult> movePlaylistItem(
+            final int fromIndex, final int toIndex) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession iSession, int seq) throws RemoteException {
+                        iSession.movePlaylistItem(mControllerStub, seq, fromIndex, toIndex);
                     }
                 });
     }

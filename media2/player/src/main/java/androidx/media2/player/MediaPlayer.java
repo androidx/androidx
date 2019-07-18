@@ -609,9 +609,11 @@ public final class MediaPlayer extends SessionPlayer {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         void cancelFutures() {
-            for (ResolvableFuture<V> future : mFutures) {
-                if (!future.isCancelled() && !future.isDone()) {
-                    future.cancel(true);
+            if (mFutures != null) {
+                for (ResolvableFuture<V> future : mFutures) {
+                    if (!future.isCancelled() && !future.isDone()) {
+                        future.cancel(true);
+                    }
                 }
             }
         }
@@ -644,7 +646,7 @@ public final class MediaPlayer extends SessionPlayer {
     ArrayList<MediaItem> mShuffledList = new ArrayList<>();
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaMetadata mPlaylistMetadata;
+    MediaMetadata mPlaylistMetadata;
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mRepeatMode;
@@ -656,10 +658,10 @@ public final class MediaPlayer extends SessionPlayer {
     int mCurrentShuffleIdx;
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaItem mCurPlaylistItem;
+    MediaItem mCurPlaylistItem;
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-            MediaItem mNextPlaylistItem;
+    MediaItem mNextPlaylistItem;
     @GuardedBy("mPlaylistLock")
     private boolean mSetMediaItemCalled;
 
@@ -1194,7 +1196,7 @@ public final class MediaPlayer extends SessionPlayer {
                     }
                 });
 
-                if (updatedCurNextItem.second == null) {
+                if (updatedCurNextItem == null || updatedCurNextItem.second == null) {
                     return createFuturesForResultCode(RESULT_SUCCESS);
                 }
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
@@ -1235,6 +1237,7 @@ public final class MediaPlayer extends SessionPlayer {
                     if (removedItemShuffleIdx < mCurrentShuffleIdx) {
                         mCurrentShuffleIdx--;
                     }
+
                     updatedCurNextItem = updateAndGetCurrentNextItemIfNeededLocked();
                     curItem = mCurPlaylistItem;
                     nextItem = mNextPlaylistItem;
@@ -1306,6 +1309,70 @@ public final class MediaPlayer extends SessionPlayer {
                     nextItem = mNextPlaylistItem;
                 }
                 // TODO: Should we notify current media item changed if it is replaced?
+                final List<MediaItem> playlist = getPlaylist();
+                final MediaMetadata metadata = getPlaylistMetadata();
+                notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                    @Override
+                    public void callCallback(
+                            SessionPlayer.PlayerCallback callback) {
+                        callback.onPlaylistChanged(MediaPlayer.this, playlist, metadata);
+                    }
+                });
+
+                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
+                if (updatedCurNextItem != null) {
+                    if (updatedCurNextItem.first != null) {
+                        futures.addAll(setMediaItemsInternal(curItem, nextItem));
+                    } else if (updatedCurNextItem.second != null) {
+                        futures.add(setNextMediaItemInternal(nextItem));
+                    }
+                } else {
+                    futures.add(createFutureForResultCode(RESULT_SUCCESS));
+                }
+                return futures;
+            }
+        };
+        addPendingFuture(pendingFuture);
+        return pendingFuture;
+    }
+
+    @Override
+    @NonNull
+    public ListenableFuture<PlayerResult> movePlaylistItem(final int fromIndex, final int toIndex) {
+        if (fromIndex < 0 || toIndex < 0) {
+            throw new IllegalArgumentException("indices shouldn't be negative");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
+
+        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
+            @Override
+            List<ResolvableFuture<PlayerResult>> onExecute() {
+                MediaItem curItem;
+                MediaItem nextItem;
+                Pair<MediaItem, MediaItem> updatedCurNextItem = null;
+                synchronized (mPlaylistLock) {
+                    if (fromIndex >= mPlaylist.size() || toIndex >= mPlaylist.size()) {
+                        return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
+                    }
+
+                    MediaItem item = mPlaylist.remove(fromIndex);
+                    mPlaylist.add(toIndex, item);
+                    if (mShuffleMode == SessionPlayer.SHUFFLE_MODE_NONE) {
+                        mShuffledList.remove(fromIndex);
+                        mShuffledList.add(toIndex, item);
+                        if (item == mCurPlaylistItem) {
+                            mCurrentShuffleIdx = toIndex;
+                        }
+                    }
+                    updatedCurNextItem = updateAndGetCurrentNextItemIfNeededLocked();
+                    curItem = mCurPlaylistItem;
+                    nextItem = mNextPlaylistItem;
+                }
+
                 final List<MediaItem> playlist = getPlaylist();
                 final MediaMetadata metadata = getPlaylistMetadata();
                 notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
@@ -1531,6 +1598,7 @@ public final class MediaPlayer extends SessionPlayer {
                 synchronized (mPlaylistLock) {
                     changed = mShuffleMode != shuffleMode;
                     mShuffleMode = shuffleMode;
+                    applyShuffleModeLocked();
                 }
                 if (changed) {
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
