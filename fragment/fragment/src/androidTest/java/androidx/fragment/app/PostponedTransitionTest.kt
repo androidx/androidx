@@ -792,7 +792,7 @@ class PostponedTransitionTest {
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
 
-        val fragment = PostponedFragment3()
+        val fragment = PostponedFragment3(1000)
         fm.beginTransaction()
             .addSharedElement(startBlue, "blueSquare")
             .replace(R.id.fragmentContainer, fragment)
@@ -823,7 +823,7 @@ class PostponedTransitionTest {
         val fm = activityRule.activity.supportFragmentManager
         val startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
 
-        val fragment = PostponedFragment3()
+        val fragment = PostponedFragment3(1000)
         fm.beginTransaction()
             .addSharedElement(startBlue, "blueSquare")
             .replace(R.id.fragmentContainer, fragment)
@@ -852,7 +852,7 @@ class PostponedTransitionTest {
             val fm = activityRule.activity.supportFragmentManager
             val startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
 
-            val fragment = PostponedFragment3()
+            val fragment = PostponedFragment3(1000)
             fragment.startPostponedCountDownLatch = CountDownLatch(2)
             fm.beginTransaction()
                 .addSharedElement(startBlue, "blueSquare")
@@ -880,6 +880,31 @@ class PostponedTransitionTest {
                 .that(fragment.isPostponed).isFalse()
 
             assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(1)
+    }
+
+    // Ensure that if postponedEnterTransition with a duration of 0 it waits one frame.
+    @Test
+    fun testTimedPostponeEnterPostponedCalledWithZero() {
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
+
+        val fragment = PostponedFragment3(0)
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+
+        assertThat(
+            fragment.onCreateViewCountLatch.await(250, TimeUnit.MILLISECONDS)
+        ).isTrue()
+
+        activityRule.waitForExecution(1)
+
+        assertWithMessage(
+            "After startPostponed is called the transition should not be postponed"
+        ).that(fragment.isPostponed).isFalse()
     }
 
     // Ensure postponedEnterTransaction(long, TimeUnit) works even if called in constructor
@@ -1050,14 +1075,16 @@ class PostponedTransitionTest {
         }
     }
 
-    class PostponedFragment3 : TransitionFragment(R.layout.scene2) {
+    class PostponedFragment3(val duration: Long) : TransitionFragment(R.layout.scene2) {
         var startPostponedCountDownLatch = CountDownLatch(1)
+        val onCreateViewCountLatch = CountDownLatch(1)
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ) = super.onCreateView(inflater, container, savedInstanceState).also {
-            postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
+            postponeEnterTransition(duration, TimeUnit.MILLISECONDS)
+            onCreateViewCountLatch.countDown()
         }
 
         override fun startPostponedEnterTransition() {
