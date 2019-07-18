@@ -18,6 +18,7 @@ package androidx.work.impl;
 
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
@@ -40,6 +41,8 @@ import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkNameDao;
+import androidx.work.impl.model.WorkProgress;
+import androidx.work.impl.model.WorkProgressDao;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
@@ -60,8 +63,9 @@ import java.util.concurrent.TimeUnit;
         WorkSpec.class,
         WorkTag.class,
         SystemIdInfo.class,
-        WorkName.class},
-        version = 6)
+        WorkName.class,
+        WorkProgress.class},
+        version = 7)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
@@ -112,6 +116,7 @@ public abstract class WorkDatabase extends RoomDatabase {
                 .addMigrations(MIGRATION_4_5)
                 .addMigrations(
                         new WorkDatabaseMigrations.WorkMigration(context, VERSION_5, VERSION_6))
+                .addMigrations(MIGRATION_6_7)
                 .fallbackToDestructiveMigration()
                 .build();
     }
@@ -167,4 +172,10 @@ public abstract class WorkDatabase extends RoomDatabase {
      * @return The Data Access Object for {@link WorkName}s.
      */
     public abstract WorkNameDao workNameDao();
+
+    /**
+     * @return The Data Access Object for {@link WorkProgress}.
+     */
+    @NonNull
+    public abstract WorkProgressDao workProgressDao();
 }

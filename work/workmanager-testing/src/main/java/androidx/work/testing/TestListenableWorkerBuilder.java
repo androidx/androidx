@@ -111,7 +111,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     }
 
     /**
-     * @return The {@link List<String>} tags associated with this unit of work.
+     * @return The {@link List} of tags associated with this unit of work.
      */
     @NonNull
     List<String> getTags() {
