@@ -81,20 +81,20 @@ public class BiometricPrompt implements BiometricConstants {
     static final String KEY_ALLOW_DEVICE_CREDENTIAL = "allow_device_credential";
 
     @Retention(SOURCE)
-    @IntDef({BiometricConstants.ERROR_HW_UNAVAILABLE,
-            BiometricConstants.ERROR_UNABLE_TO_PROCESS,
-            BiometricConstants.ERROR_TIMEOUT,
-            BiometricConstants.ERROR_NO_SPACE,
-            BiometricConstants.ERROR_CANCELED,
-            BiometricConstants.ERROR_LOCKOUT,
-            BiometricConstants.ERROR_VENDOR,
-            BiometricConstants.ERROR_LOCKOUT_PERMANENT,
-            BiometricConstants.ERROR_USER_CANCELED,
-            BiometricConstants.ERROR_NO_BIOMETRICS,
-            BiometricConstants.ERROR_HW_NOT_PRESENT,
-            BiometricConstants.ERROR_NEGATIVE_BUTTON,
-            BiometricConstants.ERROR_NO_DEVICE_CREDENTIAL})
-    @interface BiometricError {}
+    @IntDef({ERROR_HW_UNAVAILABLE,
+            ERROR_UNABLE_TO_PROCESS,
+            ERROR_TIMEOUT,
+            ERROR_NO_SPACE,
+            ERROR_CANCELED,
+            ERROR_LOCKOUT,
+            ERROR_VENDOR,
+            ERROR_LOCKOUT_PERMANENT,
+            ERROR_USER_CANCELED,
+            ERROR_NO_BIOMETRICS,
+            ERROR_HW_NOT_PRESENT,
+            ERROR_NEGATIVE_BUTTON,
+            ERROR_NO_DEVICE_CREDENTIAL})
+    private @interface BiometricError {}
 
     /**
      * A wrapper class for the crypto objects supported by BiometricPrompt. Currently the
@@ -372,7 +372,6 @@ public class BiometricPrompt implements BiometricConstants {
         /**
          * @return See {@link Builder#setConfirmationRequired(boolean)}.
          */
-        @Nullable
         public boolean isConfirmationRequired() {
             return mBundle.getBoolean(KEY_REQUIRE_CONFIRMATION);
         }
@@ -380,7 +379,6 @@ public class BiometricPrompt implements BiometricConstants {
         /**
          * @return See {@link Builder#setDeviceCredentialAllowed(boolean)}.
          */
-        @Nullable
         public boolean isDeviceCredentialAllowed() {
             return mBundle.getBoolean(KEY_ALLOW_DEVICE_CREDENTIAL);
         }
