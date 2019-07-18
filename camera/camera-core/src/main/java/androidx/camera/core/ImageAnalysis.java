@@ -333,11 +333,6 @@ public final class ImageAnalysis extends UseCase {
         ACQUIRE_LATEST_IMAGE,
         /** Acquires the next image in the queue. */
         ACQUIRE_NEXT_IMAGE,
-        /**
-         * Acquires the latest image in the queue, but discards unused images continuously to
-         * allow the camera pipeline to never block.
-         */
-        ACQUIRE_LATEST_IMAGE_NON_BLOCKING,
     }
 
     /** Interface for analyzing images.
