@@ -22,6 +22,7 @@ import androidx.ui.input.CommitTextEditOp
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
+import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.input.SetSelectionEditOp
@@ -216,7 +217,15 @@ class InputFieldDelegateTest {
 
     @Test
     fun on_blur() {
-        InputFieldDelegate.onBlur(textInputService)
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        whenever(processor.onEditCommands(captor.capture())).thenReturn(EditorState())
+
+        InputFieldDelegate.onBlur(textInputService, processor, onValueChange)
+
+        assertEquals(1, captor.allValues.size)
+        assertEquals(1, captor.firstValue.size)
+        assertTrue(captor.firstValue[0] is FinishComposingTextEditOp)
         verify(textInputService).stopInput()
     }
 
