@@ -24,7 +24,7 @@ import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert
+import org.junit.Assert.fail
 import java.io.File
 import java.text.NumberFormat
 import java.util.ArrayList
@@ -33,7 +33,7 @@ import java.util.concurrent.TimeUnit
 /**
  * Control object for benchmarking in the code in Java.
  *
- * Query a state object with [BenchmarkRule.state], and use it to measure a block of Java with
+ * Query a state object with [BenchmarkRule.getState], and use it to measure a block of Java with
  * [BenchmarkState.keepRunning]:
  * ```
  * @Rule
@@ -202,12 +202,14 @@ class BenchmarkState internal constructor() {
             Log.d(TAG, "Tracing to: " + f.absolutePath)
             Debug.startMethodTracingSampling(f.absolutePath, 16 * 1024 * 1024, 100)
         }
-        val idealIterations =
-            (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTime).toInt()
-        maxIterations = Math.min(
-            MAX_TEST_ITERATIONS,
-            Math.max(idealIterations, MIN_TEST_ITERATIONS)
-        )
+        maxIterations = if (Arguments.startupMode) {
+            // never average multiple loops together in startupMode
+            1
+        } else {
+            val idealIterations =
+                (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTime).toInt()
+            idealIterations.coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
+        }
         pausedDurationNs = 0
         iterationsRemaining = maxIterations
         repeatCount = 0
@@ -290,8 +292,14 @@ class BenchmarkState internal constructor() {
         when (state) {
             NOT_STARTED -> {
                 if (Errors.UNSUPPRESSED_WARNING_MESSAGE != null) {
-                    Assert.fail(Errors.UNSUPPRESSED_WARNING_MESSAGE)
+                    fail(Errors.UNSUPPRESSED_WARNING_MESSAGE)
                 }
+
+                if (!firstBenchmark && Arguments.startupMode) {
+                    fail("Error - multiple benchmarks in startup mode. Only one benchmark " +
+                            "may be run per 'am instrument' call, to ensure result isolation.")
+                }
+                firstBenchmark = false
 
                 if (totalRunTimeStartNs == 0L) {
                     // This is the beginning of the benchmark, we remember it.
@@ -304,7 +312,12 @@ class BenchmarkState internal constructor() {
                 ) {
                     ThrottleDetector.computeThrottleBaseline()
                 }
-                beginWarmup()
+
+                if (Arguments.startupMode) {
+                    beginBenchmark()
+                } else {
+                    beginWarmup()
+                }
                 return true
             }
             WARMUP -> {
@@ -421,13 +434,15 @@ class BenchmarkState internal constructor() {
 
         // Values determined empirically.
         @VisibleForTesting
-        internal const val REPEAT_COUNT = 50
+        internal val REPEAT_COUNT = if (Arguments.startupMode) 10 else 50
         private val TARGET_TEST_DURATION_NS = TimeUnit.MICROSECONDS.toNanos(500)
         private const val MAX_TEST_ITERATIONS = 1000000
         private const val MIN_TEST_ITERATIONS = 1
 
         private const val THROTTLE_MAX_RETRIES = 3
         private const val THROTTLE_BACKOFF_S = 90L
+
+        private var firstBenchmark = true
 
         /**
          * Hooks for benchmarks not using [BenchmarkRule] to register results.
