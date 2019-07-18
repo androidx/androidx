@@ -31,6 +31,7 @@ import androidx.ui.core.Semantics
 import androidx.ui.core.Text
 import androidx.ui.core.currentTextStyle
 import androidx.ui.core.ipx
+import androidx.ui.core.round
 import androidx.ui.core.toPx
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
@@ -45,8 +46,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO: remove when tests are uncommented
-@Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
 @SmallTest
 @RunWith(JUnit4::class)
 class AppBarTest {
@@ -234,14 +233,11 @@ class AppBarTest {
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
             Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
-            // TODO: layout rounding issues here depending on the density of the device
-            /*
             // Action should be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
             Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-            */
         }
     }
 
@@ -288,11 +284,10 @@ class AppBarTest {
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
             Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
-            // TODO: layout rounding issues here depending on the density of the device
-            /*
             // FAB should be placed in the center
             val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
-            val fabExpectedPositionX = (appBarCoords!!.size.width / 2) - 12.dp.toIntPx()
+            val fabExpectedPositionX =
+                ((appBarCoords!!.size.width - 24.dp.toPx()) / 2).round().toPx()
             Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
 
             // Action should be placed at the end
@@ -300,7 +295,6 @@ class AppBarTest {
             val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
             Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
-            */
         }
     }
 
@@ -340,14 +334,11 @@ class AppBarTest {
             val actionExpectedPositionX = 16.dp.toIntPx().toPx()
             Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
 
-            // TODO: layout rounding issues here depending on the density of the device
-            /*
             // FAB should be placed at the end
             val fabPositionX = fabCoords!!.localToGlobal(PxPosition.Origin).x
             val fabExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
                     16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
             Truth.assertThat(fabPositionX).isEqualTo(fabExpectedPositionX)
-            */
         }
     }
 

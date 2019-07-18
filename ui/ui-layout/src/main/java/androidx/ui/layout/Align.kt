@@ -19,12 +19,13 @@ package androidx.ui.layout
 import androidx.ui.core.IntPxPosition
 import androidx.ui.core.IntPxSize
 import androidx.ui.core.Layout
-import androidx.ui.core.center
 import androidx.ui.core.isFinite
 import androidx.ui.core.looseMin
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.round
+import androidx.ui.core.toPx
 
 /**
  * Represents a positioning of a point inside a 2D box. [Alignment] is often used to define
@@ -50,8 +51,13 @@ enum class Alignment(private val verticalBias: Float, private val horizontalBias
      * according to this [Alignment].
      */
     fun align(size: IntPxSize): IntPxPosition {
-        val center = size.center()
-        return IntPxPosition(center.x * (1 + horizontalBias), center.y * (1 + verticalBias))
+        // Convert to Px first and only round at the end, to avoid rounding twice while calculating
+        // the new positions
+        val centerX = size.width.toPx() / 2f
+        val centerY = size.height.toPx() / 2f
+        val x = centerX * (1 + horizontalBias)
+        val y = centerY * (1 + verticalBias)
+        return IntPxPosition(x.round(), y.round())
     }
 }
 
@@ -64,7 +70,7 @@ enum class Alignment(private val verticalBias: Float, private val horizontalBias
  */
 @Composable
 fun Align(alignment: Alignment, @Children children: @Composable() () -> Unit) {
-    Layout(layoutBlock ={ measurables, constraints ->
+    Layout(layoutBlock = { measurables, constraints ->
         val measurable = measurables.firstOrNull()
         // The child cannot be larger than our max constraints, but we ignore min constraints.
         val placeable = measurable?.measure(constraints.looseMin())
