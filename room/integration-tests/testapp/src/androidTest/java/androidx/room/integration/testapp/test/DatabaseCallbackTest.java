@@ -30,9 +30,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
+import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.integration.testapp.TestDatabase;
+import androidx.room.integration.testapp.dao.ProductDao;
+import androidx.room.integration.testapp.vo.Product;
 import androidx.room.integration.testapp.vo.User;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
@@ -159,7 +162,7 @@ public class DatabaseCallbackTest {
         TestDatabaseCallback callback = new TestDatabaseCallback();
 
         // Create fake DB files that will cause a SQLiteDatabaseCorruptException: SQLITE_NOTADB.
-        String[] dbFiles = new String[] {"corrupted", "corrupted-shm", "corrupted-wal"};
+        String[] dbFiles = new String[]{"corrupted", "corrupted-shm", "corrupted-wal"};
         for (String fileName : dbFiles) {
             File dbFile = context.getDatabasePath(fileName);
             try (FileWriter fileWriter = new FileWriter(dbFile)) {
@@ -184,10 +187,39 @@ public class DatabaseCallbackTest {
         assertTrue(callback.mOpened);
     }
 
+    @Test
+    @SmallTest
+    public void onDestructiveMigration_calledOnUpgrade() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        TestDatabaseCallback callback = new TestDatabaseCallback();
+        ProductsDatabase_v2 database = Room.databaseBuilder(
+                context, ProductsDatabase_v2.class, "products.db")
+                .createFromAsset("databases/products_v1.db")
+                .addCallback(callback)
+                .fallbackToDestructiveMigration()
+                .build();
+
+        assertFalse(callback.mDestructivelyMigrated);
+
+        // Use the database to trigger the opening and migration of the database
+        ProductDao dao = database.getProductDao();
+        dao.countProducts();
+
+        assertTrue(callback.mDestructivelyMigrated);
+        database.close();
+    }
+
+    @Database(entities = Product.class, version = 2, exportSchema = false)
+    abstract static class ProductsDatabase_v2 extends RoomDatabase {
+        abstract ProductDao getProductDao();
+    }
+
     public static class TestDatabaseCallback extends RoomDatabase.Callback {
 
         boolean mCreated;
         boolean mOpened;
+        boolean mDestructivelyMigrated;
 
         @Override
         public void onCreate(@NonNull SupportSQLiteDatabase db) {
@@ -197,6 +229,11 @@ public class DatabaseCallbackTest {
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             mOpened = true;
+        }
+
+        @Override
+        public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db) {
+            mDestructivelyMigrated = true;
         }
     }
 }

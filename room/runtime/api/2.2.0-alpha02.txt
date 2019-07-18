@@ -85,6 +85,7 @@ package androidx.room {
   public abstract static class RoomDatabase.Callback {
     ctor public RoomDatabase.Callback();
     method public void onCreate(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public void onDestructiveMigration(androidx.sqlite.db.SupportSQLiteDatabase);
     method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase);
   }
 
