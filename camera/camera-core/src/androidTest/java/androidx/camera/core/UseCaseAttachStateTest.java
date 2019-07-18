@@ -369,13 +369,13 @@ public class UseCaseAttachStateTest {
             builder.addSessionStateCallback(mSessionStateCallback);
             builder.addRepeatingCameraCaptureCallback(mCameraCaptureCallback);
 
-            LensFacing lensFacing = ((CameraDeviceConfig) getUseCaseConfig()).getLensFacing();
+            CameraDeviceConfig config = (CameraDeviceConfig) getUseCaseConfig();
             try {
-                String cameraId = CameraX.getCameraWithLensFacing(lensFacing);
+                String cameraId = CameraX.getCameraWithCameraDeviceConfig(config);
                 attachToCamera(cameraId, builder.build());
-            } catch (Exception e) {
+            } catch (CameraInfoUnavailableException e) {
                 throw new IllegalArgumentException(
-                        "Unable to attach to camera with LensFacing " + lensFacing, e);
+                        "Unable to get camera id for the camera device config.", e);
             }
             return suggestedResolutionMap;
         }

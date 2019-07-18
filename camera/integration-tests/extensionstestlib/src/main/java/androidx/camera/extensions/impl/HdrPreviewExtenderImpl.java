@@ -23,6 +23,9 @@ import android.media.Image;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Implementation for HDR preview use case.
  *
@@ -41,8 +44,8 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
     }
 
     @Override
-    public boolean isExtensionAvailable(String cameraId,
-            CameraCharacteristics cameraCharacteristics) {
+    public boolean isExtensionAvailable(@NonNull String cameraId,
+            @Nullable CameraCharacteristics cameraCharacteristics) {
         // Implement the logic to check whether the extension function is supported or not.
         return true;
     }

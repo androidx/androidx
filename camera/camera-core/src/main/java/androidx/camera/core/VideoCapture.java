@@ -165,14 +165,6 @@ public class VideoCapture extends UseCase {
         return format;
     }
 
-    private static String getCameraIdUnchecked(LensFacing lensFacing) {
-        try {
-            return CameraX.getCameraWithLensFacing(lensFacing);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "Unable to get camera id for camera lens facing " + lensFacing, e);
-        }
-    }
 
     /**
      * {@inheritDoc}
@@ -217,7 +209,7 @@ public class VideoCapture extends UseCase {
             throw new IllegalStateException("Unable to create MediaCodec due to: " + e.getCause());
         }
 
-        String cameraId = getCameraIdUnchecked(config.getLensFacing());
+        String cameraId = getCameraIdUnchecked(config);
         Size resolution = suggestedResolutionMap.get(cameraId);
         if (resolution == null) {
             throw new IllegalArgumentException(
@@ -273,8 +265,8 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        String cameraId =
-                getCameraIdUnchecked(((CameraDeviceConfig) getUseCaseConfig()).getLensFacing());
+        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
+        String cameraId = getCameraIdUnchecked(config);
         try {
             // video encoder start
             Log.i(TAG, "videoEncoder start");
@@ -468,7 +460,7 @@ public class VideoCapture extends UseCase {
 
         builder.addSurface(mDeferrableSurface);
 
-        String cameraId = getCameraIdUnchecked(config.getLensFacing());
+        String cameraId = getCameraIdUnchecked(config);
         attachToCamera(cameraId, builder.build());
 
         // audio encoder setup
@@ -644,8 +636,7 @@ public class VideoCapture extends UseCase {
         // recording because it requires attaching a new Surface. This causes a glitch so we don't
         // want
         // that to incur latency at the start of capture.
-        setupEncoder(
-                getAttachedSurfaceResolution(getCameraIdUnchecked(config.getLensFacing())));
+        setupEncoder(getAttachedSurfaceResolution(getCameraIdUnchecked(config)));
         notifyReset();
 
         // notify the UI thread that the video recording has finished
@@ -926,6 +917,7 @@ public class VideoCapture extends UseCase {
     /** Holder class for metadata that should be saved alongside captured video. */
     public static final class Metadata {
         /** Data representing a geographic location. */
-        public @Nullable Location location;
+        @Nullable
+        public Location location;
     }
 }

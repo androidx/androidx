@@ -204,10 +204,10 @@ final class SupportedSurfaceCombination {
                     CameraDeviceConfig config = (CameraDeviceConfig) useCase.getUseCaseConfig();
                     String useCaseCameraId;
                     try {
-                        useCaseCameraId = CameraX.getCameraWithLensFacing(config.getLensFacing());
-                    } catch (Exception e) {
+                        useCaseCameraId = CameraX.getCameraWithCameraDeviceConfig(config);
+                    } catch (CameraInfoUnavailableException e) {
                         throw new IllegalArgumentException(
-                                "Unable to get camera ID for use case " + useCase.getName(), e);
+                                "Unable to get camera id for the camera device config.", e);
                     }
                     Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
 

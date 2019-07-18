@@ -22,7 +22,7 @@ import android.hardware.camera2.TotalCaptureResult;
 /**
  * Provides abstract methods that the OEM needs to implement to enable extensions in the preview.
  */
-public interface PreviewExtenderImpl extends ExtenderStateListener {
+public interface PreviewExtenderImpl extends ExtenderStateListener, ExtensionAvailability {
     /** The different types of the preview processing. */
     enum ProcessorType {
         /** Processor which only updates the {@link CaptureStageImpl}. */
@@ -32,15 +32,6 @@ public interface PreviewExtenderImpl extends ExtenderStateListener {
         /** No processor, only a {@link CaptureStageImpl} is defined. */
         PROCESSOR_TYPE_NONE
     }
-
-    /**
-     * Indicates whether the extension is supported on the device.
-     *
-     * @param cameraId The camera2 id string of the camera.
-     * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
-     * @return true if the extension is supported, otherwise false
-     */
-    boolean isExtensionAvailable(String cameraId, CameraCharacteristics cameraCharacteristics);
 
     /**
      * Initializes the extender to be used with the specified camera.

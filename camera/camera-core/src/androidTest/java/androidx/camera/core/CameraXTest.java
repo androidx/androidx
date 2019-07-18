@@ -59,11 +59,13 @@ public final class CameraXTest {
     // TODO(b/126431497): This shouldn't need to be static, but the initialization behavior does
     //  not allow us to reinitialize before each test.
     private static FakeCameraFactory sCameraFactory = new FakeCameraFactory();
+    private static final LensFacing CAMERA_LENS_FACING = LensFacing.BACK;
 
     static {
-        String cameraId = sCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+        String cameraId = sCameraFactory.cameraIdForLensFacing(CAMERA_LENS_FACING);
         sCameraFactory.insertCamera(cameraId,
-                new FakeCamera(new FakeCameraInfo(), mock(CameraControlInternal.class)));
+                new FakeCamera(new FakeCameraInfo(0, CAMERA_LENS_FACING),
+                        mock(CameraControlInternal.class)));
     }
 
     private String mCameraId;
@@ -74,7 +76,7 @@ public final class CameraXTest {
     private HandlerThread mHandlerThread;
     private Handler mHandler;
 
-    private static String getCameraIdUnchecked(LensFacing lensFacing) {
+    private static String getCameraIdWithLensFacingUnchecked(LensFacing lensFacing) {
         try {
             return CameraX.getCameraWithLensFacing(lensFacing);
         } catch (Exception e) {
@@ -113,7 +115,7 @@ public final class CameraXTest {
         mHandlerThread = new HandlerThread("ErrorHandlerThread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
-        mCameraId = getCameraIdUnchecked(LensFacing.BACK);
+        mCameraId = getCameraIdWithLensFacingUnchecked(CAMERA_LENS_FACING);
         mCamera = sCameraFactory.getCamera(mCameraId);
 
     }
@@ -124,8 +126,7 @@ public final class CameraXTest {
         mHandlerThread.quitSafely();
 
         // Wait some time for the cameras to close. We need the cameras to close to bring CameraX
-        // back
-        // to the initial state.
+        // back to the initial state.
         Thread.sleep(3000);
     }
 
@@ -201,7 +202,7 @@ public final class CameraXTest {
     public void requestingDefaultConfiguration_returnsDefaultConfiguration() {
         // Requesting a default configuration will throw if CameraX is not initialized.
         FakeUseCaseConfig config = CameraX.getDefaultUseCaseConfig(
-                FakeUseCaseConfig.class, LensFacing.BACK);
+                FakeUseCaseConfig.class, CAMERA_LENS_FACING);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
@@ -263,9 +264,10 @@ public final class CameraXTest {
 
     @Test
     public void canRetrieveCameraInfo() throws CameraInfoUnavailableException {
-        String cameraId = CameraX.getCameraWithLensFacing(LensFacing.BACK);
+        String cameraId = CameraX.getCameraWithLensFacing(CAMERA_LENS_FACING);
         CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
         assertThat(cameraInfo).isNotNull();
+        assertThat(cameraInfo.getLensFacing()).isEqualTo(CAMERA_LENS_FACING);
     }
 
     @Test
@@ -290,6 +292,15 @@ public final class CameraXTest {
 
         assertThat(useCases.contains(fakeUseCase)).isTrue();
         assertThat(useCases.contains(fakeOtherUseCase)).isTrue();
+    }
+
+    @Test
+    public void canGetCameraIdWithConfig() throws CameraInfoUnavailableException {
+        FakeUseCaseConfig.Builder fakeConfigBuilder = new FakeUseCaseConfig.Builder();
+        fakeConfigBuilder.setLensFacing(CAMERA_LENS_FACING);
+        String cameraId = CameraX.getCameraWithCameraDeviceConfig(fakeConfigBuilder.build());
+
+        assertThat(cameraId).isEqualTo(mCameraId);
     }
 
     private static class CountingErrorListener implements ErrorListener {
@@ -324,8 +335,8 @@ public final class CameraXTest {
 
             SessionConfig.Builder builder = new SessionConfig.Builder();
 
-            CameraDeviceConfig config = (CameraDeviceConfig) getUseCaseConfig();
-            String cameraId = getCameraIdUnchecked(config.getLensFacing());
+            UseCaseConfig config = getUseCaseConfig();
+            String cameraId = getCameraIdUnchecked(config);
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;
         }

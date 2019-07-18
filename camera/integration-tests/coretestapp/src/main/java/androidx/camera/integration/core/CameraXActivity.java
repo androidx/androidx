@@ -42,7 +42,7 @@ import android.widget.Toast;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.camera.core.CameraDeviceConfig;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FlashMode;
@@ -216,9 +216,8 @@ public class CameraXActivity extends AppCompatActivity
 
     void transformPreview() {
         String cameraId = null;
-        LensFacing previewLensFacing =
-                ((CameraDeviceConfig) mPreview.getUseCaseConfig())
-                        .getLensFacing(/*valueIfMissing=*/ null);
+        PreviewConfig config = (PreviewConfig) mPreview.getUseCaseConfig();
+        LensFacing previewLensFacing = config.getLensFacing(/*valueIfMissing=*/ null);
         if (previewLensFacing != mCurrentCameraLensFacing) {
             throw new IllegalStateException(
                     "Invalid preview lens facing: "
@@ -227,10 +226,11 @@ public class CameraXActivity extends AppCompatActivity
                             + mCurrentCameraLensFacing);
         }
         try {
-            cameraId = CameraX.getCameraWithLensFacing(previewLensFacing);
-        } catch (Exception e) {
+            cameraId = CameraX.getCameraWithCameraDeviceConfig(config);
+        } catch (CameraInfoUnavailableException e) {
             throw new IllegalArgumentException(
-                    "Unable to get camera id for lens facing " + previewLensFacing, e);
+                    "Unable to get camera id for the camera device config "
+                            + config.getLensFacing(), e);
         }
         Size srcResolution = mPreview.getAttachedSurfaceResolution(cameraId);
 

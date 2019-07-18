@@ -133,7 +133,7 @@ public class FakeCamera implements BaseCamera {
     }
 
     @Override
-    public void onUseCaseReset(final UseCase useCase) {
+    public void onUseCaseReset(@NonNull final UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
 
         mUseCaseAttachState.updateUseCase(useCase);

@@ -66,13 +66,11 @@ public class FakeRepeatingUseCase extends FakeUseCase {
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
         builder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
         try {
-            String cameraId = CameraX.getCameraWithLensFacing(configWithDefaults.getLensFacing());
+            String cameraId = CameraX.getCameraWithCameraDeviceConfig(configWithDefaults);
             attachToCamera(cameraId, builder.build());
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "Unable to attach to camera with LensFacing "
-                            + configWithDefaults.getLensFacing(),
-                    e);
+                    "Unable to get camera id for the camera device config.", e);
         }
     }
 
