@@ -51,7 +51,7 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
     @Nullable
     private Size mResolution;
 
-    Object mLock = new Object();
+    final Object mLock = new Object();
 
     @VisibleForTesting
     @GuardedBy("mLock")
@@ -77,7 +77,7 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
     }
 
     @UiThread
-    void setResolution(Size resolution) {
+    void setResolution(@NonNull Size resolution) {
         mResolution = resolution;
     }
 
@@ -114,7 +114,8 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
      * using a new {@link SurfaceTexture}.
      */
     @Override
-    public ListenableFuture<Surface> getSurface() {
+    @NonNull
+    public ListenableFuture<Surface> provideSurface() {
         return CallbackToFutureAdapter.getFuture(
                 new CallbackToFutureAdapter.Resolver<Surface>() {
                     @Override
@@ -124,13 +125,15 @@ final class CheckedSurfaceTexture extends DeferrableSurface {
                                 new Runnable() {
                                     @Override
                                     public void run() {
-                                        if (isSurfaceTextureReleasing(mSurfaceTexture)) {
+                                        if (isSurfaceTextureReleasing(
+                                                mSurfaceTexture)) {
                                             // Reset the surface texture and notify the listener
                                             CheckedSurfaceTexture.this.resetSurfaceTexture();
                                         }
 
                                         if (mSurface == null) {
-                                            mSurface = createSurfaceFrom(mSurfaceTexture);
+                                            mSurface = createSurfaceFrom(
+                                                    mSurfaceTexture);
                                         }
                                         completer.set(mSurface);
                                     }

@@ -2677,28 +2677,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ImmediateSurface(Surface surface) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImmediateSurface.java"
-            line="35"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListenableFuture&lt;Surface> getSurface() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/ImmediateSurface.java"
-            line="40"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    protected abstract Throwable tryInternalFastPathGetFailure();"
         errorLine2="                       ~~~~~~~~~">
         <location

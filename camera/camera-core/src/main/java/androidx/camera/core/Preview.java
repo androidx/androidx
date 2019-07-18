@@ -668,7 +668,7 @@ public class Preview extends UseCase {
 
         @Override
         public void release() {
-            mProcessingSurfaceTexture.close();
+            mProcessingSurfaceTexture.release();
         }
 
         @Override

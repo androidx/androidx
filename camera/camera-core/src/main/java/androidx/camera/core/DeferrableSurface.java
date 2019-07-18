@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -44,14 +45,32 @@ public abstract class DeferrableSurface {
     /**
      * The exception that is returned by the ListenableFuture of {@link #getSurface()} if the
      * {@link Surface} backing the DeferrableSurface has already been closed.
+     *
+     * @hide
      */
-    final class SurfaceClosedException extends Exception {
-        SurfaceClosedException(String s, Throwable e) {
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final class SurfaceClosedException extends Exception {
+        DeferrableSurface mDeferrableSurface;
+
+        public SurfaceClosedException(@NonNull String s, @NonNull Throwable e,
+                @NonNull DeferrableSurface surface) {
             super(s, e);
+            mDeferrableSurface = surface;
         }
 
-        SurfaceClosedException(String s) {
+        public SurfaceClosedException(@NonNull String s, @NonNull DeferrableSurface surface) {
             super(s);
+            mDeferrableSurface = surface;
+        }
+
+        /**
+         * Returns the {@link DeferrableSurface} that generated the exception.
+         *
+         * <p>The deferrable surface will already be closed.
+         */
+        @NonNull
+        public DeferrableSurface getDeferrableSurface() {
+            return mDeferrableSurface;
         }
     }
 
@@ -65,6 +84,8 @@ public abstract class DeferrableSurface {
     @GuardedBy("mLock")
     private int mAttachedCount = 0;
 
+    private volatile boolean mClosed = false;
+
     // Listener to be called when surface is detached totally.
     @Nullable
     @GuardedBy("mLock")
@@ -77,9 +98,28 @@ public abstract class DeferrableSurface {
     // Lock used for accessing states.
     private final Object mLock = new Object();
 
-    /** Returns a {@link Surface} that is wrapped in a {@link ListenableFuture}. */
-    @Nullable
-    public abstract ListenableFuture<Surface> getSurface();
+    /**
+     * Returns a {@link Surface} that is wrapped in a {@link ListenableFuture}.
+     *
+     * @return Will return a {@link ListenableFuture} with an exception if the DeferrableSurface
+     * is already closed.
+     */
+    @NonNull
+    public final ListenableFuture<Surface> getSurface() {
+        synchronized (mLock) {
+            if (mClosed) {
+                return Futures.immediateFailedFuture(
+                        new SurfaceClosedException("DeferrableSurface already closed.", this));
+            }
+            return provideSurface();
+        }
+    }
+
+    /**
+     * Returns a {@link Surface} that is wrapped in a {@link ListenableFuture} when the
+     * DeferrableSurface has not yet been closed.
+     */
+    abstract ListenableFuture<Surface> provideSurface();
 
     /** Refreshes the {@link DeferrableSurface} before attach if needed. */
     public void refresh() {
@@ -97,6 +137,17 @@ public abstract class DeferrableSurface {
                 }
                 Log.d(TAG, "attach count+1, attachedCount=" + mAttachedCount + " " + this);
             }
+        }
+    }
+
+    /**
+     * Close the surface.
+     *
+     * <p>After closing, {@link #getSurface()} will return a {@link SurfaceClosedException}.
+     */
+    public final void close() {
+        synchronized (mLock) {
+            mClosed = true;
         }
     }
 

@@ -177,30 +177,30 @@ public final class ProcessingSurfaceTextureTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getSurfaceTextureThrowsExceptionWhenClosed() {
+    public void getSurfaceTextureThrowsExceptionWhenReleased() {
         ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
 
-        processingSurfaceTexture.close();
+        processingSurfaceTexture.release();
 
         // Exception should be thrown here
         processingSurfaceTexture.getSurfaceTexture();
     }
 
     @Test(expected = IllegalStateException.class)
-    public void resetSurfaceTextureThrowsExceptionWhenClosed() {
+    public void resetSurfaceTextureThrowsExceptionWhenReleased() {
         ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
 
-        processingSurfaceTexture.close();
+        processingSurfaceTexture.release();
 
         // Exception should be thrown here
         processingSurfaceTexture.resetSurfaceTexture();
     }
 
     @Test(expected = IllegalStateException.class)
-    public void getCameraCaptureCallbackThrowsExceptionWhenClosed() {
+    public void getCameraCaptureCallbackThrowsExceptionWhenReleased() {
         ProcessingSurfaceTexture processingSurfaceTexture = createProcessingSurfaceTexture();
 
-        processingSurfaceTexture.close();
+        processingSurfaceTexture.release();
 
         // Exception should be thrown here
         processingSurfaceTexture.getCameraCaptureCallback();
