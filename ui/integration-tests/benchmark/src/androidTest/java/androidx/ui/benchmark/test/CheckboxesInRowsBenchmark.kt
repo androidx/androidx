@@ -42,7 +42,7 @@ class CheckboxesInRowsBenchmark(private val numberOfCheckboxes: Int) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
+        @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> = arrayOf(1, 10)
     }
 
@@ -59,45 +59,37 @@ class CheckboxesInRowsBenchmark(private val numberOfCheckboxes: Int) {
 
     @Test
     fun toggleCheckbox_recompose() {
-        val testCase = CheckboxesInRowsTestCase(activity, numberOfCheckboxes)
-        benchmarkRule.toggleStateMeasureRecompose(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureRecompose(activity,
+            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
     }
 
     @Test
     fun toggleCheckbox_measure() {
-        val testCase = CheckboxesInRowsTestCase(activity, numberOfCheckboxes)
-        benchmarkRule.toggleStateMeasureMeasure(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureMeasure(activity,
+            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
     }
 
     @Test
     fun toggleCheckbox_layout() {
-        val testCase = CheckboxesInRowsTestCase(activity, numberOfCheckboxes)
-        benchmarkRule.toggleStateMeasureLayout(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureLayout(activity,
+            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
     }
 
     @Test
     fun toggleCheckbox_draw() {
-        val testCase = CheckboxesInRowsTestCase(activity, numberOfCheckboxes)
-        benchmarkRule.toggleStateMeasureDraw(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureDraw(activity,
+            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
     }
 
     @Test
     fun layout() {
-        val testCase = CheckboxesInRowsTestCase(activity, numberOfCheckboxes)
-        benchmarkRule.measureLayoutPerf(activity, testCase)
+        benchmarkRule.measureLayoutPerf(activity,
+            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
     }
 
     @Test
     fun draw() {
-        val testCase = CheckboxesInRowsTestCase(activity, numberOfCheckboxes)
-        benchmarkRule.measureDrawPerf(activity, testCase)
+        benchmarkRule.measureDrawPerf(activity,
+            CheckboxesInRowsTestCase(activity, numberOfCheckboxes))
     }
 }

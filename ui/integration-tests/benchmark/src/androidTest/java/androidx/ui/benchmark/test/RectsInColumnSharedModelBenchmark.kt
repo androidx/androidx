@@ -42,7 +42,7 @@ class RectsInColumnSharedModelBenchmark(private val numberOfRectangles: Int) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
+        @Parameterized.Parameters(name = "{0}")
         fun initParameters(): Array<Any> = arrayOf(1, 10)
     }
 
@@ -59,45 +59,37 @@ class RectsInColumnSharedModelBenchmark(private val numberOfRectangles: Int) {
 
     @Test
     fun toggleRectangleColor_recompose() {
-        val testCase = RectsInColumnSharedModelTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureRecompose(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureRecompose(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun toggleRectangleColor_measure() {
-        val testCase = RectsInColumnSharedModelTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureMeasure(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureMeasure(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun toggleRectangleColor_layout() {
-        val testCase = RectsInColumnSharedModelTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureLayout(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureLayout(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun toggleRectangleColor_draw() {
-        val testCase = RectsInColumnSharedModelTestCase(activity, numberOfRectangles)
-        benchmarkRule.toggleStateMeasureDraw(activity, testCase) {
-            testCase.toggleState()
-        }
+        benchmarkRule.toggleStateMeasureDraw(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun layout() {
-        val testCase = RectsInColumnSharedModelTestCase(activity, numberOfRectangles)
-        benchmarkRule.measureLayoutPerf(activity, testCase)
+        benchmarkRule.measureLayoutPerf(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
     }
 
     @Test
     fun draw() {
-        val testCase = RectsInColumnSharedModelTestCase(activity, numberOfRectangles)
-        benchmarkRule.measureDrawPerf(activity, testCase)
+        benchmarkRule.measureDrawPerf(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
     }
 }
