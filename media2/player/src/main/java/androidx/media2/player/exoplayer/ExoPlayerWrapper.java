@@ -18,7 +18,6 @@ package androidx.media2.player.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.player.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
-import static androidx.media2.player.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -29,6 +28,7 @@ import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -37,6 +37,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.CallbackMediaItem;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.common.UriMediaItem;
 import androidx.media2.exoplayer.external.C;
@@ -127,7 +128,8 @@ import java.util.Map;
         void onVideoSizeChanged(MediaItem mediaItem, int width, int height);
 
         /** Called when subtitle data is handled. */
-        void onSubtitleData(MediaItem mediaItem, int trackIndex, SubtitleData subtitleData);
+        void onSubtitleData(@NonNull MediaItem mediaItem, @NonNull TrackInfo track,
+                @NonNull SubtitleData subtitleData);
 
         /** Called when timed metadata is handled. */
         void onTimedMetadata(MediaItem mediaItem, TimedMetaData timedMetaData);
@@ -394,20 +396,20 @@ import java.util.Map;
         return mPlayer.getVolume();
     }
 
-    public List<MediaPlayer2.TrackInfo> getTrackInfo() {
+    public List<TrackInfo> getTrackInfo() {
         return mTrackSelector.getTrackInfos();
     }
 
-    public int getSelectedTrack(int trackType) {
+    public TrackInfo getSelectedTrack(int trackType) {
         return mTrackSelector.getSelectedTrack(trackType);
     }
 
-    public void selectTrack(int index) {
-        mTrackSelector.selectTrack(index);
+    public void selectTrack(int trackId) {
+        mTrackSelector.selectTrack(trackId);
     }
 
-    public void deselectTrack(int index) {
-        mTrackSelector.deselectTrack(index);
+    public void deselectTrack(int trackId) {
+        mTrackSelector.deselectTrack(trackId);
     }
 
     @RequiresApi(21)
@@ -571,10 +573,11 @@ import java.util.Map;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void handlePlayerTracksChanged() {
-        mTrackSelector.handlePlayerTracksChanged(mPlayer);
+    void handlePlayerTracksChanged(TrackSelectionArray trackSelections) {
+        MediaItem currentMediaItem = getCurrentMediaItem();
+        mTrackSelector.handlePlayerTracksChanged(currentMediaItem, trackSelections);
         if (mTrackSelector.hasPendingMetadataUpdate()) {
-            mListener.onMetadataChanged(getCurrentMediaItem());
+            mListener.onMetadataChanged(currentMediaItem);
         }
     }
 
@@ -611,9 +614,9 @@ import java.util.Map;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleSubtitleData(byte[] data, long timeUs) {
-        int trackIndex = mTrackSelector.getSelectedTrack(MEDIA_TRACK_TYPE_SUBTITLE);
+        TrackInfo track = mTrackSelector.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
         final MediaItem currentMediaItem = getCurrentMediaItem();
-        mListener.onSubtitleData(currentMediaItem, trackIndex,
+        mListener.onSubtitleData(currentMediaItem, track,
                 new SubtitleData(timeUs, /* durationUs= */ 0L, data));
     }
 
@@ -711,7 +714,7 @@ import java.util.Map;
         @Override
         public void onTracksChanged(
                 TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            handlePlayerTracksChanged();
+            handlePlayerTracksChanged(trackSelections);
         }
 
         @Override

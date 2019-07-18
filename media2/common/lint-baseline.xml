@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.5.0-beta05" client="gradle" variant="debug" version="3.5.0-beta05">
 
     <issue
         id="KotlinPropertyAccess"
         message="This method should be called `getMediaItem` such that `mediaItem` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
-        errorLine1="    public abstract @Nullable MediaItem getCurrentMediaItem();"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public abstract MediaItem getCurrentMediaItem();"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="768"
-            column="41"/>
+            line="793"
+            column="31"/>
     </issue>
 
     <issue
@@ -19,7 +19,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="811"
+            line="839"
             column="13"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="            ~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="224"
+            line="226"
             column="13"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="224"
+            line="226"
             column="32"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="239"
+            line="241"
             column="49"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="330"
+            line="332"
             column="32"/>
     </issue>
 
@@ -81,33 +81,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="995"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {"
-        errorLine2="                                                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="995"
-            column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public static ListenableFuture&lt;PlayerResult> createFuture(int resultCode) {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="1488"
+            line="1451"
             column="23"/>
     </issue>
 

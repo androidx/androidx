@@ -205,23 +205,19 @@ public final class TestUtils {
 
     public static List<SessionPlayer.TrackInfo> createTrackInfoList() {
         List<SessionPlayer.TrackInfo> list = new ArrayList<>();
-        list.add(createTrackInfo(0, "test_0", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
-        list.add(createTrackInfo(1, "test_1", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
-        list.add(createTrackInfo(2, "test_2", SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        list.add(createTrackInfo(0, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
+        list.add(createTrackInfo(1, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+        list.add(createTrackInfo(2, SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
         return list;
     }
 
-    public static SessionPlayer.TrackInfo createTrackInfo(int index, String mediaId,
-            int trackType) {
-        MediaMetadata metadata = new MediaMetadata.Builder().putString(
-                MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId).build();
-        MediaItem mediaItem = new MediaItem.Builder().setMetadata(metadata).build();
+    public static SessionPlayer.TrackInfo createTrackInfo(int trackId, int trackType) {
         MediaFormat format = new MediaFormat();
         if (trackType == SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
             format.setString(MediaFormat.KEY_LANGUAGE, "eng");
             format.setString(MediaFormat.KEY_MIME, "text/cea-608");
         }
-        return new SessionPlayer.TrackInfo(index, mediaItem, trackType, format);
+        return new SessionPlayer.TrackInfo(trackId, trackType, format);
     }
 
     public static LibraryParams createLibraryParams() {

@@ -506,7 +506,7 @@ public final class MediaPlayer extends SessionPlayer {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final ResolvableFuture mFuture;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        final TrackInfo mTrackInfo;
+        final SessionPlayer.TrackInfo mTrackInfo;
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         PendingCommand(int callType, ResolvableFuture future) {
@@ -514,7 +514,7 @@ public final class MediaPlayer extends SessionPlayer {
         }
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        PendingCommand(int callType, ResolvableFuture future, TrackInfo trackInfo) {
+        PendingCommand(int callType, ResolvableFuture future, SessionPlayer.TrackInfo trackInfo) {
             mCallType = callType;
             mFuture = future;
             mTrackInfo = trackInfo;
@@ -693,7 +693,7 @@ public final class MediaPlayer extends SessionPlayer {
     @GuardedBy("mPendingCommands")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void addPendingCommandWithTrackInfoLocked(
-            int callType, final ResolvableFuture future, final TrackInfo trackInfo,
+            int callType, final ResolvableFuture future, final SessionPlayer.TrackInfo trackInfo,
             final Object token) {
         final PendingCommand pendingCommand = new PendingCommand(callType, future, trackInfo);
         mPendingCommands.add(pendingCommand);
@@ -2191,33 +2191,17 @@ public final class MediaPlayer extends SessionPlayer {
      */
     @NonNull
     public List<TrackInfo> getTrackInfo() {
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return Collections.emptyList();
-            }
-        }
-        List<MediaPlayer2.TrackInfo> info2s = mPlayer.getTrackInfo();
-        MediaItem item = mPlayer.getCurrentMediaItem();
+        List<SessionPlayer.TrackInfo> infoInternals = getTrackInfoInternal();
         List<TrackInfo> infos = new ArrayList<>();
-        for (int index = 0; index < info2s.size(); index++) {
-            MediaPlayer2.TrackInfo info2 = info2s.get(index);
-            infos.add(new TrackInfo(index, item, info2.getTrackType(), info2.getFormat()));
+        for (SessionPlayer.TrackInfo infoInternal : infoInternals) {
+            infos.add(new TrackInfo(infoInternal));
         }
         return infos;
     }
 
-    @NonNull
-    TrackInfo getTrackInfo(int index) {
-        List<MediaPlayer2.TrackInfo> info2s = mPlayer.getTrackInfo();
-        MediaPlayer2.TrackInfo info2 = info2s.get(index);
-        MediaItem item = mPlayer.getCurrentMediaItem();
-        return new TrackInfo(index, item, info2.getTrackType(), info2.getFormat());
-    }
-
     /**
-     * Returns the audio or video track currently selected for playback.
-     * The return value is an element in the list returned by {@link #getTrackInfo()}, and can
-     * be used in calls to {@link #selectTrack(TrackInfo)}.
+     * Returns metadata of the audio or video track currently selected for playback.
+     * The return value is an element in the list returned by {@link #getTrackInfo()}.
      *
      * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO} or
      * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}
@@ -2227,18 +2211,12 @@ public final class MediaPlayer extends SessionPlayer {
      * @throws IllegalStateException if called after {@link #close()}
      *
      * @see #getTrackInfo()
-     * @see #selectTrack(TrackInfo)
      */
     // TODO: revise the method document once subtitle track support is re-enabled. (b/130312596)
     @Nullable
     public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return null;
-            }
-        }
-        final int ret = mPlayer.getSelectedTrack(trackType);
-        return ret < 0 ? null : getTrackInfo(ret);
+        SessionPlayer.TrackInfo infoInternal = getSelectedTrackInternal(trackType);
+        return infoInternal == null ? null : new TrackInfo(infoInternal);
     }
 
     /**
@@ -2263,44 +2241,19 @@ public final class MediaPlayer extends SessionPlayer {
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTrackInfo()}.
-     * <p>
-     * On success, a {@link SessionPlayer.PlayerResult} is returned with
-     * the current media item when the command completed.
+     * Note that the {@link TrackInfo}s may become invalid
+     * when {@link PlayerCallback#onInfo(MediaPlayer, MediaItem, int, int)} is called with
+     * {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link SessionPlayer.PlayerResult} will be delivered when the command
-     * completed.
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      */
     // TODO: support subtitle track selection  (b/130312596)
+    // TODO: revise doc when onTrackInfoChanged is becoming public (b/132928418)
     @NonNull
     public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
-        if (trackInfo == null) {
-            throw new NullPointerException("trackInfo shouldn't be null");
-        }
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return createFutureForClosed();
-            }
-        }
-        final int trackId = trackInfo.getId();
-        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
-            @Override
-            List<ResolvableFuture<PlayerResult>> onExecute() {
-                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
-                ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
-                synchronized (mPendingCommands) {
-                    // TODO (b/131873726): trackId may be invalid
-                    Object token = mPlayer.selectTrack(trackId);
-                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
-                            future, trackInfo, token);
-                }
-                futures.add(future);
-                return futures;
-            }
-        };
-        addPendingFuture(pendingFuture);
-        return pendingFuture;
+        return selectTrackInternal(trackInfo.toInternal());
     }
 
     /**
@@ -2311,46 +2264,21 @@ public final class MediaPlayer extends SessionPlayer {
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
      * object can be obtained from {@link #getTrackInfo()}.
-     * <p>
-     * On success, a {@link SessionPlayer.PlayerResult} is returned with
-     * the current media item when the command completed.
+     * Note that the {@link TrackInfo}s may become invalid
+     * when {@link PlayerCallback#onInfo(MediaPlayer, MediaItem, int, int)} is called with
+     * {@link #MEDIA_INFO_METADATA_UPDATE}.
      *
      * @see #getTrackInfo
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
-     * {@link SessionPlayer.PlayerResult} will be delivered when the command
-     * completed.
+     * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      *
      * @hide  TODO: unhide this when we support subtitle track selection (b/130312596)
      */
+    // TODO: revise doc when onTrackInfoChanged is becoming public (b/132928418)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
-        if (trackInfo == null) {
-            throw new NullPointerException("trackInfo shouldn't be null");
-        }
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return createFutureForClosed();
-            }
-        }
-        final int trackId = trackInfo.getId();
-        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
-            @Override
-            List<ResolvableFuture<PlayerResult>> onExecute() {
-                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
-                ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
-                synchronized (mPendingCommands) {
-                    // TODO (b/131873726): trackId may be invalid
-                    Object token = mPlayer.deselectTrack(trackId);
-                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
-                            future, trackInfo, token);
-                }
-                futures.add(future);
-                return futures;
-            }
-        };
-        addPendingFuture(pendingFuture);
-        return pendingFuture;
+        return deselectTrackInternal(trackInfo.toInternal());
     }
 
     /**
@@ -2361,12 +2289,12 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public List<SessionPlayer.TrackInfo> getTrackInfoInternal() {
-        List<TrackInfo> list = getTrackInfo();
-        List<SessionPlayer.TrackInfo> trackList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            trackList.add(createTrackInfoInternal(list.get(i)));
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return Collections.emptyList();
+            }
         }
-        return trackList;
+        return mPlayer.getTrackInfo();
     }
 
     /**
@@ -2377,8 +2305,31 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> selectTrackInternal(
-            @NonNull SessionPlayer.TrackInfo info) {
-        return selectTrack(createTrackInfo(info));
+            @NonNull SessionPlayer.TrackInfo trackInfoInternal) {
+        if (trackInfoInternal == null) {
+            throw new NullPointerException("trackInfo shouldn't be null");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
+        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
+            @Override
+            List<ResolvableFuture<PlayerResult>> onExecute() {
+                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
+                ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
+                synchronized (mPendingCommands) {
+                    Object token = mPlayer.selectTrack(trackInfoInternal.getId());
+                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
+                            future, trackInfoInternal, token);
+                }
+                futures.add(future);
+                return futures;
+            }
+        };
+        addPendingFuture(pendingFuture);
+        return pendingFuture;
     }
 
     /**
@@ -2389,8 +2340,31 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @NonNull
     public ListenableFuture<PlayerResult> deselectTrackInternal(
-            @NonNull SessionPlayer.TrackInfo info) {
-        return deselectTrack(createTrackInfo(info));
+            @NonNull SessionPlayer.TrackInfo trackInfoInternal) {
+        if (trackInfoInternal == null) {
+            throw new NullPointerException("trackInfo shouldn't be null");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
+        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
+            @Override
+            List<ResolvableFuture<PlayerResult>> onExecute() {
+                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
+                ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
+                synchronized (mPendingCommands) {
+                    Object token = mPlayer.deselectTrack(trackInfoInternal.getId());
+                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
+                            future, trackInfoInternal, token);
+                }
+                futures.add(future);
+                return futures;
+            }
+        };
+        addPendingFuture(pendingFuture);
+        return pendingFuture;
     }
 
     /**
@@ -2401,7 +2375,12 @@ public final class MediaPlayer extends SessionPlayer {
     @Override
     @Nullable
     public SessionPlayer.TrackInfo getSelectedTrackInternal(int trackType) {
-        return createTrackInfoInternal(getSelectedTrack(trackType));
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
+        return mPlayer.getSelectedTrack(trackType);
     }
 
     /**
@@ -2942,7 +2921,6 @@ public final class MediaPlayer extends SessionPlayer {
             return;
         }
 
-        final TrackInfo trackInfo = expected.mTrackInfo;
         if (what != expected.mCallType) {
             Log.w(TAG, "Call type does not match. expected:" + expected.mCallType
                     + " actual:" + what);
@@ -3001,8 +2979,7 @@ public final class MediaPlayer extends SessionPlayer {
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(SessionPlayer.PlayerCallback callback) {
-                            callback.onTrackSelected(MediaPlayer.this,
-                                    createTrackInfoInternal(trackInfo));
+                            callback.onTrackSelected(MediaPlayer.this, expected.mTrackInfo);
                         }
                     });
                     break;
@@ -3010,8 +2987,7 @@ public final class MediaPlayer extends SessionPlayer {
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(SessionPlayer.PlayerCallback callback) {
-                            callback.onTrackDeselected(MediaPlayer.this,
-                                    createTrackInfoInternal(trackInfo));
+                            callback.onTrackDeselected(MediaPlayer.this, expected.mTrackInfo);
                         }
                     });
                     break;
@@ -3049,22 +3025,6 @@ public final class MediaPlayer extends SessionPlayer {
                 f.execute();
             }
         }
-    }
-
-    SessionPlayer.TrackInfo createTrackInfoInternal(TrackInfo info) {
-        if (info == null) {
-            return null;
-        }
-        return new SessionPlayer.TrackInfo(info.getId(), info.getMediaItem(), info.getTrackType(),
-                info.getFormat());
-    }
-
-    private TrackInfo createTrackInfo(SessionPlayer.TrackInfo info) {
-        if (info == null) {
-            return null;
-        }
-        return new TrackInfo(info.getId(), info.getMediaItem(), info.getTrackType(),
-                info.getFormat());
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -3203,11 +3163,10 @@ public final class MediaPlayer extends SessionPlayer {
 
         @Override
         public void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull final MediaItem item,
-                final int trackIdx, @NonNull final SubtitleData data) {
+                @NonNull final SessionPlayer.TrackInfo track, @NonNull final SubtitleData data) {
             notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(SessionPlayer.PlayerCallback callback) {
-                    SessionPlayer.TrackInfo track = createTrackInfoInternal(getTrackInfo(trackIdx));
                     callback.onSubtitleData(MediaPlayer.this, item, track, data);
                 }
             });
@@ -3333,6 +3292,7 @@ public final class MediaPlayer extends SessionPlayer {
      *
      * @see #getTrackInfo
      */
+    // TODO: Merge it into SessionPlayer.TrackInfo (b/132928418)
     public static final class TrackInfo {
         public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
         public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
@@ -3355,8 +3315,8 @@ public final class MediaPlayer extends SessionPlayer {
         public @interface MediaTrackType {}
 
         private final int mId;
-        private final MediaItem mItem;
         private final int mTrackType;
+        @Nullable
         private final MediaFormat mFormat;
 
         /**
@@ -3392,21 +3352,16 @@ public final class MediaPlayer extends SessionPlayer {
             return null;
         }
 
-        int getId() {
-            return mId;
-        }
-
-        MediaItem getMediaItem() {
-            return mItem;
-        }
-
         /** @hide */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public TrackInfo(int id, MediaItem item, int type, MediaFormat format) {
+        public TrackInfo(int id, int type, @Nullable MediaFormat format) {
             mId = id;
-            mItem = item;
             mTrackType = type;
             mFormat = format;
+        }
+
+        TrackInfo(SessionPlayer.TrackInfo infoInternal) {
+            this(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat());
         }
 
         @Override
@@ -3425,6 +3380,9 @@ public final class MediaPlayer extends SessionPlayer {
                 case MEDIA_TRACK_TYPE_SUBTITLE:
                     out.append("SUBTITLE");
                     break;
+                case MEDIA_TRACK_TYPE_METADATA:
+                    out.append("METADATA");
+                    break;
                 default:
                     out.append("UNKNOWN");
                     break;
@@ -3436,19 +3394,7 @@ public final class MediaPlayer extends SessionPlayer {
 
         @Override
         public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + mId;
-            int hashCode = 0;
-            if (mItem != null) {
-                if (mItem.getMediaId() != null) {
-                    hashCode = mItem.getMediaId().hashCode();
-                } else {
-                    hashCode = mItem.hashCode();
-                }
-            }
-            result = prime * result + hashCode;
-            return result;
+            return mId;
         }
 
         @Override
@@ -3456,27 +3402,15 @@ public final class MediaPlayer extends SessionPlayer {
             if (this == obj) {
                 return true;
             }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
+            if (!(obj instanceof TrackInfo)) {
                 return false;
             }
             TrackInfo other = (TrackInfo) obj;
-            if (mId != other.mId) {
-                return false;
-            }
-            if (mItem == null && other.mItem == null) {
-                return true;
-            } else if (mItem == null || other.mItem == null) {
-                return false;
-            } else {
-                String mediaId = mItem.getMediaId();
-                if (mediaId != null) {
-                    return mediaId.equals(other.mItem.getMediaId());
-                }
-                return mItem.equals(other.mItem);
-            }
+            return mId == other.mId;
+        }
+
+        SessionPlayer.TrackInfo toInternal() {
+            return new SessionPlayer.TrackInfo(mId, mTrackType, mFormat);
         }
     }
 
