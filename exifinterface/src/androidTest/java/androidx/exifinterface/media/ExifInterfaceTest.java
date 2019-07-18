@@ -31,6 +31,7 @@ import android.graphics.Bitmap;
 import android.location.Location;
 import android.os.Build;
 import android.os.Environment;
+import android.os.StrictMode;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
@@ -72,6 +73,7 @@ public class ExifInterfaceTest {
     private static final String TAG = ExifInterface.class.getSimpleName();
     private static final boolean VERBOSE = false;  // lots of logging
     private static final double DIFFERENCE_TOLERANCE = .001;
+    private static final boolean ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO = true;
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule =
@@ -341,6 +343,13 @@ public class ExifInterfaceTest {
 
     @Before
     public void setUp() throws Exception {
+        if (ENABLE_STRICT_MODE_FOR_UNBUFFERED_IO && Build.VERSION.SDK_INT >= 26) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectUnbufferedIo()
+                    .penaltyDeath()
+                    .build());
+        }
+
         for (int i = 0; i < IMAGE_RESOURCES.length; ++i) {
             String outputPath =
                     new File(Environment.getExternalStorageDirectory(), IMAGE_FILENAMES[i])
@@ -908,6 +917,7 @@ public class ExifInterfaceTest {
         ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         exifInterface.saveAttributes();
         exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag, false);
 
         // Test for modifying one attribute.
