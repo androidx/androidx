@@ -179,9 +179,31 @@ package androidx.ui.layout {
     method public void tableRow(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public abstract sealed class TableColumnWidth {
+  }
+
+  public static final class TableColumnWidth.Fixed extends androidx.ui.layout.TableColumnWidth {
+    ctor public TableColumnWidth.Fixed(internal androidx.ui.core.Dp width);
+    method public androidx.ui.layout.TableColumnWidth.Fixed copy(androidx.ui.core.Dp width);
+  }
+
+  public static final class TableColumnWidth.Flex extends androidx.ui.layout.TableColumnWidth {
+    ctor public TableColumnWidth.Flex(internal float flex);
+    method public androidx.ui.layout.TableColumnWidth.Flex copy(float flex);
+  }
+
+  public static final class TableColumnWidth.Fraction extends androidx.ui.layout.TableColumnWidth {
+    ctor public TableColumnWidth.Fraction(@FloatRange(from=null, to=null) internal float fraction);
+    method public androidx.ui.layout.TableColumnWidth.Fraction copy(float fraction);
+  }
+
+  public static final class TableColumnWidth.Wrap extends androidx.ui.layout.TableColumnWidth {
+    field public static final androidx.ui.layout.TableColumnWidth.Wrap! INSTANCE;
+  }
+
   public final class TableKt {
     ctor public TableKt();
-    method public static void Table(androidx.ui.layout.Alignment childAlignment = Alignment.TopLeft, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> block);
+    method public static void Table(androidx.ui.layout.Alignment childAlignment = Alignment.TopLeft, kotlin.jvm.functions.Function1<? super java.lang.Integer,? extends androidx.ui.layout.TableColumnWidth> columnWidth = { TableColumnWidth.<init>(1.0) }, kotlin.jvm.functions.Function1<? super androidx.ui.layout.TableChildren,kotlin.Unit> block);
   }
 
   public final class WrapKt {
