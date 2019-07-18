@@ -98,7 +98,8 @@ public class BiometricFragment extends Fragment {
                                         + errorCode;
                             }
                             mClientAuthenticationCallback
-                                    .onAuthenticationError(errorCode, error);
+                                    .onAuthenticationError(Utils.isUnknownError(errorCode)
+                                            ? BiometricPrompt.ERROR_VENDOR : errorCode, error);
                         }
                     });
                     cleanup();
