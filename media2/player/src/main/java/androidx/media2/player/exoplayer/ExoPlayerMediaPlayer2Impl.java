@@ -38,6 +38,7 @@ import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.SubtitleData;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.player.MediaPlayer2;
@@ -485,6 +486,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    @NonNull
     public List<TrackInfo> getTrackInfo() {
         return runPlayerCallableBlocking(new Callable<List<TrackInfo>>() {
             @Override
@@ -493,32 +495,36 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             }
         });
     }
+
     @Override
-    public int getSelectedTrack(final int trackType) {
-        return runPlayerCallableBlocking(new Callable<Integer>() {
+    @Nullable
+    public TrackInfo getSelectedTrack(final int trackType) {
+        return runPlayerCallableBlocking(new Callable<TrackInfo>() {
             @Override
-            public Integer call() {
+            public TrackInfo call() {
                 return mPlayer.getSelectedTrack(trackType);
             }
         });
     }
 
     @Override
-    public Object selectTrack(final int index) {
+    @NonNull
+    public Object selectTrack(final int trackId) {
         return addTask(new Task(CALL_COMPLETED_SELECT_TRACK, false) {
             @Override
             void process() {
-                mPlayer.selectTrack(index);
+                mPlayer.selectTrack(trackId);
             }
         });
     }
 
     @Override
-    public Object deselectTrack(final int index) {
+    @NonNull
+    public Object deselectTrack(final int trackId) {
         return addTask(new Task(CALL_COMPLETED_DESELECT_TRACK, false) {
             @Override
             void process() {
-                mPlayer.deselectTrack(index);
+                mPlayer.deselectTrack(trackId);
             }
         });
     }
@@ -718,13 +724,13 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void onSubtitleData(final MediaItem mediaItem, final int trackIndex,
-            final SubtitleData subtitleData) {
+    public void onSubtitleData(@NonNull final MediaItem mediaItem, @NonNull final TrackInfo track,
+            @NonNull final SubtitleData subtitleData) {
         notifyMediaPlayer2Event(new Mp2EventNotifier() {
             @Override
             public void notify(EventCallback cb) {
                 cb.onSubtitleData(
-                        ExoPlayerMediaPlayer2Impl.this, mediaItem, trackIndex, subtitleData);
+                        ExoPlayerMediaPlayer2Impl.this, mediaItem, track, subtitleData);
             }
         });
     }

@@ -907,7 +907,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnTrackSelected() throws InterruptedException {
         prepareLooper();
-        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1, "test",
+        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
                 SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -929,7 +929,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @Test
     public void testOnTrackDeselected() throws InterruptedException {
         prepareLooper();
-        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1, "test",
+        final SessionPlayer.TrackInfo testTrack = MediaTestUtils.createTrackInfo(1,
                 SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
 
         final CountDownLatch latch = new CountDownLatch(1);
@@ -958,8 +958,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         MediaMetadata metadata = new MediaMetadata.Builder()
                 .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, "onSubtitleData").build();
         final MediaItem testItem = new MediaItem.Builder().setMetadata(metadata).build();
-        final TrackInfo testTrack = new TrackInfo(1, testItem, TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE,
-                format);
+        final TrackInfo testTrack = new TrackInfo(1, TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, format);
         final SubtitleData testData = new SubtitleData(123, 456,
                 new byte[] { 7, 8, 9, 0, 1, 2, 3, 4, 5, 6 });
 

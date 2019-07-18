@@ -163,7 +163,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertTrue(pos >= 0);
         assertTrue(pos < mp3Duration - seekDuration);
 
-        future = mPlayer.seekTo(pos + seekDuration, MediaPlayer2.SEEK_PREVIOUS_SYNC);
+        future = mPlayer.seekTo(pos + seekDuration, MediaPlayer.SEEK_PREVIOUS_SYNC);
         assertEquals(RESULT_SUCCESS, future.get().getResultCode());
         assertEquals(pos + seekDuration, mPlayer.getCurrentPosition(), tolerance);
 
@@ -254,25 +254,25 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 }
 
                 // we played something; so one of these should be non-null
-                String vmime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO,
+                String vmime = metrics.getString(MediaPlayer.MetricsConstants.MIME_TYPE_VIDEO,
                         null);
-                String amime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO,
+                String amime = metrics.getString(MediaPlayer.MetricsConstants.MIME_TYPE_AUDIO,
                         null);
                 if (vmime == null && amime == null) {
                     fail("getMetrics() returned neither video nor audio mime value");
                 }
 
-                long duration = metrics.getLong(MediaPlayer2.MetricsConstants.DURATION, -2);
+                long duration = metrics.getLong(MediaPlayer.MetricsConstants.DURATION, -2);
                 if (duration == -2) {
                     fail("getMetrics() didn't return a duration");
                 }
-                long playing = metrics.getLong(MediaPlayer2.MetricsConstants.PLAYING, -2);
+                long playing = metrics.getLong(MediaPlayer.MetricsConstants.PLAYING, -2);
                 if (playing == -2) {
                     fail("getMetrics() didn't return a playing time");
                 }
-                if (!keys.contains(MediaPlayer2.MetricsConstants.PLAYING)) {
+                if (!keys.contains(MediaPlayer.MetricsConstants.PLAYING)) {
                     fail("MediaMetricsSet.keys() missing: "
-                            + MediaPlayer2.MetricsConstants.PLAYING);
+                            + MediaPlayer.MetricsConstants.PLAYING);
                 }
             }
         }
@@ -390,23 +390,23 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         float[] rates = { 0.25f, 0.5f, 1.0f, 2.0f };
         for (float playbackRate : rates) {
-            mPlayer.seekTo(0, MediaPlayer2.SEEK_PREVIOUS_SYNC);
+            mPlayer.seekTo(0, MediaPlayer.SEEK_PREVIOUS_SYNC);
             Thread.sleep(1000);
             int playTime = 4000;  // The testing clip is about 10 second long.
             int privState = mPlayer.getPlayerState();
 
             future = mPlayer.setPlaybackParams(
                     new PlaybackParams.Builder().setSpeed(playbackRate).build());
-            assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+            assertEquals(RESULT_SUCCESS, future.get().getResultCode());
             assertTrue("setPlaybackParams() should not change player state. "
                             + mPlayer.getPlayerState(), mPlayer.getPlayerState() == privState);
 
             future = mPlayer.play();
-            assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+            assertEquals(RESULT_SUCCESS, future.get().getResultCode());
             Thread.sleep(playTime);
 
             PlaybackParams pbp = mPlayer.getPlaybackParams();
@@ -421,7 +421,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                         + ", play time is " + playTime + " vs expected " + playedMediaDurationMs);
             }
             future = mPlayer.pause();
-            assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+            assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
             pbp = mPlayer.getPlaybackParams();
             assertEquals("pause() should not change the playback rate property.",
@@ -443,7 +443,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         mPlayer.play();
 
@@ -454,26 +454,26 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         // TODO: tighten checking range. For now, ensure mediaplayer doesn't
         // seek to previous sync or next sync.
-        long cp = runSeekMode(MediaPlayer2.SEEK_CLOSEST, seekPosMs);
-        assertTrue("MediaPlayer2 did not seek to closest position",
+        long cp = runSeekMode(MediaPlayer.SEEK_CLOSEST, seekPosMs);
+        assertTrue("MediaPlayer did not seek to closest position",
                 cp > seekPosMs && cp < syncTime2Ms);
 
         // TODO: tighten checking range. For now, ensure mediaplayer doesn't
         // seek to closest position or next sync.
-        cp = runSeekMode(MediaPlayer2.SEEK_PREVIOUS_SYNC, seekPosMs);
-        assertTrue("MediaPlayer2 did not seek to preivous sync position",
+        cp = runSeekMode(MediaPlayer.SEEK_PREVIOUS_SYNC, seekPosMs);
+        assertTrue("MediaPlayer did not seek to preivous sync position",
                 cp < seekPosMs - timeToleranceMs);
 
         // TODO: tighten checking range. For now, ensure mediaplayer doesn't
         // seek to closest position or previous sync.
-        cp = runSeekMode(MediaPlayer2.SEEK_NEXT_SYNC, seekPosMs);
-        assertTrue("MediaPlayer2 did not seek to next sync position",
+        cp = runSeekMode(MediaPlayer.SEEK_NEXT_SYNC, seekPosMs);
+        assertTrue("MediaPlayer did not seek to next sync position",
                 cp > syncTime2Ms - timeToleranceMs);
 
         // TODO: tighten checking range. For now, ensure mediaplayer doesn't
         // seek to closest position or previous sync.
-        cp = runSeekMode(MediaPlayer2.SEEK_CLOSEST_SYNC, seekPosMs);
-        assertTrue("MediaPlayer2 did not seek to closest sync position",
+        cp = runSeekMode(MediaPlayer.SEEK_CLOSEST_SYNC, seekPosMs);
+        assertTrue("MediaPlayer did not seek to closest sync position",
                 cp > syncTime2Ms - timeToleranceMs);
 
         mPlayer.reset();
@@ -485,12 +485,12 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int timeToleranceMs = 100;
 
         ListenableFuture<PlayerResult> future = mPlayer.seekTo(seekPosMs, seekMode);
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         long cp = -seekPosMs;
         while (timeRemainedMs > 0) {
             cp = mPlayer.getCurrentPosition();
-            // Wait till MediaPlayer2 starts rendering since MediaPlayer2 caches
+            // Wait till MediaPlayer starts rendering since MediaPlayer caches
             // seek position as current position.
             if (cp < seekPosMs - timeToleranceMs || cp > seekPosMs + timeToleranceMs) {
                 break;
@@ -498,7 +498,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             timeRemainedMs -= sleepIntervalMs;
             Thread.sleep(sleepIntervalMs);
         }
-        assertTrue("MediaPlayer2 did not finish seeking in time for mode " + seekMode,
+        assertTrue("MediaPlayer did not finish seeking in time for mode " + seekMode,
                 timeRemainedMs > 0);
         return cp;
     }
@@ -516,7 +516,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         mPlayer.play();
         mPlayer.setPlaybackParams(new PlaybackParams.Builder().setSpeed(playbackRate).build());
@@ -525,20 +525,20 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaTimestamp ts1 = mPlayer.getTimestamp();
         long nt2 = System.nanoTime();
         assertTrue("Media player should return a valid time stamp", ts1 != null);
-        assertEquals("MediaPlayer2 had error in clockRate " + ts1.getMediaClockRate(),
+        assertEquals("MediaPlayer had error in clockRate " + ts1.getMediaClockRate(),
                 playbackRate, ts1.getMediaClockRate(), 0.001f);
         assertTrue("The nanoTime of Media timestamp should be taken when getTimestamp is called.",
                 nt1 <= ts1.getAnchorSystemNanoTime() && ts1.getAnchorSystemNanoTime() <= nt2);
 
         future = mPlayer.pause();
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         ts1 = mPlayer.getTimestamp();
         assertTrue("Media player should return a valid time stamp", ts1 != null);
         assertTrue("Media player should have play rate of 0.0f when paused",
                 ts1.getMediaClockRate() == 0.0f);
 
-        mPlayer.seekTo(0, MediaPlayer2.SEEK_PREVIOUS_SYNC);
+        mPlayer.seekTo(0, MediaPlayer.SEEK_PREVIOUS_SYNC);
         mPlayer.play();
         Thread.sleep(SLEEP_TIME);  // let player get into stable state.
         int playTime = 4000;  // The testing clip is about 10 second long.
@@ -549,7 +549,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertTrue("Media player should return a valid time stamp", ts2 != null);
         assertTrue("The clockRate should not be changed.",
                 ts1.getMediaClockRate() == ts2.getMediaClockRate());
-        assertEquals("MediaPlayer2 had error in timestamp.",
+        assertEquals("MediaPlayer had error in timestamp.",
                 ts1.getAnchorMediaTimeUs() + (long) (playTime * ts1.getMediaClockRate() * 1000),
                 ts2.getAnchorMediaTimeUs(), toleranceUs);
 
@@ -701,20 +701,17 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mOnInfoCalled.waitForSignal(1500);
 
         readTracks();
-        assertEquals(mSelectedTrack,
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        assertEquals(mSelectedTrack, mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
 
         // Waits until at least two captions are fired. Timeout is 2.5 sec.
         assertEquals(RESULT_SUCCESS, selectSubtitleTrack(0));
         assertTrue(mOnSubtitleDataCalled.waitForCountedSignals(2, 2500) >= 2);
-        assertEquals(mSelectedTrack,
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        assertEquals(mSelectedTrack, mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
 
         mOnSubtitleDataCalled.reset();
         assertEquals(RESULT_SUCCESS, selectSubtitleTrack(1));
         assertTrue(mOnSubtitleDataCalled.waitForCountedSignals(2, 2500) >= 2);
-        assertEquals(mSelectedTrack,
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+        assertEquals(mSelectedTrack, mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
 
         mPlayer.reset();
     }
@@ -787,10 +784,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         // Test getSelectedTrack
         assertEquals(mVideoTrackInfos.get(0),
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
+                mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_VIDEO));
         assertEquals(mAudioTrackInfos.get(0),
-                mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
-        assertNull(mPlayer.getSelectedTrack(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
+                mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO));
+        assertNull(mPlayer.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE));
         mPlayer.reset();
     }
 
@@ -883,7 +880,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         // Test seek. Note: the seek position is cached and returned as the
         // current position so there's no point in comparing them.
-        mPlayer.seekTo(duration - SLEEP_TIME, MediaPlayer2.SEEK_PREVIOUS_SYNC);
+        mPlayer.seekTo(duration - SLEEP_TIME, MediaPlayer.SEEK_PREVIOUS_SYNC);
         while (mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING) {
             Thread.sleep(SLEEP_TIME);
         }
@@ -1089,21 +1086,21 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
 
         future = mPlayer.prepare();
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
         assertEquals(MediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
 
         future = mPlayer.play();
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
         assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         future = mPlayer.pause();
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
@@ -1167,7 +1164,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
         } while (bufferingState.get() != MediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED);
 
-        assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         do {
             assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
