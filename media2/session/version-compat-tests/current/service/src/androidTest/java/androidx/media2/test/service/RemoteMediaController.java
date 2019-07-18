@@ -202,6 +202,14 @@ public class RemoteMediaController {
         }
     }
 
+    public void movePlaylistItem(int fromIdx, int toIdx) {
+        try {
+            mBinder.movePlaylistItem(mControllerId, fromIdx, toIdx);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call movePlaylistItem()");
+        }
+    }
+
     public void skipToPreviousItem() {
         try {
             mBinder.skipToPreviousItem(mControllerId);

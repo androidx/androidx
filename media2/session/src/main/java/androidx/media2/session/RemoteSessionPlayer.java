@@ -120,7 +120,8 @@ public abstract class RemoteSessionPlayer extends SessionPlayer {
      * @see #VOLUME_CONTROL_RELATIVE
      * @see #VOLUME_CONTROL_ABSOLUTE
      */
-    public abstract @VolumeControlType int getVolumeControlType();
+    @VolumeControlType
+    public abstract int getVolumeControlType();
 
     /**
      * A callback class to receive notifications for events on the remote session player. See

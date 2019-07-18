@@ -774,6 +774,19 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     }
 
     @Override
+    public ListenableFuture<PlayerResult> movePlaylistItem(final int fromIndex, final int toIndex) {
+        if (fromIndex < 0 || toIndex < 0) {
+            throw new IllegalArgumentException("indices shouldn't be negative");
+        }
+        return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
+            @Override
+            public ListenableFuture<PlayerResult> run(SessionPlayer player) throws Exception {
+                return player.movePlaylistItem(fromIndex, toIndex);
+            }
+        });
+    }
+
+    @Override
     public MediaItem getCurrentMediaItem() {
         return dispatchPlayerTask(new PlayerTask<MediaItem>() {
             @Override

@@ -75,6 +75,7 @@ package androidx.media2.session {
     method public android.app.PendingIntent? getSessionActivity();
     method @androidx.media2.common.SessionPlayer.ShuffleMode public int getShuffleMode();
     method public boolean isConnected();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> movePlaylistItem(@IntRange(from=0) int, @IntRange(from=0) int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> pause();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> play();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> prepare();
@@ -308,6 +309,7 @@ package androidx.media2.session {
     field public static final int COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM = 10016; // 0x2720
     field public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST = 10005; // 0x2715
     field public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA = 10012; // 0x271c
+    field public static final int COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM = 10019; // 0x2723
     field public static final int COMMAND_CODE_PLAYER_PAUSE = 10001; // 0x2711
     field public static final int COMMAND_CODE_PLAYER_PLAY = 10000; // 0x2710
     field public static final int COMMAND_CODE_PLAYER_PREPARE = 10002; // 0x2712
@@ -331,6 +333,7 @@ package androidx.media2.session {
     field public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 30001; // 0x7531
     field public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 30000; // 0x7530
     field public static final int COMMAND_VERSION_1 = 1; // 0x1
+    field public static final int COMMAND_VERSION_2 = 2; // 0x2
   }
 
   public final class SessionCommandGroup implements androidx.versionedparcelable.VersionedParcelable {

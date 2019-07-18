@@ -48,6 +48,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
         mCurrentVolume = currentVolume;
     }
 
+    @NonNull
     @Override
     public ListenableFuture<PlayerResult> setVolume(int volume) {
         mSetVolumeToCalled = true;
@@ -56,6 +57,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
         return new SyncListenableFuture(null);
     }
 
+    @NonNull
     @Override
     public ListenableFuture<PlayerResult> adjustVolume(int direction) {
         mAdjustVolumeCalled = true;

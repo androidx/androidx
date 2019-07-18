@@ -19,6 +19,7 @@ package androidx.media2.session;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -54,7 +55,7 @@ import java.util.List;
 public final class SessionCommand implements VersionedParcelable {
     /**
      * The first version of session commands. This version is for commands introduced in
-     * AndroidX 1.0.0.
+     * AndroidX media2-session 1.0.0.
      * <p>
      * This would be used to specify which commands should be added by
      * {@link SessionCommandGroup.Builder#addAllPredefinedCommands(int)}
@@ -64,16 +65,28 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_VERSION_1 = 1;
 
     /**
-     * @hide
+     * The first version of session commands. This version is for commands introduced in
+     * AndroidX media2-session 1.1.0.
+     * <p>
+     * This would be used to specify which commands should be added by
+     * {@link SessionCommandGroup.Builder#addAllPredefinedCommands(int)}
+     *
+     * @see SessionCommandGroup.Builder#addAllPredefinedCommands(int)
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_1;
+    public static final int COMMAND_VERSION_2 = 2;
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @IntDef({COMMAND_VERSION_1})
+    public static final int COMMAND_VERSION_CURRENT = COMMAND_VERSION_2;
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @SuppressLint("UniqueConstants")
+    @IntDef({COMMAND_VERSION_1, COMMAND_VERSION_2, COMMAND_VERSION_CURRENT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface CommandVersion {}
 
@@ -98,6 +111,7 @@ public final class SessionCommand implements VersionedParcelable {
             COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
             COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
             COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
+            COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
             COMMAND_CODE_PLAYER_GET_CURRENT_MEDIA_ITEM,
             COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
             COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
@@ -343,6 +357,17 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_SET_MEDIA_ITEM = 10018;
 
     /**
+     * Command code for {@link MediaController#replacePlaylistItem(int, String)}.
+     * <p>
+     * Command would be sent directly to the player if the session doesn't reject the request
+     * through the
+     * {@link SessionCallback#onCommandRequest(MediaSession, ControllerInfo, SessionCommand)}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_2}.
+     */
+    public static final int COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM = 10019;
+
+    /**
      * Command code for {@link MediaController#setSurface(Surface)}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
@@ -391,6 +416,9 @@ public final class SessionCommand implements VersionedParcelable {
         VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.put(COMMAND_VERSION_1,
                 new Range(COMMAND_CODE_PLAYER_GET_PLAYLIST,
                         COMMAND_CODE_PLAYER_SET_MEDIA_ITEM));
+        VERSION_PLAYER_PLAYLIST_COMMANDS_MAP.put(COMMAND_VERSION_2,
+                new Range(COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM,
+                        COMMAND_CODE_PLAYER_MOVE_PLAYLIST_ITEM));
     }
 
     static {

@@ -65,6 +65,7 @@ public class MockPlayer extends SessionPlayer {
     public MediaItem mCurrentMediaItem;
     public MediaItem mItem;
     public int mIndex = -1;
+    public int mIndex2 = -1;
     @RepeatMode
     public int mRepeatMode = -1;
     @ShuffleMode
@@ -77,6 +78,7 @@ public class MockPlayer extends SessionPlayer {
     public boolean mAddPlaylistItemCalled;
     public boolean mRemovePlaylistItemCalled;
     public boolean mReplacePlaylistItemCalled;
+    public boolean mMovePlaylistItemCalled;
     public boolean mSkipToPlaylistItemCalled;
     public boolean mSkipToPreviousItemCalled;
     public boolean mSkipToNextItemCalled;
@@ -437,6 +439,17 @@ public class MockPlayer extends SessionPlayer {
         mReplacePlaylistItemCalled = true;
         mIndex = index;
         mItem = item;
+        mCountDownLatch.countDown();
+        return new SyncListenableFuture(mCurrentMediaItem);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<PlayerResult> movePlaylistItem(int fromIndex, int toIndex) {
+        // TODO: check for invalid index
+        mMovePlaylistItemCalled = true;
+        mIndex = fromIndex;
+        mIndex2 = toIndex;
         mCountDownLatch.countDown();
         return new SyncListenableFuture(mCurrentMediaItem);
     }

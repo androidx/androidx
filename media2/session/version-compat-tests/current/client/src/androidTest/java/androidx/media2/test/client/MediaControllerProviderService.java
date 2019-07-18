@@ -242,6 +242,13 @@ public class MediaControllerProviderService extends Service {
         }
 
         @Override
+        public void movePlaylistItem(String controllerId, int fromIdx, int toIdx)
+                throws RemoteException {
+            MediaController controller = mMediaControllerMap.get(controllerId);
+            controller.movePlaylistItem(fromIdx, toIdx);
+        }
+
+        @Override
         public void skipToPreviousItem(String controllerId) throws RemoteException {
             MediaController controller = mMediaControllerMap.get(controllerId);
             controller.skipToPreviousPlaylistItem();
