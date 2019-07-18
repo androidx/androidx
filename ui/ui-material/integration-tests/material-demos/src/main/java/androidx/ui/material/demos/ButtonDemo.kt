@@ -20,7 +20,6 @@ import android.util.Log
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.graphics.Color
@@ -37,41 +36,40 @@ import androidx.ui.material.themeTextStyle
 
 @Composable
 fun ButtonDemo() {
-    val onClick: () -> Unit = { Log.e("ButtonDemo", "onClick") }
-    CraneWrapper {
-        MaterialTheme {
-            Center {
-                Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
-                    Button(onClick = onClick, text = "LONG TEXT")
-                    Button(onClick = onClick, text = "SH")
-                    TransparentButton(onClick = onClick, text = "NO BACKGROUND")
-                    Button(
-                        onClick = onClick,
-                        color = +themeColor { secondary },
-                        text = "SECONDARY COLOR")
+    MaterialTheme {
+        val onClick: () -> Unit = { Log.e("ButtonDemo", "onClick") }
+        Center {
+            Column(mainAxisAlignment = MainAxisAlignment.SpaceEvenly) {
+                Button(onClick = onClick, text = "LONG TEXT")
+                Button(onClick = onClick, text = "SH")
+                TransparentButton(onClick = onClick, text = "NO BACKGROUND")
+                Button(
+                    onClick = onClick,
+                    color = +themeColor { secondary },
+                    text = "SECONDARY COLOR"
+                )
 
-                    TransparentButton(
-                        onClick = onClick,
-                        border = Border(Color(0xFF888888.toInt()), 1.dp),
-                        text = "OUTLINED"
-                    )
+                TransparentButton(
+                    onClick = onClick,
+                    border = Border(Color(0xFF888888.toInt()), 1.dp),
+                    text = "OUTLINED"
+                )
 
-                    val customColor = Color(0xFFFFFF00.toInt())
-                    Button(
-                        onClick = onClick,
-                        text = "CUSTOM STYLE",
-                        textStyle = +themeTextStyle { body2.copy(color = customColor) })
-                    Button(onClick = onClick) {
-                        Padding(padding = 16.dp) {
-                            Text(text = "CUSTOM BUTTON!")
-                        }
+                val customColor = Color(0xFFFFFF00.toInt())
+                Button(
+                    onClick = onClick,
+                    text = "CUSTOM STYLE",
+                    textStyle = +themeTextStyle { body2.copy(color = customColor) })
+                Button(onClick = onClick) {
+                    Padding(padding = 16.dp) {
+                        Text(text = "CUSTOM BUTTON!")
                     }
-
-                    // TODO(Andrey): Disabled button has wrong bg and text color for now.
-                    // Need to figure out where will we store their styling. Not a part of
-                    // MaterialColors right now and specs are not clear about this.
-                    Button(text = "DISABLED. TODO")
                 }
+
+                // TODO(Andrey): Disabled button has wrong bg and text color for now.
+                // Need to figure out where will we store their styling. Not a part of
+                // MaterialColors right now and specs are not clear about this.
+                Button(text = "DISABLED. TODO")
             }
         }
     }

@@ -20,14 +20,13 @@ import android.app.Activity
 import android.util.DisplayMetrics
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.FrameLayout
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.composer
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.animation.transitionsEnabled
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
+import androidx.ui.core.setContent
 import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.throwOnRecomposeTimeout
 import org.junit.runner.Description
@@ -83,7 +82,7 @@ class AndroidComposeTestRule(
         }
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                setContentInternal(composable)
+                activityTestRule.activity.setContent(composable)
                 val contentViewGroup =
                     activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
                 contentViewGroup.viewTreeObserver.addOnGlobalLayoutListener(listener)
@@ -91,16 +90,6 @@ class AndroidComposeTestRule(
         }
         activityTestRule.runOnUiThread(runnable)
         drawLatch.await(1, TimeUnit.SECONDS)
-    }
-
-    private fun setContentInternal(composable: @Composable() () -> Unit) {
-        activityTestRule.activity.setContentView(FrameLayout(activityTestRule.activity).apply {
-            Compose.composeInto(this, null, composable = @Composable {
-                CraneWrapper {
-                    composable()
-                }
-            })
-        })
     }
 
     inner class AndroidComposeStatement(

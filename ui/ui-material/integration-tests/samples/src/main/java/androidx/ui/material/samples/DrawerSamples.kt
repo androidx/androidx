@@ -34,6 +34,7 @@ import androidx.ui.layout.Stack
 import androidx.ui.material.BottomDrawer
 import androidx.ui.material.Button
 import androidx.ui.material.DrawerState
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ModalDrawer
 import androidx.ui.material.StaticDrawer
 

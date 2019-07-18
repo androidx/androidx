@@ -21,16 +21,15 @@ import android.os.Build
 import androidx.compose.Composable
 import androidx.compose.Model
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.Layout
 import androidx.ui.core.Opacity
 import androidx.ui.core.ipx
 import androidx.ui.core.max
+import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.framework.test.TestActivity
 import androidx.ui.graphics.Color
@@ -67,12 +66,10 @@ class OpacityTest {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    AtLeastSize(size = 10.ipx) {
-                        FillColor(Color.White)
-                        Opacity(opacity = 1f) {
-                            FillColor(color)
-                        }
+                AtLeastSize(size = 10.ipx) {
+                    FillColor(Color.White)
+                    Opacity(opacity = 1f) {
+                        FillColor(color)
                     }
                 }
             }
@@ -89,12 +86,10 @@ class OpacityTest {
         val color = Color.LightGray
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    AtLeastSize(size = 10.ipx) {
-                        FillColor(Color.White)
-                        Opacity(opacity = 0f) {
-                            FillColor(color)
-                        }
+                AtLeastSize(size = 10.ipx) {
+                    FillColor(Color.White)
+                    Opacity(opacity = 0f) {
+                        FillColor(color)
                     }
                 }
             }
@@ -111,17 +106,15 @@ class OpacityTest {
         val color = Color.Red
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    FillColor(Color.White)
-                    Row {
-                        AtLeastSize(size = 10.ipx) {
-                            Opacity(opacity = 0.5f) {
-                                FillColor(color)
-                            }
+                FillColor(Color.White)
+                Row {
+                    AtLeastSize(size = 10.ipx) {
+                        Opacity(opacity = 0.5f) {
+                            FillColor(color)
                         }
-                        AtLeastSize(size = 10.ipx) {
-                            FillColor(color.copy(alpha = 0.5f))
-                        }
+                    }
+                    AtLeastSize(size = 10.ipx) {
+                        FillColor(color.copy(alpha = 0.5f))
                     }
                 }
             }
@@ -140,12 +133,10 @@ class OpacityTest {
 
         rule.runOnUiThreadIR {
             activity.setContent {
-                CraneWrapper {
-                    AtLeastSize(size = 10.ipx) {
-                        FillColor(Color.White)
-                        Opacity(opacity = model.opacity) {
-                            FillColor(color)
-                        }
+                AtLeastSize(size = 10.ipx) {
+                    FillColor(Color.White)
+                    Opacity(opacity = model.opacity) {
+                        FillColor(color)
                     }
                 }
             }

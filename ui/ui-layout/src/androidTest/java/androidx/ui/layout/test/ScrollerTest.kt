@@ -20,13 +20,11 @@ import android.os.Build
 import android.view.PixelCopy
 import android.view.ViewTreeObserver
 import androidx.test.filters.SmallTest
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.Px
 import androidx.ui.core.ipx
 import androidx.ui.core.px
-import androidx.ui.core.toPx
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
@@ -42,8 +40,8 @@ import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.test.filters.SdkSuppress
+import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -137,32 +135,30 @@ class ScrollerTest : LayoutTest() {
             val runnable: Runnable = object : Runnable {
                 override fun run() {
                     activity.setContent {
-                        CraneWrapper {
-                            Align(alignment = Alignment.TopLeft) {
-                                ConstrainedBox(constraints = constraints) {
-                                    VerticalScroller(
-                                        scrollerPosition = scrollerPosition,
-                                        onScrollChanged = onScrollChanged
-                                    ) {
-                                        Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-                                            colors.forEach { color ->
-                                                Container(
-                                                    height = 5.px.toDp(),
-                                                    width = 45.px.toDp()
-                                                ) {
-                                                    Draw { canvas, parentSize ->
-                                                        val paint = Paint()
-                                                        paint.color = color
-                                                        paint.style = PaintingStyle.fill
-                                                        canvas.drawRect(parentSize.toRect(), paint)
-                                                    }
+                        Align(alignment = Alignment.TopLeft) {
+                            ConstrainedBox(constraints = constraints) {
+                                VerticalScroller(
+                                    scrollerPosition = scrollerPosition,
+                                    onScrollChanged = onScrollChanged
+                                ) {
+                                    Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                                        colors.forEach { color ->
+                                            Container(
+                                                height = 5.px.toDp(),
+                                                width = 45.px.toDp()
+                                            ) {
+                                                Draw { canvas, parentSize ->
+                                                    val paint = Paint()
+                                                    paint.color = color
+                                                    paint.style = PaintingStyle.fill
+                                                    canvas.drawRect(parentSize.toRect(), paint)
                                                 }
                                             }
                                         }
                                     }
-                                    Draw { _, _ ->
-                                        drawLatch.countDown()
-                                    }
+                                }
+                                Draw { _, _ ->
+                                    drawLatch.countDown()
                                 }
                             }
                         }

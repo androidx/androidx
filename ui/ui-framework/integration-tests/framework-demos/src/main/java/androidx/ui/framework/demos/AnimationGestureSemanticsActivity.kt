@@ -22,7 +22,6 @@ import androidx.animation.ColorPropKey
 import androidx.animation.FloatPropKey
 import androidx.animation.transitionDefinition
 import androidx.ui.animation.Transition
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Layout
 import androidx.ui.core.Draw
 import androidx.ui.core.PxPosition
@@ -33,9 +32,9 @@ import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.compose.state
 import androidx.compose.unaryPlus
+import androidx.ui.core.setContent
 
 /* Demo app created to study the interaction of animations, gestures and semantics. */
 class AnimationGestureSemanticsActivity : Activity() {
@@ -58,22 +57,20 @@ class AnimationGestureSemanticsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                // This component does not use Semantics.
-                // WithoutSemanticActions()
+            // This component does not use Semantics.
+            // WithoutSemanticActions()
 
-                // This component is a sample using the Level 1 API.
-                // Level1Api()
+            // This component is a sample using the Level 1 API.
+            // Level1Api()
 
-                // This component is a sample using the Level 2 API.
-                Level2Api()
+            // This component is a sample using the Level 2 API.
+            Level2Api()
 
-                // This component is a sample using the Level 3 API, with the built-in defaults.
-                // Level3Api()
+            // This component is a sample using the Level 3 API, with the built-in defaults.
+            // Level3Api()
 
-                // This component is a sample using the Level 3 API, along with extra parameters.
-                // Level3ApiExtras()
-            }
+            // This component is a sample using the Level 3 API, along with extra parameters.
+            // Level3ApiExtras()
         }
     }
 

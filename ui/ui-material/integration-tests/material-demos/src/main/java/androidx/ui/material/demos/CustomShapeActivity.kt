@@ -21,9 +21,8 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.setContent
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.dp
+import androidx.ui.core.setContent
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
@@ -44,17 +43,15 @@ class CustomShapeActivity : Activity() {
 
 @Composable
 fun CustomShapeDemo() {
-    CraneWrapper {
-        MaterialTheme {
-            Wrap(Alignment.Center) {
-                Button(
-                    shape = TriangleShape,
-                    color = Color.Aqua,
-                    onClick = {},
-                    border = Border(Color.DarkGray, 1.dp)
-                ) {
-                    FixedSpacer(100.dp, 100.dp)
-                }
+    MaterialTheme {
+        Wrap(Alignment.Center) {
+            Button(
+                shape = TriangleShape,
+                color = Color.Aqua,
+                onClick = {},
+                border = Border(Color.DarkGray, 1.dp)
+            ) {
+                FixedSpacer(100.dp, 100.dp)
             }
         }
     }

@@ -18,7 +18,6 @@ package androidx.ui.layout.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dp
 import androidx.ui.core.Text
 import androidx.ui.core.dp
@@ -35,7 +34,7 @@ import androidx.ui.text.TextStyle
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.setContent
+import androidx.ui.core.setContent
 import androidx.ui.core.sp
 import androidx.ui.layout.samples.DrawRectangle
 
@@ -44,9 +43,7 @@ class LayoutActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CraneWrapper {
-                LayoutDemo()
-            }
+            LayoutDemo()
         }
     }
 }

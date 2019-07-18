@@ -19,7 +19,6 @@ package androidx.ui.layout.demos
 import android.os.Handler
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.Constraints
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.IntPx
 import androidx.ui.core.IntPxSize
@@ -360,14 +359,12 @@ fun FillWithRectangles() {
 
 @Composable
 fun ComplexLayoutDemos() {
-    CraneWrapper {
-        Center {
-            ConstrainedBox(DpConstraints(maxWidth = 100.dp)) {
-                AspectRatio(2f) {
-                    DrawRectangle(color = Color.Blue)
-                    Container(padding = EdgeInsets(20.dp)) {
-                        SizedRectangle(color = Color.Black)
-                    }
+    Center {
+        ConstrainedBox(DpConstraints(maxWidth = 100.dp)) {
+            AspectRatio(2f) {
+                DrawRectangle(color = Color.Blue)
+                Container(padding = EdgeInsets(20.dp)) {
+                    SizedRectangle(color = Color.Black)
                 }
             }
         }

@@ -23,7 +23,6 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Density
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PxPosition
@@ -33,10 +32,10 @@ import androidx.ui.core.px
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.setContent
 import androidx.ui.core.ComplexLayout
 import androidx.ui.core.IntPx
 import androidx.ui.core.ipx
+import androidx.ui.core.setContent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -74,11 +73,7 @@ open class LayoutTest {
     internal fun show(@Children composable: @Composable() () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
-                activity.setContent {
-                    CraneWrapper {
-                        composable()
-                    }
-                }
+                activity.setContent(composable)
             }
         }
         activityTestRule.runOnUiThread(runnable)

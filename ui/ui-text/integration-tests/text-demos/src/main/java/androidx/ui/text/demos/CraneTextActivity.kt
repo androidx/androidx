@@ -18,8 +18,8 @@ package androidx.ui.text.demos
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.compose.setContent
 import androidx.compose.composer
+import androidx.ui.core.setContent
 
 class CraneTextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

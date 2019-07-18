@@ -37,10 +37,10 @@ import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.androidview.adapters.setOnTextChanged
 import androidx.compose.Composable
 import androidx.compose.Model
-import androidx.compose.setContent
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.compose.composer
+import androidx.compose.setViewContent
 
 @Model
 class WebParams {
@@ -54,7 +54,7 @@ open class WebComponentActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent {
+        setViewContent {
             if (WebContext.debug) {
                 Log.e("WebCompAct", "setContent")
             }

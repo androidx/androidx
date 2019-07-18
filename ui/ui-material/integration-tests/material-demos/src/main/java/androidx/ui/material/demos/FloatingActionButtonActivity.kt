@@ -19,8 +19,8 @@ package androidx.ui.material.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.painting.imageFromResource
-import androidx.compose.setContent
 import androidx.compose.composer
+import androidx.ui.core.setContent
 
 class FloatingActionButtonActivity : Activity() {
 

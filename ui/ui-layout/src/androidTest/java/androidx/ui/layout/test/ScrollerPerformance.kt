@@ -24,14 +24,13 @@ import androidx.compose.CompositionContext
 import androidx.compose.FrameManager
 import androidx.compose.composer
 import androidx.compose.memo
-import androidx.compose.setContent
 import androidx.compose.unaryPlus
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
 import androidx.ui.core.px
+import androidx.ui.core.setContent
 import androidx.ui.core.toRect
 import androidx.ui.core.withDensity
 import androidx.ui.graphics.Color
@@ -152,29 +151,27 @@ class ScrollerPerformance : LayoutTest() {
             val runnable: Runnable = object : Runnable {
                 override fun run() {
                     compositionContext = activity.setContent {
-                        CraneWrapper {
-                            VerticalScroller(
-                                scrollerPosition = scrollerPosition
-                            ) {
-                                Column(crossAxisAlignment = CrossAxisAlignment.Start) {
-                                    for (green in 0..0xFF) {
-                                        ColorStripe(0xFF, green, 0)
-                                    }
-                                    for (red in 0xFF downTo 0) {
-                                        ColorStripe(red, 0xFF, 0)
-                                    }
-                                    for (blue in 0..0xFF) {
-                                        ColorStripe(0, 0xFF, blue)
-                                    }
-                                    for (green in 0xFF downTo 0) {
-                                        ColorStripe(0, green, 0xFF)
-                                    }
-                                    for (red in 0..0xFF) {
-                                        ColorStripe(red, 0, 0xFF)
-                                    }
-                                    for (blue in 0xFF downTo 0) {
-                                        ColorStripe(0xFF, 0, blue)
-                                    }
+                        VerticalScroller(
+                            scrollerPosition = scrollerPosition
+                        ) {
+                            Column(crossAxisAlignment = CrossAxisAlignment.Start) {
+                                for (green in 0..0xFF) {
+                                    ColorStripe(0xFF, green, 0)
+                                }
+                                for (red in 0xFF downTo 0) {
+                                    ColorStripe(red, 0xFF, 0)
+                                }
+                                for (blue in 0..0xFF) {
+                                    ColorStripe(0, 0xFF, blue)
+                                }
+                                for (green in 0xFF downTo 0) {
+                                    ColorStripe(0, green, 0xFF)
+                                }
+                                for (red in 0..0xFF) {
+                                    ColorStripe(red, 0, 0xFF)
+                                }
+                                for (blue in 0xFF downTo 0) {
+                                    ColorStripe(0xFF, 0, blue)
                                 }
                             }
                         }
