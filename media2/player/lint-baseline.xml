@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.5.0-beta05" client="gradle" variant="debug" version="3.5.0-beta05">
 
     <issue
         id="KotlinPropertyAccess"
@@ -8,7 +8,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="425"
+            line="415"
             column="41"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="160"
+            line="159"
             column="62"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="177"
+            line="176"
             column="13"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="2409"
+            line="2416"
             column="13"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="980"
+            line="970"
             column="41"/>
     </issue>
 
@@ -63,30 +63,8 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1535"
+            line="1525"
             column="46"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2Impl.setEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="            @NonNull EventCallback eventCallback) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="666"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;executor&quot;, in androidx.media2.player.MediaPlayer2Impl.setDrmEventCallback) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="                                    @NonNull DrmEventCallback eventCallback) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="702"
-            column="37"/>
     </issue>
 
     <issue
@@ -103,110 +81,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void updateDrawState(TextPaint ds) {"
-        errorLine2="                                    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/Cea608CCParser.java"
-            line="426"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Cea708CaptionRenderer(Context context) {"
-        errorLine2="                                 ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/Cea708CaptionRenderer.java"
-            line="65"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean supports(MediaFormat format) {"
-        errorLine2="                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/Cea708CaptionRenderer.java"
-            line="70"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack createTrack(MediaFormat format) {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/Cea708CaptionRenderer.java"
-            line="79"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack createTrack(MediaFormat format) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/Cea708CaptionRenderer.java"
-            line="79"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ClosedCaptionRenderer(Context context) {"
-        errorLine2="                                 ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/ClosedCaptionRenderer.java"
-            line="56"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean supports(MediaFormat format) {"
-        errorLine2="                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/ClosedCaptionRenderer.java"
-            line="61"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack createTrack(MediaFormat format) {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/ClosedCaptionRenderer.java"
-            line="70"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack createTrack(MediaFormat format) {"
-        errorLine2="                                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/ClosedCaptionRenderer.java"
-            line="70"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public DataSourceCallbackDataSource(DataSourceCallback dataSourceCallback) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="68"
+            line="69"
             column="41"/>
     </issue>
 
@@ -217,7 +96,7 @@
         errorLine2="                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="74"
+            line="75"
             column="22"/>
     </issue>
 
@@ -228,7 +107,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="92"
+            line="93"
             column="21"/>
     </issue>
 
@@ -239,7 +118,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/DataSourceCallbackDataSource.java"
-            line="116"
+            line="117"
             column="12"/>
     </issue>
 
@@ -250,7 +129,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="113"
+            line="112"
             column="12"/>
     </issue>
 
@@ -261,7 +140,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="135"
+            line="134"
             column="27"/>
     </issue>
 
@@ -272,7 +151,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="218"
+            line="217"
             column="12"/>
     </issue>
 
@@ -283,7 +162,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="228"
+            line="227"
             column="12"/>
     </issue>
 
@@ -294,7 +173,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="238"
+            line="237"
             column="12"/>
     </issue>
 
@@ -305,7 +184,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="248"
+            line="247"
             column="12"/>
     </issue>
 
@@ -316,7 +195,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="258"
+            line="257"
             column="12"/>
     </issue>
 
@@ -327,7 +206,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="268"
+            line="267"
             column="12"/>
     </issue>
 
@@ -338,7 +217,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="278"
+            line="277"
             column="12"/>
     </issue>
 
@@ -349,7 +228,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="328"
+            line="327"
             column="12"/>
     </issue>
 
@@ -360,7 +239,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="338"
+            line="337"
             column="12"/>
     </issue>
 
@@ -371,7 +250,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="348"
+            line="347"
             column="12"/>
     </issue>
 
@@ -382,7 +261,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="358"
+            line="357"
             column="12"/>
     </issue>
 
@@ -393,7 +272,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="368"
+            line="367"
             column="12"/>
     </issue>
 
@@ -404,7 +283,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="378"
+            line="377"
             column="12"/>
     </issue>
 
@@ -415,7 +294,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="398"
+            line="397"
             column="12"/>
     </issue>
 
@@ -426,7 +305,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="408"
+            line="407"
             column="12"/>
     </issue>
 
@@ -437,7 +316,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="418"
+            line="417"
             column="12"/>
     </issue>
 
@@ -448,7 +327,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="459"
+            line="458"
             column="12"/>
     </issue>
 
@@ -459,7 +338,7 @@
         errorLine2="                                   ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="459"
+            line="458"
             column="36"/>
     </issue>
 
@@ -470,7 +349,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="469"
+            line="468"
             column="12"/>
     </issue>
 
@@ -481,7 +360,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="489"
+            line="488"
             column="12"/>
     </issue>
 
@@ -492,7 +371,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="508"
+            line="507"
             column="12"/>
     </issue>
 
@@ -503,7 +382,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="518"
+            line="517"
             column="12"/>
     </issue>
 
@@ -514,7 +393,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="529"
+            line="528"
             column="12"/>
     </issue>
 
@@ -525,7 +404,7 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="539"
+            line="538"
             column="12"/>
     </issue>
 
@@ -536,7 +415,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="600"
+            line="599"
             column="38"/>
     </issue>
 
@@ -547,7 +426,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="605"
+            line="604"
             column="12"/>
     </issue>
 
@@ -558,7 +437,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="610"
+            line="609"
             column="12"/>
     </issue>
 
@@ -569,7 +448,7 @@
         errorLine2="                                                ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="621"
+            line="620"
             column="49"/>
     </issue>
 
@@ -580,7 +459,7 @@
         errorLine2="                                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="621"
+            line="620"
             column="66"/>
     </issue>
 
@@ -591,7 +470,7 @@
         errorLine2="                                                                                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="621"
+            line="620"
             column="83"/>
     </issue>
 
@@ -602,7 +481,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="622"
+            line="621"
             column="26"/>
     </issue>
 
@@ -613,7 +492,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="627"
+            line="626"
             column="12"/>
     </issue>
 
@@ -624,7 +503,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="650"
+            line="649"
             column="28"/>
     </issue>
 
@@ -635,7 +514,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="665"
+            line="664"
             column="35"/>
     </issue>
 
@@ -646,7 +525,7 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="683"
+            line="682"
             column="36"/>
     </issue>
 
@@ -657,7 +536,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="688"
+            line="687"
             column="34"/>
     </issue>
 
@@ -668,7 +547,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="693"
+            line="692"
             column="35"/>
     </issue>
 
@@ -679,7 +558,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="698"
+            line="697"
             column="35"/>
     </issue>
 
@@ -690,7 +569,7 @@
         errorLine2="                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="703"
+            line="702"
             column="39"/>
     </issue>
 
@@ -701,7 +580,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="708"
+            line="707"
             column="42"/>
     </issue>
 
@@ -712,7 +591,7 @@
         errorLine2="                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="722"
+            line="721"
             column="38"/>
     </issue>
 
@@ -723,7 +602,7 @@
         errorLine2="                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="723"
+            line="722"
             column="19"/>
     </issue>
 
@@ -734,7 +613,7 @@
         errorLine2="                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="734"
+            line="733"
             column="39"/>
     </issue>
 
@@ -745,7 +624,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="734"
+            line="733"
             column="66"/>
     </issue>
 
@@ -756,7 +635,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="745"
+            line="744"
             column="42"/>
     </issue>
 
@@ -767,7 +646,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="750"
+            line="749"
             column="34"/>
     </issue>
 
@@ -778,7 +657,7 @@
         errorLine2="                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="755"
+            line="754"
             column="24"/>
     </issue>
 
@@ -789,7 +668,7 @@
         errorLine2="                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="761"
+            line="760"
             column="19"/>
     </issue>
 
@@ -800,7 +679,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="761"
+            line="760"
             column="46"/>
     </issue>
 
@@ -811,7 +690,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="772"
+            line="771"
             column="33"/>
     </issue>
 
@@ -822,7 +701,7 @@
         errorLine2="                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/exoplayer/ExoPlayerMediaPlayer2Impl.java"
-            line="777"
+            line="776"
             column="31"/>
     </issue>
 
@@ -1042,7 +921,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="1686"
+            line="1691"
             column="12"/>
     </issue>
 
@@ -1053,30 +932,8 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="1894"
+            line="1899"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListenableFuture&lt;PlayerResult> selectTrackInternal(SessionPlayer.TrackInfo info) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="2374"
-            column="63"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListenableFuture&lt;PlayerResult> deselectTrackInternal(SessionPlayer.TrackInfo info) {"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="2385"
-            column="65"/>
     </issue>
 
     <issue
@@ -1086,7 +943,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="3397"
+            line="3405"
             column="34"/>
     </issue>
 
@@ -1097,19 +954,8 @@
         errorLine2="                                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="3397"
+            line="3405"
             column="60"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static MediaPlayer2 create(@NonNull Context context) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="245"
-            column="19"/>
     </issue>
 
     <issue
@@ -1119,7 +965,7 @@
         errorLine2="                                   ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="261"
+            line="251"
             column="36"/>
     </issue>
 
@@ -1130,7 +976,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="294"
+            line="284"
             column="21"/>
     </issue>
 
@@ -1141,7 +987,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="305"
+            line="295"
             column="21"/>
     </issue>
 
@@ -1152,7 +998,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="312"
+            line="302"
             column="21"/>
     </issue>
 
@@ -1163,7 +1009,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="319"
+            line="309"
             column="21"/>
     </issue>
 
@@ -1174,7 +1020,7 @@
         errorLine2="           ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="329"
+            line="319"
             column="12"/>
     </issue>
 
@@ -1185,7 +1031,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="375"
+            line="365"
             column="21"/>
     </issue>
 
@@ -1196,7 +1042,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="393"
+            line="383"
             column="21"/>
     </issue>
 
@@ -1207,7 +1053,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="406"
+            line="396"
             column="21"/>
     </issue>
 
@@ -1218,7 +1064,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="418"
+            line="408"
             column="21"/>
     </issue>
 
@@ -1229,7 +1075,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="433"
+            line="423"
             column="21"/>
     </issue>
 
@@ -1240,7 +1086,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="446"
+            line="436"
             column="21"/>
     </issue>
 
@@ -1251,7 +1097,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="475"
+            line="465"
             column="21"/>
     </issue>
 
@@ -1262,7 +1108,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="498"
+            line="488"
             column="21"/>
     </issue>
 
@@ -1273,7 +1119,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="554"
+            line="544"
             column="21"/>
     </issue>
 
@@ -1284,7 +1130,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="568"
+            line="558"
             column="21"/>
     </issue>
 
@@ -1295,7 +1141,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="649"
+            line="639"
             column="21"/>
     </issue>
 
@@ -1306,7 +1152,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="697"
+            line="687"
             column="21"/>
     </issue>
 
@@ -1317,7 +1163,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="724"
+            line="714"
             column="21"/>
     </issue>
 
@@ -1328,7 +1174,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="741"
+            line="731"
             column="21"/>
     </issue>
 
@@ -1339,7 +1185,7 @@
         errorLine2="                        ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="761"
+            line="751"
             column="25"/>
     </issue>
 
@@ -1350,7 +1196,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="767"
+            line="757"
             column="25"/>
     </issue>
 
@@ -1361,7 +1207,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="787"
+            line="777"
             column="21"/>
     </issue>
 
@@ -1372,7 +1218,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="836"
+            line="826"
             column="21"/>
     </issue>
 
@@ -1383,7 +1229,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="853"
+            line="843"
             column="21"/>
     </issue>
 
@@ -1394,7 +1240,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="872"
+            line="862"
             column="17"/>
     </issue>
 
@@ -1405,7 +1251,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="872"
+            line="862"
             column="34"/>
     </issue>
 
@@ -1416,7 +1262,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="892"
+            line="882"
             column="17"/>
     </issue>
 
@@ -1427,7 +1273,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="892"
+            line="882"
             column="34"/>
     </issue>
 
@@ -1438,7 +1284,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="892"
+            line="882"
             column="50"/>
     </issue>
 
@@ -1449,7 +1295,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="904"
+            line="894"
             column="17"/>
     </issue>
 
@@ -1460,7 +1306,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="904"
+            line="894"
             column="34"/>
     </issue>
 
@@ -1471,7 +1317,7 @@
         errorLine2="                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="915"
+            line="905"
             column="28"/>
     </issue>
 
@@ -1482,7 +1328,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="915"
+            line="905"
             column="45"/>
     </issue>
 
@@ -1493,7 +1339,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="926"
+            line="916"
             column="17"/>
     </issue>
 
@@ -1504,7 +1350,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="926"
+            line="916"
             column="34"/>
     </issue>
 
@@ -1515,7 +1361,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="950"
+            line="940"
             column="17"/>
     </issue>
 
@@ -1526,7 +1372,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="950"
+            line="940"
             column="34"/>
     </issue>
 
@@ -1537,7 +1383,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="950"
+            line="940"
             column="50"/>
     </issue>
 
@@ -1548,7 +1394,7 @@
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="959"
+            line="949"
             column="43"/>
     </issue>
 
@@ -1559,7 +1405,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1486"
+            line="1476"
             column="26"/>
     </issue>
 
@@ -1570,7 +1416,7 @@
         errorLine2="                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1486"
+            line="1476"
             column="43"/>
     </issue>
 
@@ -1581,7 +1427,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1498"
+            line="1488"
             column="47"/>
     </issue>
 
@@ -1592,7 +1438,7 @@
         errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1513"
+            line="1503"
             column="31"/>
     </issue>
 
@@ -1603,7 +1449,7 @@
         errorLine2="                                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1513"
+            line="1503"
             column="48"/>
     </issue>
 
@@ -1614,7 +1460,7 @@
         errorLine2="                                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1513"
+            line="1503"
             column="64"/>
     </issue>
 
@@ -1625,7 +1471,7 @@
         errorLine2="                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1524"
+            line="1514"
             column="17"/>
     </issue>
 
@@ -1636,7 +1482,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1524"
+            line="1514"
             column="34"/>
     </issue>
 
@@ -1647,7 +1493,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1594"
+            line="1584"
             column="21"/>
     </issue>
 
@@ -1658,7 +1504,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1620"
+            line="1610"
             column="21"/>
     </issue>
 
@@ -1669,7 +1515,7 @@
         errorLine2="                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1698"
+            line="1688"
             column="21"/>
     </issue>
 
@@ -1680,7 +1526,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1748"
+            line="1738"
             column="25"/>
     </issue>
 
@@ -1691,7 +1537,7 @@
         errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1755"
+            line="1745"
             column="25"/>
     </issue>
 
@@ -1702,382 +1548,8 @@
         errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/MediaPlayer2.java"
-            line="1763"
+            line="1753"
             column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public MediaPlayer2Impl(Context context) {"
-        errorLine2="                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="186"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean cancel(Object token) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="200"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object play() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="241"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object prepare() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="251"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object pause() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="261"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object skipToNext() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="271"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setAudioAttributes(@NonNull final AudioAttributesCompat attributes) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="315"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setMediaItem(@NonNull final MediaItem item) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="330"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setNextMediaItem(@NonNull final MediaItem item) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="346"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setNextMediaItems(@NonNull final List&lt;MediaItem> items) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="357"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object loopCurrent(final boolean loop) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="381"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setPlayerVolume(final float volume) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="391"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object notifyWhenCommandLabelReached(final Object label) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="411"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object notifyWhenCommandLabelReached(final Object label) {"
-        errorLine2="                                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="411"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setSurface(final Surface surface) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="426"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setSurface(final Surface surface) {"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="426"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public PersistableBundle getMetrics() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="522"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setPlaybackParams(@NonNull final PlaybackParams params) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="527"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object seekTo(final long msec, @SeekMode final int mode) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="543"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setAudioSessionId(final int sessionId) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="588"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object attachAuxEffect(final int effectId) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="603"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object setAuxEffectSendLevel(final float level) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="613"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;TrackInfo> getTrackInfo() {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="623"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object selectTrack(final int index) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="645"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object deselectTrack(final int index) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="655"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setOnDrmConfigHelper(final OnDrmConfigHelper listener) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="689"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public DrmInfo getDrmInfo() {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="724"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Object prepareDrm(@NonNull final UUID uuid) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="731"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public byte[] provideDrmKeyResponse(@Nullable byte[] keySetId, @NonNull byte[] response)"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="785"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Map&lt;UUID, byte[]&gt; getPssh() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="1145"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;UUID> getSupportedSchemes() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/MediaPlayer2Impl.java"
-            line="1155"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void notifyAt(long timeUs, OnMediaTimeListener listener);"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/MediaTimeProvider.java"
-            line="46"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void scheduleUpdate(OnMediaTimeListener listener);"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/MediaTimeProvider.java"
-            line="54"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void cancelNotifications(OnMediaTimeListener listener);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/MediaTimeProvider.java"
-            line="59"
-            column="30"/>
     </issue>
 
     <issue
@@ -2100,380 +1572,6 @@
             file="src/main/java/androidx/media2/player/PlaybackParams.java"
             line="195"
             column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleController(Context context) {"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="96"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Context context,"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="107"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            MediaTimeProvider timeProvider,"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="108"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            Listener listener) {"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="109"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack[] getTracks() {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="132"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack getSelectedTrack() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="143"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean selectTrack(SubtitleTrack track) {"
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="165"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack getDefaultTrack() {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="224"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack addTrack(MediaFormat format) {"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="345"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack addTrack(MediaFormat format) {"
-        errorLine2="                                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="345"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract boolean supports(MediaFormat format);"
-        errorLine2="                                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="417"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract SubtitleTrack createTrack(MediaFormat format);"
-        errorLine2="                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="431"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract SubtitleTrack createTrack(MediaFormat format);"
-        errorLine2="                                                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="431"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void registerRenderer(Renderer renderer) {"
-        errorLine2="                                 ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="440"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean hasRendererFor(MediaFormat format) {"
-        errorLine2="                                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="457"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void setSubtitleWidget(RenderingWidget subtitleWidget);"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="478"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        Looper getSubtitleLooper();"
-        errorLine2="        ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="484"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setAnchor(Anchor anchor) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="493"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void onSubtitleTrackSelected(SubtitleTrack track);"
-        errorLine2="                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleController.java"
-            line="535"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected Handler mHandler = new Handler();"
-        errorLine2="              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="64"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SubtitleTrack(MediaFormat format) {"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="68"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public final MediaFormat getFormat() {"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="75"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onData(SubtitleData data) {"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="84"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected abstract void onData(byte[] data, boolean eos, long runID);"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="110"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract RenderingWidget getRenderingWidget();"
-        errorLine2="                    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="122"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void updateView(ArrayList&lt;Cue> activeCues);"
-        errorLine2="                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="128"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected MediaTimeProvider mTimeProvider;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="256"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected synchronized boolean addCue(Cue cue) {"
-        errorLine2="                                          ~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="294"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public synchronized void setTimeProvider(MediaTimeProvider timeProvider) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="370"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public long[] mInnerTimesMs;"
-        errorLine2="               ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="571"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Cue mNextInRun;"
-        errorLine2="               ~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="574"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void setOnChangedListener(OnChangedListener callback);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="673"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        void draw(Canvas c);"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="695"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            void onChanged(RenderingWidget renderingWidget);"
-        errorLine2="                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/player/subtitle/SubtitleTrack.java"
-            line="716"
-            column="28"/>
     </issue>
 
     <issue

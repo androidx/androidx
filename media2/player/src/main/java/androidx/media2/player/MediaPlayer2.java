@@ -24,7 +24,6 @@ import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.MediaFormat;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.view.Surface;
@@ -231,23 +230,14 @@ import java.util.concurrent.Executor;
 public abstract class MediaPlayer2 {
 
     /**
-     * Debug flag that forces use of {@link ExoPlayerMediaPlayer2Impl} even if the device is running
-     * an Android P build.
-     */
-    private static final boolean DEBUG_USE_EXOPLAYER = false;
-
-    /**
      * Create a MediaPlayer2 object.
      *
      * @param context The context the player is running in
      * @return A MediaPlayer2 object created
      */
+    @NonNull
     public static MediaPlayer2 create(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT <= 27 || DEBUG_USE_EXOPLAYER) {
-            return new ExoPlayerMediaPlayer2Impl(context);
-        } else {
-            return new MediaPlayer2Impl(context);
-        }
+        return new ExoPlayerMediaPlayer2Impl(context);
     }
 
     protected MediaPlayer2() { }
