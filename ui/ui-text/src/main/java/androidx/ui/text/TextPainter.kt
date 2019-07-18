@@ -118,7 +118,7 @@ class TextPainter(
     }
 
     @VisibleForTesting
-    internal var paragraph: Paragraph? = null
+    internal var multiParagraph: MultiParagraph? = null
         private set
 
     @VisibleForTesting
@@ -143,7 +143,7 @@ class TextPainter(
         set(value) {
             if (field == value) return
             field = value
-            paragraph = null
+            multiParagraph = null
             needsLayout = true
         }
 
@@ -219,7 +219,7 @@ class TextPainter(
     val minIntrinsicWidth: Float
         get() {
             assertNeedsLayout("minIntrinsicWidth")
-            return applyFloatingPointHack(paragraph!!.minIntrinsicWidth)
+            return applyFloatingPointHack(multiParagraph!!.minIntrinsicWidth)
         }
 
     /**
@@ -230,7 +230,7 @@ class TextPainter(
     val maxIntrinsicWidth: Float
         get() {
             assertNeedsLayout("maxIntrinsicWidth")
-            return applyFloatingPointHack(paragraph!!.maxIntrinsicWidth)
+            return applyFloatingPointHack(multiParagraph!!.maxIntrinsicWidth)
         }
 
     /**
@@ -281,7 +281,7 @@ class TextPainter(
     val didExceedMaxLines: Boolean
         get() {
             assertNeedsLayout("didExceedMaxLines")
-            return paragraph!!.didExceedMaxLines
+            return multiParagraph!!.didExceedMaxLines
         }
 
     /**
@@ -308,25 +308,25 @@ class TextPainter(
 
         if (!needsLayout && minWidth == lastMinWidth && finalMaxWidth == lastMaxWidth) return
         needsLayout = false
-        if (paragraph == null) {
-            paragraph = Paragraph(
-                text = text!!.text,
-                style = createTextStyle(),
-                paragraphStyle = createParagraphStyle(),
-                textStyles = text!!.textStyles,
-                maxLines = maxLines,
-                ellipsis = isEllipsis,
-                density = density,
-                resourceLoader = resourceLoader
+
+        if (multiParagraph == null) {
+            multiParagraph = MultiParagraph(
+                text!!,
+                createTextStyle(),
+                paragraphStyle ?: ParagraphStyle(),
+                maxLines,
+                isEllipsis,
+                density,
+                resourceLoader
             )
         }
         lastMinWidth = minWidth
         lastMaxWidth = finalMaxWidth
-        paragraph!!.layout(ParagraphConstraints(width = finalMaxWidth))
+        multiParagraph!!.layout(ParagraphConstraints(width = finalMaxWidth))
         if (minWidth != finalMaxWidth) {
             val newWidth = maxIntrinsicWidth.coerceIn(minWidth, finalMaxWidth)
-            if (newWidth != paragraph!!.width) {
-                paragraph!!.layout(ParagraphConstraints(width = newWidth))
+            if (newWidth != multiParagraph!!.width) {
+                multiParagraph!!.layout(ParagraphConstraints(width = newWidth))
             }
         }
     }
@@ -336,11 +336,11 @@ class TextPainter(
 
         val didOverflowHeight = didExceedMaxLines
         size = constraints.constrain(
-            IntPxSize(paragraph!!.width.px.round(), paragraph!!.height.px.round())
+            IntPxSize(multiParagraph!!.width.px.round(), multiParagraph!!.height.px.round())
         ).let {
             Size(it.width.value.toFloat(), it.height.value.toFloat())
         }
-        val didOverflowWidth = size.width < paragraph!!.width
+        val didOverflowWidth = size.width < multiParagraph!!.width
         // TODO(abarth): We're only measuring the sizes of the line boxes here. If
         // the glyphs draw outside the line boxes, we might think that there isn't
         // visual overflow when there actually is visual overflow. This can become
@@ -356,8 +356,8 @@ class TextPainter(
                 resourceLoader = resourceLoader
             )
             fadeSizePainter.layoutText()
-            val fadeWidth = fadeSizePainter.paragraph!!.width
-            val fadeHeight = fadeSizePainter.paragraph!!.height
+            val fadeWidth = fadeSizePainter.multiParagraph!!.width
+            val fadeHeight = fadeSizePainter.multiParagraph!!.height
             if (didOverflowWidth) {
                 val (fadeStart, fadeEnd) = if (textDirection == TextDirection.Rtl) {
                     Pair(fadeWidth, 0.0f)
@@ -426,7 +426,8 @@ class TextPainter(
             }
             canvas.clipRect(bounds)
         }
-        paragraph!!.paint(canvas)
+
+        multiParagraph!!.paint(canvas)
         if (hasVisualOverflow) {
             if (overflowShader != null) {
                 val bounds = Rect.fromLTWH(0f, 0f, size.width, size.height)
@@ -452,7 +453,7 @@ class TextPainter(
     fun paintBackground(start: Int, end: Int, color: Color, canvas: Canvas) {
         assert(!needsLayout)
         if (start == end) return
-        val selectionPath = paragraph!!.getPathForRange(start, end)
+        val selectionPath = multiParagraph!!.getPathForRange(start, end)
         // TODO(haoyuchang): check if move this paint to parameter is better
         canvas.drawPath(selectionPath, Paint().apply { this.color = color })
     }
@@ -467,7 +468,7 @@ class TextPainter(
      */
     fun paintCursor(offset: Int, canvas: Canvas) {
         assert(!needsLayout)
-        val cursorRect = paragraph!!.getCursorRect(offset)
+        val cursorRect = multiParagraph!!.getCursorRect(offset)
         canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
     }
 
@@ -479,7 +480,7 @@ class TextPainter(
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getLineBottom(lineIndex: Int): Float {
         assert(!needsLayout)
-        return paragraph!!.getLineBottom(lineIndex)
+        return multiParagraph!!.getLineBottom(lineIndex)
     }
 
     /**
@@ -492,7 +493,7 @@ class TextPainter(
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getLineForOffset(offset: Int): Int {
         assert(!needsLayout)
-        return paragraph!!.getLineForOffset(offset)
+        return multiParagraph!!.getLineForOffset(offset)
     }
 
     /**
@@ -503,13 +504,13 @@ class TextPainter(
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getPrimaryHorizontal(offset: Int): Float {
         assert(!needsLayout)
-        return paragraph!!.getPrimaryHorizontal(offset)
+        return multiParagraph!!.getPrimaryHorizontal(offset)
     }
 
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: PxPosition): Int {
         assert(!needsLayout)
-        return paragraph!!.getOffsetForPosition(position)
+        return multiParagraph!!.getOffsetForPosition(position)
     }
 
     /**
@@ -523,7 +524,7 @@ class TextPainter(
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     fun getBoundingBox(offset: Int): Rect {
         assert(!needsLayout)
-        return paragraph!!.getBoundingBox(offset)
+        return multiParagraph!!.getBoundingBox(offset)
     }
 
     /**
@@ -536,6 +537,6 @@ class TextPainter(
      */
     fun getWordBoundary(offset: Int): TextRange {
         assert(!needsLayout)
-        return paragraph!!.getWordBoundary(offset)
+        return multiParagraph!!.getWordBoundary(offset)
     }
 }

@@ -47,19 +47,20 @@ data class ParagraphStyle constructor(
         }
     }
     // TODO(siyamed) uncomment
-//    /**
-//     * Returns a new paragraph style that is a combination of this style and the given [other] style.
-//     *
-//     * If the given paragraph style is null, returns this paragraph style.
-//     */
-//    fun merge(other: ParagraphStyle? = null): ParagraphStyle {
-//        if (other == null) return this
-//
-//        return ParagraphStyle(
-//            lineHeight = other.lineHeight ?: this.lineHeight,
-//            textIndent = other.textIndent ?: this.textIndent,
-//            textAlign = other.textAlign ?: this.textAlign,
-//            textDirection = other.textDirection ?: this.textDirection
-//        )
-//    }
+    /**
+     * Returns a new paragraph style that is a combination of this style and the given [other]
+     * style.
+     *
+     * If the given paragraph style is null, returns this paragraph style.
+     */
+    fun merge(other: ParagraphStyle? = null): ParagraphStyle {
+        if (other == null) return this
+
+        return ParagraphStyle(
+            lineHeight = other.lineHeight ?: this.lineHeight,
+            textIndent = other.textIndent ?: this.textIndent,
+            textAlign = other.textAlign ?: this.textAlign,
+            textDirection = other.textDirection ?: this.textDirection
+        )
+    }
 }
