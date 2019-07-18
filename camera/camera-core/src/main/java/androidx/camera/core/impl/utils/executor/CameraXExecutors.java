@@ -87,4 +87,12 @@ public final class CameraXExecutors {
     public static ScheduledExecutorService newHandlerExecutor(@NonNull Handler handler) {
         return new HandlerScheduledExecutorService(handler);
     }
+
+    /**
+     * @return a cached high priority {@link Executor} suitable for lightweight tasks.
+     */
+    @NonNull
+    public static Executor highPriorityExecutor() {
+        return HighPriorityExecutor.getInstance();
+    }
 }
