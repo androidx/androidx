@@ -56,7 +56,7 @@ public abstract class KeyedAppStatesReporter {
      *
      * <p>The executor must run all {@link Runnable} instances on the same thread, serially.
      */
-    public static @NonNull KeyedAppStatesReporter createWithExecutor(
+    public static @NonNull KeyedAppStatesReporter create(
             @NonNull Context context, @NonNull Executor executor) {
         return new DefaultKeyedAppStatesReporter(context, executor);
     }
