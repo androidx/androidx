@@ -18,10 +18,13 @@ package androidx.camera.core;
 
 import android.os.Handler;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Config.Option;
+
+import java.util.concurrent.Executor;
 
 /**
  * Configuration containing options pertaining to threads used by the configured object.
@@ -42,6 +45,16 @@ interface ThreadConfig {
     @RestrictTo(Scope.LIBRARY_GROUP)
     Option<Handler> OPTION_CALLBACK_HANDLER =
             Option.create("camerax.core.thread.callbackHandler", Handler.class);
+
+
+    /**
+     * Option: camerax.core.thread.backgroundExecutor
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    Option<Executor> OPTION_BACKGROUND_EXECUTOR =
+            Option.create("camerax.core.thread.backgroundExecutor", Executor.class);
 
     // *********************************************************************************************
 
@@ -64,6 +77,26 @@ interface ThreadConfig {
     Handler getCallbackHandler();
 
     /**
+     * Returns the executor that will be used for background tasks.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    Executor getBackgroundExecutor(@Nullable Executor valueIfMissing);
+
+
+    /**
+     * Returns the executor that will be used for background tasks.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    Executor getBackgroundExecutor();
+
+    /**
      * Builder for a {@link ThreadConfig}.
      *
      * @param <B> The top level builder type for which this builder is composed with.
@@ -80,5 +113,14 @@ interface ThreadConfig {
          * @return the current Builder.
          */
         B setCallbackHandler(Handler handler);
+
+        /**
+         * Sets the default executor that will be used for background tasks.
+         *
+         * @param executor The executor which will be used for background tasks.
+         * @return the current Builder.
+         */
+        @NonNull
+        B setBackgroundExecutor(@NonNull Executor executor);
     }
 }
