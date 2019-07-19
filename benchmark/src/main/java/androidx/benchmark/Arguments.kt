@@ -17,18 +17,28 @@
 package androidx.benchmark
 
 import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 
-// This allows tests to override arguments from code
-internal var ArgumentSource: Bundle? = null
+/**
+ * This allows tests to override arguments from code
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.TESTS)
+var argumentSource: Bundle? = null
 
 internal object Arguments {
+    val startupMode: Boolean
     val outputEnable: Boolean
     val suppressedErrors: Set<String>
 
     init {
         val prefix = "androidx.benchmark"
-        val arguments = ArgumentSource ?: InstrumentationRegistry.getArguments()
+        val arguments = argumentSource ?: InstrumentationRegistry.getArguments()
+
+        startupMode = arguments.getString("$prefix.startupMode.enable")?.toBoolean() ?: false
+
         outputEnable = arguments.getString("$prefix.output.enable")?.toBoolean() ?: false
 
         // Transform comma-delimited list into set of suppressed errors
