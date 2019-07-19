@@ -40,6 +40,7 @@ import androidx.ui.layout.ConstrainedBox
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.Stack
+import androidx.ui.layout.Wrap
 import androidx.ui.material.BottomAppBar.FabPosition
 import androidx.ui.material.BottomAppBar.FabPosition.Center
 import androidx.ui.material.BottomAppBar.FabPosition.End
@@ -51,7 +52,7 @@ import androidx.ui.text.TextStyle
  * A TopAppBar displays information and actions relating to the current screen and is placed at the
  * top of the screen.
  *
- * @sample androidx.ui.material.samples.SimpleTopAppBar
+ * @sample androidx.ui.material.samples.SimpleTopAppBarNavIcon
  *
  * @param title The title to be displayed in the center of the TopAppBar
  * @param color An optional color for the TopAppBar. By default [MaterialColors.primary] will be
@@ -64,11 +65,13 @@ import androidx.ui.text.TextStyle
  * called for items in [contextualActions] up to the maximum number of icons that can be displayed.
  * @param T the type of item in [contextualActions]
  */
+// TODO: b/137311217 - type inference for nullable lambdas currently doesn't work
+@Suppress("USELESS_CAST")
 @Composable
 fun <T> TopAppBar(
     title: @Composable() () -> Unit = {},
     color: Color = +themeColor { primary },
-    navigationIcon: @Composable() () -> Unit = {},
+    navigationIcon: @Composable() (() -> Unit)? = null as @Composable() (() -> Unit)?,
     contextualActions: List<T>? = null,
     action: @Composable() (T) -> Unit = {}
     // TODO: support overflow menu here with the remainder of the list
@@ -76,7 +79,12 @@ fun <T> TopAppBar(
     BaseTopAppBar(
         color = color,
         startContent = navigationIcon,
-        title = title,
+        title = {
+            // Text color comes from the underlying Surface
+            CurrentTextStyleProvider(value = +themeTextStyle { h6 }) {
+                title()
+            }
+        },
         endContent = {
             if (contextualActions != null) {
                 AppBarActions(MaxIconsInTopAppBar, contextualActions, action)
@@ -88,27 +96,27 @@ fun <T> TopAppBar(
 @Composable
 private fun BaseTopAppBar(
     color: Color = +themeColor { primary },
-    startContent: @Composable() () -> Unit,
+    startContent: @Composable() (() -> Unit)?,
     title: @Composable() () -> Unit,
     endContent: @Composable() () -> Unit
 ) {
     BaseAppBar(color) {
         FlexRow(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
-            inflexible {
-                // TODO: what should the spacing be when there is no icon provided here?
-                startContent()
-                // TODO: this accidentally works now because expanded fills up the space, but this
-                // is actually adding another item for flex row to measure, meaning that when the
-                // expanded block is empty, we are emitting an empty spacer in the middle of the row
-                WidthSpacer(width = 32.dp)
-            }
-            expanded(1f) {
-                CurrentTextStyleProvider(value = +themeTextStyle { h6 }) {
-                    title()
+            // We only want to reserve space here if we have some start content
+            if (startContent != null) {
+                inflexible {
+                    Container(width = AppBarTitleStartPadding, alignment = Alignment.CenterLeft) {
+                        startContent()
+                    }
                 }
             }
+            expanded(1f) {
+                title()
+            }
             inflexible {
-                endContent()
+                Wrap {
+                    endContent()
+                }
             }
         }
     }
@@ -211,6 +219,7 @@ fun <T> BottomAppBar(
         BaseBottomAppBar(
             color = color,
             startContent = navigationIconComposable,
+            fab = null as @Composable() (() -> Unit)?,
             endContent = actions(MaxIconsInBottomAppBarNoFab)
         )
         return
@@ -220,7 +229,8 @@ fun <T> BottomAppBar(
         End -> BaseBottomAppBar(
             color = color,
             startContent = actions(MaxIconsInBottomAppBarEndFab),
-            fab = { Align(Alignment.CenterRight) { floatingActionButton() } }
+            fab = { Align(Alignment.CenterRight) { floatingActionButton() } },
+            endContent = {}
         )
         // TODO: support CenterCut
         else -> BaseBottomAppBar(
@@ -232,14 +242,12 @@ fun <T> BottomAppBar(
     }
 }
 
-// TODO: b/137311217 - type inference for nullable lambdas currently doesn't work
-@Suppress("USELESS_CAST")
 @Composable
 private fun BaseBottomAppBar(
     color: Color = +themeColor { primary },
-    startContent: @Composable() () -> Unit = {},
-    fab: (@Composable() () -> Unit)? = null as @Composable() (() -> Unit)?,
-    endContent: @Composable() () -> Unit = {}
+    startContent: @Composable() () -> Unit,
+    fab: @Composable() (() -> Unit)?,
+    endContent: @Composable() () -> Unit
 ) {
     val appBar = @Composable { BaseBottomAppBarWithoutFab(color, startContent, endContent) }
     if (fab == null) {
@@ -277,15 +285,17 @@ private fun BaseBottomAppBarWithoutFab(
     BaseAppBar(color) {
         FlexRow(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
             inflexible {
-                startContent()
-                // TODO: if startContent() doesn't have any layout, then the endContent won't be
-                // placed at the end, so we need to trick it with a spacer
-                // TODO: if startContent() does have layout, this currently inserts an extra
-                // useless spacer which is placed evenly in the middle of the AppBar - this may
-                // cause rounding alignment issues.
-                WidthSpacer(width = 1.dp)
+                // Using a wrap so that even if startContent() is empty, we will still force
+                // end content to be placed at the end of the row.
+                Wrap {
+                    startContent()
+                }
             }
-            inflexible { endContent() }
+            inflexible {
+                Wrap {
+                    endContent()
+                }
+            }
         }
     }
 }
@@ -351,12 +361,10 @@ private fun <T> AppBarActions(
  */
 @Composable
 fun AppBarIcon(icon: Image, onClick: () -> Unit) {
-    Ripple(bounded = false) {
-        Clickable(onClick = onClick) {
-            Center {
-                Container(width = ActionIconDiameter, height = ActionIconDiameter) {
-                    SimpleImage(icon)
-                }
+    Container(width = ActionIconDiameter, height = ActionIconDiameter) {
+        Ripple(bounded = false) {
+            Clickable(onClick = onClick) {
+                SimpleImage(icon)
             }
         }
     }
@@ -367,6 +375,7 @@ private val ActionIconDiameter = 24.dp
 private val AppBarHeight = 56.dp
 private val BottomAppBarHeightWithFab = 84.dp
 private val AppBarPadding = 16.dp
+private val AppBarTitleStartPadding = 72.dp - AppBarPadding
 
 private const val MaxIconsInTopAppBar = 2
 private const val MaxIconsInBottomAppBarCenterFab = 2

@@ -22,16 +22,15 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
-import androidx.ui.core.dp
 import androidx.ui.core.setContent
 import androidx.ui.layout.Column
-import androidx.ui.layout.FlexColumn
-import androidx.ui.layout.HeightSpacer
+import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.SimpleBottomAppBarCenterFab
 import androidx.ui.material.samples.SimpleBottomAppBarEndFab
 import androidx.ui.material.samples.SimpleBottomAppBarNoFab
 import androidx.ui.material.samples.SimpleTopAppBar
+import androidx.ui.material.samples.SimpleTopAppBarNavIcon
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.imageFromResource
 
@@ -42,36 +41,28 @@ class AppBarActivity : Activity() {
             MaterialTheme {
                 val favouriteImage = { imageFromResource(resources, R.drawable.ic_favorite) }
                 val navigationImage = { imageFromResource(resources, R.drawable.ic_menu) }
-                FlexColumn {
-                    expanded(1f) {
-                        Column {
-                            SpacedText("TopAppBar")
-                            HeightSpacer(height = 28.dp)
-                            SimpleTopAppBar(favouriteImage, navigationImage)
-                        }
-                        Column {
-                            SpacedText("BottomAppBar - No FAB")
-                            HeightSpacer(height = 28.dp)
-                            SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
-                        }
-                        Column {
-                            SpacedText("BottomAppBar - Center FAB")
-                            SimpleBottomAppBarCenterFab(favouriteImage, navigationImage)
-                        }
-                        Column {
-                            SpacedText("BottomAppBar - End FAB")
-                            SimpleBottomAppBarEndFab(favouriteImage)
-                        }
-                    }
+                Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+                    DemoText("TopAppBar")
+                    SimpleTopAppBar(favouriteImage)
+
+                    DemoText("TopAppBar - With navigation icon")
+                    SimpleTopAppBarNavIcon(favouriteImage, navigationImage)
+
+                    DemoText("BottomAppBar - No FAB")
+                    SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
+
+                    DemoText("BottomAppBar - Center FAB")
+                    SimpleBottomAppBarCenterFab(favouriteImage, navigationImage)
+
+                    DemoText("BottomAppBar - End FAB")
+                    SimpleBottomAppBarEndFab(favouriteImage)
                 }
             }
         }
     }
 
     @Composable
-    private fun SpacedText(text: String) {
-        HeightSpacer(height = 12.dp)
+    private fun DemoText(text: String) {
         Text(text, style = +themeTextStyle { h6 })
-        HeightSpacer(height = 12.dp)
     }
 }

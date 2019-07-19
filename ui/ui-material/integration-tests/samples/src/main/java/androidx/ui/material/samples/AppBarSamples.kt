@@ -28,9 +28,24 @@ import androidx.ui.material.TopAppBar
 import androidx.ui.painting.Image
 
 @Suppress("UNUSED_VARIABLE")
+@Composable
+fun SimpleTopAppBar(getMyActionImage: () -> Image) {
+    val someActionImage: Image = getMyActionImage()
+    val contextualActions = listOf("Action 1" to someActionImage, "action 2" to someActionImage)
+
+    TopAppBar(
+        title = { Text("Simple TopAppBar") },
+        contextualActions = contextualActions
+    ) { actionData ->
+        val (actionTitle, actionImage) = actionData
+        AppBarIcon(actionImage) { /* doSomething()*/ }
+    }
+}
+
+@Suppress("UNUSED_VARIABLE")
 @Sampled
 @Composable
-fun SimpleTopAppBar(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
+fun SimpleTopAppBarNavIcon(getMyActionImage: () -> Image, getMyNavigationImage: () -> Image) {
     val someActionImage: Image = getMyActionImage()
     val someNavigationImage: Image = getMyNavigationImage()
 
