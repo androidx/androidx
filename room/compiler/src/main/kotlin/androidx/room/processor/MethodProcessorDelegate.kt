@@ -181,7 +181,10 @@ class SuspendMethodProcessorDelegate(
         }
     }
 
-    override fun extractReturnType() = executableElement.getSuspendFunctionReturnType()
+    override fun extractReturnType(): TypeMirror {
+        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
+        return MoreTypes.asExecutable(asMember).getSuspendFunctionReturnType()
+    }
 
     override fun extractParams() =
         executableElement.parameters.filterNot { it == continuationParam }
