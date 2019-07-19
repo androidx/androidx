@@ -271,11 +271,6 @@ package androidx.paging {
     method public abstract suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
     property public final boolean invalid;
     property public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
-    field public static final int COUNT_UNDEFINED = -1; // 0xffffffff
-    field public static final androidx.paging.PagedSource.Companion! Companion;
-  }
-
-  public static final class PagedSource.Companion {
   }
 
   public abstract static sealed class PagedSource.KeyProvider<Key, Value> {
@@ -310,22 +305,25 @@ package androidx.paging {
   }
 
   public static final class PagedSource.LoadResult<Key, Value> {
-    ctor public PagedSource.LoadResult(int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset, boolean counted);
+    ctor public PagedSource.LoadResult(@IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset);
     method public int component1();
     method public int component2();
     method public Key? component3();
     method public Key? component4();
     method public java.util.List<Value> component5();
     method public int component6();
-    method public boolean component7();
-    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset, boolean counted);
-    method public boolean getCounted();
+    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset);
     method public java.util.List<Value> getData();
     method public int getItemsAfter();
     method public int getItemsBefore();
     method public Key? getNextKey();
     method public int getOffset();
     method public Key? getPrevKey();
+    field public static final int COUNT_UNDEFINED = -1; // 0xffffffff
+    field public static final androidx.paging.PagedSource.LoadResult.Companion! Companion;
+  }
+
+  public static final class PagedSource.LoadResult.Companion {
   }
 
   public enum PagedSource.LoadType {
