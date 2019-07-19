@@ -161,7 +161,7 @@ class ButtonUiTest {
             return
         }
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 Button(onClick = {}, text = "Test button")
             }
             .assertHeightEqualsTo(36.dp)
@@ -169,7 +169,7 @@ class ButtonUiTest {
 
     @Test
     fun buttonTest_ButtonWithLargeFontSizeIsLargerThenMinHeight() {
-        val realSize: PxSize = composeTestRule.setMaterialContentAndCollectPixelSize {
+        val realSize: PxSize = composeTestRule.setMaterialContentAndGetPixelSize {
             Button(
                 onClick = {},
                 text = "Test button",

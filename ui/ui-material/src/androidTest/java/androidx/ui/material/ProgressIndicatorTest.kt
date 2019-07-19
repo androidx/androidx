@@ -72,7 +72,7 @@ class ProgressIndicatorTest {
     @Test
     fun determinateLinearProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 LinearProgressIndicator(progress = 0f)
             }
             .assertWidthEqualsTo(ExpectedLinearWidth)
@@ -82,7 +82,7 @@ class ProgressIndicatorTest {
     @Test
     fun indeterminateLinearProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 LinearProgressIndicator()
             }
             .assertWidthEqualsTo(ExpectedLinearWidth)
@@ -117,7 +117,7 @@ class ProgressIndicatorTest {
     @Test
     fun determinateCircularProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 CircularProgressIndicator(progress = 0f)
             }
             .assertIsSquareWithSize { 4.dp.toIntPx() * 2 + 40.dp.toIntPx() }
@@ -126,7 +126,7 @@ class ProgressIndicatorTest {
     @Test
     fun indeterminateCircularProgressIndicator_Size() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 CircularProgressIndicator()
             }
             .assertIsSquareWithSize { 4.dp.toIntPx() * 2 + 40.dp.toIntPx() }

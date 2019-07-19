@@ -40,7 +40,7 @@ class FloatingActionButtonUiTest {
     @Test
     fun defaultFabHasSizeFromSpec() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 FloatingActionButton(icon = createImage())
             }
             .assertIsSquareWithSize(56.dp)
@@ -49,7 +49,7 @@ class FloatingActionButtonUiTest {
     @Test
     fun extendedFabHasHeightFromSpec() {
         val size = composeTestRule
-            .setMaterialContentAndCollectPixelSize {
+            .setMaterialContentAndGetPixelSize {
                 FloatingActionButton(icon = createImage(), text = "Extended")
             }
         withDensity(composeTestRule.density) {

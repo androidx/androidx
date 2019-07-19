@@ -16,6 +16,10 @@
 
 package androidx.ui.test
 
+import androidx.ui.core.Density
+import androidx.ui.core.PxSize
+import androidx.ui.core.dp
+import androidx.ui.core.ipx
 import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.test.helpers.FakeSemanticsTreeInteraction
 import org.junit.Test
@@ -188,5 +192,29 @@ class AssertsTests {
 
         findByTag("test")
             .assertIsInMutuallyExclusiveGroup()
+    }
+
+    @Test
+    fun assertSizesTest_testPixelAssertion() {
+        val size = PxSize(50.ipx, 31.ipx)
+        val spec = CollectedSizes(size, Density(0f))
+        spec.assertWidthEqualsTo { 50.ipx }
+        spec.assertHeightEqualsTo { 31.ipx }
+    }
+
+    @Test
+    fun assertSizesTest_testDpAssertion() {
+        val size = PxSize(50.ipx, 30.ipx)
+        val spec = CollectedSizes(size, Density(2f))
+        spec.assertWidthEqualsTo(25.dp)
+        spec.assertHeightEqualsTo(15.dp)
+    }
+
+    @Test
+    fun assertSizesTest_testSquare() {
+        val size = PxSize(50.ipx, 50.ipx)
+        val spec = CollectedSizes(size, Density(2f))
+        spec.assertIsSquareWithSize(25.dp)
+        spec.assertIsSquareWithSize { 50.ipx }
     }
 }

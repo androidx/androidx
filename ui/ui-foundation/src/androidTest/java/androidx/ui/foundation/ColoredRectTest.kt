@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.material
+package androidx.ui.foundation
 
 import androidx.compose.composer
 import androidx.test.filters.MediumTest
@@ -24,6 +24,7 @@ import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
 import androidx.ui.layout.DpConstraints
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.setContentAndCollectSizes
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +32,7 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
-class ColoredRectUiTest {
+class ColoredRectTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -43,7 +44,7 @@ class ColoredRectUiTest {
         val width = 40.dp
         val height = 71.dp
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setContentAndCollectSizes {
                 ColoredRect(width = width, height = height, color = color)
             }
             .assertWidthEqualsTo(width)
@@ -55,7 +56,7 @@ class ColoredRectUiTest {
         val width = 40.dp
         val height = 71.dp
         composeTestRule
-            .setMaterialContentAndTestSizes(
+            .setContentAndCollectSizes(
                 parentConstraints = DpConstraints.tightConstraints(
                     width,
                     height
@@ -71,7 +72,7 @@ class ColoredRectUiTest {
     fun coloredRect_expand_WholeScreenSizes() {
         val dm = composeTestRule.displayMetrics
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setContentAndCollectSizes {
                 ColoredRect(color = color)
             }
             .assertWidthEqualsTo { dm.widthPixels.ipx }
