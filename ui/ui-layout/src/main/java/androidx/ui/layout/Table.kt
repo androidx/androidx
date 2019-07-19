@@ -85,8 +85,14 @@ sealed class TableColumnWidth {
 }
 
 /**
-* Layout model that arranges its children into rows and columns.
-*/
+ * Layout model that arranges its children into rows and columns.
+ *
+ * Example usage:
+ *
+ * @sample androidx.ui.layout.samples.SimpleTable
+ *
+ * @sample androidx.ui.layout.samples.TableWithDifferentColumnWidths
+ */
 @Composable
 fun Table(
     childAlignment: Alignment = Alignment.TopLeft,
