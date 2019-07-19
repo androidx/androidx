@@ -49,7 +49,7 @@ android {
 }
 
 androidx {
-    name = "VersionedParcelable and friends"
+    name = "VersionedParcelable"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.VERSIONED_PARCELABLE
     mavenGroup = LibraryGroups.VERSIONEDPARCELABLE
