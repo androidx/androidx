@@ -22,6 +22,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -30,6 +31,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.0.0")
     implementation("androidx.core:core:1.1.0-rc01")
     implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha03")
+    implementation(ARCH_LIFECYCLE_LIVEDATA)
 
     implementation(AUTO_VALUE_ANNOTATIONS)
     implementation(GUAVA_LISTENABLE_FUTURE)
@@ -56,6 +58,10 @@ dependencies {
     androidTestImplementation project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     }
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(KOTLIN_COROUTINES)
+    androidTestImplementation(KOTLIN_COROUTINES_GUAVA)
+    androidTestImplementation(project(":internal-testutils-ktx"))
 }
 
 android {
