@@ -27,7 +27,9 @@ import androidx.ui.core.OnPositioned
 import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
+import androidx.ui.core.px
 import androidx.ui.core.round
+import androidx.ui.text.style.TextDirection
 
 /**
  * Selection Widget.
@@ -77,7 +79,7 @@ fun SelectionContainer(
             TouchSlopDragGestureDetector(
                 dragObserver = manager.handleDragObserver(dragStartHandle = true)
             ) {
-                Layout(children = { LeftPointingSelectionHandle() }) { _, constraints ->
+                Layout(children = { StartSelectionHandle(selection) }) { _, constraints ->
                     layout(constraints.minWidth, constraints.minHeight) {}
                 }
             }
@@ -86,7 +88,7 @@ fun SelectionContainer(
             TouchSlopDragGestureDetector(
                 dragObserver = manager.handleDragObserver(dragStartHandle = false)
             ) {
-                Layout(children = { RightPointingSelectionHandle() }) { _, constraints ->
+                Layout(children = { EndSelectionHandle(selection) }) { _, constraints ->
                     layout(constraints.minWidth, constraints.minHeight) {}
                 }
             }
@@ -124,8 +126,12 @@ fun SelectionContainer(
                         selection.endLayoutCoordinates,
                         selection.endCoordinates
                     )
-                    start.place(startOffset.x - HANDLE_WIDTH, startOffset.y)
-                    end.place(endOffset.x, endOffset.y)
+                    val startAdjustedDistance =
+                        if (selection.startDirection == TextDirection.Ltr) - HANDLE_WIDTH else 0.px
+                    val endAdjustedDistance =
+                        if (selection.endDirection == TextDirection.Ltr) 0.px else - HANDLE_WIDTH
+                    start.place(startOffset.x + startAdjustedDistance, startOffset.y)
+                    end.place(endOffset.x + endAdjustedDistance, endOffset.y)
                 }
             }
         }
