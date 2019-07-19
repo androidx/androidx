@@ -19,6 +19,7 @@ package androidx.work;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 
@@ -41,11 +42,13 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
 
     private Context mContext;
     private WorkerFactory mDefaultWorkerFactory;
+    private ProgressUpdater mProgressUpdater;
 
     @Before
     public void setUp() {
         mContext = ApplicationProvider.getApplicationContext();
         mDefaultWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
+        mProgressUpdater = mock(ProgressUpdater.class);
     }
 
     @Test
@@ -66,7 +69,8 @@ public class DefaultWorkerFactoryTest extends DatabaseTest {
                         1,
                         executor,
                         new WorkManagerTaskExecutor(executor),
-                        mDefaultWorkerFactory));
+                        mDefaultWorkerFactory,
+                        mProgressUpdater));
         assertThat(worker, is(notNullValue()));
         assertThat(worker,
                 is(CoreMatchers.<ListenableWorker>instanceOf(TestWorker.class)));

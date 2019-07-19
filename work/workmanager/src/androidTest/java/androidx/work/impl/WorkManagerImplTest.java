@@ -963,12 +963,14 @@ public class WorkManagerImplTest {
                 ENQUEUED,
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 ENQUEUED,
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
@@ -984,6 +986,7 @@ public class WorkManagerImplTest {
                 RUNNING,
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
@@ -999,6 +1002,7 @@ public class WorkManagerImplTest {
                 RUNNING,
                 Data.EMPTY,
                 Collections.singletonList(TestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1));
 
@@ -1033,18 +1037,21 @@ public class WorkManagerImplTest {
                 RUNNING,
                 Data.EMPTY,
                 Arrays.asList(TestWorker.class.getName(), firstTag, secondTag),
+                Data.EMPTY,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
                 Arrays.asList(TestWorker.class.getName(), firstTag),
+                Data.EMPTY,
                 0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
                 SUCCEEDED,
                 Data.EMPTY,
                 Arrays.asList(TestWorker.class.getName(), secondTag),
+                Data.EMPTY,
                 0);
 
         List<WorkInfo> workInfos = mWorkManagerImpl.getWorkInfosByTag(firstTag).get();
@@ -1080,18 +1087,21 @@ public class WorkManagerImplTest {
                 RUNNING,
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
                 BLOCKED,
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
+                Data.EMPTY,
                 0);
 
         List<WorkInfo> workInfos = mWorkManagerImpl.getWorkInfosForUniqueWork(uniqueName).get();
@@ -1138,18 +1148,21 @@ public class WorkManagerImplTest {
                 RUNNING,
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         WorkInfo workInfo1 = new WorkInfo(
                 work1.getId(),
                 BLOCKED,
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         WorkInfo workInfo2 = new WorkInfo(
                 work2.getId(),
                 BLOCKED,
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1, workInfo2));
 
@@ -1164,6 +1177,7 @@ public class WorkManagerImplTest {
                 ENQUEUED,
                 Data.EMPTY,
                 Collections.singletonList(InfiniteTestWorker.class.getName()),
+                Data.EMPTY,
                 0);
         assertThat(captor.getValue(), containsInAnyOrder(workInfo0, workInfo1, workInfo2));
 

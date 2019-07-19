@@ -48,6 +48,7 @@ public final class WorkerParameters {
     private @NonNull Executor mBackgroundExecutor;
     private @NonNull TaskExecutor mWorkTaskExecutor;
     private @NonNull WorkerFactory mWorkerFactory;
+    private @NonNull ProgressUpdater mProgressUpdater;
 
     /**
      * @hide
@@ -61,7 +62,8 @@ public final class WorkerParameters {
             @IntRange(from = 0) int runAttemptCount,
             @NonNull Executor backgroundExecutor,
             @NonNull TaskExecutor workTaskExecutor,
-            @NonNull WorkerFactory workerFactory) {
+            @NonNull WorkerFactory workerFactory,
+            @NonNull ProgressUpdater progressUpdater) {
         mId = id;
         mInputData = inputData;
         mTags = new HashSet<>(tags);
@@ -70,6 +72,7 @@ public final class WorkerParameters {
         mBackgroundExecutor = backgroundExecutor;
         mWorkTaskExecutor = workTaskExecutor;
         mWorkerFactory = workerFactory;
+        mProgressUpdater = progressUpdater;
     }
 
     /**
@@ -170,6 +173,14 @@ public final class WorkerParameters {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerFactory getWorkerFactory() {
         return mWorkerFactory;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull ProgressUpdater getProgressUpdater() {
+        return mProgressUpdater;
     }
 
     /**

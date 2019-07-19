@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Data;
 import androidx.work.ListenableWorker;
+import androidx.work.ProgressUpdater;
 import androidx.work.WorkRequest;
 import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
@@ -56,6 +57,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     private WorkerFactory mWorkerFactory;
     private TaskExecutor mTaskExecutor;
     private Executor mExecutor;
+    private ProgressUpdater mProgressUpdater;
 
     TestListenableWorkerBuilder(@NonNull Context context, @NonNull Class<W> workerClass) {
         mContext = context;
@@ -69,6 +71,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
         mWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
         mTaskExecutor = new InstantWorkTaskExecutor();
         mExecutor = mTaskExecutor.getBackgroundExecutor();
+        mProgressUpdater = new TestProgressUpdater();
     }
 
     /**
@@ -158,6 +161,12 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     @NonNull
     Executor getExecutor() {
         return mExecutor;
+    }
+
+    @NonNull
+    @SuppressWarnings("KotlinPropertyAccess")
+    ProgressUpdater getProgressUpdater() {
+        return mProgressUpdater;
     }
 
     /**
@@ -263,6 +272,19 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     }
 
     /**
+     * Sets the {@link ProgressUpdater} to be used to construct the
+     * {@link androidx.work.ListenableWorker}.
+     *
+     * @param updater The {@link ProgressUpdater} which can handle progress updates.
+     * @return The current {@link TestListenableWorkerBuilder}
+     */
+    @NonNull
+    public TestListenableWorkerBuilder setProgressUpdater(@NonNull ProgressUpdater updater) {
+        mProgressUpdater = updater;
+        return this;
+    }
+
+    /**
      * Sets the {@link Executor} that can be used to execute this unit of work.
      *
      * @param executor The {@link Executor}
@@ -292,7 +314,8 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
                         // This is unused for ListenableWorker
                         getExecutor(),
                         getTaskExecutor(),
-                        getWorkerFactory()
+                        getWorkerFactory(),
+                        getProgressUpdater()
                 );
 
         WorkerFactory workerFactory = parameters.getWorkerFactory();

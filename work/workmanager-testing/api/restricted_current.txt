@@ -19,6 +19,7 @@ package androidx.work.testing {
     method public androidx.work.testing.TestListenableWorkerBuilder setId(java.util.UUID);
     method public androidx.work.testing.TestListenableWorkerBuilder setInputData(androidx.work.Data);
     method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder setNetwork(android.net.Network);
+    method public androidx.work.testing.TestListenableWorkerBuilder setProgressUpdater(androidx.work.ProgressUpdater);
     method public androidx.work.testing.TestListenableWorkerBuilder setRunAttemptCount(int);
     method public androidx.work.testing.TestListenableWorkerBuilder setTags(java.util.List<java.lang.String!>);
     method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
@@ -29,6 +30,11 @@ package androidx.work.testing {
   public final class TestListenableWorkerBuilderKt {
     ctor public TestListenableWorkerBuilderKt();
     method public static inline <reified W extends androidx.work.ListenableWorker> androidx.work.testing.TestListenableWorkerBuilder<W> TestListenableWorkerBuilder(android.content.Context context, androidx.work.Data inputData = androidx.work.Data.EMPTY, java.util.List<java.lang.String> tags = emptyList(), int runAttemptCount = 1, java.util.List<? extends android.net.Uri> triggeredContentUris = emptyList(), java.util.List<java.lang.String> triggeredContentAuthorities = emptyList());
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public class TestProgressUpdater implements androidx.work.ProgressUpdater {
+    ctor public TestProgressUpdater();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
   }
 
   public class TestWorkerBuilder<W extends androidx.work.Worker> extends androidx.work.testing.TestListenableWorkerBuilder<W> {
