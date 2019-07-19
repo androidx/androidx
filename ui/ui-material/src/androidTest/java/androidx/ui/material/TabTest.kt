@@ -54,7 +54,7 @@ class TabTest {
     @Test
     fun textTab_Height() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 Container {
                     Surface {
                         Tab(text = "Text", selected = true, onSelected = {})
@@ -67,7 +67,7 @@ class TabTest {
     @Test
     fun iconTab_Height() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 Container {
                     Surface {
                         Tab(icon = image, selected = true, onSelected = {})
@@ -80,7 +80,7 @@ class TabTest {
     @Test
     fun textAndIconTab_Height() {
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 Container {
                     Surface {
                         Tab(text = "Text And Icon", icon = image, selected = true, onSelected = {})

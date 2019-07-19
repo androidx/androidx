@@ -59,7 +59,7 @@ class AppBarTest {
     fun topAppBar_expandsToScreen() {
         val dm = composeTestRule.displayMetrics
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 TopAppBar<Nothing>()
             }
             .assertHeightEqualsTo(appBarHeight)
@@ -191,7 +191,7 @@ class AppBarTest {
     fun bottomAppBar_expandsToScreen() {
         val dm = composeTestRule.displayMetrics
         composeTestRule
-            .setMaterialContentAndTestSizes {
+            .setMaterialContentAndCollectSizes {
                 BottomAppBar<Nothing>()
             }
             .assertHeightEqualsTo(appBarHeight)
