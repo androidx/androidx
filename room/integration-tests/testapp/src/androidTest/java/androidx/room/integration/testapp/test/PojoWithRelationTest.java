@@ -20,11 +20,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import androidx.room.integration.testapp.vo.Cluster;
 import androidx.room.integration.testapp.vo.EmbeddedUserAndAllPets;
+import androidx.room.integration.testapp.vo.Hivemind;
 import androidx.room.integration.testapp.vo.House;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetAndOwner;
 import androidx.room.integration.testapp.vo.PetWithToyIds;
+import androidx.room.integration.testapp.vo.Robot;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
@@ -44,6 +47,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -294,5 +298,37 @@ public class PojoWithRelationTest extends TestDatabaseTest {
         assertThat(petAndOwners.get(0).getUser().getId(), is(1));
         assertThat(petAndOwners.get(1).getUser().getId(), is(1));
         assertThat(petAndOwners.get(2).getUser().getId(), is(2));
+    }
+
+    @Test
+    public void relationWithBlobKey() {
+        UUID hiveId1 = UUID.randomUUID();
+        UUID hiveId2 = UUID.randomUUID();
+        UUID robotId1 = UUID.randomUUID();
+        UUID robotId2 = UUID.randomUUID();
+        UUID robotId3 = UUID.randomUUID();
+
+        mRobotsDao.putHivemind(new Hivemind(hiveId1));
+        mRobotsDao.putHivemind(new Hivemind(hiveId2));
+        mRobotsDao.putRobot(new Robot(robotId1, hiveId1));
+        mRobotsDao.putRobot(new Robot(robotId2, hiveId1));
+        mRobotsDao.putRobot(new Robot(robotId3, hiveId2));
+
+        List<Robot> firstHiveRobots = mRobotsDao.getHiveRobots(hiveId1);
+        assertThat(firstHiveRobots.size(), is(2));
+        assertThat(firstHiveRobots.get(0).mId, is(robotId1));
+        assertThat(firstHiveRobots.get(1).mId, is(robotId2));
+
+        List<Robot> secondHiveRobots = mRobotsDao.getHiveRobots(hiveId2);
+        assertThat(secondHiveRobots.size(), is(1));
+        assertThat(secondHiveRobots.get(0).mId, is(robotId3));
+
+        List<Cluster> clusterResult = mRobotsDao.getCluster();
+        assertThat(clusterResult.size(), is(2));
+        assertThat(clusterResult.get(0).mRobotList.size(), is(2));
+        assertThat(clusterResult.get(0).mRobotList.get(0).mId, is(robotId1));
+        assertThat(clusterResult.get(0).mRobotList.get(1).mId, is(robotId2));
+        assertThat(clusterResult.get(1).mRobotList.size(), is(1));
+        assertThat(clusterResult.get(1).mRobotList.get(0).mId, is(robotId3));
     }
 }

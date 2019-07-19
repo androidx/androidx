@@ -81,6 +81,7 @@ import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.solver.types.BoxedBooleanToBoxedIntConverter
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.ByteArrayColumnTypeAdapter
+import androidx.room.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.CompositeTypeConverter
@@ -155,6 +156,7 @@ class TypeAdapterStore private constructor(
                     .forEach(::addColumnAdapter)
             addColumnAdapter(StringColumnTypeAdapter(context.processingEnv))
             addColumnAdapter(ByteArrayColumnTypeAdapter(context.processingEnv))
+            addColumnAdapter(ByteBufferColumnTypeAdapter(context.processingEnv))
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
             BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
                     .forEach(::addTypeConverter)
