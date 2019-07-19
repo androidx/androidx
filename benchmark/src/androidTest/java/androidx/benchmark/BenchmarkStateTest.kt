@@ -94,7 +94,7 @@ class BenchmarkStateTest {
         )
 
         // check attribute presence and naming
-        val prefix = WarningState.WARNING_PREFIX
+        val prefix = Errors.WARNING_PREFIX
         assertNotNull(bundle.get("${prefix}min"))
         assertNotNull(bundle.get("${prefix}mean"))
         assertNotNull(bundle.get("${prefix}count"))

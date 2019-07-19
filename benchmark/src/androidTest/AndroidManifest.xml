@@ -19,7 +19,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.benchmark.test">
 
-    <application>
+    <application
+        android:name="androidx.benchmark.ArgumentInjectingApplication">
         <activity android:name="android.app.Activity"/>
     </application>
 </manifest>
