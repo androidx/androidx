@@ -19,6 +19,7 @@ package androidx.work.testing {
     method public androidx.work.testing.TestListenableWorkerBuilder setId(java.util.UUID);
     method public androidx.work.testing.TestListenableWorkerBuilder setInputData(androidx.work.Data);
     method @RequiresApi(28) public androidx.work.testing.TestListenableWorkerBuilder setNetwork(android.net.Network);
+    method public androidx.work.testing.TestListenableWorkerBuilder setProgressUpdater(androidx.work.ProgressUpdater);
     method public androidx.work.testing.TestListenableWorkerBuilder setRunAttemptCount(int);
     method public androidx.work.testing.TestListenableWorkerBuilder setTags(java.util.List<java.lang.String!>);
     method @RequiresApi(24) public androidx.work.testing.TestListenableWorkerBuilder setTriggeredContentAuthorities(java.util.List<java.lang.String!>);
