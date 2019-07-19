@@ -28,10 +28,12 @@ import static org.mockito.Mockito.verify;
 import android.app.Activity;
 import android.content.res.AssetFileDescriptor;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.PixelCopy;
 import android.view.SurfaceView;
@@ -41,6 +43,8 @@ import androidx.annotation.Nullable;
 import androidx.media2.common.FileMediaItem;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
+import androidx.media2.common.UriMediaItem;
+import androidx.media2.common.VideoSize;
 import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
 import androidx.test.filters.LargeTest;
@@ -53,8 +57,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -107,7 +113,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     @Test
     public void testPlayVideo() throws Throwable {
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
-        PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem);
+        PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(callback.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -131,7 +137,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         afd.close();
 
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
-        PlayerWrapper playerWrapper = createPlayerWrapper(callback, item);
+        PlayerWrapper playerWrapper = createPlayerWrapper(callback, item, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(callback.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -147,7 +153,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 mock(VideoView.OnViewTypeChangedListener.class);
 
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
-        PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem);
+        PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
         setPlayerWrapper(playerWrapper);
 
         // The default view type is surface view.
@@ -176,7 +182,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 mock(VideoView.OnViewTypeChangedListener.class);
 
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
-        PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem);
+        PlayerWrapper playerWrapper = createPlayerWrapper(callback, mMediaItem, null);
         setPlayerWrapper(playerWrapper);
 
         // The default view type is surface view.
@@ -220,7 +226,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
             @Override
             public void run() {
                 PlayerWrapper playerWrapper = createPlayerWrapper(new DefaultPlayerCallback(),
-                        mMediaItem);
+                        mMediaItem, null);
 
                 MediaControlView defaultMediaControlView = mVideoView.getMediaControlView();
                 assertNotNull(defaultMediaControlView);
@@ -257,6 +263,48 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         });
     }
 
+    @Test
+    public void testOnVideoSizeChanged() throws Throwable {
+        final Uri nonMusicUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
+                + R.raw.testvideo_with_2_subtitle_tracks);
+        final Uri musicUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
+                + R.raw.test_music);
+        final VideoSize nonMusicVideoSize = new VideoSize(160, 90);
+        final VideoSize musicVideoSize = new VideoSize(0, 0);
+
+        final CountDownLatch latchForNonMusicItem = new CountDownLatch(1);
+        final CountDownLatch latchForMusicItem = new CountDownLatch(1);
+
+        List<MediaItem> playlist = new ArrayList<>();
+        playlist.add(createTestMediaItem(nonMusicUri));
+        playlist.add(createTestMediaItem(musicUri));
+
+        final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
+            @Override
+            void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull MediaItem item,
+                    @NonNull VideoSize videoSize) {
+                if (item == null) {
+                    return;
+                }
+                if (TextUtils.equals(((UriMediaItem) item).getUri().toString(),
+                        nonMusicUri.toString())) {
+                    if (nonMusicVideoSize.equals(videoSize)) {
+                        latchForNonMusicItem.countDown();
+                    }
+                } else if (TextUtils.equals(((UriMediaItem) item).getUri().toString(),
+                        musicUri.toString())) {
+                    if (musicVideoSize.equals(videoSize)) {
+                        latchForMusicItem.countDown();
+                    }
+                }
+            }
+        }, null, playlist);
+        setPlayerWrapper(playerWrapper);
+        assertTrue(latchForNonMusicItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        playerWrapper.skipToNextItem();
+        assertTrue(latchForMusicItem.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -271,8 +319,8 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item) {
-        return createPlayerWrapperOfType(callback, item, mPlayerType);
+            @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
+        return createPlayerWrapperOfType(callback, item, playlist, mPlayerType);
     }
 
     private void checkVideoRendering() throws InterruptedException {

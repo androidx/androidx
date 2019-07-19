@@ -182,11 +182,12 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         assertTrue(callback1.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         DefaultPlayerCallback callback2 = new DefaultPlayerCallback();
-        PlayerWrapper wrapper2 = createPlayerWrapperOfPlayer(callback2, mFileSchemeMediaItem);
+        PlayerWrapper wrapper2 = createPlayerWrapperOfPlayer(callback2, mFileSchemeMediaItem, null);
         assertTrue(callback2.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         DefaultPlayerCallback callback3 = new DefaultPlayerCallback();
-        PlayerWrapper wrapper3 = createPlayerWrapperOfController(callback3, mFileSchemeMediaItem);
+        PlayerWrapper wrapper3 = createPlayerWrapperOfController(callback3, mFileSchemeMediaItem,
+                null);
         assertTrue(callback3.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         DefaultPlayerCallback callback4 = new DefaultPlayerCallback();
@@ -464,6 +465,6 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
 
     private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item) {
-        return createPlayerWrapperOfType(callback, item, mPlayerType);
+        return createPlayerWrapperOfType(callback, item, null, mPlayerType);
     }
 }
