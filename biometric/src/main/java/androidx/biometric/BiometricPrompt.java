@@ -69,6 +69,8 @@ public class BiometricPrompt implements BiometricConstants {
     // In order to keep consistent behavior between versions, we need to send
     // FingerprintDialogFragment a message indicating whether or not to dismiss the UI instantly.
     private static final int DELAY_MILLIS = 500;
+    // For debugging fingerprint dialog only. Must never be checked in as `true`.
+    private static final boolean DEBUG_FORCE_FINGERPRINT = false;
 
     static final String DIALOG_FRAGMENT_TAG = "FingerprintDialogFragment";
     static final String FINGERPRINT_HELPER_FRAGMENT_TAG = "FingerprintHelperFragment";
@@ -415,7 +417,8 @@ public class BiometricPrompt implements BiometricConstants {
                     mExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                                    && !DEBUG_FORCE_FINGERPRINT) {
                                 CharSequence errorText =
                                         mBiometricFragment.getNegativeButtonText();
                                 mAuthenticationCallback.onAuthenticationError(
@@ -445,7 +448,7 @@ public class BiometricPrompt implements BiometricConstants {
         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
         void onPause() {
             if (!isChangingConfigurations()) {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && !DEBUG_FORCE_FINGERPRINT) {
                     // May be null if no authentication is occurring.
                     if (mFingerprintDialogFragment != null) {
                         mFingerprintDialogFragment.dismiss();
@@ -480,7 +483,7 @@ public class BiometricPrompt implements BiometricConstants {
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         void onResume() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !DEBUG_FORCE_FINGERPRINT) {
                 mBiometricFragment =
                         (BiometricFragment) getFragmentManager().findFragmentByTag(
                                 BIOMETRIC_FRAGMENT_TAG);
@@ -611,7 +614,7 @@ public class BiometricPrompt implements BiometricConstants {
         final Bundle bundle = info.getBundle();
         final FragmentManager fragmentManager = getFragmentManager();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !DEBUG_FORCE_FINGERPRINT) {
             mPausedOnce = false;
 
             BiometricFragment biometricFragment =
@@ -694,7 +697,7 @@ public class BiometricPrompt implements BiometricConstants {
      * biometric service.
      */
     public void cancelAuthentication() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !DEBUG_FORCE_FINGERPRINT) {
             if (mBiometricFragment != null) {
                 mBiometricFragment.cancel();
             }
