@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.Manifest;
 import android.content.Context;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
@@ -96,6 +97,10 @@ public final class ExtensionsErrorListenerTest {
 
     @Before
     public void setUp() {
+        // Ignore the tests if SDK is before M since extension implementation is only supported
+        // after M.
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
+
         Context context = ApplicationProvider.getApplicationContext();
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
