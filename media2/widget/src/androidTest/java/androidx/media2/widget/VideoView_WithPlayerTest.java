@@ -282,7 +282,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         }
         if (Build.VERSION.SDK_INT >= 24) {
             final int bufferQueueToleranceMs = 200;
-            final int elapsedTimeForSecondScreenshotMs = 100;
+            final int elapsedTimeForSecondScreenshotMs = 400;
 
             // Tolerance until the video buffers are actually queued.
             Thread.sleep(bufferQueueToleranceMs);
