@@ -63,7 +63,7 @@ class RxPagedListBuilderTest {
         assertEquals(listOf("a", "b"), observer.values().first())
 
         // invalidate triggers second load
-        observer.values().first().dataSource.invalidate()
+        observer.values().first().pagedSource.invalidate()
         scheduler.triggerActions()
         observer.assertValueCount(2)
         assertEquals(listOf("c", "d"), observer.values().last())

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,15 +21,16 @@ import androidx.testutils.TestExecutor
 class StringPagedList constructor(
     leadingNulls: Int,
     trailingNulls: Int,
-    vararg items: String
+    vararg items: String,
+    list: List<String> = items.toList()
 ) : PagedList<String>(
+    PagedSourceWrapper(ListDataSource(list)),
     PagedStorage(),
     TestExecutor(),
     TestExecutor(),
     null,
-    PagedList.Config.Builder().setPageSize(1).build()
+    Config.Builder().setPageSize(1).build()
 ), PagedStorage.Callback {
-    val list = items.toList()
     var detached = false
 
     init {
@@ -69,8 +70,6 @@ class StringPagedList constructor(
     override fun onPagePlaceholderInserted(pageIndex: Int) {}
 
     override fun onPageInserted(start: Int, count: Int) {}
-
-    override val dataSource = ListDataSource(list)
 
     override fun onPagesRemoved(startOfDrops: Int, count: Int) = notifyRemoved(startOfDrops, count)
 

@@ -19,7 +19,6 @@ package androidx.paging
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -36,17 +35,31 @@ class PagedListTest {
     companion object {
         private val ITEMS = List(100) { "$it" }
         private val config = Config(10)
-        private val dataSource = object : PositionalDataSource<String>() {
-            override fun loadInitial(
-                params: LoadInitialParams,
-                callback: LoadInitialCallback<String>
-            ) {
-                callback.onResult(listOf("a"), 0, 1)
+
+        private val pagedSource = object : PagedSource<Int, String>() {
+            override val keyProvider = KeyProvider.Positional<String>()
+
+            private var _invalid = false
+            override val invalid: Boolean
+                get() = _invalid
+
+            override fun invalidate() {
+                _invalid = true
             }
 
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-                fail()
-            }
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
+                when (params.loadType) {
+                    LoadType.INITIAL -> LoadResult(
+                        0,
+                        0,
+                        data = listOf("a"),
+                        offset = 0,
+                        counted = true
+                    )
+                    else -> throw NotImplementedError("Test should fail if we get here")
+                }
+
+            override fun isRetryableError(error: Throwable) = false
         }
     }
 
@@ -75,8 +88,8 @@ class PagedListTest {
 
         val job = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
             val pagedList = PagedList.create(
-                ListDataSource(ITEMS),
-                GlobalScope,
+                PagedSourceWrapper(ListDataSource(ITEMS)),
+                testCoroutineScope,
                 mainThread,
                 backgroundThread,
                 backgroundThread,
@@ -118,8 +131,8 @@ class PagedListTest {
         assertFails {
             val job = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
                 PagedList.create(
-                    dataSource,
-                    GlobalScope,
+                    PagedSourceWrapper(dataSource),
+                    testCoroutineScope,
                     mainThread,
                     backgroundThread,
                     backgroundThread,
@@ -139,23 +152,12 @@ class PagedListTest {
 
     @Test
     fun defaults() = runBlocking {
-        val pagedList = PagedList(
-            dataSource = dataSource,
-            config = config,
-            fetchExecutor = DirectExecutor,
-            notifyExecutor = DirectExecutor
-        )
+        val pagedList = PagedList.Builder(pagedSource, config)
+            .setNotifyExecutor(DirectExecutor)
+            .setFetchExecutor(DirectExecutor)
+            .buildAsync()
 
-        assertEquals(dataSource, pagedList.dataSource.unwrapDataSource())
+        assertEquals(pagedSource, pagedList.pagedSource)
         assertEquals(config, pagedList.config)
-    }
-
-    private fun PagedSource<*, *>.unwrapDataSource(): DataSource<*, *> {
-        return (this as PagedSourceWrapper<*, *>).dataSource.unwrapDataSource()
-    }
-
-    private fun DataSource<*, *>.unwrapDataSource(): DataSource<*, *> {
-        if (this is DataSourceWrapper<*, *>) return this.pagedSource.unwrapDataSource()
-        return this
     }
 }

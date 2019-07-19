@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
 import androidx.paging.PagedSource.KeyProvider
 import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
@@ -27,7 +28,7 @@ import java.util.concurrent.Executor
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
-    private val pagedSource: PagedSource<K, V>,
+    pagedSource: PagedSource<K, V>,
     coroutineScope: CoroutineScope,
     mainThreadExecutor: Executor,
     backgroundThreadExecutor: Executor,
@@ -36,6 +37,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
     initialResult: PagedSource.LoadResult<K, V>,
     lastLoad: Int
 ) : PagedList<V>(
+    pagedSource,
     PagedStorage<V>(),
     mainThreadExecutor,
     backgroundThreadExecutor,
@@ -57,8 +59,6 @@ open class ContiguousPagedList<K : Any, V : Any>(
             itemsBeforeTrailingNulls: Int
         ) = index + prefetchDistance + 1 - itemsBeforeTrailingNulls
     }
-
-    final override val dataSource: DataSource<K, V> = DataSourceWrapper(pagedSource)
 
     private var prependItemsRequested = 0
 
@@ -228,8 +228,10 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (this.lastLoad == LAST_LOAD_UNSPECIFIED) {
             // Because the ContiguousPagedList wasn't initialized with a last load position,
             // initialize it to the middle of the initial load
-            this.lastLoad = (initialResult.itemsBefore + initialResult.offset +
-                    initialResult.data.size / 2)
+
+            val itemsBefore =
+                if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0
+            this.lastLoad = (itemsBefore + initialResult.data.size / 2)
         }
         triggerBoundaryCallback(LoadType.REFRESH, initialResult.data)
     }
