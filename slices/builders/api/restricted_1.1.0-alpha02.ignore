@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-AddedAbstractMethod: androidx.slice.builders.impl.MessagingBuilder#add(androidx.slice.builders.impl.TemplateBuilderImpl):
-    Added method androidx.slice.builders.impl.MessagingBuilder.add(androidx.slice.builders.impl.TemplateBuilderImpl)
-AddedAbstractMethod: androidx.slice.builders.impl.MessagingBuilder#createMessageBuilder():
-    Added method androidx.slice.builders.impl.MessagingBuilder.createMessageBuilder()
