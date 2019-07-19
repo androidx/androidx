@@ -18,6 +18,8 @@ package androidx.paging
 
 import androidx.annotation.RestrictTo
 import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 /**
  * TODO: Move all call-sites dependent on this to use [PagedSource] directly.
@@ -28,7 +30,7 @@ import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PagedSourceWrapper<Key : Any, Value : Any>(
-    private val dataSource: DataSource<Key, Value>
+    internal val dataSource: DataSource<Key, Value>
 ) : PagedSource<Key, Value>() {
     override val keyProvider: KeyProvider<Key, Value> = when (dataSource.type) {
         DataSource.KeyType.POSITIONAL -> {
@@ -74,14 +76,13 @@ class PagedSourceWrapper<Key : Any, Value : Any>(
  * A wrapper around [PagedSource] which adapts it to the [DataSource] API.
  */
 internal class DataSourceWrapper<Key : Any, Value : Any>(
-    private val pagedSource: PagedSource<Key, Value>
+    internal val pagedSource: PagedSource<Key, Value>
 ) : DataSource<Key, Value>(
     when (pagedSource.keyProvider) {
         is PagedSource.KeyProvider.Positional -> KeyType.POSITIONAL
         is PagedSource.KeyProvider.PageKey -> KeyType.PAGE_KEYED
         is PagedSource.KeyProvider.ItemKey -> KeyType.ITEM_KEYED
     }
-
 ) {
     override suspend fun load(params: Params<Key>): BaseResult<Value> {
         val loadType = when (params.type) {
@@ -98,7 +99,10 @@ internal class DataSourceWrapper<Key : Any, Value : Any>(
             params.pageSize
         )
 
-        val initialResult = pagedSource.load(dataSourceParams)
+        val initialResult = withContext(executor.asCoroutineDispatcher()) {
+            pagedSource.load(dataSourceParams)
+        }
+
         return BaseResult(
             initialResult.data,
             initialResult.prevKey,
@@ -124,4 +128,11 @@ internal class DataSourceWrapper<Key : Any, Value : Any>(
     }
 
     override fun isRetryableError(error: Throwable): Boolean = pagedSource.isRetryableError(error)
+
+    override val isInvalid: Boolean
+        get() = pagedSource.invalid
+
+    override fun invalidate() {
+        pagedSource.invalidate()
+    }
 }

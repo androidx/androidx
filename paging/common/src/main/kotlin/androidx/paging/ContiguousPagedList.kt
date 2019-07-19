@@ -27,8 +27,7 @@ import java.util.concurrent.Executor
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
-    // TODO: Passed pagedSource in instead of dataSource.
-    final override val dataSource: DataSource<K, V>,
+    private val pagedSource: PagedSource<K, V>,
     coroutineScope: CoroutineScope,
     mainThreadExecutor: Executor,
     backgroundThreadExecutor: Executor,
@@ -59,7 +58,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         ) = index + prefetchDistance + 1 - itemsBeforeTrailingNulls
     }
 
-    private val pagedSource: PagedSource<K, V> = PagedSourceWrapper(dataSource)
+    final override val dataSource: DataSource<K, V> = DataSourceWrapper(pagedSource)
 
     private var prependItemsRequested = 0
 

@@ -116,7 +116,15 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         }
     }
 
+    private fun PagedSource<*, Item>.enqueueErrorForIndex(index: Int) {
+        (this as PagedSourceWrapper<*, Item>).dataSource.enqueueErrorForIndex(index)
+    }
+
     private fun DataSource<*, Item>.enqueueErrorForIndex(index: Int) {
+        if (this is DataSourceWrapper<*, Item>) {
+            this.pagedSource.enqueueErrorForIndex(index)
+            return
+        }
         (this as TestSource).enqueueErrorForIndex(index)
     }
 
@@ -204,7 +212,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     @Test
     fun getDataSource() {
         val pagedList = createCountedPagedList(0)
-        assertTrue(pagedList.dataSource is TestSource)
+        assertTrue(pagedList.dataSource is TestSource || pagedList.dataSource is DataSourceWrapper)
 
         // snapshot keeps same DataSource
         assertSame(

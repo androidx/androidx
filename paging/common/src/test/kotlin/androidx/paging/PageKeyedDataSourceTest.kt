@@ -18,7 +18,10 @@ package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -31,6 +34,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
@@ -92,7 +96,8 @@ class PageKeyedDataSourceTest {
     @Test
     fun loadFullVerify() {
         // validate paging entire ItemDataSource results in full, correctly ordered data
-        val pagedList = runBlocking {
+        val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
+        val pagedListJob = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
             PagedList.create(
                 ItemDataSource(),
                 GlobalScope,
@@ -104,7 +109,9 @@ class PageKeyedDataSourceTest {
                 null
             )
         }
+
         backgroundThread.executeAll()
+        val pagedList = runBlocking { pagedListJob.await() }
 
         // validate initial load
         assertEquals(PAGE_MAP[INIT_KEY]!!.data, pagedList)
@@ -258,7 +265,8 @@ class PageKeyedDataSourceTest {
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
         val executor = TestExecutor()
 
-        val pagedList = runBlocking {
+        val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
+        val pagedListJob = testCoroutineScope.async(executor.asCoroutineDispatcher()) {
             PagedList.create(
                 dataSource,
                 GlobalScope,
@@ -272,8 +280,10 @@ class PageKeyedDataSourceTest {
                 ""
             )
         }
+
         executor.executeAll()
 
+        val pagedList = runBlocking { pagedListJob.await() }
         pagedList.loadAround(0)
 
         verifyZeroInteractions(boundaryCallback)
@@ -317,10 +327,11 @@ class PageKeyedDataSourceTest {
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
         val executor = TestExecutor()
 
-        val pagedList = runBlocking {
+        val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
+        val pagedListJob = testCoroutineScope.async(executor.asCoroutineDispatcher()) {
             PagedList.create(
                 dataSource,
-                GlobalScope,
+                testCoroutineScope,
                 executor,
                 executor,
                 executor,
@@ -332,6 +343,7 @@ class PageKeyedDataSourceTest {
             )
         }
         executor.executeAll()
+        val pagedList = runBlocking { pagedListJob.await() }
 
         pagedList.loadAround(0)
 
