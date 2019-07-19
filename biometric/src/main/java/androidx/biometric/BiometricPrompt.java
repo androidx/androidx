@@ -470,7 +470,7 @@ public class BiometricPrompt implements BiometricConstants {
                             mBiometricFragment.cancel();
                         }
                     }
-                } else {
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     if (mBiometricFragment != null) {
                         mBiometricFragment.cancel();
                     }
