@@ -18,6 +18,7 @@ package androidx.paging
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
+import androidx.paging.PagedSource.KeyProvider
 import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
 
@@ -26,13 +27,14 @@ import java.util.concurrent.Executor
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 open class ContiguousPagedList<K : Any, V : Any>(
+    // TODO: Passed pagedSource in instead of dataSource.
     final override val dataSource: DataSource<K, V>,
     coroutineScope: CoroutineScope,
     mainThreadExecutor: Executor,
     backgroundThreadExecutor: Executor,
     boundaryCallback: BoundaryCallback<V>?,
     config: Config,
-    initialResult: DataSource.BaseResult<V>,
+    initialResult: PagedSource.LoadResult<K, V>,
     lastLoad: Int
 ) : PagedList<V>(
     PagedStorage<V>(),
@@ -57,23 +59,26 @@ open class ContiguousPagedList<K : Any, V : Any>(
         ) = index + prefetchDistance + 1 - itemsBeforeTrailingNulls
     }
 
+    private val pagedSource: PagedSource<K, V> = PagedSourceWrapper(dataSource)
+
     private var prependItemsRequested = 0
 
     private var appendItemsRequested = 0
 
     private var replacePagesWithNulls = false
 
-    private val shouldTrim =
-        dataSource.supportsPageDropping && config.maxSize != Config.MAX_SIZE_UNBOUNDED
+    private val shouldTrim = (pagedSource.keyProvider is KeyProvider.Positional ||
+            pagedSource.keyProvider is KeyProvider.ItemKey) &&
+            config.maxSize != Config.MAX_SIZE_UNBOUNDED
 
     private val pager = Pager(
         coroutineScope,
         config,
-        PagedSourceWrapper(dataSource),
+        pagedSource,
         mainThreadExecutor,
         backgroundThreadExecutor,
         this,
-        initialResult.toLoadResult(),
+        initialResult,
         storage
     )
 
@@ -83,12 +88,14 @@ open class ContiguousPagedList<K : Any, V : Any>(
     override val isContiguous = true
 
     override val lastKey
-        get() = when (dataSource.type) {
-            DataSource.KeyType.POSITIONAL -> {
+        get() = when (val keyProvider = pagedSource.keyProvider) {
+            is KeyProvider.Positional -> {
                 @Suppress("UNCHECKED_CAST")
                 lastLoad as K
             }
-            else -> lastItem?.let { dataSource.getKeyInternal(it) }
+            is KeyProvider.PageKey ->
+                throw IllegalStateException("Cannot get key by item from KeyProvider.PageKey")
+            is KeyProvider.ItemKey -> lastItem?.let { keyProvider.getKey(it) }
         }
 
     /**
@@ -136,7 +143,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
 
         if (shouldTrim) {
             // Try and trim, but only if the side being trimmed isn't actually fetching.
-            // For simplicity (both of impl here, and contract w/ DataSource) we don't
+            // For simplicity (both of impl here, and contract w/ PagedSource) we don't
             // allow fetches in same direction - this means reading the load state is safe.
             if (trimFromFront) {
                 if (pager.loadStateManager.start != LoadState.LOADING) {
@@ -201,20 +208,20 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (config.enablePlaceholders) {
             // Placeholders enabled, pass raw data to storage init
             storage.init(
-                initialResult.leadingNulls,
+                initialResult.itemsBefore,
                 initialResult.data,
-                initialResult.trailingNulls,
+                initialResult.itemsAfter,
                 initialResult.offset,
                 this
             )
         } else {
-            // If placeholder are disabled, avoid passing leading/trailing nulls,
-            // since DataSource may have passed them anyway
+            // If placeholder are disabled, avoid passing leading/trailing nulls, since PagedSource
+            // may have passed them anyway.
             storage.init(
                 0,
                 initialResult.data,
                 0,
-                initialResult.offset + initialResult.leadingNulls,
+                initialResult.offset + initialResult.itemsBefore,
                 this
             )
         }
@@ -222,7 +229,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (this.lastLoad == LAST_LOAD_UNSPECIFIED) {
             // Because the ContiguousPagedList wasn't initialized with a last load position,
             // initialize it to the middle of the initial load
-            this.lastLoad = (initialResult.leadingNulls + initialResult.offset +
+            this.lastLoad = (initialResult.itemsBefore + initialResult.offset +
                     initialResult.data.size / 2)
         }
         triggerBoundaryCallback(LoadType.REFRESH, initialResult.data)
