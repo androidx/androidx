@@ -23,6 +23,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * A class that contains biometric utilities. For authentication, see {@link BiometricPrompt}.
  * On devices running Q and above, this will query the framework's version of
@@ -62,6 +65,11 @@ public class BiometricManager {
     public static final int BIOMETRIC_ERROR_NO_HARDWARE =
             android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE;
 
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({BIOMETRIC_SUCCESS, BIOMETRIC_ERROR_HW_UNAVAILABLE,
+            BIOMETRIC_ERROR_NONE_ENROLLED, BIOMETRIC_ERROR_NO_HARDWARE})
+    private @interface BiometricError {}
+
     @RequiresApi(29)
     private static class Api29Impl {
         @NonNull
@@ -98,12 +106,6 @@ public class BiometricManager {
                     .from(mContext);
         }
     }
-
-    @IntDef({android.hardware.biometrics.BiometricManager.BIOMETRIC_SUCCESS,
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE,
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED,
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE})
-    @interface BiometricError {}
 
     /**
      * Determine if biometrics can be used. In other words, determine if {@link BiometricPrompt}
