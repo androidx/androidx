@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.integration.startup.benchmark
 
 import android.app.Application
 import android.os.Bundle
+import androidx.benchmark.argumentSource
 
 /**
  * Hack to enable overriding benchmark arguments (since we can't easily do this in CI, per apk)
@@ -27,8 +28,8 @@ import android.os.Bundle
  * ```
  * android {
  *     defaultConfig {
- *         testInstrumentationRunnerArgument 'androidx.benchmark.suppressErrors',
- *                 'CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED'
+ *         // Enable startup measurement mode
+ *         testInstrumentationRunnerArgument 'androidx.benchmark.startupMode.enable', 'true'
  *     }
  * }
  * ```
@@ -39,14 +40,7 @@ class ArgumentInjectingApplication : Application() {
 
         argumentSource = Bundle().apply {
             putString("androidx.benchmark.output.enable", "true")
-
-            // Since these benchmark correctness tests run as part of the regular
-            // (non-performance-test) suite, they will have debuggable=true, won't be clock-locked,
-            // can run with low-battery or on an emulator, and code coverage enabled.
-            putString(
-                "androidx.benchmark.suppressErrors",
-                "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
-            )
+            putString("androidx.benchmark.startupMode.enable", "true")
         }
     }
 }
