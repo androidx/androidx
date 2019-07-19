@@ -386,10 +386,12 @@ public class MediaSession implements AutoCloseable {
     }
 
     /**
-     * @hide
-     * @return Bundle
+     * Gets the {@link MediaSessionCompat} for this session to handle incoming commands from the
+     * {@link android.support.v4.media.session.MediaSessionCompat} for legacy support.
+     *
+     * @return MediaSessionCompat
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @NonNull
     public MediaSessionCompat getSessionCompat() {
         return mImpl.getSessionCompat();
     }
