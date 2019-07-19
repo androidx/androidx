@@ -35,7 +35,7 @@ class InitialPagedList<K : Any, V : Any>(
     config: Config,
     initialKey: K?
 ) : ContiguousPagedList<K, V>(
-    DataSourceWrapper(pagedSource),
+    pagedSource,
     coroutineScope,
     DirectExecutor,
     DirectExecutor,

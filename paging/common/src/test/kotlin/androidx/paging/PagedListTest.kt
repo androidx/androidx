@@ -18,13 +18,17 @@ package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFails
 
 @RunWith(JUnit4::class)
@@ -46,6 +50,7 @@ class PagedListTest {
         }
     }
 
+    private val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
     private val mainThread = TestExecutor()
     private val backgroundThread = TestExecutor()
 
@@ -67,7 +72,8 @@ class PagedListTest {
             .setEnablePlaceholders(false)
             .build()
         var success = false
-        runBlocking {
+
+        val job = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
             val pagedList = PagedList.create(
                 ListDataSource(ITEMS),
                 GlobalScope,
@@ -79,10 +85,13 @@ class PagedListTest {
                 0
             )
 
-            backgroundThread.executeAll()
             assertEquals(ITEMS.subList(0, 30), pagedList)
             success = true
         }
+
+        backgroundThread.executeAll()
+        runBlocking { job.await() }
+
         assert(success)
     }
 
@@ -107,7 +116,7 @@ class PagedListTest {
             .build()
         var success = false
         assertFails {
-            runBlocking {
+            val job = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
                 PagedList.create(
                     dataSource,
                     GlobalScope,
@@ -119,9 +128,11 @@ class PagedListTest {
                     0
                 )
 
-                backgroundThread.executeAll()
                 success = true
             }
+
+            backgroundThread.executeAll()
+            runBlocking { job.await() }
         }
         assert(!success)
     }
@@ -135,7 +146,16 @@ class PagedListTest {
             notifyExecutor = DirectExecutor
         )
 
-        assertEquals(dataSource, pagedList.dataSource)
+        assertEquals(dataSource, pagedList.dataSource.unwrapDataSource())
         assertEquals(config, pagedList.config)
+    }
+
+    private fun PagedSource<*, *>.unwrapDataSource(): DataSource<*, *> {
+        return (this as PagedSourceWrapper<*, *>).dataSource.unwrapDataSource()
+    }
+
+    private fun DataSource<*, *>.unwrapDataSource(): DataSource<*, *> {
+        if (this is DataSourceWrapper<*, *>) return this.pagedSource.unwrapDataSource()
+        return this
     }
 }
