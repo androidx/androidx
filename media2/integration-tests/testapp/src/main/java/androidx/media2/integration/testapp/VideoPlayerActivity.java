@@ -47,6 +47,7 @@ import androidx.media2.session.SessionToken;
 import androidx.media2.widget.MediaControlView;
 import androidx.media2.widget.VideoView;
 
+import java.util.Locale;
 import java.util.concurrent.Executor;
 
 /**
@@ -172,8 +173,9 @@ public class VideoPlayerActivity extends FragmentActivity {
                 mSpeed += 0.1f;
             }
             mMediaController.setPlaybackSpeed(mSpeed);
-            Toast.makeText(this, "speed rate: " + String.format("%.2f", mSpeed), Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(this,
+                    "speed rate: " + String.format(Locale.US, "%.2f", mSpeed),
+                    Toast.LENGTH_SHORT).show();
         }
         return super.onTouchEvent(ev);
     }
