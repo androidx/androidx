@@ -20,6 +20,8 @@ import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class PagedSourceWrapperTest {
@@ -44,10 +46,15 @@ class PagedSourceWrapperTest {
             override fun getKey(item: String) = item.hashCode()
         }
         val pagedSource = PagedSourceWrapper(dataSource)
-        assert(pagedSource.keyProvider is PagedSource.KeyProvider.ItemKey)
-        assert(!pagedSource.invalid)
+        assertTrue { pagedSource.keyProvider is PagedSource.KeyProvider.ItemKey }
+
+        assertFalse { pagedSource.invalid }
+        assertFalse { dataSource.isInvalid }
+
         pagedSource.invalidate()
-        assert(pagedSource.invalid)
+
+        assertTrue { pagedSource.invalid }
+        assertTrue { dataSource.isInvalid }
     }
 
     @Test
@@ -69,30 +76,62 @@ class PagedSourceWrapperTest {
             }
         }
         val pagedSource = PagedSourceWrapper(dataSource)
-        assert(pagedSource.keyProvider is PagedSource.KeyProvider.PageKey)
-        assert(!pagedSource.invalid)
+        assertTrue { pagedSource.keyProvider is PagedSource.KeyProvider.PageKey }
+
+        assertFalse { pagedSource.invalid }
+        assertFalse { dataSource.isInvalid }
+
         pagedSource.invalidate()
-        assert(pagedSource.invalid)
+
+        assertTrue { pagedSource.invalid }
+        assertTrue { dataSource.isInvalid }
     }
 
     @Test
     fun positional() {
-        val dataSource = object : PositionalDataSource<String>() {
-            override fun loadInitial(
-                params: LoadInitialParams,
-                callback: LoadInitialCallback<String>
-            ) {
-                Assert.fail("loadInitial not expected")
-            }
-
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-                Assert.fail("loadRange not expected")
-            }
-        }
+        val dataSource = createTestPositionalDataSource()
         val pagedSource = PagedSourceWrapper(dataSource)
-        assert(pagedSource.keyProvider is PagedSource.KeyProvider.Positional)
-        assert(!pagedSource.invalid)
+        assertTrue { pagedSource.keyProvider is PagedSource.KeyProvider.Positional }
+    }
+
+    @Test
+    fun invalidateFromPagedSource() {
+        val dataSource = createTestPositionalDataSource()
+        val pagedSource = PagedSourceWrapper(dataSource)
+
+        assertFalse { pagedSource.invalid }
+        assertFalse { dataSource.isInvalid }
+
         pagedSource.invalidate()
-        assert(pagedSource.invalid)
+
+        assertTrue { pagedSource.invalid }
+        assertTrue { dataSource.isInvalid }
+    }
+
+    @Test
+    fun invalidateFromDataSource() {
+        val dataSource = createTestPositionalDataSource()
+        val pagedSource = PagedSourceWrapper(dataSource)
+
+        assertFalse { pagedSource.invalid }
+        assertFalse { dataSource.isInvalid }
+
+        dataSource.invalidate()
+
+        assertTrue { pagedSource.invalid }
+        assertTrue { dataSource.isInvalid }
+    }
+
+    private fun createTestPositionalDataSource() = object : PositionalDataSource<String>() {
+        override fun loadInitial(
+            params: LoadInitialParams,
+            callback: LoadInitialCallback<String>
+        ) {
+            Assert.fail("loadInitial not expected")
+        }
+
+        override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
+            Assert.fail("loadRange not expected")
+        }
     }
 }
