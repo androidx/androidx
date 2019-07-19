@@ -16,14 +16,18 @@
 
 package androidx.paging
 
+import androidx.annotation.RestrictTo
 import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
 
 /**
  * TODO: Move all call-sites dependent on this to use [PagedSource] directly.
  *
  * A wrapper around [DataSource] which adapts it to the [PagedSource] API.
+ *
+ * @hide
  */
-internal class PagedSourceWrapper<Key : Any, Value : Any>(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class PagedSourceWrapper<Key : Any, Value : Any>(
     private val dataSource: DataSource<Key, Value>
 ) : PagedSource<Key, Value>() {
     override val keyProvider: KeyProvider<Key, Value> = when (dataSource.type) {
@@ -118,4 +122,6 @@ internal class DataSourceWrapper<Key : Any, Value : Any>(
             is PagedSource.KeyProvider.ItemKey -> keyProvider.getKey(item)
         }
     }
+
+    override fun isRetryableError(error: Throwable): Boolean = pagedSource.isRetryableError(error)
 }
