@@ -30,6 +30,7 @@ import androidx.camera.core.ImageAnalysis.ImageReaderMode;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 /** Configuration for an image analysis use case. */
 public final class ImageAnalysisConfig
@@ -396,6 +397,31 @@ public final class ImageAnalysisConfig
         return retrieveOption(OPTION_CALLBACK_HANDLER);
     }
 
+    /**
+     * Returns the executor that will be used for background tasks.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
+     */
+    @Nullable
+    @Override
+    public Executor getBackgroundExecutor(@Nullable Executor valueIfMissing) {
+        return retrieveOption(OPTION_BACKGROUND_EXECUTOR, valueIfMissing);
+    }
+
+    /**
+     * Returns the executor that will be used for background tasks.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @NonNull
+    @Override
+    public Executor getBackgroundExecutor() {
+        return retrieveOption(OPTION_BACKGROUND_EXECUTOR);
+    }
+
     // Implementations of UseCaseConfig default methods
 
     /** @hide */
@@ -742,6 +768,19 @@ public final class ImageAnalysisConfig
         @Override
         public Builder setCallbackHandler(Handler handler) {
             getMutableConfig().insertOption(OPTION_CALLBACK_HANDLER, handler);
+            return this;
+        }
+
+        /**
+         * Sets the default executor that will be used for background tasks.
+         *
+         * @param executor The executor which will be used for background tasks.
+         * @return the current Builder.
+         */
+        @NonNull
+        @Override
+        public Builder setBackgroundExecutor(@NonNull Executor executor) {
+            getMutableConfig().insertOption(OPTION_BACKGROUND_EXECUTOR, executor);
             return this;
         }
 
