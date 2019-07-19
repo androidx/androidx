@@ -20,9 +20,12 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
+import java.util.concurrent.Executor;
 
 /**
  * An image reader proxy which has an analogous interface as {@link ImageReader}.
@@ -98,8 +101,18 @@ public interface ImageReaderProxy {
      * <p>@see {@link ImageReader#setOnImageAvailableListener}.
      */
     void setOnImageAvailableListener(
-            @Nullable ImageReaderProxy.OnImageAvailableListener listener,
+            @NonNull ImageReaderProxy.OnImageAvailableListener listener,
             @Nullable Handler handler);
+
+    /**
+     * Sets the on-image-available listener.
+     *
+     * @param listener The listener that will be run.
+     * @param executor The executor on which the listener should be invoked.
+     */
+    void setOnImageAvailableListener(
+            @NonNull ImageReaderProxy.OnImageAvailableListener listener,
+            @NonNull Executor executor);
 
     /**
      * A listener for newly available images.

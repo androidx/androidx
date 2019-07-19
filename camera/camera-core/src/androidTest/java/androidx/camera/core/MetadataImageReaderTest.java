@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -49,6 +50,8 @@ public final class MetadataImageReaderTest {
     private final Semaphore mSemaphore = new Semaphore(0);
     private HandlerThread mBackgroundThread;
     private Handler mBackgroundHandler;
+
+    private Handler mMainHandler;
     private MetadataImageReader mMetadataImageReader;
 
     @Before
@@ -56,6 +59,8 @@ public final class MetadataImageReaderTest {
         mBackgroundThread = new HandlerThread("CallbackThread");
         mBackgroundThread.start();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
+
+        mMainHandler = new Handler(Looper.getMainLooper());
 
         createMetadataImageReaderWithCapacity(8);
         mCameraCaptureResult0.setTimestamp(TIMESTAMP_0);
@@ -264,7 +269,7 @@ public final class MetadataImageReaderTest {
 
     private void createMetadataImageReaderWithCapacity(int maxImages) {
         mImageReader = new FakeImageReaderProxy(maxImages);
-        mMetadataImageReader = new MetadataImageReader(mImageReader, null);
+        mMetadataImageReader = new MetadataImageReader(mImageReader, mMainHandler);
     }
 
     private void triggerImageAvailable(long timestamp) throws InterruptedException {

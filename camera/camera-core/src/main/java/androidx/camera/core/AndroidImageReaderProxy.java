@@ -22,7 +22,12 @@ import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+
+import java.util.concurrent.Executor;
 
 /**
  * An {@link ImageReaderProxy} which wraps around an {@link ImageReader}.
@@ -96,15 +101,35 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public synchronized void setOnImageAvailableListener(
-            @Nullable final ImageReaderProxy.OnImageAvailableListener listener,
+            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
             @Nullable Handler handler) {
+        // Unlike ImageReader.setOnImageAvailableListener(), if handler == null, the callback
+        // will not be triggered at all, instead of being triggered on main thread.
+        setOnImageAvailableListener(listener,
+                handler == null ? null : CameraXExecutors.newHandlerExecutor(handler));
+    }
+
+    @Override
+    public synchronized void setOnImageAvailableListener(
+            @NonNull OnImageAvailableListener listener,
+            @NonNull Executor executor) {
+        // ImageReader does not accept an executor. As a workaround, the callback is run on main
+        // handler then immediately posted to the executor.
         ImageReader.OnImageAvailableListener transformedListener =
                 new ImageReader.OnImageAvailableListener() {
                     @Override
                     public void onImageAvailable(ImageReader reader) {
-                        listener.onImageAvailable(AndroidImageReaderProxy.this);
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onImageAvailable(AndroidImageReaderProxy.this);
+                            }
+                        });
+
                     }
                 };
-        mImageReader.setOnImageAvailableListener(transformedListener, handler);
+        mImageReader.setOnImageAvailableListener(transformedListener,
+                MainThreadAsyncHandler.getInstance());
     }
+
 }

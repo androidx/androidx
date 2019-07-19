@@ -39,6 +39,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 @LargeTest
@@ -52,6 +54,7 @@ public final class QueuedImageReaderProxyTest {
     private final Surface mSurface = mock(Surface.class);
     private HandlerThread mHandlerThread;
     private Handler mHandler;
+    private Executor mExecutor;
     private QueuedImageReaderProxy mImageReaderProxy;
 
     private static ImageProxy createMockImageProxy() {
@@ -84,6 +87,7 @@ public final class QueuedImageReaderProxyTest {
         mHandlerThread = new HandlerThread("background");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
+        mExecutor = Executors.newSingleThreadExecutor();
         mImageReaderProxy =
                 new QueuedImageReaderProxy(
                         IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_FORMAT, MAX_IMAGES, mSurface);
@@ -168,11 +172,23 @@ public final class QueuedImageReaderProxyTest {
     }
 
     @Test
-    public void enqueueImage_invokesListenerCallback() {
+    public void enqueueImage_invokesListenerCallbackOnHandler() {
         ImageReaderProxy.OnImageAvailableListener listener =
                 mock(ImageReaderProxy.OnImageAvailableListener.class);
         mImageReaderProxy.setOnImageAvailableListener(listener, mHandler);
+        enqueueImage_invokesListenerCallback(listener);
+    }
 
+    @Test
+    public void enqueueImage_invokesListenerCallbackOnExecutor() {
+        ImageReaderProxy.OnImageAvailableListener listener =
+                mock(ImageReaderProxy.OnImageAvailableListener.class);
+        mImageReaderProxy.setOnImageAvailableListener(listener, mExecutor);
+        enqueueImage_invokesListenerCallback(listener);
+    }
+
+    private void enqueueImage_invokesListenerCallback(
+            ImageReaderProxy.OnImageAvailableListener listener) {
         mImageReaderProxy.enqueueImage(createForwardingImageProxy());
         mImageReaderProxy.enqueueImage(createForwardingImageProxy());
 
