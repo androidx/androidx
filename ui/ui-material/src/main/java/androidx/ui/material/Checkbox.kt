@@ -272,12 +272,8 @@ private fun generateTransitionDefinition(color: Color, unselectedColor: Color) =
                 duration = CheckStrokeAnimationDuration
             }
         }
-        transition(fromState = ToggleableState.Checked, toState = ToggleableState.Indeterminate) {
-            CenterGravitationForCheck using tween {
-                duration = CheckStrokeAnimationDuration
-            }
-        }
-        transition(fromState = ToggleableState.Indeterminate, toState = ToggleableState.Checked) {
+        transition(ToggleableState.Checked to ToggleableState.Indeterminate,
+            ToggleableState.Indeterminate to ToggleableState.Checked) {
             CenterGravitationForCheck using tween {
                 duration = CheckStrokeAnimationDuration
             }
