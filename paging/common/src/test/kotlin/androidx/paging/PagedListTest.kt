@@ -23,7 +23,6 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -101,17 +100,14 @@ class PagedListTest {
 
     @Test
     fun createAsyncThrow() {
-        val dataSource = object : PositionalDataSource<String>() {
-            override fun loadInitial(
-                params: LoadInitialParams,
-                callback: LoadInitialCallback<String>
-            ) {
-                callback.onError(Exception())
+        val pagedSource = object : PagedSource<Int, String>() {
+            override val keyProvider = KeyProvider.Positional<String>()
+
+            override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                throw Exception()
             }
 
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-                fail("no load range expected")
-            }
+            override fun isRetryableError(error: Throwable) = false
         }
 
         val config = PagedList.Config.Builder()
@@ -122,7 +118,7 @@ class PagedListTest {
         assertFails {
             val job = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
                 PagedList.create(
-                    PagedSourceWrapper(dataSource),
+                    pagedSource,
                     testCoroutineScope,
                     mainThread,
                     backgroundThread,

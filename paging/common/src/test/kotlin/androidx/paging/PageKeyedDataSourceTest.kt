@@ -57,7 +57,6 @@ class PageKeyedDataSourceTest {
             callback: LoadInitialCallback<String, Item>
         ) {
             if (error) {
-                callback.onError(EXCEPTION)
                 error = false
                 return
             }
@@ -68,7 +67,6 @@ class PageKeyedDataSourceTest {
 
         override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Item>) {
             if (error) {
-                callback.onError(EXCEPTION)
                 error = false
                 return
             }
@@ -79,7 +77,6 @@ class PageKeyedDataSourceTest {
 
         override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Item>) {
             if (error) {
-                callback.onError(EXCEPTION)
                 error = false
                 return
             }
@@ -399,10 +396,6 @@ class PageKeyedDataSourceTest {
                 override fun onResult(data: List<A>, previousPageKey: K?, nextPageKey: K?) {
                     callback.onResult(convert(data), previousPageKey, nextPageKey)
                 }
-
-                override fun onError(error: Throwable) {
-                    callback.onError(error)
-                }
             })
         }
 
@@ -411,10 +404,6 @@ class PageKeyedDataSourceTest {
                 override fun onResult(data: List<A>, adjacentPageKey: K?) {
                     callback.onResult(convert(data), adjacentPageKey)
                 }
-
-                override fun onError(error: Throwable) {
-                    callback.onError(error)
-                }
             })
         }
 
@@ -422,10 +411,6 @@ class PageKeyedDataSourceTest {
             source.loadAfter(params, object : LoadCallback<K, A>() {
                 override fun onResult(data: List<A>, adjacentPageKey: K?) {
                     callback.onResult(convert(data), adjacentPageKey)
-                }
-
-                override fun onError(error: Throwable) {
-                    callback.onError(error)
                 }
             })
         }
@@ -471,7 +456,6 @@ class PageKeyedDataSourceTest {
         // load after - error
         orig.enqueueError()
         wrapper.loadAfter(PageKeyedDataSource.LoadParams(expectedInitial.next, 4), loadCallback)
-        verify(loadCallback).onError(EXCEPTION)
         verifyNoMoreInteractions(loadCallback)
 
         // load before
@@ -487,7 +471,6 @@ class PageKeyedDataSourceTest {
         // load before - error
         orig.enqueueError()
         wrapper.loadBefore(PageKeyedDataSource.LoadParams(expectedAfter.prev, 4), loadCallback)
-        verify(loadCallback).onError(EXCEPTION)
         verifyNoMoreInteractions(loadCallback)
 
         // verify invalidation

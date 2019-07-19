@@ -80,9 +80,9 @@ class LivePagedListBuilderTest {
         ArchTaskExecutor.getInstance().setDelegate(null)
     }
 
-    class MockDataSourceFactory : DataSource.Factory<Int, String>() {
-        override fun create(): DataSource<Int, String> {
-            return MockDataSource()
+    class MockDataSourceFactory {
+        fun create(): PagedSource<Int, String> {
+            return MockPagedSource()
         }
 
         var throwable: Throwable? = null
@@ -91,28 +91,35 @@ class LivePagedListBuilderTest {
             throwable = RETRYABLE_EXCEPTION
         }
 
-        private inner class MockDataSource : PositionalDataSource<String>() {
-            override fun loadInitial(
-                params: LoadInitialParams,
-                callback: LoadInitialCallback<String>
-            ) {
+        private inner class MockPagedSource : PagedSource<Int, String>() {
+            override val keyProvider = KeyProvider.Positional<String>()
+
+            override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
+                LoadType.INITIAL -> loadInitial(params)
+                else -> loadRange()
+            }
+
+            override fun isRetryableError(error: Throwable) = error === RETRYABLE_EXCEPTION
+
+            private fun loadInitial(params: LoadParams<Int>): LoadResult<Int, String> {
                 assertEquals(2, params.pageSize)
 
-                if (throwable != null) {
-
-                    callback.onError(throwable!!)
+                throwable?.let { error ->
                     throwable = null
-                } else {
-                    callback.onResult(listOf("a", "b"), 0, 4)
+                    throw error
                 }
+
+                val data = listOf("a", "b")
+                return LoadResult(
+                    itemsBefore = 0,
+                    itemsAfter = 4 - data.size,
+                    data = data,
+                    offset = 0
+                )
             }
 
-            override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<String>) {
-                callback.onResult(listOf("c", "d"))
-            }
-
-            override fun isRetryableError(error: Throwable): Boolean {
-                return error === RETRYABLE_EXCEPTION
+            private fun loadRange(): LoadResult<Int, String> {
+                return LoadResult(data = listOf("c", "d"), offset = 0)
             }
         }
     }
@@ -121,8 +128,7 @@ class LivePagedListBuilderTest {
     fun executorBehavior() {
         // specify a background executor via builder, and verify it gets used for all loads,
         // overriding default arch IO executor
-        @Suppress("DEPRECATION")
-        val livePagedList = LivePagedListBuilder(MockDataSourceFactory(), 2)
+        val livePagedList = LivePagedListBuilder(MockDataSourceFactory()::create, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
@@ -161,8 +167,7 @@ class LivePagedListBuilderTest {
         val factory = MockDataSourceFactory()
         factory.enqueueRetryableError()
 
-        @Suppress("DEPRECATION")
-        val livePagedList = LivePagedListBuilder(factory, 2)
+        val livePagedList = LivePagedListBuilder(factory::create, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
 
