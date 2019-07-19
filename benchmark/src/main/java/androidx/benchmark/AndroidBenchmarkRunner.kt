@@ -74,8 +74,8 @@ open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
     override fun onCreate(arguments: Bundle?) {
         super.onCreate(arguments)
 
-        // Because these values are used by WarningState, it's important to set this flag as early
-        // as possible, before WarningState gets lazily initialized. Otherwise we may print false
+        // Because these values are used by Errors, it's important to set this flag as early
+        // as possible, before Errors gets lazily initialized. Otherwise we may print false
         // warnings about needing the runner, when the runner simply hasn't initialized yet.
         runnerInUse = true
         sustainedPerformanceModeInUse = !CpuInfo.locked && isSustainedPerformanceModeSupported()

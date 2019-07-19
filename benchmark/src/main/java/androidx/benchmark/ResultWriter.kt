@@ -31,8 +31,7 @@ internal object ResultWriter {
     fun appendReport(report: BenchmarkState.Report) {
         reports.add(report)
 
-        val arguments = InstrumentationRegistry.getArguments()
-        if (arguments.getString("androidx.benchmark.output.enable")?.toLowerCase() == "true") {
+        if (Arguments.outputEnable) {
             // Currently, we just overwrite the whole file
             // Ideally, append for efficiency
             val packageName =

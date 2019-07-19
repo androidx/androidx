@@ -28,10 +28,24 @@ import java.io.File
 /**
  * Lazy-initialized test-suite global state for warnings around measurement inaccuracy.
  */
-internal object WarningState {
+internal object Errors {
+    /**
+     * Same as trimMargins, but add newlines on either side.
+     */
+    @Suppress("MemberVisibilityCanBePrivate")
+    internal fun String.trimMarginWrapNewlines(): String {
+        return "\n" + trimMargin() + " \n"
+    }
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    internal fun Set<String>.toDisplayString(): String {
+        return toList().sorted().joinToString(" ")
+    }
+
     private const val TAG = "Benchmark"
 
     val WARNING_PREFIX: String
+    val UNSUPPRESSED_WARNING_MESSAGE: String?
     private var warningString: String? = null
 
     /**
@@ -176,16 +190,35 @@ internal object WarningState {
         }
 
         WARNING_PREFIX = warningPrefix
-        if (!warningString.isEmpty()) {
+        if (warningString.isNotEmpty()) {
             this.warningString = warningString
             warningString.split("\n").map { Log.w(TAG, it) }
         }
-    }
 
-    /**
-     * Same as trimMargins, but add newlines on either side.
-     */
-    private fun String.trimMarginWrapNewlines(): String {
-        return "\n" + trimMargin() + " \n"
+        val warningSet = WARNING_PREFIX
+            .split('_')
+            .filter { it.isNotEmpty() }
+            .toSet()
+        val unsuppressedWarningSet = warningSet - Arguments.suppressedErrors
+        UNSUPPRESSED_WARNING_MESSAGE = if (unsuppressedWarningSet.isNotEmpty()) {
+            """
+                |ERRORS (not suppressed): ${unsuppressedWarningSet.toDisplayString()}
+                |(Suppressed errors: ${Arguments.suppressedErrors.toDisplayString()})
+                |$warningString
+                |While you can suppress these errors (turning them into warnings)
+                |PLEASE NOTE THAT EACH SUPPRESSED ERROR COMPROMISES ACCURACY
+                |
+                |// Sample suppression, in a benchmark module's build.gradle:
+                |android {
+                |    defaultConfig {
+                |        // Enable measuring on an emulator, or devices with low battery
+                |        testInstrumentationRunnerArgument
+                |                'androidx.benchmark.suppressErrors', 'EMULATOR,LOW_BATTERY'
+                |    }
+                |}
+            """.trimMargin()
+        } else {
+            null
+        }
     }
 }
