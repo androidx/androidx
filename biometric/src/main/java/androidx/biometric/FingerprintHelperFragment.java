@@ -104,8 +104,12 @@ public class FingerprintHelperFragment extends Fragment {
                                     mContext.getResources().getString(R.string.default_error_msg);
                         }
 
-                        mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_ERROR, errMsgId,
-                                0, errStringNonNull).sendToTarget();
+                        // Ensure we are only sending publicly defined errors.
+                        final int errMsgIdToSend = Utils.isUnknownError(errMsgId)
+                                ? BiometricPrompt.ERROR_VENDOR : errMsgId;
+
+                        mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_ERROR,
+                                errMsgIdToSend, 0, errStringNonNull).sendToTarget();
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
@@ -113,7 +117,7 @@ public class FingerprintHelperFragment extends Fragment {
                                     @Override
                                     public void run() {
                                         mClientAuthenticationCallback.onAuthenticationError(
-                                                errMsgId, errStringNonNull);
+                                                errMsgIdToSend, errStringNonNull);
                                     }
                                 });
                             }
