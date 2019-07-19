@@ -117,7 +117,7 @@ public final class Camera2ConfigTest {
         Camera2Config config = new Camera2Config(builder.build());
 
         assertThat(config.getCameraEventCallback(/*valueIfMissing=*/ null))
-                .isSameAs(CAMERA_EVENT_CALLBACKS);
+                .isSameInstanceAs(CAMERA_EVENT_CALLBACKS);
     }
 
     @Test

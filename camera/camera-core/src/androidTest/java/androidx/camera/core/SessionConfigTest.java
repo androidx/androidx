@@ -108,7 +108,7 @@ public class SessionConfigTest {
                         sessionConfig.getRepeatingCaptureConfig().getSurfaces());
 
         assertThat(surfaces.size()).isAtLeast(repeatingSurfaces.size());
-        assertThat(surfaces).containsAllIn(repeatingSurfaces);
+        assertThat(surfaces).containsAtLeastElementsIn(repeatingSurfaces);
     }
 
     @Test

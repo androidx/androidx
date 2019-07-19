@@ -282,20 +282,20 @@ class RoomIncrementalAnnotationProcessingTest(private val withIncrementalRoom: B
     }
 
     private fun assertFilesExist(vararg files: File) {
-        expect.that(files.filter { it.exists() }).named("Existing files")
+        expect.withMessage("Existing files").that(files.filter { it.exists() })
             .containsExactlyElementsIn(files)
     }
 
     private fun assertChangedFiles(vararg files: File) {
-        expect.that(changedFiles).named("Changed files").containsAtLeastElementsIn(files)
+        expect.withMessage("Changed files").that(changedFiles).containsAtLeastElementsIn(files)
     }
 
     private fun assertUnchangedFiles(vararg files: File) {
-        expect.that(unchangedFiles).named("Unchanged files").containsAtLeastElementsIn(files)
+        expect.withMessage("Unchanged files").that(unchangedFiles).containsAtLeastElementsIn(files)
     }
 
     private fun assertDeletedFiles(vararg files: File) {
-        expect.that(deletedFiles).named("Deleted files").containsAtLeastElementsIn(files)
+        expect.withMessage("Deleted files").that(deletedFiles).containsAtLeastElementsIn(files)
     }
 
     private fun searchAndReplace(file: File, search: String, replace: String) {
