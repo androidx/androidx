@@ -169,11 +169,7 @@ private fun generateTransitionDefinition(checkedColor: Color, uncheckedColor: Co
             this[RelativeThumbTranslationProp] = 1f
             this[ThumbColorProp] = checkedColor
         }
-        transition(fromState = false, toState = true) {
-            RelativeThumbTranslationProp using switchTween()
-            ThumbColorProp using switchTween()
-        }
-        transition(fromState = true, toState = false) {
+        transition {
             RelativeThumbTranslationProp using switchTween()
             ThumbColorProp using switchTween()
         }
