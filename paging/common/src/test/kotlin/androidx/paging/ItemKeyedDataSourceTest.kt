@@ -314,7 +314,7 @@ class ItemKeyedDataSourceTest {
 
         runBlocking {
             PagedList.create(
-                dataSource,
+                PagedSourceWrapper(dataSource),
                 GlobalScope,
                 FailExecutor(),
                 DirectExecutor,

@@ -57,7 +57,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
     }
 
     private fun onError(throwable: Throwable) {
-        val loadState = if (currentData.dataSource.isRetryableError(throwable)) {
+        val loadState = if (currentData.pagedSource.isRetryableError(throwable)) {
             PagedList.LoadState.RETRYABLE_ERROR
         } else {
             PagedList.LoadState.ERROR
@@ -98,6 +98,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
 
     private suspend fun createPagedList(): PagedList<Value> {
         val dataSource = dataSourceFactory.create()
+        @Suppress("DEPRECATION")
         currentData.dataSource.removeInvalidatedCallback(callback)
         dataSource.addInvalidatedCallback(callback)
         currentData.setInitialLoadState(PagedList.LoadState.LOADING, null)
@@ -105,7 +106,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
         @Suppress("UNCHECKED_CAST") // getLastKey guaranteed to be of 'Key' type
         val lastKey = currentData.lastKey as Key?
         return PagedList.create(
-            dataSource,
+            PagedSourceWrapper(dataSource),
             coroutineScope,
             notifyExecutor,
             fetchExecutor,

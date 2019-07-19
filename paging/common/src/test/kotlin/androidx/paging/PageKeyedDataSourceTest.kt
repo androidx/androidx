@@ -99,8 +99,8 @@ class PageKeyedDataSourceTest {
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
         val pagedListJob = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
             PagedList.create(
-                ItemDataSource(),
-                GlobalScope,
+                PagedSourceWrapper(ItemDataSource()),
+                testCoroutineScope,
                 mainThread,
                 backgroundThread,
                 backgroundThread,
@@ -161,7 +161,7 @@ class PageKeyedDataSourceTest {
 
         runBlocking {
             PagedList.create(
-                dataSource,
+                PagedSourceWrapper(dataSource),
                 GlobalScope,
                 FailExecutor(),
                 DirectExecutor,
@@ -268,7 +268,7 @@ class PageKeyedDataSourceTest {
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
         val pagedListJob = testCoroutineScope.async(executor.asCoroutineDispatcher()) {
             PagedList.create(
-                dataSource,
+                PagedSourceWrapper(dataSource),
                 GlobalScope,
                 executor,
                 executor,
@@ -330,7 +330,7 @@ class PageKeyedDataSourceTest {
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
         val pagedListJob = testCoroutineScope.async(executor.asCoroutineDispatcher()) {
             PagedList.create(
-                dataSource,
+                PagedSourceWrapper(dataSource),
                 testCoroutineScope,
                 executor,
                 executor,

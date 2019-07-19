@@ -145,13 +145,14 @@ package androidx.paging {
   public abstract class PagedList<T> extends java.util.AbstractList<T> {
     method public void addWeakCallback(java.util.List<? extends T>? previousSnapshot, androidx.paging.PagedList.Callback callback);
     method public void addWeakLoadStateListener(kotlin.jvm.functions.Function3<? super androidx.paging.PagedList.LoadType,? super androidx.paging.PagedList.LoadState,? super java.lang.Throwable,kotlin.Unit> listener);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final suspend <K, T> Object create(androidx.paging.DataSource<K,T> p, kotlinx.coroutines.CoroutineScope dataSource, java.util.concurrent.Executor coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<T>? initialLoadExecutor, androidx.paging.PagedList.Config boundaryCallback, K? config, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> key);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final suspend <K, T> Object create(androidx.paging.PagedSource<K,T> p, kotlinx.coroutines.CoroutineScope pagedSource, java.util.concurrent.Executor coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<T>? initialLoadExecutor, androidx.paging.PagedList.Config boundaryCallback, K? config, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> key);
     method public abstract void detach();
     method public T? get(int index);
     method public androidx.paging.PagedList.Config getConfig();
-    method public abstract androidx.paging.DataSource<?,T> getDataSource();
+    method @Deprecated public final androidx.paging.DataSource<?,T> getDataSource();
     method public abstract Object? getLastKey();
     method public int getLoadedCount();
+    method public final androidx.paging.PagedSource<?,T> getPagedSource();
     method public int getPositionOffset();
     method public int getSize();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.paging.PagedStorage<T> getStorage();
@@ -165,12 +166,13 @@ package androidx.paging {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setInitialLoadState(androidx.paging.PagedList.LoadState loadState, Throwable? error);
     method public java.util.List<T> snapshot();
     property public androidx.paging.PagedList.Config config;
-    property public abstract androidx.paging.DataSource<?,T> dataSource;
+    property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
     property public abstract boolean isContiguous;
     property public abstract boolean isDetached;
     property public boolean isImmutable;
     property public abstract Object? lastKey;
     property public int loadedCount;
+    property public final androidx.paging.PagedSource<?,T> pagedSource;
     property public int positionOffset;
     property public int size;
   }
@@ -204,7 +206,7 @@ package androidx.paging {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public static final class PagedList.Companion {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public suspend <K, T> Object create(androidx.paging.DataSource<K,T> dataSource, kotlinx.coroutines.CoroutineScope coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, java.util.concurrent.Executor initialLoadExecutor, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> p);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public suspend <K, T> Object create(androidx.paging.PagedSource<K,T> pagedSource, kotlinx.coroutines.CoroutineScope coroutineScope, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, java.util.concurrent.Executor initialLoadExecutor, androidx.paging.PagedList.BoundaryCallback<T>? boundaryCallback, androidx.paging.PagedList.Config config, K? key, kotlin.coroutines.Continuation<? super androidx.paging.PagedList<T>> p);
   }
 
   public static final class PagedList.Config {
@@ -259,7 +261,7 @@ package androidx.paging {
 
   public final class PagedListKt {
     ctor public PagedListKt();
-    method public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, Key? initialKey = null);
+    method @Deprecated public static <Key, Value> androidx.paging.PagedList<Value> PagedList(androidx.paging.DataSource<Key,Value> dataSource, androidx.paging.PagedList.Config config, java.util.concurrent.Executor notifyExecutor, java.util.concurrent.Executor fetchExecutor, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, Key? initialKey = null);
   }
 
   public abstract class PagedSource<Key, Value> {

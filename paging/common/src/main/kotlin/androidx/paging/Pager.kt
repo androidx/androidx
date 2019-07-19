@@ -76,7 +76,9 @@ internal class Pager<K : Any, V : Any>(
                     onLoadSuccess(type, value)
                 }
             } catch (throwable: Throwable) {
-                onLoadError(type, throwable)
+                launch(notifyExecutor.asCoroutineDispatcher()) {
+                    onLoadError(type, throwable)
+                }
             }
         }
     }
@@ -185,7 +187,7 @@ internal class Pager<K : Any, V : Any>(
                 PagedSource.LoadParams(
                     PagedSource.LoadType.START,
                     key,
-                    config.initialLoadSizeHint,
+                    config.pageSize,
                     config.enablePlaceholders,
                     config.pageSize
                 )
@@ -215,7 +217,7 @@ internal class Pager<K : Any, V : Any>(
                 PagedSource.LoadParams(
                     PagedSource.LoadType.END,
                     key,
-                    config.initialLoadSizeHint,
+                    config.pageSize,
                     config.enablePlaceholders,
                     config.pageSize
                 )

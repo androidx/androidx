@@ -17,6 +17,7 @@
 package androidx.paging
 
 internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) : PagedList<T>(
+    pagedList.pagedSource,
     pagedList.storage.snapshot(),
     pagedList.mainThreadExecutor,
     pagedList.backgroundThreadExecutor,
@@ -30,7 +31,6 @@ internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) :
     override val isContiguous
         get() = pagedList.isContiguous
 
-    override val dataSource: DataSource<*, T> = pagedList.dataSource
     override val isImmutable = true
 
     override val lastKey
