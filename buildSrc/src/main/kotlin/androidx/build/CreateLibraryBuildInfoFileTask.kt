@@ -45,6 +45,20 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
         return "${project.group}_${project.name}_build_info.txt"
     }
 
+    /* Returns the local project directory without the full framework/support root directory path */
+    private fun getProjectSpecificDirectory(): String {
+        return project.projectDir.toString().removePrefix(project.rootDir.toString())
+    }
+
+    /* Returns whether or not the groupId of the project requires the same version for all
+     * artifactIds.  See CheckSameVersionLibraryGroupsTask.kt
+     */
+    private fun requiresSameVersion(): Boolean {
+        val library =
+            project.extensions.findByType(AndroidXExtension::class.java)
+        return library?.mavenGroup?.requireSameVersion ?: false
+    }
+
     private fun writeJsonToFile(info: LibraryBuildInfoFile) {
         if (!project.getBuildInfoDirectory().exists()) {
             if (!project.getBuildInfoDirectory().mkdirs()) {
@@ -71,28 +85,37 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.artifactId = project.name.toString()
         libraryBuildInfoFile.groupId = project.group.toString()
         libraryBuildInfoFile.version = project.version.toString()
+        libraryBuildInfoFile.path = getProjectSpecificDirectory()
+        libraryBuildInfoFile.groupIdRequiresSameVersion = requiresSameVersion()
         val libraryDependencies = ArrayList<LibraryBuildInfoFile.Dependency>()
         val checks = ArrayList<LibraryBuildInfoFile.Check>()
         libraryBuildInfoFile.checks = checks
         val publishedProjects = project.getProjectsMap()
-        project.configurations.all { configuration ->
+        project.configurations.filter {
+            /* Ignore test configuration dependencies */
+            !it.name.contains("test", ignoreCase = true)
+        }.forEach { configuration ->
             configuration.allDependencies.forEach { dep ->
                 // Only consider androidx dependencies
                 if (dep.group != null &&
                     dep.group.toString().startsWith("androidx.") &&
-                    !dep.group.toString().startsWith("androidx.test")) {
-                        if ((dep is ProjectDependency && publishedProjects
-                                .containsKey("${dep.group}:${dep.name}")) ||
-                                dep is ExternalModuleDependency) {
-                            val androidXPublishedDependency = LibraryBuildInfoFile().Dependency()
-                            androidXPublishedDependency.artifactId = dep.name.toString()
-                            androidXPublishedDependency.groupId = dep.group.toString()
-                            androidXPublishedDependency.version = dep.version.toString()
-                            androidXPublishedDependency.isTipOfTree = dep is ProjectDependency
-                            addDependencyToListIfNotAlreadyAdded(libraryDependencies,
-                                androidXPublishedDependency)
-                        }
+                    !dep.group.toString().startsWith("androidx.test")
+                ) {
+                    if ((dep is ProjectDependency && publishedProjects
+                            .containsKey("${dep.group}:${dep.name}")) ||
+                        dep is ExternalModuleDependency
+                    ) {
+                        val androidXPublishedDependency = LibraryBuildInfoFile().Dependency()
+                        androidXPublishedDependency.artifactId = dep.name.toString()
+                        androidXPublishedDependency.groupId = dep.group.toString()
+                        androidXPublishedDependency.version = dep.version.toString()
+                        androidXPublishedDependency.isTipOfTree = dep is ProjectDependency
+                        addDependencyToListIfNotAlreadyAdded(
+                            libraryDependencies,
+                            androidXPublishedDependency
+                        )
                     }
+                }
             }
         }
         libraryBuildInfoFile.dependencies = libraryDependencies
