@@ -143,6 +143,7 @@ package androidx.work {
     method @RequiresApi(24) public final java.util.List<android.net.Uri!> getTriggeredContentUris();
     method public final boolean isStopped();
     method public void onStopped();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> setProgress(androidx.work.Data);
     method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Result!> startWork();
   }
 
@@ -208,6 +209,10 @@ package androidx.work {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker>, java.time.Duration, java.time.Duration);
   }
 
+  public interface ProgressUpdater {
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> updateProgress(android.content.Context, java.util.UUID, androidx.work.Data);
+  }
+
   public abstract class WorkContinuation {
     ctor public WorkContinuation();
     method public static androidx.work.WorkContinuation combine(java.util.List<androidx.work.WorkContinuation!>);
@@ -221,6 +226,7 @@ package androidx.work {
   public final class WorkInfo {
     method public java.util.UUID getId();
     method public androidx.work.Data getOutputData();
+    method public androidx.work.Data getProgress();
     method @IntRange(from=0) public int getRunAttemptCount();
     method public androidx.work.WorkInfo.State getState();
     method public java.util.Set<java.lang.String!> getTags();

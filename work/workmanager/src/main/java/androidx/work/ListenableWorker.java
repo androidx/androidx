@@ -188,6 +188,19 @@ public abstract class ListenableWorker {
     public abstract @NonNull ListenableFuture<Result> startWork();
 
     /**
+     * Updates {@link ListenableWorker} progress.
+     *
+     * @param data The progress {@link Data}
+     * @return A {@link ListenableFuture} which resolves after progress is persisted.
+     * Cancelling this future is a no-op.
+     */
+    @NonNull
+    public ListenableFuture<Void> setProgress(@NonNull Data data) {
+        return mWorkerParams.getProgressUpdater()
+                .updateProgress(getApplicationContext(), getId(), data);
+    }
+
+    /**
      * Returns {@code true} if this Worker has been told to stop.  This could be because of an
      * explicit cancellation signal by the user, or because the system has decided to preempt the
      * task. In these cases, the results of the work will be ignored by WorkManager and it is safe
