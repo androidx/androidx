@@ -22,7 +22,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.core.view.NestedScrollingChild3
 import androidx.core.view.NestedScrollingParent3
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -43,7 +42,7 @@ import java.util.Arrays
  */
 @RunWith(Parameterized::class)
 @LargeTest
-class NestedScrollViewNestedScrollingFlingTest(
+class NestedScrollViewNestedScrollingFlingVelocityTest(
     private val fingerDirectionUp: Boolean,
     private val parentIntercepts: Boolean,
     private val preScrollConsumption: Int,
@@ -127,16 +126,15 @@ class NestedScrollViewNestedScrollingFlingTest(
 
         var flungVelocity = 0
 
-        constructor(context: Context) : super(context) {}
+        constructor(context: Context) : super(context)
 
-        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {}
+        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
         constructor(
             context: Context,
             attrs: AttributeSet?,
             defStyleAttr: Int
-        ) : super(context, attrs, defStyleAttr) {
-        }
+        ) : super(context, attrs, defStyleAttr)
 
         override fun fling(velocityY: Int) {
             flungVelocity = velocityY
@@ -144,7 +142,7 @@ class NestedScrollViewNestedScrollingFlingTest(
     }
 
     inner class NestedScrollingParent(context: Context) : FrameLayout(context),
-        NestedScrollingChild3, NestedScrollingParent3 {
+        NestedScrollingParent3 {
 
         var preScrollY: Int = 0
         var postScrollY: Int = 0
@@ -193,37 +191,6 @@ class NestedScrollViewNestedScrollingFlingTest(
             scrollBy(0, toScrollY)
         }
 
-        override fun startNestedScroll(axes: Int, type: Int): Boolean {
-            return false
-        }
-
-        override fun stopNestedScroll(type: Int) {}
-
-        override fun hasNestedScrollingParent(type: Int): Boolean {
-            return false
-        }
-
-        override fun dispatchNestedScroll(
-            dxConsumed: Int,
-            dyConsumed: Int,
-            dxUnconsumed: Int,
-            dyUnconsumed: Int,
-            offsetInWindow: IntArray?,
-            type: Int
-        ): Boolean {
-            return false
-        }
-
-        override fun dispatchNestedPreScroll(
-            dx: Int,
-            dy: Int,
-            consumed: IntArray?,
-            offsetInWindow: IntArray?,
-            type: Int
-        ): Boolean {
-            return false
-        }
-
         override fun onNestedScroll(
             target: View,
             dxConsumed: Int,
@@ -239,17 +206,6 @@ class NestedScrollViewNestedScrollingFlingTest(
             consumed[1] += toScrollY
 
             scrollBy(0, toScrollY)
-        }
-
-        override fun dispatchNestedScroll(
-            dxConsumed: Int,
-            dyConsumed: Int,
-            dxUnconsumed: Int,
-            dyUnconsumed: Int,
-            offsetInWindow: IntArray?,
-            type: Int,
-            consumed: IntArray
-        ) {
         }
 
         override fun setNestedScrollingEnabled(enabled: Boolean) {}
