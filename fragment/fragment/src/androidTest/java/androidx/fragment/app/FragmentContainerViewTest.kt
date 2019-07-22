@@ -39,6 +39,7 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -275,6 +276,12 @@ class FragmentContainerViewTest {
         activityRule.waitForExecution()
 
         val frag1View = fragment1.mView as ChildView
+        // wait for the first draw to finish
+        drawnFirstCountDownLatch.await()
+
+        // reset the first drawn view for the transaction we care about.
+        drawnFirst = null
+        drawnFirstCountDownLatch = CountDownLatch(1)
 
         fm.beginTransaction()
             .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right)
@@ -282,9 +289,8 @@ class FragmentContainerViewTest {
             .commit()
         activityRule.waitForExecution()
 
-        val frag2View = fragment2.mView as ChildView
-
-        assertThat(frag1View.drawTime).isLessThan(frag2View.drawTime)
+        drawnFirstCountDownLatch.await()
+        assertThat(drawnFirst!!).isEqualTo(frag1View)
     }
 
     class ChildViewFragment : StrictViewFragment() {
@@ -296,11 +302,20 @@ class FragmentContainerViewTest {
     }
 
     class ChildView(context: Context?) : View(context) {
-        var drawTime = 0L
-
         override fun onDraw(canvas: Canvas?) {
             super.onDraw(canvas)
-            drawTime = System.nanoTime()
+            setDrawnFirstView(this)
+        }
+    }
+
+    companion object {
+        var drawnFirst: View? = null
+        var drawnFirstCountDownLatch = CountDownLatch(1)
+        fun setDrawnFirstView(v: View) {
+            if (drawnFirst == null) {
+                drawnFirst = v
+            }
+            drawnFirstCountDownLatch.countDown()
         }
     }
 }
