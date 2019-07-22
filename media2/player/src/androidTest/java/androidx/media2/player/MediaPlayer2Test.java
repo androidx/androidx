@@ -1730,8 +1730,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             public void onInfo(MediaPlayer2 mp, MediaItem item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
-                } else if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
-                    mOnInfoCalled.signal();
                 }
             }
 
@@ -1755,6 +1753,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 assertNotNull(data.getData());
                 mOnSubtitleDataCalled.signal();
             }
+
+            @Override
+            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+                    @NonNull List<TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.size() < 3) {
+                    // This callback can be called before tracks are available after setMediaItem.
+                    return;
+                }
+                mTracksFullyFound.signal();
+            }
         };
         synchronized (mEventCbLock) {
             mEventCallbacks.add(ecb);
@@ -1773,10 +1782,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
-        mOnInfoCalled.waitForSignal(1500);
-
-        mOnInfoCalled.reset();
-        mOnInfoCalled.waitForSignal(1500);
+        assertTrue(mTracksFullyFound.waitForSignal(3000));
 
         readTracks();
 
@@ -1816,8 +1822,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             public void onInfo(MediaPlayer2 mp, MediaItem item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
-                } else if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
-                    mOnInfoCalled.signal();
                 }
             }
 
@@ -1835,6 +1839,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 assertNotNull(data);
                 assertNotNull(data.getData());
                 mOnSubtitleDataCalled.signal();
+            }
+
+            @Override
+            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+                    @NonNull List<TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.size() < 3) {
+                    // This callback can be called before tracks are available after setMediaItem.
+                    return;
+                }
+                mTracksFullyFound.signal();
             }
         };
         synchronized (mEventCbLock) {
@@ -1854,10 +1869,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
-        mOnInfoCalled.waitForSignal(1500);
-
-        mOnInfoCalled.reset();
-        mOnInfoCalled.waitForSignal(1500);
+        assertTrue(mTracksFullyFound.waitForSignal(3000));
 
         readTracks();
 
@@ -1893,8 +1905,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             public void onInfo(MediaPlayer2 mp, MediaItem item, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
-                } else if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
-                    mOnInfoCalled.signal();
                 }
             }
 
@@ -1904,6 +1914,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     mOnPlayCalled.signal();
                 }
+            }
+
+            @Override
+            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+                    @NonNull List<TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.size() < 3) {
+                    // This callback can be called before tracks are available after setMediaItem.
+                    return;
+                }
+                mTracksFullyFound.signal();
             }
         };
         synchronized (mEventCbLock) {
@@ -1924,10 +1945,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         // The media metadata will be changed while playing since closed caption tracks are in-band
         // and those tracks will be found after processing a number of frames. These tracks will be
         // found within one second.
-        mOnInfoCalled.waitForSignal(1500);
-
-        mOnInfoCalled.reset();
-        mOnInfoCalled.waitForSignal(1500);
+        assertTrue(mTracksFullyFound.waitForSignal(3000));
 
         readTracks();
         assertEquals(2, mSubtitleTrackInfos.size());
@@ -2189,8 +2207,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
             @Override
             public void onInfo(MediaPlayer2 mp, MediaItem item, int what, int extra) {
-                mOnInfoCalled.signal();
-
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                     mOnPrepareCalled.signal();
                 } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {

@@ -325,7 +325,12 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
             @Override
             public void onTrackInfoChanged(@NonNull PlayerWrapper player,
-                    @NonNull List<TrackInfo> trackInfos) {
+                    @NonNull List<TrackInfo> tracks) {
+                assertNotNull(tracks);
+                if (tracks.isEmpty()) {
+                    // This callback can be called before tracks are available after setMediaItem
+                    return;
+                }
                 latch.countDown();
             }
         }, uriMediaItem);

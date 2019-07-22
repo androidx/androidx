@@ -103,8 +103,8 @@ import java.util.Map;
         /** Called when the player is prepared. */
         void onPrepared(MediaItem mediaItem);
 
-        /** Called when metadata (e.g., the set of available tracks) changes. */
-        void onMetadataChanged(MediaItem mediaItem);
+        /** Called when the list of available tracks changes. */
+        void onTrackInfoChanged(@NonNull List<TrackInfo> tracks);
 
         /** Called when a seek request has completed. */
         void onSeekCompleted();
@@ -567,8 +567,8 @@ import java.util.Map;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleTextRendererChannelAvailable(int type, int channel) {
         mTrackSelector.handleTextRendererChannelAvailable(type, channel);
-        if (mTrackSelector.hasPendingMetadataUpdate()) {
-            mListener.onMetadataChanged(getCurrentMediaItem());
+        if (mTrackSelector.hasPendingTracksUpdate()) {
+            mListener.onTrackInfoChanged(getTrackInfo());
         }
     }
 
@@ -576,8 +576,8 @@ import java.util.Map;
     void handlePlayerTracksChanged(TrackSelectionArray trackSelections) {
         MediaItem currentMediaItem = getCurrentMediaItem();
         mTrackSelector.handlePlayerTracksChanged(currentMediaItem, trackSelections);
-        if (mTrackSelector.hasPendingMetadataUpdate()) {
-            mListener.onMetadataChanged(currentMediaItem);
+        if (mTrackSelector.hasPendingTracksUpdate()) {
+            mListener.onTrackInfoChanged(getTrackInfo());
         }
     }
 
