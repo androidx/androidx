@@ -22,7 +22,8 @@ import static org.junit.Assert.assertTrue;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,13 +34,18 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class AsyncTaskLoaderTest {
 
     @Test
     public void testForceLoad_runsAsyncTask() throws InterruptedException {
-        TestAsyncTaskLoader loader = new TestAsyncTaskLoader(1);
-        loader.forceLoad();
+        final TestAsyncTaskLoader loader = new TestAsyncTaskLoader(1);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                loader.forceLoad();
+            }
+        });
 
         assertTrue(loader.mLoadInBackgoundLatch.await(1, TimeUnit.SECONDS));
     }
@@ -47,15 +53,20 @@ public class AsyncTaskLoaderTest {
     @Test
     public void testForceLoad_runsOnCustomExecutor() throws InterruptedException {
         final CountDownLatch executorLatch = new CountDownLatch(1);
-        TestAsyncTaskLoader loader = new TestAsyncTaskLoader(1);
+        final TestAsyncTaskLoader loader = new TestAsyncTaskLoader(1);
         loader.mExecutor = new Executor() {
             @Override
-            public void execute(Runnable command) {
+            public void execute(@NonNull Runnable command) {
                 executorLatch.countDown();
                 command.run();
             }
         };
-        loader.forceLoad();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                loader.forceLoad();
+            }
+        });
 
         assertTrue(executorLatch.await(1, TimeUnit.SECONDS));
     }
@@ -70,7 +81,7 @@ public class AsyncTaskLoaderTest {
     @Test
     public void testGetExecutor_forceLoadMultipleTimes_getExecutorCalledOnce()
             throws InterruptedException {
-        TestAsyncTaskLoader loader = new TestAsyncTaskLoader(3);
+        final TestAsyncTaskLoader loader = new TestAsyncTaskLoader(3);
         final AtomicInteger loadCount = new AtomicInteger(3);
         loader.registerListener(0, new Loader.OnLoadCompleteListener<Void>() {
             @Override
@@ -80,7 +91,12 @@ public class AsyncTaskLoaderTest {
                 }
             }
         });
-        loader.forceLoad();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                loader.forceLoad();
+            }
+        });
 
         assertTrue(loader.mLoadInBackgoundLatch.await(1, TimeUnit.SECONDS));
         assertEquals(1, loader.mGetExecutorCallCount);
