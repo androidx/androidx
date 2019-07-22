@@ -24,6 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
+import java.util.Map;
+import java.util.WeakHashMap;
+
 /**
  * The AccessibilityDelegate used by RecyclerView.
  * <p>
@@ -31,7 +34,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
  */
 public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateCompat {
     final RecyclerView mRecyclerView;
-    final AccessibilityDelegateCompat mItemDelegate;
+    final ItemDelegate mItemDelegate;
 
 
     public RecyclerViewAccessibilityDelegate(@NonNull RecyclerView recyclerView) {
@@ -94,6 +97,7 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
      */
     public static class ItemDelegate extends AccessibilityDelegateCompat {
         final RecyclerViewAccessibilityDelegate mRecyclerViewDelegate;
+        private Map<View, AccessibilityDelegateCompat> mOriginalItemDelegates = new WeakHashMap<>();
 
         /**
          * Creates an item delegate for the given {@code RecyclerViewAccessibilityDelegate}.
@@ -104,6 +108,17 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
             mRecyclerViewDelegate = recyclerViewDelegate;
         }
 
+        void setOriginalDelegateForItem(View itemView, AccessibilityDelegateCompat delegate) {
+            if (delegate != null) {
+                mOriginalItemDelegates.put(itemView, delegate);
+            }
+
+        }
+
+        AccessibilityDelegateCompat getAndRemoveOriginalDelegateForItem(View itemView) {
+            return mOriginalItemDelegates.remove(itemView);
+        }
+
         @Override
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
             super.onInitializeAccessibilityNodeInfo(host, info);
@@ -111,6 +126,10 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {
                 mRecyclerViewDelegate.mRecyclerView.getLayoutManager()
                         .onInitializeAccessibilityNodeInfoForItem(host, info);
+                AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+                if (originalDelegate != null) {
+                    originalDelegate.onInitializeAccessibilityNodeInfo(host, info);
+                }
             }
         }
 
@@ -121,8 +140,14 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
             }
             if (!mRecyclerViewDelegate.shouldIgnore()
                     && mRecyclerViewDelegate.mRecyclerView.getLayoutManager() != null) {
-                return mRecyclerViewDelegate.mRecyclerView.getLayoutManager()
-                        .performAccessibilityActionForItem(host, action, args);
+                AccessibilityDelegateCompat originalDelegate = mOriginalItemDelegates.get(host);
+                if (originalDelegate != null
+                        && originalDelegate.performAccessibilityAction(host, action, args)) {
+                    return true;
+                } else {
+                    return mRecyclerViewDelegate.mRecyclerView.getLayoutManager()
+                            .performAccessibilityActionForItem(host, action, args);
+                }
             }
             return false;
         }
