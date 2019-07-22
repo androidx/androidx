@@ -88,6 +88,16 @@ abstract class CoroutineWorker(
      */
     abstract suspend fun doWork(): Result
 
+    /**
+     * Updates the progress for the [CoroutineWorker]. This is a suspending function unlike the
+     * [setProgressAsync] API which returns a [ListenableFuture].
+     *
+     * @param data The progress [Data]
+     */
+    suspend fun setProgress(data: Data) {
+        setProgressAsync(data).await()
+    }
+
     final override fun onStopped() {
         super.onStopped()
         future.cancel(false)

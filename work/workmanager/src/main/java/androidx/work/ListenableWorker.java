@@ -195,7 +195,7 @@ public abstract class ListenableWorker {
      * Cancelling this future is a no-op.
      */
     @NonNull
-    public ListenableFuture<Void> setProgress(@NonNull Data data) {
+    public final ListenableFuture<Void> setProgressAsync(@NonNull Data data) {
         return mWorkerParams.getProgressUpdater()
                 .updateProgress(getApplicationContext(), getId(), data);
     }

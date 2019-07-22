@@ -73,13 +73,14 @@ public class WorkProgressUpdater implements ProgressUpdater {
                     if (state == null) {
                         Logger.get().warning(TAG,
                                 String.format(
-                                        "Ignoring setProgress(...). WorkSpec (%s) does not exist.",
+                                        "Ignoring setProgressAsync(...). WorkSpec (%s) does not "
+                                                + "exist.",
                                         workSpecId));
                     } else if (state.isFinished()) {
                         Logger.get().warning(TAG,
                                 String.format(
-                                        "Ignoring setProgress(...). WorkSpec (%s) has finished "
-                                                + "execution.",
+                                        "Ignoring setProgressAsync(...). WorkSpec (%s) has "
+                                                + "finished execution.",
                                         workSpecId));
                     } else {
                         WorkProgress progress = new WorkProgress(workSpecId, data);
