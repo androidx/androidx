@@ -264,7 +264,7 @@ final class Camera implements BaseCamera {
 
     void closeCameraResource() {
         mCaptureSession.close();
-        mCaptureSession.release();
+        mCaptureSession.release(/*abortInFlightCaptures=*/true);
         mCameraDevice.close();
         notifyCameraDeviceCloseToCaptureSessions();
         mCameraDevice = null;
@@ -695,7 +695,7 @@ final class Camera implements BaseCamera {
         SessionConfig previousSessionConfig = mCaptureSession.getSessionConfig();
 
         mCaptureSession.close();
-        mCaptureSession.release();
+        mCaptureSession.release(/*abortInFlightCaptures=*/false);
 
         // Saves the closed CaptureSessions if device is not closed yet.
         // We need to notify camera device closed event to these CaptureSessions.

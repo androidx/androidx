@@ -205,7 +205,8 @@ public final class CaptureSessionTest {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
 
-        ListenableFuture<Void> releaseFuture = captureSession.release();
+        ListenableFuture<Void> releaseFuture = captureSession.release(
+                /*abortInFlightCaptures=*/false);
 
         // Wait for release
         releaseFuture.get();
@@ -227,7 +228,8 @@ public final class CaptureSessionTest {
         assertThat(captureSession.getState()).isEqualTo(State.CLOSED);
 
         // Release the session to clean up for next test
-        ListenableFuture<Void> releaseFuture = captureSession.release();
+        ListenableFuture<Void> releaseFuture = captureSession.release(
+                /*abortInFlightCaptures=*/false);
 
         // Wait for release to finish
         releaseFuture.get();
@@ -239,7 +241,8 @@ public final class CaptureSessionTest {
         CaptureSession captureSession = new CaptureSession(mTestParameters0.mHandler);
         captureSession.setSessionConfig(mTestParameters0.mSessionConfig);
         captureSession.open(mTestParameters0.mSessionConfig, mCameraDevice);
-        ListenableFuture<Void> releaseFuture = captureSession.release();
+        ListenableFuture<Void> releaseFuture = captureSession.release(
+                /*abortInFlightCaptures=*/false);
 
         // Wait for release
         releaseFuture.get();
@@ -418,7 +421,8 @@ public final class CaptureSessionTest {
         };
         mTestParameters0.mDeferrableSurface.setOnSurfaceDetachedListener(executor, listener);
 
-        ListenableFuture<Void> releaseFuture = captureSession.release();
+        ListenableFuture<Void> releaseFuture = captureSession.release(
+                /*abortInFlightCaptures=*/false);
 
         // Wait for release
         releaseFuture.get();
