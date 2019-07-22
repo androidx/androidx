@@ -29,6 +29,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -349,6 +350,30 @@ public final class CameraX {
         } else {
             throw new CameraInfoUnavailableException("Unable to find available camera id.");
         }
+    }
+
+    /**
+     * Gets the default lens facing or {@code null} if there is no available camera.
+     *
+     * @return The default lens facing or {@code null}.
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
+     *                                        insufficient permissions.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public static LensFacing getDefaultLensFacing()
+            throws CameraInfoUnavailableException {
+        LensFacing lensFacingCandidate = null;
+        List<LensFacing> lensFacingList = Arrays.asList(LensFacing.BACK, LensFacing.FRONT);
+        for (LensFacing lensFacing : lensFacingList) {
+            String cameraId = INSTANCE.getCameraFactory().cameraIdForLensFacing(lensFacing);
+            if (cameraId != null) {
+                lensFacingCandidate = lensFacing;
+                break;
+            }
+        }
+        return lensFacingCandidate;
     }
 
     /**
