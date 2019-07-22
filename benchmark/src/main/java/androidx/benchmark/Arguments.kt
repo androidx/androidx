@@ -29,8 +29,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 var argumentSource: Bundle? = null
 
 internal object Arguments {
-    val startupMode: Boolean
+    val additionalTestOutputDir: String?
     val outputEnable: Boolean
+    val startupMode: Boolean
     val suppressedErrors: Set<String>
 
     init {
@@ -48,5 +49,7 @@ internal object Arguments {
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .toSet()
+
+        additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
     }
 }

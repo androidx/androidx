@@ -36,8 +36,10 @@ internal object ResultWriter {
             // Ideally, append for efficiency
             val packageName =
                 InstrumentationRegistry.getInstrumentation().targetContext!!.packageName
-            @Suppress("DEPRECATION") // b/134925431
-            val filePath = getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
+
+            @Suppress("DEPRECATION") // Legacy code path for versions of agp older than 3.6
+            val filePath = Arguments.additionalTestOutputDir?.let { File(it) }
+                ?: getExternalStoragePublicDirectory(DIRECTORY_DOWNLOADS)
             val file = File(filePath, "$packageName-benchmarkData.json")
             writeReport(file, reports)
         }
