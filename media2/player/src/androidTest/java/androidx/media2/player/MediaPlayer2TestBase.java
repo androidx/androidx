@@ -80,7 +80,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
     protected Monitor mOnDeselectTrackCalled = new Monitor();
     protected Monitor mOnSeekCompleteCalled = new Monitor();
     protected Monitor mOnCompletionCalled = new Monitor();
-    protected Monitor mOnInfoCalled = new Monitor();
+    protected Monitor mTracksFullyFound = new Monitor();
     protected Monitor mOnErrorCalled = new Monitor();
     protected Monitor mOnMediaTimeDiscontinuityCalled = new Monitor();
     protected int mCallStatus;
@@ -352,12 +352,23 @@ public class MediaPlayer2TestBase extends MediaTestBase {
                     }
                 }
             }
+
             @Override
             public  void onSubtitleData(@NonNull MediaPlayer2 mp, @NonNull MediaItem item,
                     @NonNull TrackInfo track, @NonNull SubtitleData data) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
                         ecb.onSubtitleData(mp, item, track, data);
+                    }
+                }
+            }
+
+            @Override
+            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+                    @NonNull List<TrackInfo> tracks) {
+                synchronized (cbLock) {
+                    for (MediaPlayer2.EventCallback ecb : ecbs) {
+                        ecb.onTrackInfoChanged(mp, tracks);
                     }
                 }
             }

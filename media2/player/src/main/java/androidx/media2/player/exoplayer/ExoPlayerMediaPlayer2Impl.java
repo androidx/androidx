@@ -667,8 +667,9 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void onMetadataChanged(MediaItem mediaItem) {
-        notifyOnInfo(mediaItem, MEDIA_INFO_METADATA_UPDATE);
+    public void onTrackInfoChanged(@NonNull final List<TrackInfo> tracks) {
+        notifyMediaPlayer2Event(cb -> cb.onTrackInfoChanged(ExoPlayerMediaPlayer2Impl.this,
+                tracks));
     }
 
     @Override

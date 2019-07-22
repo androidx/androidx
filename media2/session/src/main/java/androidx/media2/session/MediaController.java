@@ -1890,8 +1890,10 @@ public class MediaController implements AutoCloseable {
                 @NonNull VideoSize videoSize) {}
 
         /**
-         * Called when the tracks are first retrieved after media is prepared or when new tracks are
-         * found during playback.
+         * Called when the tracks of the current media item is changed such as
+         * 1) when tracks of a media item become available,
+         * 2) when new tracks are found during playback, or
+         * 3) when the current media item is changed.
          * <p>
          * When it's called, you should invalidate previous track information and use the new
          * tracks to call {@link #selectTrack(TrackInfo)} or
@@ -1905,7 +1907,7 @@ public class MediaController implements AutoCloseable {
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
          * @param controller the controller for this event
-         * @param trackInfos the list of track infos
+         * @param trackInfos the list of tracks. It can be empty.
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
