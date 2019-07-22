@@ -266,8 +266,8 @@ class InputFieldDelegateTest {
 
     @Test
     fun notify_rect_empty() {
-        val dummyRect = Rect(0f, 1f, 2f, 3f)
-        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        val dummyHeight = 64f
+        whenever(painter.preferredLineHeight).thenReturn(dummyHeight)
         val dummyPoint = PxPosition(5.px, 6.px)
         whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
         val dummyEditorState = EditorState(text = "", selection = TextRange(0, 0))
@@ -277,7 +277,9 @@ class InputFieldDelegateTest {
             layoutCoordinates,
             textInputService,
             true /* hasFocus */)
-        verify(textInputService).notifyFocusedRect(any())
+        val captor = argumentCaptor<Rect>()
+        verify(textInputService).notifyFocusedRect(captor.capture())
+        assertEquals(dummyHeight, captor.firstValue.height)
     }
 
     @Test

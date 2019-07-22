@@ -131,7 +131,7 @@ internal class InputFieldDelegate {
             } else if (value.selection.end != 0) {
                 textPainter.getBoundingBox(value.selection.end - 1)
             } else {
-                Rect(0f, 0f, 0f, 0f)
+                Rect(0f, 0f, 1.0f, textPainter.preferredLineHeight)
             }
             val globalLT = layoutCoordinates.localToRoot(PxPosition(bbox.left.px, bbox.top.px))
 

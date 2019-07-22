@@ -123,6 +123,7 @@ fun InputField(
 
     // States
     val hasFocus = +state { false }
+    val coords = +state<LayoutCoordinates?> { null }
 
     processor.onNewState(value, textInputService)
     TextInputEventObserver(
@@ -137,6 +138,17 @@ fun InputField(
                 imeAction,
                 onValueChange,
                 onImeActionPerformed)
+            coords.value?.let { coords ->
+                textInputService?.let { textInputService ->
+                    InputFieldDelegate.notifyFocusedRect(
+                        value,
+                        textPainter,
+                        coords,
+                        textInputService,
+                        hasFocus.value
+                    )
+                }
+            }
         },
         onBlur = {
             hasFocus.value = false
@@ -151,6 +163,7 @@ fun InputField(
                     if (textInputService != null) {
                         // TODO(nona): notify focused rect in onPreDraw equivalent callback for
                         //             supporting multiline text.
+                        coords.value = it
                         InputFieldDelegate.notifyFocusedRect(
                             value,
                             textPainter,
