@@ -290,12 +290,12 @@ public class VideoSelectorActivity extends Activity {
             }
         }
 
-        // now add the the sorted directories to the result set.
+        // now add the sorted directories to the result set.
         for (VideoItem vi : dirs.values()) {
             retVal.add(vi);
         }
 
-        // finally add the the sorted files to the result set.
+        // finally add the sorted files to the result set.
         for (VideoItem vi : files.values()) {
             retVal.add(vi);
         }

@@ -681,7 +681,7 @@ public abstract class SessionPlayer implements AutoCloseable {
     public abstract ListenableFuture<PlayerResult> skipToNextPlaylistItem();
 
     /**
-     * Skips to the the media item.
+     * Skips to the item in the playlist at the index.
      * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)} when it's
