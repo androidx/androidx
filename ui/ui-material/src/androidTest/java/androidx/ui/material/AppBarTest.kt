@@ -76,7 +76,7 @@ class AppBarTest {
     }
 
     @Test
-    fun topAppBar_defaultPositioning() {
+    fun topAppBar_default_positioning() {
         var appBarCoords: LayoutCoordinates? = null
         var navigationIconCoords: LayoutCoordinates? = null
         var titleCoords: LayoutCoordinates? = null
@@ -113,18 +113,60 @@ class AppBarTest {
         }
 
         withDensity(composeTestRule.density) {
-            // Navigation icon should be at the beginning
+            // Navigation icon should be 16.dp from the start
             val navigationIconPositionX = navigationIconCoords!!.localToGlobal(PxPosition.Origin).x
             val navigationIconExpectedPositionX = 16.dp.toIntPx().toPx()
             Truth.assertThat(navigationIconPositionX).isEqualTo(navigationIconExpectedPositionX)
 
-            // Title should be next
+            // Title should be 72.dp from the start
             val titlePositionX = titleCoords!!.localToGlobal(PxPosition.Origin).x
-            val titleExpectedPositionX =
-                navigationIconPositionX + navigationIconCoords!!.size.width + 32.dp.toIntPx()
+            val titleExpectedPositionX = 72.dp.toIntPx().toPx()
             Truth.assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
 
             // Action should be placed at the end
+            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
+            val actionExpectedPositionX =
+                appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
+            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+        }
+    }
+
+    @Test
+    fun topAppBar_noNavigationIcon_positioning() {
+        var appBarCoords: LayoutCoordinates? = null
+        var titleCoords: LayoutCoordinates? = null
+        var actionCoords: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Container {
+                OnChildPositioned(onPositioned = { coords ->
+                    appBarCoords = coords
+                }) {
+                    TopAppBar(
+                        title = {
+                            OnChildPositioned(onPositioned = { coords ->
+                                titleCoords = coords
+                            }) {
+                                Text("title")
+                            }
+                        },
+                        contextualActions = createImageList(1),
+                        action = {
+                            OnChildPositioned(onPositioned = { coords ->
+                                actionCoords = coords
+                            }) { it() }
+                        }
+                    )
+                }
+            }
+        }
+
+        withDensity(composeTestRule.density) {
+            // Title should now be placed 16.dp from the start, as there is no navigation icon
+            val titlePositionX = titleCoords!!.localToGlobal(PxPosition.Origin).x
+            val titleExpectedPositionX = 16.dp.toIntPx().toPx()
+            Truth.assertThat(titlePositionX).isEqualTo(titleExpectedPositionX)
+
+            // Action should still be placed at the end
             val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
             val actionExpectedPositionX =
                 appBarCoords!!.size.width - 16.dp.toIntPx() - 24.dp.toIntPx()
@@ -196,6 +238,36 @@ class AppBarTest {
             }
             .assertHeightEqualsTo(appBarHeight)
             .assertWidthEqualsTo { dm.widthPixels.ipx }
+    }
+
+    @Test
+    fun bottomAppBar_noNavigationIcon_positioning() {
+        var appBarCoords: LayoutCoordinates? = null
+        var actionCoords: LayoutCoordinates? = null
+        composeTestRule.setMaterialContent {
+            Container {
+                OnChildPositioned(onPositioned = { coords ->
+                    appBarCoords = coords
+                }) {
+                    BottomAppBar(
+                        contextualActions = createImageList(1),
+                        action = {
+                            OnChildPositioned(onPositioned = { coords ->
+                                actionCoords = coords
+                            }) { it() }
+                        }
+                    )
+                }
+            }
+        }
+
+        withDensity(composeTestRule.density) {
+            // Action should still be placed at the end, even though there is no navigation icon
+            val actionPositionX = actionCoords!!.localToGlobal(PxPosition.Origin).x
+            val actionExpectedPositionX = appBarCoords!!.size.width.round().toPx() -
+                    16.dp.toIntPx().toPx() - 24.dp.toIntPx().toPx()
+            Truth.assertThat(actionPositionX).isEqualTo(actionExpectedPositionX)
+        }
     }
 
     @Test

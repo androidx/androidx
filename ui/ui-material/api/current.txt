@@ -9,7 +9,7 @@ package androidx.ui.material {
 }), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, androidx.ui.material.BottomAppBar.FabPosition fabPosition = Center, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
     method public static <T> void TopAppBar(kotlin.jvm.functions.Function0<kotlin.Unit> title = {}, androidx.ui.graphics.Color color = +themeColor({ 
     primary
-}), kotlin.jvm.functions.Function0<kotlin.Unit> navigationIcon = {}, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
+}), kotlin.jvm.functions.Function0<kotlin.Unit>? navigationIcon = (kotlin.jvm.functions.Function0<? extends kotlin.Unit>)null, java.util.List<? extends T>? contextualActions = null, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> action = {});
   }
 
   public final class BottomAppBar {
