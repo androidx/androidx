@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraDeviceSurfaceManager;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.SurfaceConfig;
 import androidx.camera.core.UseCase;
@@ -50,6 +49,7 @@ import java.util.Map;
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices. This structure is used to store the guaranteed supported stream capabilities related
  * info.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY)
@@ -302,11 +302,16 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     }
 
     private String getCameraIdFromConfig(UseCaseConfig<?> useCaseConfig) {
+        CameraDeviceConfig config = (CameraDeviceConfig) useCaseConfig;
         String cameraId;
         try {
-            cameraId =
-                    CameraX.getCameraWithCameraDeviceConfig((CameraDeviceConfig) useCaseConfig);
-        } catch (CameraInfoUnavailableException e) {
+            CameraX.LensFacing lensFacing = config.getLensFacing(null);
+            // Adds default lensFacing if the user doesn't specify the lens facing.
+            if (lensFacing == null) {
+                lensFacing = CameraX.getDefaultLensFacing();
+            }
+            cameraId = CameraX.getCameraWithLensFacing(lensFacing);
+        } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to get camera ID for use case " + useCaseConfig.getTargetName(), e);
         }
