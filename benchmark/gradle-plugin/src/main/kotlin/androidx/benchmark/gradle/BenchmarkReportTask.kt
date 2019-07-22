@@ -69,9 +69,7 @@ open class BenchmarkReportTask : DefaultTask() {
         for (deviceId in deviceIds) {
             val dataDir = getReportDirForDevice(adb, deviceId)
             if (dataDir.isBlank()) {
-                throw StopExecutionException(
-                    "Failed to find benchmark reports on device: $deviceId"
-                )
+                throw StopExecutionException("Failed to find benchmark report on device: $deviceId")
             }
 
             val outDir = File(benchmarkReportDir, deviceId)
