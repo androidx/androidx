@@ -58,23 +58,41 @@ enum class Direction {
 }
 
 fun MotionEventData.toMotionEvent(downTime: Long): MotionEvent = MotionEvent.obtain(
-        downTime,
-        this.eventTimeDelta + downTime,
-        this.action,
-        this.x,
-        this.y,
-        this.metaState)
+    downTime,
+    this.eventTimeDelta + downTime,
+    this.action,
+    this.x,
+    this.y,
+    this.metaState
+)
 
 /**
- * Constructs a [FlingData] from a [Context].
+ * Constructs a [FlingData] from a [Context] and [velocityPixelsPerSecond].
+ *
+ * [velocityPixelsPerSecond] must between [ViewConfiguration.getScaledMinimumFlingVelocity] * 1.1
+ * and [ViewConfiguration.getScaledMaximumFlingVelocity] * .9, inclusive.  Losses of precision do
+ * not allow the simulated fling to be super precise.
  */
-fun generateFlingData(context: Context): FlingData {
+@JvmOverloads
+fun generateFlingData(context: Context, velocityPixelsPerSecond: Float? = null): FlingData {
     val configuration = ViewConfiguration.get(context)
     val touchSlop = configuration.scaledTouchSlop
     val minimumVelocity = configuration.scaledMinimumFlingVelocity
     val maximumVelocity = configuration.scaledMaximumFlingVelocity
 
-    val targetPixelsPerMilli = ((maximumVelocity + minimumVelocity) / 2) / 1000f
+    val targetPixelsPerMilli =
+        if (velocityPixelsPerSecond != null) {
+            if (velocityPixelsPerSecond < minimumVelocity * 1.1 - .001f ||
+                velocityPixelsPerSecond > maximumVelocity * .9 + .001f) {
+                throw IllegalArgumentException("velocityPixelsPerSecond must be between " +
+                        "ViewConfiguration.scaledMinimumFlingVelocity * 1.1 and " +
+                        "ViewConfiguration.scaledMinimumFlingVelocity * .9, inclusive")
+            }
+            velocityPixelsPerSecond / 1000f
+        } else {
+            ((maximumVelocity + minimumVelocity) / 2) / 1000f
+        }
+
     val targetDistancePixels = touchSlop * 2
     val targetMillisPassed = floor(targetDistancePixels / targetPixelsPerMilli).toInt()
 
@@ -89,7 +107,7 @@ fun generateFlingData(context: Context): FlingData {
  *  Returns [value] rounded up to the closest [interval] * N, where N is a Integer.
  */
 private fun ceilToInterval(value: Int, interval: Int): Int =
-        ceil(value.toFloat() / interval).toInt() * interval
+    ceil(value.toFloat() / interval).toInt() * interval
 
 /**
  * Generates a [List] of [MotionEventData] starting from ([originX], [originY]) that will cause a
@@ -100,7 +118,7 @@ fun FlingData.generateFlingMotionEventData(
     originY: Float,
     fingerDirection: Direction
 ):
-    List<MotionEventData> {
+        List<MotionEventData> {
 
     // Ceiling the time and distance to match up with motion event intervals.
     val time: Int = ceilToInterval(this.time, MOTION_EVENT_INTERVAL_MILLIS)
@@ -127,8 +145,8 @@ fun FlingData.generateFlingMotionEventData(
     motionEventData.add(MotionEventData(0, MotionEvent.ACTION_DOWN, originX, originY, 0))
     for (i in 1..(numberOfInnerEvents)) {
         val timeDelta = i * MOTION_EVENT_INTERVAL_MILLIS
-        val x = i * dxIncrement
-        val y = i * dyIncrement
+        val x = originX + (i * dxIncrement)
+        val y = originY + (i * dyIncrement)
         motionEventData.add(MotionEventData(timeDelta, MotionEvent.ACTION_MOVE, x, y, 0))
     }
     motionEventData.add(MotionEventData(time, MotionEvent.ACTION_MOVE, toX, toY, 0))
@@ -161,12 +179,17 @@ fun View.dispatchTouchEvents(downTime: Long, motionEventData: List<MotionEventDa
  * @see [generateFlingMotionEventData]
  * @see [dispatchTouchEvents]
  */
+@JvmOverloads
 fun View.simulateFling(
     downTime: Long,
     originX: Float,
     originY: Float,
-    direction: Direction
+    direction: Direction,
+    velocityPixelsPerSecond: Float? = null
 ) {
-    dispatchTouchEvents(downTime,
-            generateFlingData(context).generateFlingMotionEventData(originX, originY, direction))
+    dispatchTouchEvents(
+        downTime,
+        generateFlingData(context, velocityPixelsPerSecond)
+            .generateFlingMotionEventData(originX, originY, direction)
+    )
 }
