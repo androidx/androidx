@@ -672,18 +672,17 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
-    public ListenableFuture<SessionResult> replacePlaylistItem(int index,
-            @NonNull String mediaId) {
+    public ListenableFuture<SessionResult> replacePlaylistItem(int index, @NonNull String mediaId) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
-            if (mPlaylist == null || index < 0 || mPlaylist.size() <= index) {
+            if (mQueue == null || index < 0 || index >= mQueue.size()) {
                 return createFutureWithResult(RESULT_ERROR_BAD_VALUE);
             }
-            removePlaylistItem(index);
-            addPlaylistItem(index, mediaId);
+            mControllerCompat.removeQueueItem(mQueue.get(index).getDescription());
+            mControllerCompat.addQueueItem(MediaUtils.createMediaDescriptionCompat(mediaId), index);
         }
         return createFutureWithResult(RESULT_SUCCESS);
     }
