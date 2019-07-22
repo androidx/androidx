@@ -16,13 +16,11 @@
 
 package androidx.ui.material.demos
 
-import android.app.Activity
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.dp
-import androidx.ui.core.setContent
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.GenericShape
 import androidx.ui.graphics.Color
@@ -32,12 +30,16 @@ import androidx.ui.layout.Wrap
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
 
-class CustomShapeActivity : Activity() {
+class CustomShapeActivity : MaterialDemoActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(ColorDrawable(android.graphics.Color.WHITE))
-        setContent { CustomShapeDemo() }
+    }
+
+    @Composable
+    override fun materialContent() {
+        CustomShapeDemo()
     }
 }
 

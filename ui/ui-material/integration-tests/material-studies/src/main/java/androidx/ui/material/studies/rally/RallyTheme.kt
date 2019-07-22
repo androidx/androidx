@@ -19,7 +19,6 @@ package androidx.ui.material.studies.rally
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.sp
 import androidx.ui.text.font.FontWeight
 import androidx.ui.text.font.FontFamily
@@ -41,7 +40,7 @@ fun RallyTheme(@Children children: @Composable() () -> Unit) {
     val colors = MaterialColors(
         primary = rallyGreen,
         surface = Color(0xFF26282F.toInt()),
-        onSurface = Color(0xFFFFFFFF.toInt())
+        onSurface = Color.White
     )
     val typography = MaterialTypography(
         h1 = TextStyle(fontFamily = FontFamily("RobotoCondensed"),
@@ -86,10 +85,6 @@ fun RallyTheme(@Children children: @Composable() () -> Unit) {
 
     )
     MaterialTheme(colors = colors, typography = typography) {
-        // TODO: remove this when surface auto-sets the text color
-        val value = TextStyle(color = Color(0xFFFFFFFF.toInt()))
-        CurrentTextStyleProvider(value = value) {
-            children()
-        }
+        children()
     }
 }

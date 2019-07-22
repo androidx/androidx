@@ -123,11 +123,11 @@ data class MaterialColors(
     /**
      * The background color appears behind scrollable content.
      */
-    val background: Color = Color(0xFFFFFFFF.toInt()),
+    val background: Color = Color.White,
     /**
      * The surface color is used on surfaces of components, such as cards, sheets and menus.
      */
-    val surface: Color = Color(0xFFFFFFFF.toInt()),
+    val surface: Color = Color.White,
     /**
      * The error color is used to indicate error within components, such as text fields.
      */
@@ -135,23 +135,23 @@ data class MaterialColors(
     /**
      * Color used for text and icons displayed on top of the primary color.
      */
-    val onPrimary: Color = Color(0xFFFFFFFF.toInt()),
+    val onPrimary: Color = Color.White,
     /**
      * Color used for text and icons displayed on top of the secondary color.
      */
-    val onSecondary: Color = Color(0xFF000000.toInt()),
+    val onSecondary: Color = Color.Black,
     /**
      * Color used for text and icons displayed on top of the background color.
      */
-    val onBackground: Color = Color(0xFF000000.toInt()),
+    val onBackground: Color = Color.Black,
     /**
      * Color used for text and icons displayed on top of the surface color.
      */
-    val onSurface: Color = Color(0xFF000000.toInt()),
+    val onSurface: Color = Color.Black,
     /**
      * Color used for text and icons displayed on top of the error color.
      */
-    val onError: Color = Color(0xFFFFFFFF.toInt())
+    val onError: Color = Color.White
 )
 
 /**
@@ -233,7 +233,7 @@ fun MaterialRippleTheme(@Children children: @Composable() () -> Unit) {
                 ) { // light bg
                     materialColors.primary.copy(alpha = 0.12f)
                 } else { // dark bg
-                    Color(0xFFFFFFFF.toInt()).copy(alpha = 0.24f)
+                    Color.White.copy(alpha = 0.24f)
                 }
             }
         )
