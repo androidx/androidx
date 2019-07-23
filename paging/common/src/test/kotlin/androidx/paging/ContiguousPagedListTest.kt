@@ -56,17 +56,8 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
      */
     private inner class TestPagedSource(val listData: List<Item> = ITEMS) :
         PagedSource<Int, Item>() {
-        private var _invalid = false
-
         override val keyProvider = object : KeyProvider.ItemKey<Int, Item>() {
             override fun getKey(item: Item) = item.pos
-        }
-
-        override val invalid: Boolean
-            get() = _invalid
-
-        override fun invalidate() {
-            _invalid = true
         }
 
         override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Item> {

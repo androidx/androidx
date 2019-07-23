@@ -243,12 +243,12 @@ package androidx.paging {
 
   public abstract class PagedSource<Key, Value> {
     ctor public PagedSource();
-    method public abstract boolean getInvalid();
+    method public final boolean getInvalid();
     method public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
-    method public abstract void invalidate();
+    method public void invalidate();
     method public abstract boolean isRetryableError(Throwable error);
     method public abstract suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
-    property public abstract boolean invalid;
+    property public final boolean invalid;
     property public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
     field public static final int COUNT_UNDEFINED = -1; // 0xffffffff
     field public static final androidx.paging.PagedSource.Companion! Companion;

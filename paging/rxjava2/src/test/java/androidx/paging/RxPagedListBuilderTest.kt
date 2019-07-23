@@ -23,6 +23,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
 class RxPagedListBuilderTest {
@@ -63,9 +64,11 @@ class RxPagedListBuilderTest {
         assertEquals(listOf("a", "b"), observer.values().first())
 
         // invalidate triggers second load
-        observer.values().first().pagedSource.invalidate()
+        @Suppress("DEPRECATION")
+        observer.values().first().dataSource.invalidate()
         scheduler.triggerActions()
         observer.assertValueCount(2)
+        assertTrue { observer.values().first().pagedSource.invalid }
         assertEquals(listOf("c", "d"), observer.values().last())
     }
 
