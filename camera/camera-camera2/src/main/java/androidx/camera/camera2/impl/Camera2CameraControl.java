@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -65,6 +66,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     final CameraControlSessionCallback mSessionCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mExecutor;
+    private final CameraCharacteristics mCameraCharacteristics;
     private final ControlUpdateListener mControlUpdateListener;
     private final ScheduledExecutorService mScheduler;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
@@ -93,16 +95,19 @@ public final class Camera2CameraControl implements CameraControlInternal {
     //**************************************************************************************//
 
 
-    public Camera2CameraControl(@NonNull ControlUpdateListener controlUpdateListener,
+    public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull ControlUpdateListener controlUpdateListener,
             @NonNull ScheduledExecutorService scheduler, @NonNull Executor executor) {
-        this(controlUpdateListener, DEFAULT_FOCUS_TIMEOUT_MS, scheduler, executor);
+        this(cameraCharacteristics, controlUpdateListener, DEFAULT_FOCUS_TIMEOUT_MS, scheduler,
+                executor);
     }
 
-    public Camera2CameraControl(
+    public Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull ControlUpdateListener controlUpdateListener,
             long focusTimeoutMs,
             @NonNull ScheduledExecutorService scheduler,
             @NonNull Executor executor) {
+        mCameraCharacteristics = cameraCharacteristics;
         mControlUpdateListener = controlUpdateListener;
         if (CameraXExecutors.isSequentialExecutor(executor)) {
             mExecutor = executor;
@@ -460,7 +465,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
             singleRequestBuilder.setUseRepeatingSurface(true);
             Camera2Config.Builder configBuilder = new Camera2Config.Builder();
             configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
-                    CaptureRequest.CONTROL_AE_MODE_ON);
+                    getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
             configBuilder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
                     CaptureRequest.FLASH_MODE_OFF);
             singleRequestBuilder.addImplementationOptions(configBuilder.build());
@@ -545,8 +550,8 @@ public final class Camera2CameraControl implements CameraControlInternal {
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_MODE,
                 isFocusLocked()
-                        ? CaptureRequest.CONTROL_AF_MODE_AUTO
-                        : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                        ? getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO)
+                        : getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE));
 
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
         if (mIsTorchOn) {
@@ -565,10 +570,11 @@ public final class Camera2CameraControl implements CameraControlInternal {
                     break;
             }
         }
-        builder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, aeMode);
+        builder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE, getSupportedAeMode(aeMode));
 
         builder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);
+                CaptureRequest.CONTROL_AWB_MODE,
+                getSupportedAwbMode(CaptureRequest.CONTROL_AWB_MODE_AUTO));
 
         if (mAfRect != null) {
             builder.setCaptureRequestOption(
@@ -588,6 +594,108 @@ public final class Camera2CameraControl implements CameraControlInternal {
         }
 
         return builder.build();
+    }
+
+    /**
+     * Returns a supported AF mode which will be preferredMode if it is supported.
+     *
+     * <p><pre>If preferredMode is not supported, fallback with the following priority (highest to
+     * lowest).
+     * 1) {@link CaptureRequest#CONTROL_AF_MODE_CONTINUOUS_PICTURE}
+     * 2) {@link CaptureRequest#CONTROL_AF_MODE_AUTO)}
+     * 3) {@link CaptureRequest#CONTROL_AF_MODE_OFF}
+     * </pre>
+     */
+    @WorkerThread
+    private int getSupportedAfMode(int preferredMode) {
+        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES);
+        if (modes == null) {
+            return CaptureRequest.CONTROL_AF_MODE_OFF;
+        }
+
+        // if preferredMode is supported, use it
+        if (isModeInList(preferredMode, modes)) {
+            return preferredMode;
+        }
+
+        // if not found, priority is CONTINUOUS_PICTURE > AUTO > OFF
+        if (isModeInList(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE, modes)) {
+            return CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
+        } else if (isModeInList(CaptureRequest.CONTROL_AF_MODE_AUTO, modes)) {
+            return CaptureRequest.CONTROL_AF_MODE_AUTO;
+        }
+
+        return CaptureRequest.CONTROL_AF_MODE_OFF;
+    }
+
+    /**
+     * Returns a supported AE mode which will be preferredMode if it is supported.
+     *
+     * <p><pre>If preferredMode is not supported, fallback with the following priority (highest to
+     * lowest).
+     * 1) {@link CaptureRequest#CONTROL_AE_MODE_ON}
+     * 2) {@link CaptureRequest#CONTROL_AE_MODE_OFF)}
+     * </pre>
+     */
+    @WorkerThread
+    private int getSupportedAeMode(int preferredMode) {
+        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
+
+        if (modes == null) {
+            return CaptureRequest.CONTROL_AE_MODE_OFF;
+        }
+
+        // if preferredMode is supported, use it
+        if (isModeInList(preferredMode, modes)) {
+            return preferredMode;
+        }
+
+        // if not found, priority is AE_ON > AE_OFF
+        if (isModeInList(CaptureRequest.CONTROL_AE_MODE_ON, modes)) {
+            return CaptureRequest.CONTROL_AE_MODE_ON;
+        }
+
+        return CaptureRequest.CONTROL_AE_MODE_OFF;
+    }
+
+    /**
+     * Returns a supported AWB mode which will be preferredMode if it is supported.
+     *
+     * <p><pre>If preferredMode is not supported, fallback with the following priority (highest to
+     * lowest).
+     * 1) {@link CaptureRequest#CONTROL_AWB_MODE_AUTO}
+     * 2) {@link CaptureRequest#CONTROL_AWB_MODE_OFF)}
+     * </pre>
+     */
+    @WorkerThread
+    private int getSupportedAwbMode(int preferredMode) {
+        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES);
+
+        if (modes == null) {
+            return CaptureRequest.CONTROL_AWB_MODE_OFF;
+        }
+
+        // if preferredMode is supported, use it
+        if (isModeInList(preferredMode, modes)) {
+            return preferredMode;
+        }
+
+        // if not found, priority is AWB_AUTO > AWB_OFF
+        if (isModeInList(CaptureRequest.CONTROL_AWB_MODE_AUTO, modes)) {
+            return CaptureRequest.CONTROL_AWB_MODE_AUTO;
+        }
+
+        return CaptureRequest.CONTROL_AWB_MODE_OFF;
+    }
+
+    @WorkerThread
+    private boolean isModeInList(int mode, int[] modeList) {
+        for (int m : modeList) {
+            if (mode == m) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** An interface to listen to camera capture results. */

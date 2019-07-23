@@ -179,8 +179,16 @@ final class Camera implements BaseCamera {
         mExecutor = executorScheduler;
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mObservableState.postValue(State.CLOSED);
-        mCameraControlInternal = new Camera2CameraControl(this, executorScheduler,
-                executorScheduler);
+
+        try {
+            CameraCharacteristics cameraCharacteristics =
+                    mCameraManager.getCameraCharacteristics(mCameraId);
+            mCameraControlInternal = new Camera2CameraControl(cameraCharacteristics,
+                    this, executorScheduler, executorScheduler);
+        } catch (CameraAccessException e) {
+            throw new IllegalStateException("Cannot access camera", e);
+        }
+
         mCaptureSession = new CaptureSession(mExecutor);
 
         // Register an observer to update the number of available cameras
