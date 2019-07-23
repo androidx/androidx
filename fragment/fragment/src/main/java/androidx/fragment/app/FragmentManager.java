@@ -343,8 +343,6 @@ public abstract class FragmentManager {
     private final ArrayList<OpGenerator> mPendingActions = new ArrayList<>();
     private boolean mExecutingActions;
 
-    private int mNextFragmentIndex = 0;
-
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayList<Fragment> mAdded = new ArrayList<>();
     final HashMap<String, Fragment> mActive = new HashMap<>();
@@ -2827,7 +2825,6 @@ public abstract class FragmentManager {
         if (mPrimaryNav != null) {
             fms.mPrimaryNavActiveWho = mPrimaryNav.mWho;
         }
-        fms.mNextFragmentIndex = mNextFragmentIndex;
         return fms;
     }
 
@@ -2948,7 +2945,6 @@ public abstract class FragmentManager {
             mPrimaryNav = mActive.get(fms.mPrimaryNavActiveWho);
             dispatchParentPrimaryNavigationFragmentChanged(mPrimaryNav);
         }
-        this.mNextFragmentIndex = fms.mNextFragmentIndex;
     }
 
     /**
