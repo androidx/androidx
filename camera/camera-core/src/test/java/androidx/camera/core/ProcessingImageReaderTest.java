@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 
 import android.graphics.ImageFormat;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Size;
@@ -34,6 +35,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowLooper;
 
@@ -47,6 +49,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class ProcessingImageReaderTest {
     private static final int CAPTURE_ID_0 = 0;
     private static final int CAPTURE_ID_1 = 1;
@@ -88,7 +91,7 @@ public final class ProcessingImageReaderTest {
     }
 
     @Test
-    public void canSetFuturesInSettableImageProxyBundle()
+    public void canSetFuturesInSettableImawgeProxyBundle()
             throws InterruptedException, TimeoutException, ExecutionException {
         final AtomicReference<ImageProxyBundle> bundleRef = new AtomicReference<>();
         // Sets the callback from ProcessingImageReader to start processing
