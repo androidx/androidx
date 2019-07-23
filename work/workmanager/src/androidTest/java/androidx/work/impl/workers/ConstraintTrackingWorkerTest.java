@@ -30,8 +30,8 @@ import android.os.Looper;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
@@ -69,7 +69,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     private static final long DELAY_IN_MS = 100;
