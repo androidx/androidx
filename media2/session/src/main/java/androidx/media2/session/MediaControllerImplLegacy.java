@@ -93,13 +93,6 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     static final String SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED =
             "android.media.session.command.ON_CAPTIONING_ENALBED_CHANGED";
 
-    // Note: Using {@code null} doesn't helpful here because MediaBrowserServiceCompat always wraps
-    //       the rootHints so it becomes non-null.
-    static final Bundle sDefaultRootExtras = new Bundle();
-    static {
-        sDefaultRootExtras.putBoolean(MediaConstants.ROOT_EXTRA_DEFAULT, true);
-    }
-
     final Context mContext;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -953,7 +946,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             public void run() {
                 synchronized (mLock) {
                     mBrowserCompat = new MediaBrowserCompat(mContext, mToken.getComponentName(),
-                            new ConnectionCallback(), sDefaultRootExtras);
+                            new ConnectionCallback(), null);
                     mBrowserCompat.connect();
                 }
             }
