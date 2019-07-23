@@ -20,9 +20,16 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.composer
 import androidx.ui.core.setContent
+import androidx.compose.state
+import androidx.compose.unaryPlus
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Center
 import androidx.ui.layout.FlexColumn
+import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
-import androidx.ui.material.samples.CustomTabs
+import androidx.ui.material.samples.FancyIndicatorContainerTabs
+import androidx.ui.material.samples.FancyIndicatorTabs
+import androidx.ui.material.samples.FancyTabs
 import androidx.ui.material.samples.IconTabs
 import androidx.ui.material.samples.TextAndIconTabs
 import androidx.ui.material.samples.TextTabs
@@ -35,17 +42,27 @@ class TabActivity : Activity() {
             MaterialTheme {
                 val favouriteImage = imageFromResource(resources, R.drawable.ic_favorite)
                 FlexColumn {
+                    val showingSimple = +state { true }
+                    val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
+
                     expanded(flex = 1f) {
-                        TextTabs()
+                        if (showingSimple.value) {
+                            TextTabs()
+                            IconTabs(favouriteImage)
+                            TextAndIconTabs(favouriteImage)
+                        } else {
+                            FancyTabs()
+                            FancyIndicatorTabs()
+                            FancyIndicatorContainerTabs()
+                        }
                     }
+
                     expanded(flex = 1f) {
-                        IconTabs(favouriteImage)
-                    }
-                    expanded(flex = 1f) {
-                        TextAndIconTabs(favouriteImage)
-                    }
-                    expanded(flex = 1f) {
-                        CustomTabs()
+                        Center {
+                            Button(color = Color.Cyan, text = buttonText, onClick = {
+                                showingSimple.value = !showingSimple.value
+                            })
+                        }
                     }
                 }
             }
