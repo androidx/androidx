@@ -823,7 +823,7 @@ public class MediaController implements AutoCloseable {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (isConnected()) {
-            getImpl().setMediaItem(mediaId);
+            return getImpl().setMediaItem(mediaId);
         }
         return createDisconnectedFuture();
     }
