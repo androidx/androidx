@@ -36,7 +36,9 @@ val KEYBOARD_TYPES = listOf(
     Pair(KeyboardType.Ascii, "Ascii"),
     Pair(KeyboardType.Number, "Number"),
     Pair(KeyboardType.Email, "Email"),
-    Pair(KeyboardType.Phone, "Phone")
+    Pair(KeyboardType.Phone, "Phone"),
+    Pair(KeyboardType.Password, "Password"),
+    Pair(KeyboardType.NumberPassword, "NumberPassword")
 )
 
 val IME_ACTIONS = listOf(

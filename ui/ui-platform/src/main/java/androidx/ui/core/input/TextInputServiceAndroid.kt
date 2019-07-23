@@ -163,6 +163,14 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
             KeyboardType.Email ->
                 outInfo.inputType =
                     InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+            KeyboardType.Password -> {
+                outInfo.inputType =
+                    InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+            }
+            KeyboardType.NumberPassword -> {
+                outInfo.inputType =
+                        InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
+            }
             else -> throw IllegalArgumentException("Unknown KeyboardType: $keyboardType")
         }
         outInfo.imeOptions =
