@@ -2107,7 +2107,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 return false;
             }
             switch (action) {
-                case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD: {
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                case android.R.id.accessibilityActionScrollDown: {
                     final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
                             - nsvHost.getPaddingTop();
                     final int targetScrollY = Math.min(nsvHost.getScrollY() + viewportHeight,
@@ -2118,7 +2119,8 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     }
                 }
                 return false;
-                case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD: {
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                case android.R.id.accessibilityActionScrollUp: {
                     final int viewportHeight = nsvHost.getHeight() - nsvHost.getPaddingBottom()
                             - nsvHost.getPaddingTop();
                     final int targetScrollY = Math.max(nsvHost.getScrollY() - viewportHeight, 0);
@@ -2142,10 +2144,16 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                 if (scrollRange > 0) {
                     info.setScrollable(true);
                     if (nsvHost.getScrollY() > 0) {
-                        info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+                        info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                .ACTION_SCROLL_BACKWARD);
+                        info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                .ACTION_SCROLL_UP);
                     }
                     if (nsvHost.getScrollY() < scrollRange) {
-                        info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+                        info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                .ACTION_SCROLL_FORWARD);
+                        info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                .ACTION_SCROLL_DOWN);
                     }
                 }
             }
