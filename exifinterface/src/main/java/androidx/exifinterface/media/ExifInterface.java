@@ -4451,7 +4451,10 @@ public class ExifInterface {
 
         FileInputStream in = null;
         FileOutputStream out = null;
-        File originalFile = new File(mFilename);
+        File originalFile = null;
+        if (mFilename != null) {
+            originalFile = new File(mFilename);
+        }
         File tempFile = null;
         try {
             // Move the original file to temporary file.
