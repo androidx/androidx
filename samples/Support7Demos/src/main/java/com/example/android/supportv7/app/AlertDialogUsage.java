@@ -22,6 +22,7 @@ import android.widget.Spinner;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
@@ -58,9 +59,12 @@ public class AlertDialogUsage extends AppCompatActivity {
                 showSimpleButtonsDialog();
                 break;
             case 2:
-                showSingleChoiceDialog();
+                showSimpleWithMoreButtonsDialog();
                 break;
             case 3:
+                showSingleChoiceDialog();
+                break;
+            case 4:
                 showMultiChoiceDialog();
                 break;
         }
@@ -79,6 +83,19 @@ public class AlertDialogUsage extends AppCompatActivity {
         b.setMessage(R.string.dialog_content);
         b.setNegativeButton("-ve", null);
         b.setPositiveButton("+ve", null);
+        b.show();
+    }
+
+    private void showSimpleWithMoreButtonsDialog() {
+        AlertDialog.Builder b = new AlertDialog.Builder(this);
+        b.setTitle(R.string.dialog_title);
+        b.setMessage(R.string.dialog_content);
+        b.setNegativeButton("-ve", null);
+        b.setNegativeButtonIcon(AppCompatResources.getDrawable(this, R.drawable.ic_media_pause));
+        b.setNeutralButton("=ve", null);
+        b.setNeutralButtonIcon(AppCompatResources.getDrawable(this, R.drawable.ic_media_play));
+        b.setPositiveButton("+ve", null);
+        b.setPositiveButtonIcon(AppCompatResources.getDrawable(this, R.drawable.ic_media_stop));
         b.show();
     }
 

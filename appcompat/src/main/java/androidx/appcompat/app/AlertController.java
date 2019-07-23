@@ -797,9 +797,9 @@ class AlertController {
             mButtonNeutral.setVisibility(View.GONE);
         } else {
             mButtonNeutral.setText(mButtonNeutralText);
-            if (mButtonPositiveIcon != null) {
-                mButtonPositiveIcon.setBounds(0, 0, mButtonIconDimen, mButtonIconDimen);
-                mButtonPositive.setCompoundDrawables(mButtonPositiveIcon, null, null, null);
+            if (mButtonNeutralIcon != null) {
+                mButtonNeutralIcon.setBounds(0, 0, mButtonIconDimen, mButtonIconDimen);
+                mButtonNeutral.setCompoundDrawables(mButtonNeutralIcon, null, null, null);
             }
             mButtonNeutral.setVisibility(View.VISIBLE);
             whichButtons = whichButtons | BIT_BUTTON_NEUTRAL;
