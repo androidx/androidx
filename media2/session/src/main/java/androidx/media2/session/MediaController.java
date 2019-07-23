@@ -1034,7 +1034,7 @@ public class MediaController implements AutoCloseable {
      * <p>
      * This calls {@link SessionPlayer#skipToPlaylistItem(int)}.
      *
-     * @param index The item in the playlist you want to play
+     * @param index The index of the item you want to play in the playlist
      */
     @NonNull
     public ListenableFuture<SessionResult> skipToPlaylistItem(@IntRange(from = 0) int index) {
@@ -1968,7 +1968,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Holds information about the the way volume is handled for this session.
+     * Holds information about the way volume is handled for this session.
      */
     // The same as MediaController.PlaybackInfo
     @VersionedParcelize
