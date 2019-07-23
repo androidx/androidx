@@ -64,9 +64,9 @@ import org.junit.runners.model.Statement
  * ```
  *
  * Benchmark results will be output:
- * - Summary in AndroidStudio in the test log,
+ * - Summary in AndroidStudio in the test log
+ * - In JSON format, on the host
  * - In simple form in Logcat with the tag "Benchmark"
- * - In csv form in Logcat with the tag "BenchmarkCsv"
  * - To the instrumentation status result Bundle on the gradle command line
  *
  * Every test in the Class using this @Rule must contain a single benchmark.
