@@ -125,7 +125,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                     latchForPlayingState.countDown();
                 }
             }
-        }, mFileSchemeMediaItem);
+        }, mFileSchemeMediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.pause), isCompletelyDisplayed()))
@@ -162,7 +162,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                 }
                 mState = state;
             }
-        }, mFileSchemeMediaItem);
+        }, mFileSchemeMediaItem, null);
         assertTrue(latchForPreparedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         playerWrapper.play();
         assertTrue(latchForPlayingState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -178,7 +178,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     @Test
     public void testSetPlayerAndController_MultipleTimes() throws Throwable {
         DefaultPlayerCallback callback1 = new DefaultPlayerCallback();
-        PlayerWrapper wrapper1 = createPlayerWrapper(callback1, mFileSchemeMediaItem);
+        PlayerWrapper wrapper1 = createPlayerWrapper(callback1, mFileSchemeMediaItem, null);
         assertTrue(callback1.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         DefaultPlayerCallback callback2 = new DefaultPlayerCallback();
@@ -191,7 +191,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         assertTrue(callback3.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         DefaultPlayerCallback callback4 = new DefaultPlayerCallback();
-        PlayerWrapper wrapper4 = createPlayerWrapper(callback4, mFileSchemeMediaItem);
+        PlayerWrapper wrapper4 = createPlayerWrapper(callback4, mFileSchemeMediaItem, null);
         assertTrue(callback4.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
 
         setPlayerWrapper(wrapper1);
@@ -244,7 +244,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                     latchForPausedState.countDown();
                 }
             }
-        }, mFileSchemeMediaItem);
+        }, mFileSchemeMediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.ffwd), isCompletelyDisplayed())).perform(click());
@@ -285,11 +285,45 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
             private boolean equalsSeekPosition(long expected, long actual, long delta) {
                 return (actual < expected + delta) && (actual > expected - delta);
             }
-        }, mFileSchemeMediaItem);
+        }, mFileSchemeMediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(allOf(withId(R.id.rew), isCompletelyDisplayed())).perform(click());
         assertTrue(latchForRew.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testPrevNextButtonClick() throws Throwable {
+        DefaultPlayerCallback callback = new DefaultPlayerCallback();
+        final List<MediaItem> playlist = createTestPlaylist();
+        final PlayerWrapper playerWrapper = createPlayerWrapper(callback, null, playlist);
+        setPlayerWrapper(playerWrapper);
+
+        assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(0, playerWrapper.getCurrentMediaItemIndex());
+        onView(allOf(withId(R.id.prev), not(isClickable())));
+        onView(allOf(withId(R.id.next), isClickable()));
+        callback.mItemLatch = new CountDownLatch(1);
+        onView(allOf(withId(R.id.next), isCompletelyDisplayed())).perform(click());
+
+        assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, playerWrapper.getCurrentMediaItemIndex());
+        onView(allOf(withId(R.id.prev), isClickable()));
+        onView(allOf(withId(R.id.next), isClickable()));
+        callback.mItemLatch = new CountDownLatch(1);
+        onView(allOf(withId(R.id.next), isCompletelyDisplayed())).perform(click());
+
+        assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(2, playerWrapper.getCurrentMediaItemIndex());
+        onView(allOf(withId(R.id.prev), isClickable()));
+        onView(allOf(withId(R.id.next), not(isClickable())));
+        callback.mItemLatch = new CountDownLatch(1);
+        onView(allOf(withId(R.id.prev), isCompletelyDisplayed())).perform(click());
+
+        assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, playerWrapper.getCurrentMediaItemIndex());
+        onView(allOf(withId(R.id.prev), isClickable()));
+        onView(allOf(withId(R.id.next), isClickable()));
     }
 
     @Test
@@ -309,7 +343,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                     latch.countDown();
                 }
             }
-        }, mFileSchemeMediaItem);
+        }, mFileSchemeMediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(withId(R.id.title_text)).check(matches(withText(title)));
@@ -333,7 +367,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                 }
                 latch.countDown();
             }
-        }, uriMediaItem);
+        }, uriMediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(withId(R.id.subtitle)).check(matches(not(isDisplayed())));
@@ -395,7 +429,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                 assertEquals(mFirstSubtitleTrack, trackInfo);
                 latchForSubtitleDeselect.countDown();
             }
-        }, mediaItem);
+        }, mediaItem, null);
         setPlayerWrapper(playerWrapper);
         assertTrue(latchForReady.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         // MediaPlayer needs a surface to be set in order to produce subtitle tracks
@@ -430,7 +464,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
                     latchForPlayingState.countDown();
                 }
             }
-        }, mFileSchemeMediaItem);
+        }, mFileSchemeMediaItem, null);
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -469,7 +503,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
     }
 
     private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item) {
-        return createPlayerWrapperOfType(callback, item, null, mPlayerType);
+            @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
+        return createPlayerWrapperOfType(callback, item, playlist, mPlayerType);
     }
 }

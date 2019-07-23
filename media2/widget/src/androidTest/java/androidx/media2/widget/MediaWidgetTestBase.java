@@ -130,12 +130,19 @@ public class MediaWidgetTestBase extends MediaTestBase {
         return new UriMediaItem.Builder(uri).build();
     }
 
+    List<MediaItem> createTestPlaylist() {
+        List<MediaItem> list = new ArrayList<>();
+        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
+                + "/" + R.raw.test_file_scheme_video)));
+        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
+                + "/" + R.raw.test_music)));
+        list.add(createTestMediaItem(Uri.parse("android.resource://" + mContext.getPackageName()
+                + "/" + R.raw.testvideo_with_2_subtitle_tracks)));
+        return list;
+    }
+
     PlayerWrapper createPlayerWrapperOfController(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
-        if (item == null && playlist == null) {
-            return null;
-        }
-
         prepareLooper();
 
         SessionPlayer player = new MediaPlayer(mContext);
@@ -164,10 +171,6 @@ public class MediaWidgetTestBase extends MediaTestBase {
 
     PlayerWrapper createPlayerWrapperOfPlayer(@NonNull PlayerWrapper.PlayerCallback callback,
             @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
-        if (item == null && playlist == null) {
-            return null;
-        }
-
         SessionPlayer player = new MediaPlayer(mContext);
         synchronized (mLock) {
             mPlayers.add(player);
@@ -218,7 +221,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     class DefaultPlayerCallback extends PlayerWrapper.PlayerCallback {
-        CountDownLatch mItemLatch = new CountDownLatch(1);
+        volatile CountDownLatch mItemLatch = new CountDownLatch(1);
         CountDownLatch mPausedLatch = new CountDownLatch(1);
         CountDownLatch mPlayingLatch = new CountDownLatch(1);
 
