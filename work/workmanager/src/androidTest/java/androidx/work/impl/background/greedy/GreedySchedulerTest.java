@@ -24,6 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.Constraints;
 import androidx.work.OneTimeWorkRequest;
@@ -100,6 +101,20 @@ public class GreedySchedulerTest extends WorkManagerTest {
     public void testGreedyScheduler_ignoresBackedOffWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialRunAttemptCount(5)
+                .build();
+        mGreedyScheduler.schedule(getWorkSpec(work));
+        verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 23)
+    public void testGreedyScheduler_ignoresIdleWorkConstraint() {
+        Constraints constraints = new Constraints.Builder()
+                .setRequiresDeviceIdle(true)
+                .build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setConstraints(constraints)
                 .build();
         mGreedyScheduler.schedule(getWorkSpec(work));
         verify(mMockWorkConstraintsTracker, never()).replace(ArgumentMatchers.<WorkSpec>anyList());
