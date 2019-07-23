@@ -83,13 +83,13 @@ limitations under the License.
 
             <!-- Margins for buttons set dynamically. -->
             <Button
-                android:id="@+id/positive_button"
+                android:id="@+id/negative_button"
                 android:layout_width="wrap_content"
                 android:visibility="gone"
                 style="?attr/dialogButtonStyle" />
 
             <Button
-                android:id="@+id/negative_button"
+                android:id="@+id/positive_button"
                 android:layout_width="wrap_content"
                 android:visibility="gone"
                 style="?attr/dialogButtonStyle" />
