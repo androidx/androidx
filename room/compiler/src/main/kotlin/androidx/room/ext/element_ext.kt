@@ -32,6 +32,7 @@ import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
+import javax.lang.model.type.ExecutableType
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 import javax.lang.model.type.WildcardType
@@ -380,12 +381,12 @@ fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
 
 /**
  * Finds the Kotlin's suspend function return type by inspecting the type param of the Continuation
- * parameter of the function. This method assumes the executable element is a suspend function.
+ * parameter of the function. This method assumes the executable type is a suspend function.
  * @see KotlinMetadataElement.isSuspendFunction
  */
-fun ExecutableElement.getSuspendFunctionReturnType(): TypeMirror {
+fun ExecutableType.getSuspendFunctionReturnType(): TypeMirror {
     // the continuation parameter is always the last parameter of a suspend function and it only has
     // one type parameter, e.g Continuation<? super T>
-    val typeParam = MoreTypes.asDeclared(parameters.last().asType()).typeArguments.first()
+    val typeParam = MoreTypes.asDeclared(parameterTypes.last()).typeArguments.first()
     return typeParam.extendsBoundOrSelf() // reduce the type param
 }
