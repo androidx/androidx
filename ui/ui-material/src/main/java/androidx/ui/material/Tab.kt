@@ -31,7 +31,6 @@ import androidx.ui.animation.Transition
 import androidx.ui.core.Dp
 import androidx.ui.core.WithConstraints
 import androidx.ui.core.hasBoundedWidth
-import androidx.ui.core.px
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.SimpleImage
@@ -44,6 +43,7 @@ import androidx.ui.layout.FlexRow
 import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Stack
+import androidx.ui.material.TabRow.TabPosition
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.painting.Image
@@ -58,26 +58,67 @@ import androidx.ui.painting.Image
  *
  * You can also provide your own custom tab, such as:
  *
- * @sample androidx.ui.material.samples.CustomTabs
+ * @sample androidx.ui.material.samples.FancyTabs
  *
  * Where the custom tab itself could look like:
  *
  * @sample androidx.ui.material.samples.FancyTab
  *
+ * As well as customizing the tab, you can also provide a custom [indicatorContainer], to customize
+ * the indicator displayed for a tab. [indicatorContainer] is responsible for positioning an
+ * indicator and for animating its position when [selectedIndex] changes.
+ *
+ * For example, given an indicator that draws a rounded rectangle near the edges of the [Tab]:
+ *
+ * @sample androidx.ui.material.samples.FancyIndicator
+ *
+ * We can reuse [TabRow.IndicatorContainer] and just provide this indicator, as we aren't changing
+ * the transition:
+ *
+ * @sample androidx.ui.material.samples.FancyIndicatorTabs
+ *
+ * You may also want to provide a custom transition, to allow you to dynamically change the
+ * appearance of the indicator as it animates between tabs, such as changing its color or size.
+ * [indicatorContainer] is stacked on top of the entire TabRow, so you just need to provide a custom
+ * container that animates the offset of the indicator from the start of the TabRow and place your
+ * custom indicator inside of it. For example, take the following custom container that animates
+ * position of the indicator, the color of the indicator, and also adds a physics based 'spring'
+ * effect to the indicator in the direction of motion:
+ *
+ * @sample androidx.ui.material.samples.FancyIndicatorContainer
+ *
+ * This container will fill up the entire width of the TabRow, and when a new tab is selected,
+ * the transition will be called with a new value for [selectedIndex], which will animate the
+ * indicator to the position of the new tab.
+ *
+ * We can use this custom container similarly to before:
+ *
+ * @sample androidx.ui.material.samples.FancyIndicatorContainerTabs
+ *
  * @param T the type of the item provided that will map to a [Tab]
  * @param items the list containing the items used to build this TabRow
  * @param selectedIndex the index of the currently selected tab
+ * @param indicatorContainer the container responsible for positioning and animating the position of
+ * the indicator between tabs. By default this will be [TabRow.IndicatorContainer], which animates a
+ * [TabRow.Indicator] between tabs.
  * @param tab the [Tab] to be emitted for the given index and element of type [T] in [items]
  *
  * @throws IllegalStateException when TabRow's parent has [Px.Infinity] width
  */
+
+// TODO: b/137311217 - type inference for nullable lambdas currently doesn't work
+@Suppress("USELESS_CAST")
 @Composable
 fun <T> TabRow(
     items: List<T>,
     selectedIndex: Int,
+    indicatorContainer: @Composable() (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
+        TabRow.IndicatorContainer(tabPositions, selectedIndex) {
+            TabRow.Indicator()
+        }
+    },
     tab: @Composable() (Int, T) -> Unit
 ) {
-    val count = items.size
     Surface(color = +themeColor { primary }) {
         WithConstraints { constraints ->
             // TODO : think about Infinite max bounds case
@@ -85,84 +126,133 @@ fun <T> TabRow(
             val totalWidth = +withDensity {
                 constraints.maxWidth.toDp()
             }
-            val indicatorWidth = totalWidth / count
-            TabIndicatorTransition(count, indicatorWidth, selectedIndex) { indicatorPosition ->
-                Stack {
-                    aligned(Alignment.Center) {
-                        FlexRow {
-                            items.forEachIndexed { index, item ->
-                                expanded(1f) {
-                                    tab(index, item)
-                                }
+            val height = +withDensity {
+                constraints.maxHeight.toDp()
+            }
+
+            val tabCount = items.size
+            val tabWidth = totalWidth / tabCount
+
+            val tabPositions = +memo(tabCount, tabWidth) {
+                (0 until tabCount).map { index ->
+                    val xOffset = (tabWidth * index)
+                    TabPosition(xOffset = xOffset, width = tabWidth, height = height)
+                }
+            }
+
+            Stack {
+                aligned(Alignment.Center) {
+                    FlexRow {
+                        items.forEachIndexed { index, item ->
+                            expanded(1f) {
+                                tab(index, item)
                             }
                         }
                     }
-                    aligned(Alignment.BottomCenter) {
-                        TabRowDivider()
-                    }
-                    positioned(leftInset = indicatorPosition, bottomInset = 0.dp) {
-                        TabIndicator(indicatorWidth)
-                    }
+                }
+                aligned(Alignment.BottomCenter) {
+                    TabRow.Divider()
+                }
+                positioned(0.dp, 0.dp, 0.dp, 0.dp) {
+                    indicatorContainer(tabPositions)
                 }
             }
         }
     }
 }
 
-private val IndicatorPosition = DpPropKey()
+object TabRow {
+    private val IndicatorOffset = DpPropKey()
 
-/**
- * [Transition] defining how the indicator position animates between tabs, when a new tab is
- * selected.
- */
-@Composable
-private fun TabIndicatorTransition(
-    tabCount: Int,
-    indicatorWidth: Dp,
-    selectedIndex: Int,
-    children: @Composable() (indicatorPosition: Dp) -> Unit
-) {
-    val transitionDefinition = +memo(tabCount, indicatorWidth) {
-        transitionDefinition {
-            // TODO: currently the first state set is the 'default' state, so we want to define the
-            // state that is initially selected first, so we don't have any initial animations
-            // when this is supported by transitionDefinition, we should fix this to just set a
-            // default or similar
-            state(selectedIndex) {
-                this[IndicatorPosition] = indicatorWidth * selectedIndex
-            }
-            (0 until tabCount).minus(selectedIndex).forEach { tabIndex ->
-                state(tabIndex) {
-                    this[IndicatorPosition] = indicatorWidth * tabIndex
-                }
-            }
+    /**
+     * Data class that contains information about a tab's position on screen
+     *
+     * @param xOffset how far from the start of the [TabRow] this tab is positioned
+     * @param width the width of this tab
+     * @param height the height of this tab
+     */
+    data class TabPosition(val xOffset: Dp, val width: Dp, val height: Dp)
 
-            transition {
-                IndicatorPosition using tween {
-                    duration = 250
-                    easing = FastOutSlowInEasing
+    /**
+     * Positions and animates the given [indicator] between tabs when [selectedIndex] changes.
+     */
+    @Composable
+    fun IndicatorContainer(
+        tabPositions: List<TabPosition>,
+        selectedIndex: Int,
+        indicator: @Composable() () -> Unit
+    ) {
+        // TODO: should we animate the width of the indicator as it moves between tabs of different
+        // sizes inside a scrolling container?
+        val currentTabWidth = tabPositions[selectedIndex].width
+
+        Container(expanded = true, alignment = Alignment.BottomLeft) {
+            IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
+                Padding(left = indicatorOffset) {
+                    Container(width = currentTabWidth) {
+                        indicator()
+                    }
                 }
             }
         }
     }
-    Transition(transitionDefinition, selectedIndex) { state ->
-        children(state[IndicatorPosition])
+
+    /**
+     * Default indicator, which will be positioned at the bottom of the tab, on top of the divider.
+     *
+     * This is used as the default indicator inside [TabRow].
+     */
+    @Composable
+    fun Indicator() {
+        ColoredRect(color = +themeColor { onPrimary }, height = IndicatorHeight)
     }
-}
 
-@Composable
-private fun TabIndicator(width: Dp) {
-    ColoredRect(
-        color = +themeColor { onPrimary },
-        height = IndicatorHeight,
-        width = width
-    )
-}
+    /**
+     * [Transition] that animates the indicator offset between a given list of [TabPosition]s.
+     */
+    @Composable
+    internal fun IndicatorTransition(
+        tabPositions: List<TabPosition>,
+        selectedIndex: Int,
+        children: @Composable() (indicatorOffset: Dp) -> Unit
+    ) {
+        val transitionDefinition = +memo(tabPositions) {
+            transitionDefinition {
+                // TODO: currently the first state set is the 'default' state, so we want to define the
+                // state that is initially selected first, so we don't have any initial animations
+                // when this is supported by transitionDefinition, we should fix this to just set a
+                // default or similar
+                state(selectedIndex) {
+                    this[IndicatorOffset] = tabPositions[selectedIndex].xOffset
+                }
 
-@Composable
-private fun TabRowDivider() {
-    val onPrimary = +themeColor { onPrimary }
-    Divider(color = (onPrimary.copy(alpha = DividerOpacity)))
+                tabPositions.forEachIndexed { index, position ->
+                    if (index != selectedIndex) {
+                        state(index) {
+                            this[IndicatorOffset] = position.xOffset
+                        }
+                    }
+                }
+
+                transition {
+                    IndicatorOffset using tween {
+                        duration = 250
+                        easing = FastOutSlowInEasing
+                    }
+                }
+            }
+        }
+
+        Transition(transitionDefinition, selectedIndex) { state ->
+            children(state[IndicatorOffset])
+        }
+    }
+
+    @Composable
+    internal fun Divider() {
+        val onPrimary = +themeColor { onPrimary }
+        Divider(color = (onPrimary.copy(alpha = DividerOpacity)))
+    }
 }
 
 /**

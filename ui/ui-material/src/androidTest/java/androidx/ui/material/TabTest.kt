@@ -15,9 +15,20 @@
  */
 package androidx.ui.material
 
+import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import androidx.test.filters.LargeTest
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.OnChildPositioned
+import androidx.ui.core.PxPosition
 import androidx.ui.core.dp
+import androidx.ui.core.toPx
+import androidx.ui.core.withDensity
+import androidx.ui.foundation.ColoredRect
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.material.samples.TextTabs
 import androidx.ui.material.surface.Surface
@@ -29,6 +40,7 @@ import androidx.ui.test.assertIsSelected
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doClick
 import androidx.ui.test.findAll
+import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,6 +100,74 @@ class TabTest {
                 }
             }
             .assertHeightEqualsTo(ExpectedLargeTabHeight)
+    }
+
+    @Test
+    fun tabRow_indicatorPosition() {
+        val indicatorHeight = 1.dp
+        var tabRowCoords: LayoutCoordinates? = null
+        var indicatorCoords: LayoutCoordinates? = null
+
+        composeTestRule
+            .setMaterialContent {
+                val state = +state { 0 }
+                val titles = listOf("TAB 1", "TAB 2")
+
+                val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
+                    TabRow.IndicatorContainer(tabPositions, state.value) {
+                        OnChildPositioned({ indicatorCoords = it }) {
+                            ColoredRect(Color.Red, height = indicatorHeight)
+                        }
+                    }
+                }
+
+                Container(alignment = Alignment.TopCenter) {
+                    OnChildPositioned({ tabRowCoords = it }) {
+                        TabRow(
+                            items = titles,
+                            selectedIndex = state.value,
+                            indicatorContainer = indicatorContainer
+                        ) { index, text ->
+                            Tab(text = text, selected = state.value == index) {
+                                state.value = index
+                            }
+                        }
+                    }
+                }
+            }
+
+        val tabRowWidth = tabRowCoords!!.size.width
+        val tabRowHeight = tabRowCoords!!.size.height
+
+        // Indicator should be placed in the bottom left of the first tab
+        withDensity(composeTestRule.density) {
+            val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
+            val expectedPositionX = 0.dp.toPx()
+            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+
+            val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
+            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+        }
+
+        // Click the second tab
+        findAll { isInMutuallyExclusiveGroup }[1].doClick()
+
+        // TODO: we aren't correctly waiting for recompositions after clicking, so we need to wait
+        // again
+        findAll { isInMutuallyExclusiveGroup }
+
+        // Indicator should now be placed in the bottom left of the second tab, so its x coordinate
+        // should be in the middle of the TabRow
+        withDensity(composeTestRule.density) {
+            val indicatorPositionX = indicatorCoords!!.localToGlobal(PxPosition.Origin).x
+            val expectedPositionX = tabRowWidth / 2
+            Truth.assertThat(indicatorPositionX).isEqualTo(expectedPositionX)
+
+            val indicatorPositionY = indicatorCoords!!.localToGlobal(PxPosition.Origin).y
+            val expectedPositionY = tabRowHeight - indicatorHeight.toIntPx().toPx()
+            Truth.assertThat(indicatorPositionY).isEqualTo(expectedPositionY)
+        }
     }
 
     @Test
