@@ -65,6 +65,14 @@ internal class SelectionManager : SelectionRegistrar {
     private var dragTotalDistance = PxPosition.Origin
 
     /**
+     * A flag to check if the selection start or end handle is being dragged.
+     * If this value is true, then onPress will not select any text.
+     * This value will be set to true when either handle is being dragged, and be reset to false
+     * when the dragging is stopped.
+     */
+    private var draggingHandle = false
+
+    /**
      * Allow a Text composable to "register" itself with the manager
      */
     override fun subscribe(handler: TextSelectionHandler): Any {
@@ -80,6 +88,7 @@ internal class SelectionManager : SelectionRegistrar {
     }
 
     fun onPress(position: PxPosition) {
+        if (draggingHandle) return
         var result: Selection? = null
         for (handler in handlers) {
             result += handler.getSelection(
@@ -128,6 +137,7 @@ internal class SelectionManager : SelectionRegistrar {
 
                 // Zero out the total distance that being dragged.
                 dragTotalDistance = PxPosition.Origin
+                draggingHandle = true
             }
 
             override fun onDrag(dragDistance: PxPosition): PxPosition {
@@ -162,6 +172,11 @@ internal class SelectionManager : SelectionRegistrar {
                 }
                 onSelectionChange(result)
                 return dragDistance
+            }
+
+            override fun onStop(velocity: PxPosition) {
+                super.onStop(velocity)
+                draggingHandle = false
             }
         }
     }
