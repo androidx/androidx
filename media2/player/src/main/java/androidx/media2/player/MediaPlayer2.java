@@ -690,8 +690,8 @@ public abstract class MediaPlayer2 {
      * Returns the audio session ID.
      *
      * @return the audio session ID. {@see #setAudioSessionId(int)}
-     * Note that the audio session ID is 0 only if a problem occured when the MediaPlayer2 was
-     * contructed.
+     * Note that the audio session ID is 0 only if a problem occurred when the MediaPlayer2 was
+     * constructed.
      */
     public abstract int getAudioSessionId();
 

@@ -280,7 +280,7 @@ public class AudioFocusHandler {
                 // want to have more finer grained control. (e.g. adding audio focus listener)
                 return AudioManager.AUDIOFOCUS_NONE;
             }
-            // Javadoc here means 'The different types of focus reuqests' written in the
+            // Javadoc here means 'The different types of focus requests' written in the
             // {@link AudioFocusRequest}.
             switch (audioAttributesCompat.getUsage()) {
                 // USAGE_VOICE_COMMUNICATION_SIGNALLING is for DTMF that may happen multiple times
