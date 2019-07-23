@@ -196,7 +196,8 @@ public final class ImageAnalysisTest {
         ImageAnalysis useCase = new ImageAnalysis(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
-        useCase.updateSuggestedResolution(suggestedResolutionMap);
+        mInstrumentation.runOnMainSync(() ->
+                useCase.updateSuggestedResolution(suggestedResolutionMap));
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override

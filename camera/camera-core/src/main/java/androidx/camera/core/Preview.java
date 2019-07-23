@@ -80,7 +80,6 @@ public class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "Preview";
-
     private static final String CONFLICTING_SURFACE_API_ERROR_MESSAGE =
             "PreviewSurfaceCallback cannot be used with OnPreviewOutputUpdateListener.";
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
@@ -107,7 +106,9 @@ public class Preview extends UseCase {
         mUseCaseConfigBuilder = PreviewConfig.Builder.fromConfig(config);
     }
 
-    private SessionConfig.Builder createFrom(PreviewConfig config, Size resolution) {
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    SessionConfig.Builder createPipeline(PreviewConfig config, Size resolution) {
+        Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
         DeferrableSurface deferrableSurface;
@@ -120,7 +121,7 @@ public class Preview extends UseCase {
                             resolution.getWidth(),
                             resolution.getHeight(),
                             ImageFormat.YUV_420_888,
-                            config.getCallbackHandler(mMainHandler),
+                            config.getCallbackHandler(),
                             captureStage,
                             captureProcessor);
 
@@ -165,7 +166,31 @@ public class Preview extends UseCase {
         mSurfaceTextureHolder.resetSurfaceTexture();
         sessionConfigBuilder.addSurface(deferrableSurface);
 
+        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
+            @Override
+            public void onError(@NonNull SessionConfig sessionConfig,
+                    @NonNull SessionConfig.SessionError error) {
+                clearPipeline();
+                SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
+                String cameraId = getCameraIdUnchecked(config);
+                attachToCamera(cameraId, sessionConfigBuilder.build());
+                notifyReset();
+            }
+        });
+
         return sessionConfigBuilder;
+    }
+
+    /**
+     * Clear the internal pipeline so that the pipeline can be set up again.
+     */
+    void clearPipeline() {
+        Threads.checkMainThread();
+        SurfaceTextureHolder surfaceTextureHolder = mSurfaceTextureHolder;
+        mSurfaceTextureHolder = null;
+        if (surfaceTextureHolder != null) {
+            surfaceTextureHolder.release();
+        }
     }
 
     /**
@@ -443,7 +468,8 @@ public class Preview extends UseCase {
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
 
-        SessionConfig.Builder sessionConfigBuilder = createFrom(config, resolution);
+        clearPipeline();
+        SessionConfig.Builder sessionConfigBuilder = createPipeline(config, resolution);
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
         return suggestedResolutionMap;
