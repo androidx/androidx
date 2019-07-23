@@ -46,7 +46,7 @@ import androidx.ui.core.px
  *
  * If you need only animations without gesture support, consider using [animatedFloat] instead.
  *
- * //TODO: Add sample
+ * @sample androidx.ui.foundation.samples.AnimatedDraggableSample
  *
  * @param dragDirection direction in which drag should be happening
  * @param startValue value to set as initial for draggable/animating value in this component

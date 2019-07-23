@@ -29,7 +29,7 @@ dependencies {
 }
 
 androidx {
-    name = "Crane Animation Composables"
+    name = "Compose Animation Composables"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
