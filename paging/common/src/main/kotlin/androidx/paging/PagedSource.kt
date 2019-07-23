@@ -20,6 +20,7 @@ import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.KeyProvider.ItemKey
 import androidx.paging.PagedSource.KeyProvider.PageKey
 import androidx.paging.PagedSource.KeyProvider.Positional
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Base class for an abstraction of pageable static data from some source, where loading pages data
@@ -182,19 +183,23 @@ abstract class PagedSource<Key : Any, Value : Any> {
 
     abstract val keyProvider: KeyProvider<Key, Value>
 
+    private val _invalid = AtomicBoolean(false)
     /**
      * Whether this [PagedSource] has been invalidated, which should happen when the data this
      * [PagedSource] represents changes since it was first instantiated.
      */
-    abstract val invalid: Boolean
+    val invalid: Boolean
+        get() = _invalid.get()
 
     /**
-     * Signal the [PagedSource] to stop loading, and notify its callback.
+     * Signal the [PagedSource] to stop loading.
      *
-     * This method should be idempotent. i.e., If [invalidate] has already been called, subsequent
-     * calls to this method should have no effect.
+     * This method is idempotent. i.e., If [invalidate] has already been called, subsequent calls to
+     * this method should have no effect.
+     *
+     * TODO(b/137971356): Investigate making this not open when able to remove [PagedSourceWrapper].
      */
-    abstract fun invalidate()
+    open fun invalidate() = _invalid.set(true)
 
     /**
      * Loading API for [PagedSource].

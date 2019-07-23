@@ -32,6 +32,10 @@ import kotlinx.coroutines.withContext
 class PagedSourceWrapper<Key : Any, Value : Any>(
     internal val dataSource: DataSource<Key, Value>
 ) : PagedSource<Key, Value>() {
+    init {
+        dataSource.addInvalidatedCallback { invalidate() }
+    }
+
     override val keyProvider: KeyProvider<Key, Value> = when (dataSource.type) {
         DataSource.KeyType.POSITIONAL -> {
             @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct key type.
@@ -42,11 +46,6 @@ class PagedSourceWrapper<Key : Any, Value : Any>(
             override fun getKey(item: Value) = dataSource.getKeyInternal(item)
         }
     }
-
-    override val invalid: Boolean
-        get() = dataSource.isInvalid
-
-    override fun invalidate() = dataSource.invalidate()
 
     override suspend fun load(params: LoadParams<Key>): LoadResult<Key, Value> {
         val loadType = when (params.loadType) {
@@ -67,6 +66,11 @@ class PagedSourceWrapper<Key : Any, Value : Any>(
     }
 
     override fun isRetryableError(error: Throwable) = dataSource.isRetryableError(error)
+
+    override fun invalidate() {
+        super.invalidate()
+        dataSource.invalidate()
+    }
 }
 
 /**
