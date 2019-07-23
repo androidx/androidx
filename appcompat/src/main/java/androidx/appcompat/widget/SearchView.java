@@ -68,6 +68,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -263,15 +264,15 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
         boolean onSuggestionClick(int position);
     }
 
-    public SearchView(Context context) {
+    public SearchView(@NonNull Context context) {
         this(context, null);
     }
 
-    public SearchView(Context context, AttributeSet attrs) {
+    public SearchView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.searchViewStyle);
     }
 
-    public SearchView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SearchView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,

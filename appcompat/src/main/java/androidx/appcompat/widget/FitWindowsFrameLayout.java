@@ -23,6 +23,8 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -33,11 +35,11 @@ public class FitWindowsFrameLayout extends FrameLayout implements FitWindowsView
 
     private OnFitSystemWindowsListener mListener;
 
-    public FitWindowsFrameLayout(Context context) {
+    public FitWindowsFrameLayout(@NonNull Context context) {
         super(context);
     }
 
-    public FitWindowsFrameLayout(Context context, AttributeSet attrs) {
+    public FitWindowsFrameLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 

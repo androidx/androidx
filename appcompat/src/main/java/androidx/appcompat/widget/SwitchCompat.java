@@ -46,6 +46,7 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -190,7 +191,7 @@ public class SwitchCompat extends CompoundButton {
      *
      * @param context The Context that will determine this widget's theming.
      */
-    public SwitchCompat(Context context) {
+    public SwitchCompat(@NonNull Context context) {
         this(context, null);
     }
 
@@ -201,7 +202,7 @@ public class SwitchCompat extends CompoundButton {
      * @param context The Context that will determine this widget's theming.
      * @param attrs Specification of attributes that should deviate from default styling.
      */
-    public SwitchCompat(Context context, AttributeSet attrs) {
+    public SwitchCompat(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.switchStyle);
     }
 
@@ -215,7 +216,7 @@ public class SwitchCompat extends CompoundButton {
      *        reference to a style resource that supplies default values for
      *        the view. Can be 0 to not look for defaults.
      */
-    public SwitchCompat(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SwitchCompat(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         mTextPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
@@ -225,6 +226,12 @@ public class SwitchCompat extends CompoundButton {
 
         final TintTypedArray a = TintTypedArray.obtainStyledAttributes(context,
                 attrs, R.styleable.SwitchCompat, defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            saveAttributeDataForStyleable(
+                    context, R.styleable.SwitchCompat, attrs,
+                    a.getWrappedTypeArray(), defStyleAttr, 0);
+        }
+
         mThumbDrawable = a.getDrawable(R.styleable.SwitchCompat_android_thumb);
         if (mThumbDrawable != null) {
             mThumbDrawable.setCallback(this);

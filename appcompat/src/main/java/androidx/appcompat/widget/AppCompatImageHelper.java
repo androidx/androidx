@@ -36,19 +36,25 @@ import androidx.core.widget.ImageViewCompat;
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AppCompatImageHelper {
+    @NonNull
     private final ImageView mView;
 
     private TintInfo mInternalImageTint;
     private TintInfo mImageTint;
     private TintInfo mTmpInfo;
 
-    public AppCompatImageHelper(ImageView view) {
+    public AppCompatImageHelper(@NonNull ImageView view) {
         mView = view;
     }
 
     public void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(mView.getContext(), attrs,
                 R.styleable.AppCompatImageView, defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mView.saveAttributeDataForStyleable(
+                    mView.getContext(), R.styleable.AppCompatImageView, attrs,
+                    a.getWrappedTypeArray(), defStyleAttr, 0);
+        }
         try {
             Drawable drawable = mView.getDrawable();
             if (drawable == null) {

@@ -30,6 +30,7 @@ import android.view.ViewDebug;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
@@ -72,11 +73,11 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     OnMenuItemClickListener mOnMenuItemClickListener;
 
-    public ActionMenuView(Context context) {
+    public ActionMenuView(@NonNull Context context) {
         this(context, null);
     }
 
-    public ActionMenuView(Context context, AttributeSet attrs) {
+    public ActionMenuView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         setBaselineAligned(false);
         final float density = context.getResources().getDisplayMetrics().density;

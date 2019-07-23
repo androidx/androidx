@@ -28,9 +28,9 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.ImageViewCompat;
 import androidx.core.widget.TintableImageSourceView;
@@ -41,12 +41,13 @@ import androidx.core.widget.TintableImageSourceView;
  * <ul>
  *     <li>Allows dynamic tint of its background via the background tint methods in
  *     {@link androidx.core.view.ViewCompat}.</li>
- *     <li>Allows setting of the background tint using {@link R.attr#backgroundTint} and
- *     {@link R.attr#backgroundTintMode}.</li>
+ *     <li>Allows setting of the background tint using
+ *     {@link androidx.appcompat.R.attr#backgroundTint} and
+ *     {@link androidx.appcompat.R.attr#backgroundTintMode}.</li>
  *     <li>Allows dynamic tint of its image via the image tint methods in
  *     {@link ImageViewCompat}.</li>
- *     <li>Allows setting of the image tint using {@link R.attr#tint} and
- *     {@link R.attr#tintMode}.</li>
+ *     <li>Allows setting of the image tint using {@link androidx.appcompat.R.attr#tint} and
+ *     {@link androidx.appcompat.R.attr#tintMode}.</li>
  * </ul>
  *
  * <p>This will automatically be used when you use {@link ImageView} in your layouts
@@ -60,15 +61,16 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatImageHelper mImageHelper;
 
-    public AppCompatImageView(Context context) {
+    public AppCompatImageView(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatImageView(Context context, AttributeSet attrs) {
+    public AppCompatImageView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public AppCompatImageView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatImageView(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
@@ -85,7 +87,7 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      *
      * @param resId the resource identifier of the drawable
      * @see ImageView#setImageResource(int)
-     * {@link R.attr#srcCompat}
+     * {@link androidx.appcompat.R.attr#srcCompat}
      */
     @Override
     public void setImageResource(@DrawableRes int resId) {

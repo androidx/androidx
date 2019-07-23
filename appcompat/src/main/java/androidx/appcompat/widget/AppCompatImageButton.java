@@ -29,6 +29,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -61,15 +62,16 @@ public class AppCompatImageButton extends ImageButton implements TintableBackgro
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatImageHelper mImageHelper;
 
-    public AppCompatImageButton(Context context) {
+    public AppCompatImageButton(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatImageButton(Context context, AttributeSet attrs) {
+    public AppCompatImageButton(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.imageButtonStyle);
     }
 
-    public AppCompatImageButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatImageButton(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         mBackgroundTintHelper = new AppCompatBackgroundHelper(this);

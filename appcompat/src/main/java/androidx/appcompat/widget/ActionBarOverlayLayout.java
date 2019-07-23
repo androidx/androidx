@@ -37,6 +37,8 @@ import android.view.ViewPropertyAnimator;
 import android.view.Window;
 import android.widget.OverScroller;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -135,11 +137,11 @@ public class ActionBarOverlayLayout extends ViewGroup implements DecorContentPar
 
     private final NestedScrollingParentHelper mParentHelper;
 
-    public ActionBarOverlayLayout(Context context) {
+    public ActionBarOverlayLayout(@NonNull Context context) {
         this(context, null);
     }
 
-    public ActionBarOverlayLayout(Context context, AttributeSet attrs) {
+    public ActionBarOverlayLayout(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
 

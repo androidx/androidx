@@ -60,15 +60,16 @@ public class AppCompatButton extends Button implements TintableBackgroundView,
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
 
-    public AppCompatButton(Context context) {
+    public AppCompatButton(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatButton(Context context, AttributeSet attrs) {
+    public AppCompatButton(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.buttonStyle);
     }
 
-    public AppCompatButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatButton(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         mBackgroundTintHelper = new AppCompatBackgroundHelper(this);
