@@ -408,17 +408,17 @@ public class ImageCapture extends UseCase {
                     @Override
                     public void onError(
                             ImageSaver.SaveError error, String message, @Nullable Throwable cause) {
-                        UseCaseError useCaseError = UseCaseError.UNKNOWN_ERROR;
+                        ImageCaptureError imageCaptureError = ImageCaptureError.UNKNOWN_ERROR;
                         switch (error) {
                             case FILE_IO_FAILED:
-                                useCaseError = UseCaseError.FILE_IO_ERROR;
+                                imageCaptureError = ImageCaptureError.FILE_IO_ERROR;
                                 break;
                             default:
-                                // Keep the useCaseError as UNKNOWN_ERROR
+                                // Keep the imageCaptureError as UNKNOWN_ERROR
                                 break;
                         }
 
-                        imageSavedListener.onError(useCaseError, message, cause);
+                        imageSavedListener.onError(imageCaptureError, message, cause);
                     }
                 };
 
@@ -444,7 +444,8 @@ public class ImageCapture extends UseCase {
 
                     @Override
                     public void onError(
-                            UseCaseError error, String message, @Nullable Throwable cause) {
+                            @NonNull ImageCaptureError error, @NonNull String message,
+                            @Nullable Throwable cause) {
                         imageSavedListener.onError(error, message, cause);
                     }
                 };
@@ -548,7 +549,8 @@ public class ImageCapture extends UseCase {
                                             ImageCaptureRequest request =
                                                     mImageCaptureRequests.poll();
                                             if (request != null) {
-                                                request.callbackError(UseCaseError.UNKNOWN_ERROR,
+                                                request.callbackError(
+                                                        ImageCaptureError.UNKNOWN_ERROR,
                                                         (error != null) ? error.getMessage()
                                                                 : "Unknown error", error);
                                                 // Handle the next request.
@@ -1010,9 +1012,9 @@ public class ImageCapture extends UseCase {
      * ImageCapture#takePicture(OnImageCapturedListener)}).
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * ImageCapture.OnImageSavedListener#onError(UseCaseError, String, Throwable)}.
+     * ImageCapture.OnImageSavedListener#onError(ImageCaptureError, String, Throwable)}.
      */
-    public enum UseCaseError {
+    public enum ImageCaptureError {
         /**
          * An unknown error occurred.
          *
@@ -1051,7 +1053,7 @@ public class ImageCapture extends UseCase {
 
         /** Called when an error occurs while attempting to save an image. */
         void onError(
-                @NonNull UseCaseError useCaseError,
+                @NonNull ImageCaptureError imageCaptureError,
                 @NonNull String message,
                 @Nullable Throwable cause);
     }
@@ -1093,7 +1095,8 @@ public class ImageCapture extends UseCase {
 
         /** Callback for when an error occurred during image capture. */
         public void onError(
-                UseCaseError useCaseError, String message, @Nullable Throwable cause) {
+                @NonNull ImageCaptureError imageCaptureError, @NonNull String message,
+                @Nullable Throwable cause) {
         }
     }
 
@@ -1341,13 +1344,13 @@ public class ImageCapture extends UseCase {
             mListener.onCaptureSuccess(image, mRotationDegrees);
         }
 
-        void callbackError(final UseCaseError useCaseError, final String message,
+        void callbackError(final ImageCaptureError imageCaptureError, final String message,
                 final Throwable cause) {
             if (mHandler != null && Looper.myLooper() != mHandler.getLooper()) {
                 boolean posted = mHandler.post(new Runnable() {
                     @Override
                     public void run() {
-                        ImageCaptureRequest.this.callbackError(useCaseError, message, cause);
+                        ImageCaptureRequest.this.callbackError(imageCaptureError, message, cause);
                     }
                 });
                 if (!posted) {
@@ -1356,7 +1359,7 @@ public class ImageCapture extends UseCase {
                 return;
             }
 
-            mListener.onError(useCaseError, message, cause);
+            mListener.onError(imageCaptureError, message, cause);
         }
     }
 }
