@@ -2,6 +2,7 @@
 package androidx.autofill {
 
   public final class HintConstants {
+    method public static String generateSmsOtpHintForCharacterPosition(int);
     field public static final String AUTOFILL_HINT_BIRTH_DATE_DAY = "birthDateDay";
     field public static final String AUTOFILL_HINT_BIRTH_DATE_FULL = "birthDateFull";
     field public static final String AUTOFILL_HINT_BIRTH_DATE_MONTH = "birthDateMonth";
@@ -39,14 +40,6 @@ package androidx.autofill {
     field public static final String AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS = "streetAddress";
     field public static final String AUTOFILL_HINT_POSTAL_CODE = "postalCode";
     field public static final String AUTOFILL_HINT_SMS_OTP = "smsOTPCode";
-    field public static final String AUTOFILL_HINT_SMS_OTP_1 = "smsOTPCode1";
-    field public static final String AUTOFILL_HINT_SMS_OTP_2 = "smsOTPCode2";
-    field public static final String AUTOFILL_HINT_SMS_OTP_3 = "smsOTPCode3";
-    field public static final String AUTOFILL_HINT_SMS_OTP_4 = "smsOTPCode4";
-    field public static final String AUTOFILL_HINT_SMS_OTP_5 = "smsOTPCode5";
-    field public static final String AUTOFILL_HINT_SMS_OTP_6 = "smsOTPCode6";
-    field public static final String AUTOFILL_HINT_SMS_OTP_7 = "smsOTPCode7";
-    field public static final String AUTOFILL_HINT_SMS_OTP_8 = "smsOTPCode8";
     field public static final String AUTOFILL_HINT_USERNAME = "username";
   }
 
