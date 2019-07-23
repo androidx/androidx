@@ -58,16 +58,17 @@ class GcmTaskConverterTest {
 
         val expected = request.workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
-        val delta = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
         // Account for time unit quantization errors
-        assertThat(delta, lessThanOrEqualTo(1L))
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -87,16 +88,17 @@ class GcmTaskConverterTest {
         val task = mTaskConverter.convert(request.workSpec)
         val expected = request.workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
-        val delta = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_CONNECTED)
         assertEquals(task.requiresCharging, true)
-        assertEquals(task.windowStart, offset)
         // Account for time unit quantization errors
-        assertThat(delta, lessThanOrEqualTo(1L))
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -115,16 +117,17 @@ class GcmTaskConverterTest {
         val task = mTaskConverter.convert(request.workSpec)
         val expected = request.workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
-        val delta = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_UNMETERED)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
         // Account for time unit quantization errors
-        assertThat(delta, lessThanOrEqualTo(1L))
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -140,16 +143,17 @@ class GcmTaskConverterTest {
         val task = mTaskConverter.convert(request.workSpec)
         val expected = request.workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
-        val delta = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
         // Account for time unit quantization errors
-        assertThat(delta, lessThanOrEqualTo(1L))
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -165,16 +169,17 @@ class GcmTaskConverterTest {
         val task = mTaskConverter.convert(request.workSpec)
         val expected = workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
-        val delta = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
         // Account for time unit quantization errors
-        assertThat(delta, lessThanOrEqualTo(1L))
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
@@ -189,16 +194,17 @@ class GcmTaskConverterTest {
         val task = mTaskConverter.convert(request.workSpec)
         val expected = request.workSpec.calculateNextRunTime()
         val offset = offset(expected, now)
-        val delta = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
+        val deltaStart = task.windowStart - offset
+        val deltaEnd = task.windowEnd - (offset + EXECUTION_WINDOW_SIZE_IN_SECONDS)
 
         assertEquals(task.serviceName, WorkManagerGcmService::class.java.name)
         assertEquals(task.isPersisted, false)
         assertEquals(task.isUpdateCurrent, true)
         assertEquals(task.requiredNetwork, Task.NETWORK_STATE_ANY)
         assertEquals(task.requiresCharging, false)
-        assertEquals(task.windowStart, offset)
         // Account for time unit quantization errors
-        assertThat(delta, lessThanOrEqualTo(1L))
+        assertThat(deltaStart, lessThanOrEqualTo(1L))
+        assertThat(deltaEnd, lessThanOrEqualTo(1L))
     }
 
     @Test
