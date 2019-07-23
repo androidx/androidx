@@ -234,13 +234,13 @@ public class CarAlertDialog extends Dialog {
         // If both buttons are visible, then there needs to be spacing between them.
         if ((mPositiveButton.getVisibility() == View.VISIBLE
                 && mNegativeButton.getVisibility() == View.VISIBLE)) {
-            int extraSpacingOffset = CarDialogUtil.calculateExtraButtonSpace(mPositiveButton) / 2;
-            positiveButtonLayoutParams.setMarginStart(buttonOffset - extraSpacingOffset);
-            positiveButtonLayoutParams.setMarginEnd(mButtonSpacing);
-            mPositiveButton.requestLayout();
-
-            negativeButtonLayoutParams.setMarginStart(mButtonSpacing);
+            int extraSpacingOffset = CarDialogUtil.calculateExtraButtonSpace(mNegativeButton) / 2;
+            negativeButtonLayoutParams.setMarginStart(buttonOffset - extraSpacingOffset);
+            negativeButtonLayoutParams.setMarginEnd(mButtonSpacing);
             mNegativeButton.requestLayout();
+
+            positiveButtonLayoutParams.setMarginStart(mButtonSpacing);
+            mPositiveButton.requestLayout();
         } else if (mPositiveButton.getVisibility() == View.VISIBLE) {
             int extraSpacingOffset = CarDialogUtil.calculateExtraButtonSpace(mPositiveButton) / 2;
             positiveButtonLayoutParams.setMarginStart(buttonOffset - extraSpacingOffset);
