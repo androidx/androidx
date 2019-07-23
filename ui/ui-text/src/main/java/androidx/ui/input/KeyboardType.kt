@@ -48,5 +48,15 @@ enum class KeyboardType {
     /**
      * A keyboard type used to request an IME that is capable of inputting email addresses.
      */
-    Email
+    Email,
+
+    /**
+     * A keyboard type used to request an IME that is capable of inputting password
+     */
+    Password,
+
+    /**
+     * A keyboard type used to request an IME that is capable of inputting number password.
+     */
+    NumberPassword
 }
