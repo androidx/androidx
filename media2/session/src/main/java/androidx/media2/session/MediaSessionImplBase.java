@@ -290,11 +290,15 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                     new VolumeProviderCompat(remotePlayer.getVolumeControlType(),
                             remotePlayer.getMaxVolume(),
                             remotePlayer.getVolume()) {
+                        // TODO(b/138091975) Do not ignore the returned Future.
+                        @SuppressWarnings("FutureReturnValueIgnored")
                         @Override
                         public void onSetVolumeTo(int volume) {
                             remotePlayer.setVolume(volume);
                         }
 
+                        // TODO(b/138091975) Do not ignore the returned Future.
+                        @SuppressWarnings("FutureReturnValueIgnored")
                         @Override
                         public void onAdjustVolume(int direction) {
                             remotePlayer.adjustVolume(direction);
