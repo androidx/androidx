@@ -41,10 +41,10 @@ android {
 }
 
 androidx {
-    name = "Crane Material Composables"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    name = "Compose Material Demos"
+    publish = Publish.NONE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "This is a temporary project for Material composables."
+    description = "This is a project for Material demos."
 }

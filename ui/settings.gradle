@@ -39,6 +39,7 @@ includeProject(":ui:ui-animation:integration-tests:ui-animation-demos", "ui-anim
 includeProject(":ui:ui-core", "ui-core")
 includeProject(":ui:ui-foundation", "ui-foundation")
 includeProject(":ui:ui-foundation:integration-tests:samples", "ui-foundation/integration-tests/samples")
+includeProject(":ui:ui-foundation:integration-tests:ui-foundation-demos", "ui-foundation/integration-tests/foundation-demos")
 includeProject(":ui:ui-framework", "ui-framework")
 includeProject(":ui:ui-framework:integration-tests:ui-framework-demos", "ui-framework/integration-tests/framework-demos")
 includeProject(":ui:ui-framework:integration-tests:samples", "ui-framework/integration-tests/samples")
