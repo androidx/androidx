@@ -16,8 +16,9 @@
 
 package androidx.work.impl.background.greedy;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
@@ -87,10 +88,17 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
                     && workSpec.initialDelay == 0L
                     && !workSpec.isBackedOff()) {
                 if (workSpec.hasConstraints()) {
-                    // Exclude content URI triggers - we don't know how to handle them here so the
-                    // background scheduler should take care of them.
-                    if (Build.VERSION.SDK_INT < 24
-                            || !workSpec.constraints.hasContentUriTriggers()) {
+                    if (SDK_INT >= 23 && workSpec.constraints.requiresDeviceIdle()) {
+                        // Ignore requests that have an idle mode constraint.
+                        Logger.get().debug(TAG,
+                                String.format("Ignoring WorkSpec %s, Requires device idle.",
+                                        workSpec));
+                    } else if (SDK_INT >= 24 && workSpec.constraints.hasContentUriTriggers()) {
+                        // Ignore requests that have content uri triggers.
+                        Logger.get().debug(TAG,
+                                String.format("Ignoring WorkSpec %s, Requires ContentUri triggers.",
+                                        workSpec));
+                    } else {
                         constrainedWorkSpecs.add(workSpec);
                         constrainedWorkSpecIds.add(workSpec.id);
                     }
