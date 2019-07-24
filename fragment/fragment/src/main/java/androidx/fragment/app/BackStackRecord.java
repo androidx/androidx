@@ -314,7 +314,7 @@ final class BackStackRecord extends FragmentTransaction implements
         }
         mCommitted = true;
         if (mAddToBackStack) {
-            mIndex = mManager.allocBackStackIndex(this);
+            mIndex = mManager.allocBackStackIndex();
         } else {
             mIndex = -1;
         }

@@ -27,6 +27,7 @@ final class FragmentManagerState implements Parcelable {
     ArrayList<FragmentState> mActive;
     ArrayList<String> mAdded;
     BackStackState[] mBackStack;
+    int mBackStackIndex;
     String mPrimaryNavActiveWho = null;
 
     public FragmentManagerState() {
@@ -36,6 +37,7 @@ final class FragmentManagerState implements Parcelable {
         mActive = in.createTypedArrayList(FragmentState.CREATOR);
         mAdded = in.createStringArrayList();
         mBackStack = in.createTypedArray(BackStackState.CREATOR);
+        mBackStackIndex = in.readInt();
         mPrimaryNavActiveWho = in.readString();
     }
 
@@ -49,6 +51,7 @@ final class FragmentManagerState implements Parcelable {
         dest.writeTypedList(mActive);
         dest.writeStringList(mAdded);
         dest.writeTypedArray(mBackStack, flags);
+        dest.writeInt(mBackStackIndex);
         dest.writeString(mPrimaryNavActiveWho);
     }
 
