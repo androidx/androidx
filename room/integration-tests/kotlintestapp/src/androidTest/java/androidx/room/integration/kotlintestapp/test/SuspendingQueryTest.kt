@@ -786,7 +786,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     object : SupportSQLiteOpenHelper.Factory {
                         val factoryDelegate = FrameworkSQLiteOpenHelperFactory()
                         override fun create(
-                            configuration: SupportSQLiteOpenHelper.Configuration?
+                            configuration: SupportSQLiteOpenHelper.Configuration
                         ): SupportSQLiteOpenHelper {
                             val helperDelegate = factoryDelegate.create(configuration)
                             return object : SupportSQLiteOpenHelper by helperDelegate {
