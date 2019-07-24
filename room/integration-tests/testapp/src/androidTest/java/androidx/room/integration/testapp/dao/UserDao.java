@@ -33,6 +33,7 @@ import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Day;
 import androidx.room.integration.testapp.vo.IdUsername;
 import androidx.room.integration.testapp.vo.NameAndLastName;
+import androidx.room.integration.testapp.vo.NameAndUsers;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndFriends;
 import androidx.room.integration.testapp.vo.UserSummary;
@@ -318,4 +319,7 @@ public abstract class UserDao {
 
     @Query("UPDATE user SET mName = :name, mLastName = :name WHERE mId = :userId")
     public abstract void setSameNames(String name, int userId);
+
+    @Query("SELECT mName FROM User")
+    public abstract List<NameAndUsers> getNameAndUsers();
 }
