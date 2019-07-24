@@ -16,6 +16,8 @@
 
 package androidx.media2.integration.testapp;
 
+import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID;
+
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -34,6 +36,7 @@ import androidx.media2.player.MediaPlayer;
 import androidx.media2.session.MediaSession;
 import androidx.media2.session.MediaSessionService;
 
+import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -45,7 +48,6 @@ public class VideoSessionService extends MediaSessionService {
 
     private MediaPlayer mMediaPlayer;
     private MediaSession mMediaSession;
-    private UriMediaItem mCurrentItem;
     private AudioAttributesCompat mAudioAttributes;
 
     @Override
@@ -106,29 +108,29 @@ public class VideoSessionService extends MediaSessionService {
         public MediaItem onCreateMediaItem(@NonNull MediaSession session,
                 @NonNull MediaSession.ControllerInfo controller, @NonNull String mediaId) {
             MediaMetadata metadata = new MediaMetadata.Builder()
-                    .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
+                    .putString(METADATA_KEY_MEDIA_ID, mediaId)
                     .build();
-            mCurrentItem = new UriMediaItem.Builder(Uri.parse(mediaId))
+            UriMediaItem currentItem = new UriMediaItem.Builder(Uri.parse(mediaId))
                     .setMetadata(metadata)
                     .build();
-            MetadataExtractTask task = new MetadataExtractTask(mCurrentItem,
+            MetadataExtractTask task = new MetadataExtractTask(currentItem,
                     VideoSessionService.this);
             task.execute();
             // TODO: Temporary fix for multiple calls of setMediaItem not working properly.
             //  (b/135728285)
             mMediaPlayer.reset();
             mMediaPlayer.setAudioAttributes(mAudioAttributes);
-            return mCurrentItem;
+            return currentItem;
         }
     }
 
-    private class MetadataExtractTask extends AsyncTask<Void, Void, MediaMetadata> {
+    private static class MetadataExtractTask extends AsyncTask<Void, Void, MediaMetadata> {
         private MediaItem mItem;
-        private Context mContext;
+        private WeakReference<Context> mRefContext;
 
         MetadataExtractTask(MediaItem mediaItem, Context context) {
             mItem = mediaItem;
-            mContext = context;
+            mRefContext = new WeakReference<>(context);
         }
 
         @Override
@@ -145,25 +147,23 @@ public class VideoSessionService extends MediaSessionService {
 
         MediaMetadata extractMetadata(MediaItem mediaItem) {
             MediaMetadataRetriever retriever = null;
+            Context context = mRefContext.get();
             try {
                 if (mediaItem == null) {
                     return null;
-                } else if (mediaItem instanceof UriMediaItem) {
+                } else if (mediaItem instanceof UriMediaItem && context != null) {
                     Uri uri = ((UriMediaItem) mediaItem).getUri();
                     retriever = new MediaMetadataRetriever();
-                    retriever.setDataSource(mContext, uri);
+                    retriever.setDataSource(mRefContext.get(), uri);
                 }
             } catch (IllegalArgumentException e) {
-                retriever = null;
+                return mediaItem.getMetadata();
             }
 
-            // Do not extract metadata of a media item which is not the current item.
-            if (mediaItem != mCurrentItem) {
-                if (retriever != null) {
-                    retriever.release();
-                }
-                return null;
+            if (retriever == null) {
+                return mediaItem.getMetadata();
             }
+
             String title = extractString(retriever, MediaMetadataRetriever.METADATA_KEY_TITLE);
             String musicArtistText = extractString(retriever,
                     MediaMetadataRetriever.METADATA_KEY_ARTIST);
@@ -173,14 +173,9 @@ public class VideoSessionService extends MediaSessionService {
                 retriever.release();
             }
 
-            // Set duration and title values as MediaMetadata for MediaControlView
-            MediaMetadata.Builder builder = new MediaMetadata.Builder(mCurrentItem.getMetadata());
-
+            MediaMetadata.Builder builder = new MediaMetadata.Builder(mediaItem.getMetadata());
             builder.putString(MediaMetadata.METADATA_KEY_TITLE, title);
             builder.putString(MediaMetadata.METADATA_KEY_ARTIST, musicArtistText);
-            builder.putString(
-                    MediaMetadata.METADATA_KEY_MEDIA_ID, mediaItem.getMediaId());
-            builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);
             builder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, musicAlbumBitmap);
             return builder.build();
         }
