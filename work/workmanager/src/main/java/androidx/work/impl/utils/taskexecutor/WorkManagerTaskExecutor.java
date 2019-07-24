@@ -32,7 +32,7 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerTaskExecutor implements TaskExecutor {
 
-    private final Executor mBackgroundExecutor;
+    private final SerialExecutor mBackgroundExecutor;
 
     public WorkManagerTaskExecutor(@NonNull Executor backgroundExecutor) {
         // Wrap it with a serial executor so we have ordering guarantees on commands
@@ -65,7 +65,8 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public Executor getBackgroundExecutor() {
+    @NonNull
+    public SerialExecutor getBackgroundExecutor() {
         return mBackgroundExecutor;
     }
 }

@@ -37,6 +37,7 @@ public final class WorkManagerTestInitHelper {
         SynchronousExecutor synchronousExecutor = new SynchronousExecutor();
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(synchronousExecutor)
+                .setTaskExecutor(synchronousExecutor)
                 .build();
         initializeTestWorkManager(context, configuration);
     }
