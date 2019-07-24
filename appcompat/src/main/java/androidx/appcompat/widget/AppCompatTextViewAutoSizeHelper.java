@@ -99,21 +99,27 @@ class AppCompatTextViewAutoSizeHelper {
     private boolean mHasPresetAutoSizeValues = false;
     private TextPaint mTempTextPaint;
 
+    @NonNull
     private final TextView mTextView;
     private final Context mContext;
 
-    AppCompatTextViewAutoSizeHelper(TextView textView) {
+    AppCompatTextViewAutoSizeHelper(@NonNull TextView textView) {
         mTextView = textView;
         mContext = mTextView.getContext();
     }
 
-    void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
+    void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
         float autoSizeMinTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
         float autoSizeMaxTextSizeInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
         float autoSizeStepGranularityInPx = UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE;
 
         TypedArray a = mContext.obtainStyledAttributes(attrs, R.styleable.AppCompatTextView,
                 defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mTextView.saveAttributeDataForStyleable(mTextView.getContext(),
+                    R.styleable.AppCompatTextView, attrs, a,
+                    defStyleAttr, 0);
+        }
         if (a.hasValue(R.styleable.AppCompatTextView_autoSizeTextType)) {
             mAutoSizeTextType = a.getInt(R.styleable.AppCompatTextView_autoSizeTextType,
                     TextViewCompat.AUTO_SIZE_TEXT_TYPE_NONE);

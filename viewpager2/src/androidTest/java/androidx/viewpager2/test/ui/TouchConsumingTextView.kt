@@ -21,11 +21,11 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import androidx.appcompat.widget.AppCompatTextView
 
-class TouchConsumingTextView(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) :
+class TouchConsumingTextView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     AppCompatTextView(context, attrs, defStyleAttr) {
 
-    constructor(context: Context?) : this(context, null, 0)
-    constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
 
     var consumeTouches = false
 

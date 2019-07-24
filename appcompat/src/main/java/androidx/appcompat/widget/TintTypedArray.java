@@ -69,6 +69,13 @@ public class TintTypedArray {
         mWrapped = array;
     }
 
+    /**
+     * Beware, you very likely do not intend to this method. Proceed with caution.
+     */
+    public TypedArray getWrappedTypeArray() {
+        return mWrapped;
+    }
+
     public Drawable getDrawable(int index) {
         if (mWrapped.hasValue(index)) {
             final int resourceId = mWrapped.getResourceId(index, 0);

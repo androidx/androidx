@@ -30,6 +30,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
@@ -62,15 +63,16 @@ public class AppCompatAutoCompleteTextView extends AutoCompleteTextView implemen
     private final AppCompatBackgroundHelper mBackgroundTintHelper;
     private final AppCompatTextHelper mTextHelper;
 
-    public AppCompatAutoCompleteTextView(Context context) {
+    public AppCompatAutoCompleteTextView(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatAutoCompleteTextView(Context context, AttributeSet attrs) {
+    public AppCompatAutoCompleteTextView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.autoCompleteTextViewStyle);
     }
 
-    public AppCompatAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatAutoCompleteTextView(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(TintContextWrapper.wrap(context), attrs, defStyleAttr);
 
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(getContext(), attrs,

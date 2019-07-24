@@ -24,6 +24,8 @@ import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 
@@ -36,15 +38,15 @@ import androidx.appcompat.R;
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class DialogTitle extends AppCompatTextView {
 
-    public DialogTitle(Context context, AttributeSet attrs, int defStyleAttr) {
+    public DialogTitle(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public DialogTitle(Context context, AttributeSet attrs) {
+    public DialogTitle(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public DialogTitle(Context context) {
+    public DialogTitle(@NonNull Context context) {
         super(context);
     }
 

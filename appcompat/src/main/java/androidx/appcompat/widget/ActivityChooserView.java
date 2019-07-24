@@ -44,6 +44,8 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.appcompat.view.menu.ShowableListMenu;
@@ -197,7 +199,7 @@ public class ActivityChooserView extends ViewGroup implements
      *
      * @param context The application environment.
      */
-    public ActivityChooserView(Context context) {
+    public ActivityChooserView(@NonNull Context context) {
         this(context, null);
     }
 
@@ -207,7 +209,7 @@ public class ActivityChooserView extends ViewGroup implements
      * @param context The application environment.
      * @param attrs A collection of attributes.
      */
-    public ActivityChooserView(Context context, AttributeSet attrs) {
+    public ActivityChooserView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
@@ -218,7 +220,8 @@ public class ActivityChooserView extends ViewGroup implements
      * @param attrs A collection of attributes.
      * @param defStyle The default style to apply to this view.
      */
-    public ActivityChooserView(Context context, AttributeSet attrs, int defStyle) {
+    public ActivityChooserView(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         TypedArray attributesArray = context.obtainStyledAttributes(attrs,

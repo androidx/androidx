@@ -22,6 +22,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RatingBar;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 
 /**
@@ -36,15 +38,16 @@ public class AppCompatRatingBar extends RatingBar {
 
     private final AppCompatProgressBarHelper mAppCompatProgressBarHelper;
 
-    public AppCompatRatingBar(Context context) {
+    public AppCompatRatingBar(@NonNull Context context) {
         this(context, null);
     }
 
-    public AppCompatRatingBar(Context context, AttributeSet attrs) {
+    public AppCompatRatingBar(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.ratingBarStyle);
     }
 
-    public AppCompatRatingBar(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatRatingBar(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         mAppCompatProgressBarHelper = new AppCompatProgressBarHelper(this);

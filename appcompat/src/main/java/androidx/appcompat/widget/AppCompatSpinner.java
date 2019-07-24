@@ -47,6 +47,7 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 
 import androidx.annotation.DrawableRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -110,7 +111,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @param context The Context the view is running in, through which it can
      *                access the current theme, resources, etc.
      */
-    public AppCompatSpinner(Context context) {
+    public AppCompatSpinner(
+            @NonNull Context context) {
         this(context, null);
     }
 
@@ -125,7 +127,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
-    public AppCompatSpinner(Context context, int mode) {
+    public AppCompatSpinner(
+            @NonNull Context context, int mode) {
         this(context, null, R.attr.spinnerStyle, mode);
     }
 
@@ -136,7 +139,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *                access the current theme, resources, etc.
      * @param attrs   The attributes of the XML tag that is inflating the view.
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs) {
+    public AppCompatSpinner(
+            @NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.spinnerStyle);
     }
 
@@ -151,7 +155,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      *                     reference to a style resource that supplies default values for
      *                     the view. Can be 0 to not look for defaults.
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr) {
+    public AppCompatSpinner(
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         this(context, attrs, defStyleAttr, MODE_THEME);
     }
 
@@ -170,7 +175,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr, int mode) {
+    public AppCompatSpinner(
+            @NonNull Context context, @Nullable  AttributeSet attrs, int defStyleAttr, int mode) {
         this(context, attrs, defStyleAttr, mode, null);
     }
 
@@ -198,8 +204,8 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
      * @see #MODE_DIALOG
      * @see #MODE_DROPDOWN
      */
-    public AppCompatSpinner(Context context, AttributeSet attrs, int defStyleAttr, int mode,
-            Resources.Theme popupTheme) {
+    public AppCompatSpinner(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr, int mode, Resources.Theme popupTheme) {
         super(context, attrs, defStyleAttr);
 
         TintTypedArray a = TintTypedArray.obtainStyledAttributes(context, attrs,

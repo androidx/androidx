@@ -25,6 +25,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.widget.CompoundButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.R;
 import androidx.appcompat.content.res.AppCompatResources;
@@ -32,7 +33,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.widget.CompoundButtonCompat;
 
 class AppCompatCompoundButtonHelper {
-
+    @NonNull
     private final CompoundButton mView;
 
     private ColorStateList mButtonTintList = null;
@@ -42,20 +43,17 @@ class AppCompatCompoundButtonHelper {
 
     private boolean mSkipNextApply;
 
-    /**
-     * Interface which allows us to directly set a button, bypass any calls back to ourselves.
-     */
-    interface DirectSetButtonDrawableInterface {
-        void setButtonDrawable(Drawable buttonDrawable);
-    }
-
-    AppCompatCompoundButtonHelper(CompoundButton view) {
+    AppCompatCompoundButtonHelper(@NonNull CompoundButton view) {
         mView = view;
     }
 
-    void loadFromAttributes(AttributeSet attrs, int defStyleAttr) {
+    void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
         TypedArray a = mView.getContext().obtainStyledAttributes(attrs, R.styleable.CompoundButton,
                 defStyleAttr, 0);
+        if (Build.VERSION.SDK_INT >= 29) {
+            mView.saveAttributeDataForStyleable(mView.getContext(),
+                    R.styleable.CompoundButton, attrs, a, defStyleAttr, 0);
+        }
         try {
             boolean buttonDrawableLoaded = false;
             if (a.hasValue(R.styleable.CompoundButton_buttonCompat)) {
