@@ -20,20 +20,25 @@ import android.Manifest;
 import android.content.Context;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.BaseCamera;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.UseCase;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -190,5 +195,55 @@ public final class CameraUtil {
         }
 
         return numberOfCamera > 0;
+    }
+
+    /**
+     * Check if the specified lensFacing is supported by the device.
+     *
+     * @param lensFacing The desired camera lensFacing.
+     * @return True if the device supports the lensFacing.
+     * @throws IllegalStateException if the CAMERA permission is not currently granted.
+     */
+    public static boolean hasCameraWithLensFacing(@NonNull CameraX.LensFacing lensFacing) {
+
+        CameraManager cameraManager = getCameraManager();
+
+        List<String> camerasList = null;
+        try {
+            camerasList = Arrays.asList(cameraManager.getCameraIdList());
+        } catch (CameraAccessException e) {
+            throw new IllegalStateException(
+                    "Unable to retrieve list of cameras on device.", e);
+        }
+
+        // Convert to from CameraX enum to Camera2 CameraMetadata
+        Integer lensFacingInteger = -1;
+        switch (lensFacing) {
+            case BACK:
+                lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
+                break;
+            case FRONT:
+                lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
+                break;
+        }
+
+        for (String cameraId : camerasList) {
+            CameraCharacteristics characteristics = null;
+            try {
+                characteristics = cameraManager.getCameraCharacteristics(cameraId);
+            } catch (CameraAccessException e) {
+                throw new IllegalStateException(
+                        "Unable to retrieve info for camera with id " + cameraId + ".", e);
+            }
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing == null) {
+                continue;
+            }
+            if (cameraLensFacing.equals(lensFacingInteger)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
