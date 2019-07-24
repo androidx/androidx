@@ -32,6 +32,7 @@ import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.SerialExecutor;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -221,8 +222,11 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                 }
                 mCurrentIntent = null;
             }
+            SerialExecutor serialExecutor = mTaskExecutor.getBackgroundExecutor();
+            if (!mCommandHandler.hasPendingCommands()
+                    && mIntents.isEmpty()
+                    && !serialExecutor.hasPendingTasks()) {
 
-            if (!mCommandHandler.hasPendingCommands() && mIntents.isEmpty()) {
                 // If there are no more intents to process, and the command handler
                 // has no more pending commands, stop the service.
                 Logger.get().debug(TAG, "No more commands & intents.");
