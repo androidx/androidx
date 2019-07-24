@@ -89,8 +89,8 @@ package androidx.ui.text {
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
+    method public int getOffsetForPosition(androidx.ui.core.PxPosition position);
     method public androidx.ui.painting.Path getPathForRange(int start, int end);
-    method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getWidth();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     method public void layout(androidx.ui.text.ParagraphConstraints constraints);
@@ -139,9 +139,9 @@ package androidx.ui.text {
     method public float getMaxIntrinsicWidth();
     method public Integer? getMaxLines();
     method public float getMinIntrinsicWidth();
+    method public int getOffsetForPosition(androidx.ui.core.PxPosition position);
     method public androidx.ui.text.style.TextOverflow getOverflow();
     method public androidx.ui.text.ParagraphStyle? getParagraphStyle();
-    method public int getPositionForOffset(androidx.ui.engine.geometry.Offset offset);
     method public float getPreferredLineHeight();
     method public androidx.ui.text.font.Font.ResourceLoader getResourceLoader();
     method public androidx.ui.engine.geometry.Size getSize();
@@ -149,7 +149,7 @@ package androidx.ui.text {
     method public androidx.ui.text.TextStyle? getStyle();
     method public androidx.ui.text.AnnotatedString? getText();
     method public float getWidth();
-    method public androidx.ui.text.TextRange getWordBoundary(int position);
+    method public androidx.ui.text.TextRange getWordBoundary(int offset);
     method public void layout(androidx.ui.core.Constraints constraints);
     method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
     method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);

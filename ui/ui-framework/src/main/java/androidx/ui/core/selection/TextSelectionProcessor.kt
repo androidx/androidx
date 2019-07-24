@@ -18,7 +18,6 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.text.TextSelection
 import androidx.ui.text.TextPainter
@@ -41,15 +40,17 @@ internal class TextSelectionProcessor(
 ) {
     // TODO(qqd): Determine a set of coordinates around a character that we need.
     /**
-     * The bounding box of the character at the start offset as Rect. The bounding box includes the
-     * top, bottom, left, and right of the character. Note: It is temporary to use Rect.
+     * The bounding box of the character at the start character offset as Rect. The bounding box
+     * includes the top, bottom, left, and right of the character. Note: It is temporary to use
+     * Rect.
      */
     // TODO(qqd): After solving the problem of getting the coordinates of a character, figure out
     // what should the startOffset and endOffset should be.
     internal var startOffset = Rect.zero
     /**
-     * The bounding box of the character at the end offset as Rect. The bounding box includes the
-     * top, bottom, left, and right of the character. Note: It is temporary to use Rect.
+     * The bounding box of the character at the end character offset as Rect. The bounding box
+     * includes the top, bottom, left, and right of the character. Note: It is temporary to use
+     * Rect.
      */
     internal var endOffset = Rect.zero
     /**
@@ -125,10 +126,10 @@ internal class TextSelectionProcessor(
         position: PxPosition,
         isStart: Boolean
     ): Pair<Int, Boolean> {
-        // The text position of the border of selection. The default value is set to the beginning
-        // of the text widget for the start border, and the very last position of the text widget
-        // for the end border. If the widget contains the whole selection's border, this value will
-        // be reset.
+        // The character offset of the border of selection. The default value is set to the
+        // beginning of the text widget for the start border, and the very last character offset
+        // of the text widget for the end border. If the widget contains the whole selection's
+        // border, this value will be reset.
         var selectionBorder = if (isStart) 0 else max(length - 1, 0)
         // Flag to check if the widget contains the whole selection's border.
         var containsWholeSelectionBorder = false
@@ -138,19 +139,18 @@ internal class TextSelectionProcessor(
         val left = 0.px
         val right = textPainter.width.px
         // If the current text widget contains the whole selection's border, then find the exact
-        // text position of the border, and the flag checking  if the widget contains the whole
+        // character offset of the border, and the flag checking if the widget contains the whole
         // selection's border will be set to true.
         if (position.x >= left &&
             position.x < right &&
             position.y >= top &&
             position.y < bottom
         ) {
-            val offset = Offset(position.x.value, position.y.value)
-            // Constrain the position of the selection border to be within the text range of the
-            // current widget.
-            val constrainedSelectionBorderPosition =
-                textPainter.getPositionForOffset(offset).coerceIn(0, length - 1)
-            selectionBorder = constrainedSelectionBorderPosition
+            // Constrain the character offset of the selection border to be within the text range
+            // of the current widget.
+            val constrainedSelectionBorderOffset =
+                textPainter.getOffsetForPosition(position).coerceIn(0, length - 1)
+            selectionBorder = constrainedSelectionBorderOffset
             containsWholeSelectionBorder = true
         }
         return Pair(selectionBorder, containsWholeSelectionBorder)

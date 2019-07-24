@@ -16,7 +16,7 @@
 package androidx.ui.text
 
 import androidx.ui.core.Density
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.core.PxPosition
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
@@ -109,17 +109,17 @@ interface Paragraph {
     /** Returns the width of the given line. */
     fun getLineWidth(lineIndex: Int): Float
 
-    /** Returns the text position closest to the given offset. */
-    fun getPositionForOffset(offset: Offset): Int
+    /** Returns the character offset closest to the given graphical position. */
+    fun getOffsetForPosition(position: PxPosition): Int
 
     /**
-     * Returns the bounding box as Rect of the character for given offset. Rect includes the
-     * top, bottom, left and right of a character.
+     * Returns the bounding box as Rect of the character for given character offset. Rect
+     * includes the top, bottom, left and right of a character.
      */
     fun getBoundingBox(offset: Int): Rect
 
     /**
-     * Returns the TextRange of the word at the given offset. Characters not
+     * Returns the TextRange of the word at the given character offset. Characters not
      * part of a word, such as spaces, symbols, and punctuation, have word breaks
      * on both sides. In such cases, this method will return TextRange(offset, offset+1).
      * Word boundaries are defined more precisely in Unicode Standard Annex #29
