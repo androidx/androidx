@@ -117,12 +117,12 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
                 is OnChildViewRemoved -> assertThat(onscreen.remove(event.position), equalTo(true))
                 // When VP2 scrolls, check if the set of onscreen pages is the expected value
                 is OnPageScrolledEvent -> {
-                    val position = event.position + event.positionOffset
+                    val position = event.position + event.positionOffset.toDouble()
                     val lower = max(0, floor(position - limit).roundToInt())
                     val upper = min(pageCount - 1, ceil(position + limit).roundToInt())
                     // First verify this calculation:
-                    assertThat(lower.toFloat(), lessThanOrEqualTo(position))
-                    assertThat(upper.toFloat(), greaterThanOrEqualTo(position))
+                    assertThat(lower.toDouble(), lessThanOrEqualTo(position))
+                    assertThat(upper.toDouble(), greaterThanOrEqualTo(position))
                     // Then verify the onscreen pages:
                     assertThat("There should be ${upper - lower + 1} pages laid out at event $i. " +
                             "Events: ${recorder.dumpEvents()}",

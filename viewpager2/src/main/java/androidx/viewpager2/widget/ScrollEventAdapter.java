@@ -379,9 +379,9 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      *
      * @return The current scroll position of the ViewPager, relative to its width
      */
-    float getRelativeScrollPosition() {
+    double getRelativeScrollPosition() {
         updateScrollEventValues();
-        return mScrollValues.mPosition + mScrollValues.mOffset;
+        return mScrollValues.mPosition + (double) mScrollValues.mOffset;
     }
 
     private void dispatchStateChanged(@ScrollState int state) {
