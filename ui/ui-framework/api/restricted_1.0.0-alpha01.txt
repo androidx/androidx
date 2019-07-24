@@ -241,6 +241,11 @@ package androidx.ui.core.gesture {
     method public static androidx.ui.core.Duration getZoomControlsTimeout();
   }
 
+  public final class DoubleTapGestureDetectorKt {
+    ctor public DoubleTapGestureDetectorKt();
+    method public static void DoubleTapGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit> onDoubleTap, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class DragGestureDetectorKt {
     ctor public DragGestureDetectorKt();
     method public static void DragGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, androidx.ui.core.gesture.DragObserver? dragObserver = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);

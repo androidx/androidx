@@ -41,6 +41,7 @@ import androidx.ui.core.gesture.LongPressGestureDetector
 import androidx.compose.composer
 import androidx.ui.core.Draw
 import androidx.ui.core.dp
+import androidx.ui.core.gesture.DoubleTapGestureDetector
 import androidx.ui.core.gesture.PressReleasedGestureDetector
 import androidx.ui.core.round
 import androidx.ui.core.toRect
@@ -141,27 +142,30 @@ private fun Pressable(
 ) {
 
     val pressedColor = Color(0x1f000000)
-    val itemColor = Color(0xFFFFFFFF.toInt())
+    val defaultColor = Color(0xFFFFFFFF.toInt())
 
-    val color = +state { itemColor }
-    val pressed = +state { false }
+    val color = +state { defaultColor }
+    val showPressed = +state { false }
 
-    val onStart: (PxPosition) -> Unit = {
-        pressed.value = true
-    }
-
-    val onStop = {
-        pressed.value = false
+    val onPress: (PxPosition) -> Unit = {
+        showPressed.value = true
     }
 
     val onRelease = {
+        showPressed.value = false
+    }
+
+    val onTap = {
         color.value = color.value.next()
-        pressed.value = false
+    }
+
+    val onDoubleTap: (PxPosition) -> Unit = {
+        color.value = color.value.prev().prev()
     }
 
     val onLongPress = { _: PxPosition ->
-        color.value = color.value.prev()
-        pressed.value = false
+        color.value = defaultColor
+        showPressed.value = false
     }
 
     val children = @Composable {
@@ -171,7 +175,7 @@ private fun Pressable(
                 Rect(0f, 0f, parentSize.width.value, parentSize.height.value),
                 backgroundPaint
             )
-            if (pressed.value) {
+            if (showPressed.value) {
                 backgroundPaint.color = pressedColor
                 canvas.drawRect(
                     Rect(0f, 0f, parentSize.width.value, parentSize.height.value),
@@ -181,14 +185,16 @@ private fun Pressable(
         }
     }
 
-    PressIndicatorGestureDetector(onStart, onStop, onStop) {
-        PressReleasedGestureDetector(onRelease, false) {
-            LongPressGestureDetector(onLongPress) {
-                Layout(children) { _, constraints ->
-                    layout(
-                        constraints.maxWidth,
-                        height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
-                    ) {}
+    PressIndicatorGestureDetector(onPress, onRelease, onRelease) {
+        PressReleasedGestureDetector(onTap, false) {
+            DoubleTapGestureDetector(onDoubleTap) {
+                LongPressGestureDetector(onLongPress) {
+                    Layout(children) { _, constraints ->
+                        layout(
+                            constraints.maxWidth,
+                            height.toIntPx().coerceIn(constraints.minHeight, constraints.maxHeight)
+                        ) {}
+                    }
                 }
             }
         }

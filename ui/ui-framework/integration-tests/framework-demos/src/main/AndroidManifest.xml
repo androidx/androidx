@@ -53,6 +53,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity android:name=".gestures.DoubleTapGestureDetectorDemo"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Gestures/Single GestureDetectors/DoubleTapGestureDetectorDemo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
         <activity android:name=".gestures.NestedScrollingDemo"
             android:configChanges="orientation|screenSize"
             android:label="Gestures/Complex Demos/Nested Scrolling">
