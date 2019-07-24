@@ -137,7 +137,7 @@ fun Checkbox(
 
 @Composable
 private fun DrawCheckbox(value: ToggleableState, activeColor: Color) {
-    val unselectedColor = (+themeColor { onSurface }).copy(alpha = UncheckedBoxOppacity)
+    val unselectedColor = (+themeColor { onSurface }).copy(alpha = UncheckedBoxOpacity)
     val definition = +memo(activeColor, unselectedColor) {
         generateTransitionDefinition(activeColor, unselectedColor)
     }
@@ -313,5 +313,5 @@ private val CheckboxSize = 20.dp
 private val StrokeWidth = 2.dp
 private val RadiusSize = 2.dp
 
-private val UncheckedBoxOppacity = 0.6f
-private val CheckStrokeDefaultColor = Color(0xFFFFFFFF.toInt())
+private val UncheckedBoxOpacity = 0.6f
+private val CheckStrokeDefaultColor = Color.White

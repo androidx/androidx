@@ -16,16 +16,12 @@
 
 package androidx.ui.material.demos
 
-import android.app.Activity
-import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
-import androidx.ui.core.setContent
 import androidx.ui.layout.Column
 import androidx.ui.layout.MainAxisAlignment
-import androidx.ui.material.MaterialTheme
 import androidx.ui.material.samples.SimpleBottomAppBarCenterFab
 import androidx.ui.material.samples.SimpleBottomAppBarEndFab
 import androidx.ui.material.samples.SimpleBottomAppBarNoFab
@@ -34,30 +30,27 @@ import androidx.ui.material.samples.SimpleTopAppBarNavIcon
 import androidx.ui.material.themeTextStyle
 import androidx.ui.painting.imageFromResource
 
-class AppBarActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                val favouriteImage = { imageFromResource(resources, R.drawable.ic_favorite) }
-                val navigationImage = { imageFromResource(resources, R.drawable.ic_menu) }
-                Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
-                    DemoText("TopAppBar")
-                    SimpleTopAppBar(favouriteImage)
+class AppBarActivity : MaterialDemoActivity() {
 
-                    DemoText("TopAppBar - With navigation icon")
-                    SimpleTopAppBarNavIcon(favouriteImage, navigationImage)
+    @Composable
+    override fun materialContent() {
+        val favouriteImage = { imageFromResource(resources, R.drawable.ic_favorite) }
+        val navigationImage = { imageFromResource(resources, R.drawable.ic_menu) }
+        Column(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
+            DemoText("TopAppBar")
+            SimpleTopAppBar(favouriteImage)
 
-                    DemoText("BottomAppBar - No FAB")
-                    SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
+            DemoText("TopAppBar - With navigation icon")
+            SimpleTopAppBarNavIcon(favouriteImage, navigationImage)
 
-                    DemoText("BottomAppBar - Center FAB")
-                    SimpleBottomAppBarCenterFab(favouriteImage, navigationImage)
+            DemoText("BottomAppBar - No FAB")
+            SimpleBottomAppBarNoFab(favouriteImage, navigationImage)
 
-                    DemoText("BottomAppBar - End FAB")
-                    SimpleBottomAppBarEndFab(favouriteImage)
-                }
-            }
+            DemoText("BottomAppBar - Center FAB")
+            SimpleBottomAppBarCenterFab(favouriteImage, navigationImage)
+
+            DemoText("BottomAppBar - End FAB")
+            SimpleBottomAppBarEndFab(favouriteImage)
         }
     }
 

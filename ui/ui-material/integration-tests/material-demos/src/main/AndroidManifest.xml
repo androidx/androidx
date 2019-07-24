@@ -146,5 +146,10 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".MaterialSettingsActivity"
+                  android:label="Material Theme Settings"
+                  android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
+        </activity>
     </application>
 </manifest>
