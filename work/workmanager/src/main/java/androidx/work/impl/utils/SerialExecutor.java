@@ -57,6 +57,15 @@ public class SerialExecutor implements Executor {
         }
     }
 
+    /**
+     * @return {@code true} if there are tasks to execute in the queue.
+     */
+    public boolean hasPendingTasks() {
+        synchronized (mLock) {
+            return !mTasks.isEmpty();
+        }
+    }
+
     @NonNull
     @VisibleForTesting
     public Executor getDelegatedExecutor() {
