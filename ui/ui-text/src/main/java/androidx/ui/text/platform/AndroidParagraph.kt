@@ -277,12 +277,10 @@ internal class AndroidParagraph constructor(
     internal fun isEllipsisApplied(lineIndex: Int): Boolean =
         ensureLayout.isEllipsisApplied(lineIndex)
 
-    override fun paint(canvas: Canvas, x: Float, y: Float) {
+    override fun paint(canvas: Canvas) {
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
                 "called before layout() is called")
-        canvas.translate(x, y)
         tmpLayout.paint(canvas.nativeCanvas)
-        canvas.translate(-x, -y)
     }
 
     private fun createTypeface(style: TextStyle): Typeface {

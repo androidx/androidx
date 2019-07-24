@@ -17,7 +17,6 @@
 package androidx.ui.core
 
 import android.util.Log
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
@@ -90,8 +89,7 @@ internal class InputFieldDelegate {
                     it.start,
                     it.end,
                     editorStyle.compositionColor,
-                    canvas,
-                    Offset.zero
+                    canvas
                 )
             }
             if (value.selection.collapsed) {
@@ -103,11 +101,10 @@ internal class InputFieldDelegate {
                     value.selection.start,
                     value.selection.end,
                     editorStyle.selectionColor,
-                    canvas,
-                    Offset.zero
+                    canvas
                 )
             }
-            textPainter.paint(canvas, Offset.zero)
+            textPainter.paint(canvas)
         }
 
         /**

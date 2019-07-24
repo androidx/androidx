@@ -489,8 +489,7 @@ class TextPainterIntegrationTest {
                 start = 0,
                 end = text.length,
                 color = defaultSelectionColor,
-                canvas = actualCanvas,
-                offset = Offset.zero
+                canvas = actualCanvas
             )
 
             // Assert.
@@ -558,8 +557,7 @@ class TextPainterIntegrationTest {
                 start = selectionStart,
                 end = selectionEnd,
                 color = defaultSelectionColor,
-                canvas = actualCanvas,
-                offset = Offset.zero
+                canvas = actualCanvas
             )
 
             // Assert
@@ -642,8 +640,7 @@ class TextPainterIntegrationTest {
                 start = selectionLTRStart,
                 end = textLTR.length + selectionRTLEnd,
                 color = defaultSelectionColor,
-                canvas = actualCanvas,
-                offset = Offset.zero
+                canvas = actualCanvas
             )
 
             // Assert
@@ -711,8 +708,7 @@ class TextPainterIntegrationTest {
                 start = selectionStart,
                 end = selectionEnd,
                 color = selectionColor,
-                canvas = actualCanvas,
-                offset = Offset.zero
+                canvas = actualCanvas
             )
 
             // Assert
