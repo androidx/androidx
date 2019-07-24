@@ -16,26 +16,20 @@
 
 package androidx.ui.material.demos
 
-import android.app.Activity
-import android.os.Bundle
+import androidx.compose.Composable
 import androidx.ui.core.Text
 import androidx.ui.material.themeTextStyle
 import androidx.ui.graphics.Color
 import androidx.compose.composer
 import androidx.compose.unaryPlus
-import androidx.ui.core.setContent
-import androidx.ui.material.MaterialTheme
 
-open class TextActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                val textColor = Color(0xFFFF0000.toInt())
-                Text(
-                    text = "Hello",
-                    style = +themeTextStyle { h1.copy(color = textColor) })
-            }
-        }
+open class TextActivity : MaterialDemoActivity() {
+
+    @Composable
+    override fun materialContent() {
+        val textColor = Color(0xFFFF0000.toInt())
+        Text(
+            text = "Hello",
+            style = +themeTextStyle { h1.copy(color = textColor) })
     }
 }

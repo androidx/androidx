@@ -16,8 +16,6 @@
 
 package androidx.ui.material.demos
 
-import android.app.Activity
-import android.os.Bundle
 import android.os.Handler
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.MainAxisAlignment.SpaceEvenly
@@ -31,17 +29,12 @@ import androidx.compose.composer
 import androidx.compose.onActive
 import androidx.compose.onDispose
 import androidx.compose.unaryPlus
-import androidx.ui.core.setContent
-import androidx.ui.material.MaterialTheme
 
-class ProgressIndicatorActivity : Activity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            MaterialTheme {
-                ProgressIndicatorDemo()
-            }
-        }
+class ProgressIndicatorActivity : MaterialDemoActivity() {
+
+    @Composable
+    override fun materialContent() {
+        ProgressIndicatorDemo()
     }
 }
 
