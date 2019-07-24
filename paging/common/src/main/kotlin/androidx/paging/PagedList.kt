@@ -20,7 +20,6 @@ import androidx.annotation.AnyThread
 import androidx.annotation.IntRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.paging.PagedList.Callback
 import androidx.paging.PagedList.Config
@@ -1003,9 +1002,6 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      */
     override val size
         get() = storage.size
-
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-    abstract val isContiguous: Boolean
 
     /**
      * The [PagedSource] that provides data to this [PagedList].

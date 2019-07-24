@@ -44,8 +44,6 @@ class StringPagedList constructor(
         )
     }
 
-    override val isContiguous = true
-
     override val lastKey: Any? = null
 
     override val isDetached

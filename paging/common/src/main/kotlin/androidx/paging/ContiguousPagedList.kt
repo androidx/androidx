@@ -84,8 +84,6 @@ open class ContiguousPagedList<K : Any, V : Any>(
     override val isDetached
         get() = pager.isDetached
 
-    override val isContiguous = true
-
     override val lastKey
         get() = when (val keyProvider = pagedSource.keyProvider) {
             is KeyProvider.Positional -> {
