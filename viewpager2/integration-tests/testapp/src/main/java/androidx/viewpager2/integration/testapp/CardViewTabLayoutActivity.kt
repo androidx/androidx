@@ -19,6 +19,7 @@ package androidx.viewpager2.integration.testapp
 import android.os.Bundle
 import androidx.viewpager2.integration.testapp.cards.Card
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 
 class CardViewTabLayoutActivity : CardViewActivity() {
 
