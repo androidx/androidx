@@ -65,12 +65,12 @@ import androidx.lifecycle.ViewModelStoreOwner;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Static library support version of the framework's {@link android.app.FragmentManager}.
@@ -359,9 +359,7 @@ public abstract class FragmentManager {
         }
     };
 
-    // Must be accessed while locked.
-    private final ArrayList<BackStackRecord> mBackStackIndices = new ArrayList<>();
-    private final ArrayList<Integer> mAvailBackStackIndices = new ArrayList<>();
+    private final AtomicInteger mBackStackIndex = new AtomicInteger();
 
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
     private final CopyOnWriteArrayList<FragmentLifecycleCallbacksHolder>
@@ -953,26 +951,8 @@ public abstract class FragmentManager {
             }
         }
 
-        synchronized (mBackStackIndices) {
-            count = mBackStackIndices.size();
-            if (count > 0) {
-                writer.print(prefix); writer.println("Back Stack Indices:");
-                for (int i = 0; i < count; i++) {
-                    BackStackRecord bs = mBackStackIndices.get(i);
-                    writer.print(prefix);
-                    writer.print("  #");
-                    writer.print(i);
-                    writer.print(": ");
-                    writer.println(bs);
-                }
-            }
-
-            if (!mAvailBackStackIndices.isEmpty()) {
-                writer.print(prefix);
-                writer.print("mAvailBackStackIndices: ");
-                writer.println(Arrays.toString(mAvailBackStackIndices.toArray()));
-            }
-        }
+        writer.print(prefix);
+        writer.println("Back Stack Index: " + mBackStackIndex.get());
 
         synchronized (mPendingActions) {
             count = mPendingActions.size();
@@ -2008,48 +1988,8 @@ public abstract class FragmentManager {
         }
     }
 
-    int allocBackStackIndex(BackStackRecord bse) {
-        synchronized (mBackStackIndices) {
-            if (mAvailBackStackIndices.isEmpty()) {
-                int index = mBackStackIndices.size();
-                if (DEBUG) Log.v(TAG, "Setting back stack index " + index + " to " + bse);
-                mBackStackIndices.add(bse);
-                return index;
-
-            } else {
-                int index = mAvailBackStackIndices.remove(mAvailBackStackIndices.size() - 1);
-                if (DEBUG) Log.v(TAG, "Adding back stack index " + index + " with " + bse);
-                mBackStackIndices.set(index, bse);
-                return index;
-            }
-        }
-    }
-
-    private void setBackStackIndex(int index, BackStackRecord bse) {
-        synchronized (mBackStackIndices) {
-            int count = mBackStackIndices.size();
-            if (index < count) {
-                if (DEBUG) Log.v(TAG, "Setting back stack index " + index + " to " + bse);
-                mBackStackIndices.set(index, bse);
-            } else {
-                while (count < index) {
-                    mBackStackIndices.add(null);
-                    if (DEBUG) Log.v(TAG, "Adding available back stack index " + count);
-                    mAvailBackStackIndices.add(count);
-                    count++;
-                }
-                if (DEBUG) Log.v(TAG, "Adding back stack index " + index + " with " + bse);
-                mBackStackIndices.add(bse);
-            }
-        }
-    }
-
-    private void freeBackStackIndex(int index) {
-        synchronized (mBackStackIndices) {
-            mBackStackIndices.set(index, null);
-            if (DEBUG) Log.v(TAG, "Freeing back stack index " + index);
-            mAvailBackStackIndices.add(index);
-        }
+    int allocBackStackIndex() {
+        return mBackStackIndex.getAndIncrement();
     }
 
     /**
@@ -2288,7 +2228,6 @@ public abstract class FragmentManager {
             final BackStackRecord record = records.get(recordNum);
             final boolean isPop = isRecordPop.get(recordNum);
             if (isPop && record.mIndex >= 0) {
-                freeBackStackIndex(record.mIndex);
                 record.mIndex = -1;
             }
             record.runOnCommitRunnables();
@@ -2822,6 +2761,7 @@ public abstract class FragmentManager {
         fms.mActive = active;
         fms.mAdded = added;
         fms.mBackStack = backStack;
+        fms.mBackStackIndex = mBackStackIndex.get();
         if (mPrimaryNav != null) {
             fms.mPrimaryNavActiveWho = mPrimaryNav.mWho;
         }
@@ -2933,13 +2873,11 @@ public abstract class FragmentManager {
                     pw.close();
                 }
                 mBackStack.add(bse);
-                if (bse.mIndex >= 0) {
-                    setBackStackIndex(bse.mIndex, bse);
-                }
             }
         } else {
             mBackStack = null;
         }
+        mBackStackIndex.set(fms.mBackStackIndex);
 
         if (fms.mPrimaryNavActiveWho != null) {
             mPrimaryNav = mActive.get(fms.mPrimaryNavActiveWho);
