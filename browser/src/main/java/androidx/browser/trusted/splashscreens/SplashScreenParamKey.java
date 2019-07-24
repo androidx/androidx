@@ -18,13 +18,13 @@ package androidx.browser.trusted.splashscreens;
 
 import android.os.Bundle;
 
-import androidx.browser.trusted.TrustedWebActivityBuilder;
+import androidx.browser.trusted.TrustedWebActivityIntentBuilder;
 
 /**
  * The keys of the entries in the {@link Bundle} passed to
- * {@link TrustedWebActivityBuilder#setSplashScreenParams}. This Bundle can also be assembled
+ * {@link TrustedWebActivityIntentBuilder#setSplashScreenParams}. This Bundle can also be assembled
  * manually and added to the launch Intent as an extra with the key
- * {@link TrustedWebActivityBuilder#EXTRA_SPLASH_SCREEN_PARAMS}.
+ * {@link TrustedWebActivityIntentBuilder#EXTRA_SPLASH_SCREEN_PARAMS}.
  */
 public final class SplashScreenParamKey {
     /**
