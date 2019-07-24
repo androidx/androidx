@@ -14,18 +14,32 @@
  * limitations under the License.
  */
 
-package androidx.swiperefreshlayout.widget;
+package androidx.testutils;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.test.espresso.action.CoordinatesProvider;
 
+/**
+ * Translates a {@link CoordinatesProvider} by the given x and y distances. The distances are given
+ * in pixels. Common providers to start with can be found in
+ * {@link androidx.test.espresso.action.GeneralLocation GeneralLocation}.
+ */
 public class TranslatedCoordinatesProvider implements CoordinatesProvider {
     private CoordinatesProvider mProvider;
     private float mDx;
     private float mDy;
 
+    /**
+     * Creates an instance of {@link TranslatedCoordinatesProvider}
+     *
+     * @param coordinatesProvider the {@link CoordinatesProvider} to translate
+     * @param dx the distance in x direction
+     * @param dy the distance in y direction
+     */
+    @SuppressLint("LambdaLast")
     public TranslatedCoordinatesProvider(@NonNull CoordinatesProvider coordinatesProvider, float dx,
             float dy) {
         mProvider = coordinatesProvider;
@@ -33,8 +47,9 @@ public class TranslatedCoordinatesProvider implements CoordinatesProvider {
         mDy = dy;
     }
 
+    @NonNull
     @Override
-    public float[] calculateCoordinates(View view) {
+    public float[] calculateCoordinates(@NonNull View view) {
         float[] coords = mProvider.calculateCoordinates(view);
         coords[0] += mDx;
         coords[1] += mDy;

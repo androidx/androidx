@@ -33,6 +33,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.testutils.PollingCheck;
+import androidx.testutils.SwipeInjector;
 
 import org.junit.Before;
 import org.junit.Rule;

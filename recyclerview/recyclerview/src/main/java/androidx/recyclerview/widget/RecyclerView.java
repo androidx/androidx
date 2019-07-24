@@ -1953,6 +1953,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 TYPE_TOUCH, mReusableIntPair);
         unconsumedX -= mReusableIntPair[0];
         unconsumedY -= mReusableIntPair[1];
+        boolean consumedNestedScroll = mReusableIntPair[0] != 0 || mReusableIntPair[1] != 0;
 
         // Update the last touch co-ords, taking any scroll offset into account
         mLastTouchX -= mScrollOffset[0];
@@ -1972,7 +1973,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (!awakenScrollBars()) {
             invalidate();
         }
-        return consumedX != 0 || consumedY != 0;
+        return consumedNestedScroll || consumedX != 0 || consumedY != 0;
     }
 
     /**
