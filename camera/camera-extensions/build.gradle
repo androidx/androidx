@@ -57,8 +57,7 @@ android {
     defaultConfig {
         minSdkVersion 21
 
-        // TODO: To use the separate version for extensions after new library item is created.
-        buildConfigField "String", "CAMERA_VERSION", "\"${LibraryVersions.CAMERA}\""
+        buildConfigField "String", "CAMERA_VERSION", "\"${LibraryVersions.CAMERA_EXTENSIONS}\""
     }
 }
 
