@@ -1,8 +1,9 @@
 // Signature format: 3.0
 package androidx.webkit {
 
-  public class ProxyConfig {
-    field public static final String DIRECT = "direct://";
+  public final class ProxyConfig {
+    method public java.util.List<java.lang.String!> getBypassRules();
+    method public java.util.List<androidx.core.util.Pair<java.lang.String!,java.lang.String!>!> getProxyRules();
     field public static final String MATCH_ALL_SCHEMES = "*";
     field public static final String MATCH_HTTP = "http";
     field public static final String MATCH_HTTPS = "https";
@@ -12,11 +13,13 @@ package androidx.webkit {
     ctor public ProxyConfig.Builder();
     ctor public ProxyConfig.Builder(androidx.webkit.ProxyConfig);
     method public androidx.webkit.ProxyConfig.Builder addBypassRule(String);
+    method public androidx.webkit.ProxyConfig.Builder addDirect(String);
+    method public androidx.webkit.ProxyConfig.Builder addDirect();
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String);
     method public androidx.webkit.ProxyConfig.Builder addProxyRule(String, String);
     method public androidx.webkit.ProxyConfig build();
     method public androidx.webkit.ProxyConfig.Builder bypassSimpleHostnames();
-    method public androidx.webkit.ProxyConfig.Builder subtractImplicitRules();
+    method public androidx.webkit.ProxyConfig.Builder removeImplicitRules();
   }
 
   public abstract class ProxyController {
