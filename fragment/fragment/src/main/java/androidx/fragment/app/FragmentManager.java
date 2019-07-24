@@ -136,28 +136,36 @@ public abstract class FragmentManager {
         /**
          * Return the full bread crumb title resource identifier for the entry,
          * or 0 if it does not have one.
+         * @deprecated Store breadcrumb titles separately from back stack entries.
          */
+        @Deprecated
         @StringRes
         int getBreadCrumbTitleRes();
 
         /**
          * Return the short bread crumb title resource identifier for the entry,
          * or 0 if it does not have one.
+         * @deprecated Store breadcrumb short titles separately from back stack entries.
          */
+        @Deprecated
         @StringRes
         int getBreadCrumbShortTitleRes();
 
         /**
          * Return the full bread crumb title for the entry, or null if it
          * does not have one.
+         * @deprecated Store breadcrumb titles separately from back stack entries.
          */
+        @Deprecated
         @Nullable
         CharSequence getBreadCrumbTitle();
 
         /**
          * Return the short bread crumb title for the entry, or null if it
          * does not have one.
+         * @deprecated Store breadcrumb short titles separately from back stack entries.
          */
+        @Deprecated
         @Nullable
         CharSequence getBreadCrumbShortTitle();
     }

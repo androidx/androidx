@@ -301,10 +301,10 @@ package androidx.fragment.app {
   }
 
   public static interface FragmentManager.BackStackEntry {
-    method public CharSequence? getBreadCrumbShortTitle();
-    method @StringRes public int getBreadCrumbShortTitleRes();
-    method public CharSequence? getBreadCrumbTitle();
-    method @StringRes public int getBreadCrumbTitleRes();
+    method @Deprecated public CharSequence? getBreadCrumbShortTitle();
+    method @Deprecated @StringRes public int getBreadCrumbShortTitleRes();
+    method @Deprecated public CharSequence? getBreadCrumbTitle();
+    method @Deprecated @StringRes public int getBreadCrumbTitleRes();
     method public int getId();
     method public String? getName();
   }
@@ -389,10 +389,10 @@ package androidx.fragment.app {
     method public androidx.fragment.app.FragmentTransaction replace(@IdRes int, androidx.fragment.app.Fragment, String?);
     method public androidx.fragment.app.FragmentTransaction runOnCommit(Runnable);
     method @Deprecated public androidx.fragment.app.FragmentTransaction setAllowOptimization(boolean);
-    method public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(@StringRes int);
-    method public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(CharSequence?);
-    method public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(@StringRes int);
-    method public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(CharSequence?);
+    method @Deprecated public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(@StringRes int);
+    method @Deprecated public androidx.fragment.app.FragmentTransaction setBreadCrumbShortTitle(CharSequence?);
+    method @Deprecated public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(@StringRes int);
+    method @Deprecated public androidx.fragment.app.FragmentTransaction setBreadCrumbTitle(CharSequence?);
     method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
     method public androidx.fragment.app.FragmentTransaction setCustomAnimations(@AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int, @AnimatorRes @AnimRes int);
     method public androidx.fragment.app.FragmentTransaction setMaxLifecycle(androidx.fragment.app.Fragment, androidx.lifecycle.Lifecycle.State);
