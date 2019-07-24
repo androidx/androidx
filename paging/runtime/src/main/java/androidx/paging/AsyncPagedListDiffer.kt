@@ -131,7 +131,6 @@ open class AsyncPagedListDiffer<T : Any> {
 
     @VisibleForTesting
     internal val listeners = CopyOnWriteArrayList<PagedListListener<T>>()
-    private var isContiguous: Boolean = false
     private var pagedList: PagedList<T>? = null
     private var snapshot: PagedList<T>? = null
 
@@ -282,16 +281,6 @@ open class AsyncPagedListDiffer<T : Any> {
      *                       it is committed.
      */
     open fun submitList(pagedList: PagedList<T>?, commitCallback: Runnable?) {
-        if (pagedList != null) {
-            if (currentList == null) {
-                isContiguous = pagedList.isContiguous
-            } else if (pagedList.isContiguous != isContiguous) {
-                throw IllegalArgumentException(
-                    "AsyncPagedListDiffer cannot handle both contiguous and non-contiguous lists."
-                )
-            }
-        }
-
         // incrementing generation means any currently-running diffs are discarded when they finish
         val runGeneration = ++maxScheduledGeneration
 

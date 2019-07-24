@@ -28,9 +28,6 @@ internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) :
         lastLoad = pagedList.lastLoad
     }
 
-    override val isContiguous
-        get() = pagedList.isContiguous
-
     override val isImmutable = true
 
     override val lastKey
