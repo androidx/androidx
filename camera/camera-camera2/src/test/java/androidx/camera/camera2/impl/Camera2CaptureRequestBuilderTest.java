@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.os.Build;
 import android.view.Surface;
 
 import androidx.camera.core.CaptureConfig;
@@ -30,6 +31,7 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.HashMap;
@@ -37,7 +39,9 @@ import java.util.HashMap;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class Camera2CaptureRequestBuilderTest {
+
     @Test
     public void buildCaptureRequestWithNullCameraDevice() throws CameraAccessException {
         CameraDevice cameraDevice = null;
