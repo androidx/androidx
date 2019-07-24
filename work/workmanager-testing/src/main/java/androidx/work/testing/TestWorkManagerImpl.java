@@ -54,7 +54,8 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
                 configuration,
                 new TaskExecutor() {
                     Executor mSynchronousExecutor = new SynchronousExecutor();
-                    Executor mBackgroundExecutor = new SerialExecutor(configuration.getExecutor());
+                    SerialExecutor mSerialExecutor =
+                            new SerialExecutor(configuration.getTaskExecutor());
 
                     @Override
                     public void postToMainThread(Runnable runnable) {
@@ -68,12 +69,12 @@ class TestWorkManagerImpl extends WorkManagerImpl implements TestDriver {
 
                     @Override
                     public void executeOnBackgroundThread(Runnable runnable) {
-                        mBackgroundExecutor.execute(runnable);
+                        mSerialExecutor.execute(runnable);
                     }
 
                     @Override
-                    public Executor getBackgroundExecutor() {
-                        return configuration.getExecutor();
+                    public SerialExecutor getBackgroundExecutor() {
+                        return mSerialExecutor;
                     }
                 },
                 true);

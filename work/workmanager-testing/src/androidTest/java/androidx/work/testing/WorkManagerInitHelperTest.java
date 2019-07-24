@@ -28,6 +28,7 @@ import androidx.test.filters.MediumTest;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.SerialExecutor;
 
 import org.junit.After;
 import org.junit.Before;
@@ -60,11 +61,13 @@ public class WorkManagerInitHelperTest {
     public void testWorkManagerIsInitialized() {
         Configuration configuration = new Configuration.Builder()
                 .setExecutor(mExecutor)
+                .setTaskExecutor(mExecutor)
                 .build();
 
         WorkManagerTestInitHelper.initializeTestWorkManager(mContext, configuration);
         WorkManagerImpl workManager = (WorkManagerImpl) WorkManager.getInstance(mContext);
         assertThat(workManager, is(notNullValue()));
-        assertThat(workManager.getWorkTaskExecutor().getBackgroundExecutor(), is(mExecutor));
+        SerialExecutor serialExecutor = workManager.getWorkTaskExecutor().getBackgroundExecutor();
+        assertThat(serialExecutor.getDelegatedExecutor(), is(mExecutor));
     }
 }

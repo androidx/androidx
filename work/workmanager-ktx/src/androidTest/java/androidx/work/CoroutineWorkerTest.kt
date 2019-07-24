@@ -25,6 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -197,6 +198,7 @@ class CoroutineWorkerTest {
     class InstantWorkTaskExecutor : TaskExecutor {
 
         private val mSynchronousExecutor = SynchronousExecutor()
+        private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
 
         override fun postToMainThread(runnable: Runnable) {
             runnable.run()
@@ -207,11 +209,11 @@ class CoroutineWorkerTest {
         }
 
         override fun executeOnBackgroundThread(runnable: Runnable) {
-            runnable.run()
+            mSerialExecutor.execute(runnable)
         }
 
-        override fun getBackgroundExecutor(): Executor {
-            return mSynchronousExecutor
+        override fun getBackgroundExecutor(): SerialExecutor {
+            return mSerialExecutor
         }
     }
 
