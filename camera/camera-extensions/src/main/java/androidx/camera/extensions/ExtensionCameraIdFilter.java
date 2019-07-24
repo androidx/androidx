@@ -17,20 +17,36 @@
 package androidx.camera.extensions;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraIdFilter;
-import androidx.camera.extensions.impl.ExtensionAvailability;
+import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.PreviewExtenderImpl;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Filter camera id by extension availability.
+ * Filter camera id by extender implementation. If the implementation is null, all the camera ids
+ * will be considered available.
  */
 public final class ExtensionCameraIdFilter implements CameraIdFilter {
-    private ExtensionAvailability mExtensionAvailability;
+    private PreviewExtenderImpl mPreviewExtenderImpl;
+    private ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
-    ExtensionCameraIdFilter(ExtensionAvailability extensionAvailability) {
-        mExtensionAvailability = extensionAvailability;
+    ExtensionCameraIdFilter(@Nullable PreviewExtenderImpl previewExtenderImpl) {
+        mPreviewExtenderImpl = previewExtenderImpl;
+        mImageCaptureExtenderImpl = null;
+    }
+
+    ExtensionCameraIdFilter(@Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
+        mPreviewExtenderImpl = null;
+        mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
+    }
+
+    ExtensionCameraIdFilter(@Nullable PreviewExtenderImpl previewExtenderImpl,
+            @Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl) {
+        mPreviewExtenderImpl = previewExtenderImpl;
+        mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
     @Override
@@ -38,8 +54,22 @@ public final class ExtensionCameraIdFilter implements CameraIdFilter {
     public Set<String> filter(@NonNull Set<String> cameraIdSet) {
         Set<String> resultCameraIdSet = new LinkedHashSet<>();
         for (String cameraId : cameraIdSet) {
-            if (mExtensionAvailability.isExtensionAvailable(cameraId,
-                    CameraUtil.getCameraCharacteristics(cameraId))) {
+            boolean available = true;
+
+            // If preview extender impl isn't null, check if the camera id is supported.
+            if (mPreviewExtenderImpl != null) {
+                available = mPreviewExtenderImpl.isExtensionAvailable(cameraId,
+                        CameraUtil.getCameraCharacteristics(cameraId));
+            }
+
+            // If image capture extender impl isn't null, check if the camera id is supported.
+            if (mImageCaptureExtenderImpl != null) {
+                available = mImageCaptureExtenderImpl.isExtensionAvailable(cameraId,
+                        CameraUtil.getCameraCharacteristics(cameraId));
+            }
+
+            // If the camera id is supported, add it to the result set.
+            if (available) {
                 resultCameraIdSet.add(cameraId);
             }
         }
