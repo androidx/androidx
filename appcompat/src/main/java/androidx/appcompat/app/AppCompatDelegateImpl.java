@@ -2286,10 +2286,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             } catch (IllegalStateException e) {
                 // applyOverrideConfiguration throws an IllegalStateException if its resources
                 // have already been created. Since there's no way to check this beforehand we
-                // just have to try it and catch the exception.
-                Log.e(TAG, "updateForNightMode. Calling applyOverrideConfiguration() failed"
-                        + " with an exception. Will fall back to using"
-                        + " Resources.updateConfiguration()", e);
+                // just have to try it and catch the exception. We only log if we're actually
+                // trying to apply a uiMode configuration though.
+                if (newNightMode != applicationNightMode) {
+                    Log.e(TAG, "updateForNightMode. Calling applyOverrideConfiguration() failed"
+                            + " with an exception. Will fall back to using"
+                            + " Resources.updateConfiguration()", e);
+                }
                 handled = false;
             }
         }
