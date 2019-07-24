@@ -180,6 +180,7 @@ package androidx.ui.core {
     method public static void WithDensity(kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,kotlin.Unit> block);
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
     method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
+    method public static androidx.compose.Ambient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
     method public static androidx.compose.CompositionContext? setContent(android.app.Activity, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public static androidx.compose.CompositionContext? setContent(android.view.ViewGroup, kotlin.jvm.functions.Function0<kotlin.Unit> content);
@@ -220,6 +221,11 @@ package androidx.ui.core.gesture {
     method public default androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
     method public default void onStart();
     method public default void onStop(androidx.ui.core.PxPosition velocity);
+  }
+
+  public final class LongPressGestureDetectorKt {
+    ctor public LongPressGestureDetectorKt();
+    method public static void LongPressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit> onLongPress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class PressGestureDetectorKt {

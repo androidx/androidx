@@ -45,6 +45,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+        <activity android:name=".gestures.LongPressGestureDetectorDemo"
+            android:configChanges="orientation|screenSize"
+            android:label="Gestures/Single GestureDetectors/LongPressGestureDetectorDemo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
         <activity android:name=".gestures.NestedScrollingDemo"
             android:configChanges="orientation|screenSize"
             android:label="Gestures/Complex Demos/Nested Scrolling">
