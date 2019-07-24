@@ -104,7 +104,7 @@ public class ProxyControllerTest {
         // Localhost should use proxy with loopback rule
         setProxyOverrideSync(new ProxyConfig.Builder()
                 .addProxyRule(proxyUrl)
-                .subtractImplicitRules()
+                .removeImplicitRules()
                 .build());
         mWebViewOnUiThread.loadUrl(contentUrl);
         assertNotNull(mProxyServer.takeRequest(WebkitUtils.TEST_TIMEOUT_MS,
