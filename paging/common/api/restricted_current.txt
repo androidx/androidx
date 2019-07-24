@@ -156,7 +156,6 @@ package androidx.paging {
     method public int getPositionOffset();
     method public int getSize();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final androidx.paging.PagedStorage<T> getStorage();
-    method public abstract boolean isContiguous();
     method public abstract boolean isDetached();
     method public boolean isImmutable();
     method public void loadAround(int index);
@@ -167,7 +166,6 @@ package androidx.paging {
     method public java.util.List<T> snapshot();
     property public androidx.paging.PagedList.Config config;
     property @Deprecated public final androidx.paging.DataSource<?,T> dataSource;
-    property public abstract boolean isContiguous;
     property public abstract boolean isDetached;
     property public boolean isImmutable;
     property public abstract Object? lastKey;
