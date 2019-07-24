@@ -17,6 +17,7 @@
 package androidx.work.impl.utils.taskexecutor;
 
 import androidx.annotation.RestrictTo;
+import androidx.work.impl.utils.SerialExecutor;
 
 import java.util.concurrent.Executor;
 
@@ -44,7 +45,7 @@ public interface TaskExecutor {
     void executeOnBackgroundThread(Runnable runnable);
 
     /**
-     * @return The {@link Executor} for background task processing
+     * @return The {@link SerialExecutor} for background task processing
      */
-    Executor getBackgroundExecutor();
+    SerialExecutor getBackgroundExecutor();
 }

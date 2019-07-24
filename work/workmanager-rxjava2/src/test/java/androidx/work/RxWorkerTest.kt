@@ -17,6 +17,7 @@
 package androidx.work
 
 import android.content.Context
+import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import io.reactivex.Single
@@ -140,6 +141,7 @@ class RxWorkerTest {
     class InstantWorkTaskExecutor : TaskExecutor {
 
         private val mSynchronousExecutor = SynchronousExecutor()
+        private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
 
         override fun postToMainThread(runnable: Runnable) {
             runnable.run()
@@ -150,11 +152,11 @@ class RxWorkerTest {
         }
 
         override fun executeOnBackgroundThread(runnable: Runnable) {
-            runnable.run()
+            mSerialExecutor.execute(runnable)
         }
 
-        override fun getBackgroundExecutor(): Executor {
-            return mSynchronousExecutor
+        override fun getBackgroundExecutor(): SerialExecutor {
+            return mSerialExecutor
         }
     }
 }

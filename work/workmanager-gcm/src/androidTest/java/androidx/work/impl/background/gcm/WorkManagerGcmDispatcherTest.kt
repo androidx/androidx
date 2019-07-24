@@ -25,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.SynchronousExecutor
 import com.google.android.gms.gcm.GcmNetworkManager
 import com.google.android.gms.gcm.TaskParams
@@ -63,7 +64,8 @@ class WorkManagerGcmDispatcherTest {
 
         val workTaskExecutor: androidx.work.impl.utils.taskexecutor.TaskExecutor =
             object : androidx.work.impl.utils.taskexecutor.TaskExecutor {
-                override fun postToMainThread(runnable: Runnable?) {
+                private val mSerialExecutor = SerialExecutor(mExecutor)
+                override fun postToMainThread(runnable: Runnable) {
                     mExecutor.execute(runnable)
                 }
 
@@ -71,12 +73,12 @@ class WorkManagerGcmDispatcherTest {
                     return mExecutor
                 }
 
-                override fun executeOnBackgroundThread(runnable: Runnable?) {
-                    mExecutor.execute(runnable)
+                override fun executeOnBackgroundThread(runnable: Runnable) {
+                    mSerialExecutor.execute(runnable)
                 }
 
-                override fun getBackgroundExecutor(): Executor {
-                    return mExecutor
+                override fun getBackgroundExecutor(): SerialExecutor {
+                    return mSerialExecutor
                 }
             }
 
