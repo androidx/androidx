@@ -29,16 +29,22 @@ import android.os.Build;
 
 import androidx.annotation.ColorRes;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
+import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowPendingIntent;
 
 /**
  * Tests for CustomTabsIntent.
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
+// minSdk For Bundle#getBinder
+@Config(minSdk = Build.VERSION_CODES.JELLY_BEAN_MR2, shadows = ShadowPendingIntent.class)
 @SmallTest
 public class CustomTabsIntentTest {
 
@@ -50,10 +56,6 @@ public class CustomTabsIntentTest {
         assertNull(customTabsIntent.startAnimationBundle);
 
         assertEquals(Intent.ACTION_VIEW, intent.getAction());
-        assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_SESSION));
-        if (Build.VERSION.SDK_INT >= 18) {
-            assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
-        }
         assertNull(intent.getComponent());
     }
 
@@ -112,5 +114,50 @@ public class CustomTabsIntentTest {
                     new CustomTabsIntent.Builder().setColorScheme(value).build().intent;
             assertEquals(value, intent.getIntExtra(CustomTabsIntent.EXTRA_COLOR_SCHEME, -1));
         }
+    }
+
+    @Test
+    public void hasNullSessionExtra_WhenBuiltWithDefaultConstructor() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+        assertNullSessionInExtras(intent);
+    }
+
+    @Test
+    public void hasNullSessionExtra_WhenBuiltWithNullSession() {
+        CustomTabsSession session = null;
+        Intent intent = new CustomTabsIntent.Builder(session).build().intent;
+        assertNullSessionInExtras(intent);
+    }
+
+    @Test
+    public void putsSessionBinderAndId_IfSuppliedInConstructor() {
+        CustomTabsSession session = TestUtil.makeMockSession();
+        Intent intent = new CustomTabsIntent.Builder(session).build().intent;
+        assertEquals(session.getBinder(),
+                intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
+        assertEquals(session.getId(), intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Test
+    public void putsSessionBinderAndId_IfSuppliedInSetter() {
+        CustomTabsSession session = TestUtil.makeMockSession();
+        Intent intent = new CustomTabsIntent.Builder().setSession(session).build().intent;
+        assertEquals(session.getBinder(),
+                intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
+        assertEquals(session.getId(), intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    @Test
+    public void putsPendingSessionId() {
+        CustomTabsSession.PendingSession pendingSession = TestUtil.makeMockPendingSession();
+        Intent intent = new CustomTabsIntent.Builder().setPendingSession(pendingSession).build()
+                .intent;
+        assertEquals(pendingSession.getId(),
+                intent.getParcelableExtra(CustomTabsIntent.EXTRA_SESSION_ID));
+    }
+
+    private void assertNullSessionInExtras(Intent intent) {
+        assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_SESSION));
+        assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
     }
 }

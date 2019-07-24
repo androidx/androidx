@@ -20,14 +20,17 @@ import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_DARK;
 import static androidx.browser.customtabs.CustomTabsIntent.COLOR_SCHEME_LIGHT;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import android.content.Intent;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.annotation.Nullable;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 
 /**
@@ -35,7 +38,8 @@ import org.junit.runner.RunWith;
  * In particular, for {@link CustomTabsIntent.Builder#setColorSchemeParams} and
  * {@link CustomTabsIntent#getColorSchemeParams}
  */
-@RunWith(AndroidJUnit4.class)
+@RunWith(RobolectricTestRunner.class)
+@DoNotInstrument
 @SmallTest
 public class CustomTabColorSchemeParamsTest {
     @Test
@@ -211,17 +215,26 @@ public class CustomTabColorSchemeParamsTest {
                 .build()
                 .intent;
 
-        assertEquals(defaultToolbarColor,
+        assertColorEquals(defaultToolbarColor,
                 intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
-        assertEquals(defaultSecondaryToolbarColor,
+        assertColorEquals(defaultSecondaryToolbarColor,
                 intent.getIntExtra(CustomTabsIntent.EXTRA_SECONDARY_TOOLBAR_COLOR, 0));
     }
 
 
     private void assertSchemeParamsEqual(CustomTabColorSchemeParams params1,
             CustomTabColorSchemeParams params2) {
-        assertEquals(params1.toolbarColor, params2.toolbarColor);
-        assertEquals(params1.secondaryToolbarColor, params2.secondaryToolbarColor);
-        assertEquals(params1.navigationBarColor, params2.navigationBarColor);
+        assertColorEquals(params1.toolbarColor, params2.toolbarColor);
+        assertColorEquals(params1.secondaryToolbarColor, params2.secondaryToolbarColor);
+        assertColorEquals(params1.navigationBarColor, params2.navigationBarColor);
+    }
+
+    // Compares colors ignoring alpha
+    private void assertColorEquals(@Nullable Integer color1, @Nullable Integer color2) {
+        if (color1 == null) {
+            assertNull(color2);
+        } else {
+            assertEquals(color1 & 0xffffff, color2 & 0xffffff);
+        }
     }
 }
