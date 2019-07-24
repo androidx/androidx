@@ -182,23 +182,36 @@ package androidx.ui.layout {
   public abstract sealed class TableColumnWidth {
   }
 
-  public static final class TableColumnWidth.Fixed extends androidx.ui.layout.TableColumnWidth {
-    ctor public TableColumnWidth.Fixed(internal androidx.ui.core.Dp width);
-    method public androidx.ui.layout.TableColumnWidth.Fixed copy(androidx.ui.core.Dp width);
+  public static final class TableColumnWidth.Flexible extends androidx.ui.layout.TableColumnWidth {
+    ctor public TableColumnWidth.Flexible(internal float flex);
+    method public androidx.ui.layout.TableColumnWidth.Flexible copy(float flex);
   }
 
-  public static final class TableColumnWidth.Flex extends androidx.ui.layout.TableColumnWidth {
-    ctor public TableColumnWidth.Flex(internal float flex);
-    method public androidx.ui.layout.TableColumnWidth.Flex copy(float flex);
+  public abstract static sealed class TableColumnWidth.Inflexible extends androidx.ui.layout.TableColumnWidth {
   }
 
-  public static final class TableColumnWidth.Fraction extends androidx.ui.layout.TableColumnWidth {
-    ctor public TableColumnWidth.Fraction(@FloatRange(from=null, to=null) internal float fraction);
-    method public androidx.ui.layout.TableColumnWidth.Fraction copy(float fraction);
+  public static final class TableColumnWidth.Inflexible.Fixed extends androidx.ui.layout.TableColumnWidth.Inflexible {
+    ctor public TableColumnWidth.Inflexible.Fixed(internal androidx.ui.core.Dp width);
+    method public androidx.ui.layout.TableColumnWidth.Inflexible.Fixed copy(androidx.ui.core.Dp width);
   }
 
-  public static final class TableColumnWidth.Wrap extends androidx.ui.layout.TableColumnWidth {
-    field public static final androidx.ui.layout.TableColumnWidth.Wrap! INSTANCE;
+  public static final class TableColumnWidth.Inflexible.Fraction extends androidx.ui.layout.TableColumnWidth.Inflexible {
+    ctor public TableColumnWidth.Inflexible.Fraction(@FloatRange(from=null, to=null) internal float fraction);
+    method public androidx.ui.layout.TableColumnWidth.Inflexible.Fraction copy(float fraction);
+  }
+
+  public static final class TableColumnWidth.Inflexible.Max extends androidx.ui.layout.TableColumnWidth.Inflexible {
+    ctor public TableColumnWidth.Inflexible.Max(internal androidx.ui.layout.TableColumnWidth.Inflexible a, internal androidx.ui.layout.TableColumnWidth.Inflexible b);
+    method public androidx.ui.layout.TableColumnWidth.Inflexible.Max copy(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
+  }
+
+  public static final class TableColumnWidth.Inflexible.Min extends androidx.ui.layout.TableColumnWidth.Inflexible {
+    ctor public TableColumnWidth.Inflexible.Min(internal androidx.ui.layout.TableColumnWidth.Inflexible a, internal androidx.ui.layout.TableColumnWidth.Inflexible b);
+    method public androidx.ui.layout.TableColumnWidth.Inflexible.Min copy(androidx.ui.layout.TableColumnWidth.Inflexible a, androidx.ui.layout.TableColumnWidth.Inflexible b);
+  }
+
+  public static final class TableColumnWidth.Inflexible.Wrap extends androidx.ui.layout.TableColumnWidth.Inflexible {
+    field public static final androidx.ui.layout.TableColumnWidth.Inflexible.Wrap! INSTANCE;
   }
 
   public final class TableKt {
