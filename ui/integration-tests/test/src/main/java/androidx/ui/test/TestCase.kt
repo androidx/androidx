@@ -41,6 +41,8 @@ abstract class TestCase(
     private val renderNode = RenderNode("test")
     private var canvas: Canvas? = null
 
+    var view: ViewGroup
+
     init {
         val displayMetrics = DisplayMetrics()
         activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
@@ -49,11 +51,21 @@ abstract class TestCase(
 
         screenWithSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
         screenHeightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST)
+        view = activity.findViewById(android.R.id.content)
     }
 
-    lateinit var view: ViewGroup
+    abstract fun setupContent(activity: Activity)
 
-    abstract fun runSetup()
+    /**
+     * Runs all the steps leading into drawing first pixels. Useful to get into the initial state
+     * before you benchmark a change of the state.
+     */
+    fun runToFirstDraw() {
+        setupContent(activity)
+        measure()
+        layout()
+        drawSlow()
+    }
 
     /**
      * To be run in benchmark.
@@ -107,6 +119,10 @@ abstract class TestCase(
         view.layout(view.left, view.top, view.right, view.bottom)
     }
 }
+
+abstract class AndroidTestCase(
+    activity: Activity
+) : TestCase(activity)
 
 abstract class ComposeTestCase(
     activity: Activity

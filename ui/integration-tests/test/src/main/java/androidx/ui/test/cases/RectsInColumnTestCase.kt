@@ -29,6 +29,7 @@ import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Column
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 
@@ -45,23 +46,19 @@ class RectsInColumnTestCase(
 
     private val states = mutableListOf<State<Color>>()
 
-    override fun runSetup() {
+    override fun setupContent(activity: Activity) {
         compositionContext = activity.setContent {
             MaterialTheme {
-                Column {
-                    repeat(amountOfRectangles) {
-                        ColoredRectWithModel()
+                Surface {
+                    Column {
+                        repeat(amountOfRectangles) {
+                            ColoredRectWithModel()
+                        }
                     }
                 }
             }
         }!!
         FrameManager.nextFrame()
-
-        view = activity.findViewById(android.R.id.content)
-
-        measure()
-        layout()
-        drawSlow()
     }
 
     override fun toggleState() {

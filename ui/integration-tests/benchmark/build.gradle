@@ -30,6 +30,7 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
     implementation(project(":ui:integration-tests:test"))
     implementation(project(":benchmark"))
+    implementation(project(":compose:compose-runtime"))
     implementation(KOTLIN_COMPOSE_STDLIB)
     implementation(JUNIT)
     androidTestImplementation(project(":ui:ui-core"))

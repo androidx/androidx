@@ -31,6 +31,7 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.FlexRow
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
 
@@ -45,18 +46,20 @@ class CheckboxesInRowsTestCase(
 
     private val states = mutableListOf<State<Boolean>>()
 
-    override fun runSetup() {
+    override fun setupContent(activity: Activity) {
         compositionContext = activity.setContent {
             MaterialTheme {
-                Column {
-                    repeat(amountOfCheckboxes) {
-                        FlexRow {
-                            inflexible {
-                                Text(text = "Check Me!")
-                            }
-                            expanded(1f) {
-                                Align(alignment = Alignment.CenterRight) {
-                                    CheckboxWithState()
+                Surface {
+                    Column {
+                        repeat(amountOfCheckboxes) {
+                            FlexRow {
+                                inflexible {
+                                    Text(text = "Check Me!")
+                                }
+                                expanded(1f) {
+                                    Align(alignment = Alignment.CenterRight) {
+                                        CheckboxWithState()
+                                    }
                                 }
                             }
                         }
@@ -65,12 +68,6 @@ class CheckboxesInRowsTestCase(
             }
         }!!
         FrameManager.nextFrame()
-
-        view = activity.findViewById(android.R.id.content)
-
-        measure()
-        layout()
-        drawSlow()
     }
 
     override fun toggleState() {

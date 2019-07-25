@@ -24,7 +24,7 @@ fun runComposeTestWithStateToggleAndAssertRecompositions(
     testCase: ComposeTestCase,
     toggleState: () -> Unit
 ) {
-    testCase.runSetup()
+    testCase.runToFirstDraw()
 
     testCase.assertMeasureSizeIsPositive()
 

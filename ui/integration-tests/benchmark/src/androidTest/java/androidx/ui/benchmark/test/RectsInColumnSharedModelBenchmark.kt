@@ -21,6 +21,10 @@ import androidx.benchmark.BenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.benchmark.measureDrawPerf
+import androidx.ui.benchmark.measureFirstCompose
+import androidx.ui.benchmark.measureFirstDraw
+import androidx.ui.benchmark.measureFirstLayout
+import androidx.ui.benchmark.measureFirstMeasure
 import androidx.ui.benchmark.measureLayoutPerf
 import androidx.ui.benchmark.toggleStateMeasureDraw
 import androidx.ui.benchmark.toggleStateMeasureLayout
@@ -56,6 +60,30 @@ class RectsInColumnSharedModelBenchmark(private val numberOfRectangles: Int) {
     val disableAnimationRule = DisableTransitions()
 
     private val activity: Activity get() = activityRule.activity
+
+    @Test
+    fun first_compose() {
+        benchmarkRule.measureFirstCompose(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
+    }
+
+    @Test
+    fun first_measure() {
+        benchmarkRule.measureFirstMeasure(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
+    }
+
+    @Test
+    fun first_layout() {
+        benchmarkRule.measureFirstLayout(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
+    }
+
+    @Test
+    fun first_draw() {
+        benchmarkRule.measureFirstDraw(activity,
+            RectsInColumnSharedModelTestCase(activity, numberOfRectangles))
+    }
 
     @Test
     fun toggleRectangleColor_recompose() {
