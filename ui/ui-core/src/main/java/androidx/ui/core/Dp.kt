@@ -17,6 +17,7 @@
 
 package androidx.ui.core
 
+import androidx.compose.Immutable
 import androidx.ui.core.Dp.Companion.Hairline
 import androidx.ui.lerp
 import kotlin.math.max
@@ -37,6 +38,7 @@ import kotlin.math.sqrt
  * [toPx] is normally needed only for painting operations.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 data /*inline*/ class Dp(val value: Float) {
     /**
      * Add two [Dp]s together.
@@ -222,6 +224,7 @@ fun lerp(a: Dp, b: Dp, t: Float): Dp {
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 inline class DpSquared(val value: Float) {
     /**
      * Add two DimensionSquares together.
@@ -287,6 +290,7 @@ inline class DpSquared(val value: Float) {
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 inline class DpCubed(val value: Float) {
 
     /**
@@ -345,6 +349,7 @@ inline class DpCubed(val value: Float) {
  *     val width = oldWidth * newTotalWidth / oldTotalWidth
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
+@Immutable
 inline class DpInverse(val value: Float) {
     /**
      * Add two DpInverse together.
@@ -401,6 +406,7 @@ inline class DpInverse(val value: Float) {
 /**
  * A two dimensional size using [Dp] for units
  */
+@Immutable
 data class Size(val width: Dp, val height: Dp)
 
 /**
@@ -414,6 +420,7 @@ fun Size.center(): Position {
 /**
  * A two-dimensional position using [Dp] for units
  */
+@Immutable
 data class Position(val x: Dp, val y: Dp) {
     /**
      * Subtract a [Position] from another one.
@@ -452,6 +459,7 @@ fun lerp(a: Position, b: Position, t: Float): Position =
 /**
  * A four dimensional bounds using [Dp] for units
  */
+@Immutable
 data class Bounds(
     val left: Dp,
     val top: Dp,
