@@ -44,11 +44,11 @@ dependencies {
 androidx {
     name = "Experimental annotation lint checks"
     toolingProject = true
-    publish = Publish.NONE
-    mavenVersion = LibraryVersions.ANNOTATION
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenVersion = LibraryVersions.ANNOTATION_EXPERIMENTAL
     mavenGroup = LibraryGroups.ANNOTATION
     inceptionYear = "2019"
-    description = "Lint checks for the experimental annotation library"
-    url = ARCHITECTURE_URL
+    description = "Lint checks for the Experimental annotation library. Also enforces the " +
+            "semantics of Kotlin @Experimental APIs from within Android Java source code."
     compilationTarget = CompilationTarget.HOST
 }
