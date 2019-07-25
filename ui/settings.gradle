@@ -20,7 +20,7 @@ def includeProject(name, filePath) {
 }
 
 includeProject(":annotation:annotation-sampled", "../annotation/annotation-sampled")
-includeProject(":benchmark", "../benchmark")
+includeProject(":benchmark:benchmark-common", "../benchmark/common")
 includeProject(":compose:compose-compiler", "../compose/compose-compiler")
 includeProject(":compose:compose-compiler-hosted", "../compose/compose-compiler-hosted")
 includeProject(":compose:compose-compiler-hosted:integration-tests", "../compose/compose-compiler-hosted/integration-tests")

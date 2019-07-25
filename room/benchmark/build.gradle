@@ -30,7 +30,7 @@ dependencies {
     androidTestImplementation(project(":sqlite:sqlite"))
     androidTestImplementation(project(":sqlite:sqlite-framework"))
     androidTestImplementation(ARCH_CORE_RUNTIME)
-    androidTestImplementation(project(":benchmark"))
+    androidTestImplementation(project(":benchmark:benchmark-common"))
     androidTestImplementation(RX_JAVA)
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)

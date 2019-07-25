@@ -44,7 +44,7 @@ dependencies {
     testImplementation(ANDROIDX_TEST_RUNNER)
     testImplementation(JUNIT)
 
-    androidTestImplementation project(":benchmark")
+    androidTestImplementation project(":benchmark:benchmark-common")
     androidTestImplementation project(":ui:ui-platform")
 
     androidTestImplementation(ANDROIDX_TEST_RULES)

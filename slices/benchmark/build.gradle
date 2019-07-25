@@ -28,7 +28,7 @@ dependencies {
     androidTestImplementation(project(":slice-view"))
     androidTestImplementation(project(":slice-core"))
     androidTestImplementation(project(":slice-builders"))
-    androidTestImplementation(project(":benchmark"))
+    androidTestImplementation(project(":benchmark:benchmark-common"))
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
