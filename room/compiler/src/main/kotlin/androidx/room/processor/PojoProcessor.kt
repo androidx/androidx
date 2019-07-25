@@ -79,7 +79,6 @@ class PojoProcessor private constructor(
     val bindingScope: FieldProcessor.BindingScope,
     val parent: EmbeddedField?,
     val referenceStack: LinkedHashSet<Name> = LinkedHashSet(),
-    val ignoredColumns: Set<String>,
     private val delegate: Delegate
 ) {
     val context = baseContext.fork(element)
@@ -97,8 +96,7 @@ class PojoProcessor private constructor(
             element: TypeElement,
             bindingScope: FieldProcessor.BindingScope,
             parent: EmbeddedField?,
-            referenceStack: LinkedHashSet<Name> = LinkedHashSet(),
-            ignoredColumns: Set<String> = emptySet()
+            referenceStack: LinkedHashSet<Name> = LinkedHashSet()
         ): PojoProcessor {
             val (pojoElement, delegate) = if (element.hasAnnotation(AutoValue::class)) {
                 val elementUtils = context.processingEnv.elementUtils
@@ -117,7 +115,6 @@ class PojoProcessor private constructor(
                     bindingScope = bindingScope,
                     parent = parent,
                     referenceStack = referenceStack,
-                    ignoredColumns = ignoredColumns,
                     delegate = delegate)
         }
     }
@@ -161,6 +158,10 @@ class PojoProcessor private constructor(
                     }
                 }
 
+        val ignoredColumns =
+            element.toAnnotationBox(androidx.room.Entity::class)?.value?.ignoredColumns?.toSet()
+                ?: emptySet()
+        val fieldBindingErrors = mutableMapOf<Field, String>()
         val unfilteredMyFields = allFields[null]
                 ?.map {
                     FieldProcessor(
@@ -168,10 +169,17 @@ class PojoProcessor private constructor(
                             containing = declaredType,
                             element = it,
                             bindingScope = bindingScope,
-                            fieldParent = parent).process()
+                            fieldParent = parent,
+                            onBindingError = { field, errorMsg ->
+                                fieldBindingErrors[field] = errorMsg
+                            }).process()
                 } ?: emptyList()
         val myFields = unfilteredMyFields.filterNot { ignoredColumns.contains(it.columnName) }
-
+        myFields.forEach { field ->
+            fieldBindingErrors[field]?.let {
+                context.logger.e(field.element, it)
+            }
+        }
         val unfilteredEmbeddedFields =
                 allFields[Embedded::class]
                         ?.mapNotNull {
