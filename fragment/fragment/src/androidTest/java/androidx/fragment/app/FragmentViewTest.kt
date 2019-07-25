@@ -249,7 +249,7 @@ class FragmentViewTest {
     // Removing a detached fragment should do nothing to the View and popping should bring
     // the Fragment back detached
     @Test
-    fun removeDetatchedView() {
+    fun removeDetachedView() {
         activityRule.setContentView(R.layout.simple_container)
         val container =
             activityRule.activity.findViewById<View>(R.id.fragmentContainer) as ViewGroup
@@ -492,7 +492,7 @@ class FragmentViewTest {
 
     // Detaching a detached fragment should not throw
     @Test
-    fun detachDetatched() {
+    fun detachDetached() {
         activityRule.setContentView(R.layout.simple_container)
         val fm = activityRule.activity.supportFragmentManager
         val fragment = StrictViewFragment()
