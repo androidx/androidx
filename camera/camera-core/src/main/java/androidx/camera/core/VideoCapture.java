@@ -225,7 +225,7 @@ public class VideoCapture extends UseCase {
      * called.
      *
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
-     * {@link OnVideoSavedListener#onError(UseCaseError, String, Throwable)}.
+     * {@link OnVideoSavedListener#onError(VideoCaptureError, String, Throwable)}.
      *
      * @param saveLocation Location to save the video capture
      * @param listener     Listener to call for the recorded video
@@ -241,7 +241,7 @@ public class VideoCapture extends UseCase {
      * called.
      *
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
-     * {@link OnVideoSavedListener#onError(UseCaseError, String, Throwable)}.
+     * {@link OnVideoSavedListener#onError(VideoCaptureError, String, Throwable)}.
      *
      * @param saveLocation Location to save the video capture
      * @param listener     Listener to call for the recorded video
@@ -253,7 +253,8 @@ public class VideoCapture extends UseCase {
 
         if (!mEndOfAudioVideoSignal.get()) {
             listener.onError(
-                    UseCaseError.RECORDING_IN_PROGRESS, "It is still in video recording!", null);
+                    VideoCaptureError.RECORDING_IN_PROGRESS, "It is still in video recording!",
+                    null);
             return;
         }
 
@@ -261,7 +262,7 @@ public class VideoCapture extends UseCase {
             // audioRecord start
             mAudioRecorder.startRecording();
         } catch (IllegalStateException e) {
-            listener.onError(UseCaseError.ENCODER_ERROR, "AudioRecorder start fail", e);
+            listener.onError(VideoCaptureError.ENCODER_ERROR, "AudioRecorder start fail", e);
             return;
         }
 
@@ -277,7 +278,7 @@ public class VideoCapture extends UseCase {
 
         } catch (IllegalStateException e) {
             setupEncoder(getAttachedSurfaceResolution(cameraId));
-            listener.onError(UseCaseError.ENCODER_ERROR, "Audio/Video encoder start fail", e);
+            listener.onError(VideoCaptureError.ENCODER_ERROR, "Audio/Video encoder start fail", e);
             return;
         }
 
@@ -309,7 +310,7 @@ public class VideoCapture extends UseCase {
             }
         } catch (IOException e) {
             setupEncoder(getAttachedSurfaceResolution(cameraId));
-            listener.onError(UseCaseError.MUXER_ERROR, "MediaMuxer creation failed!", e);
+            listener.onError(VideoCaptureError.MUXER_ERROR, "MediaMuxer creation failed!", e);
             return;
         }
 
@@ -344,8 +345,9 @@ public class VideoCapture extends UseCase {
      * VideoCapture#startRecording(File, OnVideoSavedListener, Metadata)} is called.
      *
      * <p>stopRecording() is asynchronous API. User need to check if {@link
-     * OnVideoSavedListener#onVideoSaved(File)} or {@link OnVideoSavedListener#onError(UseCaseError,
-     * String, Throwable)} be called before startRecording.
+     * OnVideoSavedListener#onVideoSaved(File)} or
+     * {@link OnVideoSavedListener#onError(VideoCaptureError, String, Throwable)} be called
+     * before startRecording.
      */
     public void stopRecording() {
         Log.i(TAG, "stopRecording");
@@ -581,7 +583,7 @@ public class VideoCapture extends UseCase {
                 case MediaCodec.INFO_OUTPUT_FORMAT_CHANGED:
                     if (mMuxerStarted) {
                         videoSavedListener.onError(
-                                UseCaseError.ENCODER_ERROR,
+                                VideoCaptureError.ENCODER_ERROR,
                                 "Unexpected change in video encoding format.",
                                 null);
                         errorOccurred = true;
@@ -611,7 +613,8 @@ public class VideoCapture extends UseCase {
             Log.i(TAG, "videoEncoder stop");
             mVideoEncoder.stop();
         } catch (IllegalStateException e) {
-            videoSavedListener.onError(UseCaseError.ENCODER_ERROR, "Video encoder stop failed!", e);
+            videoSavedListener.onError(VideoCaptureError.ENCODER_ERROR,
+                    "Video encoder stop failed!", e);
             errorOccurred = true;
         }
 
@@ -627,7 +630,7 @@ public class VideoCapture extends UseCase {
                 }
             }
         } catch (IllegalStateException e) {
-            videoSavedListener.onError(UseCaseError.MUXER_ERROR, "Muxer stop failed!", e);
+            videoSavedListener.onError(VideoCaptureError.MUXER_ERROR, "Muxer stop failed!", e);
             errorOccurred = true;
         }
 
@@ -702,13 +705,14 @@ public class VideoCapture extends UseCase {
             mAudioRecorder.stop();
         } catch (IllegalStateException e) {
             videoSavedListener.onError(
-                    UseCaseError.ENCODER_ERROR, "Audio recorder stop failed!", e);
+                    VideoCaptureError.ENCODER_ERROR, "Audio recorder stop failed!", e);
         }
 
         try {
             mAudioEncoder.stop();
         } catch (IllegalStateException e) {
-            videoSavedListener.onError(UseCaseError.ENCODER_ERROR, "Audio encoder stop failed!", e);
+            videoSavedListener.onError(VideoCaptureError.ENCODER_ERROR,
+                    "Audio encoder stop failed!", e);
         }
 
         Log.i(TAG, "Audio encode thread end");
@@ -823,11 +827,11 @@ public class VideoCapture extends UseCase {
      * Describes the error that occurred during video capture operations.
      *
      * <p>This is a parameter sent to the error callback functions set in listeners such as {@link
-     * VideoCapture.OnVideoSavedListener#onError(UseCaseError, String, Throwable)}.
+     * VideoCapture.OnVideoSavedListener#onError(VideoCaptureError, String, Throwable)}.
      *
      * <p>See message parameter in onError callback or log for more details.
      */
-    public enum UseCaseError {
+    public enum VideoCaptureError {
         /**
          * An unknown error occurred.
          *
@@ -850,10 +854,11 @@ public class VideoCapture extends UseCase {
     /** Listener containing callbacks for video file I/O events. */
     public interface OnVideoSavedListener {
         /** Called when the video has been successfully saved. */
-        void onVideoSaved(File file);
+        void onVideoSaved(@NonNull File file);
 
         /** Called when an error occurs while attempting to save the video. */
-        void onError(UseCaseError useCaseError, String message, @Nullable Throwable cause);
+        void onError(@NonNull VideoCaptureError videoCaptureError, @NonNull String message,
+                @Nullable Throwable cause);
     }
 
     /**
