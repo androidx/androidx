@@ -21,7 +21,9 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
+import androidx.ui.core.PxPosition
 import androidx.ui.core.ipx
+import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
 import androidx.ui.engine.geometry.Offset
@@ -313,7 +315,7 @@ class TextPainterIntegrationTest {
         )
         textPainter.layout(Constraints())
 
-        val selection = textPainter.getPositionForOffset(Offset(dx = 0f, dy = 0f))
+        val selection = textPainter.getOffsetForPosition(PxPosition.Origin)
 
         assertThat(selection).isEqualTo(0)
     }
@@ -342,8 +344,8 @@ class TextPainterIntegrationTest {
             )
             textPainter.layout(Constraints())
 
-            val selection = textPainter.getPositionForOffset(
-                offset = Offset(dx = fontSize.toPx().value * characterIndex + 1f, dy = 0f)
+            val selection = textPainter.getOffsetForPosition(
+                position = PxPosition((fontSize.toPx().value * characterIndex + 1).px, 0.px)
             )
 
             assertThat(selection).isEqualTo(characterIndex)
