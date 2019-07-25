@@ -38,7 +38,7 @@
         android:fillEnabled="true"
         android:fillBefore="true"
         android:fillAfter="true"
-        android:pathData="@anim/fast_out_extra_slow_in"
+        android:pathData="@anim/fragment_fast_out_extra_slow_in"
         android:duration="400"
         tools:targetApi="lollipop" />
 </set>
