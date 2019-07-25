@@ -1001,10 +1001,15 @@ class PostponedTransitionTest {
         assertThat(start.sharedElementReturn.targets.size).isEqualTo(0)
         assertThat(end.sharedElementReturn.targets.size).isEqualTo(0)
 
-        val blue = end.requireView().findViewById<View>(R.id.blueSquare)
-        assertThat(end.sharedElementEnter.targets.contains(blue)).isTrue()
-        assertThat(end.sharedElementEnter.targets[0].transitionName).isEqualTo("blueSquare")
-        assertThat(end.sharedElementEnter.targets[1].transitionName).isEqualTo("blueSquare")
+        // This checks need to be done on the mainThread to ensure that the shared element draw is
+        // complete. If these checks are not on the mainThread, there is a chance that this gets
+        // checked during OnShotPreDrawListener.onPreDraw, causing the name assert to fail.
+        activityRule.runOnUiThread {
+            val blue = end.requireView().findViewById<View>(R.id.blueSquare)
+            assertThat(end.sharedElementEnter.targets.contains(blue)).isTrue()
+            assertThat(end.sharedElementEnter.targets[0].transitionName).isEqualTo("blueSquare")
+            assertThat(end.sharedElementEnter.targets[1].transitionName).isEqualTo("blueSquare")
+        }
 
         assertNoTargets(start)
         assertNoTargets(end)
@@ -1034,10 +1039,15 @@ class PostponedTransitionTest {
         assertThat(start.sharedElementReturn.targets.size).isEqualTo(2)
         assertThat(end.sharedElementReturn.targets.size).isEqualTo(0)
 
-        val blue = end.requireView().findViewById<View>(R.id.blueSquare)
-        assertThat(start.sharedElementReturn.targets.contains(blue)).isTrue()
-        assertThat(start.sharedElementReturn.targets[0].transitionName).isEqualTo("blueSquare")
-        assertThat(start.sharedElementReturn.targets[1].transitionName).isEqualTo("blueSquare")
+        // This checks need to be done on the mainThread to ensure that the shared element draw is
+        // complete. If these checks are not on the mainThread, there is a chance that this gets
+        // checked during OnShotPreDrawListener.onPreDraw, causing the name assert to fail.
+        activityRule.runOnUiThread {
+            val blue = end.requireView().findViewById<View>(R.id.blueSquare)
+            assertThat(start.sharedElementReturn.targets.contains(blue)).isTrue()
+            assertThat(start.sharedElementReturn.targets[0].transitionName).isEqualTo("blueSquare")
+            assertThat(start.sharedElementReturn.targets[1].transitionName).isEqualTo("blueSquare")
+        }
 
         assertNoTargets(end)
         assertNoTargets(start)
