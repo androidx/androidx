@@ -35,7 +35,7 @@ import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
      * image source tint lists on the same image source.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testImageTintingAcrossStateChange() {
         final @IdRes int viewId = R.id.view_tinted_source;
         final Resources res = mActivity.getResources();
@@ -143,7 +143,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
      * image source tinting mode.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testImageTintingAcrossModeChange() {
         final @IdRes int viewId = R.id.view_untinted_source;
         final Resources res = mActivity.getResources();
@@ -214,7 +214,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
      * Tests for behavior around setting a tint list without setting a tint mode
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testImageTintingWithDefaultMode() {
         final @IdRes int viewId = R.id.view_untinted_source;
         final Resources res = mActivity.getResources();
@@ -254,7 +254,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
      * is applied correctly after changing the image source itself.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testImageOpaqueTintingAcrossImageChange() {
         final @IdRes int viewId = R.id.view_tinted_no_source;
         final Resources res = mActivity.getResources();
@@ -309,7 +309,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
      * is applied correctly after changing the image source itself.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testImageTranslucentTintingAcrossImageChange() {
         final @IdRes int viewId = R.id.view_untinted_no_source;
         final Resources res = mActivity.getResources();
@@ -399,7 +399,7 @@ public abstract class AppCompatBaseImageViewTest<T extends ImageView>
      * affect the tinting of the image source.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testImageTintingAcrossBackgroundTintingChange() {
         final @IdRes int viewId = R.id.view_untinted_source;
         final Resources res = mActivity.getResources();
