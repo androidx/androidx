@@ -21,6 +21,7 @@ import android.media.ImageReader;
 
 import androidx.annotation.GuardedBy;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,7 +40,8 @@ final class ForwardingImageReaderListener implements ImageReader.OnImageAvailabl
      * @return new {@link ForwardingImageReaderListener} instance
      */
     ForwardingImageReaderListener(List<QueuedImageReaderProxy> imageReaders) {
-        mImageReaders = Collections.unmodifiableList(imageReaders);
+        // Make a copy of the incoming List to avoid ConcurrentAccessException.
+        mImageReaders = Collections.unmodifiableList(new ArrayList<>(imageReaders));
     }
 
     @Override
