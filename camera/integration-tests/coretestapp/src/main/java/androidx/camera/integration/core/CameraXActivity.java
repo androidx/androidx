@@ -40,7 +40,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -492,7 +491,7 @@ public class CameraXActivity extends AppCompatActivity
                                                 + ".jpg"),
                                 new ImageCapture.OnImageSavedListener() {
                                     @Override
-                                    public void onImageSaved(@NonNull File file) {
+                                    public void onImageSaved(File file) {
                                         Log.d(TAG, "Saved image to " + file);
                                         if (!mImageSavedIdlingResource.isIdleNow()) {
                                             mImageSavedIdlingResource.decrement();
@@ -512,8 +511,8 @@ public class CameraXActivity extends AppCompatActivity
 
                                     @Override
                                     public void onError(
-                                            @NonNull ImageCapture.ImageCaptureError error,
-                                            @NonNull String message,
+                                            ImageCapture.UseCaseError useCaseError,
+                                            String message,
                                             Throwable cause) {
                                         Log.e(TAG, "Failed to save image.", cause);
                                         if (!mImageSavedIdlingResource.isIdleNow()) {

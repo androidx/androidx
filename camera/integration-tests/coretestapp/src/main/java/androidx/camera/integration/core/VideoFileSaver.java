@@ -19,11 +19,10 @@ package androidx.camera.integration.core;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
-import androidx.camera.core.VideoCapture.VideoCaptureError;
+import androidx.camera.core.VideoCapture.UseCaseError;
 
 import java.io.File;
 import java.text.Format;
@@ -44,7 +43,7 @@ public class VideoFileSaver implements OnVideoSavedListener {
     private boolean mIsSaving = false;
 
     @Override
-    public void onVideoSaved(@NonNull File file) {
+    public void onVideoSaved(File file) {
 
         Log.d(TAG, "Saved file: " + file.getPath());
         synchronized (mLock) {
@@ -53,10 +52,9 @@ public class VideoFileSaver implements OnVideoSavedListener {
     }
 
     @Override
-    public void onError(@NonNull VideoCaptureError videoCaptureError, @NonNull String message,
-            @Nullable Throwable cause) {
+    public void onError(UseCaseError useCaseError, String message, @Nullable Throwable cause) {
 
-        Log.e(TAG, "Error: " + videoCaptureError + ", " + message);
+        Log.e(TAG, "Error: " + useCaseError + ", " + message);
         if (cause != null) {
             Log.e(TAG, "Error cause: " + cause.getCause());
         }
