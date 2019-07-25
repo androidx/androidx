@@ -22,6 +22,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.R
 import androidx.ui.test.TestCase
 
@@ -31,11 +32,11 @@ import androidx.ui.test.TestCase
 class AndroidCheckboxesInLinearLayoutTestCase(
     activity: Activity,
     private val amountOfCheckboxes: Int
-) : TestCase(activity) {
+) : AndroidTestCase(activity) {
 
     private val checkboxes = mutableListOf<CheckBox>()
 
-    override fun runSetup() {
+    override fun setupContent(activity: Activity) {
         val column = LinearLayout(activity)
         column.orientation = LinearLayout.VERTICAL
         column.layoutParams = ViewGroup.LayoutParams(
@@ -72,13 +73,7 @@ class AndroidCheckboxesInLinearLayoutTestCase(
             row.addView(checkbox)
             column.addView(row)
         }
-
-        view = column
         activity.setContentView(column)
-
-        measure()
-        layout()
-        drawSlow()
     }
 
     fun toggleState() {

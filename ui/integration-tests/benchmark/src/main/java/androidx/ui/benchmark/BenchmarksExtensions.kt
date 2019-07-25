@@ -20,6 +20,8 @@ import android.app.Activity
 import android.view.View
 import androidx.benchmark.BenchmarkRule
 import androidx.benchmark.measureRepeated
+import androidx.compose.disposeComposition
+import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.TestCase
 import androidx.ui.test.ToggleableTestCase
@@ -30,11 +32,11 @@ import androidx.ui.test.requestLayout
 import androidx.ui.test.runOnUiThreadSync
 
 /**
- * Measures measure and layout performance of the given testCase by toggling measure constraints.
+ * Measures measure and layout performance of the given test case by toggling measure constraints.
  */
 fun BenchmarkRule.measureLayoutPerf(activity: Activity, testCase: TestCase) {
     activity.runOnUiThreadSync {
-        testCase.runSetup()
+        testCase.runToFirstDraw()
 
         val width = testCase.view.measuredWidth
         val height = testCase.view.measuredHeight
@@ -66,15 +68,19 @@ fun BenchmarkRule.measureLayoutPerf(activity: Activity, testCase: TestCase) {
             testCase.measureWithSpec(widthSpec, heightSpec)
             testCase.layout()
         }
+
+        if (testCase is ComposeTestCase) {
+            activity.disposeComposition()
+        }
     }
 }
 
 /**
- * Measures draw performance of the given testCase by invalidating the view hierarchy.
+ * Measures draw performance of the given test case by invalidating the view hierarchy.
  */
 fun BenchmarkRule.measureDrawPerf(activity: Activity, testCase: TestCase) {
     activity.runOnUiThreadSync {
-        testCase.runSetup()
+        testCase.runToFirstDraw()
 
         measureRepeated {
             runWithTimingDisabled {
@@ -84,6 +90,125 @@ fun BenchmarkRule.measureDrawPerf(activity: Activity, testCase: TestCase) {
             testCase.draw()
             runWithTimingDisabled {
                 testCase.finishDraw()
+            }
+        }
+
+        if (testCase is ComposeTestCase) {
+            activity.disposeComposition()
+        }
+    }
+}
+
+/**
+ * Measures the time of the first composition of the given compose test case.
+ */
+fun BenchmarkRule.measureFirstCompose(
+    activity: Activity,
+    testCase: ComposeTestCase
+) {
+    activity.runOnUiThreadSync {
+        measureRepeated {
+            testCase.setupContent(activity)
+            runWithTimingDisabled {
+                testCase.recomposeSyncAssertNoChanges()
+                activity.disposeComposition()
+            }
+        }
+    }
+}
+
+/**
+ * Measures the time of the first set content of the given Android test case.
+ */
+fun BenchmarkRule.measureFirstSetContent(
+    activity: Activity,
+    testCase: AndroidTestCase
+) {
+    activity.runOnUiThreadSync {
+        measureRepeated {
+            testCase.setupContent(activity)
+        }
+    }
+}
+
+/**
+ * Measures the time of the first measure of the given test case.
+ */
+fun BenchmarkRule.measureFirstMeasure(
+    activity: Activity,
+    testCase: TestCase
+) {
+    activity.runOnUiThreadSync {
+        measureRepeated {
+            runWithTimingDisabled {
+                testCase.setupContent(activity)
+                testCase.requestLayout()
+            }
+
+            testCase.measure()
+
+            runWithTimingDisabled {
+                if (testCase is ComposeTestCase) {
+                    testCase.recomposeSyncAssertNoChanges()
+                    activity.disposeComposition()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Measures the time of the first layout of the given test case.
+ */
+fun BenchmarkRule.measureFirstLayout(
+    activity: Activity,
+    testCase: TestCase
+) {
+    activity.runOnUiThreadSync {
+        measureRepeated {
+            runWithTimingDisabled {
+                testCase.setupContent(activity)
+                testCase.requestLayout()
+                testCase.measure()
+            }
+
+            testCase.layout()
+
+            runWithTimingDisabled {
+                if (testCase is ComposeTestCase) {
+                    testCase.recomposeSyncAssertNoChanges()
+                    activity.disposeComposition()
+                }
+            }
+        }
+    }
+}
+
+/**
+ * Measures the time of the first draw of the given test case.
+ */
+fun BenchmarkRule.measureFirstDraw(
+    activity: Activity,
+    testCase: TestCase
+) {
+    activity.runOnUiThreadSync {
+        measureRepeated {
+            runWithTimingDisabled {
+                testCase.setupContent(activity)
+                testCase.requestLayout()
+                testCase.measure()
+                testCase.layout()
+                testCase.prepareDraw()
+            }
+
+            testCase.draw()
+
+            runWithTimingDisabled {
+                testCase.finishDraw()
+                if (testCase is ComposeTestCase) {
+                    testCase.recomposeSyncAssertNoChanges()
+                    activity.disposeComposition()
+                }
             }
         }
     }
@@ -96,30 +221,19 @@ fun <T> BenchmarkRule.toggleStateMeasureRecompose(
     activity: Activity,
     testCase: T
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    toggleStateMeasureMeasure(activity, testCase) {
-        testCase.toggleState()
-    }
-}
-
-/**
- *  Measures recomposition time of the hierarchy after changing a state.
- */
-fun BenchmarkRule.toggleStateMeasureRecompose(
-    activity: Activity,
-    testCase: ComposeTestCase,
-    toggleState: () -> Unit
-) {
     activity.runOnUiThreadSync {
-        testCase.runSetup()
+        testCase.runToFirstDraw()
         testCase.recomposeSyncAssertNoChanges()
 
         measureRepeated {
             runWithTimingDisabled {
-                toggleState()
+                testCase.toggleState()
             }
             testCase.recomposeSyncAssertHadChanges()
         }
     }
+
+    activity.disposeComposition()
 }
 
 /**
@@ -129,32 +243,21 @@ fun <T> BenchmarkRule.toggleStateMeasureMeasure(
     activity: Activity,
     testCase: T
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    toggleStateMeasureMeasure(activity, testCase) {
-        testCase.toggleState()
-    }
-}
-
-/**
- *  Measures measure time of the hierarchy after changing a state.
- */
-fun BenchmarkRule.toggleStateMeasureMeasure(
-    activity: Activity,
-    testCase: ComposeTestCase,
-    toggleState: () -> Unit
-) {
     activity.runOnUiThreadSync {
-        testCase.runSetup()
+        testCase.runToFirstDraw()
         testCase.recomposeSyncAssertNoChanges()
 
         measureRepeated {
             runWithTimingDisabled {
-                toggleState()
+                testCase.toggleState()
                 testCase.recomposeSyncAssertHadChanges()
                 testCase.requestLayout()
             }
             testCase.measure()
         }
     }
+
+    activity.disposeComposition()
 }
 
 /**
@@ -164,26 +267,13 @@ fun <T> BenchmarkRule.toggleStateMeasureLayout(
     activity: Activity,
     testCase: T
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    toggleStateMeasureLayout(activity, testCase) {
-        testCase.toggleState()
-    }
-}
-
-/**
- *  Measures layout time of the hierarchy after changing a state.
- */
-fun BenchmarkRule.toggleStateMeasureLayout(
-    activity: Activity,
-    testCase: ComposeTestCase,
-    toggleState: () -> Unit
-) {
     activity.runOnUiThreadSync {
-        testCase.runSetup()
+        testCase.runToFirstDraw()
         testCase.recomposeSyncAssertNoChanges()
 
         measureRepeated {
             runWithTimingDisabled {
-                toggleState()
+                testCase.toggleState()
                 testCase.recomposeSyncAssertHadChanges()
                 testCase.requestLayout()
                 testCase.measure()
@@ -191,6 +281,8 @@ fun BenchmarkRule.toggleStateMeasureLayout(
             testCase.layout()
         }
     }
+
+    activity.disposeComposition()
 }
 
 /**
@@ -200,26 +292,13 @@ fun <T> BenchmarkRule.toggleStateMeasureDraw(
     activity: Activity,
     testCase: T
 ) where T : ComposeTestCase, T : ToggleableTestCase {
-    toggleStateMeasureDraw(activity, testCase) {
-        testCase.toggleState()
-    }
-}
-
-/**
- *  Measures draw time of the hierarchy after changing a state.
- */
-fun BenchmarkRule.toggleStateMeasureDraw(
-    activity: Activity,
-    testCase: ComposeTestCase,
-    toggleState: () -> Unit
-) {
     activity.runOnUiThreadSync {
-        testCase.runSetup()
+        testCase.runToFirstDraw()
         testCase.recomposeSyncAssertNoChanges()
 
         measureRepeated {
             runWithTimingDisabled {
-                toggleState()
+                testCase.toggleState()
                 testCase.recomposeSyncAssertHadChanges()
                 testCase.requestLayout()
                 testCase.measure()
@@ -232,4 +311,6 @@ fun BenchmarkRule.toggleStateMeasureDraw(
             }
         }
     }
+
+    activity.disposeComposition()
 }

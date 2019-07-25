@@ -21,6 +21,10 @@ import androidx.benchmark.BenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.benchmark.measureDrawPerf
+import androidx.ui.benchmark.measureFirstDraw
+import androidx.ui.benchmark.measureFirstLayout
+import androidx.ui.benchmark.measureFirstMeasure
+import androidx.ui.benchmark.measureFirstSetContent
 import androidx.ui.benchmark.measureLayoutPerf
 import androidx.ui.test.DisableTransitions
 import androidx.ui.test.cases.view.AndroidCheckboxesInLinearLayoutTestCase
@@ -51,15 +55,41 @@ class AndroidCheckboxesInLinearLayoutBenchmark(private val numberOfCheckboxes: I
     @get:Rule
     val disableAnimationRule = DisableTransitions()
 
+    private val activity: Activity get() = activityRule.activity
+
+    @Test
+    fun first_setContent() {
+        benchmarkRule.measureFirstSetContent(activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activity, numberOfCheckboxes))
+    }
+
+    @Test
+    fun first_measure() {
+        benchmarkRule.measureFirstMeasure(activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activity, numberOfCheckboxes))
+    }
+
+    @Test
+    fun first_layout() {
+        benchmarkRule.measureFirstLayout(activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activity, numberOfCheckboxes))
+    }
+
+    @Test
+    fun first_draw() {
+        benchmarkRule.measureFirstDraw(activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activity, numberOfCheckboxes))
+    }
+
     @Test
     fun layout() {
-        benchmarkRule.measureLayoutPerf(activityRule.activity,
-            AndroidCheckboxesInLinearLayoutTestCase(activityRule.activity, numberOfCheckboxes))
+        benchmarkRule.measureLayoutPerf(activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activity, numberOfCheckboxes))
     }
 
     @Test
     fun draw() {
-        benchmarkRule.measureDrawPerf(activityRule.activity,
-            AndroidCheckboxesInLinearLayoutTestCase(activityRule.activity, numberOfCheckboxes))
+        benchmarkRule.measureDrawPerf(activity,
+            AndroidCheckboxesInLinearLayoutTestCase(activity, numberOfCheckboxes))
     }
 }
