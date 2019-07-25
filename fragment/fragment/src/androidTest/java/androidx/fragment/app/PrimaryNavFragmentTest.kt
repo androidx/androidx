@@ -17,10 +17,15 @@
 package androidx.fragment.app
 
 import android.app.Activity
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.ViewGroup
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
+import androidx.testutils.runOnUiThreadRethrow
+import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
 import org.junit.Test
@@ -254,11 +259,86 @@ class PrimaryNavFragmentTest {
             .isSameInstanceAs(strictFragment1)
     }
 
+    @Test
+    fun replacePostponedFragment() {
+        val fm = activityRule.activity.supportFragmentManager
+        val strictFragment = spy(StrictViewFragment())
+        val postponedFragment = spy(PostponedFragment())
+        val replacementFragment = spy(StrictFragment())
+        val inOrder = inOrder(strictFragment, postponedFragment, replacementFragment)
+
+        fm.beginTransaction()
+            .add(android.R.id.content, strictFragment)
+            .setPrimaryNavigationFragment(strictFragment)
+            .setReorderingAllowed(true)
+            .commit()
+        executePendingTransactions(fm)
+
+        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        assertWithMessage("new fragment is not primary nav fragment")
+            .that(fm.primaryNavigationFragment)
+            .isSameInstanceAs(strictFragment)
+
+        fm.beginTransaction()
+            .replace(android.R.id.content, postponedFragment)
+            .setPrimaryNavigationFragment(postponedFragment)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+        activityRule.waitForExecution()
+
+        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(false)
+        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(true)
+        inOrder.verify(postponedFragment).onPrimaryNavigationFragmentChanged(false)
+        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        assertWithMessage("primary nav fragment not set correctly after replace")
+            .that(fm.primaryNavigationFragment)
+            .isSameInstanceAs(strictFragment)
+
+        // Now pop the back stack and also add a replacement Fragment
+        fm.popBackStack()
+        fm.beginTransaction()
+            .replace(android.R.id.content, replacementFragment)
+            .setPrimaryNavigationFragment(replacementFragment)
+            .setReorderingAllowed(true)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(false)
+        inOrder.verify(replacementFragment).onPrimaryNavigationFragmentChanged(true)
+        assertWithMessage("primary nav fragment not set correctly after replace")
+            .that(fm.primaryNavigationFragment)
+            .isSameInstanceAs(replacementFragment)
+
+        // Now go back to the first Fragment
+        activityRule.onBackPressed()
+
+        inOrder.verify(replacementFragment).onPrimaryNavigationFragmentChanged(false)
+        inOrder.verify(strictFragment).onPrimaryNavigationFragmentChanged(true)
+        assertWithMessage("primary nav fragment is restored after replace")
+            .that(fm.primaryNavigationFragment)
+            .isSameInstanceAs(strictFragment)
+        assertWithMessage("Only the first Fragment should exist on the FragmentManager")
+            .that(fm.fragments)
+            .containsExactly(strictFragment)
+    }
+
     private fun executePendingTransactions(fm: FragmentManager) {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
 
-    private fun ActivityTestRule<out Activity>.onBackPressed() = runOnUiThread {
+    private fun ActivityTestRule<out Activity>.onBackPressed() = runOnUiThreadRethrow {
         activity.onBackPressed()
+    }
+
+    open class PostponedFragment : StrictViewFragment() {
+        override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+        ) = super.onCreateView(inflater, container, savedInstanceState).also {
+            postponeEnterTransition()
+        }
     }
 }
