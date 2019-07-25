@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.junit4
 
 import androidx.test.filters.LargeTest
 import org.junit.Assert.assertTrue
@@ -37,7 +37,7 @@ class BenchmarkRuleTest {
                 Thread.sleep(5)
             }
         }
-        val min = benchmarkRule.getState().stats.min
+        val min = benchmarkRule.getState().getMin()
         assertTrue("minimum $min should be less than 1ms",
             min < TimeUnit.MILLISECONDS.toNanos(1))
     }

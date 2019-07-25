@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.junit4
 
+import androidx.benchmark.IsolationActivity
+import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.SmallTest
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class BenchmarkRuleAnnotationTest {
-    @Suppress("MemberVisibilityCanBePrivate") // intentionally public
-    // NOTE: not annotated, so will throw when state is accessed
-    val unannotatedRule = BenchmarkRule(enableReport = false)
-
-    @Test(expected = IllegalStateException::class)
-    fun throwsIfNotAnnotated() {
-        unannotatedRule.getState()
-    }
-
-    @Test(expected = IllegalStateException::class)
-    fun throwsIfNotAnnotatedMeasure() {
-        unannotatedRule.measureRepeated { }
+class AndroidBenchmarkRunnerTest {
+    @UiThreadTest
+    @Test
+    fun checkActivityVisibility() {
+        assertTrue(IsolationActivity.resumed)
     }
 }

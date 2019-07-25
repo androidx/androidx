@@ -18,8 +18,8 @@ package androidx.ui.benchmark
 
 import android.app.Activity
 import android.view.View
-import androidx.benchmark.BenchmarkRule
-import androidx.benchmark.measureRepeated
+import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.disposeComposition
 import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.ComposeTestCase

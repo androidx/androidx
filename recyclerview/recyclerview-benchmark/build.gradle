@@ -24,7 +24,7 @@ plugins {
 dependencies {
     androidTestImplementation(project(":appcompat"))
     androidTestImplementation(project(":recyclerview:recyclerview"))
-    androidTestImplementation(project(":benchmark:benchmark-common"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(JUNIT)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)

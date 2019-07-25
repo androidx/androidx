@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.junit4
 
 import androidx.annotation.CallSuper
+import androidx.benchmark.IsolationActivity
 import androidx.test.runner.AndroidJUnitRunner
 
 /**

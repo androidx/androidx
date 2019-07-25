@@ -20,8 +20,8 @@ package androidx.slice;
 import android.content.Context;
 import android.net.Uri;
 
-import androidx.benchmark.BenchmarkRule;
 import androidx.benchmark.BenchmarkState;
+import androidx.benchmark.junit4.BenchmarkRule;
 import androidx.slice.widget.SliceView;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;

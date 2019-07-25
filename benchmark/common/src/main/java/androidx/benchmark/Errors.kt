@@ -26,7 +26,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 
 /**
- * Lazy-initialized test-suite global state for warnings around measurement inaccuracy.
+ * Lazy-initialized test-suite global state for errors around measurement inaccuracy.
  */
 internal object Errors {
     /**
@@ -44,7 +44,7 @@ internal object Errors {
 
     private const val TAG = "Benchmark"
 
-    val WARNING_PREFIX: String
+    val PREFIX: String
     val UNSUPPRESSED_WARNING_MESSAGE: String?
     private var warningString: String? = null
 
@@ -190,13 +190,13 @@ internal object Errors {
             """.trimMarginWrapNewlines()
         }
 
-        WARNING_PREFIX = warningPrefix
+        PREFIX = warningPrefix
         if (warningString.isNotEmpty()) {
             this.warningString = warningString
             warningString.split("\n").map { Log.w(TAG, it) }
         }
 
-        val warningSet = WARNING_PREFIX
+        val warningSet = PREFIX
             .split('_')
             .filter { it.isNotEmpty() }
             .toSet()

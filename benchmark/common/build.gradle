@@ -25,27 +25,20 @@ plugins {
     id("kotlin-android")
 }
 
-android {
-    defaultConfig {
-        testInstrumentationRunner "androidx.benchmark.AndroidBenchmarkRunner"
-    }
-}
-
 dependencies {
-    implementation(ANDROIDX_TEST_RULES)
-    implementation(ANDROIDX_TEST_RUNNER)
     implementation(KOTLIN_STDLIB)
     implementation(SUPPORT_ANNOTATIONS)
+    implementation(ANDROIDX_TEST_MONITOR)
 
-    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
 }
 
 androidx {
-    name = "Android Benchmark"
+    name = "Android Benchmark Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.BENCHMARK
     mavenGroup = LibraryGroups.BENCHMARK
     inceptionYear = "2018"
-    description = "Android Benchmark"
+    description = "Android Benchmark Common"
 }

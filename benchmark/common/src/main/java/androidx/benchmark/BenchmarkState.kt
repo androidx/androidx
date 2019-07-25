@@ -22,9 +22,10 @@ import android.os.Bundle
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.IntRange
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.benchmark.Errors.PREFIX
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.fail
 import java.io.File
 import java.text.NumberFormat
 import java.util.ArrayList
@@ -53,7 +54,12 @@ import java.util.concurrent.TimeUnit
  *
  * @see BenchmarkRule#getState()
  */
-class BenchmarkState internal constructor() {
+class BenchmarkState {
+    /** @hide */
+    @Suppress("ConvertSecondaryConstructorToPrimary")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    constructor() {}
+
     private var warmupIteration = 0 // increasing iteration count during warmup
 
     /**
@@ -122,6 +128,14 @@ class BenchmarkState internal constructor() {
         }
 
     /**
+     * Used for testing in other modules
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun getMin(): Long = stats.min
+
+    /**
      * Stops the benchmark timer.
      *
      * This method can be called only when the timer is running.
@@ -140,6 +154,8 @@ class BenchmarkState internal constructor() {
      *     }
      * }
      * ```
+     *
+     * @throws [IllegalStateException] if the benchmark is already paused.
      *
      * @see resumeTiming
      */
@@ -171,6 +187,9 @@ class BenchmarkState internal constructor() {
      *         processBitmap(input);
      *     }
      * }
+     *
+     * @throws [IllegalStateException] if the benchmark is already running.
+     *
      * ```
      *
      * @see pauseTiming
@@ -258,10 +277,12 @@ class BenchmarkState internal constructor() {
      * This codepath uses exclusively @JvmField/const members, so there are no method calls at all
      * in the inlined loop. On recent Android Platform versions, ART inlines these accessors anyway,
      * but we want to be sure it's as simple as possible.
+     *
+     * @hide
      */
     @Suppress("NOTHING_TO_INLINE")
-    @PublishedApi
-    internal inline fun keepRunningInline(): Boolean {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    inline fun keepRunningInline(): Boolean {
         if (iterationsRemaining > 1) {
             iterationsRemaining--
             return true
@@ -292,11 +313,12 @@ class BenchmarkState internal constructor() {
         when (state) {
             NOT_STARTED -> {
                 if (Errors.UNSUPPRESSED_WARNING_MESSAGE != null) {
-                    fail(Errors.UNSUPPRESSED_WARNING_MESSAGE)
+                    throw AssertionError(Errors.UNSUPPRESSED_WARNING_MESSAGE)
                 }
                 if (!firstBenchmark && Arguments.startupMode) {
-                    fail("Error - multiple benchmarks in startup mode. Only one benchmark " +
-                            "may be run per 'am instrument' call, to ensure result isolation.")
+                    throw AssertionError("Error - multiple benchmarks in startup mode. Only one " +
+                            "benchmark may be run per 'am instrument' call, to ensure result " +
+                            "isolation.")
                 }
                 firstBenchmark = false
 
@@ -392,17 +414,16 @@ class BenchmarkState internal constructor() {
         Log.i(TAG, key + summaryLine())
         val status = Bundle()
 
-        val prefix = Errors.WARNING_PREFIX
-        status.putLong("${prefix}median", stats.median)
-        status.putLong("${prefix}mean", stats.mean.toLong())
-        status.putLong("${prefix}min", stats.min)
-        status.putLong("${prefix}standardDeviation", stats.standardDeviation.toLong())
-        status.putLong("${prefix}count", maxIterations.toLong())
+        status.putLong("${PREFIX}median", stats.median)
+        status.putLong("${PREFIX}mean", stats.mean.toLong())
+        status.putLong("${PREFIX}min", stats.min)
+        status.putLong("${PREFIX}standardDeviation", stats.standardDeviation.toLong())
+        status.putLong("${PREFIX}count", maxIterations.toLong())
         status.putIdeSummaryLine(key, stats.min)
         return status
     }
 
-    internal fun sendStatus(testName: String) {
+    private fun sendStatus(testName: String) {
         val bundle = getFullStatusReport(testName)
         InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)
     }
@@ -417,6 +438,26 @@ class BenchmarkState internal constructor() {
             true
         }
         else -> false
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun report(
+        fullClassName: String,
+        simpleClassName: String,
+        methodName: String
+    ) {
+        val fullTestName = "$PREFIX$simpleClassName.$methodName"
+        sendStatus(fullTestName)
+
+        ResultWriter.appendReport(
+            getReport(
+                testName = PREFIX + methodName,
+                className = fullClassName
+            )
+        )
     }
 
     internal companion object {
@@ -482,7 +523,7 @@ class BenchmarkState internal constructor() {
 
             // Report value to Studio console
             val bundle = Bundle()
-            val fullTestName = Errors.WARNING_PREFIX +
+            val fullTestName = Errors.PREFIX +
                     if (className.isNotEmpty()) "$className.$testName" else testName
             bundle.putIdeSummaryLine(fullTestName, report.stats.min)
             InstrumentationRegistry.getInstrumentation().sendStatus(Activity.RESULT_OK, bundle)

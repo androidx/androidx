@@ -1,40 +1,31 @@
 // Signature format: 3.0
 package androidx.benchmark {
 
-  public class AndroidBenchmarkRunner extends androidx.test.runner.AndroidJUnitRunner {
-    ctor public AndroidBenchmarkRunner();
-  }
-
   public final class ArgumentsKt {
     ctor public ArgumentsKt();
   }
 
-  public final class BenchmarkRule implements org.junit.rules.TestRule {
-    ctor public BenchmarkRule();
-    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
-    method public androidx.benchmark.BenchmarkState getState();
-  }
-
-  public final class BenchmarkRule.Scope {
-    method public inline <T> T! runWithTimingDisabled(kotlin.jvm.functions.Function0<? extends T> block);
-  }
-
-  public final class BenchmarkRuleKt {
-    ctor public BenchmarkRuleKt();
-    method public static inline void measureRepeated(androidx.benchmark.BenchmarkRule, kotlin.jvm.functions.Function1<? super androidx.benchmark.BenchmarkRule.Scope,kotlin.Unit> block);
-  }
-
   public final class BenchmarkState {
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public BenchmarkState();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public long getMin();
     method public boolean keepRunning();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public inline boolean keepRunningInline();
     method public void pauseTiming();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void report(String fullClassName, String simpleClassName, String methodName);
     method public static void reportData(String className, String testName, long totalRunTimeNs, java.util.List<java.lang.Long> dataNs, @IntRange(from=0) int warmupIterations, @IntRange(from=0) long thermalThrottleSleepSeconds, @IntRange(from=1) int repeatIterations);
     method public void resumeTiming();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class IsolationActivity extends android.app.Activity {
+    method public void actuallyFinish();
+    field public static final androidx.benchmark.IsolationActivity.Companion! Companion;
+  }
 
   public static final class IsolationActivity.Companion {
     method @AnyThread public void finishSingleton();
+    method public boolean getResumed();
     method @WorkerThread public void launchSingleton();
+    property public final boolean resumed;
   }
 
 }
