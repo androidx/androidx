@@ -29,6 +29,6 @@ class AndroidBenchmarkRunnerTest {
     @UiThreadTest
     @Test
     fun checkActivityVisibility() {
-        assertTrue(IsolationActivity.singleton.get()!!.resumed)
+        assertTrue(IsolationActivity.resumed)
     }
 }
