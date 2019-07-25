@@ -18,8 +18,8 @@ package androidx.paging
 
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
 import androidx.paging.PagedSource.KeyProvider
+import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
 import java.util.concurrent.Executor
 
@@ -205,9 +205,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (config.enablePlaceholders) {
             // Placeholders enabled, pass raw data to storage init
             storage.init(
-                initialResult.itemsBefore,
+                if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0,
                 initialResult.data,
-                initialResult.itemsAfter,
+                if (initialResult.itemsAfter != COUNT_UNDEFINED) initialResult.itemsAfter else 0,
                 initialResult.offset,
                 this
             )
@@ -218,7 +218,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 0,
                 initialResult.data,
                 0,
-                initialResult.offset + initialResult.itemsBefore,
+                initialResult.itemsBefore + initialResult.offset,
                 this
             )
         }
@@ -226,10 +226,9 @@ open class ContiguousPagedList<K : Any, V : Any>(
         if (this.lastLoad == LAST_LOAD_UNSPECIFIED) {
             // Because the ContiguousPagedList wasn't initialized with a last load position,
             // initialize it to the middle of the initial load
-
             val itemsBefore =
                 if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0
-            this.lastLoad = (itemsBefore + initialResult.data.size / 2)
+            this.lastLoad = itemsBefore + initialResult.data.size / 2
         }
         triggerBoundaryCallback(LoadType.REFRESH, initialResult.data)
     }

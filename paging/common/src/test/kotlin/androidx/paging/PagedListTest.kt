@@ -45,8 +45,7 @@ class PagedListTest {
                         0,
                         0,
                         data = listOf("a"),
-                        offset = 0,
-                        counted = true
+                        offset = 0
                     )
                     else -> throw NotImplementedError("Test should fail if we get here")
                 }

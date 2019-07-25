@@ -18,7 +18,7 @@ package androidx.paging
 
 import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadType
-import androidx.paging.PagedSource.Companion.COUNT_UNDEFINED
+import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
@@ -267,8 +267,8 @@ internal class Pager<K : Any, V : Any>(
                 firstLoadedItem = result.data[0]
                 lastLoadedItem = result.data.last()
 
-                if (result.counted) {
-                    counted = true
+                counted = result.counted
+                if (counted) {
                     leadingUnloadedCount = result.itemsBefore
                     trailingUnloadedCount = result.itemsAfter
                 }

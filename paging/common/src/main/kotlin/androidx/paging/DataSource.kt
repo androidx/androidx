@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.util.Function
+import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
@@ -521,13 +522,12 @@ internal constructor(internal val type: KeyType) {
          */
         @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct Key type.
         internal fun <Key : Any> toLoadResult() = PagedSource.LoadResult(
-            leadingNulls,
-            trailingNulls,
+            if (counted) leadingNulls else COUNT_UNDEFINED,
+            if (counted) trailingNulls else COUNT_UNDEFINED,
             nextKey as Key?,
             prevKey as Key?,
             data,
-            offset,
-            counted
+            offset
         )
 
         override fun equals(other: Any?) = when (other) {
