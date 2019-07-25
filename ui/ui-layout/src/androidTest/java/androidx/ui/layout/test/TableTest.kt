@@ -23,6 +23,8 @@ import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
 import androidx.ui.core.Ref
 import androidx.ui.core.ipx
+import androidx.ui.core.max
+import androidx.ui.core.min
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Align
 import androidx.ui.layout.Alignment
@@ -31,6 +33,7 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
+import androidx.ui.layout.sum
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -49,8 +52,8 @@ class TableTest : LayoutTest() {
 
         val size = 64.ipx
         val sizeDp = size.toDp()
-        val maxWidth = 256.ipx
-        val maxWidthDp = maxWidth.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
 
         val tableSize = Ref<PxSize>()
         val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
@@ -59,7 +62,7 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopLeft) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = maxWidthDp)) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
@@ -87,17 +90,17 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(maxWidth, size * rows),
+            PxSize(tableWidth, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(maxWidth / columns, size),
+                    PxSize(tableWidth / columns, size),
                     childSize[i][j].value
                 )
                 assertEquals(
-                    PxPosition(maxWidth * j / columns, size * i),
+                    PxPosition(tableWidth * j / columns, size * i),
                     childPosition[i][j].value
                 )
             }
@@ -105,7 +108,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_rowHeights() = withDensity(density) {
+    fun testTable_withDifferentRowHeights() = withDensity(density) {
         val rows = 8
         val columns = 8
 
@@ -113,8 +116,8 @@ class TableTest : LayoutTest() {
         val sizeDp = size.toDp()
         val halfSize = 32.ipx
         val halfSizeDp = halfSize.toDp()
-        val maxWidth = 256.ipx
-        val maxWidthDp = maxWidth.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
 
         val tableSize = Ref<PxSize>()
         val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
@@ -123,7 +126,7 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopLeft) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = maxWidthDp)) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
@@ -133,7 +136,7 @@ class TableTest : LayoutTest() {
                                 tableRow {
                                     for (j in 0 until columns) {
                                         Container(
-                                            height = if (j == 0) sizeDp else halfSizeDp,
+                                            height = if (j % 2 == 0) sizeDp else halfSizeDp,
                                             expanded = true
                                         ) {
                                             SaveLayoutInfo(
@@ -154,17 +157,17 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(maxWidth, size * rows),
+            PxSize(tableWidth, size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(maxWidth / columns, if (j == 0) size else halfSize),
+                    PxSize(tableWidth / columns, if (j % 2 == 0) size else halfSize),
                     childSize[i][j].value
                 )
                 assertEquals(
-                    PxPosition(maxWidth * j / columns, size * i),
+                    PxPosition(tableWidth * j / columns, size * i),
                     childPosition[i][j].value
                 )
             }
@@ -172,7 +175,74 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidths_wrap() = withDensity(density) {
+    fun testTable_withColumnWidth_flexible() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        val flexes = Array(columns) { j -> 2f.pow(max(j - 1, 0)) }
+        val totalFlex = flexes.sum()
+
+        show {
+            Align(Alignment.TopLeft) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
+                    OnChildPositioned(onPositioned = { coordinates ->
+                        tableSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }) {
+                        Table(columnWidth = { j ->
+                            TableColumnWidth.Flexible(flex = flexes[j])
+                        }) {
+                            for (i in 0 until rows) {
+                                tableRow {
+                                    for (j in 0 until columns) {
+                                        Container(height = sizeDp, expanded = true) {
+                                            SaveLayoutInfo(
+                                                size = childSize[i][j],
+                                                position = childPosition[i][j],
+                                                positionedLatch = positionedLatch
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(tableWidth, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(tableWidth * flexes[j] / totalFlex, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(tableWidth * flexes.take(j).sum() / totalFlex, size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_inflexible_wrap() = withDensity(density) {
         val rows = 8
         val columns = 8
 
@@ -190,7 +260,7 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Wrap }) {
+                    Table(columnWidth = { TableColumnWidth.Inflexible.Wrap }) {
                         for (i in 0 until rows) {
                             tableRow {
                                 for (j in 0 until columns) {
@@ -230,74 +300,7 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidths_flex() = withDensity(density) {
-        val rows = 8
-        val columns = 8
-
-        val size = 64.ipx
-        val sizeDp = size.toDp()
-        val maxWidth = 256.ipx
-        val maxWidthDp = maxWidth.toDp()
-
-        val tableSize = Ref<PxSize>()
-        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
-        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
-        val positionedLatch = CountDownLatch(rows * columns + 1)
-
-        val flexes = Array(columns) { j -> 2f.pow(max(j - 1, 0)) }
-        val totalFlex = flexes.sum()
-
-        show {
-            Align(Alignment.TopLeft) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = maxWidthDp)) {
-                    OnChildPositioned(onPositioned = { coordinates ->
-                        tableSize.value = coordinates.size
-                        positionedLatch.countDown()
-                    }) {
-                        Table(columnWidth = { j ->
-                            TableColumnWidth.Flex(flex = flexes[j])
-                        }) {
-                            for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        positionedLatch.await(1, TimeUnit.SECONDS)
-
-        assertEquals(
-            PxSize(maxWidth, size * rows),
-            tableSize.value
-        )
-        for (i in 0 until rows) {
-            for (j in 0 until columns) {
-                assertEquals(
-                    PxSize(maxWidth * flexes[j] / totalFlex, size),
-                    childSize[i][j].value
-                )
-                assertEquals(
-                    PxPosition(maxWidth * flexes.take(j).sum() / totalFlex, size * i),
-                    childPosition[i][j].value
-                )
-            }
-        }
-    }
-
-    @Test
-    fun testTable_withColumnWidths_fixed() = withDensity(density) {
+    fun testTable_withColumnWidth_inflexible_fixed() = withDensity(density) {
         val rows = 8
         val columns = 8
 
@@ -315,7 +318,7 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Fixed(width = sizeDp) }) {
+                    Table(columnWidth = { TableColumnWidth.Inflexible.Fixed(width = sizeDp) }) {
                         for (i in 0 until rows) {
                             tableRow {
                                 for (j in 0 until columns) {
@@ -355,14 +358,14 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidths_fraction() = withDensity(density) {
+    fun testTable_withColumnWidth_inflexible_fraction() = withDensity(density) {
         val rows = 8
         val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
-        val maxWidth = 256.ipx
-        val maxWidthDp = maxWidth.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
 
         val tableSize = Ref<PxSize>()
         val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
@@ -373,13 +376,13 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopLeft) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = maxWidthDp)) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
                         Table(columnWidth = { j ->
-                            TableColumnWidth.Fraction(fraction = fractions[j])
+                            TableColumnWidth.Inflexible.Fraction(fraction = fractions[j])
                         }) {
                             for (i in 0 until rows) {
                                 tableRow {
@@ -403,17 +406,17 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(maxWidth * fractions.sum(), size * rows),
+            PxSize(tableWidth * fractions.sum(), size * rows),
             tableSize.value
         )
         for (i in 0 until rows) {
             for (j in 0 until columns) {
                 assertEquals(
-                    PxSize(maxWidth * fractions[j], size),
+                    PxSize(tableWidth * fractions[j], size),
                     childSize[i][j].value
                 )
                 assertEquals(
-                    PxPosition(maxWidth * fractions.take(j).sum(), size * i),
+                    PxPosition(tableWidth * fractions.take(j).sum(), size * i),
                     childPosition[i][j].value
                 )
             }
@@ -421,16 +424,16 @@ class TableTest : LayoutTest() {
     }
 
     @Test
-    fun testTable_withColumnWidths_mixed() = withDensity(density) {
+    fun testTable_withColumnWidth_inflexible_min() = withDensity(density) {
         val rows = 8
-        val columns = 5
+        val columns = 8
 
         val size = 64.ipx
         val sizeDp = size.toDp()
-        val halfSize = 32.ipx
-        val halfSizeDp = halfSize.toDp()
-        val maxWidth = 256.ipx
-        val maxWidthDp = maxWidth.toDp()
+        val minWidth = 24.ipx
+        val minWidthDp = minWidth.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
 
         val tableSize = Ref<PxSize>()
         val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
@@ -439,18 +442,416 @@ class TableTest : LayoutTest() {
 
         show {
             Align(Alignment.TopLeft) {
-                ConstrainedBox(constraints = DpConstraints(maxWidth = maxWidthDp)) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
+                    OnChildPositioned(onPositioned = { coordinates ->
+                        tableSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }) {
+                        Table(columnWidth = { j ->
+                            TableColumnWidth.Inflexible.Min(
+                                a = TableColumnWidth.Inflexible.Fixed(width = minWidthDp),
+                                b = TableColumnWidth.Inflexible.Fraction(
+                                    fraction = if (j % 2 == 0) 1f / columns else 1f / (columns * 2)
+                                )
+                            )
+                        }) {
+                            for (i in 0 until rows) {
+                                tableRow {
+                                    for (j in 0 until columns) {
+                                        Container(height = sizeDp, expanded = true) {
+                                            SaveLayoutInfo(
+                                                size = childSize[i][j],
+                                                position = childPosition[i][j],
+                                                positionedLatch = positionedLatch
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        val expectedWidths = Array(columns) { j ->
+            min(minWidth, if (j % 2 == 0) tableWidth / columns else tableWidth / (columns * 2))
+        }
+
+        assertEquals(
+            PxSize(expectedWidths.sum(), size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(expectedWidths[j], size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(expectedWidths.take(j).sum(), size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_inflexible_max() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+        val maxWidth = 24.ipx
+        val maxWidthDp = maxWidth.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
+                    OnChildPositioned(onPositioned = { coordinates ->
+                        tableSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }) {
+                        Table(columnWidth = { j ->
+                            TableColumnWidth.Inflexible.Max(
+                                a = TableColumnWidth.Inflexible.Fixed(width = maxWidthDp),
+                                b = TableColumnWidth.Inflexible.Fraction(
+                                    fraction = if (j % 2 == 0) 1f / columns else 1f / (columns * 2)
+                                )
+                            )
+                        }) {
+                            for (i in 0 until rows) {
+                                tableRow {
+                                    for (j in 0 until columns) {
+                                        Container(height = sizeDp, expanded = true) {
+                                            SaveLayoutInfo(
+                                                size = childSize[i][j],
+                                                position = childPosition[i][j],
+                                                positionedLatch = positionedLatch
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        val expectedWidths = Array(columns) { j ->
+            max(maxWidth, if (j % 2 == 0) tableWidth / columns else tableWidth / (columns * 2))
+        }
+
+        assertEquals(
+            PxSize(expectedWidths.sum(), size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(expectedWidths[j], size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(expectedWidths.take(j).sum(), size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_inflexible_min_oneWrap() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+        val halfSize = 32.ipx
+        val halfSizeDp = halfSize.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    tableSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Table(columnWidth = { TableColumnWidth.Inflexible.Min(
+                        a = TableColumnWidth.Inflexible.Wrap,
+                        b = TableColumnWidth.Inflexible.Fixed(width = sizeDp)
+                    ) }) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(width = halfSizeDp, height = sizeDp) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(halfSize * columns, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(halfSize, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(halfSize * j, size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_inflexible_max_oneWrap() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+        val halfSize = 32.ipx
+        val halfSizeDp = halfSize.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    tableSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Table(columnWidth = { TableColumnWidth.Inflexible.Max(
+                        a = TableColumnWidth.Inflexible.Wrap,
+                        b = TableColumnWidth.Inflexible.Fixed(width = sizeDp)
+                    ) }) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(width = halfSizeDp, height = sizeDp) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(size * columns, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(halfSize, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(size * j, size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_inflexible_min_bothWrap() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    tableSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Table(columnWidth = { TableColumnWidth.Inflexible.Min(
+                        a = TableColumnWidth.Inflexible.Wrap,
+                        b = TableColumnWidth.Inflexible.Wrap
+                    ) }) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(width = sizeDp, height = sizeDp) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(size * columns, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(size, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(size * j, size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withColumnWidth_inflexible_max_bothWrap() = withDensity(density) {
+        val rows = 8
+        val columns = 8
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                OnChildPositioned(onPositioned = { coordinates ->
+                    tableSize.value = coordinates.size
+                    positionedLatch.countDown()
+                }) {
+                    Table(columnWidth = { TableColumnWidth.Inflexible.Max(
+                        a = TableColumnWidth.Inflexible.Wrap,
+                        b = TableColumnWidth.Inflexible.Wrap
+                    ) }) {
+                        for (i in 0 until rows) {
+                            tableRow {
+                                for (j in 0 until columns) {
+                                    Container(width = sizeDp, height = sizeDp) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        positionedLatch.await(1, TimeUnit.SECONDS)
+
+        assertEquals(
+            PxSize(size * columns, size * rows),
+            tableSize.value
+        )
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
+                assertEquals(
+                    PxSize(size, size),
+                    childSize[i][j].value
+                )
+                assertEquals(
+                    PxPosition(size * j, size * i),
+                    childPosition[i][j].value
+                )
+            }
+        }
+    }
+
+    @Test
+    fun testTable_withDifferentColumnWidths() = withDensity(density) {
+        val rows = 8
+        val columns = 5
+
+        val size = 64.ipx
+        val sizeDp = size.toDp()
+        val halfSize = 32.ipx
+        val halfSizeDp = halfSize.toDp()
+        val tableWidth = 256.ipx
+        val tableWidthDp = tableWidth.toDp()
+
+        val tableSize = Ref<PxSize>()
+        val childSize = Array(rows) { Array(columns) { Ref<PxSize>() } }
+        val childPosition = Array(rows) { Array(columns) { Ref<PxPosition>() } }
+        val positionedLatch = CountDownLatch(rows * columns + 1)
+
+        show {
+            Align(Alignment.TopLeft) {
+                ConstrainedBox(constraints = DpConstraints(maxWidth = tableWidthDp)) {
                     OnChildPositioned(onPositioned = { coordinates ->
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
                         Table(columnWidth = { j ->
                             when (j) {
-                                0 -> TableColumnWidth.Wrap
-                                1 -> TableColumnWidth.Flex(flex = 1f)
-                                2 -> TableColumnWidth.Flex(flex = 3f)
-                                3 -> TableColumnWidth.Fixed(width = sizeDp)
-                                else -> TableColumnWidth.Fraction(fraction = 0.5f)
+                                0 -> TableColumnWidth.Inflexible.Wrap
+                                1 -> TableColumnWidth.Flexible(flex = 1f)
+                                2 -> TableColumnWidth.Flexible(flex = 3f)
+                                3 -> TableColumnWidth.Inflexible.Fixed(width = sizeDp)
+                                else -> TableColumnWidth.Inflexible.Fraction(fraction = 0.5f)
                             }
                         }) {
                             for (i in 0 until rows) {
@@ -501,10 +902,9 @@ class TableTest : LayoutTest() {
         positionedLatch.await(1, TimeUnit.SECONDS)
 
         assertEquals(
-            PxSize(maxWidth, size * rows),
+            PxSize(tableWidth, size * rows),
             tableSize.value
         )
-
         for (i in 0 until rows) {
             // Wrap column 0
             assertEquals(
@@ -517,7 +917,7 @@ class TableTest : LayoutTest() {
             )
             // Flex column 1
             assertEquals(
-                PxSize((maxWidth / 2 - size - halfSize) / 4, size),
+                PxSize((tableWidth / 2 - size - halfSize) / 4, size),
                 childSize[i][1].value
             )
             assertEquals(
@@ -526,11 +926,11 @@ class TableTest : LayoutTest() {
             )
             // Flex column 2
             assertEquals(
-                PxSize((maxWidth / 2 - size - halfSize) * 3 / 4, size),
+                PxSize((tableWidth / 2 - size - halfSize) * 3 / 4, size),
                 childSize[i][2].value
             )
             assertEquals(
-                PxPosition(halfSize + (maxWidth / 2 - size - halfSize) / 4, size * i),
+                PxPosition(halfSize + (tableWidth / 2 - size - halfSize) / 4, size * i),
                 childPosition[i][2].value
             )
             // Fixed column 3
@@ -539,16 +939,16 @@ class TableTest : LayoutTest() {
                 childSize[i][3].value
             )
             assertEquals(
-                PxPosition(maxWidth / 2 - size, size * i),
+                PxPosition(tableWidth / 2 - size, size * i),
                 childPosition[i][3].value
             )
             // Fraction column 4
             assertEquals(
-                PxSize(maxWidth / 2, size),
+                PxSize(tableWidth / 2, size),
                 childSize[i][4].value
             )
             assertEquals(
-                PxPosition(maxWidth / 2, size * i),
+                PxPosition(tableWidth / 2, size * i),
                 childPosition[i][4].value
             )
         }
