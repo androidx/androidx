@@ -34,6 +34,22 @@ import java.util.ArrayList;
  * {@link FrameLayout}, so it can reliably handle Fragment Transactions, and it also has additional
  * features to coordinate with fragment behavior.
  *
+ * <p>FragmentContainerView should be used as the container for Fragments, commonly set in the
+ * xml layout of an activity, e.g.: <p>
+ *
+ * <pre class="prettyprint">
+ * &lt;androidx.fragment.app.FragmentContainerView
+ *        xmlns:android="http://schemas.android.com/apk/res/android"
+ *        xmlns:app="http://schemas.android.com/apk/res-auto"
+ *        android:id="@+id/fragment_container_view"
+ *        android:layout_width="match_parent"
+ *        android:layout_height="match_parent"&gt;
+ * &lt;/androidx.fragment.app.FragmentContainerView&gt;
+ * </pre>
+ *
+ * <p>FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
+ * LinearLayout, etc) outside of Fragment use cases.
+ *
  * <p>Layout animations and transitions are disabled for FragmentContainerView. Animations should be
  * done through {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. If
  * animateLayoutChanges is set to <code>true</code> or
@@ -41,9 +57,7 @@ import java.util.ArrayList;
  * {@link UnsupportedOperationException} will be thrown.
  *
  * <p>Fragments using exit animations are drawn before all others for FragmentContainerView. This
- * ensures that exiting Fragments do not appear on top of the view. When using this layout, a
- * Fragment with an enter animation is popped using {@link FragmentManager#popBackStack()}, the
- * reverse animation will not appear.
+ * ensures that exiting Fragments do not appear on top of the view.
  */
 public class FragmentContainerView extends FrameLayout {
 
