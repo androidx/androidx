@@ -33,8 +33,9 @@ import android.os.TransactionTooLargeException;
 import android.support.customtabs.trusted.ITrustedWebActivityService;
 import android.util.Log;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -49,38 +50,31 @@ import java.util.concurrent.atomic.AtomicReference;
  * A TrustedWebActivityServiceConnectionManager will be used by a Trusted Web Activity provider and
  * takes care of connecting to and communicating with {@link TrustedWebActivityService}s.
  * <p>
- * Trusted Web Activity client apps are registered with the {@link #registerClient}, associating a
+ * Trusted Web Activity client apps are registered with {@link #registerClient}, associating a
  * package with an origin. There may be multiple packages associated with a single origin.
  * Note, the origins are essentially keys to a map of origin to package name - while they
  * semantically are web origins, they aren't used that way.
  * <p>
  * To interact with a {@link TrustedWebActivityService}, call {@link #execute}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TrustedWebActivityServiceConnectionManager {
     private static final String TAG = "TWAConnectionManager";
     private static final String PREFS_FILE = "TrustedWebActivityVerifiedPackages";
 
     /**
      * A callback to be executed once a connection to a {@link TrustedWebActivityService} is open.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public interface ExecutionCallback {
         /**
-         * Is run when a connection is open.
-         * See {@link #execute} for more information.
+         * Is run when a connection is open. See {@link #execute} for more information.
          * @param service A {@link TrustedWebActivityServiceWrapper} wrapping the connected
          *                {@link TrustedWebActivityService}.
          *                It may be null if the connection failed.
          * @throws RemoteException May be thrown by {@link TrustedWebActivityServiceWrapper}'s
-         *                         methods.
-         *                         If the user does not want to catch them, they will be caught
-         *                         gracefully by {@link #execute}.
+         *                         methods. If the developer does not want to catch them, they will
+         *                         be caught gracefully by {@link #execute}.
          */
+        @SuppressLint("RethrowRemoteException")  // We're accepting RemoteExceptions not throwing.
         void onConnected(@Nullable TrustedWebActivityServiceWrapper service) throws RemoteException;
     }
 
@@ -143,16 +137,15 @@ public class TrustedWebActivityServiceConnectionManager {
     private static AtomicReference<SharedPreferences> sSharedPreferences = new AtomicReference<>();
 
     /**
-     * Gets the verified packages for the given origin. |origin| may be null, in which case this
-     * method call will just trigger caching the Preferences.
-     *
-     * This is safe to be called on any thread, however it may hit disk.
+     * Gets the verified packages for the given origin. This is safe to be called on any thread,
+     * however it may hit disk the first time it is called.
      *
      * @param context A Context to be used for accessing SharedPreferences.
      * @param origin The origin that was previously used with {@link #registerClient}.
      * @return A set of package names. This set is safe to be modified.
      */
-    public static Set<String> getVerifiedPackages(Context context, String origin) {
+    public static @NonNull Set<String> getVerifiedPackages(@NonNull Context context,
+            @NonNull String origin) {
         // Loading preferences is on the critical path for this class - we need to synchronously
         // inform the client whether or not an notification can be handled by a TWA.
         // I considered loading the preferences into a cache on a background thread when this class
@@ -164,16 +157,20 @@ public class TrustedWebActivityServiceConnectionManager {
         StrictMode.ThreadPolicy policy = StrictMode.allowThreadDiskReads();
 
         try {
-            if (sSharedPreferences.get() == null) {
-                sSharedPreferences.compareAndSet(null,
-                        context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE));
-            }
+            ensurePreferencesOpened(context);
 
-            return origin == null ? null :
-                    new HashSet<>(sSharedPreferences.get().getStringSet(origin,
-                            Collections.<String>emptySet()));
+            return new HashSet<>(
+                    sSharedPreferences.get().getStringSet(origin, Collections.<String>emptySet()));
         } finally {
             StrictMode.setThreadPolicy(policy);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void ensurePreferencesOpened(@NonNull Context context) {
+        if (sSharedPreferences.get() == null) {
+            sSharedPreferences.compareAndSet(null,
+                    context.getSharedPreferences(PREFS_FILE, Context.MODE_PRIVATE));
         }
     }
 
@@ -181,14 +178,14 @@ public class TrustedWebActivityServiceConnectionManager {
      * Creates a TrustedWebActivityServiceConnectionManager.
      * @param context A Context used for accessing SharedPreferences.
      */
-    public TrustedWebActivityServiceConnectionManager(Context context) {
+    public TrustedWebActivityServiceConnectionManager(@NonNull Context context) {
         mContext = context.getApplicationContext();
 
         // Asynchronously try to load (and therefore cache) the preferences.
         AsyncTask.THREAD_POOL_EXECUTOR.execute(new Runnable() {
             @Override
             public void run() {
-                getVerifiedPackages(mContext, null);
+                ensurePreferencesOpened(context);
             }
         });
     }
@@ -222,9 +219,10 @@ public class TrustedWebActivityServiceConnectionManager {
      * <p>
      * To find a Service to connect to, this method attempts to resolve an
      * {@link Intent#ACTION_VIEW} Intent with the {@code scope} as data. The first of the resolved
-     * packages that registered (through {@link #registerClient}) to {@code origin} will be chosen.
-     * Finally, an Intent with the action {@link TrustedWebActivityService#INTENT_ACTION} will be
-     * used to find the Service.
+     * packages that is registered (through {@link #registerClient}) to {@code origin} will be
+     * chosen. Finally, an Intent with the action
+     * {@link TrustedWebActivityService#ACTION_TRUSTED_WEB_ACTIVITY_SERVICE} will be used to find
+     * the Service.
      * <p>
      * This method should be called on the UI thread.
      *
@@ -243,7 +241,9 @@ public class TrustedWebActivityServiceConnectionManager {
      * @return Whether a {@link TrustedWebActivityService} was found.
      */
     @SuppressLint("StaticFieldLeak")
-    public boolean execute(final Uri scope, String origin, final ExecutionCallback callback) {
+    @MainThread
+    public boolean execute(@NonNull final Uri scope, @NonNull String origin,
+            @NonNull final ExecutionCallback callback) {
         final WrappedCallback wrappedCallback = wrapCallback(callback);
 
         // If we have an existing connection, use it.
@@ -306,7 +306,8 @@ public class TrustedWebActivityServiceConnectionManager {
      *               to.
      * @return Whether a {@link TrustedWebActivityService} was found.
      */
-    public boolean serviceExistsForScope(Uri scope, String origin) {
+    @MainThread
+    public boolean serviceExistsForScope(@NonNull Uri scope, @NonNull String origin) {
         // If we have an existing connection, we can deal with the scope.
         if (mConnections.get(scope) != null) return true;
 
@@ -364,7 +365,8 @@ public class TrustedWebActivityServiceConnectionManager {
         // Find the TrustedWebActivityService within that package.
         Intent serviceResolutionIntent = new Intent();
         serviceResolutionIntent.setPackage(resolvedPackage);
-        serviceResolutionIntent.setAction(TrustedWebActivityService.INTENT_ACTION);
+        serviceResolutionIntent.setAction(
+                TrustedWebActivityService.ACTION_TRUSTED_WEB_ACTIVITY_SERVICE);
         ResolveInfo info = appContext.getPackageManager().resolveService(serviceResolutionIntent,
                 PackageManager.MATCH_ALL);
 
@@ -389,7 +391,8 @@ public class TrustedWebActivityServiceConnectionManager {
      * @param origin The origin for which the package is relevant.
      * @param clientPackage The packages to register.
      */
-    public static void registerClient(Context context, String origin, String clientPackage) {
+    public static void registerClient(@NonNull Context context, @NonNull String origin,
+            @NonNull String clientPackage) {
         Set<String> possiblePackages = getVerifiedPackages(context, origin);
         possiblePackages.add(clientPackage);
 
@@ -398,6 +401,4 @@ public class TrustedWebActivityServiceConnectionManager {
         editor.putStringSet(origin, possiblePackages);
         editor.apply();
     }
-
-    // TODO(peconn): Do we want to be able to unregister a client? To wipe all clients?
 }
