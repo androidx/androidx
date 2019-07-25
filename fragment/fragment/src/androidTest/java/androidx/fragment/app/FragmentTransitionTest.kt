@@ -175,6 +175,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         assertThat(onBackStackChangedTimes).isEqualTo(3)
 
         fragment1.waitForTransition()
+        fragment2.waitForTransition()
         val popBlue = findBlue()
         val popGreen = findGreen()
         verifyAndClearTransition(fragment1.reenterTransition, null, popBlue, popGreen)
