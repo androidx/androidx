@@ -175,8 +175,8 @@ internal fun SimpleContainer(
 internal fun DrawBox(
     xOffset: Px,
     yOffset: Px,
-    width: Px,
-    height: Px,
+    width: Dp,
+    height: Dp,
     color: Color
 ) {
     val paint = +memo { Paint() }
@@ -184,8 +184,10 @@ internal fun DrawBox(
         paint.color = color
         val centerX = parentSize.width.value / 2 + xOffset.value
         val centerY = parentSize.height.value / 2 + yOffset.value
-        val widthValue = if (width.value < 0) parentSize.width.value else width.value
-        val heightValue = if (height.value < 0) parentSize.height.value else height.value
+        val widthPx = width.toPx()
+        val heightPx = height.toPx()
+        val widthValue = if (widthPx.value < 0) parentSize.width.value else widthPx.value
+        val heightValue = if (heightPx.value < 0) parentSize.height.value else heightPx.value
         canvas.drawRect(
             androidx.ui.engine.geometry.Rect(
                 centerX - widthValue / 2,
