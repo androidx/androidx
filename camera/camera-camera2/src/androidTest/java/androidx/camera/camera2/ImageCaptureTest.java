@@ -44,7 +44,6 @@ import android.os.HandlerThread;
 import android.util.Size;
 import android.view.Surface;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.impl.util.FakeRepeatingUseCase;
 import androidx.camera.core.AppConfig;
@@ -59,10 +58,10 @@ import androidx.camera.core.CaptureProcessor;
 import androidx.camera.core.CaptureStage;
 import androidx.camera.core.Exif;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.Metadata;
 import androidx.camera.core.ImageCapture.OnImageCapturedListener;
 import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.UseCaseError;
 import androidx.camera.core.ImageCaptureConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.testing.CameraUtil;
@@ -189,7 +188,7 @@ public final class ImageCaptureTest {
         mOnImageSavedListener =
                 new OnImageSavedListener() {
                     @Override
-                    public void onImageSaved(@NonNull File file) {
+                    public void onImageSaved(File file) {
                         mMockImageSavedListener.onImageSaved(file);
                         // Signal that an image was saved
                         mSemaphore.release();
@@ -197,8 +196,7 @@ public final class ImageCaptureTest {
 
                     @Override
                     public void onError(
-                            @NonNull ImageCaptureError error, @NonNull String message,
-                            @Nullable Throwable cause) {
+                            UseCaseError error, String message, @Nullable Throwable cause) {
                         mMockImageSavedListener.onError(error, message, cause);
                         // Signal that there was an error
                         mSemaphore.release();
@@ -467,7 +465,7 @@ public final class ImageCaptureTest {
         mSemaphore.acquire();
 
         verify(mMockImageSavedListener)
-                .onError(eq(ImageCaptureError.FILE_IO_ERROR), anyString(), any(Throwable.class));
+                .onError(eq(UseCaseError.FILE_IO_ERROR), anyString(), any(Throwable.class));
     }
 
     @Suppress // TODO(b/133171096): Remove once this no longer throws an IllegalStateException
@@ -603,7 +601,7 @@ public final class ImageCaptureTest {
         OnImageCapturedListener mockOnImageCaptureListener = mock(OnImageCapturedListener.class);
         imageCapture.takePicture(mockOnImageCaptureListener);
 
-        verify(mockOnImageCaptureListener, timeout(3000)).onError(any(ImageCaptureError.class),
+        verify(mockOnImageCaptureListener, timeout(3000)).onError(any(UseCaseError.class),
                 anyString(), any(IllegalArgumentException.class));
 
         CameraX.unbind(imageCapture);
@@ -645,8 +643,8 @@ public final class ImageCaptureTest {
         imageCapture.takePicture(mockOnImageCaptureListener);
 
         // It should get onError() callback twice.
-        verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(
-                any(ImageCaptureError.class), anyString(), any(IllegalArgumentException.class));
+        verify(mockOnImageCaptureListener, timeout(3000).times(2)).onError(any(UseCaseError.class),
+                anyString(), any(IllegalArgumentException.class));
 
         CameraX.unbind(imageCapture);
     }

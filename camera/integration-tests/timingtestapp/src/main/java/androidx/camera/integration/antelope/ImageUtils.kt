@@ -325,8 +325,8 @@ class CameraXImageAvailableListener(
 
     /** Camera X was unable to capture a still image and threw an error */
     override fun onError(
-        imageCaptureError: ImageCapture.ImageCaptureError,
-        message: String,
+        useCaseError: ImageCapture.UseCaseError?,
+        message: String?,
         cause: Throwable?
     ) {
         logd("CameraX ImageCallback onError. Error: " + message)
