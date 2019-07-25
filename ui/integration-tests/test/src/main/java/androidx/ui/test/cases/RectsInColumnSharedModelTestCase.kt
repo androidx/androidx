@@ -46,7 +46,7 @@ class RectsInColumnSharedModelTestCase(
 
     private val model = RectanglesInColumnTestCaseColorModel(Color.Black)
 
-    override fun runSetup() {
+    override fun setupContent(activity: Activity) {
         compositionContext = activity.setContent {
             MaterialTheme {
                 Column {
@@ -61,12 +61,6 @@ class RectsInColumnSharedModelTestCase(
             }
         }!!
         FrameManager.nextFrame()
-
-        view = activity.findViewById(android.R.id.content)
-
-        measure()
-        layout()
-        drawSlow()
     }
 
     override fun toggleState() {
