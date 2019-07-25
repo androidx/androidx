@@ -1052,26 +1052,6 @@ public class NavController {
     }
 
     /**
-     * Gets the {@link ViewModelStore} for a NavGraph.This can be passed to
-     * {@link androidx.lifecycle.ViewModelProvider} to retrieve a ViewModel that is scoped
-     * to the navigation graph - it will be cleared when the navigation graph is popped off
-     * the back stack.
-     *
-     * @param navGraphId ID of a NavGraph that exists on the back stack
-     * @throws IllegalStateException if called before the {@link NavHost} has called
-     * {@link NavHostController#setViewModelStore}.
-     * @throws IllegalArgumentException if the NavGraph is not on the back stack
-     * @deprecated Use {@link #getViewModelStoreOwner(int)}, calling
-     * {@link ViewModelStoreOwner#getViewModelStore()} on the returned ViewModelStoreOwner
-     * if you need specifically a ViewModelStore.
-     */
-    @Deprecated
-    @NonNull
-    public ViewModelStore getViewModelStore(@IdRes int navGraphId) {
-        return getViewModelStoreOwner(navGraphId).getViewModelStore();
-    }
-
-    /**
      * Gets the {@link ViewModelStoreOwner} for a NavGraph.This can be passed to
      * {@link androidx.lifecycle.ViewModelProvider} to retrieve a ViewModel that is scoped
      * to the navigation graph - it will be cleared when the navigation graph is popped off
