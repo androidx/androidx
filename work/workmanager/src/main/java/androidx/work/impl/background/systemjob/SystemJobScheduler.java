@@ -264,9 +264,7 @@ public class SystemJobScheduler implements Scheduler {
             List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
             if (jobs != null && !jobs.isEmpty()) {
                 for (JobInfo jobInfo : jobs) {
-                    PersistableBundle extras = jobInfo.getExtras();
-                    //noinspection ConstantConditions
-                    if (extras == null || !extras.containsKey(EXTRA_WORK_SPEC_ID)) {
+                    if (getWorkSpecIdFromJobInfo(jobInfo) == null) {
                         cancelJobById(jobScheduler, jobInfo.getId());
                     }
                 }
@@ -312,7 +310,6 @@ public class SystemJobScheduler implements Scheduler {
      * For reference: b/133556574, b/133556809, b/133556535
      */
     @Nullable
-    @SuppressWarnings("ConstantConditions")
     private static List<Integer> getPendingJobIds(
             @NonNull Context context,
             @NonNull JobScheduler jobScheduler,
@@ -327,14 +324,25 @@ public class SystemJobScheduler implements Scheduler {
         List<Integer> jobIds = new ArrayList<>(2);
 
         for (JobInfo jobInfo : jobs) {
-            PersistableBundle extras = jobInfo.getExtras();
-            if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
-                if (workSpecId.equals(extras.getString(EXTRA_WORK_SPEC_ID))) {
-                    jobIds.add(jobInfo.getId());
-                }
+            if (workSpecId.equals(getWorkSpecIdFromJobInfo(jobInfo))) {
+                jobIds.add(jobInfo.getId());
             }
         }
 
         return jobIds;
+    }
+
+    @SuppressWarnings("ConstantConditions")
+    private static @Nullable String getWorkSpecIdFromJobInfo(@NonNull JobInfo jobInfo) {
+        PersistableBundle extras = jobInfo.getExtras();
+        try {
+            if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
+                return extras.getString(EXTRA_WORK_SPEC_ID);
+            }
+        } catch (NullPointerException e) {
+            // b/138364061: BaseBundle.mMap seems to be null in some cases here.  Ignore and return
+            // null.
+        }
+        return null;
     }
 }
