@@ -160,7 +160,7 @@ class InputFieldDelegateTest {
         val offset = 10
         val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
 
-        whenever(painter.getPositionForOffset(position.toOffset())).thenReturn(offset)
+        whenever(painter.getOffsetForPosition(position)).thenReturn(offset)
 
         val captor = argumentCaptor<List<EditOperation>>()
 

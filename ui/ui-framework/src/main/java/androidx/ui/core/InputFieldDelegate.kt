@@ -195,7 +195,7 @@ internal class InputFieldDelegate {
             editProcessor: EditProcessor,
             onValueChange: (EditorState) -> Unit
         ) {
-            val offset = textPainter.getPositionForOffset(position.toOffset())
+            val offset = textPainter.getOffsetForPosition(position)
             onEditCommand(listOf(SetSelectionEditOp(offset, offset)), editProcessor, onValueChange)
         }
 

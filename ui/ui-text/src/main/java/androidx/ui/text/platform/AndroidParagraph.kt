@@ -52,10 +52,10 @@ import androidx.text.style.ShadowSpan
 import androidx.text.style.SkewXSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.core.Density
+import androidx.ui.core.PxPosition
 import androidx.ui.text.TextRange
 import androidx.ui.core.px
 import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontSynthesis
@@ -203,14 +203,14 @@ internal class AndroidParagraph constructor(
         this.width = floorWidth
     }
 
-    override fun getPositionForOffset(offset: Offset): Int {
-        val line = ensureLayout.getLineForVertical(offset.dy.toInt())
-        return ensureLayout.getOffsetForHorizontal(line, offset.dx)
+    override fun getOffsetForPosition(position: PxPosition): Int {
+        val line = ensureLayout.getLineForVertical(position.y.value.toInt())
+        return ensureLayout.getOffsetForHorizontal(line, position.x.value)
     }
 
     /**
-     * Returns the bounding box as Rect of the character for given TextPosition. Rect includes the
-     * top, bottom, left and right of a character.
+     * Returns the bounding box as Rect of the character for given character offset. Rect includes
+     * the top, bottom, left and right of a character.
      */
     // TODO:(qqd) Implement RTL case.
     override fun getBoundingBox(offset: Int): Rect {

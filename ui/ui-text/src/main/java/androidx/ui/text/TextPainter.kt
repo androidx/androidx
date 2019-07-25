@@ -22,6 +22,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
 import androidx.ui.core.IntPxSize
+import androidx.ui.core.PxPosition
 import androidx.ui.core.Sp
 import androidx.ui.core.constrain
 import androidx.ui.core.px
@@ -443,8 +444,8 @@ class TextPainter(
      *
      * If the given range is empty, do nothing.
      *
-     * @param start inclusive start offset of the drawing range.
-     * @param end exclusive end offset of the drawing range.
+     * @param start inclusive start character offset of the drawing range.
+     * @param end exclusive end character offset of the drawing range.
      * @param color a color to be used for drawing background.
      * @param canvas the target canvas.
      */
@@ -457,7 +458,7 @@ class TextPainter(
     }
 
     /**
-     * Draws the cursor at the given offset.
+     * Draws the cursor at the given character offset.
      *
      * TODO(nona): Make cursor customizable.
      *
@@ -470,15 +471,15 @@ class TextPainter(
         canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
     }
 
-    /** Returns the position within the text for the given pixel offset. */
-    fun getPositionForOffset(offset: Offset): Int {
+    /** Returns the character offset closest to the given graphical position. */
+    fun getOffsetForPosition(position: PxPosition): Int {
         assert(!needsLayout)
-        return paragraph!!.getPositionForOffset(offset)
+        return paragraph!!.getOffsetForPosition(position)
     }
 
     /**
-     * Returns the bounding box as Rect of the character for given text position. Rect includes the
-     * top, bottom, left and right of a character.
+     * Returns the bounding box as Rect of the character for given character offset. Rect includes
+     * the top, bottom, left and right of a character.
      *
      * Valid only after [layout] has been called.
      *
@@ -491,15 +492,15 @@ class TextPainter(
     }
 
     /**
-     * Returns the text range of the word at the given offset. Characters not part of a word, such
-     * as spaces, symbols, and punctuation, have word breaks on both sides. In such cases, this
-     * method will return a text range that contains the given text position.
+     * Returns the text range of the word at the given character offset. Characters not part of a
+     * word, such as spaces, symbols, and punctuation, have word breaks on both sides. In such
+     * cases, this method will return a text range that contains the given character offset.
      *
      * Word boundaries are defined more precisely in Unicode Standard Annex #29
      * <http://www.unicode.org/reports/tr29/#Word_Boundaries>.
      */
-    fun getWordBoundary(position: Int): TextRange {
+    fun getWordBoundary(offset: Int): TextRange {
         assert(!needsLayout)
-        return paragraph!!.getWordBoundary(position)
+        return paragraph!!.getWordBoundary(offset)
     }
 }
