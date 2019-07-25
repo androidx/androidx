@@ -4004,12 +4004,27 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; scrollable: " + isScrollable());
 
         builder.append("; [");
-        for (int actionBits = getActions(); actionBits != 0;) {
-            final int action = 1 << Integer.numberOfTrailingZeros(actionBits);
-            actionBits &= ~action;
-            builder.append(getActionSymbolicName(action));
-            if (actionBits != 0) {
-                builder.append(", ");
+        if (Build.VERSION.SDK_INT >= 21) {
+            List<AccessibilityActionCompat> actions = getActionList();
+            for (int i = 0; i < actions.size(); i++) {
+                AccessibilityActionCompat action = actions.get(i);
+                String actionName = getActionSymbolicName(action.getId());
+                if (actionName.equals("ACTION_UNKNOWN") && action.getLabel() != null) {
+                    actionName = action.getLabel().toString();
+                }
+                builder.append(actionName);
+                if (i != actions.size() - 1) {
+                    builder.append(", ");
+                }
+            }
+        } else {
+            for (int actionBits = getActions(); actionBits != 0;) {
+                final int action = 1 << Integer.numberOfTrailingZeros(actionBits);
+                actionBits &= ~action;
+                builder.append(getActionSymbolicName(action));
+                if (actionBits != 0) {
+                    builder.append(", ");
+                }
             }
         }
         builder.append("]");
@@ -4071,6 +4086,22 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_PASTE";
             case ACTION_SET_SELECTION:
                 return "ACTION_SET_SELECTION";
+            case android.R.id.accessibilityActionScrollUp:
+                return "ACTION_SCROLL_UP";
+            case android.R.id.accessibilityActionScrollLeft:
+                return "ACTION_SCROLL_LEFT";
+            case android.R.id.accessibilityActionScrollDown:
+                return "ACTION_SCROLL_DOWN";
+            case android.R.id.accessibilityActionScrollRight:
+                return "ACTION_SCROLL_RIGHT";
+            case android.R.id.accessibilityActionPageDown:
+                return "ACTION_PAGE_DOWN";
+            case android.R.id.accessibilityActionPageUp:
+                return "ACTION_PAGE_UP";
+            case android.R.id.accessibilityActionPageLeft:
+                return "ACTION_PAGE_LEFT";
+            case android.R.id.accessibilityActionPageRight:
+                return "ACTION_PAGE_RIGHT";
             default:
                 return"ACTION_UNKNOWN";
         }
