@@ -269,7 +269,7 @@ class PageKeyedDataSourceTest {
         val pagedListJob = testCoroutineScope.async(executor.asCoroutineDispatcher()) {
             PagedList.create(
                 PagedSourceWrapper(dataSource),
-                GlobalScope,
+                testCoroutineScope,
                 executor,
                 executor,
                 executor,
