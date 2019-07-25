@@ -195,6 +195,8 @@ class PlayerWrapper {
                 && mAllowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_DESELECT_TRACK);
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void pause() {
         if (mController != null) {
             mController.pause();
@@ -203,6 +205,8 @@ class PlayerWrapper {
         }
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void play() {
         if (mController != null) {
             mController.play();
@@ -211,6 +215,8 @@ class PlayerWrapper {
         }
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void seekTo(long posMs) {
         if (mController != null) {
             mController.seekTo(posMs);
@@ -219,6 +225,8 @@ class PlayerWrapper {
         }
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void skipToNextItem() {
         if (mController != null) {
             mController.skipToNextPlaylistItem();
@@ -227,6 +235,8 @@ class PlayerWrapper {
         }
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void skipToPreviousItem() {
         if (mController != null) {
             mController.skipToPreviousPlaylistItem();
@@ -244,6 +254,8 @@ class PlayerWrapper {
         return 1f;
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void setPlaybackSpeed(float speed) {
         if (mController != null) {
             mController.setPlaybackSpeed(speed);
@@ -252,6 +264,8 @@ class PlayerWrapper {
         }
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void selectTrack(TrackInfo trackInfo) {
         if (mController != null) {
             mController.selectTrack(trackInfo);
@@ -260,6 +274,8 @@ class PlayerWrapper {
         }
     }
 
+    // TODO(b/138091975) Do not ignore the returned Future.
+    @SuppressWarnings("FutureReturnValueIgnored")
     void deselectTrack(TrackInfo trackInfo) {
         if (mController != null) {
             mController.deselectTrack(trackInfo);
