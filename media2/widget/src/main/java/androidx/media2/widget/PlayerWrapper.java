@@ -346,23 +346,11 @@ class PlayerWrapper {
             mWrapperCallback.onAllowedCommandsChanged(this, allowedCommands);
         }
         mWrapperCallback.onCurrentMediaItemChanged(this, item);
-
-        // notify other non-cached states
-        mWrapperCallback.onPlaybackSpeedChanged(this, getPlaybackSpeed());
-        List<TrackInfo> trackInfos = getTrackInfo();
-        if (trackInfos != null) {
-            mWrapperCallback.onTrackInfoChanged(this, trackInfos);
-        }
-        if (item != null) {
-            mWrapperCallback.onVideoSizeChanged(this, item, getVideoSize());
-        }
+        notifyNonCachedStates();
     }
 
     @NonNull
     VideoSize getVideoSize() {
-        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
-            return new VideoSize(0, 0);
-        }
         if (mController != null) {
             return mController.getVideoSize();
         } else if (mPlayer != null) {
@@ -373,9 +361,6 @@ class PlayerWrapper {
 
     @NonNull
     List<TrackInfo> getTrackInfo() {
-        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
-            return null;
-        }
         if (mController != null) {
             return mController.getTrackInfo();
         } else if (mPlayer != null) {
@@ -386,9 +371,6 @@ class PlayerWrapper {
 
     @Nullable
     TrackInfo getSelectedTrack(int trackType) {
-        if (mSavedPlayerState == SessionPlayer.PLAYER_STATE_IDLE) {
-            return null;
-        }
         if (mController != null) {
             return mController.getSelectedTrack(trackType);
         } else if (mPlayer != null) {
@@ -515,6 +497,19 @@ class PlayerWrapper {
         public void onTrackDeselected(@NonNull MediaController controller,
                 @NonNull TrackInfo trackInfo) {
             mWrapperCallback.onTrackDeselected(PlayerWrapper.this, trackInfo);
+        }
+    }
+
+    private void notifyNonCachedStates() {
+        mWrapperCallback.onPlaybackSpeedChanged(this, getPlaybackSpeed());
+
+        List<TrackInfo> trackInfos = getTrackInfo();
+        if (trackInfos != null) {
+            mWrapperCallback.onTrackInfoChanged(PlayerWrapper.this, trackInfos);
+        }
+        MediaItem item = getCurrentMediaItem();
+        if (item != null) {
+            mWrapperCallback.onVideoSizeChanged(PlayerWrapper.this, item, getVideoSize());
         }
     }
 
