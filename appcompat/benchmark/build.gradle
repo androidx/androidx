@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     androidTestImplementation(project(":appcompat"))
-    androidTestImplementation(project(":benchmark"))
+    androidTestImplementation(project(":benchmark:benchmark-common"))
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
