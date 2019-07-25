@@ -31,7 +31,6 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.selection.Selection
 import androidx.ui.core.selection.SelectionMode
 import androidx.ui.core.selection.SelectionRegistrarAmbient
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.graphics.Color
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
@@ -228,9 +227,9 @@ fun Text(
             Draw { canvas, _ ->
                 internalSelection.value?.let {
                     textPainter.paintBackground(
-                        it.start, it.end, selectionColor, canvas, Offset.zero)
+                        it.start, it.end, selectionColor, canvas)
                 }
-                textPainter.paint(canvas, Offset.zero)
+                textPainter.paint(canvas)
             }
         }
         ComplexLayout(children) {

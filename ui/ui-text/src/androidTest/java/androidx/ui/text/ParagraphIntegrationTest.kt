@@ -1933,7 +1933,7 @@ class ParagraphIntegrationTest {
     fun paint_throws_exception_if_layout_is_not_called() {
         val paragraph = simpleParagraph()
 
-        paragraph.paint(mock(), 0.0f, 0.0f)
+        paragraph.paint(mock())
     }
 
     @Test(expected = IllegalStateException::class)
