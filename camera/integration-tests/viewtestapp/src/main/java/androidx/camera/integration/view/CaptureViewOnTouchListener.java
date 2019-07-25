@@ -30,10 +30,9 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.ImageCapture.ImageCaptureError;
 import androidx.camera.core.ImageCapture.OnImageSavedListener;
+import androidx.camera.core.ImageCapture.UseCaseError;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedListener;
 import androidx.camera.view.CameraView;
@@ -183,7 +182,7 @@ class CaptureViewOnTouchListener
     }
 
     @Override
-    public void onImageSaved(@NonNull File file) {
+    public void onImageSaved(File file) {
         report("Picture saved to " + file.getAbsolutePath());
 
         // Print out metadata about the picture
@@ -193,21 +192,20 @@ class CaptureViewOnTouchListener
     }
 
     @Override
-    public void onVideoSaved(@NonNull File file) {
+    public void onVideoSaved(File file) {
         report("Video saved to " + file.getAbsolutePath());
         broadcastVideo(file);
     }
 
     @Override
-    public void onError(@NonNull ImageCaptureError imageCaptureError, @NonNull String message,
-            @Nullable Throwable cause) {
+    public void onError(UseCaseError useCaseError, String message, @Nullable Throwable cause) {
         report("Failure");
     }
 
     @Override
     public void onError(
-            @NonNull VideoCapture.VideoCaptureError videoCaptureError,
-            @NonNull String message,
+            VideoCapture.UseCaseError useCaseError,
+            String message,
             @Nullable Throwable cause) {
         report("Failure");
     }

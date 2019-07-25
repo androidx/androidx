@@ -30,7 +30,6 @@ import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.annotation.UiThread;
@@ -351,19 +350,19 @@ final class CameraXModule {
                 file,
                 new VideoCapture.OnVideoSavedListener() {
                     @Override
-                    public void onVideoSaved(@NonNull File savedFile) {
+                    public void onVideoSaved(File savedFile) {
                         mVideoIsRecording.set(false);
                         listener.onVideoSaved(savedFile);
                     }
 
                     @Override
                     public void onError(
-                            @NonNull VideoCapture.VideoCaptureError videoCaptureError,
-                            @NonNull String message,
+                            VideoCapture.UseCaseError useCaseError,
+                            String message,
                             @Nullable Throwable cause) {
                         mVideoIsRecording.set(false);
                         Log.e(TAG, message, cause);
-                        listener.onError(videoCaptureError, message, cause);
+                        listener.onError(useCaseError, message, cause);
                     }
                 });
     }
