@@ -198,7 +198,7 @@ public class ExtensionTest {
 
         // Verify the take picture should not have any error happen.
         verify(mockOnImageCapturedListener, never()).onError(
-                any(ImageCapture.UseCaseError.class), anyString(), any(Throwable.class));
+                any(ImageCapture.ImageCaptureError.class), anyString(), any(Throwable.class));
     }
 
     @Test
