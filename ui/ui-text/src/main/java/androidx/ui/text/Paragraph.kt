@@ -130,7 +130,7 @@ interface Paragraph {
     /**
      * Paint the paragraph to canvas
      */
-    fun paint(canvas: Canvas, x: Float, y: Float)
+    fun paint(canvas: Canvas)
 }
 
 /*expect fun Paragraph(

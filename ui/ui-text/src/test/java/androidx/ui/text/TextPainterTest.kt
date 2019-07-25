@@ -18,7 +18,6 @@ package androidx.ui.text
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Density
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Canvas
 import androidx.ui.text.font.Font
 import androidx.ui.text.style.TextAlign
@@ -223,6 +222,6 @@ class TextPainterTest() {
         val textPainter = TextPainter(density = density, resourceLoader = resourceLoader)
         val canvas = mock<Canvas>()
 
-        textPainter.paint(canvas, Offset(0.0f, 0.0f))
+        textPainter.paint(canvas)
     }
 }

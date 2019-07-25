@@ -383,7 +383,7 @@ class TextPainter(
     }
 
     /**
-     * Paints the text onto the given canvas at the given offset.
+     * Paints the text onto the given canvas.
      *
      * Valid only after [layout] has been called.
      *
@@ -395,7 +395,7 @@ class TextPainter(
      * To set the text style, specify a [TextStyle] when creating the [TextSpan] that you pass to
      * the [TextPainter] constructor or to the [text] property.
      */
-    fun paint(canvas: Canvas, offset: Offset) {
+    fun paint(canvas: Canvas) {
         assert(!needsLayout) {
             "TextPainter.paint called when text geometry was not yet calculated.\n" +
                     "Please call layout() before paint() to position the text before painting it."
@@ -415,7 +415,7 @@ class TextPainter(
         // layoutTextWithConstraints(constraints!!)
 
         if (hasVisualOverflow) {
-            val bounds = offset.and(size)
+            val bounds = Rect.fromLTWH(0f, 0f, size.width, size.height)
             if (overflowShader != null) {
                 // This layer limits what the shader below blends with to be just the text
                 // (as opposed to the text and its background).
@@ -425,14 +425,14 @@ class TextPainter(
             }
             canvas.clipRect(bounds)
         }
-        paragraph!!.paint(canvas, offset.dx, offset.dy)
+        paragraph!!.paint(canvas)
         if (hasVisualOverflow) {
             if (overflowShader != null) {
-                canvas.translate(offset.dx, offset.dy)
+                val bounds = Rect.fromLTWH(0f, 0f, size.width, size.height)
                 val paint = Paint()
                 paint.blendMode = BlendMode.multiply
                 paint.shader = overflowShader
-                canvas.drawRect(Offset.zero.and(size), paint)
+                canvas.drawRect(bounds, paint)
             }
             canvas.restore()
         }
@@ -447,13 +447,11 @@ class TextPainter(
      * @param end exclusive end offset of the drawing range.
      * @param color a color to be used for drawing background.
      * @param canvas the target canvas.
-     * @param offset the drawing offset.
      */
-    fun paintBackground(start: Int, end: Int, color: Color, canvas: Canvas, offset: Offset) {
+    fun paintBackground(start: Int, end: Int, color: Color, canvas: Canvas) {
         assert(!needsLayout)
         if (start == end) return
         val selectionPath = paragraph!!.getPathForRange(start, end)
-        selectionPath.shift(offset)
         // TODO(haoyuchang): check if move this paint to parameter is better
         canvas.drawPath(selectionPath, Paint().apply { this.color = color })
     }

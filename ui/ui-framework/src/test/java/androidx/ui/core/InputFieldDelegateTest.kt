@@ -83,8 +83,8 @@ class InputFieldDelegateTest {
             hasFocus = true)
 
         verify(painter, times(1)).paintBackground(
-            eq(selection.start), eq(selection.end), eq(selectionColor), eq(canvas), any())
-        verify(painter, times(1)).paint(eq(canvas), any())
+            eq(selection.start), eq(selection.end), eq(selectionColor), eq(canvas))
+        verify(painter, times(1)).paint(eq(canvas))
 
         verify(painter, never()).paintCursor(any(), any())
     }
@@ -101,8 +101,8 @@ class InputFieldDelegateTest {
             hasFocus = true)
 
         verify(painter, times(1)).paintCursor(eq(cursor.start), eq(canvas))
-        verify(painter, times(1)).paint(eq(canvas), any())
-        verify(painter, never()).paintBackground(any(), any(), any(), any(), any())
+        verify(painter, times(1)).paint(eq(canvas))
+        verify(painter, never()).paintBackground(any(), any(), any(), any())
     }
 
     @Test
@@ -117,8 +117,8 @@ class InputFieldDelegateTest {
             hasFocus = false)
 
         verify(painter, never()).paintCursor(any(), any())
-        verify(painter, times(1)).paint(eq(canvas), any())
-        verify(painter, never()).paintBackground(any(), any(), any(), any(), any())
+        verify(painter, times(1)).paint(eq(canvas))
+        verify(painter, never()).paintBackground(any(), any(), any(), any())
     }
 
     @Test
@@ -137,8 +137,8 @@ class InputFieldDelegateTest {
             hasFocus = true)
 
         verify(painter, times(1)).paintBackground(
-            eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas), any())
-        verify(painter, times(1)).paint(eq(canvas), any())
+            eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas))
+        verify(painter, times(1)).paint(eq(canvas))
         verify(painter, times(1)).paintCursor(eq(cursor.start), any())
     }
 
@@ -190,7 +190,7 @@ class InputFieldDelegateTest {
         )
 
         inOrder(painter) {
-            verify(painter).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas), any())
+            verify(painter).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas))
             verify(painter).paintCursor(eq(1), eq(canvas))
         }
     }

@@ -94,7 +94,7 @@ package androidx.ui.text {
     method public float getWidth();
     method public androidx.ui.text.TextRange getWordBoundary(int offset);
     method public void layout(androidx.ui.text.ParagraphConstraints constraints);
-    method public void paint(androidx.ui.painting.Canvas canvas, float x, float y);
+    method public void paint(androidx.ui.painting.Canvas canvas);
     property public abstract float baseline;
     property public abstract boolean didExceedMaxLines;
     property public abstract float height;
@@ -151,8 +151,8 @@ package androidx.ui.text {
     method public float getWidth();
     method public androidx.ui.text.TextRange getWordBoundary(int position);
     method public void layout(androidx.ui.core.Constraints constraints);
-    method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
-    method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas, androidx.ui.engine.geometry.Offset offset);
+    method public void paint(androidx.ui.painting.Canvas canvas);
+    method public void paintBackground(int start, int end, androidx.ui.graphics.Color color, androidx.ui.painting.Canvas canvas);
     method public void paintCursor(int offset, androidx.ui.painting.Canvas canvas);
     method public void setText(androidx.ui.text.AnnotatedString? value);
     property public final boolean didExceedMaxLines;
