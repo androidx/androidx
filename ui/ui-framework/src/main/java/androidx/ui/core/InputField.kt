@@ -134,7 +134,7 @@ fun InputField(
 
     processor.onNewState(value, textInputService)
     TextInputEventObserver(
-        onPress = { InputFieldDelegate.onPress(textInputService) },
+        onPress = { },
         onFocus = {
             hasFocus.value = true
             InputFieldDelegate.onFocus(
@@ -172,7 +172,9 @@ fun InputField(
                 textPainter,
                 processor,
                 offsetMap,
-                onValueChange)
+                onValueChange,
+                textInputService,
+                hasFocus.value)
         }
     ) {
         Layout(

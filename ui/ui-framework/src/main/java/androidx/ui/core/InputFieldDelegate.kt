@@ -164,16 +164,6 @@ internal class InputFieldDelegate {
         }
 
         /**
-         * Called when onPress event is fired.
-         *
-         * @param textInputService The text input service
-         */
-        @JvmStatic
-        fun onPress(textInputService: TextInputService?) {
-            textInputService?.showSoftwareKeyboard()
-        }
-
-        /**
          * Called when onDrag event is fired.
          *
          * @param position The event position in widget coordinate.
@@ -192,6 +182,8 @@ internal class InputFieldDelegate {
          * @param editProcessor The edit processor
          * @param offsetMap The offset map
          * @param onValueChange The callback called when the new editor state arrives.
+         * @param textInputService The text input service
+         * @param hasFocus True if the widget has input focus, otherwise false.
          */
         @JvmStatic
         fun onRelease(
@@ -199,10 +191,19 @@ internal class InputFieldDelegate {
             textPainter: TextPainter,
             editProcessor: EditProcessor,
             offsetMap: OffsetMap,
-            onValueChange: (EditorState) -> Unit
+            onValueChange: (EditorState) -> Unit,
+            textInputService: TextInputService?,
+            hasFocus: Boolean
         ) {
-            val offset = offsetMap.transformedToOriginal(textPainter.getOffsetForPosition(position))
-            onEditCommand(listOf(SetSelectionEditOp(offset, offset)), editProcessor, onValueChange)
+            textInputService?.showSoftwareKeyboard()
+            if (hasFocus) {
+                val offset = offsetMap.transformedToOriginal(
+                    textPainter.getOffsetForPosition(position))
+                onEditCommand(
+                    listOf(SetSelectionEditOp(offset, offset)),
+                    editProcessor,
+                    onValueChange)
+            }
         }
 
         /**
