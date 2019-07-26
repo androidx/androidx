@@ -147,23 +147,24 @@ internal object Errors {
         }
 
         if (!CpuInfo.locked &&
-            AndroidBenchmarkRunner.isSustainedPerformanceModeSupported() &&
-            !AndroidBenchmarkRunner.sustainedPerformanceModeInUse
+            IsolationActivity.isSustainedPerformanceModeSupported() &&
+            !IsolationActivity.sustainedPerformanceModeInUse
         ) {
-            warningPrefix += "UNSUSTAINED-RUNNER-MISSING_"
+            warningPrefix += "UNSUSTAINED-ACTIVITY-MISSING_"
             warningString += """
-                |WARNING: Cannot use SustainedPerformanceMode without AndroidBenchmarkRunner
+                |WARNING: Cannot use SustainedPerformanceMode without IsolationActivity
                 |    Benchmark running on device that supports Window.setSustainedPerformanceMode,
-                |    but not using the AndroidBenchmarkRunner. This runner is required to limit
-                |    CPU clock max frequency, to prevent thermal throttling. To fix this, add the
-                |    following to your benchmark module-level build.gradle:
+                |    but not launching IsolationActivity via the AndroidBenchmarkRunner. This
+                |    Activity is required to limit CPU clock max frequency, to prevent thermal
+                |    throttling. To fix this, add the following to your benchmark module-level
+                |    build.gradle:
                 |        android.defaultConfig.testInstrumentationRunner
                 |            = "androidx.benchmark.AndroidBenchmarkRunner"
             """.trimMarginWrapNewlines()
-        } else if (!AndroidBenchmarkRunner.runnerInUse) {
-            warningPrefix += "RUNNER-MISSING_"
+        } else if (IsolationActivity.singleton.get() == null) {
+            warningPrefix += "ACTIVITY-MISSING_"
             warningString += """
-                |WARNING: Not using AndroidBenchmarkRunner
+                |WARNING: Not using IsolationActivity via AndroidBenchmarkRunner
                 |    AndroidBenchmarkRunner should be used to isolate benchmarks from interference
                 |    from other visible apps. To fix this, add the following to your module-level
                 |    build.gradle:

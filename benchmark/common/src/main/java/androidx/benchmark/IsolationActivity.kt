@@ -16,8 +16,15 @@
 
 package androidx.benchmark
 
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.Application
+import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.os.PowerManager
+import android.os.Process
 import android.util.Log
 import android.widget.TextView
 import androidx.annotation.AnyThread
@@ -25,6 +32,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 
 /**
  * Simple opaque activity used to reduce benchmark interference from other windows.
@@ -40,7 +48,6 @@ import java.util.concurrent.atomic.AtomicReference
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class IsolationActivity : android.app.Activity() {
-    var resumed = false
     private var destroyed = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,6 +57,29 @@ class IsolationActivity : android.app.Activity() {
         // disable launch animation
         overridePendingTransition(0, 0)
 
+        if (firstInit) {
+            if (!CpuInfo.locked && isSustainedPerformanceModeSupported()) {
+                sustainedPerformanceModeInUse = true
+                application.registerActivityLifecycleCallbacks(sustainedPerfCallbacks)
+
+                // trigger the one missed lifecycle event, from registering the callbacks late
+                sustainedPerfCallbacks.onActivityCreated(this, savedInstanceState)
+
+                // Keep at least one core busy. Together with a single threaded benchmark, this makes
+                // the process get multi-threaded setSustainedPerformanceMode.
+                //
+                // We want to keep to the relatively lower clocks of the multi-threaded benchmark mode
+                // to avoid any benchmarks running at higher clocks than any others.
+                //
+                // Note, thread names have 15 char max in Systrace
+                thread(name = "BenchSpinThread") {
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST)
+                    while (true) {}
+                }
+            }
+            firstInit = false
+        }
+
         val old = singleton.getAndSet(this)
         if (old != null && !old.destroyed && !old.isFinishing) {
             throw IllegalStateException("Only one IsolationActivity should exist")
@@ -57,7 +87,7 @@ class IsolationActivity : android.app.Activity() {
 
         findViewById<TextView>(R.id.clock_state).text = when {
             CpuInfo.locked -> "Locked Clocks"
-            AndroidBenchmarkRunner.sustainedPerformanceModeInUse -> "Sustained Performance Mode"
+            sustainedPerformanceModeInUse -> "Sustained Performance Mode"
             else -> ""
         }
     }
@@ -90,6 +120,11 @@ class IsolationActivity : android.app.Activity() {
     companion object {
         private const val TAG = "Benchmark"
         internal val singleton = AtomicReference<IsolationActivity>()
+        private var firstInit = true
+        internal var sustainedPerformanceModeInUse = false
+            private set
+        internal var resumed = false
+            private set
 
         @WorkerThread
         fun launchSingleton() {
@@ -113,6 +148,28 @@ class IsolationActivity : android.app.Activity() {
                     actuallyFinish()
                 }
             }
+        }
+
+        internal fun isSustainedPerformanceModeSupported(): Boolean =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val context = InstrumentationRegistry.getInstrumentation().targetContext
+                val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
+                powerManager.isSustainedPerformanceModeSupported
+            } else {
+                false
+            }
+
+        private val sustainedPerfCallbacks = object : Application.ActivityLifecycleCallbacks {
+            @SuppressLint("NewApi") // window API guarded by [isSustainedPerformanceModeSupported]
+            override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
+                activity.window.setSustainedPerformanceMode(true)
+            }
+            override fun onActivityDestroyed(activity: Activity) {}
+            override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
+            override fun onActivityStarted(activity: Activity) {}
+            override fun onActivityStopped(activity: Activity) {}
+            override fun onActivityPaused(activity: Activity) {}
+            override fun onActivityResumed(activity: Activity) {}
         }
     }
 }

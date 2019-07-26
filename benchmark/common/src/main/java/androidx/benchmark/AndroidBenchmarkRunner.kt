@@ -16,16 +16,8 @@
 
 package androidx.benchmark
 
-import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
-import android.os.Build
-import android.os.Bundle
-import android.os.PowerManager
 import androidx.annotation.CallSuper
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.runner.AndroidJUnitRunner
-import kotlin.concurrent.thread
 
 /**
  * Instrumentation runner for benchmarks, used to increase stability of measurements and minimize
@@ -70,40 +62,6 @@ import kotlin.concurrent.thread
  */
 @Suppress("unused") // Note: not referenced by code
 open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
-    @CallSuper
-    override fun onCreate(arguments: Bundle?) {
-        super.onCreate(arguments)
-
-        // Because these values are used by Errors, it's important to set this flag as early
-        // as possible, before Errors gets lazily initialized. Otherwise we may print false
-        // warnings about needing the runner, when the runner simply hasn't initialized yet.
-        runnerInUse = true
-        sustainedPerformanceModeInUse = !CpuInfo.locked && isSustainedPerformanceModeSupported()
-
-        if (sustainedPerformanceModeInUse) {
-            // Keep at least one core busy. Together with a single threaded benchmark, this makes
-            // the process get multi-threaded setSustainedPerformanceMode.
-            //
-            // We want to keep to the relatively lower clocks of the multi-threaded benchmark mode
-            // to avoid any benchmarks running at higher clocks than any others.
-            //
-            // Note, thread names have 15 char max in Systrace
-            thread(name = "BenchSpinThread") {
-                android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_LOWEST)
-                while (true) {}
-            }
-        }
-    }
-
-    @CallSuper
-    override fun callActivityOnStart(activity: Activity) {
-        super.callActivityOnStart(activity)
-
-        @SuppressLint("NewApi") // window API guarded by [sustainedPerfMode]
-        if (sustainedPerformanceModeInUse) {
-            activity.window.setSustainedPerformanceMode(true)
-        }
-    }
 
     @CallSuper
     override fun waitForActivitiesToComplete() {
@@ -115,10 +73,7 @@ open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         // our IsolationActivity if it's not already resumed
         var isResumed = false
         runOnMainSync {
-            val activity = IsolationActivity.singleton.get()
-            if (activity != null) {
-                isResumed = activity.resumed
-            }
+            isResumed = IsolationActivity.resumed
         }
         if (!isResumed) {
             IsolationActivity.launchSingleton()
@@ -130,27 +85,5 @@ open class AndroidBenchmarkRunner : AndroidJUnitRunner() {
         IsolationActivity.finishSingleton()
         super.waitForActivitiesToComplete()
         super.onDestroy()
-    }
-
-    internal companion object {
-        /**
-         * Tracks whether Runner is in use.
-         */
-        var runnerInUse = false
-
-        /**
-         * Tracks whether Runner is using [android.view.Window.setSustainedPerformanceMode] to
-         * prevent thermal throttling.
-         */
-        var sustainedPerformanceModeInUse = false
-
-        fun isSustainedPerformanceModeSupported(): Boolean =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val context = InstrumentationRegistry.getInstrumentation().targetContext
-                val powerManager = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-                powerManager.isSustainedPerformanceModeSupported
-            } else {
-                false
-            }
     }
 }

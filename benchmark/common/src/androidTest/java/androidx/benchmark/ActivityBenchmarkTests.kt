@@ -31,7 +31,7 @@ import org.junit.runners.JUnit4
 
 fun BenchmarkRule.validateRunWithIsolationActivityHidden() {
     // isolation activity *not* on top
-    Assert.assertFalse(IsolationActivity.singleton.get()!!.resumed)
+    Assert.assertFalse(IsolationActivity.resumed)
 
     measureRepeated {}
 }
