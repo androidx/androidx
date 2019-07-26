@@ -42,6 +42,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -55,6 +56,7 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.media.session.PlaybackStateCompat.CustomAction;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -848,5 +850,27 @@ public class MediaUtils {
             layout.add(button);
         }
         return layout;
+    }
+
+    @SuppressWarnings("ParcelClassLoader")
+    static boolean doesBundleHaveCustomParcelable(@NonNull Bundle bundle) {
+        // Try writing the bundle to parcel, and read it with framework classloader.
+        Parcel parcel = Parcel.obtain();
+        try {
+            parcel.writeBundle(bundle);
+            parcel.setDataPosition(0);
+            Bundle out = parcel.readBundle(null);
+
+            if (out != null) {
+                // Calling Bundle#isEmpty() will trigger Bundle#unparcel().
+                out.isEmpty();
+            }
+            return false;
+        } catch (BadParcelableException e) {
+            Log.d(TAG, "Custom parcelables are not allowed", e);
+            return true;
+        } finally {
+            parcel.recycle();
+        }
     }
 }

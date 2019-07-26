@@ -1632,12 +1632,18 @@ public class MediaController implements AutoCloseable {
          *
          * @param connectionHints a bundle which contains the connection hints
          * @return The Builder to allow chaining
+         * @throws IllegalArgumentException if the bundle contains any non-framework Parcelable
+         * objects.
          */
         @NonNull
         @SuppressWarnings("unchecked")
         public U setConnectionHints(@NonNull Bundle connectionHints) {
             if (connectionHints == null) {
                 throw new NullPointerException("connectionHints shouldn't be null");
+            }
+            if (MediaUtils.doesBundleHaveCustomParcelable(connectionHints)) {
+                throw new IllegalArgumentException(
+                        "connectionHints shouldn't contain any custom parcelables");
             }
             mConnectionHints = new Bundle(connectionHints);
             return (U) this;

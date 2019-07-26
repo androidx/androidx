@@ -917,7 +917,12 @@ public class MediaSession implements AutoCloseable {
             mRemoteUserInfo = remoteUserInfo;
             mIsTrusted = trusted;
             mControllerCb = cb;
-            mConnectionHints = connectionHints;
+            if (connectionHints == null
+                    || MediaUtils.doesBundleHaveCustomParcelable(connectionHints)) {
+                mConnectionHints = null;
+            } else {
+                mConnectionHints = connectionHints;
+            }
         }
 
         /**
@@ -1360,9 +1365,11 @@ public class MediaSession implements AutoCloseable {
 
         /**
          * Set extras for the session token.  If not set, {@link SessionToken#getExtras()}
-         * will return {@link Bundle#EMPTY}.
+         * will return an empty {@link Bundle}.
          *
          * @return The Builder to allow chaining
+         * @throws IllegalArgumentException if the bundle contains any non-framework Parcelable
+         * objects.
          * @see SessionToken#getExtras()
          */
         @NonNull
@@ -1371,7 +1378,11 @@ public class MediaSession implements AutoCloseable {
             if (extras == null) {
                 throw new NullPointerException("extras shouldn't be null");
             }
-            mExtras = extras;
+            if (MediaUtils.doesBundleHaveCustomParcelable(extras)) {
+                throw new IllegalArgumentException(
+                        "extras shouldn't contain any custom parcelables");
+            }
+            mExtras = new Bundle(extras);
             return (U) this;
         }
 
