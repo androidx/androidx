@@ -31,7 +31,7 @@ dependencies {
     implementation(AUTO_VALUE_ANNOTATIONS)
     annotationProcessor(AUTO_VALUE)
     api(GUAVA_LISTENABLE_FUTURE)
-    implementation(project(":concurrent:concurrent-futures"))
+    implementation("androidx.concurrent:concurrent-futures:1.0.0-beta01")
 
     implementation(project(":ads-identifier-common"))
 
