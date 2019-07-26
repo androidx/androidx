@@ -246,6 +246,8 @@ package androidx.paging {
     method public void invalidate();
     method public abstract boolean isRetryableError(Throwable error);
     method public abstract suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
+    method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
+    method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
     property public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
   }
@@ -307,6 +309,10 @@ package androidx.paging {
     enum_constant public static final androidx.paging.PagedSource.LoadType END;
     enum_constant public static final androidx.paging.PagedSource.LoadType INITIAL;
     enum_constant public static final androidx.paging.PagedSource.LoadType START;
+  }
+
+  public final class PagedSourceKt {
+    ctor public PagedSourceKt();
   }
 
   public abstract class PositionalDataSource<T> extends androidx.paging.DataSource<java.lang.Integer,T> {

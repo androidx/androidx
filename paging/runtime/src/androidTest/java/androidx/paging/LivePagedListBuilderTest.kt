@@ -121,6 +121,7 @@ class LivePagedListBuilderTest {
     fun executorBehavior() {
         // specify a background executor via builder, and verify it gets used for all loads,
         // overriding default arch IO executor
+        @Suppress("DEPRECATION")
         val livePagedList = LivePagedListBuilder(MockDataSourceFactory(), 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
@@ -160,6 +161,7 @@ class LivePagedListBuilderTest {
         val factory = MockDataSourceFactory()
         factory.enqueueRetryableError()
 
+        @Suppress("DEPRECATION")
         val livePagedList = LivePagedListBuilder(factory, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
