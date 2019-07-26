@@ -9,6 +9,8 @@
 # --------- androidx specific code needed for build server. ------------------
 
 if [ -n "$OUT_DIR" ] ; then
+    mkdir -p "$OUT_DIR"
+    OUT_DIR="$(cd $OUT_DIR && pwd)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
     export LINT_PRINT_STACKTRACE=true
 else

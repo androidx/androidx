@@ -19,6 +19,7 @@ package androidx.build.lint
 import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+
 import org.junit.Ignore
 import org.junit.Test
 
