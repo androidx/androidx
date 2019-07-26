@@ -163,7 +163,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     @GuardedBy("mLock")
     private VideoSize mVideoSize = new VideoSize(0, 0);
     @GuardedBy("mLock")
-    private List<TrackInfo> mTrackInfos = Collections.emptyList();
+    private List<TrackInfo> mTracks = Collections.emptyList();
     @GuardedBy("mLock")
     private SparseArray<TrackInfo> mSelectedTracks = new SparseArray<>();
 
@@ -794,9 +794,9 @@ class MediaControllerImplBase implements MediaControllerImpl {
 
     @Override
     @NonNull
-    public List<SessionPlayer.TrackInfo> getTrackInfo() {
+    public List<SessionPlayer.TrackInfo> getTracks() {
         synchronized (mLock) {
-            return mTrackInfos;
+            return mTracks;
         }
     }
 
@@ -1166,11 +1166,11 @@ class MediaControllerImplBase implements MediaControllerImpl {
         });
     }
 
-    void notifyTrackInfoChanged(final int seq, final List<TrackInfo> trackInfos,
+    void notifyTracksChanged(final int seq, final List<TrackInfo> tracks,
             TrackInfo selectedVideoTrack, TrackInfo selectedAudioTrack,
             TrackInfo selectedSubtitleTrack, TrackInfo selectedMetadataTrack) {
         synchronized (mLock) {
-            mTrackInfos = trackInfos;
+            mTracks = tracks;
             // Update selected tracks
             mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_VIDEO, selectedVideoTrack);
             mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_AUDIO, selectedAudioTrack);
@@ -1184,7 +1184,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                callback.onTrackInfoChanged(mInstance, trackInfos);
+                callback.onTracksChanged(mInstance, tracks);
             }
         });
     }
@@ -1294,7 +1294,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mPreviousMediaItemIndex = previousMediaItemIndex;
                 mNextMediaItemIndex = nextMediaItemIndex;
                 mVideoSize = videoSize;
-                mTrackInfos = trackInfos;
+                mTracks = trackInfos;
                 mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_VIDEO, selectedVideoTrack);
                 mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_AUDIO, selectedAudioTrack);
                 mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, selectedSubtitleTrack);

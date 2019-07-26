@@ -487,11 +487,11 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
 
     @Override
     @NonNull
-    public List<TrackInfo> getTrackInfo() {
+    public List<TrackInfo> getTracks() {
         return runPlayerCallableBlocking(new Callable<List<TrackInfo>>() {
             @Override
             public List<TrackInfo> call() throws Exception {
-                return mPlayer.getTrackInfo();
+                return mPlayer.getTracks();
             }
         });
     }
@@ -672,8 +672,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void onTrackInfoChanged(@NonNull final List<TrackInfo> tracks) {
-        notifyMediaPlayer2Event(cb -> cb.onTrackInfoChanged(ExoPlayerMediaPlayer2Impl.this,
+    public void onTracksChanged(@NonNull final List<TrackInfo> tracks) {
+        notifyMediaPlayer2Event(cb -> cb.onTracksChanged(ExoPlayerMediaPlayer2Impl.this,
                 tracks));
     }
 

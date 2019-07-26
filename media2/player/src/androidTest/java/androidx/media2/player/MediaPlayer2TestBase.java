@@ -364,11 +364,11 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             }
 
             @Override
-            public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+            public void onTracksChanged(@NonNull MediaPlayer2 mp,
                     @NonNull List<TrackInfo> tracks) {
                 synchronized (cbLock) {
                     for (MediaPlayer2.EventCallback ecb : ecbs) {
-                        ecb.onTrackInfoChanged(mp, tracks);
+                        ecb.onTracksChanged(mp, tracks);
                     }
                 }
             }

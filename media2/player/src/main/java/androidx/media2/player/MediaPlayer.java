@@ -16,7 +16,6 @@
 
 package androidx.media2.player;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.common.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
@@ -69,7 +68,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
@@ -1830,6 +1828,7 @@ public final class MediaPlayer extends SessionPlayer {
      * completed.
      */
     @NonNull
+    @Override
     public ListenableFuture<PlayerResult> setSurface(@Nullable final Surface surface) {
         synchronized (mStateLock) {
             if (mClosed) {
@@ -1851,16 +1850,6 @@ public final class MediaPlayer extends SessionPlayer {
         };
         addPendingFuture(pendingFuture);
         return pendingFuture;
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    @Override
-    @NonNull
-    public ListenableFuture<PlayerResult> setSurfaceInternal(@Nullable Surface surface) {
-        return setSurface(surface);
     }
 
     /**
@@ -1931,7 +1920,6 @@ public final class MediaPlayer extends SessionPlayer {
         return mPlayer.getMaxPlayerVolume();
     }
 
-
     /**
      * Returns the size of the video.
      *
@@ -1941,25 +1929,19 @@ public final class MediaPlayer extends SessionPlayer {
      * receive a notification {@link PlayerCallback#onVideoSizeChanged} when the size
      * is available.
      */
-    @NonNull
-    public VideoSize getVideoSize() {
-        androidx.media2.common.VideoSize sizeInternal = getVideoSizeInternal();
-        return new VideoSize(sizeInternal);
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     @NonNull
-    public androidx.media2.common.VideoSize getVideoSizeInternal() {
+    public VideoSize getVideoSize() {
         synchronized (mStateLock) {
             if (mClosed) {
-                return new androidx.media2.common.VideoSize(0, 0);
+                return new VideoSize(0, 0);
             }
         }
-        return new androidx.media2.common.VideoSize(mPlayer.getVideoWidth(),
-                mPlayer.getVideoHeight());
+        return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
+
+
+
 
     /**
      * @return a {@link PersistableBundle} containing the set of attributes and values
@@ -2263,9 +2245,25 @@ public final class MediaPlayer extends SessionPlayer {
      *
      * @return List of track info. The total number of tracks is the size of the list.
      */
+    @Override
+    @NonNull
+    public List<SessionPlayer.TrackInfo> getTracks() {
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return Collections.emptyList();
+            }
+        }
+        return mPlayer.getTracks();
+    }
+
+
+    /**
+     * @deprecated Use {@link #getTracks()} instead.
+     */
+    @Deprecated
     @NonNull
     public List<TrackInfo> getTrackInfo() {
-        List<SessionPlayer.TrackInfo> infoInternals = getTrackInfoInternal();
+        List<SessionPlayer.TrackInfo> infoInternals = getTracks();
         List<TrackInfo> infos = new ArrayList<>();
         for (SessionPlayer.TrackInfo infoInternal : infoInternals) {
             infos.add(new TrackInfo(infoInternal));
@@ -2275,21 +2273,26 @@ public final class MediaPlayer extends SessionPlayer {
 
     /**
      * Returns metadata of the audio or video track currently selected for playback.
-     * The return value is an element in the list returned by {@link #getTrackInfo()}.
+     * The return value is an element in the list returned by {@link #getTracks()}.
      *
-     * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO} or
-     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}
+     * @param trackType should be one of {@link TrackInfo#MEDIA_TRACK_TYPE_VIDEO},
+     * {@link TrackInfo#MEDIA_TRACK_TYPE_AUDIO}, or {@link TrackInfo#MEDIA_TRACK_TYPE_SUBTITLE}.
      * @return metadata corresponding to the audio or video track currently selected for
      * playback; {@code null} is returned when there is no selected track for {@code trackType} or
      * when {@code trackType} is not one of audio or video.
      * @throws IllegalStateException if called after {@link #close()}
      *
-     * @see #getTrackInfo()
+     * @see #getTracks()
      */
-    // TODO: revise the method document once subtitle track support is re-enabled. (b/130312596)
+    @Override
     @Nullable
     public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
-        SessionPlayer.TrackInfo infoInternal = getSelectedTrackInternal(trackType);
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return null;
+            }
+        }
+        SessionPlayer.TrackInfo infoInternal = mPlayer.getSelectedTrack(trackType);
         return infoInternal == null ? null : new TrackInfo(infoInternal);
     }
 
@@ -2311,74 +2314,76 @@ public final class MediaPlayer extends SessionPlayer {
      * this method is not called.
      * </p>
      * <p>
-     * Currently, audio tracks can be selected via this method.
+     * Currently, audio and subtitle tracks can be selected via this method. {@link #getTracks()}
+     * returns the list of tracks that can be selected, but the list may be invalidated when
+     * {@link PlayerCallback#onTracksChanged(SessionPlayer, List)} is called.
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
-     * object can be obtained from {@link #getTrackInfo()}.
+     * object can be obtained from {@link #getTracks()}.
      *
-     * @see #getTrackInfo
+     * @see #getTracks
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
      */
-    // TODO: support subtitle track selection  (b/130312596)
-    // TODO: Revise doc to let developers know the tracks from getTrackInfo may be invalidated
-    //       when onTrackInfoChanged is called after onTrackInfoChanged is becoming public
-    //       (b/132928418).
+    @Override
+    @NonNull
+    public ListenableFuture<PlayerResult> selectTrack(
+            @NonNull final SessionPlayer.TrackInfo trackInfo) {
+        if (trackInfo == null) {
+            throw new NullPointerException("trackInfo shouldn't be null");
+        }
+        synchronized (mStateLock) {
+            if (mClosed) {
+                return createFutureForClosed();
+            }
+        }
+        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
+            @Override
+            List<ResolvableFuture<PlayerResult>> onExecute() {
+                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
+                ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
+                synchronized (mPendingCommands) {
+                    Object token = mPlayer.selectTrack(trackInfo.getId());
+                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
+                            future, trackInfo, token);
+                }
+                futures.add(future);
+                return futures;
+            }
+        };
+        addPendingFuture(pendingFuture);
+        return pendingFuture;
+    }
+
+    /**
+     * @deprecated Use {@link #selectTrack(SessionPlayer.TrackInfo)} instead.
+     */
+    @Deprecated
     @NonNull
     public ListenableFuture<PlayerResult> selectTrack(@NonNull final TrackInfo trackInfo) {
-        return selectTrackInternal(trackInfo.toInternal());
+        return selectTrack((SessionPlayer.TrackInfo) trackInfo);
     }
 
     /**
      * Deselects a track.
      * <p>
      * Currently, the track must be a subtitle track and no audio or video tracks can be
-     * deselected.
+     * deselected. {@link #getTracks()} returns the list of tracks that can be deselected, but
+     * the list may be invalidated when
+     * {@link PlayerCallback#onTracksChanged(SessionPlayer, List)} is called.
      * </p>
      * @param trackInfo metadata corresponding to the track to be selected. A {@code trackInfo}
-     * object can be obtained from {@link #getTrackInfo()}.
+     * object can be obtained from {@link #getTracks()}.
      *
-     * @see #getTrackInfo
+     * @see #getTracks
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link SessionPlayer.PlayerResult} will be delivered when the command completed.
-     *
-     * @hide  TODO: unhide this when we support subtitle track selection (b/130312596)
      */
-    // TODO: Revise doc to let developers know the tracks from getTrackInfo may be invalidated
-    //       when onTrackInfoChanged is called after onTrackInfoChanged is becoming public
-    //       (b/132928418).
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @NonNull
-    public ListenableFuture<PlayerResult> deselectTrack(@NonNull final TrackInfo trackInfo) {
-        return deselectTrackInternal(trackInfo.toInternal());
-    }
-
-    /**
-     * TODO: Merge this into {@link #getTrackInfo()} (b/132928418)
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
     @Override
     @NonNull
-    public List<SessionPlayer.TrackInfo> getTrackInfoInternal() {
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return Collections.emptyList();
-            }
-        }
-        return mPlayer.getTrackInfo();
-    }
-
-    /**
-     * TODO: Merge this into {@link #selectTrack(TrackInfo)} (b/132928418)
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    @Override
-    @NonNull
-    public ListenableFuture<PlayerResult> selectTrackInternal(
-            @NonNull SessionPlayer.TrackInfo trackInfoInternal) {
-        if (trackInfoInternal == null) {
+    public ListenableFuture<PlayerResult> deselectTrack(
+            @NonNull SessionPlayer.TrackInfo trackInfo) {
+        if (trackInfo == null) {
             throw new NullPointerException("trackInfo shouldn't be null");
         }
         synchronized (mStateLock) {
@@ -2392,44 +2397,9 @@ public final class MediaPlayer extends SessionPlayer {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
-                    Object token = mPlayer.selectTrack(trackInfoInternal.getId());
-                    addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_SELECT_TRACK,
-                            future, trackInfoInternal, token);
-                }
-                futures.add(future);
-                return futures;
-            }
-        };
-        addPendingFuture(pendingFuture);
-        return pendingFuture;
-    }
-
-    /**
-     * TODO: Merge this into {@link #deselectTrack(TrackInfo)} (b/132928418)
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    @Override
-    @NonNull
-    public ListenableFuture<PlayerResult> deselectTrackInternal(
-            @NonNull SessionPlayer.TrackInfo trackInfoInternal) {
-        if (trackInfoInternal == null) {
-            throw new NullPointerException("trackInfo shouldn't be null");
-        }
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return createFutureForClosed();
-            }
-        }
-        PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
-            @Override
-            List<ResolvableFuture<PlayerResult>> onExecute() {
-                ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
-                ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
-                synchronized (mPendingCommands) {
-                    Object token = mPlayer.deselectTrack(trackInfoInternal.getId());
+                    Object token = mPlayer.deselectTrack(trackInfo.getId());
                     addPendingCommandWithTrackInfoLocked(MediaPlayer2.CALL_COMPLETED_DESELECT_TRACK,
-                            future, trackInfoInternal, token);
+                            future, trackInfo, token);
                 }
                 futures.add(future);
                 return futures;
@@ -2437,22 +2407,6 @@ public final class MediaPlayer extends SessionPlayer {
         };
         addPendingFuture(pendingFuture);
         return pendingFuture;
-    }
-
-    /**
-     * TODO: Merge this into {@link #getSelectedTrack(int)} (b/132928418)
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    @Override
-    @Nullable
-    public SessionPlayer.TrackInfo getSelectedTrackInternal(int trackType) {
-        synchronized (mStateLock) {
-            if (mClosed) {
-                return null;
-            }
-        }
-        return mPlayer.getSelectedTrack(trackType);
     }
 
     /**
@@ -3019,16 +2973,15 @@ public final class MediaPlayer extends SessionPlayer {
                     break;
                 case MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE:
                 case MediaPlayer2.CALL_COMPLETED_SKIP_TO_NEXT:
-                    final List<SessionPlayer.TrackInfo> tracks = mp.getTrackInfo();
-                    final androidx.media2.common.VideoSize videoSize = getVideoSizeInternal();
+                    final List<SessionPlayer.TrackInfo> tracks = mp.getTracks();
+                    final androidx.media2.common.VideoSize videoSize = getVideoSize();
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(
                                 SessionPlayer.PlayerCallback callback) {
                             callback.onCurrentMediaItemChanged(MediaPlayer.this, item);
                             callback.onVideoSizeChanged(MediaPlayer.this, videoSize);
-                            callback.onVideoSizeChangedInternal(MediaPlayer.this, item, videoSize);
-                            callback.onTrackInfoChanged(MediaPlayer.this, tracks);
+                            callback.onTracksChanged(MediaPlayer.this, tracks);
                         }
                     });
                     break;
@@ -3137,7 +3090,6 @@ public final class MediaPlayer extends SessionPlayer {
                     @Override
                     public void callCallback(SessionPlayer.PlayerCallback callback) {
                         callback.onVideoSizeChanged(MediaPlayer.this, commonSize);
-                        callback.onVideoSizeChangedInternal(MediaPlayer.this, item, commonSize);
                     }
                 });
             }
@@ -3305,9 +3257,9 @@ public final class MediaPlayer extends SessionPlayer {
         }
 
         @Override
-        public void onTrackInfoChanged(@NonNull MediaPlayer2 mp,
+        public void onTracksChanged(@NonNull MediaPlayer2 mp,
                 @NonNull List<SessionPlayer.TrackInfo> tracks) {
-            notifySessionPlayerCallback(callback -> callback.onTrackInfoChanged(MediaPlayer.this,
+            notifySessionPlayerCallback(callback -> callback.onTracksChanged(MediaPlayer.this,
                     tracks));
         }
     }
@@ -3318,35 +3270,30 @@ public final class MediaPlayer extends SessionPlayer {
      */
     public abstract static class PlayerCallback extends SessionPlayer.PlayerCallback {
         /**
+         * @deprecated Use
+         * {@link #onVideoSizeChanged(SessionPlayer,androidx.media2.common.VideoSize)} instead.
+         */
+        @Deprecated
+        public void onVideoSizeChanged(
+                @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
+
+        /**
          * Called to indicate the video size
          * <p>
          * The video size (width and height) could be 0 if there was no video,
          * no display surface was set, or the value was not determined yet.
          *
-         * @param mp the player associated with this callback
-         * @param item the MediaItem of this media item
+         * @param player the player associated with this callback
          * @param size the size of the video
          */
-        // TODO: Deprecate this and unhide new API without MediaItem parameter (b/132928418)
-        public void onVideoSizeChanged(
-                @NonNull MediaPlayer mp, @NonNull MediaItem item, @NonNull VideoSize size) { }
-
-        /**
-         * @deprecated Use
-         * {@link #onVideoSizeChanged(SessionPlayer, androidx.media2.common.VideoSize)} instead.
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        @Deprecated
         @Override
-        public void onVideoSizeChangedInternal(
-                @NonNull SessionPlayer player, @NonNull MediaItem item,
-                @NonNull androidx.media2.common.VideoSize sizeInternal) {
+        public void onVideoSizeChanged(@NonNull SessionPlayer player,
+                @NonNull androidx.media2.common.VideoSize size) {
             if (!(player instanceof MediaPlayer)) {
                 throw new IllegalArgumentException("player must be MediaPlayer");
             }
-            VideoSize size = new VideoSize(sizeInternal);
-            onVideoSizeChanged((MediaPlayer) player, item, size);
+            onVideoSizeChanged((MediaPlayer) player, player.getCurrentMediaItem(),
+                    new VideoSize(size));
         }
 
         /**
@@ -3433,127 +3380,20 @@ public final class MediaPlayer extends SessionPlayer {
     /**
      * Class for the player to return each audio/video/subtitle track's metadata.
      *
-     * @see #getTrackInfo
+     * @see #getTracks
      */
-    // TODO: Merge it into SessionPlayer.TrackInfo (b/132928418)
-    public static final class TrackInfo {
-        public static final int MEDIA_TRACK_TYPE_UNKNOWN = 0;
-        public static final int MEDIA_TRACK_TYPE_VIDEO = 1;
-        public static final int MEDIA_TRACK_TYPE_AUDIO = 2;
-        public static final int MEDIA_TRACK_TYPE_SUBTITLE = 4;
-        public static final int MEDIA_TRACK_TYPE_METADATA = 5;
-
-        /**
-         * @hide
-         */
-        @IntDef(flag = false, /*prefix = "MEDIA_TRACK_TYPE",*/ value = {
-                MEDIA_TRACK_TYPE_UNKNOWN,
-                MEDIA_TRACK_TYPE_VIDEO,
-                MEDIA_TRACK_TYPE_AUDIO,
-                MEDIA_TRACK_TYPE_SUBTITLE,
-                MEDIA_TRACK_TYPE_METADATA,
-        })
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public @interface MediaTrackType {}
-
-        private final int mId;
-        private final int mTrackType;
-        @Nullable
-        private final MediaFormat mFormat;
-
-        /**
-         * Gets the track type.
-         * @return TrackType which indicates if the track is video, audio, subtitle or metadata.
-         */
-        public @MediaTrackType int getTrackType() {
-            return mTrackType;
+    public static final class TrackInfo extends SessionPlayer.TrackInfo {
+        TrackInfo(SessionPlayer.TrackInfo infoInternal) {
+            super(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat());
         }
 
-        /**
-         * Gets the language code of the track.
-         * @return {@link Locale} which includes the language information.
-         */
-        @NonNull
-        public Locale getLanguage() {
-            String language = mFormat != null ? mFormat.getString(MediaFormat.KEY_LANGUAGE) : null;
-            if (language == null) {
-                language = "und";
-            }
-            return new Locale(language);
-        }
-
-        /**
-         * Gets the {@link MediaFormat} of the track.  If the format is
-         * unknown or could not be determined, null is returned.
-         */
         @Nullable
+        @Override
         public MediaFormat getFormat() {
-            if (mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
-                return mFormat;
+            if (getTrackType() == MEDIA_TRACK_TYPE_SUBTITLE) {
+                return super.getFormat();
             }
             return null;
-        }
-
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public TrackInfo(int id, int type, @Nullable MediaFormat format) {
-            mId = id;
-            mTrackType = type;
-            mFormat = format;
-        }
-
-        TrackInfo(SessionPlayer.TrackInfo infoInternal) {
-            this(infoInternal.getId(), infoInternal.getTrackType(), infoInternal.getFormat());
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder out = new StringBuilder(128);
-            out.append(getClass().getName());
-            out.append('#').append(mId);
-            out.append('{');
-            switch (mTrackType) {
-                case MEDIA_TRACK_TYPE_VIDEO:
-                    out.append("VIDEO");
-                    break;
-                case MEDIA_TRACK_TYPE_AUDIO:
-                    out.append("AUDIO");
-                    break;
-                case MEDIA_TRACK_TYPE_SUBTITLE:
-                    out.append("SUBTITLE");
-                    break;
-                case MEDIA_TRACK_TYPE_METADATA:
-                    out.append("METADATA");
-                    break;
-                default:
-                    out.append("UNKNOWN");
-                    break;
-            }
-            out.append(", ").append(mFormat);
-            out.append("}");
-            return out.toString();
-        }
-
-        @Override
-        public int hashCode() {
-            return mId;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (!(obj instanceof TrackInfo)) {
-                return false;
-            }
-            TrackInfo other = (TrackInfo) obj;
-            return mId == other.mId;
-        }
-
-        SessionPlayer.TrackInfo toInternal() {
-            return new SessionPlayer.TrackInfo(mId, mTrackType, mFormat);
         }
     }
 

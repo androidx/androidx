@@ -361,8 +361,7 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final PlayerWrapper playerWrapper = createPlayerWrapper(new PlayerWrapper.PlayerCallback() {
             @Override
-            public void onTrackInfoChanged(@NonNull PlayerWrapper player,
-                    @NonNull List<TrackInfo> tracks) {
+            void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
                 assertNotNull(tracks);
                 if (tracks.isEmpty()) {
                     // This callback can be called before tracks are available after setMediaItem
@@ -403,14 +402,13 @@ public class MediaControlView_WithPlayerTest extends MediaWidgetTestBase {
             }
 
             @Override
-            public void onTrackInfoChanged(@NonNull PlayerWrapper player,
-                    @NonNull List<TrackInfo> trackInfos) {
+            void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
                 if (mFirstSubtitleTrack != null) {
                     return;
                 }
-                assertNotNull(trackInfos);
-                for (int i = 0; i < trackInfos.size(); i++) {
-                    TrackInfo trackInfo = trackInfos.get(i);
+                assertNotNull(tracks);
+                for (int i = 0; i < tracks.size(); i++) {
+                    TrackInfo trackInfo = tracks.get(i);
                     if (trackInfo.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                         mFirstSubtitleTrack = trackInfo;
                         latchForTrackUpdate.countDown();

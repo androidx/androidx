@@ -237,7 +237,7 @@ public class MediaSessionProviderService extends Service {
                 }
                 List<SessionPlayer.TrackInfo> trackInfos =
                         ParcelUtils.getVersionedParcelableList(config, KEY_TRACK_INFO);
-                localPlayer.mTrackInfos = trackInfos;
+                localPlayer.mTracks = trackInfos;
                 player = localPlayer;
             }
             ParcelImpl attrImpl = config.getParcelable(KEY_AUDIO_ATTRIBUTES);
@@ -404,9 +404,9 @@ public class MediaSessionProviderService extends Service {
                 throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
-            List<SessionPlayer.TrackInfo> trackInfos =
+            List<SessionPlayer.TrackInfo> tracks =
                     MediaParcelUtils.fromParcelableList(trackInfoParcelList);
-            player.notifyTrackInfoChanged(trackInfos);
+            player.notifyTracksChanged(tracks);
         }
 
         @Override

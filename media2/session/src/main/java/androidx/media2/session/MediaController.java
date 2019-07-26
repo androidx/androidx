@@ -66,6 +66,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -1161,7 +1162,7 @@ public class MediaController implements AutoCloseable {
 
     /**
      * Gets the cached track info list from the
-     * {@link ControllerCallback#onTrackInfoChanged(MediaController, List)}.
+     * {@link ControllerCallback#onTracksChanged(MediaController, List)}.
      * The types of tracks supported may vary based on player implementation.
      * If it is not connected yet, it returns null.
      *
@@ -1171,8 +1172,8 @@ public class MediaController implements AutoCloseable {
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public List<TrackInfo> getTrackInfo() {
-        return isConnected() ? getImpl().getTrackInfo() : null;
+    public List<TrackInfo> getTracks() {
+        return isConnected() ? getImpl().getTracks() : Collections.emptyList();
     }
 
     /**
@@ -1211,11 +1212,11 @@ public class MediaController implements AutoCloseable {
 
     /**
      * Gets the currently selected track for the given {@link TrackInfo.MediaTrackType}. The return
-     * value is an element in the list returned by {@link #getTrackInfo()} and supported track types
+     * value is an element in the list returned by {@link #getTracks()} and supported track types
      * may vary based on the player implementation.
      *
      * The returned value can be outdated after
-     * {@link ControllerCallback#onTrackInfoChanged(MediaController, List)},
+     * {@link ControllerCallback#onTracksChanged(MediaController, List)},
      * {@link ControllerCallback#onTrackSelected(MediaController, TrackInfo)},
      * or {@link ControllerCallback#onTrackDeselected(MediaController, TrackInfo)} is called.
      *
@@ -1226,7 +1227,6 @@ public class MediaController implements AutoCloseable {
      *
      * @hide
      */
-    // TODO: revise the method document once subtitle track support is re-enabled. (b/130312596)
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
     public TrackInfo getSelectedTrack(@TrackInfo.MediaTrackType int trackType) {
@@ -1455,7 +1455,7 @@ public class MediaController implements AutoCloseable {
         VideoSize getVideoSize();
         ListenableFuture<SessionResult> setSurface(@Nullable Surface surface);
         @NonNull
-        List<TrackInfo> getTrackInfo();
+        List<TrackInfo> getTracks();
         ListenableFuture<SessionResult> selectTrack(TrackInfo trackInfo);
         ListenableFuture<SessionResult> deselectTrack(TrackInfo trackInfo);
         @Nullable
@@ -1916,7 +1916,7 @@ public class MediaController implements AutoCloseable {
          *
          * @hide
          */
-        // TODO: Unhide this (b/134749006)
+        // TODO (b/134749006): Unhide this
         @RestrictTo(LIBRARY_GROUP)
         public void onVideoSizeChanged(@NonNull MediaController controller,
                 @NonNull VideoSize videoSize) {}
@@ -1939,12 +1939,14 @@ public class MediaController implements AutoCloseable {
          * @see TrackInfo#MEDIA_TRACK_TYPE_METADATA
          *
          * @param controller the controller for this event
-         * @param trackInfos the list of tracks. It can be empty.
+         * @param tracks the list of tracks. It can be empty.
+         *
          * @hide
          */
+        // TODO (b/134749006): Unhide this
         @RestrictTo(LIBRARY_GROUP)
-        public void onTrackInfoChanged(@NonNull MediaController controller,
-                @NonNull List<TrackInfo> trackInfos) {}
+        public void onTracksChanged(@NonNull MediaController controller,
+                @NonNull List<TrackInfo> tracks) {}
 
         /**
          * Called when a track is selected.

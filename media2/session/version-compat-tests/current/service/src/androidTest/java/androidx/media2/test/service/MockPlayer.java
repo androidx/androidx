@@ -58,7 +58,7 @@ public class MockPlayer extends SessionPlayer {
     @BuffState
     public int mLastBufferingState;
     public long mDuration;
-    public List<TrackInfo> mTrackInfos;
+    public List<TrackInfo> mTracks;
 
     public List<MediaItem> mPlaylist;
     public MediaMetadata mMetadata;
@@ -272,14 +272,14 @@ public class MockPlayer extends SessionPlayer {
         }
     }
 
-    public void notifyTrackInfoChanged(final List<TrackInfo> trackInfos) {
+    public void notifyTracksChanged(final List<TrackInfo> tracks) {
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
             final PlayerCallback callback = pair.first;
             pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onTrackInfoChanged(MockPlayer.this, trackInfos);
+                    callback.onTracksChanged(MockPlayer.this, tracks);
                 }
             });
         }
@@ -512,23 +512,23 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     @NonNull
-    public List<TrackInfo> getTrackInfoInternal() {
-        if (mTrackInfos == null) {
+    public List<TrackInfo> getTracks() {
+        if (mTracks == null) {
             return new ArrayList<TrackInfo>();
         }
-        return mTrackInfos;
+        return mTracks;
     }
 
     @Override
     @NonNull
-    public ListenableFuture<PlayerResult> selectTrackInternal(@NonNull TrackInfo trackInfo) {
+    public ListenableFuture<PlayerResult> selectTrack(@NonNull TrackInfo trackInfo) {
         notifyTrackSelected(trackInfo);
         return new SyncListenableFuture(mCurrentMediaItem);
     }
 
     @Override
     @NonNull
-    public ListenableFuture<PlayerResult> deselectTrackInternal(@NonNull TrackInfo trackInfo) {
+    public ListenableFuture<PlayerResult> deselectTrack(@NonNull TrackInfo trackInfo) {
         notifyTrackDeselected(trackInfo);
         return new SyncListenableFuture(mCurrentMediaItem);
     }
@@ -605,7 +605,7 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     @NonNull
-    public VideoSize getVideoSizeInternal() {
+    public VideoSize getVideoSize() {
         if (mVideoSize == null) {
             mVideoSize = new VideoSize(0, 0);
         }
@@ -621,7 +621,6 @@ public class MockPlayer extends SessionPlayer {
             pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
-                    callback.onVideoSizeChangedInternal(MockPlayer.this, dummyItem, videoSize);
                     callback.onVideoSizeChanged(MockPlayer.this, videoSize);
                 }
             });
@@ -630,7 +629,7 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     @NonNull
-    public ListenableFuture<PlayerResult> setSurfaceInternal(@Nullable Surface surface) {
+    public ListenableFuture<PlayerResult> setSurface(@Nullable Surface surface) {
         mSurface = surface;
         return new SyncListenableFuture(mCurrentMediaItem);
     }
