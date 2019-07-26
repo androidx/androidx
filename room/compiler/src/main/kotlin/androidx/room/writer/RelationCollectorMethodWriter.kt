@@ -133,13 +133,14 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
             val shouldCopyCursor = collector.rowAdapter.let {
                 it is PojoRowAdapter && it.relationCollectors.isNotEmpty()
             }
-            addStatement("final $T $L = $T.query($N, $L, $L)",
+            addStatement("final $T $L = $T.query($N, $L, $L, $L)",
                     AndroidTypeNames.CURSOR,
                     cursorVar,
                     RoomTypeNames.DB_UTIL,
                     DaoWriter.dbField,
                     stmtVar,
-                    if (shouldCopyCursor) "true" else "false")
+                    if (shouldCopyCursor) "true" else "false",
+                    "null")
 
             beginControlFlow("try").apply {
                 if (relation.junction != null) {

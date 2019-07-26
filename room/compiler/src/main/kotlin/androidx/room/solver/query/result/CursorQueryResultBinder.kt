@@ -29,7 +29,8 @@ class CursorQueryResultBinder : QueryResultBinder(NO_OP_RESULT_ADAPTER) {
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         val builder = scope.builder()
         val transactionWrapper = if (inTransaction) {

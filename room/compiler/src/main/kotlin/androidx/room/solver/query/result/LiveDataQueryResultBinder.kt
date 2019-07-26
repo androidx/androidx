@@ -48,7 +48,8 @@ class LiveDataQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
             createRunQueryAndReturnStatements(
@@ -56,7 +57,8 @@ class LiveDataQueryResultBinder(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 inTransaction = inTransaction,
                 dbField = dbField,
-                scope = scope
+                scope = scope,
+                cancellationSignalVar = "null" // LiveData can't be cancelled
             )
         }.apply {
             if (canReleaseQuery) {
@@ -83,7 +85,8 @@ class LiveDataQueryResultBinder(
         observerField: FieldSpec,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignal: String
     ): MethodSpec {
         return MethodSpec.methodBuilder("compute").apply {
             addAnnotation(Override::class.java)
@@ -104,7 +107,8 @@ class LiveDataQueryResultBinder(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope
+                scope = scope,
+                cancellationSignalVar = cancellationSignal
             )
         }.build()
     }

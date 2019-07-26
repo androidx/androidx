@@ -43,14 +43,16 @@ class RxQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
             createRunQueryAndReturnStatements(builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 inTransaction = inTransaction,
                 dbField = dbField,
-                scope = scope)
+                scope = scope,
+                cancellationSignalVar = cancellationSignalVar)
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
