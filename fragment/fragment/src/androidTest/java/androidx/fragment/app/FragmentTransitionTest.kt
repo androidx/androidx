@@ -763,6 +763,8 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         fragment2.waitForTransition()
         // It does not transition properly for ordered transactions, though.
         if (reorderingAllowed) {
+            // reordering allowed fragment3 to get a transition so we should wait for it to finish
+            fragment3.waitForTransition()
             verifyAndClearTransition(fragment2.returnTransition, null, midGreen, midBlue)
             val endGreen = findGreen()
             val endBlue = findBlue()
@@ -771,6 +773,8 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             verifyNoOtherTransitions(fragment2)
             verifyNoOtherTransitions(fragment3)
         } else {
+            // The pop transition will be executed so we should wait until fragment 1 finishes
+            fragment1.waitForTransition()
             // fragment3 doesn't get a transition since it conflicts with the pop transition
             verifyNoOtherTransitions(fragment3)
             // Everything else is just doing its best. Ordered transactions can't handle
