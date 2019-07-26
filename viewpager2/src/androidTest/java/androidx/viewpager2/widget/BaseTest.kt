@@ -443,6 +443,9 @@ open class BaseTest {
         return latch
     }
 
+    val ViewPager2.linearLayoutManager: LinearLayoutManager
+        get() = recyclerView.layoutManager as LinearLayoutManager
+
     val ViewPager2.recyclerView: RecyclerView
         get() {
             return getChildAt(0) as RecyclerView
@@ -452,8 +455,7 @@ open class BaseTest {
         get() {
             var position = RecyclerView.NO_POSITION
             activityTestRule.runOnUiThread {
-                position = (recyclerView.layoutManager as LinearLayoutManager)
-                    .findFirstCompletelyVisibleItemPosition()
+                position = linearLayoutManager.findFirstCompletelyVisibleItemPosition()
             }
             return position
         }
