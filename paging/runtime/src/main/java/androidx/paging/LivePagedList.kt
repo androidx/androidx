@@ -30,7 +30,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
     initialKey: Key?,
     private val config: PagedList.Config,
     private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
-    private val dataSourceFactory: DataSource.Factory<Key, Value>,
+    private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
     private val notifyExecutor: Executor,
     private val fetchExecutor: Executor
 ) : LiveData<PagedList<Value>>() {
@@ -43,7 +43,7 @@ internal class LivePagedList<Key : Any, Value : Any>(
 
     init {
         currentData = InitialPagedList(
-            PagedSourceWrapper(dataSourceFactory.create()),
+            pagedSourceFactory(),
             coroutineScope,
             config,
             initialKey
@@ -97,16 +97,15 @@ internal class LivePagedList<Key : Any, Value : Any>(
     }
 
     private suspend fun createPagedList(): PagedList<Value> {
-        val dataSource = dataSourceFactory.create()
-        @Suppress("DEPRECATION")
-        currentData.dataSource.removeInvalidatedCallback(callback)
-        dataSource.addInvalidatedCallback(callback)
+        val pagedSource = pagedSourceFactory()
+        currentData.pagedSource.unregisterInvalidatedCallback(callback)
+        pagedSource.registerInvalidatedCallback(callback)
         currentData.setInitialLoadState(PagedList.LoadState.LOADING, null)
 
         @Suppress("UNCHECKED_CAST") // getLastKey guaranteed to be of 'Key' type
         val lastKey = currentData.lastKey as Key?
         return PagedList.create(
-            PagedSourceWrapper(dataSource),
+            pagedSource,
             coroutineScope,
             notifyExecutor,
             fetchExecutor,
@@ -132,12 +131,14 @@ internal class LivePagedList<Key : Any, Value : Any>(
  *
  * @see LivePagedListBuilder
  */
+@Deprecated("DataSource is deprecated and has been replaced by PagedSource")
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
     fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
 ): LiveData<PagedList<Value>> {
+    @Suppress("DEPRECATION")
     return LivePagedListBuilder(this, config)
         .setInitialLoadKey(initialLoadKey)
         .setBoundaryCallback(boundaryCallback)
@@ -159,7 +160,63 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  *
  * @see LivePagedListBuilder
  */
+@Deprecated("DataSource is deprecated and has been replaced by PagedSource")
 fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
+    pageSize: Int,
+    initialLoadKey: Key? = null,
+    boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
+    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
+): LiveData<PagedList<Value>> {
+    @Suppress("DEPRECATION")
+    return LivePagedListBuilder(this, Config(pageSize))
+        .setInitialLoadKey(initialLoadKey)
+        .setBoundaryCallback(boundaryCallback)
+        .setFetchExecutor(fetchExecutor)
+        .build()
+}
+
+/**
+ * Constructs a `LiveData<PagedList>`, from this [PagedSourceFactory], convenience for
+ * [LivePagedListBuilder].
+ *
+ * No work (such as loading) is done immediately, the creation of the first PagedList is is
+ * deferred until the LiveData is observed.
+ *
+ * @param config Paging configuration.
+ * @param initialLoadKey Initial load key passed to the first PagedList/PagedSource.
+ * @param boundaryCallback The boundary callback for listening to PagedList load state.
+ * @param fetchExecutor Executor for fetching data from PagedSources.
+ *
+ * @see LivePagedListBuilder
+ */
+fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
+    config: PagedList.Config,
+    initialLoadKey: Key? = null,
+    boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
+    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
+): LiveData<PagedList<Value>> {
+    return LivePagedListBuilder(this, config)
+        .setInitialLoadKey(initialLoadKey)
+        .setBoundaryCallback(boundaryCallback)
+        .setFetchExecutor(fetchExecutor)
+        .build()
+}
+
+/**
+ * Constructs a `LiveData<PagedList>`, from this [PagedSourceFactory], convenience for
+ * [LivePagedListBuilder].
+ *
+ * No work (such as loading) is done immediately, the creation of the first PagedList is is
+ * deferred until the LiveData is observed.
+ *
+ * @param pageSize Page size.
+ * @param initialLoadKey Initial load key passed to the first PagedList/PagedSource.
+ * @param boundaryCallback The boundary callback for listening to PagedList load state.
+ * @param fetchExecutor Executor for fetching data from PagedSources.
+ *
+ * @see LivePagedListBuilder
+ */
+fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,

@@ -28,8 +28,10 @@ package androidx.paging {
   }
 
   public final class LivePagedListBuilder<Key, Value> {
-    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
-    ctor public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
+    ctor @Deprecated public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, androidx.paging.PagedList.Config config);
+    ctor @Deprecated public LivePagedListBuilder(androidx.paging.DataSource.Factory<Key,Value> dataSourceFactory, int pageSize);
+    ctor public LivePagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, androidx.paging.PagedList.Config config);
+    ctor public LivePagedListBuilder(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>> pagedSourceFactory, int pageSize);
     method public androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> build();
     method public androidx.paging.LivePagedListBuilder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
     method public androidx.paging.LivePagedListBuilder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
@@ -39,8 +41,10 @@ package androidx.paging {
 
   public final class LivePagedListKt {
     ctor public LivePagedListKt();
-    method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
-    method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
+    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
+    method @Deprecated public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(androidx.paging.DataSource.Factory<Key,Value>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
+    method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>>, androidx.paging.PagedList.Config config, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
+    method public static <Key, Value> androidx.lifecycle.LiveData<androidx.paging.PagedList<Value>> toLiveData(kotlin.jvm.functions.Function0<? extends androidx.paging.PagedSource<Key,Value>>, int pageSize, Key? initialLoadKey = null, androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback = null, java.util.concurrent.Executor fetchExecutor = ArchTaskExecutor.getIOThreadExecutor());
   }
 
   public abstract class PagedListAdapter<T, VH extends androidx.recyclerview.widget.RecyclerView.ViewHolder> extends androidx.recyclerview.widget.RecyclerView.Adapter<VH> {

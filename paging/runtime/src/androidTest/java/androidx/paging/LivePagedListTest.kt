@@ -33,7 +33,8 @@ class LivePagedListTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Test
-    fun toLiveData_config() {
+    fun toLiveData_dataSourceConfig() {
+        @Suppress("DEPRECATION")
         val livePagedList = dataSourceFactory.toLiveData(config)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
@@ -41,8 +42,26 @@ class LivePagedListTest {
     }
 
     @Test
-    fun toLiveData_pageSize() {
+    fun toLiveData_dataSourcePageSize() {
+        @Suppress("DEPRECATION")
         val livePagedList = dataSourceFactory.toLiveData(24)
+        livePagedList.observeForever {}
+        assertNotNull(livePagedList.value)
+        assertEquals(24, livePagedList.value!!.config.pageSize)
+    }
+
+    @Test
+    fun toLiveData_pagedSourceConfig() {
+        @Suppress("DEPRECATION")
+        val livePagedList = pagedSourceFactory.toLiveData(config)
+        livePagedList.observeForever {}
+        assertNotNull(livePagedList.value)
+        assertEquals(config, livePagedList.value!!.config)
+    }
+
+    @Test
+    fun toLiveData_pagedSourcePageSize() {
+        val livePagedList = pagedSourceFactory.toLiveData(24)
         livePagedList.observeForever {}
         assertNotNull(livePagedList.value)
         assertEquals(24, livePagedList.value!!.config.pageSize)
@@ -65,6 +84,10 @@ class LivePagedListTest {
                 return dataSource
             }
         }
+
+        private val pagedSource = PagedSourceWrapper(dataSource)
+
+        private val pagedSourceFactory = { pagedSource }
 
         private val config = Config(10)
     }

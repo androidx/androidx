@@ -21,7 +21,19 @@ import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.KeyProvider.ItemKey
 import androidx.paging.PagedSource.KeyProvider.PageKey
 import androidx.paging.PagedSource.KeyProvider.Positional
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+
+/**
+ * Factory for [PagedSource]s.
+ *
+ * Data-loading systems of an application or library can implement provide this type to allow
+ * `LiveData<PagedList>`s to be created.
+ *
+ * @param Key Key identifying items in PagedSource.
+ * @param Value Type of items in the list loaded by the PagedSources.
+ */
+typealias PagedSourceFactory<Key, Value> = () -> PagedSource<Key, Value>
 
 /**
  * Base class for an abstraction of pageable static data from some source, where loading pages data
@@ -183,6 +195,8 @@ abstract class PagedSource<Key : Any, Value : Any> {
 
     abstract val keyProvider: KeyProvider<Key, Value>
 
+    private val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
+
     private val _invalid = AtomicBoolean(false)
     /**
      * Whether this [PagedSource] has been invalidated, which should happen when the data this
@@ -199,7 +213,35 @@ abstract class PagedSource<Key : Any, Value : Any> {
      *
      * TODO(b/137971356): Investigate making this not open when able to remove [PagedSourceWrapper].
      */
-    open fun invalidate() = _invalid.set(true)
+    open fun invalidate() {
+        if (_invalid.compareAndSet(false, true)) {
+            onInvalidatedCallbacks.forEach { it.invoke() }
+        }
+    }
+
+    /**
+     * Add a callback to invoke when the [PagedSource] is first invalidated.
+     *
+     * Once invalidated, a [PagedSource] will not become valid again.
+     *
+     * A [PagedSource] will only invoke its callbacks once - the first time [invalidate] is called,
+     * on that thread.
+     *
+     * @param onInvalidatedCallback The callback that will be invoked on thread that invalidates the
+     * [PagedSource].
+     */
+    fun registerInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
+        onInvalidatedCallbacks.add(onInvalidatedCallback)
+    }
+
+    /**
+     * Remove a previously added invalidate callback.
+     *
+     * @param onInvalidatedCallback The previously added callback.
+     */
+    fun unregisterInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
+        onInvalidatedCallbacks.remove(onInvalidatedCallback)
+    }
 
     /**
      * Loading API for [PagedSource].
