@@ -503,21 +503,26 @@ public final class MediaPlayer extends SessionPlayer {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @MediaPlayer2.CallCompleted final int mCallType;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        final ResolvableFuture<? super PlayerResult> mFuture;
+        final ResolvableFuture<? extends PlayerResult> mFuture;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         final SessionPlayer.TrackInfo mTrackInfo;
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        PendingCommand(int callType, ResolvableFuture<? super PlayerResult> future) {
+        PendingCommand(int callType, ResolvableFuture<? extends PlayerResult> future) {
             this(callType, future, null);
         }
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        PendingCommand(int callType, ResolvableFuture<? super PlayerResult> future,
+        PendingCommand(int callType, ResolvableFuture<? extends PlayerResult> future,
                 SessionPlayer.TrackInfo trackInfo) {
             mCallType = callType;
             mFuture = future;
             mTrackInfo = trackInfo;
+        }
+
+        @SuppressWarnings("unchecked")
+        <V extends PlayerResult> void setResult(V value) {
+            ((ResolvableFuture<V>) mFuture).set(value);
         }
     }
 
@@ -622,7 +627,7 @@ public final class MediaPlayer extends SessionPlayer {
     /* A list of pending operations within this MediaPlayer that will be executed sequentially. */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @GuardedBy("mPendingFutures")
-    final ArrayDeque<PendingFuture<? super PlayerResult>> mPendingFutures = new ArrayDeque<>();
+    final ArrayDeque<PendingFuture<? extends PlayerResult>> mPendingFutures = new ArrayDeque<>();
 
     private final Object mStateLock = new Object();
     @GuardedBy("mStateLock")
@@ -684,27 +689,28 @@ public final class MediaPlayer extends SessionPlayer {
     }
 
     @GuardedBy("mPendingCommands")
-    @SuppressWarnings({"WeakerAccess", "rawtypes", "unchecked"}) /* synthetic access */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void addPendingCommandLocked(
-            int callType, final ResolvableFuture future, final Object token) {
+            int callType, final ResolvableFuture<? extends PlayerResult> future,
+            final Object token) {
         final PendingCommand pendingCommand = new PendingCommand(callType, future);
         mPendingCommands.add(pendingCommand);
         addFutureListener(pendingCommand, future, token);
     }
 
     @GuardedBy("mPendingCommands")
-    @SuppressWarnings({"WeakerAccess", "rawtypes", "unchecked"}) /* synthetic access */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void addPendingCommandWithTrackInfoLocked(
-            int callType, final ResolvableFuture future, final SessionPlayer.TrackInfo trackInfo,
-            final Object token) {
+            int callType, final ResolvableFuture<? extends PlayerResult> future,
+            final SessionPlayer.TrackInfo trackInfo, final Object token) {
         final PendingCommand pendingCommand = new PendingCommand(callType, future, trackInfo);
         mPendingCommands.add(pendingCommand);
         addFutureListener(pendingCommand, future, token);
     }
 
-    @SuppressWarnings({"WeakerAccess", "rawtypes"}) /* synthetic access */
-    void addFutureListener(final PendingCommand pendingCommand, final ResolvableFuture future,
-            final Object token) {
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void addFutureListener(final PendingCommand pendingCommand,
+            final ResolvableFuture<? extends PlayerResult> future, final Object token) {
         future.addListener(new Runnable() {
             @Override
             public void run() {
@@ -720,8 +726,7 @@ public final class MediaPlayer extends SessionPlayer {
         }, mExecutor);
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
-    private void addPendingFuture(final PendingFuture pendingFuture) {
+    private void addPendingFuture(final PendingFuture<? extends PlayerResult> pendingFuture) {
         synchronized (mPendingFutures) {
             mPendingFutures.add(pendingFuture);
             executePendingFutures();
@@ -1775,7 +1780,7 @@ public final class MediaPlayer extends SessionPlayer {
         }
         // Cancel the pending futures.
         synchronized (mPendingFutures) {
-            for (PendingFuture<? super PlayerResult> f : mPendingFutures) {
+            for (PendingFuture<? extends PlayerResult> f : mPendingFutures) {
                 if (f.mExecuteCalled && !f.isDone() && !f.isCancelled()) {
                     f.cancel(true);
                 }
@@ -2977,7 +2982,7 @@ public final class MediaPlayer extends SessionPlayer {
         return (value > maxValue) ? maxValue : value;
     }
 
-    @SuppressWarnings({"WeakerAccess", "unchecked"}) /* synthetic access */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleCallComplete(MediaPlayer2 mp, final MediaItem item, int what, int status) {
         PendingCommand expected;
         synchronized (mPendingCommands) {
@@ -3065,20 +3070,20 @@ public final class MediaPlayer extends SessionPlayer {
         if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
             Integer resultCode = sResultCodeMap.containsKey(status)
                     ? sResultCodeMap.get(status) : RESULT_ERROR_UNKNOWN;
-            expected.mFuture.set(new PlayerResult(resultCode, item));
+            expected.setResult(new PlayerResult(resultCode, item));
         } else {
             Integer resultCode = sPrepareDrmStatusMap.containsKey(status)
                     ? sPrepareDrmStatusMap.get(status) : DrmResult.RESULT_ERROR_PREPARATION_ERROR;
-            expected.mFuture.set(new DrmResult(resultCode, item));
+            expected.setResult(new DrmResult(resultCode, item));
         }
         executePendingFutures();
     }
 
     private void executePendingFutures() {
         synchronized (mPendingFutures) {
-            Iterator<PendingFuture<? super PlayerResult>> it = mPendingFutures.iterator();
+            Iterator<PendingFuture<? extends PlayerResult>> it = mPendingFutures.iterator();
             while (it.hasNext()) {
-                PendingFuture<? super PlayerResult> f = it.next();
+                PendingFuture<? extends PlayerResult> f = it.next();
                 if (f.isCancelled() || f.execute()) {
                     mPendingFutures.removeFirst();
                 } else {
@@ -3087,7 +3092,7 @@ public final class MediaPlayer extends SessionPlayer {
             }
             // Execute skip futures earlier for making them be skipped.
             while (it.hasNext()) {
-                PendingFuture<? super PlayerResult> f = it.next();
+                PendingFuture<? extends PlayerResult> f = it.next();
                 if (!f.mIsSeekTo) {
                     break;
                 }
