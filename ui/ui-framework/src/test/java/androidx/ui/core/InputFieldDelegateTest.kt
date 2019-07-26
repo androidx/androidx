@@ -59,6 +59,37 @@ class InputFieldDelegateTest {
     private lateinit var textInputService: TextInputService
     private lateinit var layoutCoordinates: LayoutCoordinates
 
+    val creditCardOffsetTranslator = object : OffsetMap {
+        override fun originalToTransformed(offset: Int): Int {
+            if (offset <= 3) return offset
+            if (offset <= 7) return offset + 1
+            if (offset <= 11) return offset + 2
+            if (offset <= 16) return offset + 3
+            return 19
+        }
+
+        override fun transformedToOriginal(offset: Int): Int {
+            if (offset <= 4) return offset
+            if (offset <= 9) return offset - 1
+            if (offset <= 14) return offset - 2
+            if (offset <= 19) return offset - 3
+            return 16
+        }
+    }
+
+    private val identityOffsetMap = object : OffsetMap {
+        override fun originalToTransformed(offset: Int): Int = offset
+        override fun transformedToOriginal(offset: Int): Int = offset
+    }
+
+    /**
+     * Test implementation of offset map which doubles the offset in transformed text.
+     */
+    private val skippingOffsetMap = object : OffsetMap {
+        override fun originalToTransformed(offset: Int): Int = offset * 2
+        override fun transformedToOriginal(offset: Int): Int = offset / 2
+    }
+
     @Before
     fun setup() {
         painter = mock()
@@ -80,7 +111,9 @@ class InputFieldDelegateTest {
             textPainter = painter,
             value = EditorState(text = "Hello, World", selection = selection),
             editorStyle = EditorStyle(selectionColor = selectionColor),
-            hasFocus = true)
+            hasFocus = true,
+            offsetMap = identityOffsetMap
+        )
 
         verify(painter, times(1)).paintBackground(
             eq(selection.start), eq(selection.end), eq(selectionColor), eq(canvas))
@@ -98,7 +131,9 @@ class InputFieldDelegateTest {
             textPainter = painter,
             value = EditorState(text = "Hello, World", selection = cursor),
             editorStyle = EditorStyle(),
-            hasFocus = true)
+            hasFocus = true,
+            offsetMap = identityOffsetMap
+        )
 
         verify(painter, times(1)).paintCursor(eq(cursor.start), eq(canvas))
         verify(painter, times(1)).paint(eq(canvas))
@@ -114,7 +149,9 @@ class InputFieldDelegateTest {
             textPainter = painter,
             value = EditorState(text = "Hello, World", selection = cursor),
             editorStyle = EditorStyle(),
-            hasFocus = false)
+            hasFocus = false,
+            offsetMap = identityOffsetMap
+        )
 
         verify(painter, never()).paintCursor(any(), any())
         verify(painter, times(1)).paint(eq(canvas))
@@ -134,7 +171,9 @@ class InputFieldDelegateTest {
             value = EditorState(text = "Hello, World", selection = cursor,
                 composition = composition),
             editorStyle = EditorStyle(compositionColor = compositionColor),
-            hasFocus = true)
+            hasFocus = true,
+            offsetMap = identityOffsetMap
+        )
 
         verify(painter, times(1)).paintBackground(
             eq(composition.start), eq(composition.end), eq(compositionColor), eq(canvas))
@@ -166,7 +205,8 @@ class InputFieldDelegateTest {
 
         whenever(processor.onEditCommands(captor.capture())).thenReturn(dummyEditorState)
 
-        InputFieldDelegate.onRelease(position, painter, processor, onValueChange)
+        InputFieldDelegate.onRelease(position, painter, processor,
+            identityOffsetMap, onValueChange)
 
         assertEquals(1, captor.allValues.size)
         assertEquals(1, captor.firstValue.size)
@@ -186,8 +226,9 @@ class InputFieldDelegateTest {
                 composition = TextRange(1, 3)
             ),
             editorStyle = EditorStyle(compositionColor = Color.Red),
-            hasFocus = true
-        )
+            hasFocus = true,
+            offsetMap = identityOffsetMap
+            )
 
         inOrder(painter) {
             verify(painter).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas))
@@ -241,7 +282,9 @@ class InputFieldDelegateTest {
             painter,
             layoutCoordinates,
             textInputService,
-            true /* hasFocus */)
+            true /* hasFocus */,
+            identityOffsetMap
+        )
         verify(textInputService).notifyFocusedRect(any())
     }
 
@@ -253,7 +296,9 @@ class InputFieldDelegateTest {
             painter,
             layoutCoordinates,
             textInputService,
-            false /* hasFocus */)
+            false /* hasFocus */,
+            identityOffsetMap
+        )
         verify(textInputService, never()).notifyFocusedRect(any())
     }
 
@@ -269,7 +314,9 @@ class InputFieldDelegateTest {
             painter,
             layoutCoordinates,
             textInputService,
-            true /* hasFocus */)
+            true /* hasFocus */,
+            identityOffsetMap
+        )
         verify(textInputService).notifyFocusedRect(any())
     }
 
@@ -285,7 +332,8 @@ class InputFieldDelegateTest {
             painter,
             layoutCoordinates,
             textInputService,
-            true /* hasFocus */)
+            true, /* hasFocus */
+            identityOffsetMap)
         val captor = argumentCaptor<Rect>()
         verify(textInputService).notifyFocusedRect(captor.capture())
         assertEquals(dummyHeight, captor.firstValue.height)
@@ -312,5 +360,87 @@ class InputFieldDelegateTest {
         assertEquals(512.px.round(), res.second)
 
         verify(painter, times(1)).layout(constraints)
+    }
+
+    @Test
+    fun check_draw_uses_offset_map() {
+        val selection = TextRange(1, 3)
+        val selectionColor = Color.Blue
+
+        InputFieldDelegate.draw(
+            canvas = canvas,
+            textPainter = painter,
+            value = EditorState(text = "Hello, World", selection = selection),
+            editorStyle = EditorStyle(selectionColor = selectionColor),
+            hasFocus = true,
+            offsetMap = skippingOffsetMap
+        )
+
+        val selectionStartInTransformedText = selection.start * 2
+        val selectionEmdInTransformedText = selection.end * 2
+
+        verify(painter, times(1)).paintBackground(
+            eq(selectionStartInTransformedText),
+            eq(selectionEmdInTransformedText),
+            eq(selectionColor),
+            eq(canvas))
+    }
+
+    @Test
+    fun check_notify_rect_uses_offset_map() {
+        val dummyRect = Rect(0f, 1f, 2f, 3f)
+        val dummyPoint = PxPosition(5.px, 6.px)
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 3))
+        whenever(painter.getBoundingBox(any())).thenReturn(dummyRect)
+        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
+
+        InputFieldDelegate.notifyFocusedRect(
+            dummyEditorState,
+            painter,
+            layoutCoordinates,
+            textInputService,
+            true /* hasFocus */,
+            skippingOffsetMap
+        )
+        verify(painter).getBoundingBox(6)
+        verify(textInputService).notifyFocusedRect(any())
+    }
+
+    @Test
+    fun check_on_release_uses_offset_map() {
+        val position = PxPosition(100.px, 200.px)
+        val offset = 10
+        val dummyEditorState = EditorState(text = "Hello, World", selection = TextRange(1, 1))
+
+        whenever(painter.getOffsetForPosition(position)).thenReturn(offset)
+
+        val captor = argumentCaptor<List<EditOperation>>()
+
+        whenever(processor.onEditCommands(captor.capture())).thenReturn(dummyEditorState)
+
+        InputFieldDelegate.onRelease(position, painter, processor, skippingOffsetMap, onValueChange)
+
+        val cursorOffsetInTransformedText = offset / 2
+        assertEquals(1, captor.allValues.size)
+        assertEquals(1, captor.firstValue.size)
+        assertTrue(captor.firstValue[0] is SetSelectionEditOp)
+        val setSelectionEditOp = captor.firstValue[0] as SetSelectionEditOp
+        assertEquals(cursorOffsetInTransformedText, setSelectionEditOp.start)
+        assertEquals(cursorOffsetInTransformedText, setSelectionEditOp.end)
+        verify(onValueChange, times(1)).invoke(eq(dummyEditorState))
+    }
+
+    @Test
+    fun use_identity_mapping_if_visual_transformation_is_null() {
+        val (visualText, offsetMap) = InputFieldDelegate.applyVisualFilter(
+            EditorState(text = "Hello, World"),
+            null)
+
+        assertEquals("Hello, World", visualText.text)
+        for (i in 0..visualText.text.length) {
+            // Identity mapping returns if no visual filter is provided.
+            assertEquals(i, offsetMap.originalToTransformed(i))
+            assertEquals(i, offsetMap.transformedToOriginal(i))
+        }
     }
 }

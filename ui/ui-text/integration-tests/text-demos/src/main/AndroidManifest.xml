@@ -30,7 +30,16 @@
 
         <activity android:name=".CraneInputFieldActivity"
             android:configChanges="orientation|screenSize"
-            android:label="Text/Input Field Demo">
+            android:label="Text/Input Field/Input Field Demo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".CraneVariousInputFieldActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Text/Input Field/Various Input Field Demo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />

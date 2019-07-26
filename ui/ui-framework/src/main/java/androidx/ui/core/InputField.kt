@@ -31,7 +31,6 @@ import androidx.ui.input.EditProcessor
 import androidx.ui.input.EditorState
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
-import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextStyle
 
@@ -100,7 +99,12 @@ fun InputField(
     onValueChange: (EditorState) -> Unit = {},
 
     /** Called when the InputMethod requested an IME action */
-    onImeActionPerformed: (ImeAction) -> Unit = {} // TODO(nona): Define argument type
+    onImeActionPerformed: (ImeAction) -> Unit = {},
+
+    /**
+     * Optional visual filter for changing visual output of input field.
+     */
+    visualTransformation: VisualTransformation? = null
 ) {
     // Ambients
     val style = +ambient(CurrentTextStyleAmbient)
@@ -111,10 +115,13 @@ fun InputField(
     // Memos
     val processor = +memo { EditProcessor() }
     val mergedStyle = style.merge(editorStyle.textStyle)
-    val textPainter = +memo(value, mergedStyle, density, resourceLoader) {
+    val (visualText, offsetMap) = +memo(value, visualTransformation) {
+        InputFieldDelegate.applyVisualFilter(value, visualTransformation)
+    }
+    val textPainter = +memo(visualText, mergedStyle, density, resourceLoader) {
         // TODO(nona): Add parameter for text direction, softwrap, etc.
         TextPainter(
-            text = AnnotatedString(text = value.text),
+            text = visualText,
             style = mergedStyle,
             density = density,
             resourceLoader = resourceLoader
@@ -145,7 +152,8 @@ fun InputField(
                         textPainter,
                         coords,
                         textInputService,
-                        hasFocus.value
+                        hasFocus.value,
+                        offsetMap
                     )
                 }
             }
@@ -158,7 +166,14 @@ fun InputField(
                 onValueChange)
         },
         onDragAt = { InputFieldDelegate.onDragAt(it) },
-        onRelease = { InputFieldDelegate.onRelease(it, textPainter, processor, onValueChange) }
+        onRelease = {
+            InputFieldDelegate.onRelease(
+                it,
+                textPainter,
+                processor,
+                offsetMap,
+                onValueChange)
+        }
     ) {
         Layout(
             children = @Composable {
@@ -172,13 +187,15 @@ fun InputField(
                             textPainter,
                             it,
                             textInputService,
-                            hasFocus.value
+                            hasFocus.value,
+                            offsetMap
                         )
                     }
                 }
                 Draw { canvas, _ -> InputFieldDelegate.draw(
                     canvas,
                     value,
+                    offsetMap,
                     textPainter,
                     hasFocus.value,
                     editorStyle) }
