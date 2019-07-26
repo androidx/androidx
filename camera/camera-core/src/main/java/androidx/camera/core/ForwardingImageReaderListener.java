@@ -16,9 +16,6 @@
 
 package androidx.camera.core;
 
-import android.media.Image;
-import android.media.ImageReader;
-
 import androidx.annotation.GuardedBy;
 
 import java.util.ArrayList;
@@ -26,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * An {@link ImageReader.OnImageAvailableListener} which forks and forwards newly available images
- * to multiple {@link ImageReaderProxy} instances.
+ * An {@link ImageReaderProxy.OnImageAvailableListener} which forks and forwards newly available
+ * images to multiple {@link ImageReaderProxy} instances.
  */
-final class ForwardingImageReaderListener implements ImageReader.OnImageAvailableListener {
+final class ForwardingImageReaderListener implements ImageReaderProxy.OnImageAvailableListener {
     @GuardedBy("this")
     private final List<QueuedImageReaderProxy> mImageReaders;
 
@@ -45,22 +42,21 @@ final class ForwardingImageReaderListener implements ImageReader.OnImageAvailabl
     }
 
     @Override
-    public synchronized void onImageAvailable(ImageReader imageReader) {
-        Image image = imageReader.acquireNextImage();
-        ImageProxy imageProxy = new AndroidImageProxy(image);
+    public synchronized void onImageAvailable(ImageReaderProxy imageReaderProxy) {
+        ImageProxy imageProxy = imageReaderProxy.acquireNextImage();
         ReferenceCountedImageProxy referenceCountedImageProxy =
                 new ReferenceCountedImageProxy(imageProxy);
-        for (QueuedImageReaderProxy imageReaderProxy : mImageReaders) {
-            synchronized (imageReaderProxy) {
-                if (!imageReaderProxy.isClosed()) {
+        for (QueuedImageReaderProxy queuedImageReaderProxy : mImageReaders) {
+            synchronized (queuedImageReaderProxy) {
+                if (!queuedImageReaderProxy.isClosed()) {
                     ImageProxy forkedImage = referenceCountedImageProxy.fork();
                     ForwardingImageProxy imageToEnqueue =
                             ImageProxyDownsampler.downsample(
                                     forkedImage,
-                                    imageReaderProxy.getWidth(),
-                                    imageReaderProxy.getHeight(),
+                                    queuedImageReaderProxy.getWidth(),
+                                    queuedImageReaderProxy.getHeight(),
                                     ImageProxyDownsampler.DownsamplingMethod.AVERAGING);
-                    imageReaderProxy.enqueueImage(imageToEnqueue);
+                    queuedImageReaderProxy.enqueueImage(imageToEnqueue);
                 }
             }
         }

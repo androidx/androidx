@@ -26,8 +26,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.graphics.ImageFormat;
-import android.media.Image;
-import android.media.ImageReader;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.view.Surface;
@@ -52,15 +50,15 @@ public final class ForwardingImageReaderListenerTest {
     private static final int IMAGE_FORMAT = ImageFormat.YUV_420_888;
     private static final int MAX_IMAGES = 10;
 
-    private final ImageReader mImageReader = mock(ImageReader.class);
+    private final ImageReaderProxy mImageReader = mock(ImageReaderProxy.class);
     private final Surface mSurface = mock(Surface.class);
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private List<QueuedImageReaderProxy> mImageReaderProxies;
     private ForwardingImageReaderListener mForwardingListener;
 
-    private static Image createMockImage() {
-        Image image = mock(Image.class);
+    private static ImageProxy createMockImage() {
+        ImageProxy image = mock(ImageProxy.class);
         when(image.getWidth()).thenReturn(IMAGE_WIDTH);
         when(image.getHeight()).thenReturn(IMAGE_HEIGHT);
         when(image.getFormat()).thenReturn(IMAGE_FORMAT);
@@ -107,7 +105,7 @@ public final class ForwardingImageReaderListenerTest {
 
     @Test
     public void newImageIsForwardedToAllListeners() {
-        Image baseImage = createMockImage();
+        ImageProxy baseImage = createMockImage();
         when(mImageReader.acquireNextImage()).thenReturn(baseImage);
         List<ImageReaderProxy.OnImageAvailableListener> listeners = new ArrayList<>();
         for (ImageReaderProxy imageReaderProxy : mImageReaderProxies) {
@@ -132,7 +130,7 @@ public final class ForwardingImageReaderListenerTest {
     public void baseImageIsClosed_allQueuesAreCleared_whenAllForwardedCopiesAreClosed()
             throws InterruptedException {
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);
-        Image baseImage = createMockImage();
+        ImageProxy baseImage = createMockImage();
         when(mImageReader.acquireNextImage()).thenReturn(baseImage);
         for (ImageReaderProxy imageReaderProxy : mImageReaderProxies) {
             // Close the image for every listener.
@@ -158,7 +156,7 @@ public final class ForwardingImageReaderListenerTest {
     public void baseImageIsNotClosed_someQueuesAreCleared_whenNotAllForwardedCopiesAreClosed()
             throws InterruptedException {
         Semaphore onCloseSemaphore = new Semaphore(/*permits=*/ 0);
-        Image baseImage = createMockImage();
+        ImageProxy baseImage = createMockImage();
         when(mImageReader.acquireNextImage()).thenReturn(baseImage);
         // Don't close the image for the first listener.
         mImageReaderProxies.get(0).setOnImageAvailableListener(createMockListener(), mHandler);

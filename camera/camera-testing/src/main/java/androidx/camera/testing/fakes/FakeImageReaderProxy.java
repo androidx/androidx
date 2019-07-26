@@ -30,6 +30,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -43,7 +44,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mImageFormat = ImageFormat.JPEG;
     private final int mMaxImages;
     private Surface mSurface;
-    private Handler mHandler;
+    private Executor mExecutor;
 
     // Queue of all futures for ImageProxys which have not yet been closed.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -131,10 +132,16 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public void setOnImageAvailableListener(
-            @Nullable final ImageReaderProxy.OnImageAvailableListener listener,
+            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
             @Nullable Handler handler) {
+        setOnImageAvailableListener(mListener, CameraXExecutors.newHandlerExecutor(handler));
+    }
+
+    @Override
+    public void setOnImageAvailableListener(@NonNull OnImageAvailableListener listener,
+            @NonNull Executor executor) {
         mListener = listener;
-        mHandler = handler;
+        mExecutor = executor;
     }
 
     public void setSurface(Surface surface) {
@@ -223,14 +230,14 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
 
     private void triggerImageAvailableListener() {
         if (mListener != null) {
-            if (mHandler != null) {
-                mHandler.post(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                mListener.onImageAvailable(FakeImageReaderProxy.this);
-                            }
-                        });
+            Runnable listenerRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    mListener.onImageAvailable(FakeImageReaderProxy.this);
+                }
+            };
+            if (mExecutor != null) {
+                mExecutor.execute(listenerRunnable);
             } else {
                 mListener.onImageAvailable(FakeImageReaderProxy.this);
             }
