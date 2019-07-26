@@ -58,7 +58,7 @@ public final class ImageAnalysis extends UseCase {
     private static final String TAG = "ImageAnalysis";
     final AtomicReference<Analyzer> mSubscribedAnalyzer;
     final AtomicInteger mRelativeRotation = new AtomicInteger();
-    private final Handler mHandler;
+    final Handler mHandler;
     private final ImageAnalysisConfig.Builder mUseCaseConfigBuilder;
     @Nullable
     ImageReaderProxy mImageReader;
