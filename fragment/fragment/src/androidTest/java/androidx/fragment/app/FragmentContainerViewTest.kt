@@ -35,6 +35,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -46,10 +47,12 @@ import java.util.concurrent.CountDownLatch
 class FragmentContainerViewTest {
     @get:Rule
     var activityRule = ActivityTestRule(FragmentTestActivity::class.java)
+    lateinit var context: Context
 
     @Before
     fun setupContainer() {
         activityRule.setContentView(R.layout.fragment_container_view)
+        context = activityRule.activity.applicationContext
     }
 
     @Test
@@ -99,8 +102,6 @@ class FragmentContainerViewTest {
     @SdkSuppress(minSdkVersion = 29) // WindowInsets.Builder requires API 29
     @Test
     fun windowInsetsDispatchToChildren() {
-        val context = activityRule.activity.applicationContext
-
         val parentView = FragmentContainerView(context)
         val childView = FragmentContainerView(context)
 
@@ -118,6 +119,8 @@ class FragmentContainerViewTest {
             insets
         }
 
+        childView.setTag(R.id.fragment_container_view_tag, Fragment())
+
         parentView.addView(childView)
         parentView.dispatchApplyWindowInsets(sentInsets)
 
@@ -125,18 +128,66 @@ class FragmentContainerViewTest {
     }
 
     @Test
+    fun addView() {
+        val fm = activityRule.activity.supportFragmentManager
+
+        val view = View(context)
+        val fragment = Fragment()
+        fragment.mView = view
+
+        fm.setViewTag(fragment)
+
+        val fragmentContainerView = FragmentContainerView(context)
+
+        assertWithMessage("FragmentContainerView should have no child views")
+            .that(fragmentContainerView.childCount).isEqualTo(0)
+
+        fragmentContainerView.addView(view)
+
+        assertWithMessage("FragmentContainerView should have one child view")
+            .that(fragmentContainerView.childCount).isEqualTo(1)
+    }
+
+    @Test
+    fun addViewNotAssociatedWithFragment() {
+        val view = View(context)
+
+        try {
+            FragmentContainerView(context).addView(view, 0, null)
+            fail("View without a Fragment added to FragmentContainerView should throw an exception")
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "Views added to a FragmentContainerView must be associated with a Fragment. " +
+                            "View " + view + " is not associated with a Fragment."
+                )
+        }
+    }
+
+    @Test
+    fun addViewInLayoutNotAssociatedWithFragment() {
+        val view = View(context)
+
+        try {
+            FragmentContainerView(context).addViewInLayout(view, 0, null, false)
+            fail("View without a Fragment added to FragmentContainerView should throw an exception")
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "Views added to a FragmentContainerView must be associated with a Fragment. " +
+                            "View " + view + " is not associated with a Fragment."
+                )
+        }
+    }
+
+    @Test
     fun removeViewAt() {
-        val context = activityRule.activity.applicationContext
         val view = FragmentContainerView(context)
 
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        view.addView(childView1)
-        view.addView(childView2)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
+        setupRemoveTest(childView1, childView2, view)
 
         view.removeViewAt(0)
 
@@ -146,17 +197,12 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeViewInLayout() {
-        val context = activityRule.activity.applicationContext
         val view = FragmentContainerView(context)
 
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        view.addView(childView1)
-        view.addView(childView2)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
+        setupRemoveTest(childView1, childView2, view)
 
         view.removeViewInLayout(childView1)
 
@@ -166,17 +212,12 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeView() {
-        val context = activityRule.activity.applicationContext
         val view = FragmentContainerView(context)
 
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        view.addView(childView1)
-        view.addView(childView2)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
+        setupRemoveTest(childView1, childView2, view)
 
         view.removeView(childView1)
 
@@ -185,17 +226,12 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeViews() {
-        val context = activityRule.activity.applicationContext
         val view = FragmentContainerView(context)
 
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        view.addView(childView1)
-        view.addView(childView2)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
+        setupRemoveTest(childView1, childView2, view)
 
         view.removeViews(1, 1)
 
@@ -204,17 +240,12 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeViewsInLayout() {
-        val context = activityRule.activity.applicationContext
         val view = FragmentContainerView(context)
 
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        view.addView(childView1)
-        view.addView(childView2)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
+        setupRemoveTest(childView1, childView2, view)
 
         view.removeViewsInLayout(1, 1)
 
@@ -223,17 +254,12 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeAllViewsInLayout() {
-        val context = activityRule.activity.applicationContext
         val view = FragmentContainerView(context)
 
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        view.addView(childView1)
-        view.addView(childView2)
-
-        assertThat(view.childCount).isEqualTo(2)
-        assertThat(view.getChildAt(1)).isEqualTo(childView2)
+        setupRemoveTest(childView1, childView2, view)
 
         view.removeAllViewsInLayout()
 
@@ -243,19 +269,35 @@ class FragmentContainerViewTest {
     // removeDetachedView should not actually remove the view
     @Test
     fun removeDetachedView() {
-        val context = activityRule.activity.applicationContext
         val view = FragmentContainerView(context)
 
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        view.addView(childView1)
-        view.addView(childView2)
+        setupRemoveTest(childView1, childView2, view)
+
+        view.removeDetachedView(childView1, false)
 
         assertThat(view.childCount).isEqualTo(2)
         assertThat(view.getChildAt(1)).isEqualTo(childView2)
+    }
 
-        view.removeDetachedView(childView1, false)
+    private fun setupRemoveTest(
+        childView1: FragmentContainerView,
+        childView2: FragmentContainerView,
+        view: FragmentContainerView
+    ) {
+        val fragment1 = Fragment()
+        val fragment2 = Fragment()
+
+        fragment1.mView = childView1
+        fragment2.mView = childView2
+
+        childView1.setTag(R.id.fragment_container_view_tag, fragment1)
+        childView2.setTag(R.id.fragment_container_view_tag, fragment2)
+
+        view.addView(childView1)
+        view.addView(childView2)
 
         assertThat(view.childCount).isEqualTo(2)
         assertThat(view.getChildAt(1)).isEqualTo(childView2)
