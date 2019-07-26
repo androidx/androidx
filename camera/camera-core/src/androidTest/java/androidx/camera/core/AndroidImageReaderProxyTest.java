@@ -29,6 +29,7 @@ import android.media.ImageReader;
 import android.os.Handler;
 import android.view.Surface;
 
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
@@ -112,7 +113,8 @@ public final class AndroidImageReaderProxyTest {
         ImageReaderProxy.OnImageAvailableListener listener =
                 mock(ImageReaderProxy.OnImageAvailableListener.class);
 
-        mImageReaderProxy.setOnImageAvailableListener(listener, /*handler=*/ null);
+        mImageReaderProxy.setOnImageAvailableListener(listener,
+                CameraXExecutors.directExecutor());
 
         ArgumentCaptor<ImageReader.OnImageAvailableListener> transformedListenerCaptor =
                 ArgumentCaptor.forClass(ImageReader.OnImageAvailableListener.class);

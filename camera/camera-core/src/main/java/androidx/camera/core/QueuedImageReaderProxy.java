@@ -20,12 +20,15 @@ import android.os.Handler;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * An {@link ImageReaderProxy} which maintains a queue of recently available images.
@@ -63,7 +66,7 @@ final class QueuedImageReaderProxy
     private ImageReaderProxy.OnImageAvailableListener mOnImageAvailableListener;
     @GuardedBy("this")
     @Nullable
-    private Handler mOnImageAvailableHandler;
+    private Executor mOnImageAvailableExecutor;
     @GuardedBy("this")
     private boolean mClosed;
 
@@ -151,9 +154,9 @@ final class QueuedImageReaderProxy
         if (mImages.size() < mMaxImages) {
             mImages.add(image);
             image.addOnImageCloseListener(this);
-            if (mOnImageAvailableListener != null && mOnImageAvailableHandler != null) {
+            if (mOnImageAvailableListener != null && mOnImageAvailableExecutor != null) {
                 final OnImageAvailableListener listener = mOnImageAvailableListener;
-                mOnImageAvailableHandler.post(
+                mOnImageAvailableExecutor.execute(
                         new Runnable() {
                             @Override
                             public void run() {
@@ -171,7 +174,8 @@ final class QueuedImageReaderProxy
     @Override
     public synchronized void close() {
         if (!mClosed) {
-            setOnImageAvailableListener(null, null);
+            this.mOnImageAvailableExecutor = null;
+            this.mOnImageAvailableListener = null;
             // We need to copy into a different list, because closing an image triggers the on-close
             // listener which in turn modifies the original list.
             List<ImageProxy> imagesToClose = new ArrayList<>(mImages);
@@ -216,11 +220,20 @@ final class QueuedImageReaderProxy
 
     @Override
     public synchronized void setOnImageAvailableListener(
-            @Nullable OnImageAvailableListener onImageAvailableListener,
+            @NonNull OnImageAvailableListener onImageAvailableListener,
             @Nullable Handler onImageAvailableHandler) {
+        setOnImageAvailableListener(onImageAvailableListener,
+                onImageAvailableHandler == null ? null :
+                        CameraXExecutors.newHandlerExecutor(onImageAvailableHandler));
+    }
+
+    @Override
+    public synchronized void setOnImageAvailableListener(
+            @NonNull OnImageAvailableListener onImageAvailableListener,
+            @NonNull Executor executor) {
         throwExceptionIfClosed();
         mOnImageAvailableListener = onImageAvailableListener;
-        mOnImageAvailableHandler = onImageAvailableHandler;
+        mOnImageAvailableExecutor = executor;
     }
 
     @Override

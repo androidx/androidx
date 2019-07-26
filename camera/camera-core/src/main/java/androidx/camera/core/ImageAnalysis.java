@@ -33,6 +33,7 @@ import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -45,7 +46,6 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p>After the analyzer function returns, the {@link ImageProxy} will be closed and the
  * corresponding {@link android.media.Image} is released back to the {@link ImageReader}.
- *
  */
 public final class ImageAnalysis extends UseCase {
     /**
@@ -257,6 +257,9 @@ public final class ImageAnalysis extends UseCase {
             mImageReader.close();
         }
 
+        Executor backgroundExecutor = config.getBackgroundExecutor(
+                CameraXExecutors.highPriorityExecutor());
+
         mImageReader =
                 ImageReaderProxys.createCompatibleReader(
                         cameraId,
@@ -264,7 +267,7 @@ public final class ImageAnalysis extends UseCase {
                         resolution.getHeight(),
                         getImageFormat(),
                         config.getImageQueueDepth(),
-                        mHandler);
+                        backgroundExecutor);
 
         tryUpdateRelativeRotation(cameraId);
         mImageReader.setOnImageAvailableListener(
@@ -272,24 +275,30 @@ public final class ImageAnalysis extends UseCase {
                     @Override
                     public void onImageAvailable(ImageReaderProxy imageReader) {
                         Analyzer analyzer = mSubscribedAnalyzer.get();
-                        try (ImageProxy image =
-                                     config
-                                             .getImageReaderMode(config.getImageReaderMode())
-                                             .equals(ImageReaderMode.ACQUIRE_NEXT_IMAGE)
-                                             ? imageReader.acquireNextImage()
-                                             : imageReader.acquireLatestImage()) {
-                            // Do not analyze if unable to acquire an ImageProxy
-                            if (image == null) {
-                                return;
-                            }
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                try (ImageProxy image =
+                                             config
+                                                     .getImageReaderMode(
+                                                             config.getImageReaderMode())
+                                                     .equals(ImageReaderMode.ACQUIRE_NEXT_IMAGE)
+                                                     ? imageReader.acquireNextImage()
+                                                     : imageReader.acquireLatestImage()) {
+                                    // Do not analyze if unable to acquire an ImageProxy
+                                    if (image == null) {
+                                        return;
+                                    }
 
-                            if (analyzer != null) {
-                                analyzer.analyze(image, mRelativeRotation.get());
+                                    if (analyzer != null) {
+                                        analyzer.analyze(image, mRelativeRotation.get());
+                                    }
+                                }
                             }
-                        }
+                        });
                     }
                 },
-                mHandler);
+                backgroundExecutor);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
@@ -329,12 +338,12 @@ public final class ImageAnalysis extends UseCase {
         ACQUIRE_NEXT_IMAGE,
     }
 
-    /** Interface for analyzing images.
+    /**
+     * Interface for analyzing images.
      *
      * <p>Implement Analyzer and pass it to {@link ImageAnalysis#setAnalyzer(Analyzer)} to receive
      * images and perform custom processing by implementing the
      * {@link ImageAnalysis.Analyzer#analyze(ImageProxy, int)} function.
-     *
      */
     public interface Analyzer {
         /**
@@ -359,7 +368,6 @@ public final class ImageAnalysis extends UseCase {
          * @param rotationDegrees The rotation which if applied to the image would make it match
          *                        the current target rotation of {@link ImageAnalysis}, expressed in
          *                        degrees in the range {@code [0..360)}.
-         *
          */
         void analyze(ImageProxy image, int rotationDegrees);
     }

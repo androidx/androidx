@@ -18,7 +18,6 @@ package androidx.camera.core;
 
 import android.graphics.ImageFormat;
 import android.media.ImageReader;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 
@@ -29,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Different implementations of {@link ImageReaderProxy}.
@@ -42,7 +42,7 @@ public final class ImageReaderProxys {
     private static final int SHARED_MAX_IMAGES = 8;
     static final List<QueuedImageReaderProxy> sSharedImageReaderProxys = new ArrayList<>();
     private static Set<DeviceProperties> sSharedReaderWhitelist;
-    private static ImageReader sSharedImageReader;
+    private static ImageReaderProxy sSharedImageReader;
 
     private ImageReaderProxys() {
     }
@@ -55,15 +55,16 @@ public final class ImageReaderProxys {
      * @param height    of the reader
      * @param format    of the reader
      * @param maxImages of the reader
-     * @param handler   for on-image-available callbacks
+     * @param executor  for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
      */
     static ImageReaderProxy createCompatibleReader(
-            String cameraId, int width, int height, int format, int maxImages, Handler handler) {
+            String cameraId, int width, int height, int format, int maxImages,
+            Executor executor) {
         if (inSharedReaderWhitelist(DeviceProperties.create())) {
-            return createSharedReader(cameraId, width, height, format, maxImages, handler);
+            return createSharedReader(cameraId, width, height, format, maxImages, executor);
         } else {
-            return createIsolatedReader(width, height, format, maxImages, handler);
+            return createIsolatedReader(width, height, format, maxImages);
         }
     }
 
@@ -74,11 +75,10 @@ public final class ImageReaderProxys {
      * @param height    of the reader
      * @param format    of the reader
      * @param maxImages of the reader
-     * @param handler   for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
      */
     public static ImageReaderProxy createIsolatedReader(
-            int width, int height, int format, int maxImages, Handler handler) {
+            int width, int height, int format, int maxImages) {
         ImageReader imageReader = ImageReader.newInstance(width, height, format, maxImages);
         return new AndroidImageReaderProxy(imageReader);
     }
@@ -91,21 +91,22 @@ public final class ImageReaderProxys {
      * @param height    of the reader
      * @param format    of the reader
      * @param maxImages of the reader
-     * @param handler   for on-image-available callbacks
+     * @param executor  for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
      */
     public static ImageReaderProxy createSharedReader(
-            String cameraId, int width, int height, int format, int maxImages, Handler handler) {
+            String cameraId, int width, int height, int format, int maxImages,
+            Executor executor) {
         if (sSharedImageReader == null) {
             Size resolution =
                     CameraX.getSurfaceManager().getMaxOutputSize(cameraId, SHARED_IMAGE_FORMAT);
             Log.d(TAG, "Resolution of base ImageReader: " + resolution);
             sSharedImageReader =
-                    ImageReader.newInstance(
+                    new AndroidImageReaderProxy(ImageReader.newInstance(
                             resolution.getWidth(),
                             resolution.getHeight(),
                             SHARED_IMAGE_FORMAT,
-                            SHARED_MAX_IMAGES);
+                            SHARED_MAX_IMAGES));
         }
         Log.d(TAG, "Resolution of forked ImageReader: " + new Size(width, height));
         QueuedImageReaderProxy imageReaderProxy =
@@ -113,7 +114,7 @@ public final class ImageReaderProxys {
                         width, height, format, maxImages, sSharedImageReader.getSurface());
         sSharedImageReaderProxys.add(imageReaderProxy);
         sSharedImageReader.setOnImageAvailableListener(
-                new ForwardingImageReaderListener(sSharedImageReaderProxys), handler);
+                new ForwardingImageReaderListener(sSharedImageReaderProxys), executor);
         imageReaderProxy.addOnReaderCloseListener(
                 new QueuedImageReaderProxy.OnReaderCloseListener() {
                     @Override
@@ -151,7 +152,6 @@ public final class ImageReaderProxys {
 
     static void clearSharedReaders() {
         sSharedImageReaderProxys.clear();
-        sSharedImageReader.setOnImageAvailableListener(null, null);
         sSharedImageReader.close();
         sSharedImageReader = null;
     }

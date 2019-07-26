@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.util.Log;
@@ -34,6 +33,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * An {@link ImageReaderProxy} which takes one or more {@link android.media.Image}, processes it,
@@ -59,13 +59,13 @@ class ProcessingImageReader implements ImageReaderProxy {
             };
 
     // Callback when Image is ready from OutputImageReader.
-    private ImageReader.OnImageAvailableListener mImageProcessedListener =
-            new ImageReader.OnImageAvailableListener() {
+    private ImageReaderProxy.OnImageAvailableListener mImageProcessedListener =
+            new ImageReaderProxy.OnImageAvailableListener() {
                 @Override
-                public void onImageAvailable(ImageReader reader) {
+                public void onImageAvailable(ImageReaderProxy reader) {
                     // Callback the output OnImageAvailableListener.
-                    if (mHandler != null) {
-                        mHandler.post(
+                    if (mExecutor != null) {
+                        mExecutor.execute(
                                 new Runnable() {
                                     @Override
                                     public void run() {
@@ -102,7 +102,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     private final ImageReaderProxy mInputImageReader;
 
     @GuardedBy("mLock")
-    private final ImageReader mOutputImageReader;
+    private final ImageReaderProxy mOutputImageReader;
 
     @GuardedBy("mLock")
     @Nullable
@@ -110,7 +110,7 @@ class ProcessingImageReader implements ImageReaderProxy {
 
     @GuardedBy("mLock")
     @Nullable
-    Handler mHandler;
+    Executor mExecutor;
 
     @NonNull
     CaptureProcessor mCaptureProcessor;
@@ -127,10 +127,10 @@ class ProcessingImageReader implements ImageReaderProxy {
      * @param height           Height of the ImageReader
      * @param format           Image format
      * @param maxImages        Maximum Image number the ImageReader can hold. The capacity should
-     *                        be greater than the captureBundle size in order to hold all the
+     *                         be greater than the captureBundle size in order to hold all the
      *                         Images needed with this processing.
      * @param handler          Handler for executing
-     * {@link ImageReaderProxy.OnImageAvailableListener}
+     *                         {@link ImageReaderProxy.OnImageAvailableListener}
      * @param captureBundle    The {@link CaptureBundle} includes the processing information
      * @param captureProcessor The {@link CaptureProcessor} to be invoked when the Images are ready
      */
@@ -143,9 +143,10 @@ class ProcessingImageReader implements ImageReaderProxy {
                 format,
                 maxImages,
                 handler);
-        mOutputImageReader = ImageReader.newInstance(width, height, format, maxImages);
+        mOutputImageReader = new AndroidImageReaderProxy(
+                ImageReader.newInstance(width, height, format, maxImages));
 
-        init(handler, captureBundle, captureProcessor);
+        init(CameraXExecutors.newHandlerExecutor(handler), captureBundle, captureProcessor);
     }
 
     ProcessingImageReader(ImageReaderProxy imageReader, @Nullable Handler handler,
@@ -156,17 +157,19 @@ class ProcessingImageReader implements ImageReaderProxy {
                     "MetadataImageReader is smaller than CaptureBundle.");
         }
         mInputImageReader = imageReader;
-        mOutputImageReader = ImageReader.newInstance(imageReader.getWidth(),
-                imageReader.getHeight(), imageReader.getImageFormat(), imageReader.getMaxImages());
+        mOutputImageReader = new AndroidImageReaderProxy(
+                ImageReader.newInstance(imageReader.getWidth(),
+                        imageReader.getHeight(), imageReader.getImageFormat(),
+                        imageReader.getMaxImages()));
 
-        init(handler, captureBundle, captureProcessor);
+        init(CameraXExecutors.newHandlerExecutor(handler), captureBundle, captureProcessor);
     }
 
-    private void init(@Nullable Handler handler, @NonNull CaptureBundle captureBundle,
+    private void init(@NonNull Executor executor, @NonNull CaptureBundle captureBundle,
             @NonNull CaptureProcessor captureProcessor) {
-        mHandler = handler;
-        mInputImageReader.setOnImageAvailableListener(mTransformedListener, handler);
-        mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, handler);
+        mExecutor = executor;
+        mInputImageReader.setOnImageAvailableListener(mTransformedListener, executor);
+        mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, executor);
         mCaptureProcessor = captureProcessor;
         mCaptureProcessor.onOutputSurface(mOutputImageReader.getSurface(), getImageFormat());
         mCaptureProcessor.onResolutionUpdate(
@@ -179,12 +182,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Nullable
     public ImageProxy acquireLatestImage() {
         synchronized (mLock) {
-            Image image = mOutputImageReader.acquireLatestImage();
-            if (image == null) {
-                return null;
-            }
-
-            return new AndroidImageProxy(image);
+            return mOutputImageReader.acquireLatestImage();
         }
     }
 
@@ -192,12 +190,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Nullable
     public ImageProxy acquireNextImage() {
         synchronized (mLock) {
-            Image image = mOutputImageReader.acquireNextImage();
-            if (image == null) {
-                return null;
-            }
-
-            return new AndroidImageProxy(image);
+            return mOutputImageReader.acquireNextImage();
         }
     }
 
@@ -252,13 +245,20 @@ class ProcessingImageReader implements ImageReaderProxy {
 
     @Override
     public void setOnImageAvailableListener(
-            @Nullable final ImageReaderProxy.OnImageAvailableListener listener,
+            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
             @Nullable Handler handler) {
+        setOnImageAvailableListener(listener, CameraXExecutors.newHandlerExecutor(handler));
+    }
+
+    @Override
+    public void setOnImageAvailableListener(@NonNull OnImageAvailableListener listener,
+            @NonNull Executor executor) {
+        // TODO(b/115747543) support callback on executor
         synchronized (mLock) {
             mListener = listener;
-            mHandler = handler;
-            mInputImageReader.setOnImageAvailableListener(mTransformedListener, handler);
-            mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, handler);
+            mExecutor = executor;
+            mInputImageReader.setOnImageAvailableListener(mTransformedListener, executor);
+            mOutputImageReader.setOnImageAvailableListener(mImageProcessedListener, executor);
         }
     }
 

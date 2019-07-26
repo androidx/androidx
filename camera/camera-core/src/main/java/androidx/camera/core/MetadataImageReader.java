@@ -25,10 +25,12 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * An {@link ImageReaderProxy} which matches the incoming {@link android.media.Image} with its
@@ -76,7 +78,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
 
     @GuardedBy("mLock")
     @Nullable
-    private Handler mHandler;
+    private Executor mExecutor;
 
     /** ImageInfos haven't been matched with Image. */
     @GuardedBy("mLock")
@@ -111,7 +113,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         mImageReaderProxy = new AndroidImageReaderProxy(
                 ImageReader.newInstance(width, height, format, maxImages));
 
-        init(handler);
+        init(CameraXExecutors.newHandlerExecutor(handler));
     }
 
     /**
@@ -125,12 +127,12 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     MetadataImageReader(ImageReaderProxy imageReaderProxy, @Nullable Handler handler) {
         mImageReaderProxy = imageReaderProxy;
 
-        init(handler);
+        init(CameraXExecutors.newHandlerExecutor(handler));
     }
 
-    private void init(Handler handler) {
-        mHandler = handler;
-        mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, handler);
+    private void init(Executor executor) {
+        mExecutor = executor;
+        mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
         mImageProxiesIndex = 0;
         mMatchedImageProxies = new ArrayList<>(getMaxImages());
     }
@@ -241,12 +243,18 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
 
     @Override
     public void setOnImageAvailableListener(
-            @Nullable final ImageReaderProxy.OnImageAvailableListener listener,
+            @NonNull final ImageReaderProxy.OnImageAvailableListener listener,
             @Nullable Handler handler) {
+        setOnImageAvailableListener(listener, CameraXExecutors.newHandlerExecutor(handler));
+    }
+
+    @Override
+    public void setOnImageAvailableListener(@NonNull OnImageAvailableListener listener,
+            @NonNull Executor executor) {
         synchronized (mLock) {
             mListener = listener;
-            mHandler = handler;
-            mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, handler);
+            mExecutor = executor;
+            mImageReaderProxy.setOnImageAvailableListener(mTransformedListener, executor);
         }
     }
 
@@ -263,8 +271,8 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                 image.addOnImageCloseListener(this);
                 mMatchedImageProxies.add(image);
                 if (mListener != null) {
-                    if (mHandler != null) {
-                        mHandler.post(
+                    if (mExecutor != null) {
+                        mExecutor.execute(
                                 new Runnable() {
                                     @Override
                                     public void run() {
@@ -293,11 +301,6 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
             }
             mAcquiredImageProxies.remove(image);
         }
-    }
-
-    @Nullable
-    Handler getHandler() {
-        return mHandler;
     }
 
     // Return the necessary CameraCaptureCallback, which needs to register to capture session.
