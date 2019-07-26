@@ -205,13 +205,39 @@ class InputFieldDelegateTest {
 
         whenever(processor.onEditCommands(captor.capture())).thenReturn(dummyEditorState)
 
-        InputFieldDelegate.onRelease(position, painter, processor,
-            identityOffsetMap, onValueChange)
+        InputFieldDelegate.onRelease(
+            position,
+            painter,
+            processor,
+            identityOffsetMap,
+            onValueChange,
+            textInputService,
+            true)
 
         assertEquals(1, captor.allValues.size)
         assertEquals(1, captor.firstValue.size)
         assertTrue(captor.firstValue[0] is SetSelectionEditOp)
         verify(onValueChange, times(1)).invoke(eq(dummyEditorState))
+        verify(textInputService).showSoftwareKeyboard()
+    }
+
+    @Test
+    fun test_on_release_do_not_place_cursor_if_focus_is_out() {
+        val position = PxPosition(100.px, 200.px)
+        val offset = 10
+
+        whenever(painter.getOffsetForPosition(position)).thenReturn(offset)
+        InputFieldDelegate.onRelease(
+            position,
+            painter,
+            processor,
+            identityOffsetMap,
+            onValueChange,
+            textInputService,
+            false)
+
+        verify(onValueChange, never()).invoke(any())
+        verify(textInputService).showSoftwareKeyboard()
     }
 
     @Test
@@ -234,12 +260,6 @@ class InputFieldDelegateTest {
             verify(painter).paintBackground(eq(1), eq(3), eq(Color.Red), eq(canvas))
             verify(painter).paintCursor(eq(1), eq(canvas))
         }
-    }
-
-    @Test
-    fun show_soft_input() {
-        InputFieldDelegate.onPress(textInputService)
-        verify(textInputService).showSoftwareKeyboard()
     }
 
     @Test
@@ -418,7 +438,14 @@ class InputFieldDelegateTest {
 
         whenever(processor.onEditCommands(captor.capture())).thenReturn(dummyEditorState)
 
-        InputFieldDelegate.onRelease(position, painter, processor, skippingOffsetMap, onValueChange)
+        InputFieldDelegate.onRelease(
+            position,
+            painter,
+            processor,
+            skippingOffsetMap,
+            onValueChange,
+            textInputService,
+            true)
 
         val cursorOffsetInTransformedText = offset / 2
         assertEquals(1, captor.allValues.size)
