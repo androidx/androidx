@@ -310,6 +310,46 @@ class FragmentViewTest {
             .isEqualTo(Lifecycle.State.INITIALIZED)
     }
 
+    @Test
+    fun findFragmentNoTagSet() {
+        val view = View(activityRule.activity)
+        try {
+            FragmentManager.findFragment<Fragment>(view)
+            fail("findFragment should throw IllegalStateException if a Fragment was not set")
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains("View $view does not have a Fragment set")
+        }
+    }
+
+    @Test
+    fun findFragmentAfterAdd() {
+        activityRule.setContentView(R.layout.simple_container)
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment = StrictViewFragment()
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
+        activityRule.executePendingTransactions()
+
+        assertThat(FragmentManager.findFragment<StrictViewFragment>(fragment.requireView()))
+            .isSameInstanceAs(fragment)
+    }
+
+    @Test
+    fun findFragmentFindByIdChildView() {
+        activityRule.setContentView(R.layout.simple_container)
+        val fm = activityRule.activity.supportFragmentManager
+
+        val fragment = StrictViewFragment(R.layout.fragment_a)
+        fm.beginTransaction().add(R.id.fragmentContainer, fragment).commit()
+        activityRule.executePendingTransactions()
+
+        val view = fragment.requireView().findViewById<View>(R.id.textA)
+        assertThat(view).isNotNull()
+        assertThat(FragmentManager.findFragment<StrictViewFragment>(view))
+            .isSameInstanceAs(fragment)
+    }
+
     // Hide a fragment and its View should be GONE. Then pop it and the View should be VISIBLE
     @Test
     fun hideFragment() {

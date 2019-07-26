@@ -36,6 +36,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
@@ -753,6 +754,55 @@ public abstract class FragmentManager {
     }
 
     /**
+     * Find a {@link Fragment} associated with the given {@link View}.
+     *
+     * This method will locate the {@link Fragment} associated with this view. This is automatically
+     * populated for the View returned by {@link Fragment#onCreateView} and its children.
+     *
+     * @param view the view to search from
+     * @return the locally scoped {@link Fragment} to the given view
+     * @throws IllegalStateException if the given view does not correspond with a
+     * {@link Fragment}.
+     */
+    @NonNull
+    @SuppressWarnings("unchecked") // We should throw a ClassCast exception if the type is wrong
+    public static <F extends Fragment> F findFragment(@NonNull View view) {
+        Fragment fragment = findViewFragment(view);
+        if (fragment == null) {
+            throw new IllegalStateException("View " + view + " does not have a Fragment set");
+        }
+        return (F) fragment;
+    }
+
+    /**
+     * Recurse up the view hierarchy, looking for the Fragment
+     * @param view the view to search from
+     * @return the locally scoped {@link Fragment} to the given view, if found
+     */
+    @Nullable
+    static Fragment findViewFragment(@NonNull View view) {
+        while (view != null) {
+            Object tag = view.getTag(R.id.fragment_container_view_tag);
+            if (tag instanceof Fragment) {
+                return (Fragment) tag;
+            }
+            ViewParent parent = view.getParent();
+            view = parent instanceof View ? (View) parent : null;
+        }
+        return null;
+    }
+
+    /**
+     * Used to store the Fragment inside of its view's tag. This is done after the fragment's view
+     * is created, but before the view is added to the container.
+     *
+     * @param fragment The fragment to be set as a tag on its view
+     */
+    void setViewTag(@NonNull Fragment fragment) {
+        fragment.mView.setTag(R.id.fragment_container_view_tag, fragment);
+    }
+
+    /**
      * Get a list of all fragments that are currently added to the FragmentManager.
      * This may include those that are hidden as well as those that are shown.
      * This will not include any fragments only in the back stack, or fragments that
@@ -1259,6 +1309,7 @@ public abstract class FragmentManager {
                             if (f.mView != null) {
                                 f.mInnerView = f.mView;
                                 f.mView.setSaveFromParentEnabled(false);
+                                setViewTag(f);
                                 if (container != null) {
                                     container.addView(f.mView);
                                 }
