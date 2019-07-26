@@ -66,7 +66,7 @@ class ResultWriterTest {
     fun validateJson() {
         val tempFile = tempFolder.newFile()
 
-        val sustainedPerformanceModeInUse = AndroidBenchmarkRunner.sustainedPerformanceModeInUse
+        val sustainedPerformanceModeInUse = IsolationActivity.sustainedPerformanceModeInUse
 
         ResultWriter.writeReport(tempFile, listOf(reportA, reportB))
         assertEquals(

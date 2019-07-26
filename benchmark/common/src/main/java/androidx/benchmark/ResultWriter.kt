@@ -65,7 +65,7 @@ internal object ResultWriter {
                 .name("cpuMaxFreqHz").value(CpuInfo.maxFreqHz)
                 .name("memTotalBytes").value(MemInfo.memTotalBytes)
                 .name("sustainedPerformanceModeEnabled")
-                .value(AndroidBenchmarkRunner.sustainedPerformanceModeInUse)
+                .value(IsolationActivity.sustainedPerformanceModeInUse)
             writer.endObject()
 
             writer.name("benchmarks").beginArray()

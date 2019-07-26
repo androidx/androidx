@@ -294,7 +294,6 @@ class BenchmarkState internal constructor() {
                 if (Errors.UNSUPPRESSED_WARNING_MESSAGE != null) {
                     fail(Errors.UNSUPPRESSED_WARNING_MESSAGE)
                 }
-
                 if (!firstBenchmark && Arguments.startupMode) {
                     fail("Error - multiple benchmarks in startup mode. Only one benchmark " +
                             "may be run per 'am instrument' call, to ensure result isolation.")
@@ -307,7 +306,7 @@ class BenchmarkState internal constructor() {
                 }
                 if (performThrottleChecks &&
                     !CpuInfo.locked &&
-                    !AndroidBenchmarkRunner.sustainedPerformanceModeInUse &&
+                    !IsolationActivity.sustainedPerformanceModeInUse &&
                     !Errors.isEmulator
                 ) {
                     ThrottleDetector.computeThrottleBaseline()
