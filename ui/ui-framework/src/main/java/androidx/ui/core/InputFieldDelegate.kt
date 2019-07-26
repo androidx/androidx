@@ -72,6 +72,7 @@ internal class InputFieldDelegate {
          *
          * @param canvas The target canvas.
          * @param value The editor state
+         * @param offsetMap The offset map
          * @param textPainter The text painter
          * @param hasFocus true if this widget is focused, otherwise false
          * @param editorStyle The editor style.
@@ -80,26 +81,28 @@ internal class InputFieldDelegate {
         fun draw(
             canvas: Canvas,
             value: EditorState,
+            offsetMap: OffsetMap,
             textPainter: TextPainter,
             hasFocus: Boolean,
             editorStyle: EditorStyle
         ) {
             value.composition?.let {
                 textPainter.paintBackground(
-                    it.start,
-                    it.end,
+                    offsetMap.originalToTransformed(it.start),
+                    offsetMap.originalToTransformed(it.end),
                     editorStyle.compositionColor,
                     canvas
                 )
             }
             if (value.selection.collapsed) {
                 if (hasFocus) {
-                    textPainter.paintCursor(value.selection.start, canvas)
+                    textPainter.paintCursor(
+                        offsetMap.originalToTransformed(value.selection.start), canvas)
                 }
             } else {
                 textPainter.paintBackground(
-                    value.selection.start,
-                    value.selection.end,
+                    offsetMap.originalToTransformed(value.selection.start),
+                    offsetMap.originalToTransformed(value.selection.end),
                     editorStyle.selectionColor,
                     canvas
                 )
@@ -118,16 +121,17 @@ internal class InputFieldDelegate {
             textPainter: TextPainter,
             layoutCoordinates: LayoutCoordinates,
             textInputService: TextInputService,
-            hasFocus: Boolean
+            hasFocus: Boolean,
+            offsetMap: OffsetMap
         ) {
             if (!hasFocus) {
                 return
             }
 
             val bbox = if (value.selection.end < value.text.length) {
-                textPainter.getBoundingBox(value.selection.end)
+                textPainter.getBoundingBox(offsetMap.originalToTransformed(value.selection.end))
             } else if (value.selection.end != 0) {
-                textPainter.getBoundingBox(value.selection.end - 1)
+                textPainter.getBoundingBox(offsetMap.originalToTransformed(value.selection.end) - 1)
             } else {
                 Rect(0f, 0f, 1.0f, textPainter.preferredLineHeight)
             }
@@ -186,6 +190,7 @@ internal class InputFieldDelegate {
          * @param position The event position in widget coordinate.
          * @param textPainter The text painter
          * @param editProcessor The edit processor
+         * @param offsetMap The offset map
          * @param onValueChange The callback called when the new editor state arrives.
          */
         @JvmStatic
@@ -193,9 +198,10 @@ internal class InputFieldDelegate {
             position: PxPosition,
             textPainter: TextPainter,
             editProcessor: EditProcessor,
+            offsetMap: OffsetMap,
             onValueChange: (EditorState) -> Unit
         ) {
-            val offset = textPainter.getOffsetForPosition(position)
+            val offset = offsetMap.transformedToOriginal(textPainter.getOffsetForPosition(position))
             onEditCommand(listOf(SetSelectionEditOp(offset, offset)), editProcessor, onValueChange)
         }
 
@@ -207,7 +213,7 @@ internal class InputFieldDelegate {
          * @param editProcessor The edit processor
          * @param keyboardType The keyboard type
          * @param onValueChange The callback called when the new editor state arrives.
-         * @param onEditorActionPerformed The callback called when the editor action arrives.
+         * @param onImeActionPerformed The callback called when the editor action arrives.
          */
         @JvmStatic
         fun onFocus(
@@ -242,6 +248,22 @@ internal class InputFieldDelegate {
         ) {
             onEditCommand(listOf(FinishComposingTextEditOp()), editProcessor, onValueChange)
             textInputService?.stopInput()
+        }
+
+        /**
+         * Helper function of applying visual transformation method to the EditorState.
+         *
+         * @param value An editor state
+         * @param visualTransformation A visual transformation
+         */
+        @JvmStatic
+        fun applyVisualFilter(
+            value: EditorState,
+            visualTransformation: VisualTransformation?
+        ): TransformedText {
+            val annotatedString = AnnotatedString(value.text)
+            return visualTransformation?.filter(annotatedString)
+                    ?: TransformedText(annotatedString, identityOffsetMap)
         }
     }
 }
