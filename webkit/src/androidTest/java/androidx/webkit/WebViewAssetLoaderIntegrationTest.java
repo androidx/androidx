@@ -17,8 +17,10 @@
 package androidx.webkit;
 
 import static androidx.webkit.WebViewAssetLoader.AssetsPathHandler;
+import static androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler;
 import static androidx.webkit.WebViewAssetLoader.ResourcesPathHandler;
 
+import android.content.Context;;
 import android.net.Uri;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -27,6 +29,7 @@ import android.webkit.WebView;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
+import androidx.webkit.internal.AssetHelper;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -35,6 +38,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.File;
+
 @RunWith(AndroidJUnit4.class)
 public class WebViewAssetLoaderIntegrationTest {
     private static final String TAG = "WebViewAssetLoaderIntegrationTest";
@@ -42,6 +47,12 @@ public class WebViewAssetLoaderIntegrationTest {
     @Rule
     public final ActivityTestRule<WebViewTestActivity> mActivityRule =
                                     new ActivityTestRule<>(WebViewTestActivity.class);
+
+    private static final String TEST_INTERNAL_STORAGE_DIR = "app_public/";
+    private static final String TEST_INTERNAL_STORAGE_FILE =
+            TEST_INTERNAL_STORAGE_DIR + "html/test_with_title.html";
+    private static final String TEST_HTML_CONTENT =
+            "<head><title>WebViewAssetLoaderTest</title></head>";
 
     private WebViewOnUiThread mOnUiThread;
 
@@ -76,6 +87,10 @@ public class WebViewAssetLoaderIntegrationTest {
         if (mOnUiThread != null) {
             mOnUiThread.cleanUp();
         }
+
+        Context context = mActivityRule.getActivity();
+        WebkitUtils.recursivelyDeleteFile(
+                new File(AssetHelper.getDataDir(context), TEST_INTERNAL_STORAGE_DIR));
     }
 
     @Test
@@ -118,6 +133,36 @@ public class WebViewAssetLoaderIntegrationTest {
                         .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
                         .appendPath("res")
                         .appendPath("raw")
+                        .appendPath("test_with_title.html")
+                        .build()
+                        .toString();
+        mOnUiThread.loadUrlAndWaitForCompletion(url);
+
+        Assert.assertEquals("WebViewAssetLoaderTest", mOnUiThread.getTitle());
+    }
+
+    @Test
+    @MediumTest
+    public void testAppInternalStorageHosting() throws Exception {
+        final WebViewTestActivity activity = mActivityRule.getActivity();
+
+        File dataDir = AssetHelper.getDataDir(activity);
+        WebkitUtils.writeToFile(new File(dataDir, TEST_INTERNAL_STORAGE_FILE), TEST_HTML_CONTENT);
+
+        InternalStoragePathHandler handler = new InternalStoragePathHandler(activity,
+                new File(dataDir, TEST_INTERNAL_STORAGE_DIR));
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+                .addPathHandler("/data/public/", handler)
+                .build();
+
+        mOnUiThread.setWebViewClient(new AssetLoadingWebViewClient(mOnUiThread, assetLoader));
+
+        String url = new Uri.Builder()
+                        .scheme("https")
+                        .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
+                        .appendPath("data")
+                        .appendPath("public")
+                        .appendPath("html")
                         .appendPath("test_with_title.html")
                         .build()
                         .toString();

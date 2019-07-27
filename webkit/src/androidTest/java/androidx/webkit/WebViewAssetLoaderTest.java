@@ -16,11 +16,13 @@
 
 package androidx.webkit;
 
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.net.Uri;
 import android.webkit.WebResourceResponse;
 
 import static androidx.webkit.WebViewAssetLoader.AssetsPathHandler;
+import static androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler;
 import static androidx.webkit.WebViewAssetLoader.PathHandler;
 import static androidx.webkit.WebViewAssetLoader.ResourcesPathHandler;
 
@@ -37,6 +39,7 @@ import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -213,6 +216,84 @@ public class WebViewAssetLoaderTest {
         WebResourceResponse response = assetLoader.shouldInterceptRequest(
                 Uri.parse("https://appassets.androidplatform.net/res/raw/test.html"));
         assertResponse(response, testHtmlContents);
+    }
+
+    @SmallTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateInternalStorageHandler_entireDataDir() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        File testDir = AssetHelper.getDataDir(context);
+        PathHandler handler =
+                new InternalStoragePathHandler(context, testDir);
+    }
+
+    @SmallTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateInternalStorageHandler_entireCacheDir() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        File testDir = context.getCacheDir();
+        PathHandler handler =
+                new InternalStoragePathHandler(context, testDir);
+    }
+
+    @SmallTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateInternalStorageHandler_databasesDir() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        File testDir = new File(AssetHelper.getDataDir(context), "databases/");
+        PathHandler handler =
+                new InternalStoragePathHandler(context, testDir);
+    }
+
+    @SmallTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateInternalStorageHandler_libDir() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        File testDir = new File(AssetHelper.getDataDir(context), "lib/");
+        PathHandler handler =
+                new InternalStoragePathHandler(context, testDir);
+    }
+
+    @SmallTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateInternalStorageHandler_webViewDir() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        File testDir = new File(AssetHelper.getDataDir(context), "app_webview");
+        PathHandler handler =
+                new InternalStoragePathHandler(context, testDir);
+    }
+
+    @SmallTest
+    @Test(expected = IllegalArgumentException.class)
+    public void testCreateInternalStorageHandler_sharedPrefsDir() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        File testDir = new File(AssetHelper.getDataDir(context), "/shared_prefs/");
+        PathHandler handler =
+                new InternalStoragePathHandler(context, testDir);
+    }
+
+    @Test
+    @SmallTest
+    public void testHostInternalStorageHandler_invalidAccess() throws Throwable {
+        Context context = ApplicationProvider.getApplicationContext();
+        File testDir = new File(AssetHelper.getDataDir(context), "/public/");
+        PathHandler handler =
+                new InternalStoragePathHandler(context, testDir);
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+                                                      .addPathHandler("/public-data/", handler)
+                                                      .build();
+
+        WebResourceResponse response = assetLoader.shouldInterceptRequest(
+                Uri.parse("https://appassets.androidplatform.net/public-data/../test.html"));
+        Assert.assertNull(
+                "should be null since it tries to access a file outside the mounted directory",
+                response.getData());
+
+        response = assetLoader.shouldInterceptRequest(
+                Uri.parse("https://appassets.androidplatform.net/public-data/html/test.html"));
+        Assert.assertNull(
+                "should be null as it accesses a non-existent file under the mounted directory",
+                response.getData());
     }
 
     @Test
