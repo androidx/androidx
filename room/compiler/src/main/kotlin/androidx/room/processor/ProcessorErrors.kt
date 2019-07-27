@@ -21,6 +21,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.Update
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.parser.QueryType
@@ -725,4 +726,8 @@ object ProcessorErrors {
                 " (https://bugs.openjdk.java.net/browse/JDK-8007720)" +
                 " that prevents Room from being incremental." +
                 " Consider using JDK 11+ or the embedded JDK shipped with Android Studio 3.5+."
+
+    fun invalidChannelType(typeName: String) = "'$typeName' is not supported as a return type. " +
+            "Instead declare return type as ${KotlinTypeNames.FLOW} and use Flow transforming " +
+            "functions that converts the Flow into a Channel."
 }
