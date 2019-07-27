@@ -395,6 +395,48 @@ public class WebViewAssetLoaderTest {
         assertResponse(response, FakeTextPathHandler.CONTENTS);
     }
 
+    @Test
+    @SmallTest
+    public void testMimeTypeInPathHandlers() throws Throwable {
+        final String testHtmlContents = "<body><div>test</div></body>";
+
+        AssetHelper mockAssetHelper = new MockAssetHelper() {
+            @Override
+            public InputStream openResource(Uri uri) {
+                try {
+                    return new ByteArrayInputStream(testHtmlContents.getBytes(ENCODING));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
+        WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+                .addPathHandler("/assets/", new AssetsPathHandler(mockAssetHelper))
+                .addPathHandler("/res/", new ResourcesPathHandler(mockAssetHelper))
+                .build();
+
+        WebResourceResponse response = assetLoader.shouldInterceptRequest(
+                Uri.parse("https://appassets.androidplatform.net/res/raw/test"));
+        Assert.assertEquals("File doesn't have an extension, MIME type should be text/plain",
+                AssetHelper.DEFAULT_MIME_TYPE, response.getMimeType());
+
+        response = assetLoader.shouldInterceptRequest(
+                Uri.parse("https://appassets.androidplatform.net/assets/other/test"));
+        Assert.assertEquals("File doesn't have an extension, MIME type should be text/plain",
+                AssetHelper.DEFAULT_MIME_TYPE, response.getMimeType());
+
+        response = assetLoader.shouldInterceptRequest(
+                Uri.parse("https://appassets.androidplatform.net/res/drawable/test.png"));
+        Assert.assertEquals(".png file should have mime type image/png regardless of its content",
+                "image/png", response.getMimeType());
+
+        response = assetLoader.shouldInterceptRequest(
+                Uri.parse("https://appassets.androidplatform.net/assets/images/test.png"));
+        Assert.assertEquals(".png file should have mime type image/png regardless of its content",
+                "image/png", response.getMimeType());
+    }
+
     private static void assertResponse(@Nullable WebResourceResponse response,
               @NonNull String expectedContent) throws IOException {
         Assert.assertNotNull("failed to match the URL and returned null response", response);
