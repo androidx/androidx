@@ -748,7 +748,9 @@ class PostponedTransitionTest {
 
         assertThat(fragment2.isResumed).isFalse()
         assertThat(fragment2.isAdded).isFalse()
-        assertThat(fragment2.view).isNull()
+        activityRule.runOnUiThread {
+            assertThat(fragment2.view).isNull()
+        }
     }
 
     // Ensure that the postponed fragment transactions don't allow reentrancy in fragment manager
@@ -849,37 +851,37 @@ class PostponedTransitionTest {
     // Ensure that if postponedEnterTransition is called twice the first one is removed.
     @Test
     fun testTimedPostponeEnterPostponedCalledTwice() {
-            val fm = activityRule.activity.supportFragmentManager
-            val startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.activity.findViewById<View>(R.id.blueSquare)
 
-            val fragment = PostponedFragment3(1000)
-            fragment.startPostponedCountDownLatch = CountDownLatch(2)
-            fm.beginTransaction()
-                .addSharedElement(startBlue, "blueSquare")
-                .replace(R.id.fragmentContainer, fragment)
-                .addToBackStack(null)
-                .setReorderingAllowed(true)
-                .commit()
+        val fragment = PostponedFragment3(1000)
+        fragment.startPostponedCountDownLatch = CountDownLatch(2)
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
 
-            fragment.postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
+        fragment.postponeEnterTransition(1000, TimeUnit.MILLISECONDS)
 
-            activityRule.waitForExecution()
+        activityRule.waitForExecution()
 
-            assertWithMessage("Fragment should be postponed")
-                .that(fragment.isPostponed).isTrue()
+        assertWithMessage("Fragment should be postponed")
+            .that(fragment.isPostponed).isTrue()
 
-            assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(2)
+        assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(2)
 
-            assertPostponedTransition(beginningFragment, fragment)
+        assertPostponedTransition(beginningFragment, fragment)
 
-            fragment.waitForTransition()
+        fragment.waitForTransition()
 
-            assertWithMessage(
-                "After startPostponed is called the transition should not be postponed"
-            )
-                .that(fragment.isPostponed).isFalse()
+        assertWithMessage(
+            "After startPostponed is called the transition should not be postponed"
+        )
+            .that(fragment.isPostponed).isFalse()
 
-            assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(1)
+        assertThat(fragment.startPostponedCountDownLatch.count).isEqualTo(1)
     }
 
     // Ensure that if postponedEnterTransition with a duration of 0 it waits one frame.

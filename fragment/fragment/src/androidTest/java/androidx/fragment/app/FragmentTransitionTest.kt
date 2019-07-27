@@ -106,6 +106,77 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         assertThat(onBackStackChangedTimes).isEqualTo(4)
     }
 
+    // Test removing a Fragment with a Transition and adding it back before the Transition
+    // finishes is handled correctly.
+    @Test
+    fun removeThenAddBeforeTransitionFinishes() {
+        // enter transition
+        val fragment = setupInitialFragment()
+        val blue = activityRule.findBlue()
+        val green = activityRule.findGreen()
+
+        val view1 = fragment.view
+
+        activityRule.runOnUiThread {
+            // exit transition
+            fragmentManager.beginTransaction()
+                .setReorderingAllowed(reorderingAllowed)
+                .remove(fragment)
+                .addToBackStack(null)
+                .commit()
+
+            fragmentManager.beginTransaction()
+                .setReorderingAllowed(reorderingAllowed)
+                .add(R.id.fragmentContainer, fragment)
+                .addToBackStack(null)
+                .commit()
+        }
+        activityRule.waitForExecution()
+
+        // If reordering is allowed, the remove is ignored and the transaction is just added to the
+        // back stack
+        if (reorderingAllowed) {
+            assertThat(onBackStackChangedTimes).isEqualTo(2)
+            assertThat(fragment.requireView()).isEqualTo(view1)
+        } else {
+            // If reorder is not allowed we will get the exit Transition and the fragment will be
+            // added with a different view.
+            fragment.waitForTransition()
+            verifyAndClearTransition(fragment.exitTransition, null, green, blue)
+            assertThat(onBackStackChangedTimes).isEqualTo(3)
+            assertThat(fragment.requireView()).isNotEqualTo(view1)
+        }
+        verifyNoOtherTransitions(fragment)
+    }
+
+    @Test
+    fun ensureTransitionsFinishBeforeViewDestroyed() {
+        // enter transition
+        val fragment = TransitionFinishFirstFragment()
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .add(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+        assertThat(onBackStackChangedTimes).isEqualTo(1)
+        fragment.waitForTransition()
+        val blueSquare1 = activityRule.findBlue()
+        val greenSquare1 = activityRule.findGreen()
+        verifyAndClearTransition(fragment.enterTransition, null, blueSquare1, greenSquare1)
+        verifyNoOtherTransitions(fragment)
+
+        // Ensure that our countdown latch has been reset for the Fragment
+        assertThat(fragment.endTransitionCountDownLatch.count).isEqualTo(1)
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .replace(R.id.fragmentContainer, TransitionFragment())
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+    }
+
     // Test that shared elements transition from one fragment to the next
     // and back during pop.
     @Test
@@ -1111,6 +1182,14 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             view.visibility = View.INVISIBLE
             super.onViewCreated(view, savedInstanceState)
+        }
+    }
+
+    class TransitionFinishFirstFragment : TransitionFragment(R.layout.scene1) {
+        override fun onDestroyView() {
+            // Ensure all transitions have been executed before onDestroyView was called
+            assertThat(endTransitionCountDownLatch.count).isEqualTo(0)
+            super.onDestroyView()
         }
     }
 

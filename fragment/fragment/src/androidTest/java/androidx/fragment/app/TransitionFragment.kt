@@ -18,6 +18,7 @@ package androidx.fragment.app
 import android.transition.Transition
 import androidx.annotation.LayoutRes
 import androidx.fragment.test.R
+import androidx.lifecycle.Lifecycle
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -39,6 +40,8 @@ open class TransitionFragment(
 
     val listener = object : Transition.TransitionListener {
         override fun onTransitionEnd(transition: Transition) {
+            assertThat(viewLifecycleOwner.lifecycle.currentState)
+                .isNotEqualTo(Lifecycle.State.DESTROYED)
             endTransitionCountDownLatch.countDown()
             startTransitionCountDownLatch = CountDownLatch(1)
         }
