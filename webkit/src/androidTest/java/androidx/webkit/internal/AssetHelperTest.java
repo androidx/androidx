@@ -21,15 +21,19 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
+import androidx.webkit.WebkitUtils;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -39,11 +43,19 @@ public class AssetHelperTest {
 
     private static final String TEST_STRING = "Just a test";
     private AssetHelper mAssetHelper;
+    private File mInternalStorageTestDir;
 
     @Before
     public void setup() {
         Context context = InstrumentationRegistry.getContext();
         mAssetHelper = new AssetHelper(context);
+        mInternalStorageTestDir = new File(context.getFilesDir(), "test_dir");
+        mInternalStorageTestDir.mkdirs();
+    }
+
+    @After
+    public void tearDown() {
+        WebkitUtils.recursivelyDeleteFile(mInternalStorageTestDir);
     }
 
     @Test
@@ -112,6 +124,52 @@ public class AssetHelperTest {
 
         Assert.assertNull("asset with \"/android_asset\" prefix should fail",
                           mAssetHelper.openAsset(Uri.parse("/android_asset/test.txt")));
+    }
+
+    @Test
+    @MediumTest
+    public void testOpenFileFromInternalStorage() throws Throwable {
+        File testFile = new File(mInternalStorageTestDir, "some_file.txt");
+        WebkitUtils.writeToFile(testFile, TEST_STRING);
+
+        InputStream stream = AssetHelper.openFile(testFile);
+        Assert.assertNotNull("Should be able to open \"" + testFile + "\" from internal storage",
+                stream);
+        Assert.assertEquals(readAsString(stream), TEST_STRING);
+    }
+
+    @Test
+    @MediumTest
+    public void testOpenNonExistingFileInInternalStorage() throws Throwable {
+        File testFile = new File(mInternalStorageTestDir, "some/path/to/non_exist_file.txt");
+        InputStream stream = AssetHelper.openFile(testFile);
+        Assert.assertNull("Should not be able to open a non existing file from internal storage",
+                stream);
+    }
+
+    @Test
+    @SmallTest
+    public void testIsCanonicalChildOf() throws Throwable {
+        // Two files are used for testing :
+        // "/some/path/to/file_1.txt" and "/some/path/file_2.txt"
+
+        File parent = new File(mInternalStorageTestDir, "/some/path/");
+        File child = new File(parent, "/to/./file_1.txt");
+        boolean res = AssetHelper.isCanonicalChildOf(parent, child);
+        Assert.assertTrue(
+                "/to/./\"file_1.txt\" is in a subdirectory of \"/some/path/\"", res);
+
+        parent = new File(mInternalStorageTestDir, "/some/path/");
+        child = new File(parent, "/to/../file_2.txt");
+        res = AssetHelper.isCanonicalChildOf(parent, child);
+        Assert.assertTrue(
+                "/to/../\"file_2.txt\" is in a subdirectory of \"/some/path/\"", res);
+
+        parent = new File(mInternalStorageTestDir, "/some/path/to");
+        child = new File(parent, "/../file_2.txt");
+        res = AssetHelper.isCanonicalChildOf(parent, child);
+        Assert.assertFalse(
+                "/../\"file_2.txt\" is not in a subdirectory of \"/some/path/to/\"", res);
     }
 
     private static String readAsString(InputStream is) {
