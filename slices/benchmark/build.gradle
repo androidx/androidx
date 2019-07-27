@@ -21,6 +21,7 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("androidx.benchmark")
 }
 
 dependencies {
