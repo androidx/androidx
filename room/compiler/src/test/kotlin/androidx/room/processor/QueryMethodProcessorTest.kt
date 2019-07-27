@@ -25,6 +25,7 @@ import androidx.room.Query
 import androidx.room.Relation
 import androidx.room.Transaction
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.hasAnnotation
@@ -73,6 +74,7 @@ import org.mockito.Mockito
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind.INT
 import javax.lang.model.type.TypeMirror
+import javax.tools.JavaFileObject
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(Parameterized::class)
@@ -560,6 +562,48 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
+    fun testBadChannelReturnForQuery() {
+        singleQueryMethod<QueryMethod>(
+            """
+                @Query("select * from user")
+                abstract ${KotlinTypeNames.CHANNEL}<User> getUsersChannel();
+                """,
+            jfos = listOf(COMMON.CHANNEL)
+        ) { _, _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.invalidChannelType(
+                KotlinTypeNames.CHANNEL.toString()))
+    }
+
+    @Test
+    fun testBadSendChannelReturnForQuery() {
+        singleQueryMethod<QueryMethod>(
+            """
+                @Query("select * from user")
+                abstract ${KotlinTypeNames.SEND_CHANNEL}<User> getUsersChannel();
+                """,
+            jfos = listOf(COMMON.SEND_CHANNEL)
+        ) { _, _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.invalidChannelType(
+                KotlinTypeNames.SEND_CHANNEL.toString()))
+    }
+
+    @Test
+    fun testBadReceiveChannelReturnForQuery() {
+        singleQueryMethod<QueryMethod>(
+            """
+                @Query("select * from user")
+                abstract ${KotlinTypeNames.RECEIVE_CHANNEL}<User> getUsersChannel();
+                """,
+            jfos = listOf(COMMON.RECEIVE_CHANNEL)
+        ) { _, _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.invalidChannelType(
+                KotlinTypeNames.RECEIVE_CHANNEL.toString()))
+    }
+
+    @Test
     fun query_detectTransaction_select() {
         singleQueryMethod<ReadQueryMethod>(
                 """
@@ -857,6 +901,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     private fun <T : QueryMethod> singleQueryMethod(
         vararg input: String,
+        jfos: Iterable<JavaFileObject> = emptyList(),
         handler: (T, TestInvocation) -> Unit
     ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
@@ -866,7 +911,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         "foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
                     ), COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA, COMMON.USER, COMMON.BOOK
-                )
+                ) + jfos
             )
             .processedWith(TestProcessor.builder()
                 .forAnnotations(
