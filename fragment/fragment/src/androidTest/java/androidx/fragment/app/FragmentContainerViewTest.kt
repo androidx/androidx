@@ -182,12 +182,9 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeViewAt() {
-        val view = FragmentContainerView(context)
-
-        val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        setupRemoveTest(childView1, childView2, view)
+        val view = setupRemoveTestsView(FragmentContainerView(context), childView2)
 
         view.removeViewAt(0)
 
@@ -197,12 +194,10 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeViewInLayout() {
-        val view = FragmentContainerView(context)
-
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        setupRemoveTest(childView1, childView2, view)
+        val view = setupRemoveTestsView(childView1, childView2)
 
         view.removeViewInLayout(childView1)
 
@@ -212,12 +207,10 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeView() {
-        val view = FragmentContainerView(context)
-
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        setupRemoveTest(childView1, childView2, view)
+        val view = setupRemoveTestsView(childView1, childView2)
 
         view.removeView(childView1)
 
@@ -226,12 +219,10 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeViews() {
-        val view = FragmentContainerView(context)
-
-        val childView1 = FragmentContainerView(context)
-        val childView2 = FragmentContainerView(context)
-
-        setupRemoveTest(childView1, childView2, view)
+        val view = setupRemoveTestsView(
+            FragmentContainerView(context),
+            FragmentContainerView(context)
+        )
 
         view.removeViews(1, 1)
 
@@ -240,12 +231,10 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeViewsInLayout() {
-        val view = FragmentContainerView(context)
-
-        val childView1 = FragmentContainerView(context)
-        val childView2 = FragmentContainerView(context)
-
-        setupRemoveTest(childView1, childView2, view)
+        val view = setupRemoveTestsView(
+            FragmentContainerView(context),
+            FragmentContainerView(context)
+        )
 
         view.removeViewsInLayout(1, 1)
 
@@ -254,12 +243,10 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeAllViewsInLayout() {
-        val view = FragmentContainerView(context)
-
-        val childView1 = FragmentContainerView(context)
-        val childView2 = FragmentContainerView(context)
-
-        setupRemoveTest(childView1, childView2, view)
+        val view = setupRemoveTestsView(
+            FragmentContainerView(context),
+            FragmentContainerView(context)
+        )
 
         view.removeAllViewsInLayout()
 
@@ -269,12 +256,10 @@ class FragmentContainerViewTest {
     // removeDetachedView should not actually remove the view
     @Test
     fun removeDetachedView() {
-        val view = FragmentContainerView(context)
-
         val childView1 = FragmentContainerView(context)
         val childView2 = FragmentContainerView(context)
 
-        setupRemoveTest(childView1, childView2, view)
+        val view = setupRemoveTestsView(childView1, childView2)
 
         view.removeDetachedView(childView1, false)
 
@@ -282,11 +267,11 @@ class FragmentContainerViewTest {
         assertThat(view.getChildAt(1)).isEqualTo(childView2)
     }
 
-    private fun setupRemoveTest(
+    private fun setupRemoveTestsView(
         childView1: FragmentContainerView,
-        childView2: FragmentContainerView,
-        view: FragmentContainerView
-    ) {
+        childView2: FragmentContainerView
+    ): FragmentContainerView {
+        val view = FragmentContainerView(context)
         val fragment1 = Fragment()
         val fragment2 = Fragment()
 
@@ -301,6 +286,7 @@ class FragmentContainerViewTest {
 
         assertThat(view.childCount).isEqualTo(2)
         assertThat(view.getChildAt(1)).isEqualTo(childView2)
+        return view
     }
 
     // Disappearing child views should be drawn first before other child views.
