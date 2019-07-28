@@ -46,7 +46,7 @@ import kotlin.concurrent.thread
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class IsolationActivity : android.app.Activity() {
     private var destroyed = false
 
@@ -123,7 +123,7 @@ class IsolationActivity : android.app.Activity() {
         private var firstInit = true
         internal var sustainedPerformanceModeInUse = false
             private set
-        internal var resumed = false
+        var resumed = false
             private set
 
         @WorkerThread

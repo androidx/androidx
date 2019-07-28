@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.junit4
 
 import android.Manifest
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.benchmark.Errors.WARNING_PREFIX
+import androidx.benchmark.BenchmarkState
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assert.assertTrue
 import org.junit.rules.RuleChain
@@ -106,6 +106,8 @@ class BenchmarkRule : TestRule {
      *     ...
      * }
      * ```
+     *
+     * @throws [IllegalStateException] if the BenchmarkRule isn't correctly applied to a test.
      */
     fun getState(): BenchmarkState {
         // Note: this is an explicit method instead of an accessor to help convey it's only for Java
@@ -169,38 +171,37 @@ class BenchmarkRule : TestRule {
             .apply(base, description)
     }
 
-    private fun applyInternal(base: Statement, description: Description) = Statement {
-        applied = true
-        var invokeMethodName = description.methodName
-        Log.i(TAG, "Running ${description.className}#$invokeMethodName")
-
-        // validate and simplify the function name.
-        // First, remove the "test" prefix which normally comes from CTS test.
-        // Then make sure the [subTestName] is valid, not just numbers like [0].
-        if (invokeMethodName.startsWith("test")) {
-            assertTrue(
-                "The test name $invokeMethodName is too short",
-                invokeMethodName.length > 5
+    private fun applyInternal(base: Statement, description: Description) =
+        Statement {
+            applied = true
+            var invokeMethodName = description.methodName
+            Log.i(
+                TAG,
+                "Running ${description.className}#$invokeMethodName"
             )
-            invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
-                    invokeMethodName.substring(5)
-        }
 
-        base.evaluate()
-
-        if (enableReport) {
-            val fullTestName =
-                WARNING_PREFIX + description.testClass.simpleName + "." + invokeMethodName
-            internalState.sendStatus(fullTestName)
-
-            ResultWriter.appendReport(
-                internalState.getReport(
-                    testName = WARNING_PREFIX + invokeMethodName,
-                    className = description.className
+            // validate and simplify the function name.
+            // First, remove the "test" prefix which normally comes from CTS test.
+            // Then make sure the [subTestName] is valid, not just numbers like [0].
+            if (invokeMethodName.startsWith("test")) {
+                assertTrue(
+                    "The test name $invokeMethodName is too short",
+                    invokeMethodName.length > 5
                 )
-            )
+                invokeMethodName = invokeMethodName.substring(4, 5).toLowerCase() +
+                        invokeMethodName.substring(5)
+            }
+
+            base.evaluate()
+
+            if (enableReport) {
+                internalState.report(
+                    fullClassName = description.className,
+                    simpleClassName = description.testClass.simpleName,
+                    methodName = invokeMethodName
+                )
+            }
         }
-    }
 
     internal companion object {
         private const val TAG = "BenchmarkRule"

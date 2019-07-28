@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation(project(":benchmark:benchmark-common"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(JUNIT)
     androidTestImplementation(KOTLIN_STDLIB)

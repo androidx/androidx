@@ -16,8 +16,8 @@
 
 package androidx.benchmark.benchmark;
 
-import androidx.benchmark.BenchmarkRule;
 import androidx.benchmark.BenchmarkState;
+import androidx.benchmark.junit4.BenchmarkRule;
 import androidx.test.filters.LargeTest;
 
 import org.junit.Rule;

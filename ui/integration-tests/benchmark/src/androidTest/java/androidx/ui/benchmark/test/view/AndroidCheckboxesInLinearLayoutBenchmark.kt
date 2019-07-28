@@ -17,7 +17,7 @@
 package androidx.ui.benchmark.test.view
 
 import android.app.Activity
-import androidx.benchmark.BenchmarkRule
+import androidx.benchmark.junit4.BenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import androidx.ui.benchmark.measureDrawPerf

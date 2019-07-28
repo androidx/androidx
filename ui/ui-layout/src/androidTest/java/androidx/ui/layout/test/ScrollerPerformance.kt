@@ -17,8 +17,8 @@
 package androidx.ui.layout.test
 
 import android.view.View
-import androidx.benchmark.BenchmarkRule
-import androidx.benchmark.measureRepeated
+import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.measureRepeated
 import androidx.compose.Composable
 import androidx.compose.CompositionContext
 import androidx.compose.FrameManager

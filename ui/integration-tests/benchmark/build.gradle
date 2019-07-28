@@ -29,7 +29,7 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler", configuration: "embeddablePlugin")
     implementation(project(":ui:integration-tests:test"))
-    implementation(project(":benchmark:benchmark-common"))
+    implementation(project(":benchmark:benchmark-junit4"))
     implementation(project(":compose:compose-runtime"))
     implementation(KOTLIN_COMPOSE_STDLIB)
     implementation(JUNIT)
