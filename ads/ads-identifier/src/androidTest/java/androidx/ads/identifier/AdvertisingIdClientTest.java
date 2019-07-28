@@ -41,7 +41,7 @@ import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -61,7 +61,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class AdvertisingIdClientTest {
     private static final String MOCK_SERVICE_PACKAGE_NAME = "androidx.ads.identifier.test";
