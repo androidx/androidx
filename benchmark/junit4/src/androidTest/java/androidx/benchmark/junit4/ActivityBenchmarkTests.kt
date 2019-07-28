@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.benchmark
+package androidx.benchmark.junit4
 
 import android.app.Activity
+import androidx.benchmark.IsolationActivity
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
-import org.junit.Assert
+import org.junit.Assert.assertFalse
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -31,7 +32,7 @@ import org.junit.runners.JUnit4
 
 fun BenchmarkRule.validateRunWithIsolationActivityHidden() {
     // isolation activity *not* on top
-    Assert.assertFalse(IsolationActivity.resumed)
+    assertFalse(IsolationActivity.resumed)
 
     measureRepeated {}
 }

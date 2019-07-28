@@ -43,9 +43,12 @@ class ArgumentInjectingApplication : Application() {
             // Since these benchmark correctness tests run as part of the regular
             // (non-performance-test) suite, they will have debuggable=true, won't be clock-locked,
             // can run with low-battery or on an emulator, and code coverage enabled.
+            // We also don't have the activity up for these correctness tests, instead
+            // leaving testing that behavior to the junit4 module.
             putString(
                 "androidx.benchmark.suppressErrors",
-                "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
+                "ACTIVITY-MISSING,CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED," +
+                        "UNSUSTAINED-ACTIVITY-MISSING"
             )
         }
     }

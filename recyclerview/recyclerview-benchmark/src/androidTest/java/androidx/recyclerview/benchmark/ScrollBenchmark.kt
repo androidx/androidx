@@ -20,8 +20,8 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.benchmark.BenchmarkRule
-import androidx.benchmark.measureRepeated
+import androidx.benchmark.junit4.BenchmarkRule
+import androidx.benchmark.junit4.measureRepeated
 import androidx.recyclerview.benchmark.test.R
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.annotation.UiThreadTest

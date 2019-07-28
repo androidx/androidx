@@ -16,11 +16,8 @@
   -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="androidx.benchmark.test">
 
     <application
-        android:name="androidx.benchmark.ArgumentInjectingApplication">
-        <activity android:name="android.app.Activity"/>
-    </application>
+        android:name="androidx.benchmark.ArgumentInjectingApplication"/>
 </manifest>
