@@ -46,6 +46,9 @@ android {
     defaultConfig {
         minSdkVersion 19
     }
+    sourceSets {
+        main.res.srcDirs += 'src/main/res-public'
+    }
     lintOptions {
 	// Lint cannot determine the groupId of androidx.media2:media2widget,
 	// so it fails on calls to other media2 libraries.
