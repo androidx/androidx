@@ -17,8 +17,8 @@
 package androidx.benchmark.gradle
 
 import com.android.build.gradle.AppExtension
-import com.android.build.gradle.BaseExtension
 import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.TestedExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
@@ -57,14 +57,23 @@ class BenchmarkPlugin : Plugin<Project> {
     private fun configureWithAndroidPlugin(project: Project) {
         if (!foundAndroidPlugin) {
             foundAndroidPlugin = true
-            val extension = project.extensions.getByType(BaseExtension::class.java)
+            val extension = project.extensions.getByType(TestedExtension::class.java)
             configureWithAndroidExtension(project, extension)
         }
     }
 
-    private fun configureWithAndroidExtension(project: Project, extension: BaseExtension) {
+    private fun configureWithAndroidExtension(project: Project, extension: TestedExtension) {
         val defaultConfig = extension.defaultConfig
         val testInstrumentationArgs = defaultConfig.testInstrumentationRunnerArguments
+
+        defaultConfig.testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
+
+        // disable overhead from test coverage by default, even if we use a debug variant
+        extension.buildTypes.getByName("debug").isTestCoverageEnabled = false
+
+        // Benchmarks default to release build type to avoid pulling in debug libraries, which
+        // may have been compiled with coverage enabled.
+        extension.testBuildType = "release"
 
         // Registering this block as a configureEach callback is only necessary because Studio skips
         // Gradle if there are no changes, which stops this plugin from being re-applied.
