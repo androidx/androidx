@@ -226,18 +226,18 @@ public final class ToolbarController {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static void updateRectCoordinates(Rect rect, TextView textView, int start, int end) {
-        final int[] startXY = getCoordinates(textView, start);
-        final int[] endXY = getCoordinates(textView, end);
+    static void updateRectCoordinates(Rect rect, TextView textView, int startIndex, int endIndex) {
+        final int[] startXY = getCoordinates(textView, startIndex, /* startCoordinate= */ true);
+        final int[] endXY = getCoordinates(textView, endIndex, /* startCoordinate= */false);
         rect.set(startXY[0], startXY[1], endXY[0], endXY[1]);
         rect.sort();
     }
 
-    private static int[] getCoordinates(TextView textView, int index) {
+    private static int[] getCoordinates(TextView textView, int index, boolean startCoordinate) {
         final Layout layout = textView.getLayout();
         final int line = layout.getLineForOffset(index);
         final int x = (int) layout.getPrimaryHorizontal(index);
-        final int y = layout.getLineTop(line);
+        final int y = (startCoordinate) ? layout.getLineTop(line) : layout.getLineBottom(line);
         final int[] xy = new int[2];
         textView.getLocationOnScreen(xy);
         return new int[]{
