@@ -1032,6 +1032,99 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         recorder.assertAllPagesSelected(listOf(targetPage, targetPage + 1))
     }
 
+    @Test
+    fun test_removeFirstVisibleItemWhileScrolling_targetNotBound() {
+        test_removeFirstVisibleItemWhileScrolling(false)
+    }
+
+    @Test
+    fun test_removeFirstVisibleItemWhileScrolling_targetBound() {
+        test_removeFirstVisibleItemWhileScrolling(true)
+    }
+
+    /** @param targetBound If the target page should be bound by RV when modifying the dataset */
+    private fun test_removeFirstVisibleItemWhileScrolling(targetBound: Boolean) {
+        // given
+        val pageCount = 10     // number of pages
+        val initialPage = 0    // page we start at
+        val targetPage = 5     // page we smooth scroll to
+        val removeItemMark = 1 // id of the mark we make when modifying the dataset
+        val bindThreshold = 2  // how many pages from x before x gets bound?
+        val epsilon = 0.001f
+        // start and end of the window of opportunity to modify the dataset
+        val windowStart = targetPage - bindThreshold - if (targetBound) 0 else 1
+        val windowEnd = targetPage - if (targetBound) 0 else bindThreshold
+
+        val test = setUpTest(config.orientation)
+        activityTestRule.runOnUiThread { test.viewPager.offscreenPageLimit = 1 }
+        val dataSet = stringSequence(pageCount).toMutableList()
+        test.setAdapterSync(viewAdapterProvider(dataSet))
+
+        tryNTimes(3, resetBlock = {
+            test.viewPager.setCurrentItemSync(initialPage, false, 2, SECONDS)
+            // VP2 was potentially settling while the RetryException was raised,
+            // in which case we must wait until the IDLE event has been fired
+            activityTestRule.waitForExecution(1)
+        }) {
+            // when we are scrolling to the target
+            val recorder = test.viewPager.addNewRecordingCallback()
+            val distanceLatch = test.viewPager.addWaitForDistanceToTarget(targetPage,
+                targetPage - windowStart + epsilon)
+            val idleLatch = test.viewPager.addWaitForIdleLatch()
+            test.runOnUiThread { test.viewPager.setCurrentItem(targetPage, true) }
+            distanceLatch.await(2, SECONDS)
+
+            // and we remove the first visible item
+            test.modifyDataSetSync {
+                val lastScrollPosition = recorder.scrollEvents.last().let {
+                    it.position + it.positionOffset.toDouble()
+                }
+                if (lastScrollPosition >= windowEnd) {
+                    throw RetryException("Data set should be modified while scrolling through " +
+                            "($windowStart, $windowEnd), but was modified at $lastScrollPosition")
+                }
+                recorder.markEvent(removeItemMark)
+                val position = test.viewPager.linearLayoutManager.findFirstVisibleItemPosition()
+                dataSet.removeAt(position)
+                test.viewPager.adapter!!.notifyItemRemoved(position)
+            }
+            idleLatch.await(2, SECONDS)
+
+            // then
+            val expectedFinalPage = targetPage - if (targetBound) 1 else 0
+            val expectedFinalPageText = expectedFinalPage + 1
+            test.assertBasicState(expectedFinalPage, "$expectedFinalPageText")
+            recorder.apply {
+                val removeItemMarkIx = markerIx(removeItemMark)
+                val expectedSelectEvents = listOf(targetPage).plus(
+                    if (targetPage != expectedFinalPage) listOf(expectedFinalPage) else emptyList()
+                )
+                // verify all events
+                assertThat(settlingIx, equalTo(0))
+                assertThat(pageSelectedIx(targetPage), equalTo(1))
+                assertThat(removeItemMarkIx, greaterThan(1))
+                assertThat(idleIx, equalTo(lastIx))
+                assertThat(selectEvents.map { it.position }, equalTo(expectedSelectEvents))
+                assertThat(scrollEventCount, equalTo(eventCount - 3 - expectedSelectEvents.size))
+
+                // verify scroll events _before_ and _after_ the marker
+                val scrollsBeforeMarker = scrollEventsBefore(removeItemMarkIx)
+                val scrollsAfterMarker = scrollEventsAfter(removeItemMarkIx)
+                listOf(scrollsBeforeMarker, scrollsAfterMarker).forEach {
+                    it.assertPositionSorted(SortOrder.ASC)
+                    it.assertOffsetSorted(SortOrder.ASC)
+                    it.assertValueSanity(0, targetPage, test.viewPager.pageSize)
+                }
+                // Only check assertMaxShownPages on scroll events _before_ the marker:
+                //   after the data set change, it can scroll an arbitrary number of pages
+                scrollsBeforeMarker.assertMaxShownPages()
+                // Only check assertLastCorrect on scroll events _after_ the marker:
+                //   the target is not reached before the data set change
+                scrollsAfterMarker.assertLastCorrect(expectedFinalPage)
+            }
+        }
+    }
+
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
         return RecordingCallback().also { registerOnPageChangeCallback(it) }
     }
@@ -1058,11 +1151,8 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
         val allEvents get() = events
         val scrollEvents get() = events.mapNotNull { it as? OnPageScrolledEvent }
-        val scrollEventsBeforeSettling
-            get() = events.subList(0, settlingIx).mapNotNull { it as? OnPageScrolledEvent }
-        val scrollEventsAfterSettling
-            get() = events.subList(settlingIx + 1, events.size)
-                    .mapNotNull { it as? OnPageScrolledEvent }
+        val scrollEventsBeforeSettling get() = scrollEventsBefore(settlingIx)
+        val scrollEventsAfterSettling get() = scrollEventsAfter(settlingIx)
         val selectEvents get() = events.mapNotNull { it as? OnPageSelectedEvent }
         val stateEvents get() = events.mapNotNull { it as? OnPageScrollStateChangedEvent }
         val scrollAndSelectEvents get() = events.mapNotNull {
@@ -1080,6 +1170,15 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
         val idleIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE))
         val pageSelectedIx: (page: Int) -> Int = { events.indexOf(OnPageSelectedEvent(it)) }
+        val markerIx: (id: Int) -> Int = { events.indexOf(MarkerEvent(it)) }
+
+        val scrollEventsBefore: (ix: Int) -> List<OnPageScrolledEvent> =
+            { scrollEventsBetween(0, it) }
+        val scrollEventsAfter: (ix: Int) -> List<OnPageScrolledEvent> =
+            { scrollEventsBetween(it + 1, events.size) }
+        val scrollEventsBetween: (fromIx: Int, toIx: Int) -> List<OnPageScrolledEvent> = { a, b ->
+            events.subList(a, b).mapNotNull { it as? OnPageScrolledEvent }
+        }
 
         val wasSettleInterrupted: Boolean get() {
             val changeToSettlingEvent = OnPageScrollStateChangedEvent(SCROLL_STATE_SETTLING)

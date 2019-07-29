@@ -503,6 +503,21 @@ open class BaseTest {
         assertPageActions()
     }
 
+    fun Context.modifyDataSetSync(block: () -> Unit) {
+        val layoutChangedLatch = viewPager.addWaitForLayoutChangeLatch()
+        runOnUiThread {
+            block()
+        }
+        layoutChangedLatch.await(1, TimeUnit.SECONDS)
+
+        // Let animations run
+        val animationLatch = CountDownLatch(1)
+        viewPager.recyclerView.itemAnimator!!.isRunning {
+            animationLatch.countDown()
+        }
+        animationLatch.await(1, TimeUnit.SECONDS)
+    }
+
     fun ViewPager2.setCurrentItemSync(
         targetPage: Int,
         smoothScroll: Boolean,

@@ -18,8 +18,6 @@ package androidx.viewpager2.widget
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.testutils.PollingCheck
-import androidx.testutils.waitForExecution
 import androidx.viewpager2.widget.AdapterTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.AdapterTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.AdapterTest.Event.OnPageSelectedEvent
@@ -33,7 +31,6 @@ import org.hamcrest.Matchers.greaterThan
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
 
 @LargeTest
@@ -211,7 +208,7 @@ class AdapterTest : BaseTest() {
 
     private fun clearDataSet() {
         assertThat(dataSet.size, greaterThan(0))
-        modifyDataSet {
+        test.modifyDataSetSync {
             val itemCount = dataSet.size
             dataSet.clear()
             test.viewPager.adapter!!.notifyItemRangeRemoved(0, itemCount)
@@ -221,33 +218,11 @@ class AdapterTest : BaseTest() {
 
     private fun fillDataSet() {
         assertThat(dataSet.size, equalTo(0))
-        modifyDataSet {
+        test.modifyDataSetSync {
             dataSet.addAll(stringSequence(pageCount))
             test.viewPager.adapter!!.notifyItemRangeInserted(0, pageCount)
         }
         test.assertBasicState(0)
-    }
-
-    private fun modifyDataSet(block: () -> Unit) {
-        val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
-        test.runOnUiThread {
-            block()
-        }
-        layoutChangedLatch.await(1, SECONDS)
-
-        // Let animations run
-        val animationLatch = CountDownLatch(1)
-        test.viewPager.recyclerView.itemAnimator!!.isRunning {
-            animationLatch.countDown()
-        }
-        animationLatch.await(1, SECONDS)
-
-        // Wait until VP2 has stabilized
-        activityTestRule.waitForExecution()
-        val adapter = test.viewPager.adapter
-        if (adapter != null && adapter.itemCount > 0) {
-            PollingCheck.waitFor(1000) { test.viewPager.currentCompletelyVisibleItem != -1 }
-        }
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
