@@ -54,7 +54,7 @@ internal class WrapperItemKeyedDataSource<K : Any, A : Any, B : Any>(
     }
 
     override fun loadInitial(params: LoadInitialParams<K>, callback: LoadInitialCallback<B>) {
-        source.loadInitial(params, object : ItemKeyedDataSource.LoadInitialCallback<A>() {
+        source.loadInitial(params, object : LoadInitialCallback<A>() {
             override fun onResult(data: List<A>, position: Int, totalCount: Int) {
                 callback.onResult(convertWithStashedKeys(data), position, totalCount)
             }
@@ -62,33 +62,21 @@ internal class WrapperItemKeyedDataSource<K : Any, A : Any, B : Any>(
             override fun onResult(data: List<A>) {
                 callback.onResult(convertWithStashedKeys(data))
             }
-
-            override fun onError(error: Throwable) {
-                callback.onError(error)
-            }
         })
     }
 
     override fun loadAfter(params: LoadParams<K>, callback: LoadCallback<B>) {
-        source.loadAfter(params, object : ItemKeyedDataSource.LoadCallback<A>() {
+        source.loadAfter(params, object : LoadCallback<A>() {
             override fun onResult(data: List<A>) {
                 callback.onResult(convertWithStashedKeys(data))
-            }
-
-            override fun onError(error: Throwable) {
-                callback.onError(error)
             }
         })
     }
 
     override fun loadBefore(params: LoadParams<K>, callback: LoadCallback<B>) {
-        source.loadBefore(params, object : ItemKeyedDataSource.LoadCallback<A>() {
+        source.loadBefore(params, object : LoadCallback<A>() {
             override fun onResult(data: List<A>) {
                 callback.onResult(convertWithStashedKeys(data))
-            }
-
-            override fun onError(error: Throwable) {
-                callback.onError(error)
             }
         })
     }

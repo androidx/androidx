@@ -22,7 +22,6 @@ import androidx.paging.PageKeyedDataSource.Result
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * Incremental data loader for page-keyed content, where requests return keys for next/previous
@@ -170,20 +169,6 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * can be loaded after.
          */
         abstract fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?)
-
-        /**
-         * Called to report an error from a DataSource.
-         *
-         * Call this method to report an error from [loadInitial].
-         *
-         * @param error The error that occurred during loading.
-         */
-        open fun onError(error: Throwable) {
-            // TODO: remove default implementation in 3.0
-            throw IllegalStateException(
-                "You must implement onError if implementing your own load callback"
-            )
-        }
     }
 
     /**
@@ -219,21 +204,6 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * direction.
          */
         abstract fun onResult(data: List<Value>, adjacentPageKey: Key?)
-
-        /**
-         * Called to report an error from a DataSource.
-         *
-         * Call this method to report an error from your PageKeyedDataSource's [loadBefore] and
-         * [loadAfter] methods.
-         *
-         * @param error The error that occurred during loading.
-         */
-        open fun onError(error: Throwable) {
-            // TODO: remove default implementation in 3.0
-            throw IllegalStateException(
-                "You must implement onError if implementing your own load callback"
-            )
-        }
     }
 
     /**
@@ -270,10 +240,6 @@ abstract class PageKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
 
                 override fun onResult(data: List<Value>, previousPageKey: Key?, nextPageKey: Key?) {
                     cont.resume(InitialResult(data, previousPageKey, nextPageKey))
-                }
-
-                override fun onError(error: Throwable) {
-                    cont.resumeWithException(error)
                 }
             })
         }
@@ -376,9 +342,5 @@ private fun <Key : Any, Value : Any> CancellableContinuation<Result<Key, Value>>
     object : PageKeyedDataSource.LoadCallback<Key, Value>() {
         override fun onResult(data: List<Value>, adjacentPageKey: Key?) {
             resume(Result(data, adjacentPageKey))
-        }
-
-        override fun onError(error: Throwable) {
-            resumeWithException(error)
         }
     }

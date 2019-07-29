@@ -34,7 +34,7 @@ internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
     override fun invalidate() = source.invalidate()
 
     override fun loadInitial(params: LoadInitialParams<K>, callback: LoadInitialCallback<K, B>) {
-        source.loadInitial(params, object : PageKeyedDataSource.LoadInitialCallback<K, A>() {
+        source.loadInitial(params, object : LoadInitialCallback<K, A>() {
             override fun onResult(
                 data: List<A>,
                 position: Int,
@@ -50,26 +50,20 @@ internal class WrapperPageKeyedDataSource<K : Any, A : Any, B : Any>(
                 val convertedData = convert(listFunction, data)
                 callback.onResult(convertedData, previousPageKey, nextPageKey)
             }
-
-            override fun onError(error: Throwable) = callback.onError(error)
         })
     }
 
     override fun loadBefore(params: LoadParams<K>, callback: LoadCallback<K, B>) {
-        source.loadBefore(params, object : PageKeyedDataSource.LoadCallback<K, A>() {
+        source.loadBefore(params, object : LoadCallback<K, A>() {
             override fun onResult(data: List<A>, adjacentPageKey: K?) =
                 callback.onResult(convert(listFunction, data), adjacentPageKey)
-
-            override fun onError(error: Throwable) = callback.onError(error)
         })
     }
 
     override fun loadAfter(params: LoadParams<K>, callback: LoadCallback<K, B>) {
-        source.loadAfter(params, object : PageKeyedDataSource.LoadCallback<K, A>() {
+        source.loadAfter(params, object : LoadCallback<K, A>() {
             override fun onResult(data: List<A>, adjacentPageKey: K?) =
                 callback.onResult(convert(listFunction, data), adjacentPageKey)
-
-            override fun onError(error: Throwable) = callback.onError(error)
         })
     }
 }

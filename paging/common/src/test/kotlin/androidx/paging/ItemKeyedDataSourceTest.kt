@@ -211,18 +211,10 @@ class ItemKeyedDataSourceTest {
         private val counted: Boolean = true,
         private val items: List<Item> = ITEMS_BY_NAME_ID
     ) : ItemKeyedDataSource<Key, Item>() {
-        private var error = false
-
         override fun loadInitial(
             params: LoadInitialParams<Key>,
             callback: LoadInitialCallback<Item>
         ) {
-            if (error) {
-                callback.onError(EXCEPTION)
-                error = false
-                return
-            }
-
             val key = params.requestedInitialKey ?: Key("", Int.MAX_VALUE)
             val start = maxOf(0, findFirstIndexAfter(key) - params.requestedLoadSize / 2)
             val endExclusive = minOf(start + params.requestedLoadSize, items.size)
@@ -235,12 +227,6 @@ class ItemKeyedDataSourceTest {
         }
 
         override fun loadAfter(params: LoadParams<Key>, callback: LoadCallback<Item>) {
-            if (error) {
-                callback.onError(EXCEPTION)
-                error = false
-                return
-            }
-
             val start = findFirstIndexAfter(params.key)
             val endExclusive = minOf(start + params.requestedLoadSize, items.size)
 
@@ -248,12 +234,6 @@ class ItemKeyedDataSourceTest {
         }
 
         override fun loadBefore(params: LoadParams<Key>, callback: LoadCallback<Item>) {
-            if (error) {
-                callback.onError(EXCEPTION)
-                error = false
-                return
-            }
-
             val firstIndexBefore = findFirstIndexBefore(params.key)
             val endExclusive = maxOf(0, firstIndexBefore + 1)
             val start = maxOf(0, firstIndexBefore - params.requestedLoadSize + 1)
@@ -275,10 +255,6 @@ class ItemKeyedDataSourceTest {
             return items.indices.reversed().firstOrNull {
                 KEY_COMPARATOR.compare(key, getKey(items[it])) > 0
             } ?: -1
-        }
-
-        fun enqueueError() {
-            error = true
         }
     }
 
@@ -407,10 +383,6 @@ class ItemKeyedDataSourceTest {
                 override fun onResult(data: List<A>) {
                     callback.onResult(convert(data))
                 }
-
-                override fun onError(error: Throwable) {
-                    callback.onError(error)
-                }
             })
         }
 
@@ -419,10 +391,6 @@ class ItemKeyedDataSourceTest {
                 override fun onResult(data: List<A>) {
                     callback.onResult(convert(data))
                 }
-
-                override fun onError(error: Throwable) {
-                    callback.onError(error)
-                }
             })
         }
 
@@ -430,10 +398,6 @@ class ItemKeyedDataSourceTest {
             source.loadBefore(params, object : LoadCallback<A>() {
                 override fun onResult(data: List<A>) {
                     callback.onResult(convert(data))
-                }
-
-                override fun onError(error: Throwable) {
-                    callback.onError(error)
                 }
             })
         }
@@ -472,12 +436,8 @@ class ItemKeyedDataSourceTest {
             loadInitialCallback
         )
         verify(loadInitialCallback).onResult(
-            ITEMS_BY_NAME_ID.subList(0, 10).map { DecoratedItem(it) })
-        //     error
-        orig.enqueueError()
-        wrapper.loadInitial(initParams, loadInitialCallback)
-        verify(loadInitialCallback).onError(EXCEPTION)
-        verifyNoMoreInteractions(loadInitialCallback)
+            ITEMS_BY_NAME_ID.subList(0, 10).map { DecoratedItem(it) }
+        )
 
         val key = orig.getKey(ITEMS_BY_NAME_ID[20])
         @Suppress("UNCHECKED_CAST")
@@ -486,22 +446,12 @@ class ItemKeyedDataSourceTest {
         // load after
         wrapper.loadAfter(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
         verify(loadCallback).onResult(ITEMS_BY_NAME_ID.subList(21, 31).map { DecoratedItem(it) })
-        // load after - error
-        orig.enqueueError()
-        wrapper.loadAfter(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
-        verify(loadCallback).onError(EXCEPTION)
-        verifyNoMoreInteractions(loadCallback)
 
         // load before
         @Suppress("UNCHECKED_CAST")
         loadCallback = mock()
         wrapper.loadBefore(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
         verify(loadCallback).onResult(ITEMS_BY_NAME_ID.subList(10, 20).map { DecoratedItem(it) })
-        // load before - error
-        orig.enqueueError()
-        wrapper.loadBefore(ItemKeyedDataSource.LoadParams(key, 10), loadCallback)
-        verify(loadCallback).onError(EXCEPTION)
-        verifyNoMoreInteractions(loadCallback)
 
         // verify invalidation
         orig.invalidate()
@@ -554,7 +504,5 @@ class ItemKeyedDataSourceTest {
                 (Math.random() * 200).toInt().toString() + " fake st."
             )
         }.sortedWith(ITEM_COMPARATOR)
-
-        private val EXCEPTION = Exception()
     }
 }

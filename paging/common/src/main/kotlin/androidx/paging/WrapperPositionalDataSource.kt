@@ -40,16 +40,12 @@ internal class WrapperPositionalDataSource<A : Any, B : Any>(
 
             override fun onResult(data: List<A>, position: Int) =
                 callback.onResult(convert(listFunction, data), position)
-
-            override fun onError(error: Throwable) = callback.onError(error)
         })
     }
 
     override fun loadRange(params: LoadRangeParams, callback: LoadRangeCallback<B>) {
         source.loadRange(params, object : LoadRangeCallback<A>() {
             override fun onResult(data: List<A>) = callback.onResult(convert(listFunction, data))
-
-            override fun onError(error: Throwable) = callback.onError(error)
         })
     }
 }
