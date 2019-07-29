@@ -487,7 +487,7 @@ public class NavController {
                 if (args != null) {
                     args.setClassLoader(mContext.getClassLoader());
                 }
-                mBackStack.add(new NavBackStackEntry(uuid, node, args, mViewModel));
+                mBackStack.add(new NavBackStackEntry(mContext, node, args, mViewModel, uuid));
             }
             updateOnBackPressedCallbackEnabled();
             mBackStackUUIDsToRestore = null;
@@ -873,7 +873,7 @@ public class NavController {
             }
             // The mGraph should always be on the back stack after you navigate()
             if (mBackStack.isEmpty()) {
-                mBackStack.add(new NavBackStackEntry(mGraph, finalArgs, mViewModel));
+                mBackStack.add(new NavBackStackEntry(mContext, mGraph, finalArgs, mViewModel));
             }
             // Now ensure all intermediate NavGraphs are put on the back stack
             // to ensure that global actions work.
@@ -882,13 +882,14 @@ public class NavController {
             while (destination != null && findDestination(destination.getId()) == null) {
                 NavGraph parent = destination.getParent();
                 if (parent != null) {
-                    hierarchy.addFirst(new NavBackStackEntry(parent, finalArgs, mViewModel));
+                    hierarchy.addFirst(new NavBackStackEntry(mContext, parent, finalArgs,
+                            mViewModel));
                 }
                 destination = parent;
             }
             mBackStack.addAll(hierarchy);
             // And finally, add the new destination with its default args
-            NavBackStackEntry newBackStackEntry = new NavBackStackEntry(newDest,
+            NavBackStackEntry newBackStackEntry = new NavBackStackEntry(mContext, newDest,
                     newDest.addInDefaultArgs(finalArgs), mViewModel);
             mBackStack.add(newBackStackEntry);
         }
