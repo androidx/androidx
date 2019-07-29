@@ -21,15 +21,18 @@ import static com.google.common.truth.Truth.assertThat;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import android.app.UiAutomation;
+import android.os.Build;
 import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,12 +53,23 @@ public final class TraceCompatTest {
         mByteArrayOutputStream = new ByteArrayOutputStream();
     }
 
+    @After
+    public void stopAtrace() throws IOException {
+        // Since API 23, 'async_stop' will work. On lower API levels it was broken (see aosp/157142)
+        if (Build.VERSION.SDK_INT >= 23) {
+            executeCommand("atrace --async_stop");
+        } else {
+            // Ensure tracing is not currently running by performing a short synchronous trace.
+            executeCommand("atrace -t 0");
+        }
+    }
+
     @Test
     public void beginAndEndSection() throws IOException {
         startTrace();
         TraceCompat.beginSection("beginAndEndSection");
         TraceCompat.endSection();
-        endTrace();
+        dumpTrace();
 
         assertTraceContains("tracing_mark_write:\\ B\\|.*\\|beginAndEndSection");
         assertTraceContains("tracing_mark_write:\\ E");
@@ -66,7 +80,7 @@ public final class TraceCompatTest {
         startTrace();
         TraceCompat.beginAsyncSection("beginAndEndSectionAsync", /*cookie=*/5099);
         TraceCompat.endAsyncSection("beginAndEndSectionAsync", /*cookie=*/5099);
-        endTrace();
+        dumpTrace();
 
         assertTraceContains("tracing_mark_write:\\ S\\|.*\\|beginAndEndSectionAsync\\|5099");
         assertTraceContains("tracing_mark_write:\\ F\\|.*\\|beginAndEndSectionAsync\\|5099");
@@ -78,7 +92,7 @@ public final class TraceCompatTest {
         TraceCompat.setCounter("counterName", 42);
         TraceCompat.setCounter("counterName", 47);
         TraceCompat.setCounter("counterName", 9787);
-        endTrace();
+        dumpTrace();
 
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|42");
         assertTraceContains("tracing_mark_write:\\ C\\|.*\\|counterName\\|47");
@@ -89,7 +103,7 @@ public final class TraceCompatTest {
     public void isEnabledDuringTrace() throws IOException {
         startTrace();
         boolean enabled = TraceCompat.isEnabled();
-        endTrace();
+        dumpTrace();
 
         assertThat(enabled).isTrue();
     }
@@ -101,39 +115,45 @@ public final class TraceCompatTest {
     }
 
     private void startTrace() throws IOException {
-        UiAutomation automation = InstrumentationRegistry.getInstrumentation()
-                .getUiAutomation();
         String processName =
                 ApplicationProvider.getApplicationContext().getApplicationInfo().processName;
 
         // Write the "async_start" status to the byte array to ensure atrace has fully started
         // before issuing any trace commands. This will also capture any errors that occur during
         // start so they can be added to the assertion error's message.
-        writeDataToByteStream(automation.executeShellCommand(
-                String.format("atrace --async_start -b %d -a %s", TRACE_BUFFER_SIZE,
-                        processName)),
+        executeCommand(
+                String.format("atrace --async_start -b %d -a %s", TRACE_BUFFER_SIZE, processName));
+    }
+
+    private void dumpTrace() throws IOException {
+        // On older versions of atrace, the -b option is required when dumping the trace so the
+        // trace buffer doesn't get cleared before being dumped.
+        executeCommand(
+                String.format("atrace --async_dump -b %d", TRACE_BUFFER_SIZE),
                 mByteArrayOutputStream);
     }
 
-    private void endTrace() throws IOException {
+    private static void executeCommand(@NonNull String command) throws IOException {
+        executeCommand(command, null);
+    }
+
+    private static void executeCommand(@NonNull String command,
+            @Nullable ByteArrayOutputStream outputStream) throws IOException {
         UiAutomation automation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
-        writeDataToByteStream(automation.executeShellCommand("atrace --async_stop"),
-                mByteArrayOutputStream);
-    }
 
-    private void writeDataToByteStream(ParcelFileDescriptor pfDescriptor,
-            ByteArrayOutputStream outputStream) throws IOException {
-        try (ParcelFileDescriptor.AutoCloseInputStream inputStream =
+        try (ParcelFileDescriptor pfDescriptor = automation.executeShellCommand(command);
+             ParcelFileDescriptor.AutoCloseInputStream inputStream =
                      new ParcelFileDescriptor.AutoCloseInputStream(
                              pfDescriptor)) {
             byte[] buffer = new byte[1024];
 
             int length;
             while ((length = inputStream.read(buffer)) >= 0) {
-                outputStream.write(buffer, 0, length);
+                if (outputStream != null) {
+                    outputStream.write(buffer, 0, length);
+                }
             }
         }
-
     }
 
     private void assertTraceContains(@NonNull String contentRegex) {
