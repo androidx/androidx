@@ -780,14 +780,28 @@ public abstract class FragmentManager {
      * @return the locally scoped {@link Fragment} to the given view, if found
      */
     @Nullable
-    static Fragment findViewFragment(@NonNull View view) {
+    private static Fragment findViewFragment(@NonNull View view) {
         while (view != null) {
-            Object tag = view.getTag(R.id.fragment_container_view_tag);
-            if (tag instanceof Fragment) {
-                return (Fragment) tag;
+            Fragment fragment = getViewFragment(view);
+            if (fragment != null) {
+                return fragment;
             }
             ViewParent parent = view.getParent();
             view = parent instanceof View ? (View) parent : null;
+        }
+        return null;
+    }
+
+    /**
+     * Check if this view has an associated Fragment
+     * @param view the view to search from
+     * @return the locally scoped {@link Fragment} to the given view, if found
+     */
+    @Nullable
+    static Fragment getViewFragment(@NonNull View view) {
+        Object tag = view.getTag(R.id.fragment_container_view_tag);
+        if (tag instanceof Fragment) {
+            return (Fragment) tag;
         }
         return null;
     }

@@ -19,8 +19,11 @@ package androidx.fragment.app;
 import android.animation.LayoutTransition;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.os.Bundle;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
 
@@ -49,6 +52,10 @@ import java.util.ArrayList;
  *
  * <p>FragmentContainerView should not be used as a replacement for other ViewGroups (FrameLayout,
  * LinearLayout, etc) outside of Fragment use cases.
+ *
+ * <p>FragmentContainerView will only allow views to returned by a Fragment's
+ * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any other
+ * view will result in an {@link IllegalStateException}.
  *
  * <p>Layout animations and transitions are disabled for FragmentContainerView. Animations should be
  * done through {@link FragmentTransaction#setCustomAnimations(int, int, int, int)}. If
@@ -157,6 +164,41 @@ public class FragmentContainerView extends FrameLayout {
             }
         }
         super.endViewTransition(view);
+    }
+
+    /**
+     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
+     *  other view will result in an {@link IllegalStateException}.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    public void addView(@NonNull View child, int index, @Nullable ViewGroup.LayoutParams params) {
+        if (FragmentManager.getViewFragment(child) == null) {
+            throw new IllegalStateException("Views added to a FragmentContainerView must be"
+                    + " associated with a Fragment. View " + child + " is not associated with a"
+                    + " Fragment.");
+        }
+        super.addView(child, index, params);
+    }
+
+    /**
+     * <p>FragmentContainerView will only allow views to returned by a Fragment's
+     * {@link Fragment#onCreateView(LayoutInflater, ViewGroup, Bundle)}. Attempting to add any
+     *  other view will result in an {@link IllegalStateException}.
+     *
+     * {@inheritDoc}
+     */
+    @Override
+    protected boolean addViewInLayout(@NonNull View child, int index,
+            @Nullable ViewGroup.LayoutParams params, boolean preventRequestLayout) {
+        if (FragmentManager.getViewFragment(child) == null) {
+            throw new IllegalStateException("Views added to a FragmentContainerView must be"
+                    + " associated with a Fragment. View " + child + " is not associated with a"
+                    + " Fragment.");
+        }
+        return super.addViewInLayout(child, index, params, preventRequestLayout);
     }
 
     @Override
