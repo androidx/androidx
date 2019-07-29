@@ -53,8 +53,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
-import androidx.core.app.ComponentActivity;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.R;
 import androidx.media.VolumeProviderCompat;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
@@ -144,26 +144,11 @@ public final class MediaControllerCompat {
     public static final String COMMAND_ARGUMENT_INDEX =
             "android.support.v4.media.session.command.ARGUMENT_INDEX";
 
-    private static class MediaControllerExtraData extends ComponentActivity.ExtraData {
-        private final MediaControllerCompat mMediaController;
-
-        MediaControllerExtraData(MediaControllerCompat mediaController) {
-            mMediaController = mediaController;
-        }
-
-        MediaControllerCompat getMediaController() {
-            return mMediaController;
-        }
-    }
-
     /**
      * Sets a {@link MediaControllerCompat} in the {@code activity} for later retrieval via
      * {@link #getMediaController(Activity)}.
      *
-     * <p>This is compatible with {@link Activity#setMediaController(MediaController)}.
-     * If {@code activity} inherits {@link androidx.fragment.app.FragmentActivity}, the
-     * {@code mediaController} will be saved in the {@code activity}. In addition to that,
-     * on API 21 and later, {@link Activity#setMediaController(MediaController)} will be
+     * <p>On API 21 and later, {@link Activity#setMediaController(MediaController)} will also be
      * called.</p>
      *
      * @param activity The activity to set the {@code mediaController} in, must not be null.
@@ -174,10 +159,8 @@ public final class MediaControllerCompat {
      */
     public static void setMediaController(@NonNull Activity activity,
             MediaControllerCompat mediaController) {
-        if (activity instanceof ComponentActivity) {
-            ((ComponentActivity) activity).putExtraData(
-                    new MediaControllerExtraData(mediaController));
-        }
+        activity.getWindow().getDecorView().setTag(
+                R.id.media_controller_compat_view_tag, mediaController);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             MediaController controllerFwk = null;
             if (mediaController != null) {
@@ -200,10 +183,10 @@ public final class MediaControllerCompat {
      * @see #setMediaController(Activity, MediaControllerCompat)
      */
     public static MediaControllerCompat getMediaController(@NonNull Activity activity) {
-        if (activity instanceof ComponentActivity) {
-            MediaControllerExtraData extraData =
-                    ((ComponentActivity) activity).getExtraData(MediaControllerExtraData.class);
-            return extraData != null ? extraData.getMediaController() : null;
+        Object tag = activity.getWindow().getDecorView()
+                .getTag(R.id.media_controller_compat_view_tag);
+        if (tag instanceof MediaControllerCompat) {
+            return (MediaControllerCompat) tag;
         } else if (android.os.Build.VERSION.SDK_INT >= 21) {
             MediaController controllerFwk = activity.getMediaController();
             if (controllerFwk == null) {

@@ -43,6 +43,7 @@ public class ComponentActivity extends Activity
      *
      * <p>Note that these objects are not retained across configuration changes</p>
      */
+    @SuppressWarnings("deprecation")
     private SimpleArrayMap<Class<? extends ExtraData>, ExtraData> mExtraDataMap =
             new SimpleArrayMap<>();
 
@@ -54,8 +55,11 @@ public class ComponentActivity extends Activity
      *
      * @see #getExtraData
      * @hide
+     * @deprecated Use {@link View#setTag(int, Object)} with the window's decor view.
      */
+    @SuppressWarnings("deprecation")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Deprecated
     public void putExtraData(ExtraData extraData) {
         mExtraDataMap.put(extraData.getClass(), extraData);
     }
@@ -65,9 +69,11 @@ public class ComponentActivity extends Activity
      *
      * @see #putExtraData
      * @hide
+     * @deprecated Use {@link View#getTag(int)} with the window's decor view.
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
+    @Deprecated
     public <T extends ExtraData> T getExtraData(Class<T> extraDataClass) {
         return (T) mExtraDataMap.get(extraDataClass);
     }
@@ -101,8 +107,12 @@ public class ComponentActivity extends Activity
 
     /**
      * @hide
+     * @deprecated Store the object you want to save directly by using
+     * {@link View#setTag(int, Object)} with the window's decor view.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @Deprecated
     public static class ExtraData {
     }
 }
