@@ -71,7 +71,6 @@ package androidx.paging {
 
   public abstract static class ItemKeyedDataSource.LoadCallback<Value> {
     ctor public ItemKeyedDataSource.LoadCallback();
-    method public void onError(Throwable error);
     method public abstract void onResult(java.util.List<? extends Value> data);
   }
 
@@ -111,13 +110,11 @@ package androidx.paging {
 
   public abstract static class PageKeyedDataSource.LoadCallback<Key, Value> {
     ctor public PageKeyedDataSource.LoadCallback();
-    method public void onError(Throwable error);
     method public abstract void onResult(java.util.List<? extends Value> data, Key? adjacentPageKey);
   }
 
   public abstract static class PageKeyedDataSource.LoadInitialCallback<Key, Value> {
     ctor public PageKeyedDataSource.LoadInitialCallback();
-    method public void onError(Throwable error);
     method public abstract void onResult(java.util.List<? extends Value> data, int position, int totalCount, Key? previousPageKey, Key? nextPageKey);
     method public abstract void onResult(java.util.List<? extends Value> data, Key? previousPageKey, Key? nextPageKey);
   }
@@ -331,7 +328,6 @@ package androidx.paging {
 
   public abstract static class PositionalDataSource.LoadInitialCallback<T> {
     ctor public PositionalDataSource.LoadInitialCallback();
-    method public void onError(Throwable error);
     method public abstract void onResult(java.util.List<? extends T> data, int position, int totalCount);
     method public abstract void onResult(java.util.List<? extends T> data, int position);
   }
@@ -346,7 +342,6 @@ package androidx.paging {
 
   public abstract static class PositionalDataSource.LoadRangeCallback<T> {
     ctor public PositionalDataSource.LoadRangeCallback();
-    method public void onError(Throwable error);
     method public abstract void onResult(java.util.List<? extends T> data);
   }
 

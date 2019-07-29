@@ -24,7 +24,6 @@ import androidx.paging.DataSource.KeyType.POSITIONAL
 import androidx.paging.PositionalDataSource.LoadInitialCallback
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * Position-based data loader for a fixed-size, countable data set, supporting fixed-size loads at
@@ -182,20 +181,6 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * before the items in data that can be provided by this [DataSource], pass N.
          */
         abstract fun onResult(data: List<T>, position: Int)
-
-        /**
-         * Called to report an error from a DataSource.
-         *
-         * Call this method to report an error from [loadInitial].
-         *
-         * @param error The error that occurred during loading.
-         */
-        open fun onError(error: Throwable) {
-            // TODO: remove default implementation in 3.0
-            throw IllegalStateException(
-                "You must implement onError if implementing your own load callback"
-            )
-        }
     }
 
     /**
@@ -217,20 +202,6 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
          * unless at end of list.
          */
         abstract fun onResult(data: List<T>)
-
-        /**
-         * Called to report an error from a [DataSource].
-         *
-         * Call this method to report an error from [loadRange].
-         *
-         * @param error The error that occurred during loading.
-         */
-        open fun onError(error: Throwable) {
-            // TODO: remove default implementation in 3.0
-            throw IllegalStateException(
-                "You must implement onError if implementing your own load callback"
-            )
-        }
     }
 
     /**
@@ -424,10 +395,6 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                     }
                 }
 
-                override fun onError(error: Throwable) {
-                    cont.resumeWithException(error)
-                }
-
                 private fun resume(params: LoadInitialParams, result: InitialResult<T>) {
                     if (params.placeholdersEnabled) {
                         result.validateForInitialTiling(params.pageSize)
@@ -458,10 +425,6 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
                         isInvalid -> cont.resume(RangeResult(emptyList()))
                         else -> cont.resume(RangeResult(data))
                     }
-                }
-
-                override fun onError(error: Throwable) {
-                    cont.resumeWithException(error)
                 }
             })
         }

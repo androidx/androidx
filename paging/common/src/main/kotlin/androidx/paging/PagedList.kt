@@ -1127,8 +1127,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * Retry any retryable errors associated with this [PagedList].
      *
      * If for example a network [PagedSource] append timed out, calling this method will retry the
-     * failed append load. Note that your [PagedSource] will need to pass `true` to `onError()` to
-     * signify the error as retryable.
+     * failed append load. Note that your [PagedSource] will need to implement
+     * [PagedSource.isRetryableError] to return `true` for errors that are retryable.
      *
      * You can observe loading state via [addWeakLoadStateListener], though generally this is done
      * through the [PagedListAdapter][androidx.paging.PagedListAdapter] or

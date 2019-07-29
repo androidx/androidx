@@ -23,7 +23,6 @@ import androidx.paging.ItemKeyedDataSource.Result
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 /**
  * Incremental data loader for paging keyed content, where loaded content uses previously loaded
@@ -177,21 +176,6 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
          * @param data List of items loaded from the [ItemKeyedDataSource].
          */
         abstract fun onResult(data: List<Value>)
-
-        /**
-         * Called to report an error from a DataSource.
-         *
-         * Call this method to report an error from [loadInitial], [loadBefore], or [loadAfter]
-         * methods.
-         *
-         * @param error The error that occurred during loading.
-         */
-        open fun onError(error: Throwable) {
-            // TODO: remove default implementation in 3.0
-            throw IllegalStateException(
-                "You must implement onError if implementing your own load callback"
-            )
-        }
     }
 
     @Suppress("RedundantVisibilityModifier") // Metalava doesn't inherit visibility properly.
@@ -219,10 +203,6 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
 
                 override fun onResult(data: List<Value>) {
                     cont.resume(InitialResult(data))
-                }
-
-                override fun onError(error: Throwable) {
-                    cont.resumeWithException(error)
                 }
             })
         }
@@ -345,9 +325,5 @@ internal fun <Value : Any> CancellableContinuation<Result<Value>>.asCallback() =
     object : ItemKeyedDataSource.LoadCallback<Value>() {
         override fun onResult(data: List<Value>) {
             resume(Result(data))
-        }
-
-        override fun onError(error: Throwable) {
-            resumeWithException(error)
         }
     }
