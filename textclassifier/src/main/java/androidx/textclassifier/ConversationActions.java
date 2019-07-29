@@ -36,6 +36,8 @@ import java.util.List;
 
 /**
  * Represents a list of actions suggested by a {@link TextClassifier} on a given conversation.
+ * <p>
+ * This is an object to store the result of {@link TextClassifier#suggestConversationActions(Request)}.
  *
  * @see TextClassifier#suggestConversationActions(Request)
  */

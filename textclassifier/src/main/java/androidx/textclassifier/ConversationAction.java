@@ -32,7 +32,12 @@ import androidx.versionedparcelable.ParcelUtils;
 
 import java.lang.annotation.Retention;
 
-/** Represents the action suggested by a {@link TextClassifier} on a given conversation. */
+/**
+ * Represents an action suggested by a {@link TextClassifier} on a given conversation.
+ *
+ * @see TextClassifier#suggestConversationActions(ConversationActions.Request)
+ * @see ConversationActions
+ */
 public final class ConversationAction {
 
     private static final String EXTRA_TYPE = "type";
@@ -214,7 +219,7 @@ public final class ConversationAction {
      * Converts a bundle that was created using {@link #toBundle()} to a {@link ConversationAction}.
      */
     @NonNull
-    public static ConversationAction createFromBundle(Bundle bundle) {
+    public static ConversationAction createFromBundle(@NonNull Bundle bundle) {
         return new ConversationAction(
                 bundle.getString(EXTRA_TYPE),
                 (RemoteActionCompat) ParcelUtils.getVersionedParcelable(bundle, EXTRA_ACTION),
