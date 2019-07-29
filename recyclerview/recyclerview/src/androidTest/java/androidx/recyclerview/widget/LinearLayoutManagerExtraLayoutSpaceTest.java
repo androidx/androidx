@@ -304,7 +304,7 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
                 mRecordExtraLayoutSpace = false;
                 mRecordedExtraLayoutSpace[0] = extraLayoutSpace[0];
                 mRecordedExtraLayoutSpace[1] = extraLayoutSpace[1];
-                getViewTreeObserver().addOnDrawListener(mLayoutRecorder);
+                getViewTreeObserver().addOnPreDrawListener(mLayoutRecorder);
             }
         }
 
@@ -316,7 +316,7 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
         }
     }
 
-    class LayoutBoundsRecorder implements ViewTreeObserver.OnDrawListener {
+    class LayoutBoundsRecorder implements ViewTreeObserver.OnPreDrawListener {
         private final OrientationHelper mHelper;
         private final int[][] mBounds;
 
@@ -331,16 +331,17 @@ public class LinearLayoutManagerExtraLayoutSpaceTest extends BaseLinearLayoutMan
         }
 
         @Override
-        public void onDraw() {
+        public boolean onPreDraw() {
             if (!mHasRecorded) {
                 recordBounds();
                 mRecyclerView.post(new Runnable() {
                     @Override
                     public void run() {
-                        getViewTreeObserver().removeOnDrawListener(LayoutBoundsRecorder.this);
+                        getViewTreeObserver().removeOnPreDrawListener(LayoutBoundsRecorder.this);
                     }
                 });
             }
+            return true;
         }
 
         private void recordBounds() {
