@@ -29,6 +29,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
@@ -47,6 +48,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -63,6 +65,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public class PreviewExtenderTest {
 
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private FakeLifecycleOwner mFakeLifecycle;
 
     @Rule
@@ -79,7 +82,12 @@ public class PreviewExtenderTest {
 
     @After
     public void cleanUp() {
-        CameraX.unbindAll();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbindAll();
+            }
+        });
     }
 
     @Test
@@ -102,10 +110,16 @@ public class PreviewExtenderTest {
 
         Preview useCase = new Preview(configBuilder.build());
 
-        CameraX.bindToLifecycle(mFakeLifecycle, useCase);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mFakeLifecycle, useCase);
 
-        // To set the update listener and Preview will change to active state.
-        useCase.setOnPreviewOutputUpdateListener(mock(Preview.OnPreviewOutputUpdateListener.class));
+                // To set the update listener and Preview will change to active state.
+                useCase.setOnPreviewOutputUpdateListener(
+                        mock(Preview.OnPreviewOutputUpdateListener.class));
+            }
+        });
 
         // To verify the call in order after bind to life cycle, and to verification of the
         // getCaptureStages() is also used to wait for the capture session created. The test for
@@ -124,8 +138,13 @@ public class PreviewExtenderTest {
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).onEnableSession();
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).getCaptureStage();
 
-        // Unbind the use case to test the onDisableSession and onDeInit.
-        CameraX.unbind(useCase);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                // Unbind the use case to test the onDisableSession and onDeInit.
+                CameraX.unbind(useCase);
+            }
+        });
 
         // To verify the onDisableSession and onDeInit.
         inOrder.verify(mockPreviewExtenderImpl, timeout(3000)).onDisableSession();
@@ -137,7 +156,7 @@ public class PreviewExtenderTest {
 
     @Test
     @MediumTest
-    public void getCaptureStagesTest_shouldSetToRepeatingRequest() throws InterruptedException {
+    public void getCaptureStagesTest_shouldSetToRepeatingRequest() {
         // Set up a result for getCaptureStages() testing.
         CaptureStageImpl fakeCaptureStageImpl = new FakeCaptureStageImpl();
 
@@ -163,11 +182,16 @@ public class PreviewExtenderTest {
 
         Preview preview = new Preview(configBuilder.build());
 
-        CameraX.bindToLifecycle(mFakeLifecycle, preview);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mFakeLifecycle, preview);
 
-        // To set the update listener and Preview will change to active state.
-        preview.setOnPreviewOutputUpdateListener(
-                mock(Preview.OnPreviewOutputUpdateListener.class));
+                // To set the update listener and Preview will change to active state.
+                preview.setOnPreviewOutputUpdateListener(
+                        mock(Preview.OnPreviewOutputUpdateListener.class));
+            }
+        });
 
         ArgumentCaptor<TotalCaptureResult> captureResultArgumentCaptor = ArgumentCaptor.forClass(
                 TotalCaptureResult.class);
@@ -208,10 +232,16 @@ public class PreviewExtenderTest {
                 mockPreviewExtenderImpl);
         fakePreviewExtender.enableExtension();
         Preview preview = new Preview(configBuilder.build());
-        CameraX.bindToLifecycle(mFakeLifecycle, preview);
-        // To set the update listener and Preview will change to active state.
-        preview.setOnPreviewOutputUpdateListener(
-                mock(Preview.OnPreviewOutputUpdateListener.class));
+
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mFakeLifecycle, preview);
+                // To set the update listener and Preview will change to active state.
+                preview.setOnPreviewOutputUpdateListener(
+                        mock(Preview.OnPreviewOutputUpdateListener.class));
+            }
+        });
 
         // To verify the process() method was invoked with non-null TotalCaptureResult input.
         verify(mockPreviewImageProcessorImpl, timeout(3000).atLeastOnce()).process(any(Image.class),

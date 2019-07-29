@@ -23,6 +23,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.os.Handler;
@@ -42,11 +43,13 @@ import androidx.camera.core.ImageAnalysisConfig;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.UseCase.StateChangeListener;
 import androidx.camera.testing.CameraUtil;
+import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.Suppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -70,6 +73,7 @@ public final class ImageAnalysisTest {
     // especially for legacy devices.
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size SECONDARY_RESOLUTION = new Size(320, 240);
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final ImageAnalysisConfig mDefaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
     private final StateChangeListener mMockListener = Mockito.mock(StateChangeListener.class);
     private final Analyzer mMockAnalyzer = Mockito.mock(Analyzer.class);
@@ -125,6 +129,7 @@ public final class ImageAnalysisTest {
     }
 
     @Test
+    @UiThreadTest
     public void analyzerCanBeSetAndRetrieved() {
         ImageAnalysis useCase = new ImageAnalysis(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -143,6 +148,7 @@ public final class ImageAnalysisTest {
     }
 
     @Test
+    @UiThreadTest
     public void becomesActive_whenHasAnalyzer() {
         ImageAnalysis useCase = new ImageAnalysis(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -156,6 +162,7 @@ public final class ImageAnalysisTest {
     }
 
     @Test
+    @UiThreadTest
     public void becomesInactive_whenNoAnalyzer() {
         ImageAnalysis useCase = new ImageAnalysis(mDefaultConfig);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
@@ -191,7 +198,12 @@ public final class ImageAnalysisTest {
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
-        useCase.setAnalyzer(mAnalyzer);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                useCase.setAnalyzer(mAnalyzer);
+            }
+        });
 
         mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
 
@@ -205,6 +217,7 @@ public final class ImageAnalysisTest {
     }
 
     @Test
+    @UiThreadTest
     public void analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() throws InterruptedException {
         ImageAnalysisConfig config =
                 new ImageAnalysisConfig.Builder().setCallbackHandler(mHandler).build();
@@ -224,6 +237,7 @@ public final class ImageAnalysisTest {
     @Suppress // TODO(b/133171096): Remove once this no longer throws an IllegalStateException
     @MediumTest
     @Test
+    @UiThreadTest
     public void updateSessionConfigWithSuggestedResolution() throws InterruptedException {
         final int imageFormat = ImageFormat.YUV_420_888;
         final Size[] sizes = {SECONDARY_RESOLUTION, DEFAULT_RESOLUTION};

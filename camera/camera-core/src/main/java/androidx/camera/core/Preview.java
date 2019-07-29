@@ -36,6 +36,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
+import androidx.camera.core.impl.utils.Threads;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -165,9 +166,12 @@ public class Preview extends UseCase {
      * Removes previously PreviewOutput listener.
      *
      * <p>This is equivalent to calling {@code setOnPreviewOutputUpdateListener(null)}.
+     *
+     * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     public void removePreviewOutputListener() {
+        Threads.checkMainThread();
         setOnPreviewOutputUpdateListener(null);
     }
 
@@ -175,10 +179,12 @@ public class Preview extends UseCase {
      * Gets {@link OnPreviewOutputUpdateListener}
      *
      * @return the last set listener or {@code null} if no listener is set
+     * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     @Nullable
     public OnPreviewOutputUpdateListener getOnPreviewOutputUpdateListener() {
+        Threads.checkMainThread();
         return mSubscribedPreviewOutputListener;
     }
 
@@ -212,10 +218,12 @@ public class Preview extends UseCase {
      * such as on resuming the application.
      *
      * @param newListener The listener which will receive {@link PreviewOutput} updates.
+     * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     public void setOnPreviewOutputUpdateListener(
             @Nullable OnPreviewOutputUpdateListener newListener) {
+        Threads.checkMainThread();
         OnPreviewOutputUpdateListener oldListener = mSubscribedPreviewOutputListener;
         mSubscribedPreviewOutputListener = newListener;
         if (oldListener == null && newListener != null) {

@@ -21,10 +21,10 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assume.assumeTrue;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
@@ -45,6 +45,7 @@ import androidx.lifecycle.Observer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -69,10 +70,9 @@ public final class UseCaseCombinationTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA, Manifest.permission.RECORD_AUDIO);
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private Semaphore mSemaphore;
     private FakeLifecycleOwner mLifecycle;
-    private HandlerThread mHandlerThread;
-    private Handler mMainThreadHandler;
     private ImageCapture mImageCapture;
     private ImageAnalysis mImageAnalysis;
     private Preview mPreview;
@@ -119,23 +119,22 @@ public final class UseCaseCombinationTest {
         CameraX.init(context, config);
 
         mLifecycle = new FakeLifecycleOwner();
-        mHandlerThread = new HandlerThread("ErrorHandlerThread");
-        mHandlerThread.start();
-        mMainThreadHandler = new Handler(Looper.getMainLooper());
 
         mSemaphore = new Semaphore(0);
     }
 
     @After
     public void tearDown() throws InterruptedException {
-        if (mHandlerThread != null) {
-            CameraX.unbindAll();
-            mHandlerThread.quitSafely();
-
-            // Wait for camera to be closed.
-            if (mLatchForDeviceClose != null) {
-                mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.unbindAll();
             }
+        });
+
+        // Wait for camera to be closed.
+        if (mLatchForDeviceClose != null) {
+            mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
         }
     }
 
@@ -147,8 +146,13 @@ public final class UseCaseCombinationTest {
         initPreview();
         initImageCapture();
 
-        CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
-        mLifecycle.startAndResume();
+        mInstrumentation.runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
+                mLifecycle.startAndResume();
+            }
+        });
 
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
         assertThat(CameraX.isBound(mPreview)).isTrue();
@@ -163,7 +167,7 @@ public final class UseCaseCombinationTest {
         initImageAnalysis();
         initPreview();
 
-        mMainThreadHandler.post(new Runnable() {
+        mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis);
@@ -190,7 +194,7 @@ public final class UseCaseCombinationTest {
         initImageAnalysis();
         initImageCapture();
 
-        mMainThreadHandler.post(new Runnable() {
+        mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, mPreview, mImageAnalysis, mImageCapture);
