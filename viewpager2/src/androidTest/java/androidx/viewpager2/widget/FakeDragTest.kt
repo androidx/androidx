@@ -322,7 +322,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     @SdkSuppress(minSdkVersion = 16)
     fun test_performA11yActionDuringFakeDrag() {
         startManualDragDuringFakeDrag(.9f, 1000, interpolator = fastDecelerateInterpolator) {
-            activityTestRule.runOnUiThread {
+            test.runOnUiThread {
                 ViewCompat.performAccessibilityAction(test.viewPager, getNextPageAction(), null)
             }
         }
@@ -415,7 +415,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
 
             // start fake drag, but check some preconditions first
             var idleLatch: CountDownLatch? = null
-            activityTestRule.runOnUiThread {
+            test.runOnUiThread {
                 val dragDistance = dragDistanceCallback()
                 val currPosition = test.viewPager.relativeScrollPosition
 
@@ -481,18 +481,14 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     }
 
     private fun doIllegalAction(errorMessage: String, action: () -> Unit) {
-        val executionLatch = CountDownLatch(1)
         var exception: IllegalStateException? = null
         test.runOnUiThread {
             try {
                 action()
             } catch (e: IllegalStateException) {
                 exception = e
-            } finally {
-                executionLatch.countDown()
             }
         }
-        assertThat(executionLatch.await(1, SECONDS), equalTo(true))
         assertThat(exception, notNullValue())
         assertThat(exception!!.message, equalTo(errorMessage))
     }
