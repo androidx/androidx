@@ -1144,9 +1144,11 @@ class MediaControllerImplBase implements MediaControllerImpl {
         });
     }
 
-    void notifyVideoSizeChanged(final MediaItem item, final VideoSize videoSize) {
+    void notifyVideoSizeChanged(final VideoSize videoSize) {
+        final MediaItem currentItem;
         synchronized (mLock) {
             mVideoSize = videoSize;
+            currentItem = mCurrentMediaItem;
         }
         mInstance.notifyControllerCallback(new ControllerCallbackRunnable() {
             @Override
@@ -1154,7 +1156,11 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 if (!mInstance.isConnected()) {
                     return;
                 }
-                callback.onVideoSizeChanged(mInstance, item, videoSize);
+
+                if (currentItem != null) {
+                    callback.onVideoSizeChanged(mInstance, currentItem, videoSize);
+                }
+                callback.onVideoSizeChanged(mInstance, videoSize);
             }
         });
     }
