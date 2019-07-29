@@ -27,7 +27,7 @@ plugins {
 
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
-    implementation("androidx.core:core:1.1.0-rc01")
+    implementation("androidx.core:core:1.1.0")
     implementation(AUTO_VALUE_ANNOTATIONS)
     annotationProcessor(AUTO_VALUE)
     api(GUAVA_LISTENABLE_FUTURE)
