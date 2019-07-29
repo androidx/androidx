@@ -514,7 +514,7 @@ public final class MediaControllerCompat {
      * @return The session's token as VersionedParcelable.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @Nullable
     public VersionedParcelable getSession2Token() {
         return mToken.getSession2Token();
@@ -815,7 +815,7 @@ public final class MediaControllerCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public IMediaControllerCallback getIControllerCallback() {
             return mIControllerCallback;
         }
