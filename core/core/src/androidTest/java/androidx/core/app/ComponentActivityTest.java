@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+@SuppressWarnings("deprecation")
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class ComponentActivityTest extends BaseInstrumentationTestCase<TestComponentActivity> {
@@ -54,10 +55,10 @@ public class ComponentActivityTest extends BaseInstrumentationTestCase<TestCompo
         assertEquals(mTestExtraData, mComponentActivity.getExtraData(TestExtraData.class));
     }
 
-    public class NeverAddedExtraData extends ComponentActivity.ExtraData {
+    private class NeverAddedExtraData extends ComponentActivity.ExtraData {
     }
 
-    public class TestExtraData extends ComponentActivity.ExtraData {
+    private class TestExtraData extends ComponentActivity.ExtraData {
     }
 }
 
