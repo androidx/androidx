@@ -23,7 +23,9 @@ import static org.junit.Assume.assumeTrue;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.graphics.SurfaceTexture;
 
+import androidx.annotation.NonNull;
 import androidx.camera.core.AppConfig;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
@@ -36,6 +38,7 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.PreviewConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.GLUtil;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
@@ -114,7 +117,7 @@ public final class UseCaseCombinationTest {
      * Test Combination: Preview + ImageCapture
      */
     @Test
-    public void previewCombinesImageCapture() {
+    public void previewCombinesImageCapture() throws InterruptedException {
         initPreview();
         initImageCapture();
 
@@ -122,9 +125,29 @@ public final class UseCaseCombinationTest {
             @Override
             public void run() {
                 CameraX.bindToLifecycle(mLifecycle, mPreview, mImageCapture);
+                mPreview.setOnPreviewOutputUpdateListener(
+                        new Preview.OnPreviewOutputUpdateListener() {
+                            @Override
+                            public void onUpdated(@NonNull Preview.PreviewOutput output) {
+                                output.getSurfaceTexture().attachToGLContext(
+                                        GLUtil.getTexIdFromGLContext());
+                                output.getSurfaceTexture().setOnFrameAvailableListener(
+                                        new SurfaceTexture.OnFrameAvailableListener() {
+                                            @Override
+                                            public void onFrameAvailable(
+                                                    SurfaceTexture surfaceTexture) {
+                                                surfaceTexture.updateTexImage();
+                                                mSemaphore.release();
+                                            }
+                                        });
+                            }
+                        });
                 mLifecycle.startAndResume();
             }
         });
+
+        // Wait for the frame available update.
+        mSemaphore.acquire(10);
 
         assertThat(mLifecycle.getObserverCount()).isEqualTo(2);
         assertThat(CameraX.isBound(mPreview)).isTrue();

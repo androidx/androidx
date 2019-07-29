@@ -37,6 +37,7 @@ import androidx.annotation.UiThread;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.utils.Threads;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
@@ -44,6 +45,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * A use case that provides a camera preview stream for displaying on-screen.
@@ -99,6 +102,8 @@ public class Preview extends UseCase {
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SurfaceTextureHolder mSurfaceTextureHolder;
+
+    private Executor mOutputUpdateExecutor;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -203,16 +208,20 @@ public class Preview extends UseCase {
     }
 
     /**
-     * Removes previously PreviewOutput listener.
-     *
-     * <p>This is equivalent to calling {@code setOnPreviewOutputUpdateListener(null)}.
+     * Un-register a listener previously registered via
+     * {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)}.
+     * It will signal to the camera that the camera should no longer stream data to the last
+     * {@link PreviewOutput}.
      *
      * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     public void removePreviewOutputListener() {
         Threads.checkMainThread();
-        setOnPreviewOutputUpdateListener(null);
+        if (mSubscribedPreviewOutputListener != null) {
+            mSubscribedPreviewOutputListener = null;
+            notifyInactive();
+        }
     }
 
     /**
@@ -232,8 +241,7 @@ public class Preview extends UseCase {
      * Sets a listener to get the {@link PreviewOutput} updates.
      *
      * <p>Setting this listener will signal to the camera that the use case is ready to receive
-     * data. Setting the listener to {@code null} will signal to the camera that the camera should
-     * no longer stream data to the last {@link PreviewOutput}.
+     * data.
      *
      * <p>Once {@link OnPreviewOutputUpdateListener#onUpdated(PreviewOutput)}  is called,
      * ownership of the {@link PreviewOutput} and its contents is transferred to the application. It
@@ -257,25 +265,44 @@ public class Preview extends UseCase {
      * with the output from the previous {@link PreviewOutput} to attach it to a new TextureView,
      * such as on resuming the application.
      *
+     * <p>The listener will run on the UI thread. See
+     * {@link Preview#setOnPreviewOutputUpdateListener(Executor, OnPreviewOutputUpdateListener)}
+     * to set the updates run on the given executor.
+     *
+     * @param newListener The listener which will receive {@link PreviewOutput} updates.
+     */
+    @UiThread
+    public void setOnPreviewOutputUpdateListener(
+            @NonNull OnPreviewOutputUpdateListener newListener) {
+        setOnPreviewOutputUpdateListener(CameraXExecutors.mainThreadExecutor(), newListener);
+    }
+
+    /**
+     * Sets a listener and its executor to get the {@link PreviewOutput} updates.
+     *
+     * <p>See {@link Preview#setOnPreviewOutputUpdateListener(OnPreviewOutputUpdateListener)} for
+     * more information.
+     *
+     * @param executor    The executor on which the listener should be invoked.
      * @param newListener The listener which will receive {@link PreviewOutput} updates.
      * @throws IllegalStateException If not called on main thread.
      */
     @UiThread
     public void setOnPreviewOutputUpdateListener(
-            @Nullable OnPreviewOutputUpdateListener newListener) {
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull OnPreviewOutputUpdateListener newListener) {
         Threads.checkMainThread();
         Preconditions.checkState(mPreviewSurfaceCallback == null,
                 CONFLICTING_SURFACE_API_ERROR_MESSAGE);
+        mOutputUpdateExecutor = executor;
         OnPreviewOutputUpdateListener oldListener = mSubscribedPreviewOutputListener;
         mSubscribedPreviewOutputListener = newListener;
         if (oldListener == null && newListener != null) {
             notifyActive();
             if (mLatestPreviewOutput != null) {
                 mSurfaceDispatched = true;
-                newListener.onUpdated(mLatestPreviewOutput);
+                updateListener(newListener, mLatestPreviewOutput);
             }
-        } else if (oldListener != null && newListener == null) {
-            notifyInactive();
         } else if (oldListener != null && oldListener != newListener) {
             if (mLatestPreviewOutput != null) {
                 PreviewConfig config = (PreviewConfig) getUseCaseConfig();
@@ -334,6 +361,14 @@ public class Preview extends UseCase {
         mSessionConfigBuilder = createPipeline(config, resolution);
         attachToCamera(cameraId, mSessionConfigBuilder.build());
         updateOutput(mSurfaceTextureHolder.getSurfaceTexture(), resolution);
+    }
+
+    private void updateListener(OnPreviewOutputUpdateListener listener, PreviewOutput output) {
+        try {
+            mOutputUpdateExecutor.execute(() -> listener.onUpdated(output));
+        } catch (RejectedExecutionException e) {
+            Log.e(TAG, "Unable to post to the supplied executor.", e);
+        }
     }
 
     private CameraControlInternal getCurrentCameraControl() {
@@ -548,7 +583,7 @@ public class Preview extends UseCase {
 
             if (outputListener != null) {
                 mSurfaceDispatched = true;
-                outputListener.onUpdated(newOutput);
+                updateListener(outputListener, newOutput);
             }
         }
     }
