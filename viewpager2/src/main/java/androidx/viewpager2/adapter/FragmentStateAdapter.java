@@ -395,12 +395,20 @@ public abstract class FragmentStateAdapter extends
 
     @Override
     public final boolean onFailedToRecycleView(@NonNull FragmentViewHolder holder) {
-        // This happens when a ViewHolder is in a transient state (e.g. during custom
-        // animation). We don't have sufficient information on how to clear up what lead to
-        // the transient state, so we are throwing away the ViewHolder to stay on the
-        // conservative side.
-        onViewRecycled(holder); // the same clean-up steps as when recycling a ViewHolder
-        return false; // don't recycle the view
+        /*
+         This happens when a ViewHolder is in a transient state (e.g. during an
+         animation).
+
+         Our ViewHolders are effectively just FrameLayout instances in which we put Fragment
+         Views, so it's safe to force recycle them. This is because:
+         - FrameLayout instances are not to be directly manipulated, so no animations are
+         expected to be running directly on them.
+         - Fragment Views are not reused between position (one Fragment = one page). Animation
+         running in one of the Fragment Views won't affect another Fragment View.
+         - If a user chooses to violate these assumptions, they are also in the position to
+         correct the state in their code.
+        */
+        return true;
     }
 
     private void removeFragment(long itemId) {
