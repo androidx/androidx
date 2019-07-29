@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-
+import androidx.build.BuildServerConfigurationKt
 import androidx.build.CompilationTarget
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
@@ -69,6 +69,17 @@ task generateSdkResource() {
 }
 
 tasks["compileTestJava"].dependsOn generateSdkResource
+
+task buildOnServer(type: Copy) {
+  from {
+    def f = project.file("src/main/resources/scripts/lockClocks.sh")
+    if (!f.exists()) {
+        throw new GradleException(f.toString() + " does not exist")
+    }
+    return f
+  }
+  destinationDir BuildServerConfigurationKt.getDistributionDirectory(rootProject)
+}
 
 gradlePlugin {
     plugins {
