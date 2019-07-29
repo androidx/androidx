@@ -54,7 +54,7 @@ import java.util.Map;
  *     protected void onCreate(Bundle savedInstanceState) {
  *         super.onCreate(savedInstanceState);
  *         setContentView(R.layout.user_activity_layout);
- *         final UserModel viewModel = ViewModelProviders.of(this).get(UserModel.class);
+ *         final UserModel viewModel = new ViewModelProvider(this).get(UserModel.class);
  *         viewModel.userLiveData.observer(this, new Observer<User>() {
  *            {@literal @}Override
  *             public void onChanged(@Nullable User data) {
@@ -99,7 +99,7 @@ import java.util.Map;
  * <pre>
  * public class MyFragment extends Fragment {
  *     public void onStart() {
- *         UserModel userModel = ViewModelProviders.of(getActivity()).get(UserModel.class);
+ *         UserModel userModel = new ViewModelProvider(requireActivity()).get(UserModel.class);
  *     }
  * }
  * </pre>

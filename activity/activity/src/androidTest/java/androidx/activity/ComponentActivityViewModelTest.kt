@@ -16,7 +16,9 @@
 
 package androidx.activity
 
+import android.app.Application
 import android.os.Bundle
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -72,12 +74,15 @@ class ComponentActivityViewModelTest {
     fun testActivityOnCleared() {
         lateinit var activityModel: TestViewModel
         lateinit var defaultActivityModel: TestViewModel
+        lateinit var androidModel: TestAndroidViewModel
         ActivityScenario.launch(ViewModelActivity::class.java).use { scenario ->
             activityModel = scenario.withActivity { this.activityModel }
             defaultActivityModel = scenario.withActivity { this.defaultActivityModel }
+            androidModel = scenario.withActivity { this.androidModel }
         }
         assertThat(activityModel.cleared).isTrue()
         assertThat(defaultActivityModel.cleared).isTrue()
+        assertThat(androidModel.cleared).isTrue()
     }
 }
 
@@ -91,22 +96,29 @@ class ViewModelActivity : ComponentActivity() {
     lateinit var postOnCreateViewModelStore: ViewModelStore
     lateinit var activityModel: TestViewModel
     lateinit var defaultActivityModel: TestViewModel
+    lateinit var androidModel: TestAndroidViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         preOnCreateViewModelStore = viewModelStore
         super.onCreate(savedInstanceState)
         postOnCreateViewModelStore = viewModelStore
 
-        val viewModelProvider = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        )
+        val viewModelProvider = ViewModelProvider(this)
         activityModel = viewModelProvider.get(KEY_ACTIVITY_MODEL, TestViewModel::class.java)
         defaultActivityModel = viewModelProvider.get(TestViewModel::class.java)
+        androidModel = viewModelProvider.get(TestAndroidViewModel::class.java)
     }
 }
 
 class TestViewModel : ViewModel() {
+    var cleared = false
+
+    override fun onCleared() {
+        cleared = true
+    }
+}
+
+class TestAndroidViewModel(application: Application) : AndroidViewModel(application) {
     var cleared = false
 
     override fun onCleared() {

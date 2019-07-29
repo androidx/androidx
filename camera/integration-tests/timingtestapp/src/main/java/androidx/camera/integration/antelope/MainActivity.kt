@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        camViewModel = ViewModelProvider(this, ViewModelProvider.NewInstanceFactory())
+        camViewModel = ViewModelProvider(this)
             .get(CamViewModel::class.java)
         cameraParams = camViewModel.getCameraParams()
         deviceInfo = DeviceInfo()

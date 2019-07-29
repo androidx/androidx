@@ -85,6 +85,17 @@ public class ViewModelProviderTest {
     }
 
     @Test
+    public void testCustomDefaultFactory() {
+        final ViewModelStore store = new ViewModelStore();
+        final CountingFactory factory = new CountingFactory();
+        ViewModelStoreOwnerWithFactory owner = new ViewModelStoreOwnerWithFactory(store, factory);
+        ViewModelProvider provider = new ViewModelProvider(owner);
+        ViewModel1 viewModel = provider.get(ViewModel1.class);
+        assertThat(viewModel, is(provider.get(ViewModel1.class)));
+        assertThat(factory.mCalled, is(1));
+    }
+
+    @Test
     public void testKeyedFactory() {
         final ViewModelStore store = new ViewModelStore();
         ViewModelStoreOwner owner = new ViewModelStoreOwner() {
@@ -107,6 +118,30 @@ public class ViewModelProviderTest {
         provider.get("customkey", ViewModel1.class);
     }
 
+    public static class ViewModelStoreOwnerWithFactory implements
+            ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+        private final ViewModelStore mStore;
+        private final ViewModelProvider.Factory mFactory;
+
+        ViewModelStoreOwnerWithFactory(@NonNull ViewModelStore store,
+                @NonNull ViewModelProvider.Factory factory) {
+            mStore = store;
+            mFactory = factory;
+        }
+
+        @NonNull
+        @Override
+        public ViewModelStore getViewModelStore() {
+            return mStore;
+        }
+
+        @NonNull
+        @Override
+        public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
+            return mFactory;
+        }
+    }
+
     public static class ViewModel1 extends ViewModel {
         boolean mCleared;
 
@@ -117,5 +152,16 @@ public class ViewModelProviderTest {
     }
 
     public static class ViewModel2 extends ViewModel {
+    }
+
+    public static class CountingFactory extends NewInstanceFactory {
+        int mCalled = 0;
+
+        @Override
+        @NonNull
+        public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
+            mCalled++;
+            return super.create(modelClass);
+        }
     }
 }
