@@ -23,8 +23,6 @@ import android.webkit.WebResourceResponse;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.webkit.internal.AssetHelper;
@@ -227,20 +225,29 @@ public final class WebViewAssetLoader {
      * For more information about android storage please refer to
      * <a href="https://developer.android.com/guide/topics/data/data-storage">Android Developers
      * Docs: Data and file storage overview</a>.
-     * <p>
+     * <p class="note">
      * To avoid leaking user or app data to the web, make sure to choose {@code directory}
      * carefully, and assume any file under this directory could be accessed by any web page subject
      * to same-origin rules.
-     * @hide
+     * <p>
+     * A typical usage would be like:
+     * <pre class="prettyprint">
+     *     File publicDir = new File(context.getFilesDir(), "public");
+     *     // Host "files/public/" in app's data directory under:
+     *     // http://appassets.androidplatform.net/public/...
+     *     WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
+     *              .addPathHandler("/public/", new InternalStoragePathHandler(context, publicDir))
+     *              .build();
+     * </pre>
      */
-    // TODO(b/132880733) unhide the API when it's ready.
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class InternalStoragePathHandler implements PathHandler {
         /**
          * Forbidden subdirectories of {@link Context#getDataDir} that cannot be exposed by this
          * handler. They are forbidden as they often contain sensitive information.
+         * <p class="note">
+         * Note: Any future addition to this list will be considered breaking changes to the API.
          */
-        public static final String[] FORBIDDEN_DATA_DIRS =
+        private static final String[] FORBIDDEN_DATA_DIRS =
                 new String[] {"app_webview/", "databases/", "lib/", "shared_prefs/", "code_cache/"};
 
         @NonNull private final File mDirectory;
@@ -248,14 +255,16 @@ public final class WebViewAssetLoader {
         /**
          * Creates PathHandler for app's internal storage.
          * The directory to be exposed must be inside either the application's internal data
-         * directory {@link context#getDataDir} or cache directory {@link context#getCacheDir}.
+         * directory {@link Context#getDataDir} or cache directory {@link Context#getCacheDir}.
          * External storage is not supported for security reasons, as other apps with
          * {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE} may be able to modify the
          * files.
          * <p>
          * Exposing the entire data or cache directory is not permitted, to avoid accidentally
-         * exposing sensitive application files to the web. Certain existing directories are also
-         * not permitted, such as {@link FORBIDDEN_DATA_DIRS}, as they are often sensitive.
+         * exposing sensitive application files to the web. Certain existing subdirectories of
+         * {@link Context#getDataDir} are also not permitted as they are often sensitive.
+         * These files are ({@code "app_webview/"}, {@code "databases/"}, {@code "lib/"},
+         * {@code "shared_prefs/"} and {@code "code_cache/"}).
          * <p>
          * The application should typically use a dedicated subdirectory for the files it intends to
          * expose and keep them separate from other files.
