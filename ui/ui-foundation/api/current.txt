@@ -17,6 +17,11 @@ package androidx.ui.foundation {
     method public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public final class DialogKt {
+    ctor public DialogKt();
+    method public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class SimpleImageKt {
     ctor public SimpleImageKt();
     method public static void SimpleImage(androidx.ui.painting.Image image, androidx.ui.graphics.Color? tint = null);
