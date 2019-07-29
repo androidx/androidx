@@ -41,8 +41,9 @@ class SavedStateFactoryTest {
 
     @Test
     fun testCreateAndroidVM() {
-        val savedStateVMFactory =
-            SavedStateViewModelFactory(activityRule.activity)
+        val savedStateVMFactory = SavedStateViewModelFactory(
+            activityRule.activity.application,
+            activityRule.activity)
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
         assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
