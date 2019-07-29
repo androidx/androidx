@@ -22,6 +22,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 
@@ -60,6 +62,7 @@ class ViewModelActivity : FragmentActivity() {
         lateinit var activityModel: TestViewModel
         lateinit var defaultActivityModel: TestViewModel
         lateinit var androidModel: TestAndroidViewModel
+        lateinit var savedStateModel: TestSavedStateViewModel
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -75,10 +78,20 @@ class ViewModelActivity : FragmentActivity() {
             )
             defaultActivityModel = activityViewModelProvider.get(TestViewModel::class.java)
             androidModel = viewModelProvider.get(TestAndroidViewModel::class.java)
+            savedStateModel = viewModelProvider.get(TestSavedStateViewModel::class.java)
         }
     }
 
     class TestAndroidViewModel(application: Application) : AndroidViewModel(application) {
+        var cleared = false
+
+        override fun onCleared() {
+            cleared = true
+        }
+    }
+
+    @Suppress("unused")
+    class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel() {
         var cleared = false
 
         override fun onCleared() {

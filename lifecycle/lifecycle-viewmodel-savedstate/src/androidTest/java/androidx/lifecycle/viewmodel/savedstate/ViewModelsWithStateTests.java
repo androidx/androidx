@@ -143,14 +143,17 @@ public class ViewModelsWithStateTests {
     private ViewModelProvider vmProvider(FakingSavedStateActivity activity) {
         if (FRAGMENT_MODE.equals(mode)) {
             Fragment fragment = activity.getFragment();
-            return new ViewModelProvider(fragment, new SavedStateViewModelFactory(fragment));
+            return new ViewModelProvider(fragment, new SavedStateViewModelFactory(
+                    fragment.requireActivity().getApplication(), fragment));
         }
-        return new ViewModelProvider(activity, new SavedStateViewModelFactory(activity));
+        return new ViewModelProvider(activity, new SavedStateViewModelFactory(
+                activity.getApplication(), activity));
     }
 
     // copy copy copy paste
     @SuppressWarnings("unchecked")
-    private static <T extends Activity> T recreateActivity(final T activity, ActivityTestRule rule)
+    private static <T extends Activity> T recreateActivity(final T activity,
+            ActivityTestRule<?> rule)
             throws Throwable {
         Instrumentation.ActivityMonitor monitor = new Instrumentation.ActivityMonitor(
                 activity.getClass().getCanonicalName(), null, false);

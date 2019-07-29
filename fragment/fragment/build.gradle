@@ -25,6 +25,7 @@ dependencies {
     api(project(":activity:activity"))
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
+    api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
