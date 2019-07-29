@@ -471,6 +471,41 @@ class TextPainter(
         canvas.drawRect(cursorRect, Paint().apply { this.color = Color.Black })
     }
 
+    /**
+     * Returns the bottom y coordinate of the given line.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getLineBottom(lineIndex: Int): Float {
+        assert(!needsLayout)
+        return paragraph!!.getLineBottom(lineIndex)
+    }
+
+    /**
+     * Returns the line number on which the specified text offset appears.
+     * If you ask for a position before 0, you get 0; if you ask for a position
+     * beyond the end of the text, you get the last line.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getLineForOffset(offset: Int): Int {
+        assert(!needsLayout)
+        return paragraph!!.getLineForOffset(offset)
+    }
+
+    /**
+     * Get the primary horizontal position for the specified text offset.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    fun getPrimaryHorizontal(offset: Int): Float {
+        assert(!needsLayout)
+        return paragraph!!.getPrimaryHorizontal(offset)
+    }
+
     /** Returns the character offset closest to the given graphical position. */
     fun getOffsetForPosition(position: PxPosition): Int {
         assert(!needsLayout)

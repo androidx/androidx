@@ -25,11 +25,9 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.PxPosition
 import androidx.ui.core.gesture.DragGestureDetector
 import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.core.ipx
-import androidx.ui.core.px
 import androidx.ui.core.round
 
 /**
@@ -129,17 +127,11 @@ fun SelectionContainer(
                 ) {
                     val startOffset = manager.containerLayoutCoordinates.childToLocal(
                         selection.startLayoutCoordinates,
-                        PxPosition(
-                            selection.startOffset.left.px,
-                            selection.startOffset.bottom.px
-                        )
+                        selection.startCoordinates
                     )
                     val endOffset = manager.containerLayoutCoordinates.childToLocal(
                         selection.endLayoutCoordinates,
-                        PxPosition(
-                            selection.endOffset.right.px,
-                            selection.endOffset.bottom.px
-                        )
+                        selection.endCoordinates
                     )
                     start.place(startOffset.x - HANDLE_WIDTH, startOffset.y)
                     end.place(endOffset.x, endOffset.y)

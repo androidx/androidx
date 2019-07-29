@@ -18,7 +18,6 @@ package androidx.ui.core.selection
 
 import androidx.ui.core.PxPosition
 import androidx.ui.core.px
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.text.TextSelection
 import androidx.ui.text.TextPainter
 import kotlin.math.max
@@ -38,21 +37,24 @@ internal class TextSelectionProcessor(
     /** The TextPainter object from Text widget. */
     val textPainter: TextPainter
 ) {
-    // TODO(qqd): Determine a set of coordinates around a character that we need.
     /**
-     * The bounding box of the character at the start character offset as Rect. The bounding box
-     * includes the top, bottom, left, and right of the character. Note: It is temporary to use
-     * Rect.
+     * The coordinates of the graphical position for selection start character offset.
+     *
+     * This graphical position is the point at the left bottom corner for LTR
+     * character, or right bottom corner for RTL character.
+     *
+     * This coordinates is in child widget coordinates system.
      */
-    // TODO(qqd): After solving the problem of getting the coordinates of a character, figure out
-    // what should the startOffset and endOffset should be.
-    internal var startOffset = Rect.zero
+    internal var startCoordinates: PxPosition = PxPosition.Origin
     /**
-     * The bounding box of the character at the end character offset as Rect. The bounding box
-     * includes the top, bottom, left, and right of the character. Note: It is temporary to use
-     * Rect.
+     * The coordinates of the graphical position for selection end character offset.
+     *
+     * This graphical position is the point at the left bottom corner for LTR
+     * character, or right bottom corner for RTL character.
+     *
+     * This coordinates is in child widget coordinates system.
      */
-    internal var endOffset = Rect.zero
+    internal var endCoordinates: PxPosition = PxPosition.Origin
     /**
      * A flag to check if the text widget contains the whole selection's start.
      */
@@ -95,22 +97,12 @@ internal class TextSelectionProcessor(
             val wordBoundary = textPainter.getWordBoundary(textSelectionStart)
             textSelectionStart = wordBoundary.start
             textSelectionEnd = wordBoundary.end
-        } else {
-            // Currently the implementation of selection is inclusive-inclusive which is a temporary
-            // workaround, but inclusive-exclusive in Android. Thus before calling drawing selection
-            // background, make the selection matches Android behaviour.
-            textSelectionEnd = textSelectionEnd + 1
         }
 
         onSelectionChange(TextSelection(textSelectionStart, textSelectionEnd))
 
-        // Currently the implementation of selection is inclusive-inclusive which is a temporary
-        // workaround, but inclusive-exclusive in Android. Thus make the selection end matches Crane
-        // behaviour.
-        textSelectionEnd = textSelectionEnd - 1
-
-        startOffset = textPainter.getBoundingBox(textSelectionStart)
-        endOffset = textPainter.getBoundingBox(textSelectionEnd)
+        startCoordinates = getSelectionHandleCoordinates(textSelectionStart)
+        endCoordinates = getSelectionHandleCoordinates(textSelectionEnd)
 
         this.containsWholeSelectionStart = containsWholeSelectionStart
         this.containsWholeSelectionEnd = containsWholeSelectionEnd
@@ -154,5 +146,14 @@ internal class TextSelectionProcessor(
             containsWholeSelectionBorder = true
         }
         return Pair(selectionBorder, containsWholeSelectionBorder)
+    }
+
+    private fun getSelectionHandleCoordinates(offset: Int): PxPosition {
+        val left = textPainter.getPrimaryHorizontal(offset)
+
+        val line = textPainter.getLineForOffset(offset)
+        val bottom = textPainter.getLineBottom(line)
+
+        return PxPosition(left.px, bottom.px)
     }
 }

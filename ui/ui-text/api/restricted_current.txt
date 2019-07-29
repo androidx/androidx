@@ -92,7 +92,6 @@ package androidx.ui.text {
 
   public interface Paragraph {
     method public float getBaseline();
-    method public androidx.ui.engine.geometry.Rect getBoundingBox(int offset);
     method public androidx.ui.engine.geometry.Rect getCursorRect(int offset);
     method public boolean getDidExceedMaxLines();
     method public float getHeight();

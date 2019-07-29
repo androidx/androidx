@@ -296,16 +296,16 @@ package androidx.ui.core.gesture.util {
 package androidx.ui.core.selection {
 
   public final class Selection {
-    ctor public Selection(androidx.ui.engine.geometry.Rect startOffset, androidx.ui.engine.geometry.Rect endOffset, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
-    method public androidx.ui.engine.geometry.Rect component1();
-    method public androidx.ui.engine.geometry.Rect component2();
+    ctor public Selection(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
+    method public androidx.ui.core.PxPosition component1();
+    method public androidx.ui.core.PxPosition component2();
     method public androidx.ui.core.LayoutCoordinates? component3();
     method public androidx.ui.core.LayoutCoordinates? component4();
-    method public androidx.ui.core.selection.Selection copy(androidx.ui.engine.geometry.Rect startOffset, androidx.ui.engine.geometry.Rect endOffset, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
+    method public androidx.ui.core.selection.Selection copy(androidx.ui.core.PxPosition startCoordinates, androidx.ui.core.PxPosition endCoordinates, androidx.ui.core.LayoutCoordinates? startLayoutCoordinates, androidx.ui.core.LayoutCoordinates? endLayoutCoordinates);
+    method public androidx.ui.core.PxPosition getEndCoordinates();
     method public androidx.ui.core.LayoutCoordinates? getEndLayoutCoordinates();
-    method public androidx.ui.engine.geometry.Rect getEndOffset();
+    method public androidx.ui.core.PxPosition getStartCoordinates();
     method public androidx.ui.core.LayoutCoordinates? getStartLayoutCoordinates();
-    method public androidx.ui.engine.geometry.Rect getStartOffset();
   }
 
   public final class SelectionContainerKt {

@@ -285,13 +285,12 @@ fun Text(
                             onSelectionChange = { internalSelection.value = it },
                             textPainter = textPainter
                         )
-
                         if (!textSelectionProcessor.isSelected) return null
 
                         // TODO(qqd): Determine a set of coordinates around a character that we need.
                         return Selection(
-                            startOffset = textSelectionProcessor.startOffset,
-                            endOffset = textSelectionProcessor.endOffset,
+                            startCoordinates = textSelectionProcessor.startCoordinates,
+                            endCoordinates = textSelectionProcessor.endCoordinates,
                             startLayoutCoordinates =
                             if (textSelectionProcessor.containsWholeSelectionStart) {
                                 layoutCoordinates.value!!
