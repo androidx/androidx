@@ -33,6 +33,9 @@ import androidx.annotation.NavigationRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.TaskStackBuilder;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
+import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -79,12 +82,14 @@ public class NavController {
     private final Context mContext;
     private Activity mActivity;
     private NavInflater mInflater;
-    private NavGraph mGraph;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    NavGraph mGraph;
     private Bundle mNavigatorStateToRestore;
     private Parcelable[] mBackStackToRestore;
     private boolean mDeepLinkHandled;
 
-    private final Deque<NavBackStackEntry> mBackStack = new ArrayDeque<>();
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Deque<NavBackStackEntry> mBackStack = new ArrayDeque<>();
 
     private LifecycleOwner mLifecycleOwner;
     private NavControllerViewModel mViewModel;
@@ -94,6 +99,17 @@ public class NavController {
     private final CopyOnWriteArrayList<OnDestinationChangedListener>
             mOnDestinationChangedListeners = new CopyOnWriteArrayList<>();
 
+    private final LifecycleObserver mLifecycleObserver = new LifecycleEventObserver() {
+        @Override
+        public void onStateChanged(@NonNull LifecycleOwner source,
+                @NonNull Lifecycle.Event event) {
+            if (mGraph != null) {
+                for (NavBackStackEntry entry : mBackStack) {
+                    entry.handleLifecycleEvent(event);
+                }
+            }
+        }
+    };
     private final OnBackPressedCallback mOnBackPressedCallback =
             new OnBackPressedCallback(false) {
         @Override
@@ -276,6 +292,7 @@ public class NavController {
         for (Navigator<?> navigator : popOperations) {
             if (navigator.popBackStack()) {
                 NavBackStackEntry entry = mBackStack.removeLast();
+                entry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
                 if (mViewModel != null) {
                     mViewModel.clear(entry.mId);
                 }
@@ -480,8 +497,10 @@ public class NavController {
                 if (args != null) {
                     args.setClassLoader(mContext.getClassLoader());
                 }
-                mBackStack.add(new NavBackStackEntry(mContext, node, args, mViewModel,
-                        state.getUUID()));
+                NavBackStackEntry entry = new NavBackStackEntry(mContext, node, args,
+                        mLifecycleOwner, mViewModel,
+                        state.getUUID(), state.getSavedState());
+                mBackStack.add(entry);
             }
             updateOnBackPressedCallbackEnabled();
             mBackStackToRestore = null;
@@ -865,7 +884,9 @@ public class NavController {
             }
             // The mGraph should always be on the back stack after you navigate()
             if (mBackStack.isEmpty()) {
-                mBackStack.add(new NavBackStackEntry(mContext, mGraph, finalArgs, mViewModel));
+                NavBackStackEntry entry = new NavBackStackEntry(mContext, mGraph, finalArgs,
+                        mLifecycleOwner, mViewModel);
+                mBackStack.add(entry);
             }
             // Now ensure all intermediate NavGraphs are put on the back stack
             // to ensure that global actions work.
@@ -874,15 +895,16 @@ public class NavController {
             while (destination != null && findDestination(destination.getId()) == null) {
                 NavGraph parent = destination.getParent();
                 if (parent != null) {
-                    hierarchy.addFirst(new NavBackStackEntry(mContext, parent, finalArgs,
-                            mViewModel));
+                    NavBackStackEntry entry = new NavBackStackEntry(mContext, parent, finalArgs,
+                            mLifecycleOwner, mViewModel);
+                    hierarchy.addFirst(entry);
                 }
                 destination = parent;
             }
             mBackStack.addAll(hierarchy);
             // And finally, add the new destination with its default args
             NavBackStackEntry newBackStackEntry = new NavBackStackEntry(mContext, newDest,
-                    newDest.addInDefaultArgs(finalArgs), mViewModel);
+                    newDest.addInDefaultArgs(finalArgs), mLifecycleOwner, mViewModel);
             mBackStack.add(newBackStackEntry);
         }
         updateOnBackPressedCallbackEnabled();
@@ -1004,6 +1026,7 @@ public class NavController {
 
     void setLifecycleOwner(@NonNull LifecycleOwner owner) {
         mLifecycleOwner = owner;
+        mLifecycleOwner.getLifecycle().addObserver(mLifecycleObserver);
     }
 
     void setOnBackPressedDispatcher(@NonNull OnBackPressedDispatcher dispatcher) {

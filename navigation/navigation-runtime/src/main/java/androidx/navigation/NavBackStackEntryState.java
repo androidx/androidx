@@ -32,11 +32,14 @@ final class NavBackStackEntryState implements Parcelable {
     private final UUID mUUID;
     private final int mDestinationId;
     private final Bundle mArgs;
+    private final Bundle mSavedState;
 
     NavBackStackEntryState(NavBackStackEntry entry) {
         mUUID = entry.mId;
         mDestinationId = entry.getDestination().getId();
         mArgs = entry.getArguments();
+        mSavedState = new Bundle();
+        entry.saveState(mSavedState);
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -44,6 +47,7 @@ final class NavBackStackEntryState implements Parcelable {
         mUUID = UUID.fromString(in.readString());
         mDestinationId = in.readInt();
         mArgs = in.readBundle(getClass().getClassLoader());
+        mSavedState = in.readBundle(getClass().getClassLoader());
     }
 
     @NonNull
@@ -60,6 +64,11 @@ final class NavBackStackEntryState implements Parcelable {
         return mArgs;
     }
 
+    @NonNull
+    Bundle getSavedState() {
+        return mSavedState;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -70,6 +79,7 @@ final class NavBackStackEntryState implements Parcelable {
         parcel.writeString(mUUID.toString());
         parcel.writeInt(mDestinationId);
         parcel.writeBundle(mArgs);
+        parcel.writeBundle(mSavedState);
     }
 
     public static final Parcelable.Creator<NavBackStackEntryState> CREATOR =

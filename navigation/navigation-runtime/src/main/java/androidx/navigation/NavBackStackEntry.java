@@ -23,40 +23,65 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.savedstate.SavedStateRegistry;
+import androidx.savedstate.SavedStateRegistryController;
+import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.util.UUID;
 
 /**
  * Representation of an entry in the back stack of a {@link NavController}.
  */
-final class NavBackStackEntry implements ViewModelStoreOwner, HasDefaultViewModelProviderFactory {
+final class NavBackStackEntry implements
+        LifecycleOwner,
+        ViewModelStoreOwner, HasDefaultViewModelProviderFactory,
+        SavedStateRegistryOwner {
     private final Context mContext;
     private final NavDestination mDestination;
     private final Bundle mArgs;
+    private final LifecycleRegistry mLifecycle = new LifecycleRegistry(this);
+    private final SavedStateRegistryController mSavedStateRegistryController =
+            SavedStateRegistryController.create(this);
 
     // Internal unique name for this navBackStackEntry;
     @NonNull
     final UUID mId;
     private NavControllerViewModel mNavControllerViewModel;
+    private ViewModelProvider.Factory mDefaultFactory;
 
     NavBackStackEntry(@NonNull Context context,
             @NonNull NavDestination destination, @Nullable Bundle args,
+            @Nullable LifecycleOwner navControllerLifecyleOwner,
             @Nullable NavControllerViewModel navControllerViewModel) {
-        this(context, destination, args, navControllerViewModel, UUID.randomUUID());
+        this(context, destination, args,
+                navControllerLifecyleOwner, navControllerViewModel,
+                UUID.randomUUID(), null);
     }
 
     NavBackStackEntry(@NonNull Context context,
             @NonNull NavDestination destination, @Nullable Bundle args,
+            @Nullable LifecycleOwner navControllerLifecyleOwner,
             @Nullable NavControllerViewModel navControllerViewModel,
-            @NonNull UUID uuid) {
+            @NonNull UUID uuid, @Nullable Bundle savedState) {
         mContext = context;
         mId = uuid;
         mDestination = destination;
         mArgs = args;
         mNavControllerViewModel = navControllerViewModel;
+        mSavedStateRegistryController.performRestore(savedState);
+        if (navControllerLifecyleOwner != null) {
+            mLifecycle.setCurrentState(navControllerLifecyleOwner.getLifecycle()
+                    .getCurrentState());
+        } else {
+            mLifecycle.setCurrentState(Lifecycle.State.CREATED);
+        }
     }
 
     /**
@@ -83,6 +108,16 @@ final class NavBackStackEntry implements ViewModelStoreOwner, HasDefaultViewMode
 
     @NonNull
     @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycle;
+    }
+
+    void handleLifecycleEvent(Lifecycle.Event event) {
+        mLifecycle.handleLifecycleEvent(event);
+    }
+
+    @NonNull
+    @Override
     public ViewModelStore getViewModelStore() {
         return mNavControllerViewModel.getViewModelStore(mId);
     }
@@ -90,7 +125,22 @@ final class NavBackStackEntry implements ViewModelStoreOwner, HasDefaultViewMode
     @NonNull
     @Override
     public ViewModelProvider.Factory getDefaultViewModelProviderFactory() {
-        return ViewModelProvider.AndroidViewModelFactory.getInstance(
-                (Application) mContext.getApplicationContext());
+        if (mDefaultFactory == null) {
+            mDefaultFactory = new SavedStateViewModelFactory(
+                    (Application) mContext.getApplicationContext(),
+                    this,
+                    mArgs);
+        }
+        return mDefaultFactory;
+    }
+
+    @NonNull
+    @Override
+    public SavedStateRegistry getSavedStateRegistry() {
+        return mSavedStateRegistryController.getSavedStateRegistry();
+    }
+
+    void saveState(@NonNull Bundle outBundle) {
+        mSavedStateRegistryController.performSave(outBundle);
     }
 }
