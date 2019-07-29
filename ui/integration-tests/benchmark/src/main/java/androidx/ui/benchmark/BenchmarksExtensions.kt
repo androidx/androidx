@@ -231,9 +231,8 @@ fun <T> BenchmarkRule.toggleStateMeasureRecompose(
             }
             testCase.recomposeSyncAssertHadChanges()
         }
+        activity.disposeComposition()
     }
-
-    activity.disposeComposition()
 }
 
 /**
@@ -255,9 +254,8 @@ fun <T> BenchmarkRule.toggleStateMeasureMeasure(
             }
             testCase.measure()
         }
+        activity.disposeComposition()
     }
-
-    activity.disposeComposition()
 }
 
 /**
@@ -280,9 +278,8 @@ fun <T> BenchmarkRule.toggleStateMeasureLayout(
             }
             testCase.layout()
         }
+        activity.disposeComposition()
     }
-
-    activity.disposeComposition()
 }
 
 /**
@@ -310,7 +307,6 @@ fun <T> BenchmarkRule.toggleStateMeasureDraw(
                 testCase.finishDraw()
             }
         }
+        activity.disposeComposition()
     }
-
-    activity.disposeComposition()
 }
