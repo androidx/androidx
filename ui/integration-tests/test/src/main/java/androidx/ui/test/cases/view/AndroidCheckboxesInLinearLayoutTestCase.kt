@@ -24,7 +24,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.R
-import androidx.ui.test.TestCase
+import androidx.ui.test.cases.CheckboxesInRowsTestCase
 
 /**
  * Version of [CheckboxesInRowsTestCase] using Android views.

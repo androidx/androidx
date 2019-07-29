@@ -43,6 +43,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.0'
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestCompile project(path: ':ui:ui-layout')
 }
 
 androidx {
