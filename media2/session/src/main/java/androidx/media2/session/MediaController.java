@@ -1877,16 +1877,25 @@ public class MediaController implements AutoCloseable {
         public void onPlaybackCompleted(@NonNull MediaController controller) {}
 
         /**
+         * @deprecated Use {@link #onVideoSizeChanged(MediaController, VideoSize)} instead.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        @Deprecated
+        public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
+                @NonNull VideoSize videoSize) {}
+
+        /**
          * Called when video size is changed.
          *
          * @param controller the controller for this event
-         * @param item the media item for which the video size changed
          * @param videoSize the size of video
          *
          * @hide
          */
+        // TODO: Unhide this (b/134749006)
         @RestrictTo(LIBRARY_GROUP)
-        public void onVideoSizeChanged(@NonNull MediaController controller, @NonNull MediaItem item,
+        public void onVideoSizeChanged(@NonNull MediaController controller,
                 @NonNull VideoSize videoSize) {}
 
         /**

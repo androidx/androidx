@@ -732,7 +732,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize) {
+        void onVideoSizeChanged(int seq, @NonNull VideoSize videoSize) throws RemoteException {
             // no-op
         }
 
@@ -947,7 +947,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onVideoSizeChanged(int seq, @NonNull MediaItem item, @NonNull VideoSize videoSize) {
+        void onVideoSizeChanged(int seq, @NonNull VideoSize videoSize) throws RemoteException {
             // no-op
         }
 

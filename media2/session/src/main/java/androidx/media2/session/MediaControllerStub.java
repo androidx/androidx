@@ -242,23 +242,18 @@ class MediaControllerStub extends IMediaController.Stub {
 
     @Override
     public void onVideoSizeChanged(int seq, final ParcelImpl item, final ParcelImpl videoSize) {
-        if (item == null || videoSize == null) {
+        if (videoSize == null) {
             return;
         }
         dispatchControllerTask(new ControllerTask() {
             @Override
             public void run(MediaControllerImplBase controller) {
-                MediaItem itemObj = MediaParcelUtils.fromParcelable(item);
-                if (itemObj == null) {
-                    Log.w(TAG, "onVideoSizeChanged(): Ignoring null MediaItem");
-                    return;
-                }
                 VideoSize size = MediaParcelUtils.fromParcelable(videoSize);
                 if (size == null) {
                     Log.w(TAG, "onVideoSizeChanged(): Ignoring null VideoSize");
                     return;
                 }
-                controller.notifyVideoSizeChanged(itemObj, size);
+                controller.notifyVideoSizeChanged(size);
             }
         });
     }

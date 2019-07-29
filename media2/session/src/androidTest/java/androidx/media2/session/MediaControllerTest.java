@@ -1649,8 +1649,9 @@ public class MediaControllerTest extends MediaSessionTestBase {
     @Test
     public void testGetVideoSize() throws InterruptedException {
         prepareLooper();
+        final MediaItem item = TestUtils.createMediaItemWithMetadata();
         final VideoSize testVideoSize = new VideoSize(100, 42);
-        final CountDownLatch latch = new CountDownLatch(1);
+        final CountDownLatch latch = new CountDownLatch(2);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
             public void onVideoSizeChanged(@NonNull MediaController controller,
@@ -1659,8 +1660,16 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(testVideoSize, videoSize);
                 latch.countDown();
             }
+
+            @Override
+            public void onVideoSizeChanged(@NonNull MediaController controller,
+                    @NonNull VideoSize videoSize) {
+                assertEquals(testVideoSize, videoSize);
+                latch.countDown();
+            }
         };
         MediaController controller = createController(mSession.getToken(), true, null, callback);
+        mPlayer.notifyCurrentMediaItemChanged(item);
         mPlayer.notifyVideoSizeChanged(testVideoSize);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(testVideoSize, controller.getVideoSize());
