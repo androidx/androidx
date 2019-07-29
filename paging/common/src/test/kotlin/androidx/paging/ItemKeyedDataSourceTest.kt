@@ -88,7 +88,6 @@ class ItemKeyedDataSourceTest {
     fun loadInitial_nullKey() = runBlocking {
         val dataSource = ItemDataSource()
 
-        // dispatchLoadInitial(null, count) == dispatchLoadInitial(count)
         val result = loadInitial(dataSource, null, 10, true)
 
         assertEquals(0, result.leadingNulls)
