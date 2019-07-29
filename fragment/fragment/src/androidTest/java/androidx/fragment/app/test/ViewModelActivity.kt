@@ -16,10 +16,12 @@
 
 package androidx.fragment.app.test
 
+import android.app.Application
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.test.R
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 
@@ -48,10 +50,7 @@ class ViewModelActivity : FragmentActivity() {
                 .commit()
         }
 
-        val viewModelProvider = ViewModelProvider(
-            this,
-            ViewModelProvider.NewInstanceFactory()
-        )
+        val viewModelProvider = ViewModelProvider(this)
         activityModel = viewModelProvider.get(KEY_ACTIVITY_MODEL, TestViewModel::class.java)
         defaultActivityModel = viewModelProvider.get(TestViewModel::class.java)
     }
@@ -60,26 +59,30 @@ class ViewModelActivity : FragmentActivity() {
         lateinit var fragmentModel: TestViewModel
         lateinit var activityModel: TestViewModel
         lateinit var defaultActivityModel: TestViewModel
+        lateinit var androidModel: TestAndroidViewModel
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
-            val viewModelProvider = ViewModelProvider(
-                this,
-                ViewModelProvider.NewInstanceFactory()
-            )
+            val viewModelProvider = ViewModelProvider(this)
             fragmentModel = viewModelProvider.get(
                 KEY_FRAGMENT_MODEL,
                 TestViewModel::class.java
             )
-            val activityViewModelProvider = ViewModelProvider(
-                requireActivity(),
-                ViewModelProvider.NewInstanceFactory()
-            )
+            val activityViewModelProvider = ViewModelProvider(requireActivity())
             activityModel = activityViewModelProvider.get(
                 ViewModelActivity.KEY_ACTIVITY_MODEL,
                 TestViewModel::class.java
             )
             defaultActivityModel = activityViewModelProvider.get(TestViewModel::class.java)
+            androidModel = viewModelProvider.get(TestAndroidViewModel::class.java)
+        }
+    }
+
+    class TestAndroidViewModel(application: Application) : AndroidViewModel(application) {
+        var cleared = false
+
+        override fun onCleared() {
+            cleared = true
         }
     }
 

@@ -25,7 +25,7 @@ package androidx.fragment.app {
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements android.content.ComponentCallbacks androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
+  public class Fragment implements android.content.ComponentCallbacks androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.savedstate.SavedStateRegistryOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
     ctor @ContentView public Fragment(@LayoutRes int);
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String![]?);
@@ -36,6 +36,7 @@ package androidx.fragment.app {
     method public final android.os.Bundle? getArguments();
     method public final androidx.fragment.app.FragmentManager getChildFragmentManager();
     method public android.content.Context? getContext();
+    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public Object? getEnterTransition();
     method public Object? getExitTransition();
     method public final androidx.fragment.app.FragmentManager? getFragmentManager();

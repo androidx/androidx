@@ -50,7 +50,7 @@ import java.util.List;
  *     {@literal @}Override
  *     public void onCreate(Bundle savedState) {
  *         super.onCreate(savedState);
- *         MyViewModel viewModel = ViewModelProviders.of(this).get(MyViewModel.class);
+ *         MyViewModel viewModel = new ViewModelProvider(this).get(MyViewModel.class);
  *         RecyclerView recyclerView = findViewById(R.id.user_list);
  *         UserAdapter&lt;User> adapter = new UserAdapter();
  *         viewModel.usersList.observe(this, list -> adapter.submitList(list));

@@ -6,12 +6,17 @@ package androidx.lifecycle {
     method public <T extends android.app.Application> T getApplication();
   }
 
+  public interface HasDefaultViewModelProviderFactory {
+    method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+  }
+
   public abstract class ViewModel {
     ctor public ViewModel();
     method protected void onCleared();
   }
 
   public class ViewModelProvider {
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
     method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(Class<T!>);
