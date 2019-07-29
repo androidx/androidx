@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.Timeline;
@@ -65,6 +64,13 @@ import androidx.media2.exoplayer.external.upstream.TransferListener;
     }
 
     @Override
+    protected void onChildSourceInfoRefreshed(Void id,
+            MediaSource mediaSource, Timeline timeline) {
+        mCurrentTimeline = timeline;
+        refreshSourceInfo(timeline);
+    }
+
+    @Override
     public MediaPeriod createPeriod(MediaPeriodId id, Allocator allocator, long startPositionUs) {
         return mMediaSource.createPeriod(id, allocator, startPositionUs);
     }
@@ -72,13 +78,6 @@ import androidx.media2.exoplayer.external.upstream.TransferListener;
     @Override
     public void releasePeriod(MediaPeriod mediaPeriod) {
         mMediaSource.releasePeriod(mediaPeriod);
-    }
-
-    @Override
-    protected void onChildSourceInfoRefreshed(
-            Void id, MediaSource mediaSource, Timeline timeline, @Nullable Object manifest) {
-        mCurrentTimeline = timeline;
-        refreshSourceInfo(timeline, manifest);
     }
 
 }
