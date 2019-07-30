@@ -35,12 +35,20 @@ package androidx.ui.layout {
     method public static void Container(androidx.ui.layout.EdgeInsets padding = androidx.ui.layout.EdgeInsets(0.dp), androidx.ui.layout.Alignment alignment = Alignment.Center, boolean expanded = false, androidx.ui.layout.DpConstraints constraints = androidx.ui.layout.DpConstraints(), androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public enum CrossAxisAlignment {
-    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Baseline;
-    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Center;
-    enum_constant public static final androidx.ui.layout.CrossAxisAlignment End;
-    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Start;
-    enum_constant public static final androidx.ui.layout.CrossAxisAlignment Stretch;
+  public final class CrossAxisAlignment {
+    field public static final androidx.ui.layout.CrossAxisAlignment.Companion! Companion;
+  }
+
+  public static final class CrossAxisAlignment.Companion {
+    method public androidx.ui.layout.CrossAxisAlignment AlignmentLine(androidx.ui.core.AlignmentLine alignmentLine);
+    method public androidx.ui.layout.CrossAxisAlignment getCenter();
+    method public androidx.ui.layout.CrossAxisAlignment getEnd();
+    method public androidx.ui.layout.CrossAxisAlignment getStart();
+    method public androidx.ui.layout.CrossAxisAlignment getStretch();
+    property public final androidx.ui.layout.CrossAxisAlignment Center;
+    property public final androidx.ui.layout.CrossAxisAlignment End;
+    property public final androidx.ui.layout.CrossAxisAlignment Start;
+    property public final androidx.ui.layout.CrossAxisAlignment Stretch;
   }
 
   public final class DpConstraints {

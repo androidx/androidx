@@ -36,8 +36,10 @@ import androidx.ui.layout.FlexSize
 import androidx.ui.layout.MainAxisAlignment
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.core.HorizontalAlignmentLine
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.OnPositioned
+import androidx.ui.core.VerticalAlignmentLine
 import androidx.ui.core.min
 import androidx.ui.layout.Center
 import androidx.ui.layout.Column
@@ -46,7 +48,9 @@ import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.FlexColumn
 import androidx.ui.layout.FlexRow
 import androidx.ui.layout.Row
+import androidx.ui.layout.Wrap
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -2355,5 +2359,89 @@ class FlexTest : LayoutTest() {
                 maxIntrinsicHeight(IntPx.Infinity)
             )
         }
+    }
+
+    @Test
+    fun testRow_alignmentUsingAlignmentKey() = withDensity(density) {
+        val TestAlignmentLine = HorizontalAlignmentLine(::min)
+        val rowSize = Ref<PxSize>()
+        val childPosition = arrayOf<Ref<PxPosition>>(Ref(), Ref(), Ref())
+        val layoutLatch = CountDownLatch(4)
+        show {
+            Wrap {
+                Row(
+                    mainAxisSize = FlexSize.Wrap,
+                    crossAxisAlignment = CrossAxisAlignment.AlignmentLine(TestAlignmentLine)
+                ) {
+                    SaveLayoutInfo(rowSize, Ref(), layoutLatch)
+                    OnChildPositioned({ coordinates ->
+                        childPosition[0].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        layoutLatch.countDown()
+                    }) {
+                        FixedSizeLayout(10.ipx, 30.ipx, TestAlignmentLine to 10.ipx)
+                    }
+                    OnChildPositioned({ coordinates ->
+                        childPosition[1].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        layoutLatch.countDown()
+                    }) {
+                        FixedSizeLayout(10.ipx, 10.ipx)
+                    }
+                    OnChildPositioned({ coordinates ->
+                        childPosition[2].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        layoutLatch.countDown()
+                    }) {
+                        FixedSizeLayout(10.ipx, 30.ipx, TestAlignmentLine to 20.ipx)
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(PxSize(30.ipx, 40.ipx), rowSize.value)
+        assertEquals(PxPosition(0.ipx, 10.ipx), childPosition[0].value)
+        assertEquals(PxPosition(10.ipx, 0.ipx), childPosition[1].value)
+        assertEquals(PxPosition(20.ipx, 0.ipx), childPosition[2].value)
+    }
+
+    @Test
+    fun testColumn_alignmentUsingAlignmentKey() = withDensity(density) {
+        val TestAlignmentLine = VerticalAlignmentLine(::min)
+        val columnSize = Ref<PxSize>()
+        val childPosition = arrayOf<Ref<PxPosition>>(Ref(), Ref(), Ref())
+        val layoutLatch = CountDownLatch(4)
+        show {
+            Wrap {
+                Column(
+                    mainAxisSize = FlexSize.Wrap,
+                    crossAxisAlignment = CrossAxisAlignment.AlignmentLine(TestAlignmentLine)
+                ) {
+                    SaveLayoutInfo(columnSize, Ref(), layoutLatch)
+                    OnChildPositioned({ coordinates ->
+                        childPosition[0].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        layoutLatch.countDown()
+                    }) {
+                        FixedSizeLayout(30.ipx, 10.ipx, TestAlignmentLine to 10.ipx)
+                    }
+                    OnChildPositioned({ coordinates ->
+                        childPosition[1].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        layoutLatch.countDown()
+                    }) {
+                        FixedSizeLayout(10.ipx, 10.ipx)
+                    }
+                    OnChildPositioned({ coordinates ->
+                        childPosition[2].value = coordinates.localToGlobal(PxPosition(0.px, 0.px))
+                        layoutLatch.countDown()
+                    }) {
+                        FixedSizeLayout(30.ipx, 10.ipx, TestAlignmentLine to 20.ipx)
+                    }
+                }
+            }
+        }
+        assertTrue(layoutLatch.await(1, TimeUnit.SECONDS))
+
+        assertEquals(PxSize(40.ipx, 30.ipx), columnSize.value)
+        assertEquals(PxPosition(10.ipx, 0.ipx), childPosition[0].value)
+        assertEquals(PxPosition(0.ipx, 10.ipx), childPosition[1].value)
+        assertEquals(PxPosition(0.ipx, 20.ipx), childPosition[2].value)
     }
 }
