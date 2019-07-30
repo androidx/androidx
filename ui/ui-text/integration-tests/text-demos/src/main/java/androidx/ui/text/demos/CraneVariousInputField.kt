@@ -22,10 +22,14 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.EditorStyle
 import androidx.ui.core.InputField
+import androidx.ui.core.Layout
 import androidx.ui.core.OffsetMap
 import androidx.ui.core.PasswordVisualTransformation
+import androidx.ui.core.Text
 import androidx.ui.core.TransformedText
 import androidx.ui.core.VisualTransformation
+import androidx.ui.core.ipx
+import androidx.ui.graphics.Color
 import androidx.ui.input.EditorState
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -220,6 +224,17 @@ fun VariousInputFieldDemo() {
                 keyboardType = KeyboardType.Email,
                 visualTransformation = emailFilter
             )
+
+            TagLine(tag = "Editfield with Hint Text")
+            HintEditText @Composable {
+                Text(
+                    text = "Hint Text",
+                    style = TextStyle(
+                        color = Color(0xFF888888.toInt()),
+                        fontSize = fontSize8
+                    )
+                )
+            }
         }
     }
 }
@@ -240,4 +255,33 @@ fun VariousEditLine(
         onValueChange = { state.value = onValueChange(state.value, it) },
         editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
     )
+}
+
+@Composable
+fun HintEditText(hintText: @Composable() () -> Unit) {
+    val state = +state { EditorState() }
+
+    val inputField = @Composable {
+        InputField(
+            value = state.value,
+            onValueChange = { state.value = it },
+            editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))
+        )
+    }
+
+    if (state.value.text.isNotEmpty()) {
+        inputField()
+    } else {
+        Layout(
+            childrenArray = arrayOf(inputField, hintText),
+            layoutBlock = { measurable, constraints ->
+                val inputfieldPlacable = measurable[inputField].first().measure(constraints)
+                val hintTextPlacable = measurable[hintText].first().measure(constraints)
+                layout(inputfieldPlacable.width, inputfieldPlacable.height) {
+                    inputfieldPlacable.place(0.ipx, 0.ipx)
+                    hintTextPlacable.place(0.ipx, 0.ipx)
+                }
+            }
+        )
+    }
 }
