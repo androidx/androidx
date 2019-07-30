@@ -53,10 +53,11 @@ import org.junit.runner.RunWith;
 public final class ToggleButtonTest {
 
     private static final int DISMISS_LOCK_SCREEN_CODE = 82;
+    private static final String BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions";
 
     @Rule
     public ActivityTestRule<CameraExtensionsActivity> mActivityRule =
-            new ActivityTestRule<>(CameraExtensionsActivity.class);
+            new ActivityTestRule<>(CameraExtensionsActivity.class, true, false);
 
     @Rule
     public GrantPermissionRule mCameraPermissionRule =
@@ -85,6 +86,11 @@ public final class ToggleButtonTest {
         // Close system dialogs first to avoid interrupt.
         ApplicationProvider.getApplicationContext().sendBroadcast(
                 new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+
+        Intent intent = ApplicationProvider.getApplicationContext().getPackageManager()
+                .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE);
+
+        mActivityRule.launchActivity(intent);
     }
 
     @After
