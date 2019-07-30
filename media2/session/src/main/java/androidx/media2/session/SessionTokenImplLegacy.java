@@ -167,9 +167,9 @@ final class SessionTokenImplLegacy extends CustomVersionedParcelable implements 
     }
 
     @Override
-    @NonNull
+    @Nullable
     public Bundle getExtras() {
-        return mExtras == null ? Bundle.EMPTY : new Bundle(mExtras);
+        return mExtras;
     }
 
     @Override
