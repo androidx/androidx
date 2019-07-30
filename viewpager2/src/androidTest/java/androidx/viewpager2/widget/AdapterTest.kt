@@ -56,7 +56,7 @@ class AdapterTest : BaseTest() {
         test.assertBasicState(0)
         test.viewPager.setCurrentItemSync(1, false, 2, SECONDS)
         test.assertBasicState(1)
-        activityTestRule.runOnUiThread {
+        test.runOnUiThread {
             test.viewPager.adapter = test.viewPager.adapter
         }
         test.assertBasicState(0)
@@ -230,7 +230,7 @@ class AdapterTest : BaseTest() {
 
     private fun modifyDataSet(block: () -> Unit) {
         val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
-        activityTestRule.runOnUiThread {
+        test.runOnUiThread {
             block()
         }
         layoutChangedLatch.await(1, SECONDS)

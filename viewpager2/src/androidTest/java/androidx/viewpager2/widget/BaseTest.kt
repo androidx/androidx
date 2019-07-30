@@ -146,7 +146,20 @@ open class BaseTest {
                 field = value
             }
 
-        fun runOnUiThread(f: () -> Unit) = activity.runOnUiThread(f)
+        fun runOnUiThread(f: () -> Unit) {
+            var thrownError: Throwable? = null
+            activityTestRule.runOnUiThread {
+                try {
+                    f()
+                } catch (t: Throwable) {
+                    thrownError = t
+                }
+            }
+            val caughtError = thrownError
+            if (caughtError != null) {
+                throw caughtError
+            }
+        }
 
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)
 
@@ -302,7 +315,7 @@ open class BaseTest {
             )
 
             var node = AccessibilityNodeInfo.obtain()
-            activityTestRule.runOnUiThread { viewPager.onInitializeAccessibilityNodeInfo(node) }
+            runOnUiThread { viewPager.onInitializeAccessibilityNodeInfo(node) }
             @Suppress("DEPRECATION") var standardActions = node.actions
 
             assertThat("scroll backward action expected: $expectScrollBackwardAction",
@@ -374,7 +387,7 @@ open class BaseTest {
     fun Context.setAdapterSync(adapterProvider: AdapterProvider) {
         lateinit var waitForRenderLatch: CountDownLatch
 
-        activityTestRule.runOnUiThread {
+        runOnUiThread {
             waitForRenderLatch = viewPager.addWaitForLayoutChangeLatch()
             viewPager.adapter = adapterProvider(activity)
         }

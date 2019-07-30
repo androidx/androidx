@@ -157,7 +157,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         // Find the view on the UI thread, as RV may be in layout
         val pageText = "$pageToSnapTo"
         var viewFound = false
-        test.activityTestRule.runOnUiThread {
+        test.runOnUiThread {
             val llm = test.viewPager.linearLayoutManager
             var i = 0
             while (!viewFound && i < llm.childCount) {
