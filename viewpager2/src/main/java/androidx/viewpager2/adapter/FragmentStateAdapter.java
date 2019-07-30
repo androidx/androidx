@@ -60,8 +60,7 @@ import java.util.Set;
  * position. If we already have the fragment, or have previously saved its state, we use those.
  * <li>{@link RecyclerView.Adapter#onAttachedToWindow} we attach the {@link Fragment} to a
  * container.
- * <li>{@link RecyclerView.Adapter#onViewRecycled} and
- * {@link RecyclerView.Adapter#onFailedToRecycleView} we remove, save state, destroy the
+ * <li>{@link RecyclerView.Adapter#onViewRecycled} we remove, save state, destroy the
  * {@link Fragment}.
  * </ul>
  */
