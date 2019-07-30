@@ -51,7 +51,7 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
                     val modifiedPageValue: String? = stepToNewValue[currentStep]
                     if (modifiedPageValue != null) {
                         expectedValues[currentPage] = modifiedPageValue
-                        runOnUiThread {
+                        runOnUiThreadSync {
                             PageView.setPageText(PageView.findPageInActivity(activity)!!,
                                     modifiedPageValue)
                         }

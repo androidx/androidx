@@ -78,7 +78,7 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
     @LargeTest
     fun test() {
         test = setUpTest(config.orientation)
-        test.runOnUiThread {
+        test.runOnUiThreadSync {
             test.viewPager.offscreenPageLimit = config.offscreenPageLimit
         }
         val recorder = test.viewPager.addNewRecordingCallback()

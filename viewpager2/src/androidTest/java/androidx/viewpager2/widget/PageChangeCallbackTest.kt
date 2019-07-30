@@ -441,7 +441,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             val latch = viewPager.addWaitForScrolledLatch(targetPages.last(), true)
 
             // when
-            runOnUiThread {
+            runOnUiThreadSync {
                 targetPages.forEach {
                     viewPager.setCurrentItem(it, true)
                 }
@@ -493,9 +493,9 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             val idleLatch = viewPager.addWaitForIdleLatch()
 
             // when
-            runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
+            runOnUiThreadSync { viewPager.setCurrentItem(targetPage, true) }
             scrollLatch.await(2, SECONDS)
-            runOnUiThread {
+            runOnUiThreadSync {
                 viewPager.setCurrentItem(targetPage, false)
                 callback.markEvent(marker)
             }
@@ -609,7 +609,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             val callback = viewPager.addNewRecordingCallback()
 
             // when
-            runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
+            runOnUiThreadSync { viewPager.setCurrentItem(targetPage, true) }
             delayCallback(viewPager)
 
             recreateActivity(adapterProvider) { newViewPager ->
@@ -718,7 +718,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             pageSwiper.swipeForward(halfPage + 2 * touchSlop, AccelerateInterpolator())
             settleLatch.await(2, SECONDS)
             var scrollLatch: CountDownLatch? = null
-            test.runOnUiThread {
+            test.runOnUiThreadSync {
                 scrollLatch = test.viewPager.addWaitForFirstScrollEventLatch()
             }
             scrollLatch!!.await(2, SECONDS)
@@ -774,7 +774,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
             // when
             listOf(2, 2, 0, 0, 1, 2, 1, 0).forEach { targetPage ->
-                runOnUiThread { viewPager.setCurrentItem(targetPage, smoothScroll) }
+                runOnUiThreadSync { viewPager.setCurrentItem(targetPage, smoothScroll) }
 
                 // poll the viewpager on the ui thread
                 viewPager.waitUntilSnappedOnTargetByPolling(targetPage)
@@ -816,7 +816,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
         // Test SCROLL_STATE_SETTLING
         test_getScrollState(test, SCROLL_STATE_SETTLING, 1) {
-            test.runOnUiThread { test.viewPager.setCurrentItem(1, true) }
+            test.runOnUiThreadSync { test.viewPager.setCurrentItem(1, true) }
         }
 
         // Test SCROLL_STATE_DRAGGING (real drag)
@@ -1020,7 +1020,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
         val recorder = test.viewPager.addNewRecordingCallback()
         val distanceLatch = test.viewPager.addWaitForDistanceToTarget(targetPage, 1.5f)
-        test.runOnUiThread {
+        test.runOnUiThreadSync {
             test.viewPager.setCurrentItem(targetPage, true)
         }
 
@@ -1071,7 +1071,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             val distanceLatch = test.viewPager.addWaitForDistanceToTarget(targetPage,
                 targetPage - windowStart + epsilon)
             val idleLatch = test.viewPager.addWaitForIdleLatch()
-            test.runOnUiThread { test.viewPager.setCurrentItem(targetPage, true) }
+            test.runOnUiThreadSync { test.viewPager.setCurrentItem(targetPage, true) }
             distanceLatch.await(2, SECONDS)
 
             // and we remove the first visible item

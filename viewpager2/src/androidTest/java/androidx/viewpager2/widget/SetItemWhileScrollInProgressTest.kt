@@ -144,7 +144,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
 
                 // when
                 pageSequence.forEachIndexed { i, targetPage ->
-                    runOnUiThread {
+                    runOnUiThreadSync {
                         viewPager.setCurrentItem(targetPage, i !in instantScrolls)
                         viewPager.assertCurrentItemSet(targetPage)
                         if (currentPage != targetPage) {

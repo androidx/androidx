@@ -66,7 +66,7 @@ class PageFillTest : BaseTest() {
         }
 
         setUpTest(ORIENTATION_HORIZONTAL).apply {
-            runOnUiThread {
+            runOnUiThreadSync {
                 viewPager.adapter = fixedViewSizeAdapter
                 try {
                     viewPager.measure(0, 0)

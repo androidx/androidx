@@ -53,7 +53,7 @@ class AdapterTest : BaseTest() {
         test.assertBasicState(0)
         test.viewPager.setCurrentItemSync(1, false, 2, SECONDS)
         test.assertBasicState(1)
-        test.runOnUiThread {
+        test.runOnUiThreadSync {
             test.viewPager.adapter = test.viewPager.adapter
         }
         test.assertBasicState(0)
