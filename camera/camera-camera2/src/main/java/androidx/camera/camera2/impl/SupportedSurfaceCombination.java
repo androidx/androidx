@@ -43,6 +43,7 @@ import androidx.camera.core.SurfaceConfig.ConfigType;
 import androidx.camera.core.SurfaceSizeDefinition;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -69,6 +70,7 @@ final class SupportedSurfaceCombination {
     private static final Size QUALITY_1080P_SIZE = new Size(1920, 1080);
     private static final Size QUALITY_720P_SIZE = new Size(1280, 720);
     private static final Size QUALITY_480P_SIZE = new Size(720, 480);
+    private static final int ALIGN16 = 16;
     private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
     private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
     private String mCameraId;
@@ -342,37 +344,6 @@ final class SupportedSurfaceCombination {
                             + imageFormat);
         }
 
-        // Check whether the desired default resolution is included in the original supported list
-        boolean isDefaultResolutionSupported = outputSizeCandidates.contains(DEFAULT_SIZE);
-
-        // If the target resolution is set, use it to find the minimum one from big enough items
-        Size targetSize = config.getTargetResolution(ZERO_SIZE);
-
-        if (!targetSize.equals(ZERO_SIZE)) {
-            int indexBigEnough = 0;
-
-            // Get the index of the item that is big enough for the view size
-            for (int i = 0; i < outputSizeCandidates.size(); i++) {
-                Size outputSize = outputSizeCandidates.get(i);
-                if (outputSize.getWidth() * outputSize.getHeight()
-                        >= targetSize.getWidth() * targetSize.getHeight()) {
-                    indexBigEnough = i;
-                } else {
-                    break;
-                }
-            }
-
-            // Remove the additional items that is larger than the big enough item
-            outputSizeCandidates.subList(0, indexBigEnough).clear();
-        }
-
-        if (outputSizeCandidates.isEmpty() && !isDefaultResolutionSupported) {
-            throw new IllegalArgumentException(
-                    "Can not get supported output size for the desired output size quality for "
-                            + "the format: "
-                            + imageFormat);
-        }
-
         // Rearrange the supported size to put the ones with the same aspect ratio in the front
         // of the list and put others in the end from large to small. Some low end devices may
         // not able to get an supported resolution that match the preferred aspect ratio.
@@ -385,12 +356,36 @@ final class SupportedSurfaceCombination {
 
         for (Size outputSize : outputSizeCandidates) {
             // If target aspect ratio is set, moves the matched results to the front of the list.
-            if (aspectRatio != null && aspectRatio.equals(
-                    new Rational(outputSize.getWidth(), outputSize.getHeight()))) {
+            if (hasMatchingAspectRatio(outputSize, aspectRatio)) {
                 sizesMatchAspectRatio.add(outputSize);
             } else {
                 sizesNotMatchAspectRatio.add(outputSize);
             }
+        }
+
+        // Sort not matched results by how close they are to the target aspect ratio.
+        if (aspectRatio != null) {
+            Collections.sort(sizesNotMatchAspectRatio,
+                    new CompareSizesByDistanceToTargetRatio(aspectRatio.floatValue()));
+        }
+
+        // Check whether the desired default resolution is included in the original supported list
+        boolean isDefaultResolutionSupported = outputSizeCandidates.contains(DEFAULT_SIZE);
+
+        // If the target resolution is set, use it to find the minimum one from big enough items
+        Size targetSize = config.getTargetResolution(ZERO_SIZE);
+
+        if (!targetSize.equals(ZERO_SIZE)) {
+            removeSupportedSizesByTargetSize(sizesMatchAspectRatio, targetSize);
+            removeSupportedSizesByTargetSize(sizesNotMatchAspectRatio, targetSize);
+        }
+
+        if (sizesMatchAspectRatio.isEmpty() && sizesNotMatchAspectRatio.isEmpty()
+                && !isDefaultResolutionSupported) {
+            throw new IllegalArgumentException(
+                    "Can not get supported output size for the desired output size quality for "
+                            + "the format: "
+                            + imageFormat);
         }
 
         List<Size> supportedResolutions = new ArrayList<>();
@@ -399,8 +394,7 @@ final class SupportedSurfaceCombination {
         supportedResolutions.addAll(sizesNotMatchAspectRatio);
 
         // If there is no available size for the conditions and default resolution is in the
-        // supported
-        // list, return the default resolution.
+        // supported list, return the default resolution.
         if (supportedResolutions.isEmpty() && !isDefaultResolutionSupported) {
             supportedResolutions.add(DEFAULT_SIZE);
         }
@@ -425,6 +419,73 @@ final class SupportedSurfaceCombination {
                     aspectRatio.getNumerator());
         }
         return outputRatio;
+    }
+
+    private boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
+        boolean isMatch;
+        if (aspectRatio == null) {
+            isMatch = false;
+        } else if (aspectRatio.equals(
+                new Rational(resolution.getWidth(), resolution.getHeight()))) {
+            isMatch = true;
+        } else {
+            isMatch = isPossibleMod16FromAspectRatio(resolution, aspectRatio);
+        }
+        return isMatch;
+    }
+
+    private boolean isPossibleMod16FromAspectRatio(Size resolution, Rational aspectRatio) {
+        int width = resolution.getWidth();
+        int height = resolution.getHeight();
+        Rational invAspectRatio = new Rational(aspectRatio.getDenominator(),
+                aspectRatio.getNumerator());
+        if (width % 16 == 0 && height % 16 == 0) {
+            return ratioIntersectsMod16Segment(Math.max(0, height - ALIGN16), width, aspectRatio)
+                    || ratioIntersectsMod16Segment(Math.max(0, width - ALIGN16), height,
+                    invAspectRatio);
+        } else if (width % 16 == 0) {
+            return ratioIntersectsMod16Segment(height, width, aspectRatio);
+        } else if (height % 16 == 0) {
+            return ratioIntersectsMod16Segment(width, height, invAspectRatio);
+        }
+        return false;
+    }
+
+    private boolean ratioIntersectsMod16Segment(int height, int mod16Width, Rational aspectRatio) {
+        Preconditions.checkArgument(mod16Width % 16 == 0);
+        double aspectRatioWidth =
+                height * aspectRatio.getNumerator() / (double) aspectRatio.getDenominator();
+        return aspectRatioWidth > Math.max(0, mod16Width - ALIGN16) && aspectRatioWidth < (
+                mod16Width + ALIGN16);
+    }
+
+    private void removeSupportedSizesByTargetSize(List<Size> supportedSizesList,
+            Size targetSize) {
+        if (supportedSizesList != null && supportedSizesList.size() != 0) {
+            int indexBigEnough = 0;
+            // Get the index of the item that is big enough for the view size in matched list
+            for (int i = 0; i < supportedSizesList.size(); i++) {
+                Size outputSize = supportedSizesList.get(i);
+                if (outputSize.getWidth() * outputSize.getHeight()
+                        >= targetSize.getWidth() * targetSize.getHeight()) {
+                    indexBigEnough = i;
+                } else {
+                    break;
+                }
+            }
+
+            Size bigEnoughSize = supportedSizesList.get(indexBigEnough);
+            List<Size> removeSizes = new ArrayList<>();
+            for (Size size : supportedSizesList) {
+                if (size.getWidth() * size.getHeight()
+                        > bigEnoughSize.getWidth() * bigEnoughSize.getHeight()) {
+                    removeSizes.add(size);
+                }
+            }
+
+            // Remove the additional items that is larger than the big enough item
+            supportedSizesList.removeAll(removeSizes);
+        }
     }
 
     private List<List<Size>> getAllPossibleSizeArrangements(
@@ -1016,6 +1077,28 @@ final class SupportedSurfaceCombination {
                 result *= -1;
             }
 
+            return result;
+        }
+    }
+
+    /** Comparator based on how close they are to the target aspect ratio. */
+    static final class CompareSizesByDistanceToTargetRatio implements Comparator<Size> {
+        private Float mTargetRatio;
+
+        CompareSizesByDistanceToTargetRatio(Float targetRatio) {
+            mTargetRatio = targetRatio;
+        }
+
+        @Override
+        public int compare(Size lhs, Size rhs) {
+
+            final Float lhsRatio = lhs.getWidth() * 1.0f / lhs.getHeight();
+            final Float rhsRatio = rhs.getWidth() * 1.0f / rhs.getHeight();
+
+            final Float lhsRatioDelta = Math.abs(lhsRatio - mTargetRatio);
+            final Float rhsRatioDelta = Math.abs(rhsRatio - mTargetRatio);
+
+            int result = (int) Math.signum(lhsRatioDelta - rhsRatioDelta);
             return result;
         }
     }

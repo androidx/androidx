@@ -92,6 +92,7 @@ public final class SupportedSurfaceCombinationTest {
     private final Size mRecordSize = new Size(3840, 2160);
     private final Size mMaximumSize = new Size(4032, 3024);
     private final Size mMaximumVideoSize = new Size(1920, 1080);
+    private final Size mMod16Size = new Size(960, 544);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
 
@@ -124,6 +125,7 @@ public final class SupportedSurfaceCombinationTest {
                     new Size(1920, 1080),
                     new Size(1280, 720),
                     new Size(1280, 720), // duplicate the size since Nexus 5X emulator has the case.
+                    new Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
                     new Size(640, 480),
                     new Size(320, 240),
                     new Size(320, 180)
@@ -583,7 +585,7 @@ public final class SupportedSurfaceCombinationTest {
                 new SupportedSurfaceCombination(
                         mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
 
-        Rational aspectRatio = new Rational(16, 9);
+        Rational aspectRatio = new Rational(9, 16);
         PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
         VideoCaptureConfig.Builder videoCaptureConfigBuilder = new VideoCaptureConfig.Builder();
         ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
@@ -644,7 +646,7 @@ public final class SupportedSurfaceCombinationTest {
         Map<UseCase, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
 
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mMaximumSize);
         assertThat(suggestedResolutionMap).containsEntry(preview, mAnalysisSize);
         assertThat(suggestedResolutionMap).containsEntry(imageAnalysis, mAnalysisSize);
     }
@@ -803,6 +805,39 @@ public final class SupportedSurfaceCombinationTest {
         Size maximumJPEGSize =
                 supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.JPEG);
         assertEquals(mMaximumSize, maximumJPEGSize);
+    }
+
+    @Test
+    public void isAspectRatioMatchWithSupportedMod16Resolution() {
+        setupCamera(/* supportsRaw= */ false);
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                new SupportedSurfaceCombination(
+                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
+
+        Rational aspectRatio = new Rational(9, 16);
+        PreviewConfig.Builder previewConfigBuilder = new PreviewConfig.Builder();
+        ImageCaptureConfig.Builder imageCaptureConfigBuilder = new ImageCaptureConfig.Builder();
+
+        previewConfigBuilder.setLensFacing(LensFacing.BACK);
+        imageCaptureConfigBuilder.setLensFacing(LensFacing.BACK);
+
+        previewConfigBuilder.setTargetAspectRatio(aspectRatio);
+        imageCaptureConfigBuilder.setTargetAspectRatio(aspectRatio);
+
+        previewConfigBuilder.setTargetResolution(mMod16Size);
+        imageCaptureConfigBuilder.setTargetResolution(mMod16Size);
+
+        Preview preview = new Preview(previewConfigBuilder.build());
+        ImageCapture imageCapture = new ImageCapture(imageCaptureConfigBuilder.build());
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(preview);
+        useCases.add(imageCapture);
+
+        Map<UseCase, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(null, useCases);
+        assertThat(suggestedResolutionMap).containsEntry(preview, mMod16Size);
+        assertThat(suggestedResolutionMap).containsEntry(imageCapture, mMod16Size);
     }
 
     private void setupCamera(boolean supportsRaw) {
