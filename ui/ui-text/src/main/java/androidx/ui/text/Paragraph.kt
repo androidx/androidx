@@ -69,7 +69,13 @@ interface Paragraph {
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
-    val baseline: Float
+    val firstBaseline: Float
+
+    /**
+     * The distance from the top of the paragraph to the alphabetic
+     * baseline of the last line, in logical pixels.
+     */
+    val lastBaseline: Float
 
     /**
      * True if there is more vertical content, but the text was truncated, either

@@ -122,8 +122,16 @@ internal class AndroidParagraph constructor(
         androidx.text.minIntrinsicWidth(charSequence, textPaint)
     }
 
-    override val baseline: Float
+    override val firstBaseline: Float
         get() = layout?.getLineBaseline(0) ?: 0.0f
+
+    override val lastBaseline: Float
+        get() = if (maxLines != null && maxLines >= 0 && maxLines < lineCount) {
+            layout?.getLineBaseline(maxLines - 1) ?: 0.0f
+        } else {
+            layout?.getLineBaseline(lineCount - 1) ?: 0.0f
+        }
+
 
     override val didExceedMaxLines: Boolean
         get() = layout?.didExceedMaxLines ?: false
