@@ -30,26 +30,26 @@ import androidx.ui.text.TextRange
 class EditProcessor {
 
     // The previous editor state we passed back to the user of this class.
-    private var mPreviousState: EditorState? = null
+    private var mPreviousModel: EditorModel? = null
 
     // The editing buffer used for applying editor commands from IME.
     private var mBuffer: EditingBuffer =
         EditingBuffer(initialText = "", initialSelection = TextRange(0, 0))
 
     /**
-     * Must be called whenever new editor state arrives.
+     * Must be called whenever new editor model arrives.
      *
-     * This method updates the internal editing buffer with the given editor state.
+     * This method updates the internal editing buffer with the given editor model.
      * This method may tell the IME about the selection offset changes or extracted text changes.
      */
-    fun onNewState(state: EditorState, textInputService: TextInputService?) {
-        if (mPreviousState !== state) {
+    fun onNewState(model: EditorModel, textInputService: TextInputService?) {
+        if (mPreviousModel !== model) {
             mBuffer = EditingBuffer(
-                initialText = state.text,
-                initialSelection = state.selection)
+                initialText = model.text,
+                initialSelection = model.selection)
         }
 
-        textInputService?.onStateUpdated(state)
+        textInputService?.onStateUpdated(model)
     }
 
     /**
@@ -58,10 +58,10 @@ class EditProcessor {
      * This method updates internal editing buffer with the given edit operations and returns the
      * latest editor state representation of the editing buffer.
      */
-    fun onEditCommands(ops: List<EditOperation>): EditorState {
+    fun onEditCommands(ops: List<EditOperation>): EditorModel {
         ops.forEach { it.process(mBuffer) }
 
-        val newState = EditorState(
+        val newState = EditorModel(
             text = mBuffer.toString(),
             selection = TextRange(mBuffer.selectionStart, mBuffer.selectionEnd),
             composition = if (mBuffer.hasComposition()) {
@@ -70,7 +70,7 @@ class EditProcessor {
                 null
             })
 
-        mPreviousState = newState
+        mPreviousModel = newState
         return newState
     }
 }

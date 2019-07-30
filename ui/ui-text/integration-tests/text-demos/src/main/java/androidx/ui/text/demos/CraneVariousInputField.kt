@@ -21,16 +21,16 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.EditorStyle
-import androidx.ui.core.InputField
 import androidx.ui.core.Layout
 import androidx.ui.core.OffsetMap
 import androidx.ui.core.PasswordVisualTransformation
 import androidx.ui.core.Text
+import androidx.ui.core.TextField
 import androidx.ui.core.TransformedText
 import androidx.ui.core.VisualTransformation
 import androidx.ui.core.ipx
 import androidx.ui.graphics.Color
-import androidx.ui.input.EditorState
+import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
@@ -243,11 +243,11 @@ fun VariousInputFieldDemo() {
 fun VariousEditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
-    onValueChange: (EditorState, EditorState) -> EditorState = { _, new -> new },
+    onValueChange: (EditorModel, EditorModel) -> EditorModel = { _, new -> new },
     visualTransformation: VisualTransformation
 ) {
-    val state = +state { EditorState() }
-    InputField(
+    val state = +state { EditorModel() }
+    TextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,
@@ -259,10 +259,10 @@ fun VariousEditLine(
 
 @Composable
 fun HintEditText(hintText: @Composable() () -> Unit) {
-    val state = +state { EditorState() }
+    val state = +state { EditorModel() }
 
     val inputField = @Composable {
-        InputField(
+        TextField(
             value = state.value,
             onValueChange = { state.value = it },
             editorStyle = EditorStyle(textStyle = TextStyle(fontSize = fontSize8))

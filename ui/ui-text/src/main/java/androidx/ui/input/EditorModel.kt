@@ -26,7 +26,7 @@ import androidx.ui.text.TextRange
  * state. TextInputService sends the latest editing state to TextInputClient when the platform input
  * service sends some input events.
  */
-class EditorState {
+class EditorModel {
 
     /**
      * The text
