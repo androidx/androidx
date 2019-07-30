@@ -17,7 +17,6 @@
 package androidx.viewpager2.widget
 
 import android.widget.TextView
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.SwipeToLocation.flingToCenter
@@ -159,7 +158,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         val pageText = "$pageToSnapTo"
         var viewFound = false
         test.activityTestRule.runOnUiThread {
-            val llm = test.viewPager.recyclerView.layoutManager as LinearLayoutManager
+            val llm = test.viewPager.linearLayoutManager
             var i = 0
             while (!viewFound && i < llm.childCount) {
                 val view = llm.getChildAt(i++) as TextView

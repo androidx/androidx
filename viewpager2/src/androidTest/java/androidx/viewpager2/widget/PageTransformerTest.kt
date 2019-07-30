@@ -180,8 +180,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
-        val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-        return RecordingCallback(layoutManager).also {
+        return RecordingCallback(linearLayoutManager).also {
             setPageTransformer(it)
             registerOnPageChangeCallback(it)
         }
