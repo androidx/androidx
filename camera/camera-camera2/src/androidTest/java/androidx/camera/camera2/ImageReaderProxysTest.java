@@ -40,7 +40,7 @@ import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,10 +53,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Semaphore;
 
-@MediumTest
+/**
+ * Instrument test for {@link ImageReaderProxy}.
+ */
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageReaderProxysTest {
     private static final String CAMERA_ID = "0";
+    private static final int TEST_TIMEOUT_MILLIS = 3000;
 
     private BaseCamera mCamera;
     private HandlerThread mHandlerThread;
@@ -102,7 +106,6 @@ public final class ImageReaderProxysTest {
         }
     }
 
-    @MediumTest
     @Test
     public void sharedReadersGetFramesFromCamera() throws InterruptedException {
         List<Semaphore> semaphores = new ArrayList<>();
@@ -128,7 +131,6 @@ public final class ImageReaderProxysTest {
         }
     }
 
-    @MediumTest
     @Test
     public void isolatedReadersGetFramesFromCamera() throws InterruptedException {
         List<Semaphore> semaphores = new ArrayList<>();
