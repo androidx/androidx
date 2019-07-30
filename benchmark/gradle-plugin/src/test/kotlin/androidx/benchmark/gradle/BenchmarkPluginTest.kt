@@ -326,4 +326,128 @@ class BenchmarkPluginTest {
         val argsOutput = gradleRunner.withArguments("printInstrumentationArgs").build()
         assertTrue { argsOutput.output.contains("no-isolated-storage:1") }
     }
+
+    @Test
+    fun applyPluginDefaultAgpProperties() {
+        buildFile.writeText(
+            """
+            import com.android.build.gradle.TestedExtension
+
+            plugins {
+                id('com.android.library')
+                id('androidx.benchmark')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
+
+            }
+
+            tasks.register("printTestInstrumentationRunner") {
+                println android.defaultConfig.testInstrumentationRunner
+            }
+
+            tasks.register("printTestCoverageEnabled") {
+                def extension = project.extensions.getByType(TestedExtension)
+                println extension.buildTypes.getByName("debug").testCoverageEnabled
+            }
+
+            tasks.register("printTestBuildType") {
+                def extension = project.extensions.getByType(TestedExtension)
+                println extension.testBuildType = "release"
+            }
+        """.trimIndent()
+        )
+
+        val runnerOutput = gradleRunner.withArguments("printTestInstrumentationRunner").build()
+        assertTrue {
+            runnerOutput.output.contains("androidx.benchmark.junit4.AndroidBenchmarkRunner")
+        }
+
+        val codeCoverageOutput = gradleRunner.withArguments("printTestCoverageEnabled").build()
+        assertTrue { codeCoverageOutput.output.contains("false") }
+
+        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
+        assertTrue { testBuildTypeOutput.output.contains("release") }
+    }
+
+    @Test
+    fun applyPluginOverrideAgpProperties() {
+        buildFile.writeText(
+            """
+            import com.android.build.gradle.TestedExtension
+
+            plugins {
+                id('com.android.library')
+                id('androidx.benchmark')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+                testBuildType = "debug"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+                }
+
+                buildTypes {
+                    debug {
+                        testCoverageEnabled = true
+                    }
+                }
+            }
+
+            dependencies {
+                androidTestImplementation "androidx.benchmark:benchmark:1.0.0-alpha01"
+
+            }
+
+            tasks.register("printTestInstrumentationRunner") {
+                println android.defaultConfig.testInstrumentationRunner
+            }
+
+            tasks.register("printTestCoverageEnabled") {
+                def extension = project.extensions.getByType(TestedExtension)
+                println extension.buildTypes.getByName("debug").testCoverageEnabled
+            }
+
+            tasks.register("printTestBuildType") {
+                def extension = project.extensions.getByType(TestedExtension)
+                println extension.testBuildType
+            }
+        """.trimIndent()
+        )
+
+        val runnerOutput = gradleRunner.withArguments("printTestInstrumentationRunner").build()
+        assertTrue {
+            runnerOutput.output.contains("androidx.test.runner.AndroidJUnitRunner")
+        }
+
+        val codeCoverageOutput = gradleRunner.withArguments("printTestCoverageEnabled").build()
+        assertTrue { codeCoverageOutput.output.contains("true") }
+
+        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
+        assertTrue { testBuildTypeOutput.output.contains("debug") }
+    }
 }
