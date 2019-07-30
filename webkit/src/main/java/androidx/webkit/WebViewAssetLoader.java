@@ -32,7 +32,6 @@ import androidx.webkit.internal.AssetHelper;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -149,6 +148,11 @@ public final class WebViewAssetLoader {
          * falling back to network and trying to resolve a path that doesn't exist. A
          * {@link WebResourceResponse} with {@code null} {@link InputStream} will be received as an
          * HTTP response with status code {@code 404} and no body.
+         * <p class="note">
+         * The MIME type for the file will be determined from the file's extension using
+         * {@link java.net.URLConnection#guessContentTypeFromName}. Developers should ensure that
+         * asset files are named using standard file extensions. If the file does not have a
+         * recognised extension, {@code "text/plain"} will be used by default.
          *
          * @param path the suffix path to be handled.
          * @return {@link WebResourceResponse} for the requested file.
@@ -162,7 +166,7 @@ public final class WebViewAssetLoader {
                     .build();
 
             InputStream is = mAssetHelper.openAsset(uri);
-            String mimeType = URLConnection.guessContentTypeFromName(path);
+            String mimeType = AssetHelper.guessMimeType(path);
             return new WebResourceResponse(mimeType, null, is);
         }
     }
@@ -194,6 +198,11 @@ public final class WebViewAssetLoader {
          * falling back to network and trying to resolve a path that doesn't exist. A
          * {@link WebResourceResponse} with {@code null} {@link InputStream} will be received as an
          * HTTP response with status code {@code 404} and no body.
+         * <p class="note">
+         * The MIME type for the file will be determined from the file's extension using
+         * {@link java.net.URLConnection#guessContentTypeFromName}. Developers should ensure that
+         * resource files are named using standard file extensions. If the file does not have a
+         * recognised extension, {@code "text/plain"} will be used by default.
          *
          * @param path the suffix path to be handled.
          * @return {@link WebResourceResponse} for the requested file.
@@ -207,7 +216,7 @@ public final class WebViewAssetLoader {
                     .build();
 
             InputStream is = mAssetHelper.openResource(uri);
-            String mimeType = URLConnection.guessContentTypeFromName(path);
+            String mimeType = AssetHelper.guessMimeType(path);
             return new WebResourceResponse(mimeType, null, is);
         }
 
@@ -298,6 +307,11 @@ public final class WebViewAssetLoader {
          * trying to resolve a path that doesn't exist. A {@link WebResourceResponse} with
          * {@code null} {@link InputStream} will be received as an HTTP response with status code
          * {@code 404} and no body.
+         * <p class="note">
+         * The MIME type for the file will be determined from the file's extension using
+         * {@link java.net.URLConnection#guessContentTypeFromName}. Developers should ensure that
+         * files are named using standard file extensions. If the file does not have a
+         * recognised extension, {@code "text/plain"} will be used by default.
          *
          * @param path the suffix path to be handled.
          * @return {@link WebResourceResponse} for the requested file.
@@ -314,7 +328,7 @@ public final class WebViewAssetLoader {
                 Log.e(TAG, "The requested file: " + path + " is outside the mounted directory: "
                          + mDirectory);
             }
-            String mimeType = URLConnection.guessContentTypeFromName(path);
+            String mimeType = AssetHelper.guessMimeType(path);
             return new WebResourceResponse(mimeType, null, is);
         }
     }

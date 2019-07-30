@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLConnection;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
@@ -40,6 +41,11 @@ import java.util.zip.GZIPInputStream;
   */
 public class AssetHelper {
     private static final String TAG = "AssetHelper";
+
+    /**
+     * Default value to be used as MIME type if guessing MIME type failed.
+     */
+    public static final String DEFAULT_MIME_TYPE = "text/plain";
 
     @NonNull private Context mContext;
 
@@ -196,4 +202,16 @@ public class AssetHelper {
         }
     }
 
+    /**
+     * Use {@link URLConnection#guessContentTypeFromName} to guess MIME type or return the
+     * {@link DEFAULT_MIME_TYPE} if it can't guess.
+     *
+     * @param filePath path of the file to guess its MIME type.
+     * @return MIME type guessed from file extension or {@link DEFAULT_MIME_TYPE}.
+     */
+    @NonNull
+    public static String guessMimeType(@NonNull String filePath) {
+        String mimeType = URLConnection.guessContentTypeFromName(filePath);
+        return mimeType == null ? DEFAULT_MIME_TYPE : mimeType;
+    }
 }
