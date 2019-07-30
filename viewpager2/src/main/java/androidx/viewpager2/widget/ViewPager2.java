@@ -512,17 +512,7 @@ public final class ViewPager2 extends ViewGroup {
                 mTmpChildRect.bottom);
 
         if (mCurrentItemDirty) {
-            RecyclerView.ItemAnimator animator = mRecyclerView.getItemAnimator();
-            if (animator == null) {
-                updateCurrentItem();
-            } else {
-                animator.isRunning(new RecyclerView.ItemAnimator.ItemAnimatorFinishedListener() {
-                    @Override
-                    public void onAnimationsFinished() {
-                        updateCurrentItem();
-                    }
-                });
-            }
+            updateCurrentItem();
         }
     }
 
