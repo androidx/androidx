@@ -11354,7 +11354,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         @Override
         public String toString() {
-            final StringBuilder sb = new StringBuilder("ViewHolder{"
+            String className =
+                    getClass().isAnonymousClass() ? "ViewHolder" : getClass().getSimpleName();
+            final StringBuilder sb = new StringBuilder(className + "{"
                     + Integer.toHexString(hashCode()) + " position=" + mPosition + " id=" + mItemId
                     + ", oldPos=" + mOldPosition + ", pLpos:" + mPreLayoutPosition);
             if (isScrap()) {
