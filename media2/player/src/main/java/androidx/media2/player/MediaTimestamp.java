@@ -103,8 +103,12 @@ public final class MediaTimestamp {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
 
         final MediaTimestamp that = (MediaTimestamp) obj;
         return (this.mMediaTimeUs == that.mMediaTimeUs)
