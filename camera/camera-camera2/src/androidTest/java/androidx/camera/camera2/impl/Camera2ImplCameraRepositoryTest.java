@@ -24,13 +24,17 @@ import android.hardware.camera2.CameraDevice;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionStateCallback;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraRepository;
+import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfig;
+import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
@@ -47,6 +51,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Contains tests for {@link androidx.camera.core.CameraRepository} which require an actual
@@ -55,11 +61,16 @@ import java.util.Map;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class Camera2ImplCameraRepositoryTest {
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.CAMERA);
     private CameraRepository mCameraRepository;
     private UseCaseGroup mUseCaseGroup;
     private FakeUseCaseConfig mConfig;
     private CallbackAttachingFakeUseCase mUseCase;
     private CameraFactory mCameraFactory;
+    private CountDownLatch mLatchForDeviceClose;
+    private CameraDevice.StateCallback mDeviceStateCallback;
 
     private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
         try {
@@ -70,18 +81,40 @@ public final class Camera2ImplCameraRepositoryTest {
         }
     }
 
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
-
     @Before
-    public void setUp()  {
+    public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
+
+        mLatchForDeviceClose = new CountDownLatch(1);
+        mDeviceStateCallback = new CameraDevice.StateCallback() {
+            @Override
+            public void onOpened(@NonNull CameraDevice camera) {
+            }
+
+            @Override
+            public void onClosed(@NonNull CameraDevice camera) {
+                mLatchForDeviceClose.countDown();
+            }
+
+            @Override
+            public void onDisconnected(@NonNull CameraDevice camera) {
+            }
+
+            @Override
+            public void onError(@NonNull CameraDevice camera, int error) {
+            }
+        };
+
         mCameraRepository = new CameraRepository();
         mCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
         mCameraRepository.init(mCameraFactory);
         mUseCaseGroup = new UseCaseGroup();
-        mConfig = new FakeUseCaseConfig.Builder().setLensFacing(LensFacing.BACK).build();
+
+        FakeUseCaseConfig.Builder configBuilder =
+                new FakeUseCaseConfig.Builder()
+                        .setLensFacing(LensFacing.BACK);
+        new Camera2Config.Extender(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
+        mConfig = configBuilder.build();
         String mCameraId = getCameraIdForLensFacingUnchecked(mConfig.getLensFacing());
         mUseCase = new CallbackAttachingFakeUseCase(mConfig, mCameraId);
         mUseCaseGroup.addUseCase(mUseCase);
@@ -92,10 +125,10 @@ public final class Camera2ImplCameraRepositoryTest {
         if (CameraUtil.deviceHasCamera()) {
             mCameraRepository.onGroupInactive(mUseCaseGroup);
 
-            // Wait some time for the cameras to close.
-            // We need the cameras to close to bring CameraX
-            // back to the initial state.
-            Thread.sleep(3000);
+            // Wait camera to be closed.
+            if (mLatchForDeviceClose != null) {
+                mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
+            }
         }
     }
 
@@ -153,6 +186,14 @@ public final class Camera2ImplCameraRepositoryTest {
             builder.addSessionStateCallback(mSessionStateCallback);
 
             attachToCamera(cameraId, builder.build());
+        }
+
+        // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
+        @Override
+        protected UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(CameraX.LensFacing lensFacing) {
+            return new FakeUseCaseConfig.Builder()
+                    .setLensFacing(lensFacing)
+                    .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }
 
         @Override
