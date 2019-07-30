@@ -27,7 +27,7 @@ plugins {
 
 android {
     defaultConfig {
-        testInstrumentationRunner "androidx.benchmark.junit4.AndroidBenchmarkRunner"
+        testInstrumentationRunner = "androidx.benchmark.junit4.AndroidBenchmarkRunner"
     }
 }
 
