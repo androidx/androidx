@@ -235,7 +235,11 @@ public final class SessionToken implements VersionedParcelable {
      */
     @NonNull
     public Bundle getExtras() {
-        return mImpl.getExtras();
+        Bundle extras = mImpl.getExtras();
+        if (extras == null || MediaUtils.doesBundleHaveCustomParcelable(extras)) {
+            return Bundle.EMPTY;
+        }
+        return new Bundle(extras);
     }
 
     /**
@@ -436,7 +440,7 @@ public final class SessionToken implements VersionedParcelable {
         @Nullable String getServiceName();
         @Nullable ComponentName getComponentName();
         @TokenType int getType();
-        @NonNull Bundle getExtras();
+        @Nullable Bundle getExtras();
         Object getBinder();
     }
 }
