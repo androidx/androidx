@@ -18,12 +18,12 @@
 <!-- Definitions of colors to be exposed as public. -->
 <resources>
     <!-- Car text colors -->
-    <public type="color" name="car_car_primary_text" />
-    <public type="color" name="car_car_primary_text_dark" />
-    <public type="color" name="car_car_primary_text_light" />
-    <public type="color" name="car_car_secondary_text" />
-    <public type="color" name="car_car_secondary_text_dark" />
-    <public type="color" name="car_car_secondary_text_light" />
+    <public type="color" name="car_primary_text" />
+    <public type="color" name="car_primary_text_dark" />
+    <public type="color" name="car_primary_text_light" />
+    <public type="color" name="car_secondary_text" />
+    <public type="color" name="car_secondary_text_dark" />
+    <public type="color" name="car_secondary_text_light" />
 
     <!-- Deprecated. Mapping to primary and secondary text colors until removal. -->
     <public type="color" name="car_display3_light" />

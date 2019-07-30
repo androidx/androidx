@@ -64,21 +64,21 @@
     <color name="car_indigo_800">#ff283593</color>
 
     <!--  Various colors for text. "Light" and "dark" here refer to the lighter or darker
-      shades. -->
+      shades. The default for primary and secondary text color is the lighter shade.-->
     <color name="car_primary_text">@color/car_primary_text_light</color>
     <color name="car_secondary_text">@color/car_secondary_text_light</color>
 
     <!-- Deprecated. Mapping to primary and secondary text colors until removal. -->
     <color name="car_display3_light">@color/car_primary_text_light</color>
-    <color name="car_body1">@color/car_primary_text_light</color>
+    <color name="car_body1">@color/car_primary_text</color>
     <color name="car_body1_dark">@color/car_primary_text_dark</color>
-    <color name="car_body1_light">@color/car_primary_text_dark</color>
-    <color name="car_body2">@color/car_primary_text_light</color>
-    <color name="car_body2_light">@color/car_primary_text_dark</color>
+    <color name="car_body1_light">@color/car_primary_text_light</color>
+    <color name="car_body2">@color/car_primary_text</color>
+    <color name="car_body2_light">@color/car_primary_text_light</color>
     <color name="car_body3_light">@color/car_secondary_text_light</color>
     <color name="car_body3_dark">@color/car_secondary_text_dark</color>
-    <color name="car_body4_light">@color/car_secondary_text_dark</color>
-    <color name="car_subtext1_light">@color/car_secondary_text_dark</color>
+    <color name="car_body4_light">@color/car_secondary_text_light</color>
+    <color name="car_subtext1_light">@color/car_secondary_text_light</color>
 
     <!-- The tinting color for an icon. This icon is assumed to be on a light background. -->
     <color name="car_tint">@color/car_tint_dark</color>
