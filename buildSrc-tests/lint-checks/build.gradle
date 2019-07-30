@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,25 @@
  * limitations under the License.
  */
 
-apply plugin: 'org.jetbrains.kotlin.jvm'
+
+import androidx.build.BuildServerConfigurationKt
+
+import java.io.File
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin")
+}
 
 dependencies {
     implementation build_libs.lint.core
     implementation build_libs.lint.api
     implementation build_libs.kotlin.stdlib
+    testImplementation build_libs.lint.tests
     api("androidx.annotation:annotation:1.0.0")
+    implementation project.files(new File(BuildServerConfigurationKt.getRootOutDirectory(project), "buildSrc/lint-checks/build/libs/lint-checks.jar"))
 }
-jar {
-    manifest {
-        attributes('Lint-Registry-v2': 'androidx.build.lint.AndroidXIssueRegistry')
-    }
+
+androidx {
+    toolingProject = true
 }
