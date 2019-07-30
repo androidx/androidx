@@ -16,7 +16,7 @@
 
 package androidx.core.util;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Compat version of {@link java.util.function.Predicate}
@@ -32,5 +32,5 @@ public interface Predicate<T> {
      * @return {@code true} if the input argument matches the predicate,
      * otherwise {@code false}
      */
-    boolean test(@NonNull T t);
+    boolean test(@Nullable T t);
 }
