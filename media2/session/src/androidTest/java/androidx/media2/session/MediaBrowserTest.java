@@ -391,8 +391,7 @@ public class MediaBrowserTest extends MediaControllerTest {
     }
 
     @Test
-    public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed()
-            throws InterruptedException {
+    public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
         final String expectedParentId = "expectedParentId";
@@ -434,7 +433,10 @@ public class MediaBrowserTest extends MediaControllerTest {
 
         TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
         MockMediaLibraryService.setAssertLibraryParams(testParams);
-        createBrowser(controllerCallbackProxy).subscribe(expectedParentId, testParams);
+        LibraryResult result = createBrowser(controllerCallbackProxy)
+                .subscribe(expectedParentId, testParams)
+                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // onChildrenChanged() should be called.
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -497,8 +499,7 @@ public class MediaBrowserTest extends MediaControllerTest {
     }
 
     @Test
-    public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed2()
-            throws InterruptedException {
+    public void testBrowserCallback_onChildrenChangedIsCalledWhenSubscribed2() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged(ControllerInfo).
         prepareLooper();
         final String expectedParentId = "expectedParentId";
@@ -540,7 +541,10 @@ public class MediaBrowserTest extends MediaControllerTest {
         };
 
         TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
-        createBrowser(controllerCallbackProxy).subscribe(expectedParentId, null);
+        LibraryResult result = createBrowser(controllerCallbackProxy)
+                .subscribe(expectedParentId, null)
+                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // onChildrenChanged() should be called.
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
