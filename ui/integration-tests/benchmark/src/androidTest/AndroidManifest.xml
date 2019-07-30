@@ -14,13 +14,16 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="androidx.ui.benchmark.test">
 
-    <!-- Important: disable debuggable for accurate performance results -->
+    <!--
+      ~ Important: disable debuggable for accurate performance results
+      ~ requestLegacyExternalStorage to enable legacy JSON reporting when targeting Q
+      -->
     <application
+        android:requestLegacyExternalStorage="true"
         android:debuggable="false"
         tools:replace="android:debuggable">
         <activity android:name="android.app.Activity"/>
