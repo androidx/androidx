@@ -24,6 +24,7 @@ plugins {
     id("com.android.library")
     id("AndroidXUiPlugin")
     id("org.jetbrains.kotlin.android")
+    id("androidx.benchmark")
 }
 
 dependencies {

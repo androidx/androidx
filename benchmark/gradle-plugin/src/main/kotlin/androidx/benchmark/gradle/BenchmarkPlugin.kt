@@ -88,11 +88,17 @@ class BenchmarkPlugin : Plugin<Project> {
             }
         }
 
-        project.tasks.register("lockClocks", LockClocksTask::class.java).configure {
-            it.adbPath.set(extension.adbExecutable.absolutePath)
+        if (project.rootProject.tasks.findByName("lockClocks") == null) {
+            project.rootProject.tasks.register("lockClocks", LockClocksTask::class.java).configure {
+                it.adbPath.set(extension.adbExecutable.absolutePath)
+            }
         }
-        project.tasks.register("unlockClocks", UnlockClocksTask::class.java).configure {
-            it.adbPath.set(extension.adbExecutable.absolutePath)
+
+        if (project.rootProject.tasks.findByName("unlockClocks") == null) {
+            project.rootProject.tasks.register("unlockClocks", UnlockClocksTask::class.java)
+                .configure {
+                    it.adbPath.set(extension.adbExecutable.absolutePath)
+                }
         }
 
         val extensionVariants = when (extension) {
