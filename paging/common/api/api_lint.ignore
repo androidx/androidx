@@ -23,10 +23,6 @@ HiddenTypeParameter: androidx.paging.PositionalDataSource#loadInitial$lintWithKo
     Parameter p references hidden type class androidx.paging.PositionalDataSource.InitialResult.
 
 
-KotlinOperator: androidx.paging.PagedList#get(int):
-    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
-
-
 RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(androidx.paging.DataSource.InvalidatedCallback):
     Callback methods should be named register/unregister; was addInvalidatedCallback
 RegistrationName: androidx.paging.DataSource#addInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit>):
