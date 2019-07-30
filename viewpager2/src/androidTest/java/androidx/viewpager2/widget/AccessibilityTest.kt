@@ -97,7 +97,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             assertBasicState(initialPage)
 
             var node = AccessibilityNodeInfoCompat.obtain()
-            activityTestRule.runOnUiThread {
+            runOnUiThread {
                 ViewCompat.onInitializeAccessibilityNodeInfo(viewPager, node)
             }
             var collectionInfo = node.collectionInfo
@@ -127,7 +127,7 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             val initialPage = viewPager.currentItem
             assertBasicState(initialPage)
 
-            activityTestRule.runOnUiThread {
+            runOnUiThread {
                 viewPager.setOrientation(getOppositeOrientation(config.orientation))
             }
             assertBasicState(initialPage)

@@ -67,7 +67,7 @@ class AdapterDataSetChangeTest(private val config: TestConfig) : BaseTest() {
 
         // Dispatch and wait for data set changes
         val layoutChangedLatch = test.viewPager.addWaitForLayoutChangeLatch()
-        activityTestRule.runOnUiThread {
+        test.runOnUiThread {
             config.actions.forEach { it.perform(adapter) }
         }
         layoutChangedLatch.await(1, SECONDS)

@@ -718,7 +718,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             pageSwiper.swipeForward(halfPage + 2 * touchSlop, AccelerateInterpolator())
             settleLatch.await(2, SECONDS)
             var scrollLatch: CountDownLatch? = null
-            activityTestRule.runOnUiThread {
+            test.runOnUiThread {
                 scrollLatch = test.viewPager.addWaitForFirstScrollEventLatch()
             }
             scrollLatch!!.await(2, SECONDS)
