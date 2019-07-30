@@ -146,7 +146,7 @@ open class BaseTest {
                 field = value
             }
 
-        fun runOnUiThread(f: () -> Unit) {
+        fun runOnUiThreadSync(f: () -> Unit) {
             var thrownError: Throwable? = null
             activityTestRule.runOnUiThread {
                 try {
@@ -315,7 +315,7 @@ open class BaseTest {
             )
 
             var node = AccessibilityNodeInfo.obtain()
-            runOnUiThread { viewPager.onInitializeAccessibilityNodeInfo(node) }
+            runOnUiThreadSync { viewPager.onInitializeAccessibilityNodeInfo(node) }
             @Suppress("DEPRECATION") var standardActions = node.actions
 
             assertThat("scroll backward action expected: $expectScrollBackwardAction",
@@ -387,7 +387,7 @@ open class BaseTest {
     fun Context.setAdapterSync(adapterProvider: AdapterProvider) {
         lateinit var waitForRenderLatch: CountDownLatch
 
-        runOnUiThread {
+        runOnUiThreadSync {
             waitForRenderLatch = viewPager.addWaitForLayoutChangeLatch()
             viewPager.adapter = adapterProvider(activity)
         }
@@ -501,6 +501,21 @@ open class BaseTest {
             (viewPager.adapter as SelfChecking).selfCheck()
         }
         assertPageActions()
+    }
+
+    fun Context.modifyDataSetSync(block: () -> Unit) {
+        val layoutChangedLatch = viewPager.addWaitForLayoutChangeLatch()
+        runOnUiThreadSync {
+            block()
+        }
+        layoutChangedLatch.await(1, TimeUnit.SECONDS)
+
+        // Let animations run
+        val animationLatch = CountDownLatch(1)
+        viewPager.recyclerView.itemAnimator!!.isRunning {
+            animationLatch.countDown()
+        }
+        animationLatch.await(1, TimeUnit.SECONDS)
     }
 
     fun ViewPager2.setCurrentItemSync(
