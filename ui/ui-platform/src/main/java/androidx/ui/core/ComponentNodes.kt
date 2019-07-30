@@ -777,7 +777,12 @@ class DataNodeKey<T>(val name: String)
  * @property key The key object used to identify the key
  * @property value The value of the data being stored in the hierarchy
  */
-class DataNode<T>(val key: DataNodeKey<T>, var value: T) : ComponentNode()
+class DataNode<T>(val key: DataNodeKey<T>, var value: T) : ComponentNode() {
+    override fun attach(owner: Owner) {
+        super.attach(owner)
+        parentLayoutNode?.requestRemeasure()
+    }
+}
 
 /**
  * Returns [ComponentNode.owner] or throws if it is null.
