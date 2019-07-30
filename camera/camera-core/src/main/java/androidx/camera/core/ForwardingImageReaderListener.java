@@ -44,6 +44,9 @@ final class ForwardingImageReaderListener implements ImageReaderProxy.OnImageAva
     @Override
     public synchronized void onImageAvailable(ImageReaderProxy imageReaderProxy) {
         ImageProxy imageProxy = imageReaderProxy.acquireNextImage();
+        if (imageProxy == null) {
+            return;
+        }
         ReferenceCountedImageProxy referenceCountedImageProxy =
                 new ReferenceCountedImageProxy(imageProxy);
         for (QueuedImageReaderProxy queuedImageReaderProxy : mImageReaders) {
