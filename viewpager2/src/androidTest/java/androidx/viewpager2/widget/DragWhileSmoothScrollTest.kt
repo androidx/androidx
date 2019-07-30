@@ -82,7 +82,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         // when we are close enough
         val waitTillCloseEnough = test.viewPager.addWaitForDistanceToTarget(config.targetPage,
             config.distanceToTargetWhenStartDrag)
-        test.runOnUiThread { test.viewPager.setCurrentItem(config.targetPage, true) }
+        test.runOnUiThreadSync { test.viewPager.setCurrentItem(config.targetPage, true) }
         waitTillCloseEnough.await(2, SECONDS)
 
         // then perform a swipe
@@ -157,7 +157,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         // Find the view on the UI thread, as RV may be in layout
         val pageText = "$pageToSnapTo"
         var viewFound = false
-        test.runOnUiThread {
+        test.runOnUiThreadSync {
             val llm = test.viewPager.linearLayoutManager
             var i = 0
             while (!viewFound && i < llm.childCount) {

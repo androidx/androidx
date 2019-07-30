@@ -144,7 +144,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
 
                 // when
                 pageSequence.forEachIndexed { i, targetPage ->
-                    runOnUiThread {
+                    runOnUiThreadSync {
                         viewPager.setCurrentItem(targetPage, i !in instantScrolls)
                         viewPager.assertCurrentItemSet(targetPage)
                         if (currentPage != targetPage) {
@@ -345,6 +345,13 @@ private fun createTestSet(orientation: Int): List<TestConfig> {
             totalPages = 12,
             pageSequence = listOf(8, 7, 9, 7, 3, 0, 7, 11, 10, 0),
             instantScrolls = setOf(1, 4, 5, 8, 9)
+        ),
+        TestConfig(
+            title = "smooth-instant-long_smooth",
+            orientation = orientation,
+            totalPages = 5,
+            pageSequence = listOf(3, 4, 0),
+            instantScrolls = setOf(1)
         )
     )
     .plus(
