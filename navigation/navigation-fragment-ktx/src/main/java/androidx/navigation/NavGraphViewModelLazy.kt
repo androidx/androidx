@@ -20,6 +20,7 @@ import androidx.annotation.IdRes
 import androidx.annotation.MainThread
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.createViewModelLazy
+import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -52,8 +53,14 @@ inline fun <reified VM : ViewModel> Fragment.navGraphViewModels(
     @IdRes navGraphId: Int,
     noinline factoryProducer: (() -> ViewModelProvider.Factory)? = null
 ): Lazy<VM> {
-    val storeProducer: () -> ViewModelStore = {
-        findNavController().getViewModelStoreOwner(navGraphId).viewModelStore
+    val viewModelStoreOwner by lazy {
+        findNavController().getViewModelStoreOwner(navGraphId)
     }
-    return createViewModelLazy(VM::class, storeProducer, factoryProducer)
+    val storeProducer: () -> ViewModelStore = {
+        viewModelStoreOwner.viewModelStore
+    }
+    return createViewModelLazy(VM::class, storeProducer, {
+        factoryProducer?.invoke() ?: (viewModelStoreOwner as HasDefaultViewModelProviderFactory)
+            .defaultViewModelProviderFactory
+    })
 }

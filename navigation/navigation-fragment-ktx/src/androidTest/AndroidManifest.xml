@@ -19,5 +19,6 @@
           package="androidx.navigation.fragment.ktx">
     <application>
         <activity android:name="androidx.navigation.fragment.TestActivity" />
+        <activity android:name="androidx.navigation.fragment.NavGraphActivity" />
     </application>
 </manifest>
