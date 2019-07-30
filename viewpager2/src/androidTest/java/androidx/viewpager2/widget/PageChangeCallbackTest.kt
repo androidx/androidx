@@ -1069,7 +1069,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             // when we are scrolling to the target
             val recorder = test.viewPager.addNewRecordingCallback()
             val distanceLatch = test.viewPager.addWaitForDistanceToTarget(targetPage,
-                targetPage - windowStart + epsilon)
+                targetPage - windowStart - epsilon)
             val idleLatch = test.viewPager.addWaitForIdleLatch()
             test.runOnUiThreadSync { test.viewPager.setCurrentItem(targetPage, true) }
             distanceLatch.await(2, SECONDS)
