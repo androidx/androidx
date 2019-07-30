@@ -1610,7 +1610,7 @@ package androidx.core.util {
   }
 
   public interface Predicate<T> {
-    method public boolean test(T);
+    method public boolean test(T?);
   }
 
   public interface Supplier<T> {
