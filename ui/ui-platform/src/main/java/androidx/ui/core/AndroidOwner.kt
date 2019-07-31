@@ -20,11 +20,14 @@ import android.content.Context
 import android.graphics.RenderNode
 import android.os.Build
 import android.os.Looper
+import android.util.SparseArray
 import android.view.Choreographer
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
+import android.view.ViewStructure
+import android.view.autofill.AutofillValue
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.annotation.RestrictTo
@@ -46,6 +49,11 @@ import androidx.ui.engine.geometry.Shape
 import kotlin.math.roundToInt
 import java.util.TreeSet
 import androidx.compose.trace
+import androidx.ui.autofill.AndroidAutofill
+import androidx.ui.autofill.Autofill
+import androidx.ui.autofill.AutofillTree
+import androidx.ui.autofill.performAutofill
+import androidx.ui.autofill.populateViewStructure
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidCraneView constructor(context: Context)
@@ -63,6 +71,10 @@ class AndroidCraneView constructor(context: Context)
 
     // Map from model to LayoutNodes that *only* need layout and not measure
     private val relayoutOnly = ObserverMap<Any, LayoutNode>()
+
+    // TODO: Replace with SemanticsTree.
+    //  This is a temporary hack until we have a semantics tree implemented.
+    val autofillTree = AutofillTree()
 
     // RepaintBoundaryNodes that have had their boundary changed. When using Views,
     // the size/position of a View should change during layout, so this list
@@ -84,6 +96,9 @@ class AndroidCraneView constructor(context: Context)
 
     // Used for tracking which nodes a frame read is applied to
     internal var currentNode: ComponentNode? = null
+
+    private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
+    val autofill: Autofill? get() = _autofill
 
     override var measureIteration: Long = 1L
         private set
@@ -474,6 +489,14 @@ class AndroidCraneView constructor(context: Context)
         root.detach()
     }
 
+    override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
+        if (autofillSupported() && structure != null) _autofill?.populateViewStructure(structure)
+    }
+
+    override fun autofill(values: SparseArray<AutofillValue>) {
+        if (autofillSupported()) _autofill?.performAutofill(values)
+    }
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         trace("AndroidOwner:onTouch") {
             pointerInputEventProcessor.process(event.toPointerInputEvent())
@@ -561,6 +584,8 @@ class AndroidCraneView constructor(context: Context)
             }
         }
     }
+
+    private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
 }
 
 private class ConstraintRange(val min: IntPx, val max: IntPx)

@@ -23,7 +23,6 @@ import androidx.ui.core.input.FocusManager
 import androidx.ui.input.TextInputService
 import androidx.compose.Ambient
 import androidx.compose.composer
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Compose
 import androidx.compose.CompositionContext
@@ -35,6 +34,8 @@ import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onPreCommit
 import androidx.compose.unaryPlus
+import androidx.ui.autofill.Autofill
+import androidx.ui.autofill.AutofillTree
 import androidx.ui.core.text.AndroidFontResourceLoader
 import androidx.ui.text.font.Font
 import kotlinx.coroutines.Dispatchers
@@ -151,15 +152,19 @@ private fun WrapWithAmbients(
     val focusManager = +memo { FocusManager() }
     ContextAmbient.Provider(value = context) {
         CoroutineContextAmbient.Provider(value = coroutineContext) {
-        DensityAmbient.Provider(value = Density(context)) {
-            FocusManagerAmbient.Provider(value = focusManager) {
-                TextInputServiceAmbient.Provider(value = craneView.textInputService) {
-                    FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
-                        content()
+            DensityAmbient.Provider(value = Density(context)) {
+                FocusManagerAmbient.Provider(value = focusManager) {
+                    TextInputServiceAmbient.Provider(value = craneView.textInputService) {
+                        FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
+                            AutofillTreeAmbient.Provider(value = craneView.autofillTree) {
+                                AutofillAmbient.Provider(value = craneView.autofill) {
+                                    content()
+                                }
+                            }
+                        }
                     }
                 }
             }
-        }
         }
     }
 }
@@ -169,6 +174,11 @@ val ContextAmbient = Ambient.of<Context>()
 val DensityAmbient = Ambient.of<Density>()
 
 val CoroutineContextAmbient = Ambient.of<CoroutineContext>()
+
+val AutofillAmbient = Ambient.of<Autofill?>()
+
+// This will ultimately be replaced by Autofill Semantics (b/138604305).
+val AutofillTreeAmbient = Ambient.of<AutofillTree>()
 
 internal val FocusManagerAmbient = Ambient.of<FocusManager>()
 
