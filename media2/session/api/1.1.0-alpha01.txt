@@ -190,7 +190,6 @@ package androidx.media2.session {
     method public java.util.List<androidx.media2.session.MediaSession.ControllerInfo!> getConnectedControllers();
     method public String getId();
     method public androidx.media2.common.SessionPlayer getPlayer();
-    method public android.support.v4.media.session.MediaSessionCompat getSessionCompat();
     method public androidx.media2.session.SessionToken getToken();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.session.SessionResult!> sendCustomCommand(androidx.media2.session.MediaSession.ControllerInfo, androidx.media2.session.SessionCommand, android.os.Bundle?);
     method public void setAllowedCommands(androidx.media2.session.MediaSession.ControllerInfo, androidx.media2.session.SessionCommandGroup);
