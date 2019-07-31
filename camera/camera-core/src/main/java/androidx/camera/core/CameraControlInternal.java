@@ -16,7 +16,6 @@
 
 package androidx.camera.core;
 
-import android.annotation.SuppressLint;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
@@ -25,7 +24,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
 import java.util.List;
-import java.util.concurrent.Executor;
 
 /**
  * The CameraControlInternal Interface.
@@ -47,37 +45,6 @@ public interface CameraControlInternal extends CameraControl {
      * @param crop rectangle with dimensions in sensor pixel coordinate.
      */
     void setCropRegion(@Nullable Rect crop);
-
-    /**
-     * Adjusts the camera output according to the properties in some local regions with a callback
-     * called once focus scan has completed.
-     *
-     * <p>The auto-focus (AF), auto-exposure (AE) and auto-whitebalance (AWB) properties will be
-     * recalculated from the local regions.
-     *
-     * @param focus    rectangle with dimensions in sensor coordinate frame for focus
-     * @param metering rectangle with dimensions in sensor coordinate frame for metering
-     * @param executor the executor which will be used to call the listener.
-     * @param listener listener for when focus has completed.
-     */
-    @SuppressLint("LambdaLast")
-    // Remove after https://issuetracker.google.com/135275901
-    void focus(
-            @NonNull Rect focus,
-            @NonNull Rect metering,
-            @NonNull Executor executor,
-            @NonNull OnFocusListener listener);
-
-    /**
-     * Adjusts the camera output according to the properties in some local regions.
-     *
-     * <p>The auto-focus (AF), auto-exposure (AE) and auto-whitebalance (AWB) properties will be
-     * recalculated from the local regions.
-     *
-     * @param focus    rectangle with dimensions in sensor coordinate frame for focus
-     * @param metering rectangle with dimensions in sensor coordinate frame for metering
-     */
-    void focus(@NonNull Rect focus, @NonNull Rect metering);
 
     /** Returns the current flash mode. */
     @NonNull
@@ -119,15 +86,6 @@ public interface CameraControlInternal extends CameraControl {
         public void setCropRegion(@Nullable Rect crop) {
         }
 
-        @Override
-        public void focus(@NonNull Rect focus, @NonNull Rect metering, @Nullable Executor executor,
-                @Nullable OnFocusListener listener) {
-        }
-
-        @Override
-        public void focus(@NonNull Rect focus, @NonNull Rect metering) {
-        }
-
         @NonNull
         @Override
         public FlashMode getFlashMode() {
@@ -162,6 +120,16 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         public void submitCaptureRequests(@NonNull List<CaptureConfig> captureConfigs) {
+        }
+
+        @Override
+        public void startFocusAndMetering(@NonNull FocusMeteringAction action) {
+
+        }
+
+        @Override
+        public void cancelFocusAndMetering() {
+
         }
     };
 

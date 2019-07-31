@@ -47,7 +47,6 @@ import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2CameraControl.CaptureResultListener;
 import androidx.camera.core.AppConfig;
-import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
@@ -117,7 +116,7 @@ public class FocusMeteringControlTest {
         AppConfig config = Camera2AppConfig.create(context);
         CameraX.init(context, config);
         initCameraManager();
-        mFocusMeteringControl = initFocusMeteringControl(CAMERA0_ID);
+        mFocusMeteringControl = spy(initFocusMeteringControl(CAMERA0_ID));
     }
 
     private FocusMeteringControl initFocusMeteringControl(String cameraID) throws
@@ -171,6 +170,21 @@ public class FocusMeteringControlTest {
 
         shadowCharacteristics0.set(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
                 new Rect(0, 0, SENSOR_WIDTH, SENSOR_HEIGHT));
+        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES, new int[] {
+                CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE,
+                CaptureResult.CONTROL_AF_MODE_AUTO,
+                CaptureResult.CONTROL_AF_MODE_OFF
+        });
+        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES, new int[] {
+                CaptureResult.CONTROL_AE_MODE_ON,
+                CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH,
+                CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH,
+                CaptureResult.CONTROL_AE_MODE_OFF
+        });
+        shadowCharacteristics0.set(CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES, new int[] {
+                CaptureResult.CONTROL_AWB_MODE_AUTO,
+                CaptureResult.CONTROL_AWB_MODE_OFF,
+        });
 
         // Add the camera to the camera service
         ((ShadowCameraManager)
@@ -187,7 +201,6 @@ public class FocusMeteringControlTest {
 
         shadowCharacteristics1.set(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE,
                 new Rect(0, 0, SENSOR_WIDTH2, SENSOR_HEIGHT2));
-
         // Add the camera to the camera service
         ((ShadowCameraManager)
                 Shadow.extract(
@@ -357,7 +370,7 @@ public class FocusMeteringControlTest {
 
     @Test
     public void previewFovAdjusted_4by3_to_16by9()
-            throws CameraAccessException, CameraInfoUnavailableException {
+            throws CameraAccessException {
         //Camera1 sensor region is 16:9
         mFocusMeteringControl = initFocusMeteringControl(CAMERA1_ID);
 
@@ -433,7 +446,7 @@ public class FocusMeteringControlTest {
     }
 
     @Test
-    public void areaLength_ConvertedCorrect() {
+    public void pointSize_ConvertedCorrect() {
         MeteringPoint point1 = mPointFactory.createPoint(0.5f, 0.5f, 1.0f, 1.0f);
         MeteringPoint point2 = mPointFactory.createPoint(0.5f, 0.5f, 0.5f, 1.0f);
         MeteringPoint point3 = mPointFactory.createPoint(0.5f, 0.5f, 0.1f, 1.0f);
@@ -465,58 +478,58 @@ public class FocusMeteringControlTest {
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(mPoint1,
                 FocusMeteringAction.MeteringMode.AF_AE_AWB).build(), mPreviewAspectRatio4X3);
 
-        verify(mCamera2CameraControl).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AF_ONLY).build(),
                 mPreviewAspectRatio4X3);
-        verify(mCamera2CameraControl).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AF_AE).build(),
                 mPreviewAspectRatio4X3);
-        verify(mCamera2CameraControl).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AF_AWB).build(),
                 mPreviewAspectRatio4X3);
-        verify(mCamera2CameraControl).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
     }
 
     @Test
     public void withoutAFPoints_AFIsNotTriggered() {
         mFocusMeteringControl.startFocusAndMetering(FocusMeteringAction.Builder.from(mPoint1,
                 FocusMeteringAction.MeteringMode.AE_ONLY).build(), mPreviewAspectRatio4X3);
-        verify(mCamera2CameraControl, never()).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl, never()).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AWB_ONLY).build(),
                 mPreviewAspectRatio4X3);
-        verify(mCamera2CameraControl, never()).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl, never()).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AE_ONLY).build(),
                 mPreviewAspectRatio4X3);
-        verify(mCamera2CameraControl, never()).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl, never()).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
 
         mFocusMeteringControl.startFocusAndMetering(
                 FocusMeteringAction.Builder.from(mPoint1,
                         FocusMeteringAction.MeteringMode.AE_AWB).build(),
                 mPreviewAspectRatio4X3);
-        verify(mCamera2CameraControl, never()).triggerAfInternal();
-        Mockito.reset(mCamera2CameraControl);
+        verify(mFocusMeteringControl, never()).triggerAf();
+        Mockito.reset(mFocusMeteringControl);
     }
 
     @Test
@@ -778,30 +791,30 @@ public class FocusMeteringControlTest {
                 .build();
 
         mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, times(1)).cancelAfAeTriggerInternal(true, false);
+        verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AF_AE)
                 .build();
         mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, times(1)).cancelAfAeTriggerInternal(true, false);
+        verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AF_AWB)
                 .build();
         mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, times(1)).cancelAfAeTriggerInternal(true, false);
+        verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AF_ONLY)
                 .build();
         mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, times(1)).cancelAfAeTriggerInternal(true, false);
+        verify(mFocusMeteringControl, times(1)).cancelAfAeTrigger(true, false);
     }
 
     @Test
@@ -811,24 +824,24 @@ public class FocusMeteringControlTest {
                 .build();
 
         mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, never()).cancelAfAeTriggerInternal(true, false);
+        verify(mFocusMeteringControl, never()).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1,
                 FocusMeteringAction.MeteringMode.AWB_ONLY)
                 .build();
         mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, never()).cancelAfAeTriggerInternal(true, false);
+        verify(mFocusMeteringControl, never()).cancelAfAeTrigger(true, false);
 
         action = FocusMeteringAction.Builder.from(mPoint1, FocusMeteringAction.MeteringMode.AE_AWB)
                 .build();
         mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio4X3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mFocusMeteringControl);
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, never()).cancelAfAeTriggerInternal(true, false);
+        verify(mFocusMeteringControl, never()).cancelAfAeTrigger(true, false);
     }
 
     @Test

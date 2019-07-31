@@ -92,13 +92,13 @@ class FocusMeteringControl {
      * applies to all repeating requests and single requests.
      */
     @WorkerThread
-    void addFocusMeteringOptions(Camera2Config.Builder configBuilder) {
+    void addFocusMeteringOptions(@NonNull Camera2Config.Builder configBuilder) {
+        int afMode = mIsInAfAutoMode
+                ? CaptureRequest.CONTROL_AF_MODE_AUTO
+                : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
 
         configBuilder.setCaptureRequestOption(
-                CaptureRequest.CONTROL_AF_MODE,
-                mIsInAfAutoMode
-                        ? CaptureRequest.CONTROL_AF_MODE_AUTO
-                        : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
+                CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));
 
 
         if (mAfRects.length != 0) {
@@ -116,8 +116,9 @@ class FocusMeteringControl {
     }
 
     @WorkerThread
-    private PointF getFOVAdjustedPoint(MeteringPoint meteringPoint, Rational cropRegionAspectRatio,
-            Rational defaultAspectRatio) {
+    private PointF getFOVAdjustedPoint(@NonNull MeteringPoint meteringPoint,
+            @NonNull Rational cropRegionAspectRatio,
+            @NonNull Rational defaultAspectRatio) {
         // Use default aspect ratio unless there is a custom aspect ratio in MeteringPoint.
         Rational fovAspectRatio = defaultAspectRatio;
         if (meteringPoint.getFOVAspectRatio() != null) {
@@ -179,7 +180,8 @@ class FocusMeteringControl {
     }
 
     @WorkerThread
-    void startFocusAndMetering(FocusMeteringAction action, Rational defaultAspectRatio) {
+    void startFocusAndMetering(@NonNull FocusMeteringAction action,
+            @Nullable Rational defaultAspectRatio) {
         if (mCurrentFocusMeteringAction != null) {
             cancelFocusAndMetering();
         }
@@ -189,6 +191,9 @@ class FocusMeteringControl {
         Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
                 cropSensorRegion.height());
 
+        if (defaultAspectRatio == null) {
+            defaultAspectRatio = cropRegionAspectRatio;
+        }
 
         List<MeteringRectangle> meteringRectanglesListAF = new ArrayList<>();
         List<MeteringRectangle> meteringRectanglesListAE = new ArrayList<>();
@@ -324,7 +329,7 @@ class FocusMeteringControl {
                             // mExecutor
                             @WorkerThread
                             @Override
-                            public boolean onCaptureResult(TotalCaptureResult result) {
+                            public boolean onCaptureResult(@NonNull TotalCaptureResult result) {
                                 Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
                                 if (afState == null) {
                                     return false;
@@ -352,7 +357,7 @@ class FocusMeteringControl {
 
             mIsInAfAutoMode = true;
             mCameraControl.updateSessionConfig();
-            mCameraControl.triggerAfInternal();
+            triggerAf();
         } else {
             // Still calls OnAutoFocusActionListener when AF is not enabled.
             focusMeteringAction.notifyAutoFocusCompleted(false);
@@ -397,7 +402,7 @@ class FocusMeteringControl {
         disableAutoCancel();
 
         if (shouldTriggerAF()) {
-            mCameraControl.cancelAfAeTriggerInternal(true, false);
+            cancelAfAeTrigger(true, false);
         }
         mAfRects = new MeteringRectangle[]{};
         mAeRects = new MeteringRectangle[]{};

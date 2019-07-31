@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assume.assumeTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -41,7 +40,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurfaces;
-import androidx.camera.core.OnFocusListener;
 import androidx.camera.core.Preview;
 import androidx.camera.core.Preview.OnPreviewOutputUpdateListener;
 import androidx.camera.core.Preview.PreviewOutput;
@@ -66,7 +64,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -134,26 +131,6 @@ public final class PreviewTest {
 
         assertThat(surfaces.size()).isEqualTo(1);
         assertThat(surfaces.get(0).isValid()).isTrue();
-    }
-
-    @Test
-    @UiThreadTest
-    public void focusRegionCanBeSet() {
-        Preview useCase = new Preview(mDefaultConfig);
-        useCase.updateSuggestedResolution(Collections.singletonMap(mCameraId, DEFAULT_RESOLUTION));
-
-        CameraControlInternal cameraControl = mock(CameraControlInternal.class);
-        useCase.attachCameraControl(mCameraId, cameraControl);
-
-        Rect rect = new Rect(/*left=*/ 200, /*top=*/ 200, /*right=*/ 800, /*bottom=*/ 800);
-        useCase.focus(rect, rect, mock(OnFocusListener.class));
-
-        ArgumentCaptor<Rect> rectArgumentCaptor1 = ArgumentCaptor.forClass(Rect.class);
-        ArgumentCaptor<Rect> rectArgumentCaptor2 = ArgumentCaptor.forClass(Rect.class);
-        verify(cameraControl).focus(rectArgumentCaptor1.capture(), rectArgumentCaptor2.capture(),
-                any(Executor.class), any(OnFocusListener.class));
-        assertThat(rectArgumentCaptor1.getValue()).isEqualTo(rect);
-        assertThat(rectArgumentCaptor2.getValue()).isEqualTo(rect);
     }
 
     @Test
