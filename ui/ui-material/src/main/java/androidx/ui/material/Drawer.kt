@@ -19,8 +19,10 @@ package androidx.ui.material
 import androidx.animation.PhysicsBuilder
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.memo
 import androidx.compose.onCommit
 import androidx.compose.unaryPlus
+import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
@@ -34,9 +36,11 @@ import androidx.ui.core.min
 import androidx.ui.core.withDensity
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.ColoredRect
-import androidx.ui.foundation.gestures.AnchorsFlingConfig
-import androidx.ui.foundation.gestures.AnimatedDraggable
+import androidx.ui.foundation.animation.AnchorsFlingConfig
+import androidx.ui.foundation.gestures.Draggable
+import androidx.ui.foundation.animation.AnimatedFloatDragController
 import androidx.ui.foundation.gestures.DragDirection
+import androidx.ui.foundation.gestures.DraggableCallback
 import androidx.ui.layout.Alignment
 import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
@@ -120,32 +124,26 @@ fun ModalDrawer(
             val maxValue = 0f
             val valueByState = if (drawerState == DrawerState.Opened) maxValue else minValue
 
-            val flingConfig = AnchorsFlingConfig(
-                listOf(minValue, maxValue),
-                onAnimationFinished = { finalValue, cancelled ->
-                    if (!cancelled) {
-                        onStateChange(
-                            if (finalValue <= minValue) DrawerState.Closed else DrawerState.Opened
-                        )
-                    }
-                },
-                animationBuilder = AnimationBuilder
-            )
+            val callback = DraggableCallback(onDragSettled = {
+                onStateChange(if (it <= minValue) DrawerState.Closed else DrawerState.Opened)
+            })
+            val flingConfig = AnchorsFlingConfig(listOf(minValue, maxValue), AnimationBuilder)
+            val controller = +memo { AnimatedFloatDragController(valueByState, flingConfig) }
+            +onCommit(valueByState) {
+                controller.animatedFloat.animateTo(valueByState, AnimationBuilder)
+            }
 
-            AnimatedDraggable(
+            Draggable(
                 dragDirection = DragDirection.Horizontal,
-                startValue = valueByState,
                 minValue = minValue,
                 maxValue = maxValue,
-                flingConfig = flingConfig
-            ) { animatedValue ->
-                +onCommit(valueByState) {
-                    animatedValue.animateTo(valueByState, AnimationBuilder)
-                }
-                val fraction = calculateFraction(minValue, maxValue, animatedValue.value)
+                valueController = controller,
+                callback = callback
+            ) { value ->
+                val fraction = calculateFraction(minValue, maxValue, value)
                 val scrimAlpha = fraction * ScrimDefaultOpacity
                 val dpOffset = +withDensity {
-                    animatedValue.value.toDp()
+                    value.toDp()
                 }
 
                 Stack {
@@ -208,31 +206,30 @@ fun BottomDrawer(
             )
             val valueByState = if (drawerState == DrawerState.Opened) openedValue else maxValue
             val anchors = listOf(minValue, maxValue, openedValue)
+            val callback = DraggableCallback(onDragSettled = {
+                onStateChange(if (it >= maxValue) DrawerState.Closed else DrawerState.Opened)
+            })
 
-            val onAnimationFinished = { finalValue: Float, cancelled: Boolean ->
-                if (!cancelled) {
-                    onStateChange(
-                        if (finalValue >= maxValue) DrawerState.Closed else DrawerState.Opened
-                    )
-                }
+            val flingConfig = AnchorsFlingConfig(anchors, AnimationBuilder)
+
+            val controller = +memo { AnimatedFloatDragController(valueByState, flingConfig) }
+            +onCommit(valueByState) {
+                controller.animatedFloat.animateTo(valueByState, AnimationBuilder)
             }
 
-            AnimatedDraggable(
+            Draggable(
                 dragDirection = DragDirection.Vertical,
-                startValue = valueByState,
                 minValue = minValue,
                 maxValue = maxValue,
-                flingConfig = AnchorsFlingConfig(anchors, onAnimationFinished, AnimationBuilder)
-            ) { animatedValue ->
-                +onCommit(valueByState) {
-                    animatedValue.animateTo(valueByState, AnimationBuilder)
-                }
+                valueController = controller,
+                callback = callback
+            ) { value ->
                 // as we scroll "from height to 0" backwards, (1 - fraction) will reverse it
                 val fractionToOpened =
-                    1 - max(0f, calculateFraction(openedValue, maxValue, animatedValue.value))
+                    1 - max(0f, calculateFraction(openedValue, maxValue, value))
                 val scrimAlpha = fractionToOpened * ScrimDefaultOpacity
                 val dpOffset = +withDensity {
-                    animatedValue.value.toDp()
+                    value.toDp()
                 }
                 Stack {
                     aligned(Alignment.TopLeft) {

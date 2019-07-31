@@ -240,6 +240,14 @@ package androidx.ui.material {
 
 }
 
+package androidx.ui.material.internal {
+
+  public final class AnchoredControllerByStateKt {
+    ctor public AnchoredControllerByStateKt();
+  }
+
+}
+
 package androidx.ui.material.ripple {
 
   public final class DefaultRippleEffectFactory implements androidx.ui.material.ripple.RippleEffectFactory {
