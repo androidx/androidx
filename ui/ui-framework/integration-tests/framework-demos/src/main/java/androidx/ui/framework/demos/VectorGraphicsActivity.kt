@@ -17,38 +17,39 @@
 package androidx.ui.framework.demos
 
 import android.app.Activity
-import android.graphics.Color
 import android.os.Bundle
 import android.widget.LinearLayout
 import androidx.ui.core.vectorgraphics.adoptVectorGraphic
-import androidx.ui.core.vectorgraphics.compat.vectorResource
-import androidx.ui.core.vectorgraphics.group
-import androidx.ui.core.vectorgraphics.path
-import androidx.ui.core.vectorgraphics.vector
+import androidx.ui.core.vectorgraphics.Group
+import androidx.ui.core.vectorgraphics.Path
+import androidx.ui.core.vectorgraphics.Vector
 import androidx.ui.core.vectorgraphics.PathBuilder
 import androidx.ui.core.vectorgraphics.PathDelegate
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.registerAdapter
 import androidx.compose.setViewContent
+import androidx.ui.core.ContextAmbient
+import androidx.ui.core.Px
+import androidx.ui.core.vectorgraphics.compat.VectorResource
+import androidx.ui.graphics.Color
 
 class VectorGraphicsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val res = getResources()
         setViewContent {
             composer.registerAdapter { parent, child ->
                 adoptVectorGraphic(parent, child)
             }
 
             LinearLayout(orientation = LinearLayout.VERTICAL) {
-                vectorResource(
-                    res = res,
-                    resId = androidx.ui.framework.demos.R.drawable.ic_crane
-                )
-                vectorShape()
+                // TODO Make composition of components with Android Views automatically wire the appropriate ambients
+                ContextAmbient.Provider(value = this@VectorGraphicsActivity) {
+                    VectorResource(resId = androidx.ui.framework.demos.R.drawable.ic_crane)
+                    vectorShape()
+                }
             }
         }
     }
@@ -57,28 +58,28 @@ class VectorGraphicsActivity : Activity() {
     fun vectorShape() {
         val viewportWidth = 300.0f
         val viewportHeight = 300.0f
-        vector(
+        Vector(
             name = "vectorShape",
-            defaultWidth = 300.0f,
-            defaultHeight = 300.0f,
+            defaultWidth = Px(300.0f),
+            defaultHeight = Px(300.0f),
             viewportWidth = viewportWidth,
             viewportHeight = viewportHeight
         ) {
-            group(
+            Group(
                 scaleX = 0.75f,
                 scaleY = 0.75f,
-                rotate = 45.0f,
+                rotation = 45.0f,
                 pivotX = (viewportWidth / 2),
                 pivotY = (viewportHeight / 2)
             ) {
                 backgroundPath(vectorWidth = viewportWidth, vectorHeight = viewportHeight)
                 stripePath(vectorWidth = viewportWidth, vectorHeight = viewportHeight)
-                group(
-                    translateX = 50.0f,
-                    translateY = 50.0f,
+                Group(
+                    translationX = 50.0f,
+                    translationY = 50.0f,
                     pivotX = (viewportWidth / 2),
                     pivotY = (viewportHeight / 2),
-                    rotate = 25.0f
+                    rotation = 25.0f
                 ) {
                     val pathData = PathDelegate {
                         moveTo(viewportWidth / 2 - 100, viewportHeight / 2 - 100)
@@ -87,7 +88,7 @@ class VectorGraphicsActivity : Activity() {
                         horizontalLineToRelative(-200.0f)
                         close()
                     }
-                    path(fill = Color.MAGENTA, pathData = pathData)
+                    Path(fill = Color.Magenta, pathData = pathData)
                 }
             }
         }
@@ -102,7 +103,7 @@ class VectorGraphicsActivity : Activity() {
             close()
         }
 
-        path(fill = Color.CYAN, pathData = background)
+        Path(fill = Color.Cyan, pathData = background)
     }
 
     @Composable
@@ -111,7 +112,7 @@ class VectorGraphicsActivity : Activity() {
             stripe(vectorWidth, vectorHeight, 10)
         }
 
-        path(stroke = Color.BLUE, pathData = stripeDelegate)
+        Path(stroke = Color.Blue, pathData = stripeDelegate)
     }
 
     private fun PathBuilder.stripe(vectorWidth: Float, vectorHeight: Float, numLines: Int) {

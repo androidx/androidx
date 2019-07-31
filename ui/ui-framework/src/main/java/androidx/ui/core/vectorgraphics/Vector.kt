@@ -34,17 +34,18 @@ import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.Emittable
 import androidx.compose.composer
+import androidx.ui.core.Px
 import androidx.ui.painting.withSave
 import androidx.ui.painting.Path as PaintingPath
 
 const val DefaultGroupName = ""
-const val DefaultRotate = 0.0f
+const val DefaultRotation = 0.0f
 const val DefaultPivotX = 0.0f
 const val DefaultPivotY = 0.0f
 const val DefaultScaleX = 1.0f
 const val DefaultScaleY = 1.0f
-const val DefaultTranslateX = 0.0f
-const val DefaultTranslateY = 0.0f
+const val DefaultTranslationX = 0.0f
+const val DefaultTranslationY = 0.0f
 
 val EmptyPath = emptyArray<PathNode>()
 
@@ -80,50 +81,55 @@ fun addPathNodes(pathStr: String?): Array<PathNode> =
     }
 
 @Composable
-fun vector(
+fun Vector(
     name: String = "",
     viewportWidth: Float,
     viewportHeight: Float,
-    defaultWidth: Float = viewportWidth,
-    defaultHeight: Float = viewportHeight,
+    defaultWidth: Px = Px(viewportWidth),
+    defaultHeight: Px = Px(viewportHeight),
     @Children children: @Composable() () -> Unit
 ) {
-    <Vector name defaultWidth defaultHeight viewportWidth viewportHeight>
+    <VectorComponent
+        name
+        defaultWidth = defaultWidth.value
+        defaultHeight = defaultHeight.value
+        viewportWidth
+        viewportHeight>
         children()
-    </Vector>
+    </VectorComponent>
 }
 
 @Composable
-fun group(
+fun Group(
     name: String = DefaultGroupName,
-    rotate: Float = DefaultRotate,
+    rotation: Float = DefaultRotation,
     pivotX: Float = DefaultPivotX,
     pivotY: Float = DefaultPivotY,
     scaleX: Float = DefaultScaleX,
     scaleY: Float = DefaultScaleY,
-    translateX: Float = DefaultTranslateX,
-    translateY: Float = DefaultTranslateY,
+    translationX: Float = DefaultTranslationX,
+    translationY: Float = DefaultTranslationY,
     clipPathData: PathData = EmptyPath,
     @Children childNodes: @Composable() () -> Unit
 ) {
 
     val clipPathNodes = createPath(clipPathData)
-    <Group
+    <GroupComponent
         name
-        rotate
+        rotation
         pivotX
         pivotY
         scaleX
         scaleY
-        translateX
-        translateY
+        translationX
+        translationY
         clipPathNodes>
         childNodes()
-    </Group>
+    </GroupComponent>
 }
 
 @Composable
-fun path(
+fun Path(
     pathData: PathData,
     name: String = DefaultPathName,
     fill: BrushType = EmptyBrush,
@@ -139,7 +145,7 @@ fun path(
     val fillBrush: Brush = obtainBrush(fill)
     val strokeBrush: Brush = obtainBrush(stroke)
 
-    <Path
+    <PathComponent
         name
         pathNodes
         fill=fillBrush
@@ -156,7 +162,7 @@ private sealed class VNode {
     abstract fun draw(canvas: Canvas)
 }
 
-private class Vector(
+private class VectorComponent(
     val name: String = "",
     val viewportWidth: Float,
     val viewportHeight: Float,
@@ -164,7 +170,7 @@ private class Vector(
     val defaultHeight: Float = viewportHeight
 ) : VNode(), Emittable {
 
-    private val root = Group(this@Vector.name).apply {
+    private val root = GroupComponent(this@VectorComponent.name).apply {
         pivotX = 0.0f
         pivotY = 0.0f
         scaleX = defaultWidth / viewportWidth
@@ -218,7 +224,7 @@ private class Vector(
     }
 }
 
-private class Path(val name: String) : VNode(), Emittable {
+private class PathComponent(val name: String) : VNode(), Emittable {
 
     var fill: Brush = EmptyBrush
         set(value) {
@@ -383,7 +389,7 @@ private class Path(val name: String) : VNode(), Emittable {
     }
 }
 
-private class Group(val name: String = DefaultGroupName) : VNode(), Emittable {
+private class GroupComponent(val name: String = DefaultGroupName) : VNode(), Emittable {
 
     private var groupMatrix: Matrix? = null
 
@@ -425,7 +431,7 @@ private class Group(val name: String = DefaultGroupName) : VNode(), Emittable {
         }
     }
 
-    var rotate: Float = DefaultRotate
+    var rotation: Float = DefaultRotation
         set(value) {
             field = value
             isMatrixDirty = true
@@ -455,13 +461,13 @@ private class Group(val name: String = DefaultGroupName) : VNode(), Emittable {
             isMatrixDirty = true
         }
 
-    var translateX: Float = DefaultTranslateX
+    var translationX: Float = DefaultTranslationX
         set(value) {
             field = value
             isMatrixDirty = true
         }
 
-    var translateY: Float = DefaultTranslateY
+    var translationY: Float = DefaultTranslationY
         set(value) {
             field = value
             isMatrixDirty = true
@@ -482,9 +488,9 @@ private class Group(val name: String = DefaultGroupName) : VNode(), Emittable {
             reset()
             postTranslate(-pivotX, -pivotY)
             postScale(scaleX, scaleY)
-            postRotate(rotate, 0f, 0f)
-            postTranslate(translateX + pivotX,
-                translateY + pivotY)
+            postRotate(rotation, 0f, 0f)
+            postTranslate(translationX + pivotX,
+                translationY + pivotY)
         }
     }
 
@@ -579,7 +585,7 @@ private fun createPath(pathData: PathData): Array<PathNode> {
 
 // Temporary glue logic to wrap a Vector asset into an ImageView
 fun adoptVectorGraphic(parent: Any?, child: Any?): View? {
-    return if (parent is ViewGroup && child is Vector) {
+    return if (parent is ViewGroup && child is VectorComponent) {
         val imageView = ImageView(parent.context)
         imageView.scaleType = ImageView.ScaleType.FIT_CENTER
         imageView.setImageDrawable(VectorGraphicDrawable(child))
@@ -589,7 +595,7 @@ fun adoptVectorGraphic(parent: Any?, child: Any?): View? {
     }
 }
 
-private class VectorGraphicDrawable(private val vector: Vector) : Drawable() {
+private class VectorGraphicDrawable(private val vector: VectorComponent) : Drawable() {
 
     override fun getIntrinsicWidth(): Int = Math.round(vector.defaultWidth)
 
