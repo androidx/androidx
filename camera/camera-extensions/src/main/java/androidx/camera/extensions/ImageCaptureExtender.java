@@ -27,6 +27,7 @@ import androidx.camera.camera2.impl.CameraEventCallback;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
 import androidx.camera.core.CameraIdFilter;
 import androidx.camera.core.CameraIdFilterSet;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CaptureBundle;
 import androidx.camera.core.CaptureConfig;
@@ -43,6 +44,7 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -61,17 +63,6 @@ abstract class ImageCaptureExtender {
         mBuilder = builder;
         mImpl = implementation;
         mEffectMode = effectMode;
-
-        ExtensionCameraIdFilter extensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
-        CameraIdFilter cameraIdFilter = mBuilder.build().getCameraIdFilter(null);
-        if (cameraIdFilter == null) {
-            mBuilder.setCameraIdFilter(extensionCameraIdFilter);
-        } else {
-            CameraIdFilterSet cameraIdFilterSet = new CameraIdFilterSet();
-            cameraIdFilterSet.addCameraIdFilter(cameraIdFilter);
-            cameraIdFilterSet.addCameraIdFilter(extensionCameraIdFilter);
-            mBuilder.setCameraIdFilter(cameraIdFilterSet);
-        }
     }
 
     /**
@@ -80,8 +71,18 @@ abstract class ImageCaptureExtender {
      * @return True if the specific extension function is supported for the camera device.
      */
     public boolean isExtensionAvailable() {
-        String cameraId = CameraUtil.getCameraId(mBuilder.build());
-        return cameraId != null;
+        CameraX.LensFacing lensFacing = mBuilder.build().getLensFacing();
+        Set<String> availableCameraIds = null;
+        try {
+            availableCameraIds = CameraUtil.getCameraIdSetWithLensFacing(lensFacing);
+        } catch (CameraInfoUnavailableException e) {
+            // Returns false if camera info is unavailable.
+            return false;
+        }
+        ExtensionCameraIdFilter extensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
+        availableCameraIds = extensionCameraIdFilter.filter(availableCameraIds);
+
+        return !availableCameraIds.isEmpty();
     }
 
     /**
@@ -92,6 +93,18 @@ abstract class ImageCaptureExtender {
      * enabled together.
      */
     public void enableExtension() {
+        // Add extension camera id filter to config.
+        ExtensionCameraIdFilter extensionCameraIdFilter = new ExtensionCameraIdFilter(mImpl);
+        CameraIdFilter currentCameraIdFilter = mBuilder.build().getCameraIdFilter(null);
+        if (currentCameraIdFilter == null) {
+            mBuilder.setCameraIdFilter(extensionCameraIdFilter);
+        } else {
+            CameraIdFilterSet cameraIdFilterSet = new CameraIdFilterSet();
+            cameraIdFilterSet.addCameraIdFilter(currentCameraIdFilter);
+            cameraIdFilterSet.addCameraIdFilter(extensionCameraIdFilter);
+            mBuilder.setCameraIdFilter(cameraIdFilterSet);
+        }
+
         String cameraId = CameraUtil.getCameraId(mBuilder.build());
         if (cameraId == null) {
             // If there's no available camera id for the extender to function, just return here
