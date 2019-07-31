@@ -1482,6 +1482,132 @@ class PojoProcessorTest {
                 ProcessorErrors.missingIgnoredColumns(listOf("no_such_column")))
     }
 
+    @Test
+    fun noSetter_scopeBindStmt() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public String getFoo() { return foo; }
+                    public String getBar() { return bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                parent = null).process()
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun noSetter_scopeTwoWay() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public String getFoo() { return foo; }
+                    public String getBar() { return bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find setter for field.")
+    }
+
+    @Test
+    fun noSetter_scopeReadFromCursor() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public String getFoo() { return foo; }
+                    public String getBar() { return bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find setter for field.")
+    }
+
+    @Test
+    fun noGetter_scopeBindStmt() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public void setFoo(String foo) { this.foo = foo; }
+                    public void setBar(String bar) { this.bar = bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.BIND_TO_STMT,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find getter for field.")
+    }
+
+    @Test
+    fun noGetter_scopeTwoWay() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public void setFoo(String foo) { this.foo = foo; }
+                    public void setBar(String bar) { this.bar = bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.TWO_WAY,
+                parent = null).process()
+        }.failsToCompile().withErrorContaining("Cannot find getter for field.")
+    }
+
+    @Test
+    fun noGetter_scopeReadCursor() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public void setFoo(String foo) { this.foo = foo; }
+                    public void setBar(String bar) { this.bar = bar; }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                parent = null).process()
+        }.compilesWithoutError()
+    }
+
     private fun singleRun(
         code: String,
         vararg jfos: JavaFileObject,
@@ -1523,7 +1649,7 @@ class PojoProcessorTest {
             handler.invoke(
                 PojoProcessor.createFor(context = invocation.context,
                         element = invocation.typeElement(MY_POJO.toString()),
-                        bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                        bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                         parent = null).process(),
                 invocation
             )
