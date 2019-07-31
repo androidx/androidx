@@ -21,9 +21,8 @@ import androidx.compose.Composable
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.EditorStyle
-import androidx.ui.core.InputField
-import androidx.ui.text.TextRange
-import androidx.ui.input.EditorState
+import androidx.ui.core.TextField
+import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.layout.Column
@@ -79,8 +78,8 @@ fun EditLine(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified
 ) {
-    val state = +state { EditorState() }
-    InputField(
+    val state = +state { EditorModel() }
+    TextField(
         value = state.value,
         keyboardType = keyboardType,
         imeAction = imeAction,

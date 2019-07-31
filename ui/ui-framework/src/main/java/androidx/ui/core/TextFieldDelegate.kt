@@ -20,7 +20,7 @@ import android.util.Log
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
 import androidx.ui.input.EditProcessor
-import androidx.ui.input.EditorState
+import androidx.ui.input.EditorModel
 import androidx.ui.input.FinishComposingTextEditOp
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
@@ -30,7 +30,7 @@ import androidx.ui.painting.Canvas
 import androidx.ui.text.AnnotatedString
 import androidx.ui.text.TextPainter
 
-internal class InputFieldDelegate {
+internal class TextFieldDelegate {
     companion object {
         /**
          * Process text layout with given constraint.
@@ -80,7 +80,7 @@ internal class InputFieldDelegate {
         @JvmStatic
         fun draw(
             canvas: Canvas,
-            value: EditorState,
+            value: EditorModel,
             offsetMap: OffsetMap,
             textPainter: TextPainter,
             hasFocus: Boolean,
@@ -117,7 +117,7 @@ internal class InputFieldDelegate {
          */
         @JvmStatic
         fun notifyFocusedRect(
-            value: EditorState,
+            value: EditorModel,
             textPainter: TextPainter,
             layoutCoordinates: LayoutCoordinates,
             textInputService: TextInputService,
@@ -158,7 +158,7 @@ internal class InputFieldDelegate {
         internal fun onEditCommand(
             ops: List<EditOperation>,
             editProcessor: EditProcessor,
-            onValueChange: (EditorState) -> Unit
+            onValueChange: (EditorModel) -> Unit
         ) {
             onValueChange(editProcessor.onEditCommands(ops))
         }
@@ -171,7 +171,7 @@ internal class InputFieldDelegate {
         @JvmStatic
         fun onDragAt(position: PxPosition) {
             // TODO(nona): Implement this function
-            Log.d("InputFieldDelegate", "onDrag: $position")
+            Log.d("TextFieldDelegate", "onDrag: $position")
         }
 
         /**
@@ -191,7 +191,7 @@ internal class InputFieldDelegate {
             textPainter: TextPainter,
             editProcessor: EditProcessor,
             offsetMap: OffsetMap,
-            onValueChange: (EditorState) -> Unit,
+            onValueChange: (EditorModel) -> Unit,
             textInputService: TextInputService?,
             hasFocus: Boolean
         ) {
@@ -219,15 +219,15 @@ internal class InputFieldDelegate {
         @JvmStatic
         fun onFocus(
             textInputService: TextInputService?,
-            value: EditorState,
+            value: EditorModel,
             editProcessor: EditProcessor,
             keyboardType: KeyboardType,
             imeAction: ImeAction,
-            onValueChange: (EditorState) -> Unit,
+            onValueChange: (EditorModel) -> Unit,
             onImeActionPerformed: (ImeAction) -> Unit
         ) {
             textInputService?.startInput(
-                initState = value,
+                initModel = value,
                 keyboardType = keyboardType,
                 imeAction = imeAction,
                 onEditCommand = { onEditCommand(it, editProcessor, onValueChange) },
@@ -245,21 +245,21 @@ internal class InputFieldDelegate {
         fun onBlur(
             textInputService: TextInputService?,
             editProcessor: EditProcessor,
-            onValueChange: (EditorState) -> Unit
+            onValueChange: (EditorModel) -> Unit
         ) {
             onEditCommand(listOf(FinishComposingTextEditOp()), editProcessor, onValueChange)
             textInputService?.stopInput()
         }
 
         /**
-         * Helper function of applying visual transformation method to the EditorState.
+         * Helper function of applying visual transformation method to the EditorModel.
          *
          * @param value An editor state
          * @param visualTransformation A visual transformation
          */
         @JvmStatic
         fun applyVisualFilter(
-            value: EditorState,
+            value: EditorModel,
             visualTransformation: VisualTransformation?
         ): TransformedText {
             val annotatedString = AnnotatedString(value.text)
