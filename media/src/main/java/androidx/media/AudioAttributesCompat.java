@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -234,12 +234,8 @@ public class AudioAttributesCompat implements VersionedParcelable {
 
     static final int INVALID_STREAM_TYPE = -1;  // AudioSystem.STREAM_DEFAULT
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(1)
-    public AudioAttributesImpl mImpl;
+    AudioAttributesImpl mImpl;
 
     AudioAttributesCompat() {
     }
@@ -538,7 +534,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
      *
      * @hide For testing only.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static void setForceLegacyBehavior(boolean force) {
         sForceLegacyBehavior = force;
     }
@@ -631,7 +627,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
             USAGE_GAME,
             USAGE_ASSISTANT,
     })
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     public @interface AttributeUsage {
     }
@@ -645,7 +641,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
             CONTENT_TYPE_SONIFICATION
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public @interface AttributeContentType {
     }
 }

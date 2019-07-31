@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat;
@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 public class MediaBrowserCompatUtils {
     public static boolean areSameOptions(Bundle options1, Bundle options2) {
         if (options1 == options2) {
