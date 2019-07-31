@@ -49,6 +49,7 @@ import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
 import androidx.camera.testing.fakes.FakeUseCase;
@@ -75,6 +76,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -90,7 +92,27 @@ public class CameraImplTest {
             BaseCamera.State.OPEN,
             BaseCamera.State.RELEASED));
 
-    static CameraFactory sCameraFactory;
+    private static CameraFactory sCameraFactory;
+
+    // For the purpose of this test, always say we have 1 camera available.
+    private static final int AVAILABLE_CAMERA_COUNT = 1;
+    private static Observable<Integer> sAvailableCameras = new Observable<Integer>() {
+        @NonNull
+        @Override
+        public ListenableFuture<Integer> fetchData() {
+            return Futures.immediateFuture(AVAILABLE_CAMERA_COUNT);
+        }
+
+        @Override
+        public void addObserver(@NonNull Executor executor, @NonNull Observer<Integer> observer) {
+            executor.execute(() -> observer.onNewData(AVAILABLE_CAMERA_COUNT));
+        }
+
+        @Override
+        public void removeObserver(@NonNull Observer<Integer> observer) {
+        }
+    };
+
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
@@ -123,7 +145,8 @@ public class CameraImplTest {
         mCameraHandlerThread.start();
         mCameraHandler = new Handler(mCameraHandlerThread.getLooper());
         mSemaphore = new Semaphore(0);
-        mCamera = new Camera(CameraUtil.getCameraManager(), mCameraId, mCameraHandler);
+        mCamera = new Camera(CameraUtil.getCameraManager(), mCameraId, sAvailableCameras,
+                mCameraHandler);
     }
 
     @After
