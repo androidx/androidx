@@ -45,6 +45,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.LocaleTestUtils
 import androidx.testutils.recreate
+import androidx.testutils.waitForExecution
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
@@ -501,6 +502,13 @@ open class BaseTest {
             (viewPager.adapter as SelfChecking).selfCheck()
         }
         assertPageActions()
+    }
+
+    fun Context.resetViewPagerTo(page: Int) {
+        viewPager.setCurrentItemSync(page, false, 2, TimeUnit.SECONDS)
+        // VP2 was potentially settling while the RetryException was raised,
+        // in which case we must wait until the IDLE event has been fired
+        activityTestRule.waitForExecution(1)
     }
 
     fun Context.modifyDataSetSync(block: () -> Unit) {
