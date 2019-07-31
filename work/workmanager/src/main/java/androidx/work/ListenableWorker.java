@@ -180,6 +180,9 @@ public abstract class ListenableWorker {
      * A ListenableWorker is given a maximum of ten minutes to finish its execution and return a
      * {@link Result}.  After this time has expired, the worker will be signalled to stop and its
      * {@link ListenableFuture} will be cancelled.
+     * <p>
+     * The future will also be cancelled if this worker is stopped for any reason
+     * (see {@link #onStopped()}).
      *
      * @return A {@link ListenableFuture} with the {@link Result} of the computation.  If you
      *         cancel this Future, WorkManager will treat this unit of work as failed.
@@ -222,12 +225,13 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * This method is invoked when this Worker has been told to stop.  This could happen due
-     * to an explicit cancellation signal by the user, or because the system has decided to preempt
-     * the task.  In these cases, the results of the work will be ignored by WorkManager.  All
-     * processing in this method should be lightweight - there are no contractual guarantees about
-     * which thread will invoke this call, so this should not be a long-running or blocking
-     * operation.
+     * This method is invoked when this Worker has been told to stop.  At this point, the
+     * {@link ListenableFuture} returned by the instance of {@link #startWork()} is
+     * also cancelled.  This could happen due to an explicit cancellation signal by the user, or
+     * because the system has decided to preempt the task.  In these cases, the results of the
+     * work will be ignored by WorkManager.  All processing in this method should be lightweight
+     * - there are no contractual guarantees about which thread will invoke this call, so this
+     * should not be a long-running or blocking operation.
      */
     public void onStopped() {
         // Do nothing by default.
