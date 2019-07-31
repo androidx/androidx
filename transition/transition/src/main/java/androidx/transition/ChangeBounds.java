@@ -118,7 +118,7 @@ public class ChangeBounds extends Transition {
                     int top = view.getTop();
                     int right = Math.round(bottomRight.x);
                     int bottom = Math.round(bottomRight.y);
-                    ViewUtils.setLeftTopRightBottom(view, left, top, right, bottom);
+                    ViewCompat.setLeftTopRightBottom(view, left, top, right, bottom);
                 }
 
                 @Override
@@ -135,7 +135,7 @@ public class ChangeBounds extends Transition {
                     int top = Math.round(topLeft.y);
                     int right = view.getRight();
                     int bottom = view.getBottom();
-                    ViewUtils.setLeftTopRightBottom(view, left, top, right, bottom);
+                    ViewCompat.setLeftTopRightBottom(view, left, top, right, bottom);
                 }
 
                 @Override
@@ -152,7 +152,7 @@ public class ChangeBounds extends Transition {
                     int top = Math.round(topLeft.y);
                     int right = left + view.getWidth();
                     int bottom = top + view.getHeight();
-                    ViewUtils.setLeftTopRightBottom(view, left, top, right, bottom);
+                    ViewCompat.setLeftTopRightBottom(view, left, top, right, bottom);
                 }
 
                 @Override
@@ -301,7 +301,7 @@ public class ChangeBounds extends Transition {
             if (numChanges > 0) {
                 Animator anim;
                 if (!mResizeClip) {
-                    ViewUtils.setLeftTopRightBottom(view, startLeft, startTop, startRight,
+                    ViewCompat.setLeftTopRightBottom(view, startLeft, startTop, startRight,
                             startBottom);
                     if (numChanges == 2) {
                         if (startWidth == endWidth && startHeight == endHeight) {
@@ -345,8 +345,8 @@ public class ChangeBounds extends Transition {
                     int maxWidth = Math.max(startWidth, endWidth);
                     int maxHeight = Math.max(startHeight, endHeight);
 
-                    ViewUtils.setLeftTopRightBottom(view, startLeft, startTop, startLeft + maxWidth,
-                            startTop + maxHeight);
+                    ViewCompat.setLeftTopRightBottom(view, startLeft, startTop,
+                            startLeft + maxWidth, startTop + maxHeight);
 
                     ObjectAnimator positionAnimator = null;
                     if (startLeft != endLeft || startTop != endTop) {
@@ -379,8 +379,8 @@ public class ChangeBounds extends Transition {
                             public void onAnimationEnd(Animator animation) {
                                 if (!mIsCanceled) {
                                     ViewCompat.setClipBounds(view, finalClip);
-                                    ViewUtils.setLeftTopRightBottom(view, endLeft, endTop, endRight,
-                                            endBottom);
+                                    ViewCompat.setLeftTopRightBottom(view, endLeft, endTop,
+                                            endRight, endBottom);
                                 }
                             }
                         });
@@ -491,7 +491,7 @@ public class ChangeBounds extends Transition {
         }
 
         private void setLeftTopRightBottom() {
-            ViewUtils.setLeftTopRightBottom(mView, mLeft, mTop, mRight, mBottom);
+            ViewCompat.setLeftTopRightBottom(mView, mLeft, mTop, mRight, mBottom);
             mTopLeftCalls = 0;
             mBottomRightCalls = 0;
         }

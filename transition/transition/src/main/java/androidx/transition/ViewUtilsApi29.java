@@ -42,11 +42,6 @@ class ViewUtilsApi29 extends ViewUtilsApi23 {
     }
 
     @Override
-    public void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
-        v.setLeftTopRightBottom(left, top, right, bottom);
-    }
-
-    @Override
     public void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
         view.transformMatrixToGlobal(matrix);
     }

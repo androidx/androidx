@@ -97,6 +97,20 @@ public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivi
     }
 
     @Test
+    public void testSetLeftTopRightBottom() throws Throwable {
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                ViewCompat.setLeftTopRightBottom(mView, 1, 2, 3, 4);
+                assertEquals(1, mView.getLeft());
+                assertEquals(2, mView.getTop());
+                assertEquals(3, mView.getRight());
+                assertEquals(4, mView.getBottom());
+            }
+        });
+    }
+
+    @Test
     public void  dispatchNestedScroll_viewIsNestedScrollingChild3_callsCorrectMethod() {
         final NestedScrollingChild3Impl nestedScrollingChild3Impl =
                 mock(NestedScrollingChild3Impl.class);
