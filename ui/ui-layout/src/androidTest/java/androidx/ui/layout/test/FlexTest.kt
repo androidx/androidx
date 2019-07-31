@@ -145,9 +145,12 @@ class FlexTest : LayoutTest() {
         val root = findAndroidCraneView()
         waitForDraw(root)
 
-        assertEquals(PxSize(root.width.px / 3, childrenHeight.toPx()), childSize[0])
         assertEquals(
-            PxSize(root.width.px * 2 / 3, (heightDp.toPx() * 2).round().toPx()),
+            PxSize((root.width.px / 3).round().toPx(), childrenHeight.toPx()),
+            childSize[0]
+        )
+        assertEquals(
+            PxSize((root.width.px * 2 / 3).round().toPx(), (heightDp.toPx() * 2).round().toPx()),
             childSize[1]
         )
         assertEquals(
