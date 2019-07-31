@@ -42,7 +42,7 @@ import androidx.ui.core.ipx
  * the [ConstrainedBox]s to use the same width.
  */
 @Composable
-fun MinIntrinsicWidth(@Children children: @Composable() () -> Unit) {
+fun MinIntrinsicWidth(children: @Composable() () -> Unit) {
     ComplexLayout(children) {
         layout { measurables, constraints ->
             val measurable = measurables.firstOrNull()
@@ -87,7 +87,7 @@ fun MinIntrinsicWidth(@Children children: @Composable() () -> Unit) {
  * the divider to use the same height.
  */
 @Composable
-fun MinIntrinsicHeight(@Children children: @Composable() () -> Unit) {
+fun MinIntrinsicHeight(children: @Composable() () -> Unit) {
     ComplexLayout(children) {
         layout { measurables, constraints ->
             val measurable = measurables.firstOrNull()
@@ -132,7 +132,7 @@ fun MinIntrinsicHeight(@Children children: @Composable() () -> Unit) {
  * The sample is a layout containing three widgets having the same width as the widest one.
  */
 @Composable
-fun MaxIntrinsicWidth(@Children children: @Composable() () -> Unit) {
+fun MaxIntrinsicWidth(children: @Composable() () -> Unit) {
     ComplexLayout(children) {
         layout { measurables, constraints ->
             val measurable = measurables.firstOrNull()
@@ -177,7 +177,7 @@ fun MaxIntrinsicWidth(@Children children: @Composable() () -> Unit) {
  * and the divider to use the same height.
  */
 @Composable
-fun MaxIntrinsicHeight(@Children children: @Composable() () -> Unit) {
+fun MaxIntrinsicHeight(children: @Composable() () -> Unit) {
     ComplexLayout(children) {
         layout { measurables, constraints ->
             val measurable = measurables.firstOrNull()

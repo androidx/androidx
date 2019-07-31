@@ -256,7 +256,7 @@ class TextSpanScope internal constructor(val composer: TextSpanComposition)
 fun TextSpanScope.Span(
     text: String? = null,
     style: TextStyle? = null,
-    @Children child: @Composable TextSpanScope.() -> Unit
+    child: @Composable TextSpanScope.() -> Unit
 ) {
     TextSpan(text = text, style = style) {
         child()

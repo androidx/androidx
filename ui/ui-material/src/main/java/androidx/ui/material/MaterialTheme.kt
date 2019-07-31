@@ -57,7 +57,6 @@ import androidx.ui.text.TextStyle
 fun MaterialTheme(
     colors: MaterialColors = MaterialColors(),
     typography: MaterialTypography = MaterialTypography(),
-    @Children
     children: @Composable() () -> Unit
 ) {
     Colors.Provider(value = colors) {
@@ -222,7 +221,7 @@ data class MaterialTypography(
  * guidelines for descendants
  */
 @Composable
-fun MaterialRippleTheme(@Children children: @Composable() () -> Unit) {
+fun MaterialRippleTheme(children: @Composable() () -> Unit) {
     val materialColors = +ambient(Colors)
     val defaultTheme = +memo {
         RippleTheme(
@@ -287,7 +286,7 @@ val CurrentShapeAmbient = Ambient.of<Shapes> {
  * Applies the default [Shape]s for all the surfaces.
  */
 @Composable
-fun MaterialButtonShapeTheme(@Children children: @Composable() () -> Unit) {
+fun MaterialButtonShapeTheme(children: @Composable() () -> Unit) {
     val value = +withDensity {
         Shapes(
             button = RoundedCornerShape(CornerSizes(4.dp))

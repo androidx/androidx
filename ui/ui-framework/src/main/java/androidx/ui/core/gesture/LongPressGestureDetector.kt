@@ -46,7 +46,7 @@ import kotlin.coroutines.CoroutineContext
 @Composable
 fun LongPressGestureDetector(
     onLongPress: (PxPosition) -> Unit,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val recognizer =
         +memo { LongPressGestureRecognizer(onLongPress, +ambient(CoroutineContextAmbient)) }

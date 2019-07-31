@@ -500,7 +500,7 @@ private fun FixedIntrinsicsBox(
     maxIntrinsicWidth: Dp,
     minIntrinsicHeight: Dp,
     height: Dp, maxIntrinsicHeight: Dp,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     ComplexLayout(children) {
         layout { _, constraints ->

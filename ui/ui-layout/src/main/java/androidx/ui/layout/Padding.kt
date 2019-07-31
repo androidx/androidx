@@ -53,7 +53,7 @@ data class EdgeInsets(
 @Composable
 fun Padding(
     padding: EdgeInsets,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Layout(layoutBlock = { measurables, constraints ->
         val measurable = measurables.firstOrNull()
@@ -98,7 +98,7 @@ fun Padding(
     top: Dp = 0.dp,
     right: Dp = 0.dp,
     bottom: Dp = 0.dp,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Padding(
         padding = EdgeInsets(left = left, top = top, right = right, bottom = bottom),
@@ -121,7 +121,7 @@ fun Padding(
 @Composable
 fun Padding(
     padding: Dp,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Padding(padding = EdgeInsets(padding), children = children)
 }

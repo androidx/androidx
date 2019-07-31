@@ -87,7 +87,7 @@ fun Vector(
     viewportHeight: Float,
     defaultWidth: Px = Px(viewportWidth),
     defaultHeight: Px = Px(viewportHeight),
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     <VectorComponent
         name
@@ -110,7 +110,7 @@ fun Group(
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
     clipPathData: PathData = EmptyPath,
-    @Children childNodes: @Composable() () -> Unit
+    childNodes: @Composable() () -> Unit
 ) {
 
     val clipPathNodes = createPath(clipPathData)

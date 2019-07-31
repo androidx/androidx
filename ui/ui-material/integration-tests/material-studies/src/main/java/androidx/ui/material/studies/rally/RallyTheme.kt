@@ -36,7 +36,7 @@ val rallyPurple = Color(0xFFB15DFF.toInt())
 val rallyBlue = Color(0xFF72DEFF.toInt())
 
 @Composable
-fun RallyTheme(@Children children: @Composable() () -> Unit) {
+fun RallyTheme(children: @Composable() () -> Unit) {
     val colors = MaterialColors(
         primary = rallyGreen,
         surface = Color(0xFF26282F.toInt()),

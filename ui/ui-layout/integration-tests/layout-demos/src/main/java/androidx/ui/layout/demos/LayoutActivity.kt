@@ -53,7 +53,7 @@ fun ContainerWithBackground(
     width: Dp? = null,
     height: Dp? = null,
     color: Color,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Wrap {
         DrawRectangle(color = color)

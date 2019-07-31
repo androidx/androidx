@@ -221,7 +221,7 @@ private fun TextInputEventObserver(
     onRelease: (PxPosition) -> Unit,
     onFocus: () -> Unit,
     onBlur: () -> Unit,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val focused = +state { false }
     val focusManager = +ambient(FocusManagerAmbient)
@@ -294,7 +294,7 @@ private fun DragPositionGestureDetector(
     onPress: (PxPosition) -> Unit,
     onDragAt: (PxPosition) -> Unit,
     onRelease: (PxPosition) -> Unit,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val tracker = +state { DragEventTracker() }
     PressGestureDetector(

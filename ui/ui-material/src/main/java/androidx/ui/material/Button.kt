@@ -74,7 +74,7 @@ fun Button(
     color: Color = +themeColor { primary },
     border: Border? = null,
     elevation: Dp = 0.dp,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val textStyle = +themeTextStyle { button }
     Surface(shape = shape, color = color, border = border, elevation = elevation) {

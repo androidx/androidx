@@ -100,7 +100,7 @@ interface DragObserver {
 fun DragGestureDetector(
     canDrag: ((Direction) -> Boolean)? = null,
     dragObserver: DragObserver? = null,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val recognizer = +memo { DragGestureRecognizer() }
     recognizer.canDrag = canDrag

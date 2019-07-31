@@ -33,7 +33,7 @@ import androidx.compose.composer
 @Composable
 fun Opacity(
     @FloatRange(from = 0.0, to = 1.0) opacity: Float,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     <RepaintBoundaryNode name=null opacity=opacity>
         children()

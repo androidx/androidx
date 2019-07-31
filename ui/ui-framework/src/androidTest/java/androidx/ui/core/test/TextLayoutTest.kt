@@ -163,7 +163,7 @@ class TextLayoutTest {
         assertTrue(intrinsicsLatch.await(1, TimeUnit.SECONDS))
     }
 
-    private fun show(@Children composable: @Composable() () -> Unit) {
+    private fun show(composable: @Composable() () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent {

@@ -44,7 +44,7 @@ fun SelectionContainer(
     onSelectionChange: (Selection?) -> Unit,
     /** Selection mode. The default mode is Vertical. */
     mode: SelectionMode = SelectionMode.Vertical,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val manager = +memo { SelectionManager() }
     // TODO (qqd): After selection widget is fully implemented, evaluate if the following 2 items
