@@ -19,6 +19,7 @@ package androidx.ui.test.cases
 import android.app.Activity
 import androidx.compose.composer
 import androidx.compose.Composable
+import androidx.compose.CompositionContext
 import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
@@ -46,20 +47,17 @@ class RectsInColumnTestCase(
 
     private val states = mutableListOf<State<Color>>()
 
-    override fun setupContent(activity: Activity) {
-        compositionContext = activity.setContent {
-            MaterialTheme {
-                Surface {
-                    Column {
-                        repeat(amountOfRectangles) {
-                            ColoredRectWithModel()
-                        }
+    override fun setComposeContent(activity: Activity) = activity.setContent {
+        MaterialTheme {
+            Surface {
+                Column {
+                    repeat(amountOfRectangles) {
+                        ColoredRectWithModel()
                     }
                 }
             }
-        }!!
-        FrameManager.nextFrame()
-    }
+        }
+    }!!
 
     override fun toggleState() {
         val state = states.first()
