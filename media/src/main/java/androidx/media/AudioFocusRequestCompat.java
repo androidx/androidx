@@ -16,8 +16,6 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.media.AudioAttributes;
@@ -33,7 +31,6 @@ import android.os.Message;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
 
 import java.lang.annotation.Retention;
@@ -45,8 +42,6 @@ public class AudioFocusRequestCompat {
     /* package */ static final AudioAttributesCompat FOCUS_DEFAULT_ATTR =
             new AudioAttributesCompat.Builder().setUsage(AudioAttributesCompat.USAGE_MEDIA).build();
 
-    /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @IntDef({
         AudioManagerCompat.AUDIOFOCUS_GAIN,
@@ -54,7 +49,7 @@ public class AudioFocusRequestCompat {
         AudioManagerCompat.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
         AudioManagerCompat.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE
     })
-    public @interface FocusGainType {}
+    private @interface FocusGainType {}
 
     private final int mFocusGain;
     private final OnAudioFocusChangeListener mOnAudioFocusChangeListener;
@@ -392,10 +387,8 @@ public class AudioFocusRequestCompat {
          *
          * @param focusGain value to check
          * @return true if focusGain is a valid value for an audio focus request.
-         * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
-        static boolean isValidFocusGain(@FocusGainType int focusGain) {
+        private static boolean isValidFocusGain(@FocusGainType int focusGain) {
             switch (focusGain) {
                 case AudioManagerCompat.AUDIOFOCUS_GAIN:
                 case AudioManagerCompat.AUDIOFOCUS_GAIN_TRANSIENT:

@@ -446,7 +446,7 @@ public final class MediaBrowserCompat {
      *         String, Bundle)}
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     @Nullable
     public Bundle getNotifyChildrenChangedOptions() {
         return mImpl.getNotifyChildrenChangedOptions();
@@ -462,11 +462,9 @@ public final class MediaBrowserCompat {
         private final int mFlags;
         private final MediaDescriptionCompat mDescription;
 
-        /** @hide */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Retention(RetentionPolicy.SOURCE)
         @IntDef(flag=true, value = { FLAG_BROWSABLE, FLAG_PLAYABLE })
-        public @interface Flags { }
+        private @interface Flags { }
 
         /**
          * Flag: Indicates that the item has children of its own.

@@ -125,16 +125,12 @@ public class MediaSessionCompat {
     private final MediaControllerCompat mController;
     private final ArrayList<OnActiveChangeListener> mActiveListeners = new ArrayList<>();
 
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag=true, value={
             FLAG_HANDLES_MEDIA_BUTTONS,
             FLAG_HANDLES_TRANSPORT_CONTROLS,
             FLAG_HANDLES_QUEUE_COMMANDS })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface SessionFlags {}
+    private @interface SessionFlags {}
 
     /**
      * Sets this flag on the session to indicate that it can handle media button
@@ -422,7 +418,7 @@ public class MediaSessionCompat {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final String KEY_TOKEN = "android.support.v4.media.session.TOKEN";
 
     /**
@@ -435,7 +431,7 @@ public class MediaSessionCompat {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static final String KEY_SESSION2_TOKEN =
             "android.support.v4.media.session.SESSION_TOKEN2";
 
@@ -533,7 +529,7 @@ public class MediaSessionCompat {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
     public MediaSessionCompat(@NonNull Context context, @NonNull String tag,
             @Nullable ComponentName mbrComponent, @Nullable PendingIntent mbrIntent,
             @Nullable Bundle sessionInfo, @Nullable VersionedParcelable session2Token) {
@@ -964,7 +960,7 @@ public class MediaSessionCompat {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public String getCallingPackage() {
         return mImpl.getCallingPackage();
     }
@@ -1031,11 +1027,8 @@ public class MediaSessionCompat {
 
     /**
      * Returns whether the given bundle includes non-framework Parcelables.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public static boolean doesBundleHaveCustomParcelable(@Nullable Bundle bundle) {
+    static boolean doesBundleHaveCustomParcelable(@Nullable Bundle bundle) {
         if (bundle == null) {
             return false;
         }
@@ -1066,7 +1059,7 @@ public class MediaSessionCompat {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public static void ensureClassLoader(@Nullable Bundle bundle) {
         if (bundle != null) {
             bundle.setClassLoader(MediaSessionCompat.class.getClassLoader());
@@ -1832,7 +1825,7 @@ public class MediaSessionCompat {
          * @return A compat Token for use with {@link MediaControllerCompat}.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public static Token fromToken(Object token, IMediaSession extraBinder) {
             if (token != null && android.os.Build.VERSION.SDK_INT >= 21) {
                 if (!(token instanceof MediaSession.Token)) {
@@ -1901,7 +1894,7 @@ public class MediaSessionCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public IMediaSession getExtraBinder() {
             return mExtraBinder;
         }
@@ -1909,7 +1902,7 @@ public class MediaSessionCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY)
         public void setExtraBinder(IMediaSession extraBinder) {
             mExtraBinder = extraBinder;
         }
@@ -1917,7 +1910,7 @@ public class MediaSessionCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public VersionedParcelable getSession2Token() {
             return mSession2Token;
         }
@@ -1925,7 +1918,7 @@ public class MediaSessionCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public void setSession2Token(VersionedParcelable session2Token) {
             mSession2Token = session2Token;
         }
@@ -1933,7 +1926,7 @@ public class MediaSessionCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public Bundle toBundle() {
             Bundle bundle = new Bundle();
             bundle.putParcelable(KEY_TOKEN, this);
@@ -1953,7 +1946,7 @@ public class MediaSessionCompat {
          * @return A compat Token for use with {@link MediaControllerCompat}.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
         public static Token fromBundle(Bundle tokenBundle) {
             if (tokenBundle == null) {
                 return null;
@@ -2147,12 +2140,9 @@ public class MediaSessionCompat {
      * This is a wrapper for {@link ResultReceiver} for sending over aidl
      * interfaces. The framework version was not exposed to aidls until
      * {@link android.os.Build.VERSION_CODES#LOLLIPOP}.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
     @SuppressLint("BanParcelableUsage")
-    public static final class ResultReceiverWrapper implements Parcelable {
+    /* package */ static final class ResultReceiverWrapper implements Parcelable {
         ResultReceiver mResultReceiver;
 
         public ResultReceiverWrapper(@NonNull ResultReceiver resultReceiver) {
