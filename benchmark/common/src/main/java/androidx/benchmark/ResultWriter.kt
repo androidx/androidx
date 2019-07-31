@@ -23,6 +23,7 @@ import android.util.JsonWriter
 import androidx.annotation.VisibleForTesting
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
+import java.io.IOException
 
 internal object ResultWriter {
     @VisibleForTesting
@@ -50,7 +51,21 @@ internal object ResultWriter {
         file.run {
             if (!exists()) {
                 parentFile?.mkdirs()
-                createNewFile()
+                try {
+                    createNewFile()
+                } catch (exception: IOException) {
+                    throw IOException(
+                        """
+                            Failed to create file for benchmark report. Make sure the
+                            instrumentation argument additionalOutputDir is set to a writable
+                            directory on device. If using a version of Android Gradle Plugin that
+                            doesn't support additionalOutputDir, ensure your app's manifest file
+                            enables legacy storage behavior by adding the application attribute:
+                            android:requestLegacyExternalStorage="true"
+                        """.trimIndent(),
+                        exception
+                    )
+                }
             }
 
             val writer = JsonWriter(bufferedWriter())
