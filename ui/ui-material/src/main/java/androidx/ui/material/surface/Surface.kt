@@ -84,7 +84,7 @@ fun Surface(
     color: Color = +themeColor { surface },
     border: Border? = null,
     elevation: Dp = 0.dp,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     SurfaceLayout {
         DrawShadow(shape = shape, elevation = elevation)
@@ -110,7 +110,7 @@ fun Surface(
  * TODO("Andrey: Should be replaced with some basic layout implementation when we have it")
  */
 @Composable
-private fun SurfaceLayout(@Children children: @Composable() () -> Unit) {
+private fun SurfaceLayout(children: @Composable() () -> Unit) {
     Layout(children = children, layoutBlock = { measurables, constraints ->
         if (measurables.size > 1) {
             throw IllegalStateException("Surface can have only one direct measurable child!")

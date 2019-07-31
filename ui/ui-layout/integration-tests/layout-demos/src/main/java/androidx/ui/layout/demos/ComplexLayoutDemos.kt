@@ -227,7 +227,7 @@ fun PaddingUsage() {
 }
 
 @Composable
-fun SingleCompositionRow(@Children children: @Composable() () -> Unit) {
+fun SingleCompositionRow(children: @Composable() () -> Unit) {
     Layout(layoutBlock = { measurables, constraints ->
         val placeables = measurables.map {
             it.measure(constraints.copy(minWidth = 0.ipx, maxWidth = IntPx.Infinity))
@@ -246,7 +246,7 @@ fun SingleCompositionRow(@Children children: @Composable() () -> Unit) {
 }
 
 @Composable
-fun SingleCompositionColumn(@Children children: @Composable() () -> Unit) {
+fun SingleCompositionColumn(children: @Composable() () -> Unit) {
     Layout(layoutBlock = { measurables, constraints ->
         val placeables = measurables.map {
             it.measure(constraints.copy(minHeight = 0.ipx, maxHeight = IntPx.Infinity))
@@ -306,7 +306,7 @@ fun SingleCompositionRectWithIntrinsics() {
 }
 
 @Composable
-fun SingleCompositionRowWithIntrinsics(@Children children: @Composable() () -> Unit) {
+fun SingleCompositionRowWithIntrinsics(children: @Composable() () -> Unit) {
     ComplexLayout(children = children, block = {
         layout { measurables, constraints ->
             val placeables = measurables.map { measurable ->

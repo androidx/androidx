@@ -553,7 +553,7 @@ class AndroidLayoutDrawTest {
         fun FixedSizeRow(
             width: IntPx,
             height: IntPx,
-            @Children children: @Composable() () -> Unit
+            children: @Composable() () -> Unit
         ) {
             Layout(children = children, layoutBlock = { measurables, constraints ->
                 val resolvedWidth = width.coerceIn(constraints.minWidth, constraints.maxWidth)
@@ -936,7 +936,7 @@ class AndroidLayoutDrawTest {
 }
 
 @Composable
-fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
+fun AtLeastSize(size: IntPx, children: @Composable() () -> Unit) {
     Layout(
         layoutBlock = { measurables, constraints ->
             val newConstraints = Constraints(
@@ -964,7 +964,7 @@ fun AtLeastSize(size: IntPx, @Children children: @Composable() () -> Unit) {
 }
 
 @Composable
-fun Align(@Children children: @Composable() () -> Unit) {
+fun Align(children: @Composable() () -> Unit) {
     Layout(
         layoutBlock = { measurables, constraints ->
             val newConstraints = Constraints(
@@ -992,7 +992,7 @@ fun Align(@Children children: @Composable() () -> Unit) {
 }
 
 @Composable
-fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
+fun Padding(size: IntPx, children: @Composable() () -> Unit) {
     Layout(
         layoutBlock = { measurables, constraints ->
             val totalDiff = size * 2
@@ -1024,7 +1024,7 @@ fun Padding(size: IntPx, @Children children: @Composable() () -> Unit) {
 fun TwoMeasureLayout(
     size: IntPx,
     latch: CountDownLatch,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Layout(children = children) { measurables, _ ->
         val testConstraints = Constraints()
@@ -1046,7 +1046,7 @@ fun TwoMeasureLayout(
 }
 
 @Composable
-fun Position(size: IntPx, offset: OffsetModel, @Children children: @Composable() () -> Unit) {
+fun Position(size: IntPx, offset: OffsetModel, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val placeables = measurables.map { m ->
             m.measure(constraints)

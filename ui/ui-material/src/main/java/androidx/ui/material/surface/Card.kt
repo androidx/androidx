@@ -49,7 +49,7 @@ fun Card(
     color: Color = +themeColor { surface },
     border: Border? = null,
     elevation: Dp = 0.dp,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     // TODO(Andrey: This currently adds no logic on top of Surface, I just reserve the name
     // for now. We will see what will be the additional Card specific logic later.

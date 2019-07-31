@@ -52,7 +52,7 @@ import androidx.ui.core.PointerInputWrapper
 fun PressReleasedGestureDetector(
     onRelease: (() -> Unit)? = null,
     consumeDownOnStart: Boolean = true,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val recognizer = +memo { PressReleaseGestureRecognizer() }
     recognizer.onRelease = onRelease

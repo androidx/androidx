@@ -47,7 +47,7 @@ import kotlin.coroutines.CoroutineContext
  * [Activity.setContent] or [ViewGroup.setContent] extensions.
  */
 @Composable
-fun ComposeView(@Children children: @Composable() () -> Unit) {
+fun ComposeView(children: @Composable() () -> Unit) {
     val rootRef = +memo { Ref<AndroidCraneView>() }
 
     <AndroidCraneView ref=rootRef>
@@ -100,7 +100,7 @@ fun ComposeView(@Children children: @Composable() () -> Unit) {
  * @param content Composable that will be the content of the activity.
  */
 fun Activity.setContent(
-    @Children content: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ): CompositionContext? {
     val craneView = window.decorView
         .findViewById<ViewGroup>(android.R.id.content)
@@ -123,7 +123,7 @@ fun Activity.setContent(
  * @param content Composable that will be the content of the view.
  */
 fun ViewGroup.setContent(
-    @Children content: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ): CompositionContext? {
     val craneView =
         if (childCount > 0) { getChildAt(0) as? AndroidCraneView } else { removeAllViews(); null }
@@ -144,7 +144,7 @@ private fun WrapWithAmbients(
     craneView: AndroidCraneView,
     context: Context,
     coroutineContext: CoroutineContext,
-    @Children content: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidCraneView case

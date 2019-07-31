@@ -124,7 +124,7 @@ fun Semantics(
     textDirection: TextDirection? = null,
     testTag: String? = null,
     actions: List<SemanticsAction<*>> = emptyList(),
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val providedTestTag = +ambient(TestTagAmbient)
     <SemanticsComponentNode

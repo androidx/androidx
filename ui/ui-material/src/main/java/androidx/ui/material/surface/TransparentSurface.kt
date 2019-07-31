@@ -38,7 +38,7 @@ import androidx.ui.material.ripple.RippleEffect
 @Composable
 fun TransparentSurface(
     shape: Shape = RectangleShape,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Surface(shape = shape, children = children, color = Color.Transparent)
 }

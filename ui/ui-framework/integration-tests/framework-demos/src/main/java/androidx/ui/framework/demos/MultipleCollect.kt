@@ -63,7 +63,7 @@ private fun DrawFillRect(brush: Brush) {
 fun HeaderFooterLayout(
     header: @Composable() () -> Unit,
     footer: @Composable() () -> Unit,
-    @Children content: @Composable() () -> Unit
+    content: @Composable() () -> Unit
 ) {
     @Suppress("USELESS_CAST")
     Layout(

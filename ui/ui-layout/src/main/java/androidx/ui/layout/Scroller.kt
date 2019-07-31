@@ -52,7 +52,7 @@ import androidx.ui.engine.geometry.Shape
 private fun VerticalDragGestureDetector(
     max: Px = Px.Infinity,
     offsetChange: (Px) -> Unit,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val offset = +state { 0.px }
     DragGestureDetector(
@@ -105,7 +105,7 @@ fun VerticalScroller(
     onScrollChanged: (position: Px, maxPosition: Px) -> Unit = { position, _ ->
         scrollerPosition.position = position
     },
-    @Children child: @Composable() () -> Unit
+    child: @Composable() () -> Unit
 ) {
     val maxPosition = +state { 0.px }
     Layout(children = {

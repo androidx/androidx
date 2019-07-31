@@ -38,7 +38,7 @@ import androidx.ui.core.ipx
 @Composable
 fun ConstrainedBox(
     constraints: DpConstraints,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     ComplexLayout(children) {
         layout { measurables, incomingConstraints ->

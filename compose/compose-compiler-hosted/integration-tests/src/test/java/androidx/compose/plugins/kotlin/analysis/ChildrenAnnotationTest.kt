@@ -14,21 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.ui.core
+package androidx.compose.plugins.kotlin.analysis
 
-import androidx.compose.Children
-import androidx.compose.Composable
-import androidx.compose.composer
-import androidx.ui.engine.geometry.Shape
+import androidx.compose.plugins.kotlin.AbstractComposeDiagnosticsTest
 
-/**
- * Clips the children with the provided shape.
- *
- * @param shape the [Shape] used for clipping.
- */
-@Composable
-fun Clip(shape: Shape, children: @Composable() () -> Unit) {
-    <RepaintBoundaryNode name=null shape=shape clipToShape=true>
-        children()
-    </RepaintBoundaryNode>
+class ChildrenAnnotationTest : AbstractComposeDiagnosticsTest() {
+
+    fun testReportChildrenOnWrongParameter() {
+        doTest("""
+            import androidx.compose.*;
+
+            @Composable fun MyWidget(<!CHILDREN_MUST_BE_LAST!>@Children children: ()->Unit<!>, value: Int) {
+                System.out.println(""+children+value)
+            }
+        """)
+    }
 }

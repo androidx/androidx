@@ -40,7 +40,7 @@ import androidx.compose.composer
 fun Clickable(
     onClick: (() -> Unit)? = null,
     consumeDownOnStart: Boolean = false,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Semantics(
         button = true,

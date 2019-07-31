@@ -46,7 +46,7 @@ import androidx.compose.unaryPlus
 fun <T> Transition(
     definition: TransitionDefinition<T>,
     toState: T,
-    @Children children: @Composable() (state: TransitionState) -> Unit
+    children: @Composable() (state: TransitionState) -> Unit
 ) {
     if (transitionsEnabled) {
         // TODO: This null is workaround for b/132148894

@@ -31,7 +31,7 @@ import androidx.compose.unaryPlus
  */
 
 @Composable
-fun Scaffold(appBar: @Composable() () -> Unit, @Children children: @Composable() () -> Unit) {
+fun Scaffold(appBar: @Composable() () -> Unit, children: @Composable() () -> Unit) {
     FlexColumn {
         inflexible {
             appBar()

@@ -35,7 +35,7 @@ import androidx.ui.core.Draw
  * A simple layout composable that matches the size of it's parent layout.
  */
 @Composable
-internal fun MatchParent(@Children children: @Composable() () -> Unit) {
+internal fun MatchParent(children: @Composable() () -> Unit) {
     Layout({
         children()
     }, { _, constraints ->
@@ -44,7 +44,7 @@ internal fun MatchParent(@Children children: @Composable() () -> Unit) {
 }
 
 @Composable
-internal fun Center(@Children children: @Composable() () -> Unit) {
+internal fun Center(children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val placeable = measurables.first().measure(constraints)
         layout(constraints.maxWidth, constraints.maxHeight) {
@@ -59,7 +59,7 @@ internal fun Center(@Children children: @Composable() () -> Unit) {
  * A simple composable that pads items by [padding].
  */
 @Composable
-private fun Padding(padding: Dp?, @Children children: @Composable() () -> Unit) {
+private fun Padding(padding: Dp?, children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         val paddingPx = padding?.toIntPx() ?: 0.ipx
         val doublePadding = paddingPx * 2
@@ -90,7 +90,7 @@ private fun Padding(padding: Dp?, @Children children: @Composable() () -> Unit) 
  * A simple composable that draws a border around it's children.
  */
 @Composable
-private fun Border(color: Color, width: Dp, @Children children: @Composable() () -> Unit) {
+private fun Border(color: Color, width: Dp, children: @Composable() () -> Unit) {
     Layout(
         children = {
             children()
@@ -140,7 +140,7 @@ internal fun SimpleContainer(
     width: Dp,
     height: Dp,
     padding: Dp,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
 
     val borderWidth: Dp = 2.dp

@@ -144,7 +144,7 @@ fun PressGestureDetectorWithActions(
     onPress: SemanticAction<PxPosition> = SemanticAction(defaultParam = PxPosition.Origin) { },
     onRelease: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
     onCancel: SemanticAction<Unit> = SemanticAction(defaultParam = Unit) { },
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     PressGestureDetector(
         onPress = { onPress.action(ActionParam(ActionCaller.PointerInput, it)) },
@@ -165,7 +165,7 @@ fun PressGestureDetectorWithActions(
 fun Semantics(
     @Suppress("UNUSED_PARAMETER") properties: Set<SemanticProperty<out Any>> = setOf(),
     actions: Set<SemanticAction<out Any?>> = setOf(),
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Column {
         MaterialTheme {
@@ -275,7 +275,7 @@ private enum class CollapseMode { Visible, Collapsed }
  * children or make them visible.
  */
 @Composable
-private fun Collapsable(@Children children: @Composable() () -> Unit) {
+private fun Collapsable(children: @Composable() () -> Unit) {
 
     val collapsedState = +state { CollapseMode.Collapsed }
 
