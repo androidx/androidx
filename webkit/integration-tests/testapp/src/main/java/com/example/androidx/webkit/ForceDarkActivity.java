@@ -16,7 +16,6 @@
 
 package com.example.androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -42,7 +41,6 @@ public class ForceDarkActivity extends AppCompatActivity {
             "<html><body><h1>Force Dark Mode is %s </h1></body></html>";
 
     @Override
-    @SuppressLint("RestrictedApi")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -62,7 +60,6 @@ public class ForceDarkActivity extends AppCompatActivity {
         }
     }
 
-    @SuppressLint("RestrictedApi")
     private void setupWebView(WebView webView, int forceDarkMode) {
         webView.setWebViewClient(new WebViewClient());
         String formatedDescription;

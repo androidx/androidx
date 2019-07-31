@@ -234,7 +234,7 @@ public final class WebViewAssetLoader {
      * @hide
      */
     // TODO(b/132880733) unhide the API when it's ready.
-    @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class InternalStoragePathHandler implements PathHandler {
         /**
          * Forbidden subdirectories of {@link Context#getDataDir} that cannot be exposed by this
