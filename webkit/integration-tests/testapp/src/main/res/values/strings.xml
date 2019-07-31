@@ -22,6 +22,7 @@
     <string name="not_updateable_webview">not updatable</string>
     <string name="proxy_override_requests_served">Requests served: %d</string>
     <string name="asset_loader_ajax_activity_title">Asset Loader AJAX Demo</string>
+    <string name="asset_loader_internal_storage_activity_title">Load from internal storage</string>
     <string name="asset_loader_list_activity_title">WebView Asset Loader Demos</string>
     <string name="asset_loader_simple_activity_title">Simple Asset Loader</string>
     <string name="small_interstitial_activity_title">Small Interstitial</string>
