@@ -24,6 +24,7 @@ import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.test.assertTrue
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -90,6 +91,7 @@ class ResultWriterTest {
                 "benchmarks": [
                     {
                         "name": "MethodA",
+                        "params": {},
                         "className": "package.Class1",
                         "totalRunTimeNs": 900000000,
                         "metrics": {
@@ -110,6 +112,7 @@ class ResultWriterTest {
                     },
                     {
                         "name": "MethodB",
+                        "params": {},
                         "className": "package.Class2",
                         "totalRunTimeNs": 900000000,
                         "metrics": {
@@ -133,5 +136,62 @@ class ResultWriterTest {
             """.trimIndent(),
             tempFile.readText()
         )
+    }
+
+    @Test
+    fun validateJsonWithParams() {
+        val reportWithParams = BenchmarkState.Report(
+            testName = "MethodWithParams[number=2,primeNumber=true]",
+            className = "package.Class",
+            totalRunTimeNs = 900000000,
+            data = listOf(100, 101, 102),
+            repeatIterations = 100000,
+            thermalThrottleSleepSeconds = 90000000,
+            warmupIterations = 8000
+        )
+
+        val tempFile = tempFolder.newFile()
+        ResultWriter.writeReport(tempFile, listOf(reportWithParams))
+        val reportText = tempFile.readText()
+
+        assertTrue {
+            reportText.contains(
+                """
+                |            "name": "MethodWithParams[number=2,primeNumber=true]",
+                |            "params": {
+                |                "number": "2",
+                |                "primeNumber": "true"
+                |            },
+                """.trimMargin()
+            )
+        }
+    }
+
+    @Test
+    fun validateJsonWithInvalidParams() {
+        val reportWithInvalidParams = BenchmarkState.Report(
+            testName = "MethodWithParams[number=2,=true,]",
+            className = "package.Class",
+            totalRunTimeNs = 900000000,
+            data = listOf(100, 101, 102),
+            repeatIterations = 100000,
+            thermalThrottleSleepSeconds = 90000000,
+            warmupIterations = 8000
+        )
+
+        val tempFile = tempFolder.newFile()
+        ResultWriter.writeReport(tempFile, listOf(reportWithInvalidParams))
+        val reportText = tempFile.readText()
+
+        assertTrue {
+            reportText.contains(
+                """
+                |            "name": "MethodWithParams[number=2,=true,]",
+                |            "params": {
+                |                "number": "2"
+                |            },
+                """.trimMargin()
+            )
+        }
     }
 }

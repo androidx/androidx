@@ -91,14 +91,39 @@ internal object ResultWriter {
     private fun JsonWriter.reportObject(report: BenchmarkState.Report): JsonWriter {
         beginObject()
             .name("name").value(report.testName)
+            .name("params").paramsObject(report)
             .name("className").value(report.className)
             .name("totalRunTimeNs").value(report.totalRunTimeNs)
             .name("metrics").metricsObject(report)
             .name("warmupIterations").value(report.warmupIterations)
             .name("repeatIterations").value(report.repeatIterations)
             .name("thermalThrottleSleepSeconds").value(report.thermalThrottleSleepSeconds)
-
         return endObject()
+    }
+
+    private fun JsonWriter.paramsObject(report: BenchmarkState.Report): JsonWriter {
+        beginObject()
+        getParams(report.testName).forEach { name(it.key).value(it.value) }
+        return endObject()
+    }
+
+    private fun getParams(testName: String): Map<String, String> {
+        val parameterStrStart = testName.indexOf('[')
+        val parameterStrEnd = testName.lastIndexOf(']')
+
+        val params = HashMap<String, String>()
+        if (parameterStrStart >= 0 && parameterStrEnd >= 0) {
+            val paramListString = testName.substring(parameterStrStart + 1, parameterStrEnd)
+            paramListString.split(",").forEach { paramString ->
+                val separatorIndex = paramString.indexOfFirst { it == ':' || it == '=' }
+                if (separatorIndex in 1 until paramString.length - 1) {
+                    val key = paramString.substring(0, separatorIndex)
+                    val value = paramString.substring(separatorIndex + 1)
+                    params[key] = value
+                }
+            }
+        }
+        return params
     }
 
     private fun JsonWriter.metricsObject(report: BenchmarkState.Report): JsonWriter {
