@@ -24,6 +24,7 @@ import androidx.ui.graphics.Color
 import androidx.ui.layout.Center
 import androidx.ui.layout.FlexColumn
 import androidx.ui.material.Button
+import androidx.ui.material.ContainedButtonStyle
 import androidx.ui.material.samples.FancyIndicatorContainerTabs
 import androidx.ui.material.samples.FancyIndicatorTabs
 import androidx.ui.material.samples.FancyTabs
@@ -55,9 +56,12 @@ class TabActivity : MaterialDemoActivity() {
 
             expanded(flex = 1f) {
                 Center {
-                    Button(color = Color.Cyan, text = buttonText, onClick = {
-                        showingSimple.value = !showingSimple.value
-                    })
+                    Button(
+                        style = ContainedButtonStyle(color = Color.Cyan),
+                        text = buttonText,
+                        onClick = {
+                            showingSimple.value = !showingSimple.value
+                        })
                 }
             }
         }

@@ -33,9 +33,10 @@ import androidx.ui.layout.MainAxisAlignment
 import androidx.ui.layout.Padding
 import androidx.ui.layout.Row
 import androidx.ui.layout.WidthSpacer
+import androidx.ui.material.Button
 import androidx.ui.material.Colors
 import androidx.ui.material.Divider
-import androidx.ui.material.TransparentButton
+import androidx.ui.material.TextButtonStyle
 import androidx.ui.material.surface.Card
 import androidx.ui.material.themeTextStyle
 
@@ -52,7 +53,7 @@ fun RallyAlertCard() {
             Column {
                 Row(mainAxisAlignment = MainAxisAlignment.SpaceBetween) {
                     Text(text = "Alerts", style = +themeTextStyle { subtitle2 })
-                    TransparentButton(text = "See All", onClick = { })
+                    Button(text = "See All", onClick = { }, style = TextButtonStyle())
                 }
                 Padding(padding = EdgeInsets(0.dp, 12.dp, 0.dp, 12.dp)) {
                     val colors = +ambient(Colors)
@@ -71,7 +72,7 @@ fun RallyAlertCard() {
                         // TODO: icons still don't work
 //                        <vectorResource res=context.resources
 //                            resId=androidx.ui.material.studies.R.drawable.sort_icon/>
-                        TransparentButton(text = "Sort", onClick = { })
+                        Button(text = "Sort", onClick = { }, style = TextButtonStyle())
                     }
                 }
             }
@@ -117,7 +118,7 @@ fun RallyAccountsCard() {
                         color = Color(0xFF37EFBA.toInt())
                     )
                     Divider(color = colors.surface, height = 2.dp)
-                    TransparentButton(text = "See All")
+                    Button(text = "See All", style = TextButtonStyle())
                 }
             }
         }
