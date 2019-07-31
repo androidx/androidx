@@ -23,14 +23,18 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import org.junit.runners.Parameterized.Parameters
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ParameterizedBenchmark(@Suppress("unused") private val input: Int) {
+class ParameterizedBenchmark(
+    @Suppress("unused") private val input: Int,
+    @Suppress("unused") private val stringInput: String
+) {
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
-        fun data(): Collection<Array<Int>> = List(2) { arrayOf(it) }
+        @Parameters(name = "size={0},str:{1}")
+        fun data(): Collection<Array<Any>> = List(2) { arrayOf(it, "$it=:") }
     }
 
     @get:Rule
