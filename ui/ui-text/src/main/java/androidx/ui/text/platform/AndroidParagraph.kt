@@ -118,13 +118,13 @@ internal class AndroidParagraph constructor(
         get() = 0.0f
 
     override val maxIntrinsicWidth: Float
-        get() = layout?.let { it.maxIntrinsicWidth } ?: 0.0f
+        get() = layout?.maxIntrinsicWidth ?: 0.0f
 
     override val baseline: Float
-        get() = layout?.let { it.layout.getLineBaseline(0).toFloat() } ?: 0.0f
+        get() = layout?.getLineBaseline(0) ?: 0.0f
 
     override val didExceedMaxLines: Boolean
-        get() = layout?.let { it.didExceedMaxLines } ?: false
+        get() = layout?.didExceedMaxLines ?: false
 
     @VisibleForTesting
     internal val textLocale: Locale
@@ -135,10 +135,9 @@ internal class AndroidParagraph constructor(
 
     private val ensureLayout: TextLayout
         get() {
-            val tmpLayout = this.layout ?: throw java.lang.IllegalStateException(
+            return this.layout ?: throw java.lang.IllegalStateException(
                 "layout() should be called first"
             )
-            return tmpLayout
         }
 
     @VisibleForTesting
@@ -156,7 +155,7 @@ internal class AndroidParagraph constructor(
             text = text,
             textIndent = paragraphStyle.textIndent,
             textStyles = listOf(
-                AnnotatedString.Item<TextStyle>(
+                AnnotatedString.Item(
                     newStyle,
                     0,
                     text.length
@@ -225,7 +224,7 @@ internal class AndroidParagraph constructor(
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
-        if (!(start <= end && start >= 0 && end <= text.length)) {
+        if (start !in 0..end || end > text.length) {
             throw AssertionError(
                 "Start($start) or End($end) is out of Range(0..${text.length}), or start > end!"
             )
@@ -236,7 +235,7 @@ internal class AndroidParagraph constructor(
     }
 
     override fun getCursorRect(offset: Int): Rect {
-        if (!(offset in (0..text.length))) {
+        if (offset !in 0..text.length) {
             throw AssertionError("offset($offset) is out of bounds (0,${text.length}")
         }
         // TODO(nona): Support cursor drawable.
@@ -481,7 +480,7 @@ private fun TextStyle.applyTextStyle(
 
     // fontSizeScale must be applied after fontSize is applied.
     fontSizeScale?.let {
-        textPaint.textSize *= fontSizeScale
+        textPaint.textSize *= it
     }
 
     // TODO(siyamed): This default values are problem here. If the user just gives a single font

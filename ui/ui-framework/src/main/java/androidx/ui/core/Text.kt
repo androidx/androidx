@@ -17,7 +17,6 @@ package androidx.ui.core
 
 import android.annotation.SuppressLint
 import androidx.compose.Ambient
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.composer
@@ -40,6 +39,7 @@ import androidx.ui.text.TextSelection
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextSpan
 import androidx.ui.text.TextStyle
+import androidx.ui.text.style.TextAlign
 import androidx.ui.text.toAnnotatedString
 import androidx.ui.text.style.TextOverflow
 
@@ -76,7 +76,7 @@ fun Text(
      *  Whether the text should break at soft line breaks.
      *  If false, the glyphs in the text will be positioned as if there was unlimited horizontal
      *  space.
-     *  If [softWrap] is false, [overflow] and [textAlign] may have unexpected effects.
+     *  If [softWrap] is false, [overflow] and [TextAlign] may have unexpected effects.
      */
     softWrap: Boolean = DefaultSoftWrap,
     /** How visual overflow should be handled. */
@@ -169,7 +169,7 @@ fun Text(
      *  Whether the text should break at soft line breaks.
      *  If false, the glyphs in the text will be positioned as if there was unlimited horizontal
      *  space.
-     *  If [softWrap] is false, [overflow] and [textAlign] may have unexpected effects.
+     *  If [softWrap] is false, [overflow] and [TextAlign] may have unexpected effects.
      */
     softWrap: Boolean = DefaultSoftWrap,
     /** How visual overflow should be handled. */
@@ -227,7 +227,8 @@ fun Text(
             Draw { canvas, _ ->
                 internalSelection.value?.let {
                     textPainter.paintBackground(
-                        it.start, it.end, selectionColor, canvas)
+                        it.start, it.end, selectionColor, canvas
+                    )
                 }
                 textPainter.paint(canvas)
             }
@@ -287,7 +288,8 @@ fun Text(
                         )
                         if (!textSelectionProcessor.isSelected) return null
 
-                        // TODO(qqd): Determine a set of coordinates around a character that we need.
+                        // TODO(qqd): Determine a set of coordinates around a character that we
+                        //  need.
                         return Selection(
                             startCoordinates = textSelectionProcessor.startCoordinates,
                             endCoordinates = textSelectionProcessor.endCoordinates,

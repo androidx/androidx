@@ -38,6 +38,7 @@ data class AnnotatedString(
             lastStyleEnd = paragraphStyle.end
         }
     }
+
     /**
      * The information attached on the text such as a TextStyle.
      *

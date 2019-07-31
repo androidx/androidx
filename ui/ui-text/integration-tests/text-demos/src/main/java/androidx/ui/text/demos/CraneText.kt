@@ -280,10 +280,12 @@ fun TextDemoLetterSpacing() {
     // This group of text widgets show different letterSpacing.
     Text {
         Span(text = "$displayText   ", style = TextStyle(fontSize = fontSize8))
-        Span(text = displayText, style = TextStyle(
-            fontSize = fontSize8,
-            letterSpacing = 0.5f
-        )
+        Span(
+            text = displayText,
+            style = TextStyle(
+                fontSize = fontSize8,
+                letterSpacing = 0.5f
+            )
         )
     }
 }
@@ -292,7 +294,6 @@ fun TextDemoLetterSpacing() {
 fun TextDemoBaselineShift() {
     Text {
         Span(text = displayText, style = TextStyle(fontSize = fontSize8)) {
-
             Span(
                 text = "superscript",
                 style = TextStyle(
@@ -402,7 +403,7 @@ fun TextDemoLocale() {
 fun TextDemoTextAlign() {
     // This group of text widgets show different TextAligns: LEFT, RIGHT, CENTER, JUSTIFY, START for
     // LTR and RTL, END for LTR and RTL.
-    var text: String = ""
+    var text = ""
     for (i in 1..10) {
         text = "$text$displayText "
     }
@@ -470,7 +471,7 @@ fun TextDemoTextAlign() {
 @Composable
 fun TextDemoSoftWrap() {
     // This group of text widgets show difference between softWrap is true and false.
-    var text: String = ""
+    var text = ""
     for (i in 1..10) {
         text = "$text$displayText"
     }
@@ -493,7 +494,7 @@ fun TextDemoSoftWrap() {
 fun TexDemoTextOverflowFade() {
     var text = ""
     for (i in 1..15) {
-        text = text + displayText
+        text += displayText
     }
     val textSytle =
         TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt()))
@@ -602,7 +603,7 @@ fun TextDemoSelection2DArrayVertical() {
         Color(0xFF0000FF.toInt()),
         Color(0xFF00FF00.toInt()),
         Color(0xFFFF0000.toInt())
-        )
+    )
 
     val selection = +state<Selection?> { null }
     SelectionContainer(
@@ -651,7 +652,8 @@ fun TextDemoSelection2DArrayHorizontal() {
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it },
-        mode = SelectionMode.Horizontal) {
+        mode = SelectionMode.Horizontal
+    ) {
         Column {
             for (i in 0..2) {
                 Row {

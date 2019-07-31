@@ -66,8 +66,7 @@ class TextSpan(
      */
     fun toPlainText(): String {
         val buffer = StringBuilder()
-        visitTextSpan {
-                span: TextSpan ->
+        visitTextSpan { span: TextSpan ->
             buffer.append(span.text)
             true
         }
@@ -84,7 +83,8 @@ class TextSpan(
         }
         if (other.text != text ||
             children.size != other.children.size ||
-            (style == null) != (other.style == null)) {
+            (style == null) != (other.style == null)
+        ) {
             return RenderComparison.LAYOUT
         }
         var result: RenderComparison = RenderComparison.IDENTICAL

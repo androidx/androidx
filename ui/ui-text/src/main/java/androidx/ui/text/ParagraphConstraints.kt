@@ -38,12 +38,11 @@ package androidx.ui.text
  * forced line break is placed after it (even if an explicit line break
  * follows).
  *
- * The width influences how ellipses are applied. See the discussion at [new
- * ParagraphStyle] for more details.
+ * The width influences how ellipses are applied. See the discussion at
+ * [TextPainter] for more details.
  *
- * This width is also used to position glyphs according to the [TextAlign]
- * alignment described in the [ParagraphStyle] used when building the
- * [Paragraph] with a [ParagraphBuilder].
+ * This width is also used to position glyphs according to the text alignment
+ * described in the [ParagraphStyle.textAlign] to create [Paragraph].
  */
 data class ParagraphConstraints(val width: Float) {
     override fun toString(): String {
