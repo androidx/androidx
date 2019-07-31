@@ -29,7 +29,7 @@ interface TextInputService {
      * Start text input session for given client.
      */
     fun startInput(
-        initState: EditorState,
+        initModel: EditorModel,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
@@ -49,9 +49,9 @@ interface TextInputService {
     fun showSoftwareKeyboard()
 
     /*
-     * Notify the new editor state to IME.
+     * Notify the new editor model to IME.
      */
-    fun onStateUpdated(state: EditorState)
+    fun onStateUpdated(model: EditorModel)
 
     /**
      * Notify the focused rectangle to the system.

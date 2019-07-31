@@ -28,7 +28,7 @@ import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.input.FocusManager
 import androidx.ui.graphics.Color
 import androidx.ui.input.EditProcessor
-import androidx.ui.input.EditorState
+import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.KeyboardType
 import androidx.ui.text.TextPainter
@@ -44,35 +44,35 @@ data class EditorStyle(
     /**
      * The composition background color
      *
-     * @see EditorState.composition
+     * @see EditorModel.composition
      */
     val compositionColor: Color = Color(alpha = 0xFF, red = 0xB0, green = 0xE0, blue = 0xE6),
 
     /**
      *  The selection background color
      *
-     *  @see EditorState.selection
+     *  @see EditorModel.selection
      */
     // TODO(nona): share with Text.DEFAULT_SELECTION_COLOR
     val selectionColor: Color = Color(alpha = 0x66, red = 0x33, green = 0xB5, blue = 0xE5)
 )
 
 /**
- * A default implementation of InputField
+ * A default implementation of TextField
  *
- * To make InputField work with platoform input service, you must keep the editor state and update
+ * To make TextField work with platoform input service, you must keep the editor state and update
  * in [onValueChagne] callback.
  *
  * Example:
- *     var state = +state { EditorState() }
- *     InputField(
+ *     var state = +state { EditorModel() }
+ *     TextField(
  *         value = state.value,
  *         onValueChange = { state.value = it })
  */
 @Composable
-fun InputField(
+fun TextField(
     /** Initial editor state value */
-    value: EditorState,
+    value: EditorModel,
 
     /** The editor style */
     editorStyle: EditorStyle,
@@ -96,7 +96,7 @@ fun InputField(
     imeAction: ImeAction = ImeAction.Unspecified,
 
     /** Called when the InputMethodService update the editor state */
-    onValueChange: (EditorState) -> Unit = {},
+    onValueChange: (EditorModel) -> Unit = {},
 
     /** Called when the InputMethod requested an IME action */
     onImeActionPerformed: (ImeAction) -> Unit = {},
@@ -116,7 +116,7 @@ fun InputField(
     val processor = +memo { EditProcessor() }
     val mergedStyle = style.merge(editorStyle.textStyle)
     val (visualText, offsetMap) = +memo(value, visualTransformation) {
-        InputFieldDelegate.applyVisualFilter(value, visualTransformation)
+        TextFieldDelegate.applyVisualFilter(value, visualTransformation)
     }
     val textPainter = +memo(visualText, mergedStyle, density, resourceLoader) {
         // TODO(nona): Add parameter for text direction, softwrap, etc.
@@ -137,7 +137,7 @@ fun InputField(
         onPress = { },
         onFocus = {
             hasFocus.value = true
-            InputFieldDelegate.onFocus(
+            TextFieldDelegate.onFocus(
                 textInputService,
                 value,
                 processor,
@@ -147,7 +147,7 @@ fun InputField(
                 onImeActionPerformed)
             coords.value?.let { coords ->
                 textInputService?.let { textInputService ->
-                    InputFieldDelegate.notifyFocusedRect(
+                    TextFieldDelegate.notifyFocusedRect(
                         value,
                         textPainter,
                         coords,
@@ -160,14 +160,14 @@ fun InputField(
         },
         onBlur = {
             hasFocus.value = false
-            InputFieldDelegate.onBlur(
+            TextFieldDelegate.onBlur(
                 textInputService,
                 processor,
                 onValueChange)
         },
-        onDragAt = { InputFieldDelegate.onDragAt(it) },
+        onDragAt = { TextFieldDelegate.onDragAt(it) },
         onRelease = {
-            InputFieldDelegate.onRelease(
+            TextFieldDelegate.onRelease(
                 it,
                 textPainter,
                 processor,
@@ -184,7 +184,7 @@ fun InputField(
                         // TODO(nona): notify focused rect in onPreDraw equivalent callback for
                         //             supporting multiline text.
                         coords.value = it
-                        InputFieldDelegate.notifyFocusedRect(
+                        TextFieldDelegate.notifyFocusedRect(
                             value,
                             textPainter,
                             it,
@@ -194,7 +194,7 @@ fun InputField(
                         )
                     }
                 }
-                Draw { canvas, _ -> InputFieldDelegate.draw(
+                Draw { canvas, _ -> TextFieldDelegate.draw(
                     canvas,
                     value,
                     offsetMap,
@@ -203,7 +203,7 @@ fun InputField(
                     editorStyle) }
             },
             layoutBlock = { _, constraints ->
-                InputFieldDelegate.layout(textPainter, constraints).let {
+                TextFieldDelegate.layout(textPainter, constraints).let {
                     layout(it.first, it.second) {}
                 }
             }

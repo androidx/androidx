@@ -24,7 +24,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputMethodManager
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.input.EditOperation
-import androidx.ui.input.EditorState
+import androidx.ui.input.EditorModel
 import androidx.ui.input.ImeAction
 import androidx.ui.input.InputEventListener
 import androidx.ui.input.KeyboardType
@@ -86,14 +86,14 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     fun isEditorFocused(): Boolean = editorHasFocus
 
     override fun startInput(
-        initState: EditorState,
+        initModel: EditorModel,
         keyboardType: KeyboardType,
         imeAction: ImeAction,
         onEditCommand: (List<EditOperation>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
         editorHasFocus = true
-        state = initState.toInputState()
+        state = initModel.toInputState()
         this.keyboardType = keyboardType
         this.imeAction = imeAction
         this.onEditCommand = onEditCommand
@@ -118,8 +118,8 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
         imm.showSoftInput(view, 0)
     }
 
-    override fun onStateUpdated(state: EditorState) {
-        this.state = state.toInputState()
+    override fun onStateUpdated(model: EditorModel) {
+        this.state = model.toInputState()
         ic?.updateInputState(this.state, imm, view)
     }
 
@@ -178,7 +178,7 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     }
 }
 
-private fun EditorState.toInputState(): InputState =
+private fun EditorModel.toInputState(): InputState =
     InputState(
         text = text, // TODO(nona): call toString once AnnotatedString is in use.
         selection = selection,

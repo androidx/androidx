@@ -1,8 +1,8 @@
 // Signature format: 3.0
 package androidx.ui.input {
 
-  public final class EditorState {
-    ctor public EditorState(String text, androidx.ui.text.TextRange selection);
+  public final class EditorModel {
+    ctor public EditorModel(String text, androidx.ui.text.TextRange selection);
     method public androidx.ui.text.TextRange? getComposition();
     method public androidx.ui.text.TextRange getSelection();
     method public String getText();
