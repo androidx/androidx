@@ -78,6 +78,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 final class Camera implements BaseCamera {
     private static final String TAG = "Camera";
+    private static final int ERROR_NONE = 0;
 
     private final Object mAttachedUseCaseLock = new Object();
 
@@ -116,7 +117,9 @@ final class Camera implements BaseCamera {
     /** The handle to the opened camera. */
     @Nullable
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            CameraDevice mCameraDevice;
+    CameraDevice mCameraDevice;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    int mCameraDeviceError = ERROR_NONE;
     /** The configured session which handles issuing capture requests. */
     private CaptureSession mCaptureSession = new CaptureSession(null);
     /** The session configuration of camera control. */
@@ -184,7 +187,9 @@ final class Camera implements BaseCamera {
                 // can move directly back into an OPENED state.
                 // If session close is already complete, then the camera is closing. We'll reopen
                 // the camera in the camera state callback.
-                if (!isSessionCloseComplete()) {
+                // If the camera device is currently in an error state, we need to close the
+                // camera before reopening, so we cannot directly reopen.
+                if (!isSessionCloseComplete() && mCameraDeviceError == ERROR_NONE) {
                     Preconditions.checkState(mCameraDevice != null,
                             "Camera Device should be open if session close is not complete");
                     setState(InternalState.OPENED);
@@ -298,8 +303,11 @@ final class Camera implements BaseCamera {
     @WorkerThread
     void closeCamera(boolean abortInFlightCaptures) {
         Preconditions.checkState(mState == InternalState.CLOSING
-                        || mState == InternalState.RELEASING,
-                "closeCamera should only be called in a CLOSING or RELEASING state.");
+                        || mState == InternalState.RELEASING
+                        || (mState == InternalState.REOPENING && mCameraDeviceError != ERROR_NONE),
+                "closeCamera should only be called in a CLOSING, RELEASING or REOPENING (with "
+                        + "error) state. Current state: "
+                        + mState + " (error: " + getErrorMessage(mCameraDeviceError) + ")");
 
         boolean isLegacyDevice = false;
         try {
@@ -312,8 +320,10 @@ final class Camera implements BaseCamera {
 
         // TODO: Check if any sessions have been previously configured. We can probably skip
         // configAndClose if there haven't been any sessions configured yet.
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && Build.VERSION.SDK_INT < 29
-                && isLegacyDevice) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M
+                && Build.VERSION.SDK_INT < 29
+                && isLegacyDevice
+                && mCameraDeviceError == ERROR_NONE) { // Cannot open session on device in error
             // To configure surface again before close camera. This step would
             // disconnect previous connected surface in some legacy device to prevent exception.
             configAndClose();
@@ -340,12 +350,17 @@ final class Camera implements BaseCamera {
             public void onSuccess(@Nullable Void result) {
                 mReleasedCaptureSessions.remove(captureSession);
                 switch (mState) {
+                    case REOPENING:
+                        if (mCameraDeviceError == ERROR_NONE) {
+                            // When reopening, don't close the camera if there is no error.
+                            break;
+                        }
+                        // Fall through if the camera device is in error. It needs to be closed.
                     case CLOSING:
                     case RELEASING:
-                        Preconditions.checkState(mCameraDevice != null,
-                                "Camera Device should not be null while in state " + mState);
-                        if (isSessionCloseComplete()) {
+                        if (isSessionCloseComplete() && mCameraDevice != null) {
                             mCameraDevice.close();
+                            mCameraDevice = null;
                         }
                         break;
                     default:
@@ -1001,18 +1016,40 @@ final class Camera implements BaseCamera {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    String getErrorMessage(int errorCode) {
+        switch (errorCode) {
+            case ERROR_NONE:
+                return "ERROR_NONE";
+            case CameraDevice.StateCallback.ERROR_CAMERA_DEVICE:
+                return "ERROR_CAMERA_DEVICE";
+            case CameraDevice.StateCallback.ERROR_CAMERA_DISABLED:
+                return "ERROR_CAMERA_DISABLED";
+            case CameraDevice.StateCallback.ERROR_CAMERA_IN_USE:
+                return "ERROR_CAMERA_IN_USE";
+            case CameraDevice.StateCallback.ERROR_CAMERA_SERVICE:
+                return "ERROR_CAMERA_SERVICE";
+            case CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE:
+                return "ERROR_MAX_CAMERAS_IN_USE";
+            default: // fall out
+        }
+        return "UNKNOWN ERROR";
+    }
+
     final class StateCallback extends CameraDevice.StateCallback {
 
         @Override
         public void onOpened(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onOpened(): " + cameraDevice.getId());
-            Camera.this.mCameraDevice = cameraDevice;
+            mCameraDevice = cameraDevice;
+            mCameraDeviceError = ERROR_NONE;
             switch (mState) {
                 case CLOSING:
                 case RELEASING:
                     // No session should have yet been opened, so close camera directly here.
                     Preconditions.checkState(isSessionCloseComplete());
                     mCameraDevice.close();
+                    mCameraDevice = null;
                     break;
                 case OPENING:
                 case REOPENING:
@@ -1028,7 +1065,8 @@ final class Camera implements BaseCamera {
         @Override
         public void onClosed(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onClosed(): " + cameraDevice.getId());
-            Preconditions.checkState(mCameraDevice == cameraDevice);
+            Preconditions.checkState(mCameraDevice == null,
+                    "Unexpected onClose callback on camera device: " + cameraDevice);
             switch (mState) {
                 case CLOSING:
                 case RELEASING:
@@ -1072,53 +1110,70 @@ final class Camera implements BaseCamera {
             closeCamera(/*abortInFlightCaptures=*/true);
         }
 
-        private String getErrorMessage(int errorCode) {
-            switch (errorCode) {
-                case CameraDevice.StateCallback.ERROR_CAMERA_DEVICE:
-                    return "ERROR_CAMERA_DEVICE";
-                case CameraDevice.StateCallback.ERROR_CAMERA_DISABLED:
-                    return "ERROR_CAMERA_DISABLED";
-                case CameraDevice.StateCallback.ERROR_CAMERA_IN_USE:
-                    return "ERROR_CAMERA_IN_USE";
-                case CameraDevice.StateCallback.ERROR_CAMERA_SERVICE:
-                    return "ERROR_CAMERA_SERVICE";
-                case CameraDevice.StateCallback.ERROR_MAX_CAMERAS_IN_USE:
-                    return "ERROR_MAX_CAMERAS_IN_USE";
-                default: // fall out
-            }
-            return "UNKNOWN ERROR";
-        }
-
         @Override
-        public void onError(CameraDevice cameraDevice, int error) {
-            Log.e(
-                    TAG,
-                    "CameraDevice.onError(): "
-                            + cameraDevice.getId()
-                            + " with error: "
-                            + getErrorMessage(error));
-
+        public void onError(@NonNull CameraDevice cameraDevice, int error) {
             // onError could be called before onOpened if there is an error opening the camera
             // during initialization, so keep track of it here.
             mCameraDevice = cameraDevice;
+            mCameraDeviceError = error;
 
             switch (mState) {
-                case INITIALIZED:
                 case RELEASING:
-                    break;
                 case CLOSING:
-                case REOPENING:
-                case OPENED:
+                    Log.e(
+                            TAG,
+                            "CameraDevice.onError(): "
+                                    + cameraDevice.getId()
+                                    + " with error: "
+                                    + getErrorMessage(error));
+                    closeCamera(/*abortInFlightCaptures=*/false);
+                    break;
                 case OPENING:
-                    setState(InternalState.RELEASING);
+                case OPENED:
+                case REOPENING:
+                    handleErrorOnOpen(cameraDevice, error);
                     break;
                 default:
                     throw new IllegalStateException(
                             "onError() should not be possible from state: " + mState);
             }
+        }
 
-            // TODO: Handle errors or put camera into an "ERROR" state.
-            closeCamera(/*abortInFlightCaptures=*/true);
+        private void handleErrorOnOpen(@NonNull CameraDevice cameraDevice, int error) {
+            Preconditions.checkState(
+                    mState == InternalState.OPENING || mState == InternalState.OPENED
+                            || mState == InternalState.REOPENING,
+                    "Attempt to handle open error from non open state: " + mState);
+            switch (error) {
+                case CameraDevice.StateCallback.ERROR_CAMERA_DEVICE:
+                    // A fatal error occurred. The device should be reopened.
+                    reopenCameraAfterError();
+                    break;
+                default:
+                    // TODO: Properly handle other errors. For now, we will close the camera.
+                    Log.e(
+                            TAG,
+                            "Error observed on open (or opening) camera device "
+                                    + cameraDevice.getId()
+                                    + ": "
+                                    + getErrorMessage(error));
+                    setState(InternalState.CLOSING);
+                    closeCamera(/*abortInFlightCaptures=*/false);
+                    break;
+            }
+        }
+
+
+        private void reopenCameraAfterError() {
+            // After an error, we must close the current camera device before we can open a new
+            // one. To accomplish this, we will close the current camera and wait for the
+            // onClosed() callback to reopen the device. It is also possible that the device can
+            // be closed immediately, so in that case we will open the device manually.
+            Preconditions.checkState(mCameraDeviceError != ERROR_NONE,
+                    "Can only reopen camera device after error if the camera device is actually "
+                            + "in an error state.");
+            setState(InternalState.REOPENING);
+            closeCamera(/*abortInFlightCaptures=*/false);
         }
     }
 }
