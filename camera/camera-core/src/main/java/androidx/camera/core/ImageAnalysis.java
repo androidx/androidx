@@ -56,6 +56,9 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageAnalysis";
+    // ImageReader depth for non-blocking mode.
+    private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
+
     final AtomicReference<Analyzer> mSubscribedAnalyzer;
     final AtomicInteger mRelativeRotation = new AtomicInteger();
     final Handler mHandler;
@@ -260,44 +263,27 @@ public final class ImageAnalysis extends UseCase {
         Executor backgroundExecutor = config.getBackgroundExecutor(
                 CameraXExecutors.highPriorityExecutor());
 
+        int imageQueueDepth = config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE
+                ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
+
         mImageReader =
                 ImageReaderProxys.createCompatibleReader(
                         cameraId,
                         resolution.getWidth(),
                         resolution.getHeight(),
                         getImageFormat(),
-                        config.getImageQueueDepth(),
+                        imageQueueDepth,
                         backgroundExecutor);
 
         tryUpdateRelativeRotation(cameraId);
-        mImageReader.setOnImageAvailableListener(
-                new ImageReaderProxy.OnImageAvailableListener() {
-                    @Override
-                    public void onImageAvailable(ImageReaderProxy imageReader) {
-                        Analyzer analyzer = mSubscribedAnalyzer.get();
-                        mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                try (ImageProxy image =
-                                             config
-                                                     .getImageReaderMode(
-                                                             config.getImageReaderMode())
-                                                     .equals(ImageReaderMode.ACQUIRE_NEXT_IMAGE)
-                                                     ? imageReader.acquireNextImage()
-                                                     : imageReader.acquireLatestImage()) {
-                                    // Do not analyze if unable to acquire an ImageProxy
-                                    if (image == null) {
-                                        return;
-                                    }
 
-                                    if (analyzer != null) {
-                                        analyzer.analyze(image, mRelativeRotation.get());
-                                    }
-                                }
-                            }
-                        });
-                    }
-                },
+        ImageReaderProxy.OnImageAvailableListener onImageAvailableListener =
+                config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE
+                        ? new ImageAnalysisBlockingCallback(mSubscribedAnalyzer, mRelativeRotation,
+                        mHandler) :
+                        new ImageAnalysisNonBlockingCallback(mSubscribedAnalyzer, mRelativeRotation,
+                                mHandler, backgroundExecutor);
+        mImageReader.setOnImageAvailableListener(onImageAvailableListener,
                 backgroundExecutor);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
@@ -383,7 +369,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
         private static final ImageReaderMode DEFAULT_IMAGE_READER_MODE =
-                ImageReaderMode.ACQUIRE_NEXT_IMAGE;
+                ImageReaderMode.ACQUIRE_LATEST_IMAGE;
         private static final Handler DEFAULT_HANDLER = new Handler(Looper.getMainLooper());
         private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);

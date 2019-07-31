@@ -573,7 +573,8 @@ public final class ImageAnalysisConfig
         }
 
         /**
-         * Sets the number of images available to the camera pipeline.
+         * Sets the number of images available to the camera pipeline for
+         * {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} mode.
          *
          * <p>The image queue depth is the number of images available to the camera to fill with
          * data. This includes the image currently being analyzed by {@link
@@ -590,6 +591,10 @@ public final class ImageAnalysisConfig
          * under high load. However, the time spent analyzing an image should still be kept under a
          * single frame period for the current frame rate, on average, to avoid stalling the camera
          * pipeline.
+         *
+         * <p> The value only applys to {@link ImageReaderMode#ACQUIRE_NEXT_IMAGE} mode.
+         * For {@link ImageReaderMode#ACQUIRE_LATEST_IMAGE} the value is overridden by default
+         * value.
          *
          * @param depth The total number of images available to the camera.
          * @return The current Builder.
