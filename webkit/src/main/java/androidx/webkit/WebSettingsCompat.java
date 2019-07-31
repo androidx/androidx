@@ -293,7 +293,7 @@ public class WebSettingsCompat {
      * TODO(amalova): unhide
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FORCE_DARK_OFF = 0;
 
     /**
@@ -307,7 +307,7 @@ public class WebSettingsCompat {
      * TODO(amalova): unhide
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FORCE_DARK_AUTO = 1;
 
     /**
@@ -320,7 +320,7 @@ public class WebSettingsCompat {
      * TODO(amalova): unhide
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int FORCE_DARK_ON = 2;
 
     /**
@@ -350,7 +350,7 @@ public class WebSettingsCompat {
      * TODO(amalova): unhide
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -383,7 +383,7 @@ public class WebSettingsCompat {
      * TODO(amalova): unhide
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
