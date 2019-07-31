@@ -16,7 +16,6 @@
 
 package com.example.androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,7 +28,6 @@ import androidx.webkit.WebViewFeature;
 public class MultiProcessEnabledActivity extends AppCompatActivity {
 
     @Override
-    @SuppressLint("RestrictedApi")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_is_multi_process_enabled);

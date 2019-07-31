@@ -622,7 +622,7 @@ public class WebViewCompat {
      * //TODO(laisminchillo): unhide
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.MULTI_PROCESS_QUERY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isMultiProcessEnabled() {
