@@ -567,6 +567,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withFutureWork() throws InterruptedException {
+        when(mBatteryChargingTracker.getInitialState()).thenReturn(true);
         // Use a mocked scheduler in this test.
         Scheduler scheduler = mock(Scheduler.class);
         doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
