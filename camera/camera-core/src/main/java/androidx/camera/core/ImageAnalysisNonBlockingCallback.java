@@ -138,7 +138,7 @@ final class ImageAnalysisNonBlockingCallback implements ImageReaderProxy.OnImage
     }
 
     synchronized void finishImage(ImageProxy imageProxy) {
-        imageProxy.close();
         mFinishedImageTimestamp.set(imageProxy.getTimestamp());
+        imageProxy.close();
     }
 }

@@ -84,8 +84,9 @@ public final class ImageAnalysisTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
+
     @Before
-    public void setUp()  {
+    public void setUp() {
         assumeTrue(CameraUtil.deviceHasCamera());
         mAnalysisResults = new HashSet<>();
         mAnalysisResultsSemaphore = new Semaphore(/*permits=*/ 0);
@@ -168,17 +169,31 @@ public final class ImageAnalysisTest {
     }
 
     @Test
-    public void analyzerAnalyzesImages_whenCameraIsOpen()
+    public void analyzesImages_withAcquireLatest_whenCameraIsOpen()
+            throws InterruptedException, CameraInfoUnavailableException {
+        analyzerAnalyzesImagesWithMode(ImageReaderMode.ACQUIRE_LATEST_IMAGE);
+    }
+
+    @Test
+    public void analyzesImages_withAcquireNext_whenCameraIsOpen()
+            throws InterruptedException, CameraInfoUnavailableException {
+        analyzerAnalyzesImagesWithMode(ImageReaderMode.ACQUIRE_NEXT_IMAGE);
+    }
+
+    private void analyzerAnalyzesImagesWithMode(ImageReaderMode imageReaderMode)
             throws InterruptedException, CameraInfoUnavailableException {
         final int imageFormat = ImageFormat.YUV_420_888;
         ImageAnalysisConfig config =
-                new ImageAnalysisConfig.Builder().setCallbackHandler(mHandler).build();
+                new ImageAnalysisConfig.Builder().setImageReaderMode(
+                        imageReaderMode).setCallbackHandler(mHandler).build();
         ImageAnalysis useCase = new ImageAnalysis(config);
         Map<String, Size> suggestedResolutionMap = new HashMap<>();
         suggestedResolutionMap.put(mCameraId, DEFAULT_RESOLUTION);
         useCase.updateSuggestedResolution(suggestedResolutionMap);
         CameraUtil.openCameraWithUseCase(mCameraId, mCamera, useCase);
         useCase.setAnalyzer(mAnalyzer);
+
+        mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
 
         int sensorRotation = CameraX.getCameraInfo(mCameraId).getSensorRotationDegrees();
         // The frames should have properties which match the configuration.
