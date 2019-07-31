@@ -156,7 +156,7 @@ final class SessionTokenImplBase implements SessionToken.SessionTokenImpl {
     }
 
     @Override
-    @NonNull
+    @Nullable
     public Bundle getExtras() {
         return mExtras;
     }
