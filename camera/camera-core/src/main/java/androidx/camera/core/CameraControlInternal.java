@@ -100,9 +100,6 @@ public interface CameraControlInternal extends CameraControl {
     /** Returns if current torch is enabled or not. */
     boolean isTorchOn();
 
-    /** Returns if the focus is currently locked or not. */
-    boolean isFocusLocked();
-
     /** Performs a AF trigger. */
     void triggerAf();
 
@@ -147,11 +144,6 @@ public interface CameraControlInternal extends CameraControl {
 
         @Override
         public boolean isTorchOn() {
-            return false;
-        }
-
-        @Override
-        public boolean isFocusLocked() {
             return false;
         }
 

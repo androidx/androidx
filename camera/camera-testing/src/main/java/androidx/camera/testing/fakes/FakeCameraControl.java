@@ -90,11 +90,6 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public boolean isFocusLocked() {
-        return false;
-    }
-
-    @Override
     public void triggerAf() {
         Log.d(TAG, "triggerAf()");
     }

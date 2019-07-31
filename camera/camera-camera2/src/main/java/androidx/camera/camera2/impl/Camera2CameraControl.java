@@ -73,10 +73,10 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
     // use volatile modifier to make these variables in sync in all threads.
     private volatile boolean mIsTorchOn = false;
-    private volatile boolean mIsFocusLocked = false;
     private volatile FlashMode mFlashMode = FlashMode.OFF;
 
     //******************** Should only be accessed by executor *****************************//
+    private boolean mIsInAfAutoMode = false;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CaptureResultListener mSessionListenerForFocus = null;
     private Rect mCropRect = null;
@@ -222,11 +222,6 @@ public final class Camera2CameraControl implements CameraControlInternal {
         return mIsTorchOn;
     }
 
-    @Override
-    public boolean isFocusLocked() {
-        return mIsFocusLocked;
-    }
-
     /**
      * Issues a {@link CaptureRequest#CONTROL_AF_TRIGGER_START} request to start auto focus scan.
      */
@@ -309,11 +304,40 @@ public final class Camera2CameraControl implements CameraControlInternal {
         mControlUpdateListener.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
+    @WorkerThread
+    boolean isInAfAutoMode() {
+        return mIsInAfAutoMode;
+    }
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @WorkerThread
     void setCropRegionInternal(final Rect crop) {
         mCropRect = crop;
         updateSessionConfig();
+    }
+
+    @WorkerThread
+    Rect getCropSensorRegion() {
+        Rect cropRect = mCropRect;
+        if (cropRect == null) {
+            cropRect = getSensorRect();
+        }
+        return cropRect;
+    }
+
+    @WorkerThread
+    Rect getSensorRect() {
+        return mCameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+    }
+
+    @WorkerThread
+    void removeCaptureResultListener(CaptureResultListener listener) {
+        mSessionCallback.removeListener(listener);
+    }
+
+    @WorkerThread
+    void addCaptureResultListener(CaptureResultListener listener) {
+        mSessionCallback.addListener(listener);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -335,7 +359,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         Log.d(TAG, "Setting new AWB rectangle: " + mAwbRect);
 
         mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-        mIsFocusLocked = true;
+        mIsInAfAutoMode = true;
 
         if (listener != null) {
 
@@ -451,7 +475,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
         singleRequestBuilder.addImplementationOptions(configBuilder.build());
         notifyCaptureRequests(Collections.singletonList(singleRequestBuilder.build()));
 
-        mIsFocusLocked = false;
+        mIsInAfAutoMode = false;
         updateSessionConfig();
     }
 
@@ -549,7 +573,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
 
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_AF_MODE,
-                isFocusLocked()
+                isInAfAutoMode()
                         ? getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_AUTO)
                         : getSupportedAfMode(CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE));
 
@@ -699,7 +723,7 @@ public final class Camera2CameraControl implements CameraControlInternal {
     }
 
     /** An interface to listen to camera capture results. */
-    private interface CaptureResultListener {
+    interface CaptureResultListener {
         /**
          * Callback to handle camera capture results.
          *

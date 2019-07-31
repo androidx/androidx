@@ -617,7 +617,7 @@ final class Camera implements BaseCamera {
     // Re-attaches use case's surfaces if surfaces are changed when use case is online.
     @GuardedBy("mAttachedUseCaseLock")
     private void reattachUseCaseSurfaces(UseCase useCase) {
-        // if use case is offline, then DeferrableSurface attaching will happens when the use
+        // if use case is offline, then DeferrableSurface attaching will happen when the use
         // case is addOnlineUsecase()'d.   So here we don't need to do the attaching.
         if (!isUseCaseOnline(useCase)) {
             return;

@@ -205,7 +205,7 @@ public final class Camera2CameraControlTest {
                                         meteringRect, MeteringRectangle.METERING_WEIGHT_MAX)
                         });
 
-        assertThat(mCamera2CameraControl.isFocusLocked()).isTrue();
+        assertThat(mCamera2CameraControl.isInAfAutoMode()).isTrue();
 
         verify(mControlUpdateListener).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
@@ -261,7 +261,7 @@ public final class Camera2CameraControlTest {
                         CaptureRequest.CONTROL_AWB_REGIONS, null))
                 .isEqualTo(new MeteringRectangle[]{zeroRegion});
 
-        assertThat(mCamera2CameraControl.isFocusLocked()).isFalse();
+        assertThat(mCamera2CameraControl.isInAfAutoMode()).isFalse();
 
         verify(mControlUpdateListener, times(2)).onCameraControlCaptureRequests(
                 mCaptureConfigArgumentCaptor.capture());
