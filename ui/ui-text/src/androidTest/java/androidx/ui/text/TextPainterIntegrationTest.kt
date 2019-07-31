@@ -26,7 +26,6 @@ import androidx.ui.core.ipx
 import androidx.ui.core.px
 import androidx.ui.core.sp
 import androidx.ui.core.withDensity
-import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.text.FontTestData.Companion.BASIC_MEASURE_FONT
@@ -291,7 +290,7 @@ class TextPainterIntegrationTest {
 
         textPainter.layout(Constraints(0.ipx, 20.ipx))
 
-        assertThat(textPainter.paragraph).isNotNull()
+        assertThat(textPainter.multiParagraph).isNotNull()
     }
 
     @Test
@@ -460,10 +459,10 @@ class TextPainterIntegrationTest {
             val defaultSelectionColor = Color(0x6633B5E5)
             expectedPaint.color = defaultSelectionColor
 
-            val firstLineLeft = textPainter.paragraph?.getLineLeft(0)
-            val secondLineLeft = textPainter.paragraph?.getLineLeft(1)
-            val firstLineRight = textPainter.paragraph?.getLineRight(0)
-            val secondLineRight = textPainter.paragraph?.getLineRight(1)
+            val firstLineLeft = textPainter.multiParagraph?.getLineLeft(0)
+            val secondLineLeft = textPainter.multiParagraph?.getLineLeft(1)
+            val firstLineRight = textPainter.multiParagraph?.getLineRight(0)
+            val secondLineRight = textPainter.multiParagraph?.getLineRight(1)
             expectedCanvas.drawRect(
                 Rect(firstLineLeft!!, 0f, firstLineRight!!, fontSizeInPx),
                 expectedPaint
@@ -473,7 +472,7 @@ class TextPainterIntegrationTest {
                     secondLineLeft!!,
                     fontSizeInPx,
                     secondLineRight!!,
-                    textPainter.paragraph!!.height
+                    textPainter.multiParagraph!!.height
                 ),
                 expectedPaint
             )

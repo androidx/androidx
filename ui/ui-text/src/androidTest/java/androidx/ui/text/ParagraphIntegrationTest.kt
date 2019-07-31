@@ -62,6 +62,8 @@ class ParagraphIntegrationTest {
 
     private val resourceLoader = TestFontResourceLoader(context)
 
+    private val cursorWidth = 4f
+
     @Test
     fun empty_string() {
         withDensity(defaultDensity) {
@@ -427,6 +429,566 @@ class ParagraphIntegrationTest {
 
             val textPosition = text.length + 1
             paragraph.getBoundingBox(textPosition)
+        }
+    }
+
+    @Test(expected = java.lang.AssertionError::class)
+    fun getCursorRect_larger_than_length_throw_exception() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = text.length * fontSizeInPx))
+
+            paragraph.getCursorRect(text.length + 1)
+        }
+    }
+
+    @Test(expected = java.lang.AssertionError::class)
+    fun getCursorRect_negative_throw_exception() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = text.length * fontSizeInPx))
+
+            paragraph.getCursorRect(-1)
+        }
+    }
+
+    @Test
+    fun getCursorRect_ltr_singleLine() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = text.length * fontSizeInPx))
+
+            for (i in 0 until text.length) {
+                val cursorRect = paragraph.getCursorRect(i)
+                val cursorXOffset = i * fontSizeInPx
+                assertThat(
+                    cursorRect,
+                    equalTo(Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
+                    ))
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getCursorRect_ltr_multiLines() {
+        withDensity(defaultDensity) {
+            val text = "abcdef"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+            val charsPerLine = 3
+
+            paragraph.layout(ParagraphConstraints(width = charsPerLine * fontSizeInPx))
+
+            for (i in 0 until charsPerLine) {
+                val cursorXOffset = i * fontSizeInPx
+                assertThat(
+                    paragraph.getCursorRect(i),
+                    equalTo(Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
+                    ))
+                )
+            }
+
+            for (i in charsPerLine until text.length) {
+                val cursorXOffset = (i % charsPerLine) * fontSizeInPx
+                assertThat(
+                    paragraph.getCursorRect(i),
+                    equalTo(Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = fontSizeInPx,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx * 2.2f
+                    ))
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getCursorRect_ltr_newLine() {
+        withDensity(defaultDensity) {
+            val text = "abc\ndef"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+            // Cursor before '\n'
+            assertThat(
+                paragraph.getCursorRect(3),
+                equalTo(Rect(
+                    left = 3 * fontSizeInPx - cursorWidth / 2,
+                    top = 0f,
+                    right = 3 * fontSizeInPx + cursorWidth / 2,
+                    bottom = fontSizeInPx
+                ))
+            )
+
+            // Cursor after '\n'
+            assertThat(
+                paragraph.getCursorRect(4),
+                equalTo(Rect(
+                    left = -cursorWidth / 2,
+                    top = fontSizeInPx,
+                    right = cursorWidth / 2,
+                    bottom = fontSizeInPx * 2.2f
+                ))
+            )
+        }
+    }
+
+    @Test
+    fun getCursorRect_ltr_newLine_last_char() {
+        withDensity(defaultDensity) {
+            val text = "abc\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+            // Cursor before '\n'
+            assertThat(
+                paragraph.getCursorRect(3),
+                equalTo(Rect(
+                    left = 3 * fontSizeInPx - cursorWidth / 2,
+                    top = 0f,
+                    right = 3 * fontSizeInPx + cursorWidth / 2,
+                    bottom = fontSizeInPx
+                ))
+            )
+
+            // Cursor after '\n'
+            assertThat(
+                paragraph.getCursorRect(4),
+                equalTo(Rect(
+                    left = -cursorWidth / 2,
+                    top = fontSizeInPx,
+                    right = cursorWidth / 2,
+                    bottom = fontSizeInPx * 2.2f
+                ))
+            )
+        }
+    }
+
+    @Test
+    fun getCursorRect_rtl_singleLine() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = text.length * fontSizeInPx))
+
+            for (i in 0 until text.length) {
+                val cursorXOffset = (text.length - i) * fontSizeInPx
+                assertThat(
+                    paragraph.getCursorRect(i),
+                    equalTo(Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
+                    ))
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getCursorRect_rtl_multiLines() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+            val charsPerLine = 3
+
+            paragraph.layout(ParagraphConstraints(width = charsPerLine * fontSizeInPx))
+
+            for (i in 0 until charsPerLine) {
+                val cursorXOffset = (charsPerLine - i) * fontSizeInPx
+                assertThat(
+                    paragraph.getCursorRect(i),
+                    equalTo(Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = 0f,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx
+                    ))
+                )
+            }
+
+            for (i in charsPerLine until text.length) {
+                val cursorXOffset = (charsPerLine - i % charsPerLine) * fontSizeInPx
+                assertThat(
+                    paragraph.getCursorRect(i),
+                    equalTo(Rect(
+                        left = cursorXOffset - cursorWidth / 2,
+                        top = fontSizeInPx,
+                        right = cursorXOffset + cursorWidth / 2,
+                        bottom = fontSizeInPx * 2.2f
+                    ))
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getCursorRect_rtl_newLine() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = 3 * fontSizeInPx))
+
+            // Cursor before '\n'
+            assertThat(
+                paragraph.getCursorRect(3),
+                equalTo(Rect(
+                    left = 0 - cursorWidth / 2,
+                    top = 0f,
+                    right = 0 + cursorWidth / 2,
+                    bottom = fontSizeInPx
+                ))
+            )
+
+            // Cursor after '\n'
+            assertThat(
+                paragraph.getCursorRect(4),
+                equalTo(Rect(
+                    left = 3 * fontSizeInPx - cursorWidth / 2,
+                    top = fontSizeInPx,
+                    right = 3 * fontSizeInPx + cursorWidth / 2,
+                    bottom = fontSizeInPx * 2.2f
+                ))
+            )
+        }
+    }
+
+    @Test
+    fun getCursorRect_rtl_newLine_last_char() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = 3 * fontSizeInPx))
+
+            // Cursor before '\n'
+            assertThat(
+                paragraph.getCursorRect(3),
+                equalTo(Rect(
+                    left = 0 - cursorWidth / 2,
+                    top = 0f,
+                    right = 0 + cursorWidth / 2,
+                    bottom = fontSizeInPx
+                ))
+            )
+
+            // Cursor after '\n'
+            assertThat(
+                paragraph.getCursorRect(4),
+                equalTo(Rect(
+                    left = -cursorWidth / 2,
+                    top = fontSizeInPx,
+                    right = +cursorWidth / 2,
+                    bottom = fontSizeInPx * 2.2f
+                ))
+            )
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_ltr_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+
+            paragraph.layout(ParagraphConstraints(width = text.length * fontSizeInPx))
+
+            for (i in 0..text.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_rtl_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..text.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_bidi_singleLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..ltrText.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+
+            for (i in 1 until rtlText.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i + ltrText.length),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+
+            assertThat(
+                paragraph.getPrimaryHorizontal(text.length),
+                equalTo(width)
+            )
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_ltr_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val text = "abc"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getPrimaryHorizontal(0), equalTo(width))
+
+            for (i in 1 until text.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+
+            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_rtl_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getPrimaryHorizontal(0), equalTo(0f))
+
+            for (i in 1 until text.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+
+            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(width))
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_bidi_singleLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            for (i in 0..ltrText.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i),
+                    equalTo(fontSizeInPx * i)
+                )
+            }
+
+            for (i in 1 until rtlText.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i + ltrText.length),
+                    equalTo(width - fontSizeInPx * i)
+                )
+            }
+
+            assertThat(
+                paragraph.getPrimaryHorizontal(text.length),
+                equalTo(width)
+            )
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_bidi_singleLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val ltrText = "abc"
+            val rtlText = "\u05D0\u05D1\u05D2"
+            val text = ltrText + rtlText
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getPrimaryHorizontal(0), equalTo(width))
+            for (i in 1 until ltrText.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i),
+                    equalTo(rtlText.length * fontSizeInPx + i * fontSizeInPx)
+                )
+            }
+
+            for (i in 0..rtlText.length) {
+                assertThat(
+                    paragraph.getPrimaryHorizontal(i + ltrText.length),
+                    equalTo(rtlText.length * fontSizeInPx - i * fontSizeInPx)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_ltr_newLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "abc\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_rtl_newLine_textDirectionDefault() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_ltr_newLine_textDirectionRtl() {
+        withDensity(defaultDensity) {
+            val text = "abc\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Rtl
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(width))
+        }
+    }
+
+    @Test
+    fun getPrimaryHorizontal_rtl_newLine_textDirectionLtr() {
+        withDensity(defaultDensity) {
+            val text = "\u05D0\u05D1\u05D2\n"
+            val fontSize = 50.sp
+            val fontSizeInPx = fontSize.toPx().value
+            val paragraph = simpleParagraph(
+                text = text,
+                fontSize = fontSize,
+                textDirection = TextDirection.Ltr
+            )
+            val width = text.length * fontSizeInPx
+
+            paragraph.layout(ParagraphConstraints(width))
+
+            assertThat(paragraph.getPrimaryHorizontal(text.length), equalTo(0f))
         }
     }
 

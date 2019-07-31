@@ -21,8 +21,23 @@ package androidx.ui.text
  */
 data class AnnotatedString(
     val text: String,
-    val textStyles: List<Item<TextStyle>> = listOf()
+    val textStyles: List<Item<TextStyle>> = listOf(),
+    val paragraphStyles: List<Item<ParagraphStyle>> = listOf()
 ) {
+
+    init {
+        var lastStyleEnd = -1
+        for (paragraphStyle in paragraphStyles) {
+            if (paragraphStyle.start < lastStyleEnd) {
+                throw IllegalArgumentException("ParagraphStyle should not overlap")
+            }
+            if (paragraphStyle.end > text.length) {
+                throw IllegalArgumentException("ParagraphStyle range " +
+                        "[${paragraphStyle.start}, ${paragraphStyle.end}) is out of boundary")
+            }
+            lastStyleEnd = paragraphStyle.end
+        }
+    }
     /**
      * The information attached on the text such as a TextStyle.
      *
@@ -31,5 +46,11 @@ data class AnnotatedString(
      * @param end The end of the range where [style] takes effect. It's exclusive.
      */
     // TODO(haoyuchang): Check some other naming options.
-    data class Item<T>(val style: T, val start: Int, val end: Int)
+    data class Item<T>(val style: T, val start: Int, val end: Int) {
+        init {
+            if (start > end) {
+                throw IllegalArgumentException("Reversed range is not supported")
+            }
+        }
+    }
 }
