@@ -61,7 +61,7 @@ fun Container(
     constraints: DpConstraints = DpConstraints(),
     width: Dp? = null,
     height: Dp? = null,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     trace("UI:Container") {
         Layout(children = children, layoutBlock = { measurables, incomingConstraints ->

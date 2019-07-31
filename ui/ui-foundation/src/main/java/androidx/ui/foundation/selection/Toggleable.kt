@@ -28,7 +28,7 @@ import androidx.ui.core.Semantics
 fun Toggleable(
     value: ToggleableState = ToggleableState.Checked,
     onToggle: (() -> Unit)? = null,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val actions = if (onToggle != null) {
         listOf(SemanticsAction(SemanticsActionType.Tap, onToggle))

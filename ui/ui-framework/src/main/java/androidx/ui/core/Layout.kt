@@ -516,7 +516,7 @@ class LayoutReceiver internal constructor(
  * Please note that using this widget might be a performance hit, so please use with care.
  */
 @Composable
-fun WithConstraints(@Children children: @Composable() (Constraints) -> Unit) {
+fun WithConstraints(children: @Composable() (Constraints) -> Unit) {
     val ref = +compositionReference()
     val context = +ambient(ContextAmbient)
 
@@ -592,7 +592,7 @@ fun OnPositioned(
 @Composable
 fun OnChildPositioned(
     onPositioned: (coordinates: LayoutCoordinates) -> Unit,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     <DataNode key=OnChildPositionedKey value=onPositioned>
         <children/>

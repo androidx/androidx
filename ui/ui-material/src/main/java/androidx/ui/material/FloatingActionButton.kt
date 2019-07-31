@@ -64,7 +64,7 @@ fun FloatingActionButton(
     shape: Shape = CircleShape,
     color: Color = +themeColor { primary },
     elevation: Dp = 0.dp, // TODO(Andrey) add the default elevation when it ready b/123215187
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Button(color = color, onClick = onClick, shape = shape, elevation = elevation) {
         Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {

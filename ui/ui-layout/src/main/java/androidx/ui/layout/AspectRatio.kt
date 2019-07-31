@@ -51,7 +51,7 @@ import androidx.ui.core.satisfiedBy
 @Composable
 fun AspectRatio(
     aspectRatio: Float,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     Layout(children) { measurables, constraints ->
         val size = listOf(

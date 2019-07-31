@@ -76,7 +76,7 @@ import androidx.ui.text.TextStyle
  *         onOptionSelected = { ... })
  */
 @Composable
-fun RadioGroup(@Children children: @Composable RadioGroupScope.() -> Unit) {
+fun RadioGroup(children: @Composable RadioGroupScope.() -> Unit) {
     val scope = +memo { RadioGroupScope() }
     children(p1 = scope)
 }
@@ -142,7 +142,7 @@ class RadioGroupScope internal constructor() {
     fun RadioGroupItem(
         selected: Boolean,
         onSelect: () -> Unit,
-        @Children children: @Composable() () -> Unit
+        children: @Composable() () -> Unit
     ) {
         Container {
             Ripple(bounded = true) {

@@ -282,7 +282,7 @@ private fun drawIndeterminateCircularIndicator(
 }
 
 @Composable
-private fun CircularIndicatorContainer(@Children children: @Composable() () -> Unit) {
+private fun CircularIndicatorContainer(children: @Composable() () -> Unit) {
     Wrap {
         Padding(CircularIndicatorPadding) {
             Container(width = CircularIndicatorDiameter, height = CircularIndicatorDiameter) {

@@ -47,7 +47,7 @@ import androidx.ui.core.setContent
  * @param children The content to be displayed inside the dialog.
  */
 @Composable
-fun Dialog(onCloseRequest: () -> Unit, @Children children: @Composable() () -> Unit) {
+fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
     val context = +ambient(ContextAmbient)
 
     val dialog = +memo { DialogWrapper(context, onCloseRequest) }
@@ -72,7 +72,7 @@ private class DialogWrapper(context: Context, val onCloseRequest: () -> Unit) : 
         setContentView(frameLayout)
     }
 
-    fun setContent(@Children children: @Composable() () -> Unit) {
+    fun setContent(children: @Composable() () -> Unit) {
         frameLayout.setContent(children)
     }
 

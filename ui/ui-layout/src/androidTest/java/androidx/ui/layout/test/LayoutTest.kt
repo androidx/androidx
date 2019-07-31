@@ -70,7 +70,7 @@ open class LayoutTest {
         activityTestRule.runOnUiThread(runnable)
     }
 
-    internal fun show(@Children composable: @Composable() () -> Unit) {
+    internal fun show(composable: @Composable() () -> Unit) {
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.setContent(composable)

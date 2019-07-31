@@ -192,7 +192,7 @@ class RippleEffectTest {
     private fun RippleCallback(
         onRippleDrawn: (Matrix4) -> Unit = {},
         onDispose: () -> Unit = {},
-        @Children children: @Composable() () -> Unit
+        children: @Composable() () -> Unit
     ) {
         val theme = RippleTheme(testRippleEffect(onRippleDrawn, onDispose)) { Color(0) }
         CurrentRippleTheme.Provider(value = theme, children = children)

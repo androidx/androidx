@@ -80,7 +80,7 @@ class NestedScrollingDemo : Activity() {
  * A very simple ScrollView like implementation that allows for vertical scrolling.
  */
 @Composable
-private fun Draggable(@Children children: @Composable() () -> Unit) {
+private fun Draggable(children: @Composable() () -> Unit) {
     val offset = +state { 0.px }
     val maxOffset = +state { 0.px }
 
@@ -215,7 +215,7 @@ private fun RepeatingList(repititions: Int, row: @Composable() () -> Unit) {
  * A simple composable that arranges it's children as vertical list of items.
  */
 @Composable
-private fun Column(@Children children: @Composable() () -> Unit) {
+private fun Column(children: @Composable() () -> Unit) {
     Layout(children) { measurables, constraints ->
         var height = 0.ipx
         val placeables = measurables.map {

@@ -53,7 +53,7 @@ fun PressIndicatorGestureDetector(
     onStart: ((PxPosition) -> Unit)? = null,
     onStop: (() -> Unit)? = null,
     onCancel: (() -> Unit)? = null,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val recognizer = +memo { PressIndicatorGestureRecognizer() }
     recognizer.onStart = onStart

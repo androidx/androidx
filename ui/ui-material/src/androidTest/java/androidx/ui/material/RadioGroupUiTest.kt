@@ -63,7 +63,7 @@ class RadioGroupUiTest {
     private val options = listOf(itemOne, itemTwo, itemThree)
 
     @Composable
-    fun VerticalRadioGroupforTests(@Children children: @Composable() RadioGroupScope.() -> Unit) {
+    fun VerticalRadioGroupforTests(children: @Composable() RadioGroupScope.() -> Unit) {
         RadioGroup {
             Column {
                 children(p1 = this)

@@ -60,7 +60,7 @@ import androidx.ui.core.Dp
 fun Ripple(
     bounded: Boolean,
     radius: Dp? = null,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val density = +ambientDensity()
     val rippleSurface = +ambientRippleSurface()

@@ -29,7 +29,7 @@ import androidx.compose.composer
 @Composable
 fun ClickInteraction(
     click: SemanticActionBuilder<Unit>.() -> Unit,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val clickAction = SemanticActionBuilder(phrase = "Click", defaultParam = Unit)
         .apply(click)

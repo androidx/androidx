@@ -37,7 +37,7 @@ import androidx.ui.core.semantics.SemanticsActionType
 fun MutuallyExclusiveSetItem(
     selected: Boolean,
     onClick: () -> Unit,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     // TODO: when semantics can be merged, we should make this use Clickable internally rather
     // than duplicating logic

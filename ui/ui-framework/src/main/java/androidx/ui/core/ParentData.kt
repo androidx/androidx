@@ -53,7 +53,7 @@ import androidx.compose.composer
  * expanded, which are inflexible and which are flexible.
  */
 @Composable
-fun ParentData(data: Any, @Children children: @Composable() () -> Unit) {
+fun ParentData(data: Any, children: @Composable() () -> Unit) {
     <DataNode key=ParentDataKey value=data>
         <children/>
     </DataNode>
