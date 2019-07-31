@@ -75,11 +75,11 @@ public class MediaBrowser extends MediaController {
     }
 
     /**
-     * Create a {@link MediaBrowser} from the {@link SessionToken}.
+     * Creates a {@link MediaBrowser} from the {@link SessionToken}.
      *
-     * @param context Context
+     * @param context context
      * @param token token to connect to
-     * @param executor executor to run callbacks on.
+     * @param executor executor to run callbacks on
      * @param callback controller callback to receive changes in
      */
     MediaBrowser(@NonNull Context context, @NonNull SessionToken token,
@@ -152,7 +152,7 @@ public class MediaBrowser extends MediaController {
      * Unsubscribes for changes to the children of the parent, which was previously subscribed with
      * {@link #subscribe(String, LibraryParams)}.
      * <p>
-     * This unsubscribes all previous subscription with the parent id, regardless of the library
+     * This unsubscribes all previous subscriptions with the parent id, regardless of the library
      * param that was previously sent to the library service.
      *
      * @param parentId non-empty parent id
@@ -176,7 +176,7 @@ public class MediaBrowser extends MediaController {
      *
      * @param parentId non-empty parent id for getting the children
      * @param page page number to get the result. Starts from {@code 0}
-     * @param pageSize page size. Should be greater or equal to {@code 1}
+     * @param pageSize page size. Should be greater than or equal to {@code 1}
      * @param params library params
      * @see LibraryResult#getMediaItems()
      */
@@ -222,16 +222,15 @@ public class MediaBrowser extends MediaController {
     /**
      * Sends a search request to the library service.
      * <p>
-     * Returned {@link LibraryResult} will only tell whether the attemp to search was successful.
-     * For getting the search result, waits for
-     * {@link BrowserCallback#getSearchResult(String, int, int, LibraryParams)}
-     * the search result
-     * and calls {@link #getSearchResult(String, int, int, LibraryParams)}}
+     * Returned {@link LibraryResult} will only tell whether the attempt to search was successful.
+     * For getting the search result, wait for
+     * {@link BrowserCallback#onSearchResultChanged(MediaBrowser, String, int, LibraryParams)}
+     * being called and call {@link #getSearchResult(String, int, int, LibraryParams)}}
      * for getting the result.
      *
      * @param query non-empty search query
      * @param params library params
-     * @see BrowserCallback#getSearchResult(String, int, int, LibraryParams)
+     * @see BrowserCallback#onSearchResultChanged(MediaBrowser, String, int, LibraryParams)
      * @see #getSearchResult(String, int, int, LibraryParams)
      */
     @NonNull
@@ -247,7 +246,7 @@ public class MediaBrowser extends MediaController {
     }
 
     /**
-     * Gets the search result from lhe library service.
+     * Gets the search result from the library service.
      * <p>
      * If it's successfully completed, {@link LibraryResult#getMediaItems()} will return the search
      * result.
@@ -336,9 +335,9 @@ public class MediaBrowser extends MediaController {
         }
 
         /**
-         * Build {@link MediaBrowser}.
-         * <p>
-         * It will throw an {@link IllegalArgumentException} if both {@link SessionToken} and
+         * Builds a {@link MediaBrowser}.
+         *
+         * @throws IllegalArgumentException if both {@link SessionToken} and
          * {@link MediaSessionCompat.Token} are not set.
          *
          * @return a new browser

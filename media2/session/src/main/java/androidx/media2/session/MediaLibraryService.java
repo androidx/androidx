@@ -333,7 +333,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
         }
 
         /**
-         * Notify the controller of the change in a parent's children.
+         * Notifies the controller of the change in a parent's children.
          * <p>
          * If the controller hasn't subscribed to the parent, the API will do nothing.
          * <p>
@@ -363,7 +363,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
         }
 
         /**
-         * Notify all controllers that subscribed to the parent about change in the parent's
+         * Notifies all controllers that subscribed to the parent about change in the parent's
          * children, regardless of the library params supplied by
          * {@link MediaBrowser#subscribe(String, LibraryParams)}.
          *  @param parentId non-empty parent id
@@ -383,7 +383,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
         }
 
         /**
-         * Notify controller about change in the search result.
+         * Notifies controller about change in the search result.
          *
          * @param controller controller to notify
          * @param query previously sent non-empty search query from the controller.
@@ -568,7 +568,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
         }
 
         /**
-         * Builds {@link LibraryParams}.
+         * Builds a {@link LibraryParams}.
          */
         public static final class Builder {
             private boolean mRecent;
@@ -639,7 +639,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
             }
 
             /**
-             * Builds {@link LibraryParams}.
+             * Builds a {@link LibraryParams}.
              *
              * @return new LibraryParams
              */

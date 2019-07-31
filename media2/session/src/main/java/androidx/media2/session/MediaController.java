@@ -76,7 +76,7 @@ import java.util.concurrent.Executor;
  * <p>
  * MediaController objects are thread-safe.
  * <p>
- * Topic covered here:
+ * Topics covered here:
  * <ol>
  * <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
  * </ol>
@@ -145,11 +145,11 @@ public class MediaController implements AutoCloseable {
     Long mTimeDiff;
 
     /**
-     * Create a {@link MediaController} from the {@link SessionToken}.
+     * Creates a {@link MediaController} from the {@link SessionToken}.
      *
-     * @param context Context
+     * @param context context
      * @param token token to connect to
-     * @param executor executor to run callbacks on.
+     * @param executor executor to run callbacks on
      * @param callback controller callback to receive changes in
      */
     MediaController(@NonNull final Context context, @NonNull final SessionToken token,
@@ -169,11 +169,11 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Create a {@link MediaController} from the {@link MediaSessionCompat.Token}.
+     * Creates a {@link MediaController} from the {@link MediaSessionCompat.Token}.
      *
-     * @param context Context
+     * @param context context
      * @param token token to connect to
-     * @param executor executor to run callbacks on.
+     * @param executor executor to run callbacks on
      * @param callback controller callback to receive changes in
      */
     MediaController(@NonNull final Context context, @NonNull final MediaSessionCompat.Token token,
@@ -224,7 +224,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Release this object, and disconnect from the session. After this, callbacks wouldn't be
+     * Releases this object, and disconnects from the session. After this, callbacks wouldn't be
      * received.
      */
     @Override
@@ -247,10 +247,10 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Returns {@link SessionToken} of the connected session.
+     * Returns the {@link SessionToken} of the connected session.
      * If it is not connected yet, it returns {@code null}.
      * <p>
-     * This may differ with the {@link SessionToken} from the constructor. For example, if the
+     * This may differ from the {@link SessionToken} from the constructor. For example, if the
      * controller is created with the token for {@link MediaSessionService}, this would return
      * token for the {@link MediaSession} in the service.
      *
@@ -274,7 +274,7 @@ public class MediaController implements AutoCloseable {
      * <p>
      * If the player state is {@link SessionPlayer#PLAYER_STATE_IDLE}, the session would also call
      * {@link SessionPlayer#prepare} and then {@link SessionPlayer#play} to start playback. If you
-     * want to have finer grained control of the playback start call {@link #prepare} manually
+     * want to have finer grained control of the playback start, call {@link #prepare} manually
      * before this. Calling {@link #prepare} in advance would help this method to start playback
      * faster and also help to take audio focus at the last moment.
      *
@@ -322,7 +322,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests session to increase the playback speed.
+     * Requests that the player increases the playback speed.
      *
      * @see MediaSession.SessionCallback#onFastForward(MediaSession, MediaSession.ControllerInfo)
      */
@@ -335,7 +335,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests session to decrease the playback speed.
+     * Requests that the player decreases the playback speed.
      *
      * @see MediaSession.SessionCallback#onRewind(MediaSession, MediaSession.ControllerInfo)
      */
@@ -348,7 +348,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests session to skip backward within the current media item.
+     * Requests that the player skips backward within the current media item.
      *
      * @see MediaSession.SessionCallback#onSkipForward(MediaSession, MediaSession.ControllerInfo)
      */
@@ -362,7 +362,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests session to skip forward within the current media item.
+     * Requests that the player skips forward within the current media item.
      *
      * @see MediaSession.SessionCallback#onSkipBackward(MediaSession, MediaSession.ControllerInfo)
      */
@@ -376,9 +376,9 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Move to a new location in the media stream.
+     * Requests that the player moves to a new location in the media stream.
      *
-     * @param pos Position to move to, in milliseconds.
+     * @param pos position to move to, in milliseconds
      */
     @NonNull
     public ListenableFuture<SessionResult> seekTo(long pos) {
@@ -389,11 +389,11 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player start playback for a specific media id.
+     * Requests that the player starts playback for a specific media id.
      *
-     * @param mediaId The non-empty media id
-     * @param extras Optional extras that can include extra information about the media item
-     *               to be played.
+     * @param mediaId the non-empty media id
+     * @param extras optional extras that can include extra information about the media item
+     *               to be played
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -410,10 +410,10 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player start playback for a specific search query.
+     * Requests that the player starts playback for a specific search query.
      *
-     * @param query The non-empty search query
-     * @param extras Optional extras that can include extra information about the query.
+     * @param query the non-empty search query
+     * @param extras optional extras that can include extra information about the query
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -430,11 +430,11 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player start playback for a specific {@link Uri}.
+     * Requests that the player starts playback for a specific {@link Uri}.
      *
-     * @param uri The URI of the requested media.
-     * @param extras Optional extras that can include extra information about the media item
-     *               to be played.
+     * @param uri the URI of the requested media
+     * @param extras optional extras that can include extra information about the media item
+     *               to be played
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -451,7 +451,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player prepare a media item with the media id for playback.
+     * Requests that the player prepares a media item with the media id for playback.
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
      * Once the prepare is done, the session will change its playback state to
@@ -459,9 +459,9 @@ public class MediaController implements AutoCloseable {
      * playback. If the prepare is not needed, {@link #playFromMediaId} can be directly called
      * without this method.
      *
-     * @param mediaId The non-empty media id
-     * @param extras Optional extras that can include extra information about the media item
-     *               to be prepared.
+     * @param mediaId the non-empty media id
+     * @param extras optional extras that can include extra information about the media item
+     *               to be prepared
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -478,7 +478,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player prepare a media item with the specific search query for playback.
+     * Requests that the player prepares a media item with the specific search query for playback.
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
      * Once the prepare is done, the session will change its playback state to
@@ -486,8 +486,8 @@ public class MediaController implements AutoCloseable {
      * playback. If the prepare is not needed, {@link #playFromSearch} can be directly called
      * without this method.
      *
-     * @param query The non-empty search query
-     * @param extras Optional extras that can include extra information about the query.
+     * @param query the non-empty search query
+     * @param extras optional extras that can include extra information about the query
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -504,7 +504,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Requests that the player prepare a media item with the specific {@link Uri} for playback.
+     * Requests that the player prepares a media item with the specific {@link Uri} for playback.
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
      * Once the prepare is done, the session will change its playback state to
@@ -512,9 +512,9 @@ public class MediaController implements AutoCloseable {
      * playback. If the prepare is not needed, {@link #playFromUri} can be directly called
      * without this method.
      *
-     * @param uri The URI of the requested media.
-     * @param extras Optional extras that can include extra information about the media item
-     *               to be prepared.
+     * @param uri the URI of the requested media
+     * @param extras optional extras that can include extra information about the media item
+     *               to be prepared
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -531,8 +531,8 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Set the volume of the output this session is playing on. The command will be ignored if it
-     * does not support {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
+     * Requests that the player sets the volume of the output that is playing on. The command will
+     * be ignored if it does not support {@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}.
      * <p>
      * If the session is local playback, this changes the device's volume with the stream that
      * session's player is using. Flags will be specified for the {@link AudioManager}.
@@ -541,7 +541,7 @@ public class MediaController implements AutoCloseable {
      * will receive this request instead.
      *
      * @see #getPlaybackInfo()
-     * @param value The value to set it to, between 0 and the reported max.
+     * @param value the value to set it to, between 0 and the reported max
      * @param flags flags from {@link AudioManager} to include with the volume request for local
      *              playback
      */
@@ -554,8 +554,8 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Adjust the volume of the output this session is playing on. The direction
-     * must be one of {@link AudioManager#ADJUST_LOWER},
+     * Requests that the player adjusts the volume of the output that is playing on.
+     * The direction must be one of {@link AudioManager#ADJUST_LOWER},
      * {@link AudioManager#ADJUST_RAISE}, or {@link AudioManager#ADJUST_SAME}.
      * <p>
      * The command will be ignored if the session does not support
@@ -583,10 +583,10 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Get an intent for launching UI associated with this session if one exists.
+     * Gets an intent for launching UI associated with this session if one exists.
      * If it is not connected yet, it returns {@code null}.
      *
-     * @return A {@link PendingIntent} to launch UI or null
+     * @return a {@link PendingIntent} to launch UI or null
      */
     @Nullable
     public PendingIntent getSessionActivity() {
@@ -594,7 +594,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Get the lastly cached player state from
+     * Gets the lastly cached player state from
      * {@link ControllerCallback#onPlayerStateChanged(MediaController, int)}.
      * If it is not connected yet, it returns {@link SessionPlayer#PLAYER_STATE_IDLE}.
      *
@@ -628,7 +628,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Get the lastly cached playback speed from
+     * Gets the lastly cached playback speed from
      * {@link ControllerCallback#onPlaybackSpeedChanged(MediaController, float)}.
      *
      * @return speed the lastly cached playback speed, or 0f if unknown or not connected
@@ -638,8 +638,8 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Sets the playback speed. A value of {@code 1.0f} is the default playback value,
-     * and a negative value indicates reverse playback. {@code 0.0f} is not allowed.
+     * Requests that the player sets the playback speed. A value of {@code 1.0f} is the default
+     * playback value, and a negative value indicates reverse playback. {@code 0.0f} is not allowed.
      *
      * @throws IllegalArgumentException if the {@code speed} is equal to zero.
      */
@@ -683,7 +683,7 @@ public class MediaController implements AutoCloseable {
      * Get the current playback info for this session.
      * If it is not connected yet, it returns {@code null}.
      *
-     * @return The current playback info or null
+     * @return the current playback info or null
      */
     @Nullable
     public PlaybackInfo getPlaybackInfo() {
@@ -691,16 +691,16 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Rate the media. This will cause the rating to be set for the current user.
-     * The rating style must follow the user rating style from the session.
+     * Requests that the player rates the media. This will cause the rating to be set for the
+     * current user. The rating style must follow the user rating style from the session.
      * You can get the rating style from the session through the
      * {@link MediaMetadata#getRating(String)} with the key
      * {@link MediaMetadata#METADATA_KEY_USER_RATING}.
      * <p>
      * If the user rating was {@code null}, the media item does not accept setting user rating.
      *
-     * @param mediaId The non-empty media id
-     * @param rating The rating to set
+     * @param mediaId the non-empty media id
+     * @param rating the rating to set
      */
     @NonNull
     public ListenableFuture<SessionResult> setRating(@NonNull String mediaId,
@@ -720,7 +720,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Send custom command to the session
+     * Sends a custom command to the session
      * <p>
      * Interoperability: When connected to
      * {@link android.support.v4.media.session.MediaSessionCompat},
@@ -752,13 +752,13 @@ public class MediaController implements AutoCloseable {
      * Returns the cached playlist from {@link ControllerCallback#onPlaylistChanged}. Can be
      * {@code null} if the playlist hasn't been set or it's reset by {@link #setMediaItem}.
      * <p>
-     * This list may differ with the list that was specified with
+     * This list may differ from the list that was specified with
      * {@link #setPlaylist(List, MediaMetadata)} depending on the {@link SessionPlayer}
      * implementation. Use media items returned here for other playlist agent APIs such as
      * {@link SessionPlayer#skipToPlaylistItem}.
      *
      * @return playlist, or {@code null} if the playlist hasn't been set, controller isn't
-     *         connected, or it doesn't have enough permission.
+     *         connected, or it doesn't have enough permission
      * @see SessionCommand#COMMAND_CODE_PLAYER_GET_PLAYLIST
      */
     @Nullable
@@ -767,8 +767,8 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Sets the playlist with the list of media IDs. Use this or {@link #setMediaItem} to specify
-     * which items to play.
+     * Requests that the player sets the playlist with the list of media IDs. Use this or
+     * {@link #setMediaItem} to specify which items to play.
      * <p>
      * All media IDs in the list shouldn't be an empty string.
      * <p>
@@ -802,16 +802,16 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Sets a {@link MediaItem} for playback with the media ID. Use this or {@link #setPlaylist}
-     * to specify which items to play. If you want to change current item in the playlist, use one
-     * of {@link #skipToPlaylistItem}, {@link #skipToNextPlaylistItem}, or
+     * Requests that the player sets a {@link MediaItem} for playback with the media ID. Use this or
+     * {@link #setPlaylist} to specify which items to play. If you want to change current item
+     * in the playlist, use one of {@link #skipToPlaylistItem}, {@link #skipToNextPlaylistItem}, or
      * {@link #skipToPreviousPlaylistItem} instead of this method.
      * <p>
      * The {@link ControllerCallback#onPlaylistChanged} and
      * {@link ControllerCallback#onCurrentMediaItemChanged} would be called when it's completed.
      * The current item would be the item given here.
      *
-     * @param mediaId The non-empty media id of the item to play
+     * @param mediaId the non-empty media id of the item to play
      * @see #setPlaylist
      * @see ControllerCallback#onCurrentMediaItemChanged
      * @see ControllerCallback#onPlaylistChanged
@@ -829,7 +829,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Updates the playlist metadata
+     * Requests that the player updates the playlist metadata
      *
      * @param metadata metadata of the playlist
      */
@@ -847,7 +847,7 @@ public class MediaController implements AutoCloseable {
      * {@link ControllerCallback#onPlaylistMetadataChanged} or
      * {@link ControllerCallback#onPlaylistChanged}.
      *
-     * @return metadata metadata of the playlist, or null if none is set or the controller is not
+     * @return metadata of the playlist, or null if none is set or the controller is not
      *         connected
      */
     @Nullable
@@ -856,16 +856,16 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Adds the media item to the playlist at the index with the media ID. Index equals or greater
-     * than the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end
-     * of the playlist.
+     * Requests that the player adds the media item to the playlist at the index with the media
+     * ID. Index equals to or greater than the current playlist size
+     * (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of the playlist.
      * <p>
      * This will not change the currently playing media item.
      * If index is less than or equal to the current index of the playlist,
      * the current index of the playlist will be incremented correspondingly.
      *
      * @param index the index you want to add
-     * @param mediaId The non-empty media id of the new item
+     * @param mediaId the non-empty media id of the new item
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
      */
     @NonNull
@@ -884,7 +884,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Removes the media item at index in the playlist.
+     * Requests that the player removes the media item at index in the playlist.
      * <p>
      * If the item is the currently playing item of the playlist, current playback
      * will be stopped and playback moves to next source in the list.
@@ -903,10 +903,10 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Replaces the media item at index in the playlist with the media ID.
+     * Requests that the player replaces the media item at index in the playlist with the media ID.
      *
      * @param index the index of the item to replace
-     * @param mediaId The non-empty media id of the new item
+     * @param mediaId the non-empty media id of the new item
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
      */
     @NonNull
@@ -925,7 +925,8 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Moves the media item at {@code fromIdx} to {@code toIdx} in the playlist.
+     * Requests that the player moves the media item at {@code fromIdx} to {@code toIdx} in the
+     * playlist.
      * <p>
      * {@link ControllerCallback#onPlaylistChanged} will be called when it's completed.
      * <p>
@@ -1004,7 +1005,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Skips to the previous item in the playlist.
+     * Requests that the player skips to the previous item in the playlist.
      * <p>
      * This calls {@link SessionPlayer#skipToPreviousPlaylistItem()}.
      */
@@ -1017,7 +1018,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Skips to the next item in the playlist.
+     * Requests that the player skips to the next item in the playlist.
      * <p>
      * This calls {@link SessionPlayer#skipToNextPlaylistItem()}.
      */
@@ -1030,7 +1031,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Skips to the item in the playlist at the index.
+     * Requests that the player skips to the item in the playlist at the index.
      * <p>
      * This calls {@link SessionPlayer#skipToPlaylistItem(int)}.
      *
@@ -1063,7 +1064,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Sets the repeat mode.
+     * Requests that the player sets the repeat mode.
      *
      * @param repeatMode repeat mode
      * @see SessionPlayer#REPEAT_MODE_NONE
@@ -1094,7 +1095,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Sets the shuffle mode.
+     * Requests that the player sets the shuffle mode.
      *
      * @param shuffleMode The shuffle mode
      * @see SessionPlayer#SHUFFLE_MODE_NONE
@@ -1490,11 +1491,10 @@ public class MediaController implements AutoCloseable {
         }
 
         /**
-         * Build {@link MediaController}.
-         * <p>
-         * It will throw an {@link IllegalArgumentException} if both {@link SessionToken} and
-         * {@link MediaSessionCompat.Token} are not set.
+         * Builds a {@link MediaController}.
          *
+         * @throws IllegalArgumentException if both {@link SessionToken} and
+         * {@link MediaSessionCompat.Token} are not set.
          * @return a new controller
          */
         @Override
@@ -1554,7 +1554,7 @@ public class MediaController implements AutoCloseable {
         }
 
         /**
-         * Set the {@link SessionToken} for the controller to connect to.
+         * Sets the {@link SessionToken} for the controller to connect to.
          * <p>
          * When this method is called, the {@link MediaSessionCompat.Token} which was set by calling
          * {@link #setSessionCompatToken} is removed.
@@ -1585,7 +1585,7 @@ public class MediaController implements AutoCloseable {
          * </ol>
          *
          * @param token token to connect to
-         * @return The Builder to allow chaining
+         * @return the Builder to allow chaining
          * @see MediaSessionService#onGetSession(ControllerInfo)
          * @see #getConnectedSessionToken()
          * @see #setConnectionHints(Bundle)
@@ -1602,13 +1602,13 @@ public class MediaController implements AutoCloseable {
         }
 
         /**
-         * Set the {@link MediaSessionCompat.Token} for the controller to connect to.
+         * Sets the {@link MediaSessionCompat.Token} for the controller to connect to.
          * <p>
          * When this method is called, the {@link SessionToken} which was set by calling
          * {@link #setSessionToken(SessionToken)} is removed.
          *
          * @param compatToken token to connect to
-         * @return The Builder to allow chaining
+         * @return the Builder to allow chaining
          */
         @NonNull
         @SuppressWarnings("unchecked")
@@ -1622,7 +1622,7 @@ public class MediaController implements AutoCloseable {
         }
 
         /**
-         * Set the connection hints for the controller.
+         * Sets the connection hints for the controller.
          * <p>
          * {@code connectionHints} is a session-specific argument to send to the session when
          * connecting. The contents of this bundle may affect the connection result.
@@ -1631,7 +1631,7 @@ public class MediaController implements AutoCloseable {
          * They will be ignored when connecting to {@link MediaSessionCompat}.
          *
          * @param connectionHints a bundle which contains the connection hints
-         * @return The Builder to allow chaining
+         * @return the Builder to allow chaining
          * @throws IllegalArgumentException if the bundle contains any non-framework Parcelable
          * objects.
          */
@@ -1650,11 +1650,11 @@ public class MediaController implements AutoCloseable {
         }
 
         /**
-         * Set callback for the controller and its executor.
+         * Sets the callback for the controller and its executor.
          *
          * @param executor callback executor
          * @param callback controller callback.
-         * @return The Builder to allow chaining
+         * @return the Builder to allow chaining
          */
         @NonNull
         @SuppressWarnings("unchecked")
@@ -2024,25 +2024,25 @@ public class MediaController implements AutoCloseable {
         }
 
         /**
-         * Get the type of playback which affects volume handling. One of:
+         * Gets the type of playback which affects volume handling. One of:
          * <ul>
          * <li>{@link #PLAYBACK_TYPE_LOCAL}</li>
          * <li>{@link #PLAYBACK_TYPE_REMOTE}</li>
          * </ul>
          *
-         * @return The type of playback this session is using
+         * @return the type of playback this session is using
          */
         public int getPlaybackType() {
             return mPlaybackType;
         }
 
         /**
-         * Get the audio attributes for this session. The attributes will affect
+         * Gets the audio attributes for this session. The attributes will affect
          * volume handling for the session. When the volume type is
          * {@link #PLAYBACK_TYPE_REMOTE} these may be ignored by the
          * remote volume handler.
          *
-         * @return The attributes for this session
+         * @return the attributes for this session
          */
         @Nullable
         public AudioAttributesCompat getAudioAttributes() {
@@ -2050,36 +2050,36 @@ public class MediaController implements AutoCloseable {
         }
 
         /**
-         * Get the type of volume control that can be used. One of:
+         * Gets the type of volume control that can be used. One of:
          * <ul>
          * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_ABSOLUTE}</li>
          * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_RELATIVE}</li>
          * <li>{@link VolumeProviderCompat#VOLUME_CONTROL_FIXED}</li>
          * </ul>
          *
-         * @return The type of volume control that may be used with this session
+         * @return the type of volume control that may be used with this session
          */
         public int getControlType() {
             return mControlType;
         }
 
         /**
-         * Get the maximum volume that may be set for this session.
+         * Gets the maximum volume that may be set for this session.
          * <p>
          * This is only meaningful when the playback type is {@link #PLAYBACK_TYPE_REMOTE}.
          *
-         * @return The maximum allowed volume where this session is playing
+         * @return the maximum allowed volume where this session is playing
          */
         public int getMaxVolume() {
             return mMaxVolume;
         }
 
         /**
-         * Get the current volume for this session.
+         * Gets the current volume for this session.
          * <p>
          * This is only meaningful when the playback type is {@link #PLAYBACK_TYPE_REMOTE}.
          *
-         * @return The current volume where this session is playing
+         * @return the current volume where this session is playing
          */
         public int getCurrentVolume() {
             return mCurrentVolume;

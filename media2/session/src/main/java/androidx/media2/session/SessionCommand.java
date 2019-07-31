@@ -45,7 +45,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 
 /**
- * Define a command that a {@link MediaController} can send to a {@link MediaSession}.
+ * Defines a command that a {@link MediaController} can send to a {@link MediaSession}.
  * <p>
  * If {@link #getCommandCode()} isn't {@link #COMMAND_CODE_CUSTOM}), it's predefined command.
  * If {@link #getCommandCode()} is {@link #COMMAND_CODE_CUSTOM}), it's custom command and
