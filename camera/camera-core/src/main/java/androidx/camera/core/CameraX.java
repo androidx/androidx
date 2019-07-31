@@ -290,6 +290,8 @@ public final class CameraX {
      * @param lensFacing the lens facing
      * @return true if the device has at least one camera with the specified lens facing,
      * otherwise false.
+     * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
+     *                                        insufficient permissions
      */
     public static boolean hasCameraWithLensFacing(LensFacing lensFacing)
             throws CameraInfoUnavailableException {
@@ -325,10 +327,11 @@ public final class CameraX {
      * @return the cameraId if camera exists or {@code null} if no camera found with the config
      * @throws CameraInfoUnavailableException if unable to access cameras, perhaps due to
      *                                        insufficient permissions.
+     * @throws IllegalArgumentException       if there's no lens facing set in the config.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
+    @Nullable
     public static String getCameraWithCameraDeviceConfig(CameraDeviceConfig config)
             throws CameraInfoUnavailableException {
         Set<String> availableCameraIds = getCameraFactory().getAvailableCameraIds();
@@ -338,7 +341,10 @@ public final class CameraX {
             availableCameraIds =
                     LensFacingCameraIdFilter.createLensFacingCameraIdFilter(lensFacing)
                             .filter(availableCameraIds);
+        } else {
+            throw new IllegalArgumentException("Lens facing isn't set in the config.");
         }
+
         CameraIdFilter cameraIdFilter = config.getCameraIdFilter(null);
         if (cameraIdFilter != null) {
             // Filters camera ids with other filters.
@@ -348,7 +354,7 @@ public final class CameraX {
         if (!availableCameraIds.isEmpty()) {
             return availableCameraIds.iterator().next();
         } else {
-            throw new CameraInfoUnavailableException("Unable to find available camera id.");
+            return null;
         }
     }
 

@@ -22,10 +22,14 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.LensFacingCameraIdFilter;
+
+import java.util.Set;
 
 /**
  * Utility functions for accessing camera related parameters
@@ -42,6 +46,17 @@ class CameraUtil {
             // Returns null if there's no camera id can be found.
             return null;
         }
+    }
+
+    @NonNull
+    static Set<String> getCameraIdSetWithLensFacing(CameraX.LensFacing lensFacing)
+            throws CameraInfoUnavailableException {
+        Set<String> availableCameraIds = CameraX.getCameraFactory().getAvailableCameraIds();
+        LensFacingCameraIdFilter lensFacingCameraIdFilter =
+                LensFacingCameraIdFilter.createLensFacingCameraIdFilter(lensFacing);
+        availableCameraIds = lensFacingCameraIdFilter.filter(availableCameraIds);
+
+        return availableCameraIds;
     }
 
     static CameraCharacteristics getCameraCharacteristics(String cameraId) {

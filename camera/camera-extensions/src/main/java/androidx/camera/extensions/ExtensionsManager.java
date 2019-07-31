@@ -105,22 +105,23 @@ public final class ExtensionsManager {
             LensFacing lensFacing) {
         ImageCaptureConfig.Builder builder = new ImageCaptureConfig.Builder();
         builder.setLensFacing(lensFacing);
+        ImageCaptureExtender extender;
 
         switch (effectMode) {
             case BOKEH:
-                BokehImageCaptureExtender.create(builder);
+                extender = BokehImageCaptureExtender.create(builder);
                 break;
             case HDR:
-                HdrImageCaptureExtender.create(builder);
+                extender = HdrImageCaptureExtender.create(builder);
                 break;
             case NIGHT:
-                NightImageCaptureExtender.create(builder);
+                extender = NightImageCaptureExtender.create(builder);
                 break;
             case BEAUTY:
-                BeautyImageCaptureExtender.create(builder);
+                extender = BeautyImageCaptureExtender.create(builder);
                 break;
             case AUTO:
-                AutoImageCaptureExtender.create(builder);
+                extender = AutoImageCaptureExtender.create(builder);
                 break;
             case NORMAL:
                 return true;
@@ -128,9 +129,7 @@ public final class ExtensionsManager {
                 return false;
         }
 
-        String cameraId = CameraUtil.getCameraId(builder.build());
-
-        return cameraId != null;
+        return extender.isExtensionAvailable();
     }
 
     /**
@@ -163,22 +162,23 @@ public final class ExtensionsManager {
             LensFacing lensFacing) {
         PreviewConfig.Builder builder = new PreviewConfig.Builder();
         builder.setLensFacing(lensFacing);
+        PreviewExtender extender;
 
         switch (effectMode) {
             case BOKEH:
-                BokehPreviewExtender.create(builder);
+                extender = BokehPreviewExtender.create(builder);
                 break;
             case HDR:
-                HdrPreviewExtender.create(builder);
+                extender = HdrPreviewExtender.create(builder);
                 break;
             case NIGHT:
-                NightPreviewExtender.create(builder);
+                extender = NightPreviewExtender.create(builder);
                 break;
             case BEAUTY:
-                BeautyPreviewExtender.create(builder);
+                extender = BeautyPreviewExtender.create(builder);
                 break;
             case AUTO:
-                AutoPreviewExtender.create(builder);
+                extender = AutoPreviewExtender.create(builder);
                 break;
             case NORMAL:
                 return true;
@@ -186,9 +186,7 @@ public final class ExtensionsManager {
                 return false;
         }
 
-        String cameraId = CameraUtil.getCameraId(builder.build());
-
-        return cameraId != null;
+        return extender.isExtensionAvailable();
     }
 
     private ExtensionsManager() {
