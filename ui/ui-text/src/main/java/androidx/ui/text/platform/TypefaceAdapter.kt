@@ -49,8 +49,8 @@ internal open class TypefaceAdapter(
     )
 
     companion object {
-        // Accept FontWeights at and above 600 to be bold. 600 comes from FontFamily.cpp#computeFakery
-        // function in minikin
+        // Accept FontWeights at and above 600 to be bold. 600 comes from
+        // FontFamily.cpp#computeFakery function in minikin
         private val ANDROID_BOLD = FontWeight.w600
 
         // 16 is a random number and is not based on any strong logic
@@ -205,7 +205,8 @@ internal open class TypefaceAdapter(
         return if (Build.VERSION.SDK_INT < 28) {
             val targetStyle = getTypefaceStyle(
                 isBold = synthesizeWeight,
-                isItalic = synthesizeStyle && fontStyle == FontStyle.Italic)
+                isItalic = synthesizeStyle && fontStyle == FontStyle.Italic
+            )
             Typeface.create(typeface, targetStyle)
         } else {
             val finalFontWeight = if (synthesizeWeight) {

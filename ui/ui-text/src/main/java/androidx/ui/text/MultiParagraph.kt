@@ -245,8 +245,7 @@ internal class MultiParagraph(
 
         val paragraphIndex = findParagraphByIndex(paragraphInfoList, offset)
         return with(paragraphInfoList[paragraphIndex]) {
-            val localOffset = offset.toLocalIndex()
-            paragraph.getBoundingBox(localOffset).toGlobal()
+            paragraph.getBoundingBox(offset.toLocalIndex()).toGlobal()
         }
     }
 

@@ -49,7 +49,8 @@ internal data class TextBox(
     }
 
     /**
-     * The [left] edge of the box for left-to-right text; the [right] edge of the box for right-to-left text.
+     * The [left] edge of the box for left-to-right text; the [right] edge of the box for
+     * right-to-left text.
      * See also:
      *  * [direction], which specifies the text direction.
      */
@@ -58,7 +59,8 @@ internal data class TextBox(
     }
 
     /**
-     * The [right] edge of the box for left-to-right text; the [left] edge of the box for right-to-left text.
+     * The [right] edge of the box for left-to-right text; the [left] edge of the box for
+     * right-to-left text.
      * See also:
      *  * [direction], which specifies the text direction.
      */

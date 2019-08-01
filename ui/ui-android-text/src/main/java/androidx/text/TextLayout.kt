@@ -86,9 +86,11 @@ class TextLayout constructor(
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
         val boringMetrics = BoringLayoutCompat.isBoring(charSequence, textPaint, frameworkTextDir)
 
+        // TODO(haoyuchang): we didn't pass the TextDirection to Layout.getDesiredWidth(), check if
+        //  there is any behavior difference from
+        //  Layout.getWidthWithLimits(charSequence, start, end, paint, dir)
         maxIntrinsicWidth = boringMetrics?.width?.toFloat()
-                // we may need to getWidthWithLimits(maxWidth: Int, maxLines: Int)
-                ?: Layout.getDesiredWidth(charSequence, start, end, textPaint)
+            ?: Layout.getDesiredWidth(charSequence, start, end, textPaint)
 
         val finalWidth = width.toInt()
         val ellipsizeWidth = finalWidth
@@ -164,6 +166,12 @@ class TextLayout constructor(
 
     fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
 
+    fun getLineTop(line: Int): Float = layout.getLineTop(line).toFloat()
+
+    fun getLineBottom(line: Int): Float = layout.getLineBottom(line).toFloat()
+
+    fun getLineBaseline(line: Int): Float = layout.getLineBaseline(line).toFloat()
+
     fun getLineHeight(lineIndex: Int): Float =
         (layout.getLineBottom(lineIndex) - layout.getLineTop(lineIndex)).toFloat()
 
@@ -177,10 +185,6 @@ class TextLayout constructor(
     fun getPrimaryHorizontal(offset: Int): Float = layout.getPrimaryHorizontal(offset)
 
     fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
-
-    fun getLineTop(line: Int): Float = layout.getLineTop(line).toFloat()
-
-    fun getLineBottom(line: Int): Float = layout.getLineBottom(line).toFloat()
 
     fun getSelectionPath(start: Int, end: Int, dest: Path) =
         layout.getSelectionPath(start, end, dest)
