@@ -17,8 +17,10 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
+import android.view.View
 import androidx.compose.composer
 import androidx.compose.Composable
+import androidx.compose.CompositionContext
 import androidx.compose.FrameManager
 import androidx.compose.State
 import androidx.compose.state
@@ -34,6 +36,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.material.surface.Surface
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.ToggleableTestCase
+import androidx.ui.test.findComposeView
 
 /**
  * Test case that puts the given amount of checkboxes into a column of rows and makes changes by
@@ -46,29 +49,26 @@ class CheckboxesInRowsTestCase(
 
     private val states = mutableListOf<State<Boolean>>()
 
-    override fun setupContent(activity: Activity) {
-        compositionContext = activity.setContent {
-            MaterialTheme {
-                Surface {
-                    Column {
-                        repeat(amountOfCheckboxes) {
-                            FlexRow {
-                                inflexible {
-                                    Text(text = "Check Me!")
-                                }
-                                expanded(1f) {
-                                    Align(alignment = Alignment.CenterRight) {
-                                        CheckboxWithState()
-                                    }
+    override fun setComposeContent(activity: Activity) = activity.setContent {
+        MaterialTheme {
+            Surface {
+                Column {
+                    repeat(amountOfCheckboxes) {
+                        FlexRow {
+                            inflexible {
+                                Text(text = "Check Me!")
+                            }
+                            expanded(1f) {
+                                Align(alignment = Alignment.CenterRight) {
+                                    CheckboxWithState()
                                 }
                             }
                         }
                     }
                 }
             }
-        }!!
-        FrameManager.nextFrame()
-    }
+        }
+    }!!
 
     override fun toggleState() {
         val state = states.first()

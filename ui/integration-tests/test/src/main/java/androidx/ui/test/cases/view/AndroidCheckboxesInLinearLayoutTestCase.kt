@@ -36,7 +36,7 @@ class AndroidCheckboxesInLinearLayoutTestCase(
 
     private val checkboxes = mutableListOf<CheckBox>()
 
-    override fun setupContent(activity: Activity) {
+    override fun createViewContent(activity: Activity): ViewGroup {
         val column = LinearLayout(activity)
         column.orientation = LinearLayout.VERTICAL
         column.layoutParams = ViewGroup.LayoutParams(
@@ -73,7 +73,7 @@ class AndroidCheckboxesInLinearLayoutTestCase(
             row.addView(checkbox)
             column.addView(row)
         }
-        activity.setContentView(column)
+        return column
     }
 
     fun toggleState() {

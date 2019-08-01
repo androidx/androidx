@@ -17,6 +17,8 @@
 package androidx.ui.test.cases
 
 import android.app.Activity
+import androidx.compose.Composable
+import androidx.compose.CompositionContext
 import androidx.compose.composer
 import androidx.compose.FrameManager
 import androidx.compose.Model
@@ -46,22 +48,19 @@ class RectsInColumnSharedModelTestCase(
 
     private val model = RectanglesInColumnTestCaseColorModel(Color.Black)
 
-    override fun setupContent(activity: Activity) {
-        compositionContext = activity.setContent {
-            MaterialTheme {
-                Column {
-                    repeat(amountOfRectangles) { i ->
-                        if (i == 0) {
-                            ColoredRect(color = model.color, width = 100.dp, height = 50.dp)
-                        } else {
-                            ColoredRect(color = Color.Green, width = 100.dp, height = 50.dp)
-                        }
+    override fun setComposeContent(activity: Activity) = activity.setContent {
+        MaterialTheme {
+            Column {
+                repeat(amountOfRectangles) { i ->
+                    if (i == 0) {
+                        ColoredRect(color = model.color, width = 100.dp, height = 50.dp)
+                    } else {
+                        ColoredRect(color = Color.Green, width = 100.dp, height = 50.dp)
                     }
                 }
             }
-        }!!
-        FrameManager.nextFrame()
-    }
+        }
+    }!!
 
     override fun toggleState() {
         if (model.color == Color.Purple) {
