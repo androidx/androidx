@@ -21,6 +21,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Build;
+import android.os.CancellationSignal;
 import android.os.Looper;
 import android.util.Log;
 
@@ -294,7 +295,8 @@ public abstract class RoomDatabase {
      * @param args  The bind arguments for the placeholders in the query
      * @return A Cursor obtained by running the given query in the Room database.
      */
-    public Cursor query(String query, @Nullable Object[] args) {
+    @NonNull
+    public Cursor query(@NonNull String query, @Nullable Object[] args) {
         return mOpenHelper.getWritableDatabase().query(new SimpleSQLiteQuery(query, args));
     }
 
@@ -304,10 +306,27 @@ public abstract class RoomDatabase {
      * @param query The Query which includes the SQL and a bind callback for bind arguments.
      * @return Result of the query.
      */
-    public Cursor query(SupportSQLiteQuery query) {
+    @NonNull
+    public Cursor query(@NonNull SupportSQLiteQuery query) {
+        return query(query, null);
+    }
+
+    /**
+     * Wrapper for {@link SupportSQLiteDatabase#query(SupportSQLiteQuery)}.
+     *
+     * @param query The Query which includes the SQL and a bind callback for bind arguments.
+     * @param signal The cancellation signal to be attached to the query.
+     * @return Result of the query.
+     */
+    @NonNull
+    public Cursor query(@NonNull SupportSQLiteQuery query, @Nullable CancellationSignal signal) {
         assertNotMainThread();
         assertNotSuspendingTransaction();
-        return mOpenHelper.getWritableDatabase().query(query);
+        if (signal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return mOpenHelper.getWritableDatabase().query(query, signal);
+        } else {
+            return mOpenHelper.getWritableDatabase().query(query);
+        }
     }
 
     /**

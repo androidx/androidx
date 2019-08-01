@@ -46,14 +46,16 @@ class RxCallableQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         val callable = CallableTypeSpecBuilder(typeArg.typeName()) {
             fillInCallMethod(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope)
+                scope = scope,
+                cancellationSignalVar = cancellationSignalVar)
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -72,7 +74,8 @@ class RxCallableQueryResultBinder(
         roomSQLiteQueryVar: String,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         val adapterScope = scope.fork()
         val transactionWrapper = if (inTransaction) {
@@ -84,13 +87,14 @@ class RxCallableQueryResultBinder(
         val shouldCopyCursor = adapter?.shouldCopyCursor() == true
         val outVar = scope.getTmpVar("_result")
         val cursorVar = scope.getTmpVar("_cursor")
-        addStatement("final $T $L = $T.query($N, $L, $L)",
+        addStatement("final $T $L = $T.query($N, $L, $L, $L)",
                 AndroidTypeNames.CURSOR,
                 cursorVar,
                 RoomTypeNames.DB_UTIL,
                 dbField,
                 roomSQLiteQueryVar,
-                if (shouldCopyCursor) "true" else "false")
+                if (shouldCopyCursor) "true" else "false",
+                cancellationSignalVar)
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
             addCode(adapterScope.generate())

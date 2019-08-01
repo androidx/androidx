@@ -41,7 +41,8 @@ class GuavaListenableFutureQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         // Callable<T> // Note that this callable does not release the query object.
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
@@ -50,7 +51,8 @@ class GuavaListenableFutureQueryResultBinder(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope
+                scope = scope,
+                cancellationSignalVar = cancellationSignalVar
             )
         }.build()
 

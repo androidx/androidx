@@ -187,7 +187,8 @@ public class InvalidationTrackerTest {
 
     @Test
     public void refreshCheckTasks() throws Exception {
-        when(mRoomDatabase.query(any(SimpleSQLiteQuery.class))).thenReturn(mock(Cursor.class));
+        when(mRoomDatabase.query(any(SimpleSQLiteQuery.class)))
+                .thenReturn(mock(Cursor.class));
         mTracker.refreshVersionsAsync();
         mTracker.refreshVersionsAsync();
         verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.mRefreshRunnable);
