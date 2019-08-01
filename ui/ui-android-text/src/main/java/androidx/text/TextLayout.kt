@@ -184,7 +184,13 @@ class TextLayout constructor(
 
     fun getPrimaryHorizontal(offset: Int): Float = layout.getPrimaryHorizontal(offset)
 
+    fun getSecondaryHorizontal(offset: Int): Float = layout.getSecondaryHorizontal(offset)
+
     fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
+
+    fun isRtlCharAt(offset: Int): Boolean = layout.isRtlCharAt(offset)
+
+    fun getParagraphDirection(line: Int): Int = layout.getParagraphDirection(line)
 
     fun getSelectionPath(start: Int, end: Int, dest: Path) =
         layout.getSelectionPath(start, end, dest)
