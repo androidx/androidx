@@ -16,7 +16,7 @@
 
 package androidx.core.util;
 
-import androidx.annotation.Nullable;
+import android.annotation.SuppressLint;
 
 /**
  * Compat version of {@link java.util.function.Predicate}
@@ -32,5 +32,6 @@ public interface Predicate<T> {
      * @return {@code true} if the input argument matches the predicate,
      * otherwise {@code false}
      */
-    boolean test(@Nullable T t);
+    @SuppressLint("UnknownNullness")
+    boolean test(T t);
 }
