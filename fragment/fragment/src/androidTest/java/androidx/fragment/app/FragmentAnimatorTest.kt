@@ -22,6 +22,7 @@ import android.animation.ValueAnimator
 import android.os.Build
 import android.view.View
 import androidx.annotation.AnimatorRes
+import androidx.annotation.LayoutRes
 import androidx.annotation.RequiresApi
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.test.FragmentTestActivity
@@ -452,14 +453,14 @@ class FragmentAnimatorTest {
 
         val fm1 = fc1.supportFragmentManager
 
-        val fragment1 = StrictViewFragment(R.layout.scene1)
+        val fragment1 = AnimatorFragment(R.layout.scene1)
         fm1.beginTransaction()
             .add(R.id.fragmentContainer, fragment1, "1")
             .setReorderingAllowed(true)
             .commit()
         activityRule.waitForExecution()
 
-        val fragment2 = StrictViewFragment()
+        val fragment2 = AnimatorFragment()
 
         fm1.beginTransaction()
             .setCustomAnimations(0, 0, 0, R.animator.slow_fade_out)
@@ -468,12 +469,12 @@ class FragmentAnimatorTest {
             .setReorderingAllowed(true)
             .commit()
         activityRule.executePendingTransactions(fm1)
-        activityRule.waitForExecution()
 
         fm1.popBackStack()
 
         activityRule.executePendingTransactions(fm1)
-        activityRule.waitForExecution()
+        // ensure the animation was started
+        assertThat(fragment2.wasStarted).isTrue()
         // Now fragment2 should be animating away
         assertThat(fragment2.isAdded).isFalse()
         assertThat(fm1.findFragmentByTag("2"))
@@ -548,7 +549,8 @@ class FragmentAnimatorTest {
         assertThat(fragment.numAnimators).isEqualTo(expectedAnimators)
     }
 
-    class AnimatorFragment : StrictViewFragment() {
+    class AnimatorFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
+        StrictViewFragment(contentLayoutId) {
         var numAnimators: Int = 0
         lateinit var baseAnimator: Animator
         var baseEnter: Boolean = false
