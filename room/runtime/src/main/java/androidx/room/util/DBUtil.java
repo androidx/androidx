@@ -156,6 +156,20 @@ public class DBUtil {
         }
     }
 
+    /**
+     * CancellationSignal is only available from API 16 on. This function will create a new
+     * instance of the Cancellation signal only if the current API > 16.
+     *
+     * @return A new instance of CancellationSignal or null.
+     */
+    @Nullable
+    public static CancellationSignal createCancellationSignal() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return new CancellationSignal();
+        }
+        return null;
+    }
+
     private DBUtil() {
     }
 }

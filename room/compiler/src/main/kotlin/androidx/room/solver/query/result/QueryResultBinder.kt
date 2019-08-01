@@ -36,7 +36,6 @@ abstract class QueryResultBinder(val adapter: QueryResultAdapter?) {
         canReleaseQuery: Boolean, // false if query is provided by the user
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String // "null" if cancellation isn't supported
+        scope: CodeGenScope
     )
 }

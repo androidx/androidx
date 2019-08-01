@@ -37,8 +37,7 @@ class DataSourceFactoryQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
+        scope: CodeGenScope
     ) {
         scope.builder().apply {
             val pagedListProvider = TypeSpec
@@ -49,8 +48,7 @@ class DataSourceFactoryQueryResultBinder(
                         roomSQLiteQueryVar = roomSQLiteQueryVar,
                         dbField = dbField,
                         inTransaction = inTransaction,
-                        scope = scope,
-                        cancellationSignalVar = cancellationSignalVar))
+                        scope = scope))
             }.build()
             addStatement("return $L", pagedListProvider)
         }
@@ -60,8 +58,7 @@ class DataSourceFactoryQueryResultBinder(
         roomSQLiteQueryVar: String,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
+        scope: CodeGenScope
     ): MethodSpec = MethodSpec.methodBuilder("create").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
@@ -72,8 +69,7 @@ class DataSourceFactoryQueryResultBinder(
                 canReleaseQuery = true,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = countedBinderScope,
-                cancellationSignalVar = cancellationSignalVar)
+                scope = countedBinderScope)
         addCode(countedBinderScope.builder().build())
     }.build()
 }

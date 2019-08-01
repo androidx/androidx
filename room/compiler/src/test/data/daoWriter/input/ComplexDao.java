@@ -18,6 +18,8 @@ package foo.bar;
 import androidx.room.*;
 import java.util.List;
 import androidx.lifecycle.LiveData;
+import com.google.common.util.concurrent.ListenableFuture;
+
 @Dao
 abstract class ComplexDao {
     static class FullName {
@@ -72,4 +74,7 @@ abstract class ComplexDao {
 
     @Query("SELECT * FROM Child2")
     abstract public List<Child2> getChild2List();
+
+    @Query("SELECT * FROM Child1")
+    abstract public ListenableFuture<List<Child1>> getChild1ListListenableFuture();
 }
