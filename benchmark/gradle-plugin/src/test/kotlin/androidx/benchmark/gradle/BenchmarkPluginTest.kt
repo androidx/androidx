@@ -365,11 +365,6 @@ class BenchmarkPluginTest {
                 def extension = project.extensions.getByType(TestedExtension)
                 println extension.buildTypes.getByName("debug").testCoverageEnabled
             }
-
-            tasks.register("printTestBuildType") {
-                def extension = project.extensions.getByType(TestedExtension)
-                println extension.testBuildType = "release"
-            }
         """.trimIndent()
         )
 
@@ -380,9 +375,6 @@ class BenchmarkPluginTest {
 
         val codeCoverageOutput = gradleRunner.withArguments("printTestCoverageEnabled").build()
         assertTrue { codeCoverageOutput.output.contains("false") }
-
-        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
-        assertTrue { testBuildTypeOutput.output.contains("release") }
     }
 
     @Test
@@ -404,7 +396,6 @@ class BenchmarkPluginTest {
             android {
                 compileSdkVersion $compileSdkVersion
                 buildToolsVersion "$buildToolsVersion"
-                testBuildType = "debug"
 
                 defaultConfig {
                     minSdkVersion $minSdkVersion
@@ -431,11 +422,6 @@ class BenchmarkPluginTest {
                 def extension = project.extensions.getByType(TestedExtension)
                 println extension.buildTypes.getByName("debug").testCoverageEnabled
             }
-
-            tasks.register("printTestBuildType") {
-                def extension = project.extensions.getByType(TestedExtension)
-                println extension.testBuildType
-            }
         """.trimIndent()
         )
 
@@ -446,8 +432,5 @@ class BenchmarkPluginTest {
 
         val codeCoverageOutput = gradleRunner.withArguments("printTestCoverageEnabled").build()
         assertTrue { codeCoverageOutput.output.contains("true") }
-
-        val testBuildTypeOutput = gradleRunner.withArguments("printTestBuildType").build()
-        assertTrue { testBuildTypeOutput.output.contains("debug") }
     }
 }
