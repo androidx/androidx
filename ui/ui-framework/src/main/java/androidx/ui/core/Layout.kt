@@ -27,15 +27,19 @@ import androidx.compose.onPreCommit
 import androidx.compose.trace
 import androidx.compose.unaryPlus
 
-internal typealias LayoutBlock = LayoutBlockReceiver.(List<Measurable>, Constraints) -> LayoutResult
-internal typealias IntrinsicMeasurementBlock = IntrinsicMeasurementsReceiver
-    .(List<Measurable>, IntPx) -> IntPx
-internal val LayoutBlockStub: LayoutBlock = { _, _ -> LayoutResult.instance }
+internal typealias LayoutBlock =
+        LayoutBlockReceiver.(List<Measurable>, Constraints) -> LayoutResult
+internal typealias ComplexLayoutBlock =
+        ComplexLayoutBlockReceiver.(List<Measurable>, Constraints) -> LayoutResult
+internal typealias IntrinsicMeasurementBlock =
+        IntrinsicMeasurementReceiver.(List<Measurable>, IntPx) -> IntPx
+
+internal val ComplexLayoutBlockStub: ComplexLayoutBlock = { _, _ -> LayoutResult.instance }
 internal val IntrinsicMeasurementBlockStub: IntrinsicMeasurementBlock = { _, _ -> 0.ipx }
 
 /**
- * Object returned from [LayoutReceiver.layout] and [LayoutBlockReceiver.layoutResult] to deliver
- * proof the method was called in the respective layout lambdas.
+ * Object returned from [LayoutBlockReceiver.layout] and [ComplexLayoutBlockReceiver.layoutResult]
+ * to deliver proof the method was called in [LayoutBlock] and [ComplexLayoutBlock], respectively.
  */
 class LayoutResult private constructor() {
     companion object {
@@ -44,7 +48,7 @@ class LayoutResult private constructor() {
 }
 
 internal class ComplexLayoutState(
-    internal var layoutBlock: LayoutBlock = LayoutBlockStub,
+    internal var layoutBlock: ComplexLayoutBlock = ComplexLayoutBlockStub,
     internal var minIntrinsicWidthBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
     internal var maxIntrinsicWidthBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
     internal var minIntrinsicHeightBlock: IntrinsicMeasurementBlock = IntrinsicMeasurementBlockStub,
@@ -67,9 +71,9 @@ internal class ComplexLayoutState(
     internal var block: ComplexLayoutReceiver.() -> Unit = {}
     internal var positioningBlock: PositioningBlockReceiver.() -> Unit = {}
 
-    internal val layoutBlockReceiver = LayoutBlockReceiver(this)
+    internal val layoutBlockReceiver = ComplexLayoutBlockReceiver(this)
     internal val intrinsicMeasurementsReceiver =
-        IntrinsicMeasurementsReceiver(this)
+        IntrinsicMeasurementReceiver(this)
     internal val positioningBlockReceiver = PositioningBlockReceiver()
 
     internal val layoutNodeRef = Ref<LayoutNode>()
@@ -213,7 +217,7 @@ internal class ComplexLayoutStateMeasurablesList(
  * Receiver scope for the [ComplexLayout] lambda.
  */
 class ComplexLayoutReceiver internal constructor(internal val layoutState: ComplexLayoutState) {
-    fun layout(layoutBlock: LayoutBlock) {
+    fun layout(layoutBlock: ComplexLayoutBlock) {
         layoutState.layoutBlock = layoutBlock
     }
     fun minIntrinsicWidth(minIntrinsicWidthBlock: IntrinsicMeasurementBlock) {
@@ -230,7 +234,7 @@ class ComplexLayoutReceiver internal constructor(internal val layoutState: Compl
     }
 
     internal fun runBlock(block: ComplexLayoutReceiver.() -> Unit) {
-        layoutState.layoutBlock = LayoutBlockStub
+        layoutState.layoutBlock = ComplexLayoutBlockStub
         layoutState.minIntrinsicWidthBlock = IntrinsicMeasurementBlockStub
         layoutState.maxIntrinsicWidthBlock = IntrinsicMeasurementBlockStub
         layoutState.minIntrinsicHeightBlock = IntrinsicMeasurementBlockStub
@@ -241,7 +245,7 @@ class ComplexLayoutReceiver internal constructor(internal val layoutState: Compl
         val noLambdaMessage = { subject: String ->
             { "No $subject lambda provided in ComplexLayout" }
         }
-        require(layoutState.layoutBlock != LayoutBlockStub, noLambdaMessage("layout"))
+        require(layoutState.layoutBlock != ComplexLayoutBlockStub, noLambdaMessage("layout"))
         require(
             layoutState.minIntrinsicWidthBlock != IntrinsicMeasurementBlockStub,
             noLambdaMessage("minIntrinsicWidth")
@@ -293,7 +297,7 @@ fun ComplexLayout(
 /**
  * Receiver scope for [ComplexLayout]'s intrinsic measurements lambdas.
  */
-class IntrinsicMeasurementsReceiver internal constructor(
+class IntrinsicMeasurementReceiver internal constructor(
     internal val layoutState: ComplexLayoutState
 ) : DensityReceiver {
     override val density: Density
@@ -311,7 +315,7 @@ class IntrinsicMeasurementsReceiver internal constructor(
 /**
  * Receiver scope for [ComplexLayout]'s layout lambda.
  */
-class LayoutBlockReceiver internal constructor(
+class ComplexLayoutBlockReceiver internal constructor(
     internal val layoutState: ComplexLayoutState
 ) : DensityReceiver {
     override val density: Density
@@ -355,12 +359,11 @@ private val LayoutMeasure = { m: Measurable, c: Constraints -> (m as ComplexLayo
 @Composable
 fun Layout(
     children: @Composable() () -> Unit,
-    @Children(composable = false) layoutBlock: LayoutReceiver
-        .(measurables: List<Measurable>, constraints: Constraints) -> LayoutResult
+    @Children(composable = false) layoutBlock: LayoutBlock
 ) {
     trace("UI:Layout") {
         ComplexLayout(children = children, block = {
-            val layoutReceiver = LayoutReceiver(
+            val layoutReceiver = LayoutBlockReceiver(
                 layoutState,
                 LayoutMeasure, /* measure lambda */
                 { _, _, _ -> }
@@ -379,7 +382,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { width, _, _ -> intrinsicWidth = width }
                 val constraints = Constraints(maxHeight = h)
-                layoutBlock(layoutReceiver, measurables, constraints)
+                layoutReceiver.layoutBlock(measurables, constraints)
                 intrinsicWidth
             }
 
@@ -391,7 +394,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { width, _, _ -> intrinsicWidth = width }
                 val constraints = Constraints(maxHeight = h)
-                layoutBlock(layoutReceiver, measurables, constraints)
+                layoutReceiver.layoutBlock(measurables, constraints)
                 intrinsicWidth
             }
 
@@ -403,7 +406,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { _, height, _ -> intrinsicHeight = height }
                 val constraints = Constraints(maxWidth = w)
-                layoutBlock(layoutReceiver, measurables, constraints)
+                layoutReceiver.layoutBlock(measurables, constraints)
                 intrinsicHeight
             }
 
@@ -415,7 +418,7 @@ fun Layout(
                 }
                 layoutReceiver.complexLayoutResult = { _, height, _ -> intrinsicHeight = height }
                 val constraints = Constraints(maxWidth = w)
-                layoutBlock(layoutReceiver, measurables, constraints)
+                layoutReceiver.layoutBlock(measurables, constraints)
                 intrinsicHeight
             }
         })
@@ -448,8 +451,7 @@ internal data class ChildrenEndParentData(val children: @Composable() () -> Unit
 @Composable
 fun Layout(
     childrenArray: Array<@Composable() () -> Unit>,
-    @Children(composable = false) layoutBlock: LayoutReceiver
-        .(measurables: List<Measurable>, constraints: Constraints) -> LayoutResult
+    @Children(composable = false) layoutBlock: LayoutBlock
 ) {
     val ChildrenEndMarker = @Composable { children: @Composable() () -> Unit ->
         ParentData(data = ChildrenEndParentData(children)) {
@@ -468,10 +470,10 @@ fun Layout(
 }
 
 /**
- * Receiver scope for the lambda of [Layout].
+ * Receiver scope for [Layout]'s layout lambda.
  * Used to mask away intrinsics inside [Layout].
  */
-class LayoutReceiver internal constructor(
+class LayoutBlockReceiver internal constructor(
     internal val layoutState: ComplexLayoutState,
     internal var complexMeasure: (Measurable, Constraints) -> Placeable,
     internal var complexLayoutResult: (IntPx, IntPx, PositioningBlockReceiver.() -> Unit) -> Unit
