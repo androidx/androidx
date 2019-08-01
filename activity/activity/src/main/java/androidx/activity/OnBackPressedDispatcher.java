@@ -16,6 +16,8 @@
 
 package androidx.activity;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -139,6 +141,7 @@ public final class OnBackPressedDispatcher {
      *
      * @see #onBackPressed()
      */
+    @SuppressLint("LambdaLast")
     @MainThread
     public void addCallback(@NonNull LifecycleOwner owner,
             @NonNull OnBackPressedCallback onBackPressedCallback) {
