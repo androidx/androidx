@@ -17,6 +17,7 @@
 package androidx.ui.layout.test
 
 import android.widget.FrameLayout
+import androidx.compose.Model
 import androidx.test.filters.SmallTest
 import androidx.compose.composer
 import androidx.ui.core.LayoutCoordinates
@@ -192,4 +193,31 @@ class OnPositionedTest : LayoutTest() {
         assertThat(realGlobalPosition).isEqualTo(globalPosition)
         assertThat(realLocalPosition).isEqualTo(localPosition)
     }
+
+    @Test
+    fun justAddedOnPositionedCallbackFiredWithoutLayoutChanges() = withDensity(density) {
+        val needCallback = NeedCallback(false)
+
+        val callbackLatch = CountDownLatch(1)
+        show {
+            Container(expanded = true) {
+                if (needCallback.value) {
+                    OnPositioned(onPositioned = {
+                        callbackLatch.countDown()
+                    })
+                }
+            }
+        }
+
+        activityTestRule.runOnUiThread(object : Runnable {
+            override fun run() {
+                needCallback.value = true
+            }
+        })
+
+        assertThat(callbackLatch.await(1000, TimeUnit.SECONDS)).isEqualTo(true)
+    }
 }
+
+@Model
+private data class NeedCallback(var value: Boolean)
