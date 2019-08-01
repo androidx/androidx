@@ -32,15 +32,20 @@ internal object Arguments {
     val additionalTestOutputDir: String?
     val outputEnable: Boolean
     val startupMode: Boolean
+    val dryRunMode: Boolean
     val suppressedErrors: Set<String>
 
     init {
         val prefix = "androidx.benchmark"
         val arguments = argumentSource ?: InstrumentationRegistry.getArguments()
 
-        startupMode = arguments.getString("$prefix.startupMode.enable")?.toBoolean() ?: false
+        dryRunMode = arguments.getString("$prefix.dryRunMode.enable")?.toBoolean() ?: false
 
-        outputEnable = arguments.getString("$prefix.output.enable")?.toBoolean() ?: false
+        startupMode = !dryRunMode &&
+                (arguments.getString("$prefix.startupMode.enable")?.toBoolean() ?: false)
+
+        outputEnable = !dryRunMode &&
+                (arguments.getString("$prefix.output.enable")?.toBoolean() ?: false)
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
