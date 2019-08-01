@@ -149,6 +149,7 @@ open class LayoutTest {
                             { w -> measurable.maxIntrinsicHeight(w) }
                         )
                         layoutLatch.countDown()
+                        layoutResult(0.ipx, 0.ipx) {}
                     }
                     minIntrinsicWidth { _, _ -> 0.ipx }
                     maxIntrinsicWidth { _, _ -> 0.ipx }
