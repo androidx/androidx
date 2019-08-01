@@ -39,6 +39,8 @@ open class StrictViewFragment(
     ): View? {
         checkGetActivity()
         checkState("onCreateView", State.CREATED)
+        assertWithMessage("Fragment should not have a view when calling onCreateView")
+            .that(mView).isNull()
         return super.onCreateView(inflater, container, savedInstanceState).also {
             onCreateViewCalled = true
         }
