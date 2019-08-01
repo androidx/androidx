@@ -433,26 +433,26 @@ class FragmentAnimationTest {
 
         val fm1 = fc1.supportFragmentManager
 
-        val fragment1 = StrictViewFragment(R.layout.scene1)
+        val fragment1 = AnimationListenerFragment(R.layout.scene1)
         fm1.beginTransaction()
             .add(R.id.fragmentContainer, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
 
-        val fragment2 = StrictViewFragment()
+        val fragment2 = AnimationListenerFragment()
 
         fm1.beginTransaction()
             .setCustomAnimations(0, 0, 0, R.anim.long_fade_out)
             .replace(R.id.fragmentContainer, fragment2, "2")
             .addToBackStack(null)
             .commit()
-        instrumentation.runOnMainSync { fm1.executePendingTransactions() }
-        activityRule.waitForExecution()
+        activityRule.executePendingTransactions(fm1)
 
         fm1.popBackStack()
-
-        instrumentation.runOnMainSync { fm1.executePendingTransactions() }
-        activityRule.waitForExecution()
+        activityRule.executePendingTransactions(fm1)
+        // ensure the animation was started
+        assertThat(fragment2.startAnimationLatch.await(1000, TimeUnit.MILLISECONDS))
+            .isTrue()
         // Now fragment2 should be animating away
         assertThat(fragment2.isAdded).isFalse()
         // still exists because it is animating
@@ -718,7 +718,9 @@ class FragmentAnimationTest {
         }
     }
 
-    class AnimationListenerFragment : StrictViewFragment() {
+    class AnimationListenerFragment(
+        @LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment
+    ) : StrictViewFragment(contentLayoutId) {
         lateinit var createdView: View
         var forceRunOnHwLayer: Boolean = false
         var repeat: Boolean = false
@@ -728,6 +730,7 @@ class FragmentAnimationTest {
         var exitStartCount = 0
         var exitRepeatCount = 0
         var exitEndCount = 0
+        val startAnimationLatch = CountDownLatch(1)
         val enterLatch = CountDownLatch(1)
         val exitLatch = CountDownLatch(1)
 
@@ -770,6 +773,7 @@ class FragmentAnimationTest {
                         } else {
                             exitStartCount++
                         }
+                        startAnimationLatch.countDown()
                     }
 
                     override fun onAnimationEnd(animation: Animation) {
