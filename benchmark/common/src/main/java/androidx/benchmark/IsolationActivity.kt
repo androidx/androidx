@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -26,6 +27,7 @@ import android.os.Bundle
 import android.os.PowerManager
 import android.os.Process
 import android.util.Log
+import android.view.WindowManager
 import android.widget.TextView
 import androidx.annotation.AnyThread
 import androidx.annotation.RestrictTo
@@ -60,21 +62,24 @@ class IsolationActivity : android.app.Activity() {
         if (firstInit) {
             if (!CpuInfo.locked && isSustainedPerformanceModeSupported()) {
                 sustainedPerformanceModeInUse = true
-                application.registerActivityLifecycleCallbacks(sustainedPerfCallbacks)
+            }
+            application.registerActivityLifecycleCallbacks(activityLifecycleCallbacks)
 
-                // trigger the one missed lifecycle event, from registering the callbacks late
-                sustainedPerfCallbacks.onActivityCreated(this, savedInstanceState)
+            // trigger the one missed lifecycle event, from registering the callbacks late
+            activityLifecycleCallbacks.onActivityCreated(this, savedInstanceState)
 
-                // Keep at least one core busy. Together with a single threaded benchmark, this makes
-                // the process get multi-threaded setSustainedPerformanceMode.
+            if (sustainedPerformanceModeInUse) {
+                // Keep at least one core busy. Together with a single threaded benchmark, this
+                // makes the process get multi-threaded setSustainedPerformanceMode.
                 //
-                // We want to keep to the relatively lower clocks of the multi-threaded benchmark mode
-                // to avoid any benchmarks running at higher clocks than any others.
+                // We want to keep to the relatively lower clocks of the multi-threaded benchmark
+                // mode to avoid any benchmarks running at higher clocks than any others.
                 //
                 // Note, thread names have 15 char max in Systrace
                 thread(name = "BenchSpinThread") {
                     Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST)
-                    while (true) {}
+                    while (true) {
+                    }
                 }
             }
             firstInit = false
@@ -159,11 +164,32 @@ class IsolationActivity : android.app.Activity() {
                 false
             }
 
-        private val sustainedPerfCallbacks = object : Application.ActivityLifecycleCallbacks {
+        private val activityLifecycleCallbacks = object : Application.ActivityLifecycleCallbacks {
             @SuppressLint("NewApi") // window API guarded by [isSustainedPerformanceModeSupported]
             override fun onActivityCreated(activity: Activity, bundle: Bundle?) {
-                activity.window.setSustainedPerformanceMode(true)
+                if (sustainedPerformanceModeInUse) {
+                    activity.window.setSustainedPerformanceMode(true)
+                }
+
+                // Forcibly wake the device, and keep the screen on to prevent benchmark failures.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+                    val keyguardManager =
+                        activity.getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+                    keyguardManager.requestDismissKeyguard(activity, null)
+                    activity.setShowWhenLocked(true)
+                    activity.setTurnScreenOn(true)
+                    activity.window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                } else {
+                    @Suppress("DEPRECATION")
+                    activity.window.addFlags(
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+                                or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                                or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+                                or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
+                    )
+                }
             }
+
             override fun onActivityDestroyed(activity: Activity) {}
             override fun onActivitySaveInstanceState(activity: Activity, bundle: Bundle) {}
             override fun onActivityStarted(activity: Activity) {}
