@@ -294,7 +294,7 @@ public class WebSettingsCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int FORCE_DARK_OFF = 0;
+    public static final int FORCE_DARK_OFF = WebSettings.FORCE_DARK_OFF;
 
     /**
      * Enable force dark dependent on the state of the WebView parent view. If the WebView parent
@@ -308,7 +308,7 @@ public class WebSettingsCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int FORCE_DARK_AUTO = 1;
+    public static final int FORCE_DARK_AUTO = WebSettings.FORCE_DARK_AUTO;
 
     /**
      * Used with {@link #setForceDark}
@@ -321,12 +321,11 @@ public class WebSettingsCompat {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static final int FORCE_DARK_ON = 2;
+    public static final int FORCE_DARK_ON = WebSettings.FORCE_DARK_ON;
 
     /**
      * @hide
      */
-    // TODO(amalova): redefine with framework constants when AndroidX compiles against Q
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @IntDef(value = {
             FORCE_DARK_OFF,
