@@ -32,8 +32,8 @@ class FieldProcessor(
     val containing: DeclaredType,
     val element: Element,
     val bindingScope: BindingScope,
-                     // pass only if this is processed as a child of Embedded field
-    val fieldParent: EmbeddedField?
+    val fieldParent: EmbeddedField?, // pass only if this is processed as a child of Embedded field
+    val onBindingError: (field: Field, errorMsg: String) -> Unit
 ) {
     val context = baseContext.fork(element)
     fun process(): Field {
@@ -82,20 +82,23 @@ class FieldProcessor(
                 field.statementBinder = adapter
                 field.cursorValueReader = adapter
                 field.affinity = adapterAffinity
-                context.checker.check(adapter != null, field.element,
-                        ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+                if (adapter == null) {
+                    onBindingError(field, ProcessorErrors.CANNOT_FIND_COLUMN_TYPE_ADAPTER)
+                }
             }
             BindingScope.BIND_TO_STMT -> {
                 field.statementBinder = context.typeAdapterStore
                         .findStatementValueBinder(field.type, field.affinity)
-                context.checker.check(field.statementBinder != null, field.element,
-                        ProcessorErrors.CANNOT_FIND_STMT_BINDER)
+                if (field.statementBinder == null) {
+                    onBindingError(field, ProcessorErrors.CANNOT_FIND_STMT_BINDER)
+                }
             }
             BindingScope.READ_FROM_CURSOR -> {
                 field.cursorValueReader = context.typeAdapterStore
                         .findCursorValueReader(field.type, field.affinity)
-                context.checker.check(field.cursorValueReader != null, field.element,
-                        ProcessorErrors.CANNOT_FIND_CURSOR_READER)
+                if (field.cursorValueReader == null) {
+                    onBindingError(field, ProcessorErrors.CANNOT_FIND_CURSOR_READER)
+                }
             }
         }
 

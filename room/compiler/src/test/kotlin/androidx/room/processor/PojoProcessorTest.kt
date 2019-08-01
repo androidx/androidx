@@ -1364,6 +1364,8 @@ class PojoProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"bar"})
                 public class ${MY_POJO.simpleName()} {
                     public String foo;
                     public String bar;
@@ -1372,7 +1374,6 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    ignoredColumns = setOf("bar"),
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
@@ -1385,6 +1386,8 @@ class PojoProcessorTest {
             """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"bar"})
                 public class ${MY_POJO.simpleName()} {
                     private final String foo;
                     private final String bar;
@@ -1402,8 +1405,7 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                 element = invocation.typeElement(MY_POJO.toString()),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                ignoredColumns = setOf("bar"),
-                parent = null).process()
+                    parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
         }.compilesWithoutError()
@@ -1415,6 +1417,8 @@ class PojoProcessorTest {
             """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"bar"})
                 public class ${MY_POJO.simpleName()} {
                     private String foo;
                     private String bar;
@@ -1431,7 +1435,6 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                 element = invocation.typeElement(MY_POJO.toString()),
                 bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                ignoredColumns = setOf("bar"),
                 parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
@@ -1444,6 +1447,8 @@ class PojoProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"my_bar"})
                 public class ${MY_POJO.simpleName()} {
                     public String foo;
                     @ColumnInfo(name = "my_bar")
@@ -1453,7 +1458,6 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    ignoredColumns = setOf("my_bar"),
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
@@ -1466,6 +1470,8 @@ class PojoProcessorTest {
                 """
                 package foo.bar;
                 import androidx.room.*;
+
+                @Entity(ignoredColumns = {"no_such_column"})
                 public class ${MY_POJO.simpleName()} {
                     public String foo;
                     public String bar;
@@ -1474,7 +1480,6 @@ class PojoProcessorTest {
             val pojo = PojoProcessor.createFor(context = invocation.context,
                     element = invocation.typeElement(MY_POJO.toString()),
                     bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                    ignoredColumns = setOf("no_such_column"),
                     parent = null).process()
             assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
             assertThat(pojo.fields.find { it.name == "bar" }, notNullValue())
