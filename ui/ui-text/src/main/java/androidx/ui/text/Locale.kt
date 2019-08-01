@@ -28,27 +28,21 @@ package androidx.ui.text
  * both have the [languageCode] `he`, because `iw` is a deprecated language
  * subtag that was replaced by the subtag `he`.
  *
- * See also:
- *
- *  * [Window.locale], which specifies the system's currently selected
- *    [Locale].
- *
  * The default constructor creates a new Locale object. The first argument is the
  * primary language subtag, the second is the region subtag.
  *
  * For example:
  *
- * ```dart
- * const Locale swissFrench = const Locale('fr', 'CH');
- * const Locale canadianFrench = const Locale('fr', 'CA');
- * ```
+ * val swissFrench = Locale('fr', 'CH');
+ * val canadianFrench = Locale('fr', 'CA');
+ *
  *
  * The primary language subtag must not be null. The region subtag is
  * optional.
  *
  * The values are _case sensitive_, and should match the case of the relevant
- * subtags in the [IANA Language Subtag
- * Registry](https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
+ * subtags in the [IANA Language Subtag Registry]
+ * (https://www.iana.org/assignments/language-subtag-registry/language-subtag-registry).
  * Typically this means the primary language subtag should be lowercase and
  * the region subtag should be uppercase.
  */
@@ -210,32 +204,4 @@ data class Locale(
             }
         }
     }
-
-    // Made this a data class, so the following are probably no longer required.
-    // Leaving them commented out though.
-//    override fun equals(other: Any?): Boolean {
-//        if (this === other) {
-//            return true
-//        }
-//        if (other !is Locale) {
-//            return false
-//        }
-//        return languageCode == other.languageCode && countryCode == other.countryCode
-//    }
-//
-//    override fun hashCode(): Int {
-//        var result = 373
-//        result = 37 * result + languageCode.hashCode()
-//        if (_countryCode != null) {
-//            result = 37 * result + countryCode!!.hashCode()
-//        }
-//        return result
-//    }
-//
-//    override fun toString(): String {
-//        if (_countryCode == null) {
-//            return languageCode
-//        }
-//        return "${languageCode}_$countryCode"
-//    }
 }

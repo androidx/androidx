@@ -21,10 +21,6 @@ package androidx.ui.text
  *  it will affect the rendering.
  *
  *  Used by [TextSpan.compareTo] and [TextStyle.compareTo].
- *
- *  The values in this enum are ordered such that they are in increasing order
- *  of cost. A value with index N implies all the values with index less than N.
- *  For example, [layout] (index 3) implies [paint] (2).
  */
 // TODO(siyamed) remove this class if not required
 internal enum class RenderComparison {
@@ -45,9 +41,6 @@ internal enum class RenderComparison {
      * The two objects are different but only in ways that affect paint, not layout.
      *
      * For example, only the color is changed.
-     *
-     * [RenderObject.markNeedsPaint] would be necessary to handle this kind of
-     * change in a render object.
      */
     PAINT,
 
@@ -57,9 +50,6 @@ internal enum class RenderComparison {
      *  For example, the size is changed.
      *
      *  This is the most drastic level of change possible.
-     *
-     *  [RenderObject.markNeedsLayout] would be necessary to handle this kind of
-     *  change in a render object.
      */
     LAYOUT
 }
