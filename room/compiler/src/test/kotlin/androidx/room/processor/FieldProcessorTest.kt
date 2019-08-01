@@ -435,7 +435,7 @@ class FieldProcessorTest {
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(androidx.room.Entity::class)
                         .nextRunHandler { invocation ->
-                            val (owner, field) = invocation.roundEnv
+                            val (owner, fieldElement) = invocation.roundEnv
                                     .getElementsAnnotatedWith(Entity::class.java)
                                     .map {
                                         Pair(it, invocation.processingEnv.elementUtils
@@ -451,9 +451,12 @@ class FieldProcessorTest {
                             val parser = FieldProcessor(
                                     baseContext = entityContext,
                                     containing = MoreTypes.asDeclared(owner.asType()),
-                                    element = field!!,
+                                    element = fieldElement!!,
                                     bindingScope = FieldProcessor.BindingScope.TWO_WAY,
-                                    fieldParent = null)
+                                    fieldParent = null,
+                                    onBindingError = { field, errorMsg ->
+                                        invocation.context.logger.e(field.element, errorMsg) }
+                                    )
                             handler(parser.process(), invocation)
                             true
                         }
