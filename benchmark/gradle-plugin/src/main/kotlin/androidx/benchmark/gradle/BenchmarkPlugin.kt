@@ -71,10 +71,6 @@ class BenchmarkPlugin : Plugin<Project> {
         // disable overhead from test coverage by default, even if we use a debug variant
         extension.buildTypes.getByName("debug").isTestCoverageEnabled = false
 
-        // Benchmarks default to release build type to avoid pulling in debug libraries, which
-        // may have been compiled with coverage enabled.
-        extension.testBuildType = "release"
-
         // Registering this block as a configureEach callback is only necessary because Studio skips
         // Gradle if there are no changes, which stops this plugin from being re-applied.
         var enabledOutput = false
