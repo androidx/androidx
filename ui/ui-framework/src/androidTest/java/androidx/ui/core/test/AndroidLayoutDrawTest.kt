@@ -426,14 +426,17 @@ class AndroidLayoutDrawTest {
                 val header = @Composable {
                     Layout(layoutBlock = { _, constraints ->
                         assertEquals(childConstraints[0], constraints)
+                        layout(0.ipx, 0.ipx) {}
                     }, children = {})
                 }
                 val footer = @Composable {
                     Layout(layoutBlock = { _, constraints ->
                         assertEquals(childConstraints[1], constraints)
+                        layout(0.ipx, 0.ipx) {}
                     }, children = {})
                     Layout(layoutBlock = { _, constraints ->
                         assertEquals(childConstraints[2], constraints)
+                        layout(0.ipx, 0.ipx) {}
                     }, children = {})
                 }
                 @Suppress("USELESS_CAST")
@@ -447,6 +450,7 @@ class AndroidLayoutDrawTest {
                     assertEquals(footerChildrenCount, measurables[footer].size)
                     assertSame(measurables[1], measurables[footer][0])
                     assertSame(measurables[2], measurables[footer][1])
+                    layout(0.ipx, 0.ipx) {}
                 }
             }
         }
@@ -458,18 +462,19 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 val header = @Composable {
                     ParentData(data = 0) {
-                        Layout(layoutBlock = { _, _ -> }, children = {})
+                        Layout(layoutBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
                     }
                 }
                 val footer = @Composable {
                     ParentData(data = 1) {
-                        Layout(layoutBlock = { _, _ -> }, children = {})
+                        Layout(layoutBlock = { _, _ -> layout(0.ipx, 0.ipx, {}) }, children = {})
                     }
                 }
 
                 Layout(childrenArray = arrayOf(header, footer)) { measurables, _ ->
                     assertEquals(0, measurables[0].parentData)
                     assertEquals(1, measurables[1].parentData)
+                    layout(0.ipx, 0.ipx, {})
                 }
             }
         }
@@ -1042,6 +1047,7 @@ fun TwoMeasureLayout(
             // expected
             latch.countDown()
         }
+        layout(0.ipx, 0.ipx, {})
     }
 }
 

@@ -137,7 +137,7 @@ class TextLayoutTest {
                     var threw = false
                     try {
                         textMeasurable.minIntrinsicWidth(0.ipx)
-                    } catch(e: UnsupportedOperationException) {
+                    } catch (e: UnsupportedOperationException) {
                         threw = true
                     }
                     assertTrue(threw)
@@ -153,6 +153,8 @@ class TextLayoutTest {
                     assertEquals(textHeight, textMeasurable.maxIntrinsicHeight(IntPx.Infinity))
 
                     intrinsicsLatch.countDown()
+
+                    layoutResult(0.ipx, 0.ipx) {}
                 }
                 minIntrinsicWidth { _, _ -> 0.ipx }
                 minIntrinsicHeight { _, _ -> 0.ipx }
