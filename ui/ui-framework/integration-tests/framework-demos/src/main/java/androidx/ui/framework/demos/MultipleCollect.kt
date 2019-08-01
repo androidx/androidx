@@ -25,13 +25,13 @@ import androidx.ui.core.Layout
 import androidx.ui.core.coerceIn
 import androidx.ui.core.ipx
 import androidx.ui.core.toRect
-import androidx.ui.core.vectorgraphics.Brush
-import androidx.ui.core.vectorgraphics.SolidColor
 import androidx.ui.graphics.Color
 import androidx.ui.painting.Paint
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.ui.graphics.vectorgraphics.Brush
+import androidx.ui.graphics.vectorgraphics.SolidColor
 
 @Composable
 fun ColoredRect(brush: Brush, width: Dp? = null, height: Dp? = null) {

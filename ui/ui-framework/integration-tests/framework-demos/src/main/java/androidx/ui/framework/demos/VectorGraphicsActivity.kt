@@ -17,51 +17,72 @@
 package androidx.ui.framework.demos
 
 import android.app.Activity
+import android.graphics.Shader
 import android.os.Bundle
-import android.widget.LinearLayout
-import androidx.ui.core.vectorgraphics.adoptVectorGraphic
-import androidx.ui.core.vectorgraphics.Group
-import androidx.ui.core.vectorgraphics.Path
-import androidx.ui.core.vectorgraphics.Vector
-import androidx.ui.core.vectorgraphics.PathBuilder
-import androidx.ui.core.vectorgraphics.PathDelegate
+import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
-import androidx.compose.registerAdapter
-import androidx.compose.setViewContent
-import androidx.ui.core.ContextAmbient
+import androidx.ui.core.IntPx
+import androidx.ui.core.Layout
 import androidx.ui.core.Px
-import androidx.ui.core.vectorgraphics.compat.VectorResource
+import androidx.ui.core.dp
+import androidx.ui.core.px
+import androidx.ui.core.round
+import androidx.ui.core.vectorgraphics.DrawVector
+import androidx.ui.core.vectorgraphics.Group
+import androidx.ui.core.vectorgraphics.Path
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.vectorgraphics.HorizontalGradient
+import androidx.ui.graphics.vectorgraphics.PathBuilder
+import androidx.ui.graphics.vectorgraphics.PathDelegate
+import androidx.ui.graphics.vectorgraphics.RadialGradient
+import androidx.ui.graphics.vectorgraphics.VerticalGradient
+import androidx.ui.layout.Center
+import androidx.ui.layout.Column
+import androidx.ui.layout.Container
+import androidx.ui.painting.TileMode
+import androidx.ui.core.setContent
+import androidx.ui.core.vectorgraphics.compat.VectorResource
+import androidx.ui.vector.VectorScope
 
 class VectorGraphicsActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setViewContent {
-            composer.registerAdapter { parent, child ->
-                adoptVectorGraphic(parent, child)
-            }
+        setContent {
+            Column {
+                Container(width = 480.dp, height = 480.dp) {
+                    VectorResource(resId = R.drawable.ic_crane)
+                }
 
-            LinearLayout(orientation = LinearLayout.VERTICAL) {
-                // TODO Make composition of components with Android Views automatically wire the appropriate ambients
-                ContextAmbient.Provider(value = this@VectorGraphicsActivity) {
-                    VectorResource(resId = androidx.ui.framework.demos.R.drawable.ic_crane)
-                    vectorShape()
+                Center {
+                    val width = 300.px
+                    val height = 300.px
+                    FixedLayout(width.round(), height.round()) {
+                        vectorShape(width, height)
+                    }
                 }
             }
         }
     }
 
     @Composable
-    fun vectorShape() {
-        val viewportWidth = 300.0f
-        val viewportHeight = 300.0f
-        Vector(
+    fun FixedLayout(width: IntPx, height: IntPx, @Children child: @Composable() () -> Unit) {
+        Layout(children = { child() },
+            layoutBlock = { _, _ ->
+                layout(width, height) {}
+            })
+    }
+
+    @Composable
+    fun vectorShape(width: Px, height: Px) {
+        val viewportWidth = width.value
+        val viewportHeight = height.value
+        DrawVector(
             name = "vectorShape",
-            defaultWidth = Px(300.0f),
-            defaultHeight = Px(300.0f),
+            defaultWidth = width,
+            defaultHeight = height,
             viewportWidth = viewportWidth,
             viewportHeight = viewportHeight
         ) {
@@ -88,14 +109,24 @@ class VectorGraphicsActivity : Activity() {
                         horizontalLineToRelative(-200.0f)
                         close()
                     }
-                    Path(fill = Color.Magenta, pathData = pathData)
+                    Path(
+                        fill = HorizontalGradient(
+                            Color.Red,
+                            Color.Blue,
+                            startX = Px.Zero,
+                            endX = Px(viewportWidth / 2 + 100)
+                        ),
+                        pathData = pathData
+                    )
                 }
+                triangle()
+                triangleWithOffsets()
             }
         }
     }
 
     @Composable
-    fun backgroundPath(vectorWidth: Float, vectorHeight: Float) {
+    fun VectorScope.backgroundPath(vectorWidth: Float, vectorHeight: Float) {
         val background = PathDelegate {
             horizontalLineTo(vectorWidth)
             verticalLineTo(vectorHeight)
@@ -103,11 +134,63 @@ class VectorGraphicsActivity : Activity() {
             close()
         }
 
-        Path(fill = Color.Cyan, pathData = background)
+        Path(
+            fill = VerticalGradient(
+                0.0f to Color.Aqua,
+                0.3f to Color.Lime,
+                1.0f to Color.Fuchsia,
+                startY = Px.Zero,
+                endY = Px(vectorHeight)
+            ),
+            pathData = background
+        )
     }
 
     @Composable
-    fun stripePath(vectorWidth: Float, vectorHeight: Float) {
+    fun VectorScope.triangle() {
+        val length = 150.0f
+        Path(
+            fill = RadialGradient(
+                Color.Navy,
+                Color.Olive,
+                Color.Teal,
+                centerX = length / 2.0f,
+                centerY = length / 2.0f,
+                radius = length / 2.0f,
+                tileMode = TileMode.repeated
+            ),
+            pathData = PathDelegate {
+                verticalLineTo(length)
+                horizontalLineTo(length)
+                close()
+            }
+        )
+    }
+
+    @Composable
+    fun VectorScope.triangleWithOffsets() {
+
+        val side1 = 150.0f
+        val side2 = 150.0f
+        Path(
+            fill = RadialGradient(
+                0.0f to Color.Maroon,
+                0.3f to Color.Cyan,
+                0.8f to Color.Yellow,
+                centerX = side1 / 2.0f,
+                centerY = side2 / 2.0f,
+                radius = side1 / 2.0f
+            ),
+            pathData = PathDelegate {
+                horizontalLineToRelative(side1)
+                verticalLineToRelative(side2)
+                close()
+            }
+        )
+    }
+
+    @Composable
+    fun VectorScope.stripePath(vectorWidth: Float, vectorHeight: Float) {
         val stripeDelegate = PathDelegate {
             stripe(vectorWidth, vectorHeight, 10)
         }
