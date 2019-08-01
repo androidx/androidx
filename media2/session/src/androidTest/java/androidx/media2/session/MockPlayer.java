@@ -87,7 +87,7 @@ public class MockPlayer extends SessionPlayer {
     public boolean mSetRepeatModeCalled;
     public boolean mSetShuffleModeCalled;
 
-    private AudioAttributesCompat mAudioAttributes;
+    AudioAttributesCompat mAudioAttributes;
 
     public MockPlayer(int count) {
         this(count, false);
