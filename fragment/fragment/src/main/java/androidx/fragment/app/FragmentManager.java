@@ -137,7 +137,8 @@ public abstract class FragmentManager {
         /**
          * Return the full bread crumb title resource identifier for the entry,
          * or 0 if it does not have one.
-         * @deprecated Store breadcrumb titles separately from back stack entries.
+         * @deprecated Store breadcrumb titles separately from back stack entries. For example,
+         * by using an <code>android:label</code> on a fragment in a navigation graph.
          */
         @Deprecated
         @StringRes
@@ -146,7 +147,8 @@ public abstract class FragmentManager {
         /**
          * Return the short bread crumb title resource identifier for the entry,
          * or 0 if it does not have one.
-         * @deprecated Store breadcrumb short titles separately from back stack entries.
+         * @deprecated Store breadcrumb short titles separately from back stack entries. For
+         * example, by using an <code>android:label</code> on a fragment in a navigation graph.
          */
         @Deprecated
         @StringRes
@@ -155,7 +157,8 @@ public abstract class FragmentManager {
         /**
          * Return the full bread crumb title for the entry, or null if it
          * does not have one.
-         * @deprecated Store breadcrumb titles separately from back stack entries.
+         * @deprecated Store breadcrumb titles separately from back stack entries. For example,
+         *          * by using an <code>android:label</code> on a fragment in a navigation graph.
          */
         @Deprecated
         @Nullable
@@ -164,7 +167,8 @@ public abstract class FragmentManager {
         /**
          * Return the short bread crumb title for the entry, or null if it
          * does not have one.
-         * @deprecated Store breadcrumb short titles separately from back stack entries.
+         * @deprecated Store breadcrumb short titles separately from back stack entries. For
+         * example, by using an <code>android:label</code> on a fragment in a navigation graph.
          */
         @Deprecated
         @Nullable
