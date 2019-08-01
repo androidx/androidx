@@ -318,7 +318,7 @@ package androidx.car.widget {
     method public androidx.car.widget.CarMenuItem.Builder setDisplayBehavior(androidx.car.widget.CarMenuItem.DisplayBehavior);
     method public androidx.car.widget.CarMenuItem.Builder setEnabled(boolean);
     method public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Drawable);
-    method public androidx.car.widget.CarMenuItem.Builder setIcon(android.content.Context, @DrawableRes int);
+    method @Deprecated public androidx.car.widget.CarMenuItem.Builder setIcon(android.content.Context, @DrawableRes int);
     method public androidx.car.widget.CarMenuItem.Builder setOnClickListener(androidx.car.widget.CarMenuItem.OnClickListener);
     method public androidx.car.widget.CarMenuItem.Builder setStyle(@StyleRes int);
     method public androidx.car.widget.CarMenuItem.Builder setTitle(CharSequence);
