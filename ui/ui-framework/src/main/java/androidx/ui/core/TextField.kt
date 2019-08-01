@@ -98,6 +98,12 @@ fun TextField(
     /** Called when the InputMethodService update the editor state */
     onValueChange: (EditorModel) -> Unit = {},
 
+    /** Called when the input field gains focus. */
+    onFocus: () -> Unit = {},
+
+    /** Called when the input field loses focus. */
+    onBlur: () -> Unit = {},
+
     /** Called when the InputMethod requested an IME action */
     onImeActionPerformed: (ImeAction) -> Unit = {},
 
@@ -157,6 +163,7 @@ fun TextField(
                     )
                 }
             }
+            onFocus()
         },
         onBlur = {
             hasFocus.value = false
@@ -164,6 +171,7 @@ fun TextField(
                 textInputService,
                 processor,
                 onValueChange)
+            onBlur()
         },
         onDragAt = { TextFieldDelegate.onDragAt(it) },
         onRelease = {
