@@ -49,7 +49,7 @@ class ChangeDataSetWhileScrollingTest : BaseTest() {
 
             sleep(200) // introduce some delay, follow-up with pollingCheck
 
-            PollingCheck.waitFor(1000) {
+            PollingCheck.waitFor(2000) {
                 viewPager.scrollState == SCROLL_STATE_IDLE && viewPager.currentItem == 0
             }
 
