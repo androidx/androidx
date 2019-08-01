@@ -655,7 +655,8 @@ public abstract class FragmentTransaction {
      * is on the back stack.
      *
      * @param res A string resource containing the title.
-     * @deprecated Store breadcrumb titles separately from fragment transactions.
+     * @deprecated Store breadcrumb titles separately from fragment transactions. For
+     * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
     @NonNull
@@ -669,7 +670,8 @@ public abstract class FragmentTransaction {
      * Like {@link #setBreadCrumbTitle(int)} but taking a raw string; this
      * method is <em>not</em> recommended, as the string can not be changed
      * later if the locale changes.
-     * @deprecated Store breadcrumb titles separately from fragment transactions.
+     * @deprecated Store breadcrumb titles separately from fragment transactions. For
+     * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
     @NonNull
@@ -684,7 +686,8 @@ public abstract class FragmentTransaction {
      * is on the back stack.
      *
      * @param res A string resource containing the title.
-     * @deprecated Store breadcrumb short titles separately from fragment transactions.
+     * @deprecated Store breadcrumb short titles separately from fragment transactions. For
+     * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
     @NonNull
@@ -698,7 +701,8 @@ public abstract class FragmentTransaction {
      * Like {@link #setBreadCrumbShortTitle(int)} but taking a raw string; this
      * method is <em>not</em> recommended, as the string can not be changed
      * later if the locale changes.
-     * @deprecated Store breadcrumb short titles separately from fragment transactions.
+     * @deprecated Store breadcrumb short titles separately from fragment transactions. For
+     * example, by using an <code>android:label</code> on a fragment in a navigation graph.
      */
     @Deprecated
     @NonNull
