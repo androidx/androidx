@@ -1063,6 +1063,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @SuppressLint("KotlinPropertyAccess")
     final public boolean hasOptionsMenu() {
         return mHasMenu;
     }
