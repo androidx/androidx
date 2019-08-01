@@ -288,13 +288,15 @@ package androidx.car.widget {
   }
 
   public static final class CarMenuItem.Builder {
-    ctor public CarMenuItem.Builder();
+    ctor @Deprecated public CarMenuItem.Builder();
+    ctor public CarMenuItem.Builder(android.content.Context);
     method public androidx.car.widget.CarMenuItem build();
     method public androidx.car.widget.CarMenuItem.Builder setCheckable(boolean);
     method public androidx.car.widget.CarMenuItem.Builder setChecked(boolean);
     method public androidx.car.widget.CarMenuItem.Builder setDisplayBehavior(androidx.car.widget.CarMenuItem.DisplayBehavior);
     method public androidx.car.widget.CarMenuItem.Builder setEnabled(boolean);
     method public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Drawable);
+    method public androidx.car.widget.CarMenuItem.Builder setIcon(@DrawableRes int);
     method @Deprecated public androidx.car.widget.CarMenuItem.Builder setIcon(android.content.Context, @DrawableRes int);
     method public androidx.car.widget.CarMenuItem.Builder setOnClickListener(androidx.car.widget.CarMenuItem.OnClickListener);
     method public androidx.car.widget.CarMenuItem.Builder setStyle(@StyleRes int);

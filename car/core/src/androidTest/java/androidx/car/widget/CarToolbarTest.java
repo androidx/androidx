@@ -298,7 +298,7 @@ public class CarToolbarTest {
     public void testActionItemDisplayedOnToolbar() throws Throwable {
         String actionItemText = "checkable_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .build();
@@ -313,7 +313,7 @@ public class CarToolbarTest {
     public void testSetMenuItems_NullClearsItems() throws Throwable {
         String actionItemText = "checkable_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .build();
@@ -333,10 +333,10 @@ public class CarToolbarTest {
     public void testActionItemWithIconDisplaysIcon() throws Throwable {
         String actionItemText = "action_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
-                .setIcon(mActivity.getDrawable(android.R.drawable.sym_def_app_icon))
+                .setIcon(android.R.drawable.sym_def_app_icon)
                 .build();
 
         mActivityRule.runOnUiThread(() ->
@@ -350,7 +350,7 @@ public class CarToolbarTest {
     public void testSwitchActionItemDisplaysSwitchWidget() throws Throwable {
         String actionItemText = "checkable_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .setCheckable(true)
@@ -367,7 +367,7 @@ public class CarToolbarTest {
     public void testSwitchActionItemSetCheckable() throws Throwable {
         String actionItemText = "checkable_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .setCheckable(true)
@@ -387,7 +387,7 @@ public class CarToolbarTest {
 
         String actionItemText = "checkable_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .setCheckable(true)
@@ -414,7 +414,7 @@ public class CarToolbarTest {
 
         String actionItemText = "action_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .setTitle(actionItemText)
                 .setOnClickListener(item -> clicked[0] = true)
@@ -434,7 +434,7 @@ public class CarToolbarTest {
 
         String actionItemText = "checkable_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .setTitle(actionItemText)
                 .setCheckable(true)
@@ -457,7 +457,7 @@ public class CarToolbarTest {
     @Test
     public void testOverflowButtonShownIfOverflowItems() throws Throwable {
         CarMenuItem overflowItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
                 .build();
         mActivityRule.runOnUiThread(() ->
@@ -469,7 +469,7 @@ public class CarToolbarTest {
     @Test
     public void testOverflowButtonHiddenIfNoOverflowItems() throws Throwable {
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .build();
 
@@ -483,7 +483,7 @@ public class CarToolbarTest {
     public void testOverflowMenuDisplaysNeverItem() throws Throwable {
         String overflowItemText = "overflow_item_text";
         CarMenuItem overflowItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
                 .setTitle(overflowItemText)
                 .build();
@@ -499,14 +499,14 @@ public class CarToolbarTest {
     public void testOverflowMenuDoesNotDisplayActionItem() throws Throwable {
         String overflowItemText = "overflow_item_text";
         CarMenuItem overflowItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
                 .setTitle(overflowItemText)
                 .build();
 
         String actionItemText = "action_item_text";
         CarMenuItem actionItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
                 .setTitle(actionItemText)
                 .build();
@@ -521,7 +521,7 @@ public class CarToolbarTest {
     @Test
     public void testIsOverflowMenuShowing() throws Throwable {
         CarMenuItem overflowItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
                 .build();
 
@@ -541,7 +541,7 @@ public class CarToolbarTest {
     public void testShowOverflowMenu() throws Throwable {
         String overflowItemText = "overflow_item_text";
         CarMenuItem overflowItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
                 .setTitle(overflowItemText)
                 .build();
@@ -560,7 +560,7 @@ public class CarToolbarTest {
     public void testHideOverflowMenu() throws Throwable {
         String overflowItemText = "overflow_item_text";
         CarMenuItem overflowItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
                 .setTitle(overflowItemText)
                 .build();
@@ -580,7 +580,7 @@ public class CarToolbarTest {
 
         String overflowItemText = "overflow_item_text";
         CarMenuItem overflowItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
                 .setTitle(overflowItemText)
                 .setOnClickListener(item -> clicked[0] = true)
@@ -601,21 +601,21 @@ public class CarToolbarTest {
         List<CarMenuItem> items = new ArrayList<>();
         String action1Text = "item_1";
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(action1Text)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
                 .build());
 
         String ifRoomItemText = "if_room";
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(ifRoomItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
                 .build());
 
         String action2Text = "item_2";
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(action2Text)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
                 .build());
@@ -631,7 +631,7 @@ public class CarToolbarTest {
     public void testIfRoomItemDisplayedIfRoomAvailable() throws Throwable {
         String ifRoomItemText = "if_room_item_text";
         CarMenuItem ifRoomItem = new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(ifRoomItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
                 .build();
@@ -647,14 +647,14 @@ public class CarToolbarTest {
         List<CarMenuItem> items = new ArrayList<>();
         for (int i = 0; i < CarToolbar.ACTION_ITEM_COUNT_LIMIT; i++) {
             items.add(new CarMenuItem
-                    .Builder()
+                    .Builder(mActivityRule.getActivity())
                     .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
                     .build());
         }
 
         String ifRoomItemText = "if_room_item_text";
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(ifRoomItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
                 .build());
@@ -675,7 +675,7 @@ public class CarToolbarTest {
         String longText = mActivity.getString(R.string.over_uxr_text_length_limit);
         List<CarMenuItem> items = new ArrayList<>();
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(longText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
                 .build());
@@ -683,7 +683,7 @@ public class CarToolbarTest {
 
         String ifRoomItemText = "if_room_item_text";
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(ifRoomItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
                 .build());
@@ -701,13 +701,13 @@ public class CarToolbarTest {
     public void testIfRoomItemPushedFromActionToOverflowIfLimitExceeded() throws Throwable {
         List<CarMenuItem> items = new ArrayList<>();
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
                 .build());
 
         String ifRoomItemText = "if_room_item_text";
         items.add(new CarMenuItem
-                .Builder()
+                .Builder(mActivityRule.getActivity())
                 .setTitle(ifRoomItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
                 .build());
@@ -718,7 +718,7 @@ public class CarToolbarTest {
 
         for (int i = 0; i < CarToolbar.ACTION_ITEM_COUNT_LIMIT - 1; i++) {
             items.add(new CarMenuItem
-                    .Builder()
+                    .Builder(mActivityRule.getActivity())
                     .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
                     .build());
         }

@@ -30,19 +30,18 @@ import androidx.car.R;
  *
  * <p>The following properties can be specified:
  * <ul>
- *     <li>Title - Primary text that is shown on the item.
- *     <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
- *     <li>Icon - An icon shown before the title, if the item is not checkable (a switch).
- *     <li>Style - A Resource Id that specifies the style of the item if it's not an overflow item.
- *     <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
- *     <li>Checkable - A boolean that specifies whether the item is checkable (a switch) or not.
- *     <li>Checked - A boolean that specifies whether the item is currently checked or not.
- *     <li>DisplayBehavior - A {@link DisplayBehavior} that specifies where the item is displayed.
+ * <li>Title - Primary text that is shown on the item.
+ * <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
+ * <li>Icon - An icon shown before the title, if the item is not checkable (a switch).
+ * <li>Style - A Resource Id that specifies the style of the item if it's not an overflow item.
+ * <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
+ * <li>Checkable - A boolean that specifies whether the item is checkable (a switch) or not.
+ * <li>Checked - A boolean that specifies whether the item is currently checked or not.
+ * <li>DisplayBehavior - A {@link DisplayBehavior} that specifies where the item is displayed.
  * </ul>
  *
  * <p>Properties such as the title, isEnabled, and isChecked can be modified
  * after creation, and as such, have setters in the class and the builder.
- *
  */
 public final class CarMenuItem {
     /**
@@ -76,6 +75,7 @@ public final class CarMenuItem {
          */
         NEVER
     }
+
     @Nullable
     private CharSequence mTitle;
     private boolean mIsEnabled;
@@ -198,6 +198,8 @@ public final class CarMenuItem {
      * Builder for creating a {@link CarMenuItem}
      */
     public static final class Builder {
+        @Nullable
+        private Context mContext;
         CharSequence mTitle;
         @Nullable
         OnClickListener mOnClickListener;
@@ -210,6 +212,25 @@ public final class CarMenuItem {
         boolean mIsCheckable;
         // If not specified, the item will be displayed only if there is room on the toolbar.
         DisplayBehavior mDisplayBehavior = DisplayBehavior.IF_ROOM;
+
+        /**
+         * Creates a new instance of the {@code Builder}.
+         *
+         * @deprecated Use
+         * {@link androidx.car.widget.CarMenuItem.Builder#CarMenuItem.Builder(Context)} instead.
+         */
+        @Deprecated
+        public Builder() {
+        }
+
+        /**
+         * Creates a new instance of the {@code Builder}.
+         *
+         * @param context The {@code Context} that the menu item is to be created in.
+         */
+        public Builder(@NonNull Context context) {
+            mContext = context;
+        }
 
         /**
          * Sets the title of the {@code CarMenuItem}.
@@ -259,13 +280,24 @@ public final class CarMenuItem {
             return this;
         }
 
+        @NonNull
+        public Builder setIcon(@DrawableRes int iconId) {
+            if (mContext == null) {
+                throw new IllegalStateException(
+                        "Cannot use deprecated constructor to create CarMenuItem.Builder object. "
+                                + "Use CarMenuItem.Builder(Context) instead");
+            }
+
+            mIconDrawable = mContext.getDrawable(iconId);
+            return this;
+        }
+
         /**
          * Sets the icon of the {@code CarMenuItem}.
          *
-         * @param context Context to load the drawable resource with.
+         * @param context   Context to load the drawable resource with.
          * @param iconResId Resource id of icon of the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
-         *
          * @deprecated Use {@link #setIcon(Drawable)} instead.
          */
         @Deprecated
