@@ -336,7 +336,7 @@ public class CarToolbarTest {
                 .Builder()
                 .setTitle(actionItemText)
                 .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
-                .setIcon(mActivity, android.R.drawable.sym_def_app_icon)
+                .setIcon(mActivity.getDrawable(android.R.drawable.sym_def_app_icon))
                 .build();
 
         mActivityRule.runOnUiThread(() ->

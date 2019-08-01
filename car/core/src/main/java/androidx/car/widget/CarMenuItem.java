@@ -265,7 +265,10 @@ public final class CarMenuItem {
          * @param context Context to load the drawable resource with.
          * @param iconResId Resource id of icon of the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
+         *
+         * @deprecated Use {@link #setIcon(Drawable)} instead.
          */
+        @Deprecated
         @NonNull
         public Builder setIcon(@NonNull Context context, @DrawableRes int iconResId) {
             mIconDrawable = context.getDrawable(iconResId);
