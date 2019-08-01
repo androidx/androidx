@@ -63,6 +63,9 @@ public final class ImageAnalysis extends UseCase {
     final AtomicInteger mRelativeRotation = new AtomicInteger();
     final Handler mHandler;
     private final ImageAnalysisConfig.Builder mUseCaseConfigBuilder;
+    private final ImageAnalysisBlockingCallback mImageAnalysisBlockingCallback;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final ImageAnalysisNonBlockingCallback mImageAnalysisNonBlockingCallback;
     @Nullable
     ImageReaderProxy mImageReader;
     @Nullable
@@ -85,6 +88,14 @@ public final class ImageAnalysis extends UseCase {
             throw new IllegalStateException("No default mHandler specified.");
         }
         setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageAnalysisFormat());
+        // Init both instead of lazy loading to void synchronization.
+        mImageAnalysisBlockingCallback = new ImageAnalysisBlockingCallback(mSubscribedAnalyzer,
+                mRelativeRotation,
+                mHandler);
+        mImageAnalysisNonBlockingCallback = new ImageAnalysisNonBlockingCallback(
+                mSubscribedAnalyzer, mRelativeRotation,
+                mHandler, config.getBackgroundExecutor(
+                CameraXExecutors.highPriorityExecutor()));
     }
 
     /**
@@ -209,6 +220,7 @@ public final class ImageAnalysis extends UseCase {
                     new DeferrableSurface.OnSurfaceDetachedListener() {
                         @Override
                         public void onSurfaceDetached() {
+                            mImageAnalysisNonBlockingCallback.close();
                             if (mImageReader != null) {
                                 mImageReader.close();
                                 mImageReader = null;
@@ -277,14 +289,15 @@ public final class ImageAnalysis extends UseCase {
 
         tryUpdateRelativeRotation(cameraId);
 
-        ImageReaderProxy.OnImageAvailableListener onImageAvailableListener =
-                config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE
-                        ? new ImageAnalysisBlockingCallback(mSubscribedAnalyzer, mRelativeRotation,
-                        mHandler) :
-                        new ImageAnalysisNonBlockingCallback(mSubscribedAnalyzer, mRelativeRotation,
-                                mHandler, backgroundExecutor);
-        mImageReader.setOnImageAvailableListener(onImageAvailableListener,
-                backgroundExecutor);
+        ImageReaderProxy.OnImageAvailableListener onImageAvailableListener;
+
+        if (config.getImageReaderMode() == ImageReaderMode.ACQUIRE_NEXT_IMAGE) {
+            onImageAvailableListener = mImageAnalysisBlockingCallback;
+        } else {
+            onImageAvailableListener = mImageAnalysisNonBlockingCallback;
+            mImageAnalysisNonBlockingCallback.open();
+        }
+        mImageReader.setOnImageAvailableListener(onImageAvailableListener, backgroundExecutor);
 
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
 
