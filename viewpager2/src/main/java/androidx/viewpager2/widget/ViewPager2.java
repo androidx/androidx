@@ -134,6 +134,7 @@ public final class ViewPager2 extends ViewGroup {
                 @Override
                 public void onChanged() {
                     mCurrentItemDirty = true;
+                    mScrollEventAdapter.notifyDataSetChangeHappened();
                 }
             };
 
@@ -142,7 +143,7 @@ public final class ViewPager2 extends ViewGroup {
     private Parcelable mPendingAdapterState;
     private RecyclerView mRecyclerView;
     private PagerSnapHelper mPagerSnapHelper;
-    private ScrollEventAdapter mScrollEventAdapter;
+    ScrollEventAdapter mScrollEventAdapter;
     private CompositeOnPageChangeCallback mPageChangeEventDispatcher;
     private FakeDrag mFakeDragger;
     private PageTransformerAdapter mPageTransformerAdapter;

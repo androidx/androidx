@@ -64,6 +64,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         val rtl: Boolean,
         val targetBound: Boolean,
         val modification: Modification,
+        val adapterProvider: AdapterProviderForItems,
         val expectedFinalPage: Int,
         val expectedFinalPageText: String
     )
@@ -99,7 +100,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         test = setUpTest(config.orientation)
         activityTestRule.runOnUiThread { test.viewPager.offscreenPageLimit = 1 }
         dataSet = stringSequence(pageCount).toMutableList()
-        test.setAdapterSync(viewAdapterProvider(dataSet))
+        test.setAdapterSync(config.adapterProvider(dataSet))
     }
 
     @Test
@@ -321,70 +322,82 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
 // region Test Suite creation
 
 private fun createTestSet(): List<TestConfig> {
-    return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
-        listOf(false, true).flatMap { rtl ->
-            listOf(
-                TestConfig(
-                    orientation, rtl, true,
-                    SHIFT_FIRST_VISIBLE,
-                    expectedFinalPage = 2,
-                    expectedFinalPageText = "0"
-                ),
-                TestConfig(
-                    orientation, rtl, true,
-                    SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST,
-                    expectedFinalPage = targetPage - 1,
-                    expectedFinalPageText = "${targetPage + 1}"
-                ),
-                TestConfig(
-                    orientation, rtl, true,
-                    SHIFT_FIRST_VISIBLE_THEN_REMOVE_LAST,
-                    expectedFinalPage = 2,
-                    expectedFinalPageText = "0"
-                ),
-                TestConfig(
-                    orientation, rtl, true,
-                    SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST_AND_LAST,
-                    expectedFinalPage = targetPage - 3,
-                    expectedFinalPageText = "${targetPage - 3}"
-                ),
-                TestConfig(
-                    orientation, rtl, true,
-                    REMOVE_FIRST_VISIBLE,
-                    expectedFinalPage = targetPage - 1,
-                    expectedFinalPageText = "$targetPage"
-                ),
-                TestConfig(
-                    orientation, rtl, false,
-                    SHIFT_FIRST_VISIBLE,
-                    expectedFinalPage = targetPage,
-                    expectedFinalPageText = "$targetPage"
-                ),
-                TestConfig(
-                    orientation, rtl, false,
-                    SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST,
-                    expectedFinalPage = targetPage,
-                    expectedFinalPageText = "${targetPage + 2}"
-                ),
-                TestConfig(
-                    orientation, rtl, false,
-                    SHIFT_FIRST_VISIBLE_THEN_REMOVE_LAST,
-                    expectedFinalPage = targetPage - 1,
-                    expectedFinalPageText = "${targetPage - 4}"
-                ),
-                TestConfig(
-                    orientation, rtl, false,
-                    SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST_AND_LAST,
-                    expectedFinalPage = targetPage - 3,
-                    expectedFinalPageText = "${targetPage - 4}"
-                ),
-                TestConfig(
-                    orientation, rtl, false,
-                    REMOVE_FIRST_VISIBLE,
-                    expectedFinalPage = targetPage,
-                    expectedFinalPageText = "${targetPage + 1}"
+    return listOf(viewAdapterProvider, viewAdapterProviderValueId).flatMap { adapterProvider ->
+        listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
+            listOf(false, true).flatMap { rtl ->
+                listOf(
+                    TestConfig(
+                        orientation, rtl, true,
+                        SHIFT_FIRST_VISIBLE,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = 2,
+                        expectedFinalPageText = "0"
+                    ),
+                    TestConfig(
+                        orientation, rtl, true,
+                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage - 1,
+                        expectedFinalPageText = "${targetPage + 1}"
+                    ),
+                    TestConfig(
+                        orientation, rtl, true,
+                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_LAST,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = 2,
+                        expectedFinalPageText = "0"
+                    ),
+                    TestConfig(
+                        orientation, rtl, true,
+                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST_AND_LAST,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage - 3,
+                        expectedFinalPageText = "${targetPage - 3}"
+                    ),
+                    TestConfig(
+                        orientation, rtl, true,
+                        REMOVE_FIRST_VISIBLE,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage - 1,
+                        expectedFinalPageText = "$targetPage"
+                    ),
+                    TestConfig(
+                        orientation, rtl, false,
+                        SHIFT_FIRST_VISIBLE,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage,
+                        expectedFinalPageText = "$targetPage"
+                    ),
+                    TestConfig(
+                        orientation, rtl, false,
+                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage,
+                        expectedFinalPageText = "${targetPage + 2}"
+                    ),
+                    TestConfig(
+                        orientation, rtl, false,
+                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_LAST,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage - 1,
+                        expectedFinalPageText = "${targetPage - 4}"
+                    ),
+                    TestConfig(
+                        orientation, rtl, false,
+                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST_AND_LAST,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage - 3,
+                        expectedFinalPageText = "${targetPage - 4}"
+                    ),
+                    TestConfig(
+                        orientation, rtl, false,
+                        REMOVE_FIRST_VISIBLE,
+                        adapterProvider = adapterProvider,
+                        expectedFinalPage = targetPage,
+                        expectedFinalPageText = "${targetPage + 1}"
+                    )
                 )
-            )
+            }
         }
     }
 }
