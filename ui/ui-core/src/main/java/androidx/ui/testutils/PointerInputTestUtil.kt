@@ -96,3 +96,14 @@ fun PointerInputHandler.invokeOverAllPasses(
     PointerEventPass.PostUp,
     PointerEventPass.PostDown
 )
+
+fun PointerInputHandler.invokeOverAllPasses(
+    vararg pointerInputChanges: PointerInputChange
+) = invokeOverPasses(
+    pointerInputChanges.toList(),
+    PointerEventPass.InitialDown,
+    PointerEventPass.PreUp,
+    PointerEventPass.PreDown,
+    PointerEventPass.PostUp,
+    PointerEventPass.PostDown
+)
