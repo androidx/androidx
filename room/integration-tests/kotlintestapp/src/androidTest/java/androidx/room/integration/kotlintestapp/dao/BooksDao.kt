@@ -33,6 +33,7 @@ import androidx.room.integration.kotlintestapp.vo.BookWithJavaEntity
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
 import androidx.room.integration.kotlintestapp.vo.DateConverter
 import androidx.room.integration.kotlintestapp.vo.Lang
+import androidx.room.integration.kotlintestapp.vo.MiniBook
 import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
@@ -115,6 +116,9 @@ interface BooksDao {
 
     @Insert
     fun addBooks(vararg books: Book)
+
+    @Insert(entity = Book::class)
+    fun addMiniBook(miniBook: MiniBook)
 
     @Insert
     fun addBookAuthors(vararg bookAuthors: BookAuthor)

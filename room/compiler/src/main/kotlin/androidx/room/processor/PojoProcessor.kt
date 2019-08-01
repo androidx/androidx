@@ -707,7 +707,9 @@ class PojoProcessor private constructor(
                     context.logger.e(field.element,
                             ProcessorErrors.tooManyMatchingGetters(field, matching))
                 })
-        context.checker.check(success, field.element, CANNOT_FIND_GETTER_FOR_FIELD)
+        context.checker.check(
+            success || bindingScope == FieldProcessor.BindingScope.READ_FROM_CURSOR,
+            field.element, CANNOT_FIND_GETTER_FOR_FIELD)
     }
 
     private fun assignSetters(
@@ -756,7 +758,9 @@ class PojoProcessor private constructor(
                     context.logger.e(field.element,
                             ProcessorErrors.tooManyMatchingSetter(field, matching))
                 })
-        context.checker.check(success, field.element, CANNOT_FIND_SETTER_FOR_FIELD)
+        context.checker.check(
+            success || bindingScope == FieldProcessor.BindingScope.BIND_TO_STMT,
+            field.element, CANNOT_FIND_SETTER_FOR_FIELD)
     }
 
     /**
