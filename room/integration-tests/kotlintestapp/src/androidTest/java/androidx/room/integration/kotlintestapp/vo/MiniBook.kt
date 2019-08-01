@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,10 @@
 
 package androidx.room.integration.kotlintestapp.vo
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import androidx.room.TypeConverters
 
-@Entity(foreignKeys = arrayOf(
-        ForeignKey(entity = Publisher::class,
-                parentColumns = arrayOf("publisherId"),
-                childColumns = arrayOf("bookPublisherId"),
-                deferred = true)))
-data class Book(
+data class MiniBook(
     @PrimaryKey val bookId: String,
     val title: String,
-    val bookPublisherId: String,
-    @ColumnInfo(defaultValue = "0")
-    @field:TypeConverters(Lang::class)
-    val languages: Set<Lang>,
-    @ColumnInfo(defaultValue = "0")
-    val salesCnt: Int
+    val bookPublisherId: String
 )
