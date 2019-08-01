@@ -16,14 +16,14 @@
 
 package androidx.ui.core.vectorgraphics.compat
 
-import android.util.Log
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.core.Px
-import androidx.ui.core.vectorgraphics.PathCommand
-import androidx.ui.core.vectorgraphics.PathNode
+
 import androidx.ui.core.vectorgraphics.VectorPath
 import androidx.ui.framework.test.R
+import androidx.ui.graphics.vectorgraphics.PathCommand
+import androidx.ui.graphics.vectorgraphics.PathNode
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith

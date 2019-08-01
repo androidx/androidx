@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics
+package androidx.ui.graphics.vectorgraphics
 
 enum class PathCommand(private val mKey: Char) {
 
@@ -49,9 +49,7 @@ enum class PathCommand(private val mKey: Char) {
  * Return the corresponding PathCommand for the given character key if it exists.
  * If the key is unknown then IllegalArgumentException is thrown
  * @return PathCommand that matches the key
- * @throws IllegalArgumentException if the key is invalid
  */
-@Throws(IllegalArgumentException::class)
 fun Char.toPathCommand(): PathCommand = when (this) {
     RelativeCloseKey -> PathCommand.RelativeClose
     CloseKey -> PathCommand.Close

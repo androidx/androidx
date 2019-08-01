@@ -117,6 +117,11 @@ data /*inline*/ class Px(val value: Float) {
          * Infinite px dimension.
          */
         val Infinity = Px(value = Float.POSITIVE_INFINITY)
+
+        /**
+         * Zero px dimension
+         */
+        val Zero = Px(0.0f)
     }
 }
 

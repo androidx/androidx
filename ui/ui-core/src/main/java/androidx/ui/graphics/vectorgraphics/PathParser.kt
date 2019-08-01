@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.vectorgraphics
+package androidx.ui.graphics.vectorgraphics
 
 import android.util.Log
 import androidx.ui.painting.Path
@@ -51,7 +51,11 @@ class PathParser {
     private val segmentPoint = PathPoint()
     private val reflectiveCtrlPoint = PathPoint()
 
-    @Throws(java.lang.IllegalArgumentException::class, NumberFormatException::class)
+    /**
+     * Parses the path string to create a collection of PathNode instances with their corresponding
+     * arguments
+     * throws an IllegalArgumentException or NumberFormatException if the parameters are invalid
+     */
     fun parsePathString(pathData: String): PathParser {
         nodes.clear()
 
@@ -348,7 +352,9 @@ class PathParser {
         }
 
     private fun reflectiveQuadTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_REFLECTIVE_QUAD_TO_ARGS) { index ->
+        forEachPathArg(args,
+            NUM_REFLECTIVE_QUAD_TO_ARGS
+        ) { index ->
             val x1 = args[index]
             val y1 = args[index + 1]
             if (prevCmd.isQuad()) {
@@ -368,7 +374,9 @@ class PathParser {
     }
 
     private fun relativeReflectiveQuadTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_REFLECTIVE_QUAD_TO_ARGS) { index ->
+        forEachPathArg(args,
+            NUM_REFLECTIVE_QUAD_TO_ARGS
+        ) { index ->
             val x1 = args[index]
             val y1 = args[index + 1]
             if (prevCmd.isQuad()) {
@@ -448,7 +456,9 @@ class PathParser {
             }
 
     private fun reflectiveCurveTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_REFLECTIVE_CURVE_TO_ARGS) { index ->
+        forEachPathArg(args,
+            NUM_REFLECTIVE_CURVE_TO_ARGS
+        ) { index ->
             val x1 = args[index]
             val y1 = args[index + 1]
             val x2 = args[index + 2]
@@ -472,7 +482,9 @@ class PathParser {
     }
 
     private fun relativeReflectiveCurveTo(prevCmd: PathCommand, target: Path, args: FloatArray) {
-        forEachPathArg(args, NUM_REFLECTIVE_CURVE_TO_ARGS) { index ->
+        forEachPathArg(args,
+            NUM_REFLECTIVE_CURVE_TO_ARGS
+        ) { index ->
             val x1 = args[index]
             val y1 = args[index + 1]
             val x2 = args[index + 2]
