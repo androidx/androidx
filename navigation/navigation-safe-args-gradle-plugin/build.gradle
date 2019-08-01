@@ -38,8 +38,8 @@ sourceSets {
 }
 
 dependencies {
-    compile(SAFE_ARGS_ANDROID_GRADLE_PLUGIN)
-    compile(SAFE_ARGS_KOTLIN_GRADLE_PLUGIN)
+    compile(ANDROID_GRADLE_PLUGIN)
+    compile(KOTLIN_GRADLE_PLUGIN)
     compile project(":navigation:navigation-safe-args-generator")
     compile gradleApi()
     compile(GSON)
@@ -53,7 +53,7 @@ task generateSdkResource() {
     inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
     inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
     inputs.property("debugKeystore", debugKeystore)
-    inputs.property("navigationCommon", SAFE_ARGS_NAVIGATION_COMMON)
+    inputs.property("navigationCommon", NAVIGATION_COMMON)
     inputs.property("kotlinStdlib", KOTLIN_STDLIB)
     outputs.dir(generatedResources)
     doLast {
@@ -65,7 +65,7 @@ task generateSdkResource() {
             writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
             writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
             writer.write("debugKeystore=$debugKeystore\n")
-            writer.write("navigationCommon=$SAFE_ARGS_NAVIGATION_COMMON\n")
+            writer.write("navigationCommon=$NAVIGATION_COMMON\n")
             writer.write("kotlinStdlib=$KOTLIN_STDLIB\n")
         }
     }
