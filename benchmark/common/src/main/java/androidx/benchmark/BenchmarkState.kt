@@ -221,20 +221,19 @@ class BenchmarkState {
             Log.d(TAG, "Tracing to: " + f.absolutePath)
             Debug.startMethodTracingSampling(f.absolutePath, 16 * 1024 * 1024, 100)
         }
-        maxIterations = if (Arguments.startupMode) {
-            // never average multiple loops together in startupMode
-            1
-        } else {
-            val idealIterations =
-                (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTime).toInt()
-            idealIterations.coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
-        }
+        maxIterations = OVERRIDE_ITERATIONS ?: computeIterationsFromWarmup()
         pausedDurationNs = 0
         iterationsRemaining = maxIterations
         repeatCount = 0
         thermalThrottleSleepSeconds = 0
         state = RUNNING
         startTimeNs = System.nanoTime()
+    }
+
+    private fun computeIterationsFromWarmup(): Int {
+        val idealIterations =
+            (TARGET_TEST_DURATION_NS / warmupManager.estimatedIterationTime).toInt()
+        return idealIterations.coerceIn(MIN_TEST_ITERATIONS, MAX_TEST_ITERATIONS)
     }
 
     private fun startNextTestRun(): Boolean {
@@ -334,7 +333,7 @@ class BenchmarkState {
                     ThrottleDetector.computeThrottleBaseline()
                 }
 
-                if (Arguments.startupMode) {
+                if (Arguments.dryRunMode || Arguments.startupMode) {
                     beginBenchmark()
                 } else {
                     beginWarmup()
@@ -474,7 +473,15 @@ class BenchmarkState {
 
         // Values determined empirically.
         @VisibleForTesting
-        internal val REPEAT_COUNT = if (Arguments.startupMode) 10 else 50
+        internal val REPEAT_COUNT = when {
+            Arguments.dryRunMode -> 1
+            Arguments.startupMode -> 10
+            else -> 50
+        }
+        private val OVERRIDE_ITERATIONS = when {
+            Arguments.dryRunMode || Arguments.startupMode -> 1
+            else -> null
+        }
         private val TARGET_TEST_DURATION_NS = TimeUnit.MICROSECONDS.toNanos(500)
         private const val MAX_TEST_ITERATIONS = 1000000
         private const val MIN_TEST_ITERATIONS = 1
