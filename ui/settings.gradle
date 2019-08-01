@@ -56,6 +56,9 @@ includeProject(":ui:ui-test", "ui-test")
 includeProject(":ui:ui-text", "ui-text")
 includeProject(":ui:ui-text:integration-tests:ui-text-demos", "ui-text/integration-tests/text-demos")
 includeProject(":ui:ui-vector", "ui-vector")
+includeProject(":compose:compose-runtime:integration-tests", "../compose/compose-runtime/integration-tests")
+includeProject(":compose:compose-runtime:integration-tests:android-tests", "../compose/compose-runtime/integration-tests/android-tests")
+
 
 /////////////////////////////
 //
