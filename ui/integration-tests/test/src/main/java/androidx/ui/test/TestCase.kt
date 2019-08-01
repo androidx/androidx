@@ -133,7 +133,7 @@ abstract class AndroidTestCase(
 ) : TestCase(activity) {
 
     override fun setupContentInternal(activity: Activity) = createViewContent(activity)
-        .apply { activity.setContentView(view) }
+        .apply { activity.setContentView(this) }
 
     abstract fun createViewContent(activity: Activity): ViewGroup
 }
