@@ -346,11 +346,9 @@ public final class Data {
      * @return The byte array representation of the input
      * @throws IllegalStateException if the serialized payload is bigger than
      *         {@link #MAX_DATA_BYTES}
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
-    public static @NonNull byte[] toByteArray(@NonNull Data data) throws IllegalStateException {
+    public static @NonNull byte[] toByteArray(@NonNull Data data) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = null;
         try {
@@ -394,11 +392,9 @@ public final class Data {
      * @param bytes The byte array representation to convert
      * @return An {@link Data} object built from the input
      * @throws IllegalStateException if bytes is bigger than {@link #MAX_DATA_BYTES}
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
-    public static @NonNull Data fromByteArray(@NonNull byte[] bytes) throws IllegalStateException {
+    public static @NonNull Data fromByteArray(@NonNull byte[] bytes) {
         if (bytes.length > MAX_DATA_BYTES) {
             throw new IllegalStateException(
                     "Data cannot occupy more than " + MAX_DATA_BYTES + " bytes when serialized");
