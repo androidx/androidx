@@ -25,10 +25,14 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.compose.Children
+import androidx.compose.Composable
 import androidx.compose.CompositionContext
+import androidx.compose.FrameManager
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.DrawNode
+import androidx.ui.core.setContent
 import com.google.common.truth.Truth
 import org.junit.Assert
 
@@ -41,7 +45,8 @@ abstract class TestCase(
     private val renderNode = RenderNode("test")
     private var canvas: Canvas? = null
 
-    var view: ViewGroup
+    lateinit var view: ViewGroup
+        private set
 
     init {
         val displayMetrics = DisplayMetrics()
@@ -51,10 +56,13 @@ abstract class TestCase(
 
         screenWithSpec = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST)
         screenHeightSpec = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.AT_MOST)
-        view = activity.findViewById(android.R.id.content)
     }
 
-    abstract fun setupContent(activity: Activity)
+    fun setupContent(activity: Activity) {
+        view = setupContentInternal(activity)
+    }
+
+    protected abstract fun setupContentInternal(activity: Activity): ViewGroup
 
     /**
      * Runs all the steps leading into drawing first pixels. Useful to get into the initial state
@@ -122,13 +130,28 @@ abstract class TestCase(
 
 abstract class AndroidTestCase(
     activity: Activity
-) : TestCase(activity)
+) : TestCase(activity) {
+
+    override fun setupContentInternal(activity: Activity) = createViewContent(activity)
+        .apply { activity.setContentView(view) }
+
+    abstract fun createViewContent(activity: Activity): ViewGroup
+}
 
 abstract class ComposeTestCase(
     activity: Activity
 ) : TestCase(activity) {
 
     lateinit var compositionContext: CompositionContext
+        private set
+
+    override fun setupContentInternal(activity: Activity): ViewGroup {
+        compositionContext = setComposeContent(activity)
+        FrameManager.nextFrame()
+        return findComposeView()!!
+    }
+
+    abstract fun setComposeContent(activity: Activity): CompositionContext
 }
 
 /**
@@ -213,4 +236,33 @@ fun TestCase.capturePreviewPictureToActivity() {
     val imageView = ImageView(activity)
     imageView.setImageBitmap(Bitmap.createBitmap(picture))
     activity.setContentView(imageView)
+}
+
+/**
+ * Returns the first found [AndroidCraneView] in the content view hierarchy:
+ *
+ *     override fun setupContent(activity: Activity) {
+ *         activity.setContent { ... }
+ *         view = findComposeView()!!
+ *         FrameManager.nextFrame()
+ *     }
+ */
+fun ComposeTestCase.findComposeView(): AndroidCraneView? {
+    return findComposeView(activity.findViewById(android.R.id.content))
+}
+
+private fun findComposeView(view: View): AndroidCraneView? {
+    if (view is AndroidCraneView) {
+        return view
+    }
+
+    if (view is ViewGroup) {
+        for (i in 0 until view.childCount) {
+            val composeView = findComposeView(view.getChildAt(i))
+            if (composeView != null) {
+                return composeView
+            }
+        }
+    }
+    return null
 }
