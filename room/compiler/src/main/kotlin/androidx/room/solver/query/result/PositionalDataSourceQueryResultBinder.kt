@@ -43,7 +43,8 @@ class PositionalDataSourceQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope
+        scope: CodeGenScope,
+        cancellationSignalVar: String
     ) {
         // first comma for table names comes from the string since it might be empty in which case
         // we don't need a comma. If list is empty, this prevents generating bad code (it is still

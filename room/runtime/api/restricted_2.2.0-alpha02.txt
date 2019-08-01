@@ -95,8 +95,9 @@ package androidx.room {
     method @CallSuper public void init(androidx.room.DatabaseConfiguration);
     method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase);
     method public boolean isOpen();
-    method public android.database.Cursor! query(String!, Object![]?);
-    method public android.database.Cursor! query(androidx.sqlite.db.SupportSQLiteQuery!);
+    method public android.database.Cursor query(String, Object![]?);
+    method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery);
+    method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery, android.os.CancellationSignal?);
     method public void runInTransaction(Runnable);
     method public <V> V! runInTransaction(java.util.concurrent.Callable<V!>);
     method @Deprecated public void setTransactionSuccessful();
@@ -233,7 +234,8 @@ package androidx.room.util {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class DBUtil {
     method public static void dropFtsSyncTriggers(androidx.sqlite.db.SupportSQLiteDatabase!);
-    method public static android.database.Cursor query(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean);
+    method @Deprecated public static android.database.Cursor query(androidx.room.RoomDatabase!, androidx.sqlite.db.SupportSQLiteQuery!, boolean);
+    method public static android.database.Cursor query(androidx.room.RoomDatabase, androidx.sqlite.db.SupportSQLiteQuery, boolean, android.os.CancellationSignal?);
     method public static int readVersion(java.io.File) throws java.io.IOException;
   }
 

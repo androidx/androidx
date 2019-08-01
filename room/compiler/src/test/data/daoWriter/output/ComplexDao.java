@@ -47,7 +47,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _cursorIndexOfFullName = CursorUtil.getColumnIndexOrThrow(_cursor, "fullName");
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
@@ -73,7 +73,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
@@ -115,7 +115,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.bindString(_argIndex, lastName);
         }
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
@@ -158,7 +158,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _argIndex ++;
         }
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
@@ -190,7 +190,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         int _argIndex = 1;
         _statement.bindLong(_argIndex, id);
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _result;
             if(_cursor.moveToFirst()) {
@@ -221,7 +221,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _argIndex ++;
         }
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int[] _result = new int[_cursor.getCount()];
             int _index = 0;
@@ -258,7 +258,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _argIndex ++;
         }
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
             while(_cursor.moveToNext()) {
@@ -286,7 +286,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, false, new Callable<User>() {
             @Override
             public User call() throws Exception {
-                final Cursor _cursor = DBUtil.query(__db, _statement, false);
+                final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
                 try {
                     final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
                     final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
@@ -337,7 +337,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         return __db.getInvalidationTracker().createLiveData(new String[]{"user"}, false, new Callable<List<User>>() {
             @Override
             public List<User> call() throws Exception {
-                final Cursor _cursor = DBUtil.query(__db, _statement, false);
+                final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
                 try {
                     final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
                     final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
@@ -405,7 +405,7 @@ public final class ComplexDao_Impl extends ComplexDao {
             _argIndex ++;
         }
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final List<Integer> _result = new ArrayList<Integer>(_cursor.getCount());
             while(_cursor.moveToNext()) {
@@ -429,7 +429,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final String _sql = "SELECT * FROM Child1";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
@@ -465,7 +465,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         final String _sql = "SELECT * FROM Child2";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
         __db.assertNotSuspendingTransaction();
-        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
             final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
             final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
