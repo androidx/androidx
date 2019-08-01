@@ -20,12 +20,14 @@ import android.app.Activity
 import android.view.View
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
+import androidx.compose.FrameManager
 import androidx.compose.disposeComposition
 import androidx.ui.test.AndroidTestCase
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.TestCase
 import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.invalidateViews
+import androidx.ui.test.recomposeSyncAssert
 import androidx.ui.test.recomposeSyncAssertHadChanges
 import androidx.ui.test.recomposeSyncAssertNoChanges
 import androidx.ui.test.requestLayout
@@ -240,16 +242,17 @@ fun <T> BenchmarkRule.toggleStateMeasureRecompose(
  */
 fun <T> BenchmarkRule.toggleStateMeasureMeasure(
     activity: Activity,
-    testCase: T
+    testCase: T,
+    toggleCausesRecompose: Boolean = true,
+    firstDrawCausesRecompose: Boolean = false
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     activity.runOnUiThreadSync {
-        testCase.runToFirstDraw()
-        testCase.recomposeSyncAssertNoChanges()
+        runToFirstDraw(testCase, firstDrawCausesRecompose)
 
         measureRepeated {
             runWithTimingDisabled {
                 testCase.toggleState()
-                testCase.recomposeSyncAssertHadChanges()
+                testCase.recomposeSyncAssert(toggleCausesRecompose)
                 testCase.requestLayout()
             }
             testCase.measure()
@@ -263,16 +266,17 @@ fun <T> BenchmarkRule.toggleStateMeasureMeasure(
  */
 fun <T> BenchmarkRule.toggleStateMeasureLayout(
     activity: Activity,
-    testCase: T
+    testCase: T,
+    toggleCausesRecompose: Boolean = true,
+    firstDrawCausesRecompose: Boolean = false
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     activity.runOnUiThreadSync {
-        testCase.runToFirstDraw()
-        testCase.recomposeSyncAssertNoChanges()
+        runToFirstDraw(testCase, firstDrawCausesRecompose)
 
         measureRepeated {
             runWithTimingDisabled {
                 testCase.toggleState()
-                testCase.recomposeSyncAssertHadChanges()
+                testCase.recomposeSyncAssert(toggleCausesRecompose)
                 testCase.requestLayout()
                 testCase.measure()
             }
@@ -287,16 +291,17 @@ fun <T> BenchmarkRule.toggleStateMeasureLayout(
  */
 fun <T> BenchmarkRule.toggleStateMeasureDraw(
     activity: Activity,
-    testCase: T
+    testCase: T,
+    toggleCausesRecompose: Boolean = true,
+    firstDrawCausesRecompose: Boolean = false
 ) where T : ComposeTestCase, T : ToggleableTestCase {
     activity.runOnUiThreadSync {
-        testCase.runToFirstDraw()
-        testCase.recomposeSyncAssertNoChanges()
+        runToFirstDraw(testCase, firstDrawCausesRecompose)
 
         measureRepeated {
             runWithTimingDisabled {
                 testCase.toggleState()
-                testCase.recomposeSyncAssertHadChanges()
+                testCase.recomposeSyncAssert(toggleCausesRecompose)
                 testCase.requestLayout()
                 testCase.measure()
                 testCase.layout()
@@ -309,4 +314,18 @@ fun <T> BenchmarkRule.toggleStateMeasureDraw(
         }
         activity.disposeComposition()
     }
+}
+
+/**
+ * Runs first draw on the test case and runs recomposition. Some layout/draw cycles
+ * cause recomposition changes ([firstDrawCausesRecompose]). Changes are expected only
+ * when [firstDrawCausesRecompose] is `true`.
+ */
+private fun <T> runToFirstDraw(
+    testCase: T,
+    firstDrawCausesRecompose: Boolean
+) where T : ComposeTestCase {
+    testCase.runToFirstDraw()
+    FrameManager.nextFrame()
+    testCase.recomposeSyncAssert(firstDrawCausesRecompose)
 }

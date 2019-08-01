@@ -25,14 +25,11 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.compose.Children
-import androidx.compose.Composable
 import androidx.compose.CompositionContext
 import androidx.compose.FrameManager
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.ComponentNode
 import androidx.ui.core.DrawNode
-import androidx.ui.core.setContent
 import com.google.common.truth.Truth
 import org.junit.Assert
 
@@ -133,7 +130,7 @@ abstract class AndroidTestCase(
 ) : TestCase(activity) {
 
     override fun setupContentInternal(activity: Activity) = createViewContent(activity)
-        .apply { activity.setContentView(this) }
+        .also { activity.setContentView(it) }
 
     abstract fun createViewContent(activity: Activity): ViewGroup
 }
@@ -203,22 +200,29 @@ private fun invalidateComponentNodes(node: ComponentNode) {
  * Performs recomposition and asserts that there were some pending changes.
  */
 fun ComposeTestCase.recomposeSyncAssertHadChanges() {
-    val hadChanges = compositionContext.recomposeSync()
-    Assert.assertTrue(
-        "Expected pending changes on recomposition but there were none. Did " +
-                "you forget to call FrameManager.next()?", hadChanges
-    )
+    recomposeSyncAssert(expectingChanges = true)
 }
 
 /**
  * Performs recomposition and asserts that there were no pending changes.
  */
 fun ComposeTestCase.recomposeSyncAssertNoChanges() {
+    recomposeSyncAssert(expectingChanges = false)
+}
+
+/**
+ * Performs recomposition and asserts that there were or weren't pending changes based on
+ * [expectingChanges].
+ */
+fun ComposeTestCase.recomposeSyncAssert(expectingChanges: Boolean) {
+    val message = if (expectingChanges) {
+        "Expected pending changes on recomposition but there were none. Did " +
+                "you forget to call FrameManager.next()?"
+    } else {
+        "Expected no pending changes on recomposition but there were some."
+    }
     val hadChanges = compositionContext.recomposeSync()
-    Assert.assertFalse(
-        "Expected no pending changes on recomposition but there were some.",
-        hadChanges
-    )
+    Assert.assertEquals(message, expectingChanges, hadChanges)
 }
 
 /**
