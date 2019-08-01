@@ -28,7 +28,6 @@ import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.LocaleTestUtils
-import androidx.testutils.waitForExecution
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrolledEvent
@@ -400,12 +399,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
     ) {
         val initialPage = test.viewPager.currentItem
 
-        tryNTimes(3, { /* RESET block */
-            test.viewPager.setCurrentItemSync(initialPage, false, 2, SECONDS)
-            // VP2 was potentially settling while the RetryException was raised, in which case we
-            // must wait until the IDLE event has been fired
-            activityTestRule.waitForExecution(1)
-        }) { /* TRY block */
+        tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {
             val recorder = test.viewPager.addNewRecordingCallback()
 
             // start smooth scroll
@@ -508,12 +502,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             val initialPage = test.viewPager.currentItem
             val expectedFinalPage = initialPage + 1
 
-            tryNTimes(3, resetBlock = {
-                test.viewPager.setCurrentItemSync(initialPage, false, 2, SECONDS)
-                // VP2 was potentially settling while the RetryException was raised,
-                // in which case we must wait until the IDLE event has been fired
-                activityTestRule.waitForExecution(1)
-            }) {
+            tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {
                 val recorder = test.viewPager.addNewRecordingCallback()
 
                 // start fake drag

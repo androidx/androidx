@@ -26,7 +26,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.testutils.LocaleTestUtils
 import androidx.testutils.PollingCheck
-import androidx.testutils.waitForExecution
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.test.ui.SparseAdapter
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
@@ -706,8 +705,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
 
         // when
         tryNTimes(3, resetBlock = {
-            test.viewPager.setCurrentItemSync(currentPage, false, 2, SECONDS)
-            activityTestRule.waitForExecution(1)
+            test.resetViewPagerTo(currentPage)
             test.viewPager.unregisterOnPageChangeCallback(recorder)
             recorder = test.viewPager.addNewRecordingCallback()
         }) {
@@ -1060,12 +1058,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         val dataSet = stringSequence(pageCount).toMutableList()
         test.setAdapterSync(viewAdapterProvider(dataSet))
 
-        tryNTimes(3, resetBlock = {
-            test.viewPager.setCurrentItemSync(initialPage, false, 2, SECONDS)
-            // VP2 was potentially settling while the RetryException was raised,
-            // in which case we must wait until the IDLE event has been fired
-            activityTestRule.waitForExecution(1)
-        }) {
+        tryNTimes(3, resetBlock = { test.resetViewPagerTo(initialPage) }) {
             // when we are scrolling to the target
             val recorder = test.viewPager.addNewRecordingCallback()
             val distanceLatch = test.viewPager.addWaitForDistanceToTarget(targetPage,
