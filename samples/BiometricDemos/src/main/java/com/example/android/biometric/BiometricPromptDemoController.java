@@ -163,8 +163,7 @@ abstract class BiometricPromptDemoController {
             log("canAuthenticate: " + message);
         });
 
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
             mAllowDeviceCredentialCheckbox.setEnabled(false);
             mAllowDeviceCredentialCheckbox.setChecked(false);
         }
@@ -196,7 +195,7 @@ abstract class BiometricPromptDemoController {
                                 + mCounter)
                 .setConfirmationRequired(mRequireConfirmationCheckbox.isChecked());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                 && mAllowDeviceCredentialCheckbox.isChecked()) {
             builder.setDeviceCredentialAllowed(true);
         } else {

@@ -50,7 +50,7 @@ public class BiometricPromptDemo extends FragmentActivity {
         } else {
             biometricBoundKeyDemoButton.setVisibility(View.GONE);
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             credentialBoundKeyDemoButton.setOnClickListener(view -> launchCredentialBoundKeyDemo());
         } else {
             credentialBoundKeyDemoButton.setVisibility(View.GONE);

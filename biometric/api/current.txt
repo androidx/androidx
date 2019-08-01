@@ -65,7 +65,7 @@ package androidx.biometric {
     method public androidx.biometric.BiometricPrompt.PromptInfo build();
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setConfirmationRequired(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDescription(CharSequence?);
-    method @RequiresApi(29) public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDeviceCredentialAllowed(boolean);
+    method @RequiresApi(android.os.Build.VERSION_CODES.P) public androidx.biometric.BiometricPrompt.PromptInfo.Builder setDeviceCredentialAllowed(boolean);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setNegativeButtonText(CharSequence);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setSubtitle(CharSequence?);
     method public androidx.biometric.BiometricPrompt.PromptInfo.Builder setTitle(CharSequence);

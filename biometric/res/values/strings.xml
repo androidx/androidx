@@ -36,4 +36,10 @@
     <string name="fingerprint_error_lockout">Too many attempts. Please try again later.</string>
     <!-- Generic error message shown when an unknown error has occurred. [CHAR LIMIT=NONE] -->
     <string name="default_error_msg">Unknown error</string>
+    <!-- Generic error message shown when the authentication operation is canceled due to user
+    input. Generally not shown to the user. [CHAR LIMIT=NONE] -->
+    <string name="generic_error_user_canceled">Authentication canceled by user.</string>
+    <!-- Button label shown on a biometric authentication system dialog that lets the user
+    authenticate using their lock screen credential (such as PIN or password). [CHAR LIMIT=30] -->
+    <string name="confirm_device_credential_password">Use password</string>
 </resources>
