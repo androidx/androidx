@@ -78,6 +78,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private int mTarget;
     private boolean mDispatchSelected;
     private boolean mScrollHappened;
+    private boolean mDataSetChangeHappened;
     private boolean mFakeDragging;
 
     ScrollEventAdapter(@NonNull ViewPager2 viewPager) {
@@ -96,6 +97,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mDispatchSelected = false;
         mScrollHappened = false;
         mFakeDragging = false;
+        mDataSetChangeHappened = false;
     }
 
     /**
@@ -125,10 +127,10 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         }
 
         // Drag is finished (dragging || settling -> idle)
-        if (mAdapterState != STATE_IDLE && newState == RecyclerView.SCROLL_STATE_IDLE) {
+        if (isInAnyDraggingState() && newState == RecyclerView.SCROLL_STATE_IDLE) {
             boolean dispatchIdle = false;
             updateScrollEventValues();
-            if (!mScrollHappened && isInAnyDraggingState()) {
+            if (!mScrollHappened) {
                 // Pages didn't move during drag, so either we're at the start or end of the list,
                 // or there are no pages at all.
                 // In the first case, ViewPager's contract requires at least one scroll event.
@@ -137,19 +139,11 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
                     dispatchScrolled(mScrollValues.mPosition, 0f, 0);
                 }
                 dispatchIdle = true;
-            } else if (mScrollHappened && mScrollValues.mOffsetPx == 0) {
-                // Normally we dispatch the selected page and go to idle in onScrolled after we
-                // settled (mOffsetPx == 0), but there are a few exceptions:
-                //
-                // 1) The drag was still ongoing when onScrolled was called, so we didn't know it
-                //    was about to end. End it now.
-                // 2) If the adapter data set changes during a smooth scroll, RecyclerView may
-                //    settle at a different position, which we don't know about until we're there.
-                //    End it now.
-                //
-                // Now RecyclerView is idle and mOffsetPx == 0, so the view has stabilized. Fire
-                // onPageSelected to notify clients of the position settled upon and go to idle.
-                //
+            } else if (mScrollValues.mOffsetPx == 0) {
+                // Normally we dispatch the selected page and go to idle in onScrolled when
+                // mOffsetPx == 0, but in this case the drag was still ongoing when onScrolled was
+                // called, so that didn't happen. And since mOffsetPx == 0, there will be no further
+                // scroll events, so fire the onPageSelected event and go to idle now.
                 // Note that if we _did_ go to idle in that last onScrolled event, this code will
                 // not be executed because mAdapterState has been reset to STATE_IDLE.
                 dispatchIdle = true;
@@ -160,6 +154,19 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             if (dispatchIdle) {
                 // Normally idle is fired in last onScrolled call, but either onScrolled was never
                 // called, or we were still dragging when the last onScrolled was called
+                dispatchStateChanged(SCROLL_STATE_IDLE);
+                resetState();
+            }
+        }
+
+        if (mAdapterState == STATE_IN_PROGRESS_SMOOTH_SCROLL
+                && newState == RecyclerView.SCROLL_STATE_IDLE && mDataSetChangeHappened) {
+            updateScrollEventValues();
+            if (mScrollValues.mOffsetPx == 0) {
+                if (mTarget != mScrollValues.mPosition) {
+                    dispatchSelected(
+                            mScrollValues.mPosition == NO_POSITION ? 0 : mScrollValues.mPosition);
+                }
                 dispatchStateChanged(SCROLL_STATE_IDLE);
                 resetState();
             }
@@ -285,6 +292,10 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             mDragStartPosition = getPosition();
         }
         dispatchStateChanged(SCROLL_STATE_DRAGGING);
+    }
+
+    void notifyDataSetChangeHappened() {
+        mDataSetChangeHappened = true;
     }
 
     /**
