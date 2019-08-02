@@ -38,5 +38,5 @@ inline fun File.toUri(): Uri = Uri.fromFile(this)
 /** Creates a [File] from the given [Uri]. */
 fun Uri.toFile(): File {
     require(scheme == "file") { "Uri lacks 'file' scheme: $this" }
-    return File(path!!)
+    return File(requireNotNull(path) { "Uri path is null: $this" })
 }

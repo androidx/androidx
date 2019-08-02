@@ -46,4 +46,15 @@ class UriTest {
             uri.toFile()
         }.hasMessageThat().isEqualTo("Uri lacks 'file' scheme: $uri")
     }
+
+    @Test fun fileFromUriWithNullPath() {
+        val uri = Uri.Builder()
+            .scheme("file")
+            .authority("example.com")
+            .path(null)
+            .build()
+        assertThrows<IllegalArgumentException> {
+            uri.toFile()
+        }.hasMessageThat().isEqualTo("Uri path is null: $uri")
+    }
 }
