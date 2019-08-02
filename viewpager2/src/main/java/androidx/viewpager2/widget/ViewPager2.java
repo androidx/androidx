@@ -147,6 +147,8 @@ public final class ViewPager2 extends ViewGroup {
     private CompositeOnPageChangeCallback mPageChangeEventDispatcher;
     private FakeDrag mFakeDragger;
     private PageTransformerAdapter mPageTransformerAdapter;
+    private RecyclerView.ItemAnimator mSavedItemAnimator = null;
+    private boolean mSavedItemAnimatorPresent = false;
     private boolean mUserInputEnabled = true;
     private @OffscreenPageLimit int mOffscreenPageLimit = OFFSCREEN_PAGE_LIMIT_DEFAULT;
     AccessibilityProvider mAccessibilityProvider; // to avoid creation of a synthetic accessor
@@ -860,6 +862,10 @@ public final class ViewPager2 extends ViewGroup {
      * Sets a {@link PageTransformer} that will be called for each attached page whenever the
      * scroll position is changed. This allows the application to apply custom property
      * transformations to each page, overriding the default sliding behavior.
+     * <p>
+     * Note: setting a {@link PageTransformer} disables data-set change animations to prevent
+     * conflicts between the two animation systems. Setting a {@code null} transformer will restore
+     * data-set change animations.
      *
      * @param transformer PageTransformer that will modify each page's animation properties
      *
@@ -867,6 +873,20 @@ public final class ViewPager2 extends ViewGroup {
      * @see CompositePageTransformer
      */
     public void setPageTransformer(@Nullable PageTransformer transformer) {
+        if (transformer != null) {
+            if (!mSavedItemAnimatorPresent) {
+                mSavedItemAnimator = mRecyclerView.getItemAnimator();
+                mSavedItemAnimatorPresent = true;
+            }
+            mRecyclerView.setItemAnimator(null);
+        } else {
+            if (mSavedItemAnimatorPresent) {
+                mRecyclerView.setItemAnimator(mSavedItemAnimator);
+                mSavedItemAnimator = null;
+                mSavedItemAnimatorPresent = false;
+            }
+        }
+
         // TODO: add support for reverseDrawingOrder: b/112892792
         // TODO: add support for pageLayerType: b/112893074
         if (transformer == mPageTransformerAdapter.getPageTransformer()) {
