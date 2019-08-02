@@ -57,7 +57,7 @@ androidx {
     description = "UI Integration Tests"
 }
 
-android.defaultConfig.minSdkVersion 29 // RenderNode requires 29+
+android.defaultConfig.minSdkVersion 21
 
 tasks.withType(KotlinCompile).all {
     kotlinOptions {

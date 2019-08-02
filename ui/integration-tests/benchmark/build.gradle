@@ -55,7 +55,7 @@ androidx {
     description = "UI Benchmarks"
 }
 
-android.defaultConfig.minSdkVersion 29 // RenderNode requires 29+
+android.defaultConfig.minSdkVersion 21
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
     kotlinOptions {
