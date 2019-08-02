@@ -29,6 +29,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -69,7 +70,8 @@ import java.util.concurrent.TimeUnit;
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
-    private static final String DB_NAME = "androidx.work.workdb";
+    @VisibleForTesting
+    public static final String DB_NAME = "androidx.work.workdb";
     // Delete rows in the workspec table that...
     private static final String PRUNE_SQL_FORMAT_PREFIX = "DELETE FROM workspec WHERE "
             // are completed...
