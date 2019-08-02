@@ -22,6 +22,7 @@ import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Even
 import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Event.OnPageSelectedEvent
+import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Modification
 import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Modification.REMOVE_FIRST_VISIBLE
 import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Modification.SHIFT_FIRST_VISIBLE
 import androidx.viewpager2.widget.AdapterDataSetChangeWhileSmoothScrollTest.Modification.SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST
@@ -64,9 +65,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         val rtl: Boolean,
         val targetBound: Boolean,
         val modification: Modification,
-        val adapterProvider: AdapterProviderForItems,
-        val expectedFinalPage: Int,
-        val expectedFinalPageText: String
+        val adapterProvider: AdapterProviderForItems
     )
 
     companion object {
@@ -121,13 +120,14 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
             idleLatch.await(10, SECONDS)
 
             // then
-            test.assertBasicState(config.expectedFinalPage, config.expectedFinalPageText)
+            val expectedFinalPosition = test.viewPager.currentCompletelyVisibleItem
+            test.assertBasicState(expectedFinalPosition, dataSet[expectedFinalPosition])
             recorder.apply {
                 val removeItemMarkIx = markerIx(modificationMark)
-                val expectedSelectEvents = if (targetPage == config.expectedFinalPage) {
+                val expectedSelectEvents = if (targetPage == expectedFinalPosition) {
                     listOf(targetPage)
                 } else {
-                    listOf(targetPage, config.expectedFinalPage)
+                    listOf(targetPage, expectedFinalPosition)
                 }
                 // verify all events
                 assertThat(settlingIx, equalTo(0))
@@ -150,7 +150,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
                 scrollsBeforeMarker.assertMaxShownPages()
                 // Only check assertLastCorrect on scroll events _after_ the marker:
                 //   the target is not reached before the data set change
-                scrollsAfterMarker.assertLastCorrect(config.expectedFinalPage)
+                scrollsAfterMarker.assertLastCorrect(expectedFinalPosition)
             }
         }
     }
@@ -325,78 +325,11 @@ private fun createTestSet(): List<TestConfig> {
     return listOf(viewAdapterProvider, viewAdapterProviderValueId).flatMap { adapterProvider ->
         listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
             listOf(false, true).flatMap { rtl ->
-                listOf(
-                    TestConfig(
-                        orientation, rtl, true,
-                        SHIFT_FIRST_VISIBLE,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = 2,
-                        expectedFinalPageText = "0"
-                    ),
-                    TestConfig(
-                        orientation, rtl, true,
-                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage - 1,
-                        expectedFinalPageText = "${targetPage + 1}"
-                    ),
-                    TestConfig(
-                        orientation, rtl, true,
-                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_LAST,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = 2,
-                        expectedFinalPageText = "0"
-                    ),
-                    TestConfig(
-                        orientation, rtl, true,
-                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST_AND_LAST,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage - 3,
-                        expectedFinalPageText = "${targetPage - 3}"
-                    ),
-                    TestConfig(
-                        orientation, rtl, true,
-                        REMOVE_FIRST_VISIBLE,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage - 1,
-                        expectedFinalPageText = "$targetPage"
-                    ),
-                    TestConfig(
-                        orientation, rtl, false,
-                        SHIFT_FIRST_VISIBLE,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage,
-                        expectedFinalPageText = "$targetPage"
-                    ),
-                    TestConfig(
-                        orientation, rtl, false,
-                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage,
-                        expectedFinalPageText = "${targetPage + 2}"
-                    ),
-                    TestConfig(
-                        orientation, rtl, false,
-                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_LAST,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage - 1,
-                        expectedFinalPageText = "${targetPage - 4}"
-                    ),
-                    TestConfig(
-                        orientation, rtl, false,
-                        SHIFT_FIRST_VISIBLE_THEN_REMOVE_FIRST_AND_LAST,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage - 3,
-                        expectedFinalPageText = "${targetPage - 4}"
-                    ),
-                    TestConfig(
-                        orientation, rtl, false,
-                        REMOVE_FIRST_VISIBLE,
-                        adapterProvider = adapterProvider,
-                        expectedFinalPage = targetPage,
-                        expectedFinalPageText = "${targetPage + 1}"
-                    )
-                )
+                listOf(true, false).flatMap { targetBound ->
+                    Modification.values().map { modification ->
+                        TestConfig(orientation, rtl, targetBound, modification, adapterProvider)
+                    }
+                }
             }
         }
     }
