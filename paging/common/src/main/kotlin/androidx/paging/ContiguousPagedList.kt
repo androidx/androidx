@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executor
 
 /**
@@ -74,8 +75,8 @@ open class ContiguousPagedList<K : Any, V : Any>(
         coroutineScope,
         config,
         pagedSource,
-        mainThreadExecutor,
-        backgroundThreadExecutor,
+        mainThreadExecutor.asCoroutineDispatcher(),
+        backgroundThreadExecutor.asCoroutineDispatcher(),
         this,
         initialResult,
         storage

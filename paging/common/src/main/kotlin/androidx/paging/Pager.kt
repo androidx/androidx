@@ -18,21 +18,23 @@ package androidx.paging
 
 import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadType
+import androidx.paging.PagedSource.KeyProvider
+import androidx.paging.PagedSource.LoadParams
+import androidx.paging.PagedSource.LoadResult
 import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicBoolean
 
 internal class Pager<K : Any, V : Any>(
     private val pagedListScope: CoroutineScope,
     val config: PagedList.Config,
     val source: PagedSource<K, V>,
-    val notifyExecutor: Executor,
-    private val fetchExecutor: Executor,
+    private val notifyDispatcher: CoroutineDispatcher,
+    private val fetchDispatcher: CoroutineDispatcher,
     val pageConsumer: PageConsumer<V>,
-    result: PagedSource.LoadResult<K, V>,
+    result: LoadResult<K, V>,
     private val adjacentProvider: AdjacentProvider<V> = SimpleAdjacentProvider()
 ) {
     private val totalCount: Int
@@ -59,11 +61,11 @@ internal class Pager<K : Any, V : Any>(
         }
     }
 
-    private fun listenTo(type: LoadType, future: suspend () -> PagedSource.LoadResult<K, V>) {
+    private fun scheduleLoad(type: LoadType, params: LoadParams<K>) {
         // Listen on the BG thread if the paged source is invalid, since it can be expensive.
-        pagedListScope.launch(fetchExecutor.asCoroutineDispatcher()) {
+        pagedListScope.launch(fetchDispatcher) {
             try {
-                val value = future()
+                val value = source.load(params)
 
                 // if invalid, drop result on the floor
                 if (source.invalid) {
@@ -72,43 +74,18 @@ internal class Pager<K : Any, V : Any>(
                 }
 
                 // Source has been verified to be valid after producing data, so sent data to UI
-                launch(notifyExecutor.asCoroutineDispatcher()) {
+                launch(notifyDispatcher) {
                     onLoadSuccess(type, value)
                 }
             } catch (throwable: Throwable) {
-                launch(notifyExecutor.asCoroutineDispatcher()) {
+                launch(notifyDispatcher) {
                     onLoadError(type, throwable)
                 }
             }
         }
     }
 
-    internal interface PageConsumer<V : Any> {
-        /**
-         * @return `true` if we need to fetch more
-         */
-        fun onPageResult(type: LoadType, pageResult: PagedSource.LoadResult<*, V>): Boolean
-
-        fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?)
-    }
-
-    internal interface AdjacentProvider<V : Any> {
-        val firstLoadedItem: V?
-        val lastLoadedItem: V?
-        val firstLoadedItemIndex: Int
-        val lastLoadedItemIndex: Int
-
-        /**
-         * Notify the [AdjacentProvider] of new loaded data, to update first/last item/index.
-         *
-         * NOTE: this data may not be committed (e.g. it may be dropped due to max size). Up to the
-         * implementation of the AdjacentProvider to handle this (generally by ignoring this call if
-         * dropping is supported).
-         */
-        fun onPageResultResolution(type: LoadType, result: PagedSource.LoadResult<*, V>)
-    }
-
-    private fun onLoadSuccess(type: LoadType, value: PagedSource.LoadResult<K, V>) {
+    private fun onLoadSuccess(type: LoadType, value: LoadResult<K, V>) {
         if (isDetached) return // abort!
 
         adjacentProvider.onPageResultResolution(type, value)
@@ -166,63 +143,57 @@ internal class Pager<K : Any, V : Any>(
 
     private fun schedulePrepend() {
         if (!canPrepend()) {
-            onLoadSuccess(LoadType.START, PagedSource.LoadResult.empty())
+            onLoadSuccess(LoadType.START, LoadResult.empty())
             return
         }
 
         val key = when (val keyProvider = source.keyProvider) {
-            is PagedSource.KeyProvider.Positional -> {
+            is KeyProvider.Positional -> {
                 @Suppress("UNCHECKED_CAST")
                 (adjacentProvider.firstLoadedItemIndex - 1) as K
             }
-            is PagedSource.KeyProvider.PageKey -> prevKey
-            is PagedSource.KeyProvider.ItemKey -> keyProvider.getKey(
-                adjacentProvider.firstLoadedItem!!
-            )
+            is KeyProvider.PageKey -> prevKey
+            is KeyProvider.ItemKey -> keyProvider.getKey(adjacentProvider.firstLoadedItem!!)
         }
 
         loadStateManager.setState(LoadType.START, LoadState.LOADING, null)
-        listenTo(LoadType.START) {
-            source.load(
-                PagedSource.LoadParams(
-                    PagedSource.LoadType.START,
-                    key,
-                    config.pageSize,
-                    config.enablePlaceholders,
-                    config.pageSize
-                )
-            )
-        }
+
+        val loadParams = LoadParams(
+            PagedSource.LoadType.START,
+            key,
+            config.pageSize,
+            config.enablePlaceholders,
+            config.pageSize
+        )
+        scheduleLoad(LoadType.START, loadParams)
     }
 
     private fun scheduleAppend() {
         if (!canAppend()) {
-            onLoadSuccess(LoadType.END, PagedSource.LoadResult.empty())
+            onLoadSuccess(LoadType.END, LoadResult.empty())
             return
         }
 
         val key = when (val keyProvider = source.keyProvider) {
-            is PagedSource.KeyProvider.Positional ->
+            is KeyProvider.Positional -> {
                 @Suppress("UNCHECKED_CAST")
                 (adjacentProvider.lastLoadedItemIndex + 1) as K
-            is PagedSource.KeyProvider.PageKey -> nextKey
-            is PagedSource.KeyProvider.ItemKey -> keyProvider.getKey(
+            }
+            is KeyProvider.PageKey -> nextKey
+            is KeyProvider.ItemKey -> keyProvider.getKey(
                 adjacentProvider.lastLoadedItem!!
             )
         }
 
         loadStateManager.setState(LoadType.END, LoadState.LOADING, null)
-        listenTo(LoadType.END) {
-            source.load(
-                PagedSource.LoadParams(
-                    PagedSource.LoadType.END,
-                    key,
-                    config.pageSize,
-                    config.enablePlaceholders,
-                    config.pageSize
-                )
-            )
-        }
+        val loadParams = LoadParams(
+            PagedSource.LoadType.END,
+            key,
+            config.pageSize,
+            config.enablePlaceholders,
+            config.pageSize
+        )
+        scheduleLoad(LoadType.END, loadParams)
     }
 
     fun retry() {
@@ -231,6 +202,31 @@ internal class Pager<K : Any, V : Any>(
     }
 
     fun detach() = detached.set(true)
+
+    internal interface PageConsumer<V : Any> {
+        /**
+         * @return `true` if we need to fetch more
+         */
+        fun onPageResult(type: LoadType, pageResult: LoadResult<*, V>): Boolean
+
+        fun onStateChanged(type: LoadType, state: LoadState, error: Throwable?)
+    }
+
+    internal interface AdjacentProvider<V : Any> {
+        val firstLoadedItem: V?
+        val lastLoadedItem: V?
+        val firstLoadedItemIndex: Int
+        val lastLoadedItemIndex: Int
+
+        /**
+         * Notify the [AdjacentProvider] of new loaded data, to update first/last item/index.
+         *
+         * NOTE: this data may not be committed (e.g. it may be dropped due to max size). Up to the
+         * implementation of the AdjacentProvider to handle this (generally by ignoring this call if
+         * dropping is supported).
+         */
+        fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>)
+    }
 
     internal class SimpleAdjacentProvider<V : Any> : AdjacentProvider<V> {
         override var firstLoadedItemIndex: Int = 0
@@ -246,7 +242,7 @@ internal class Pager<K : Any, V : Any>(
         private var leadingUnloadedCount: Int = 0
         private var trailingUnloadedCount: Int = 0
 
-        override fun onPageResultResolution(type: LoadType, result: PagedSource.LoadResult<*, V>) {
+        override fun onPageResultResolution(type: LoadType, result: LoadResult<*, V>) {
             if (result.data.isEmpty()) return
 
             if (type == LoadType.START) {
