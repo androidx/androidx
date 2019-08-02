@@ -53,6 +53,10 @@ android {
         noCompress 'ttf'
     }
 
+    testOptions {
+        animationsDisabled = true
+    }
+
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
