@@ -26,11 +26,13 @@ package androidx.car.app {
   }
 
   public static final class CarListDialog.Builder {
-    ctor public CarListDialog.Builder(android.content.Context!);
-    method public androidx.car.app.CarListDialog! create();
+    ctor public CarListDialog.Builder(android.content.Context);
+    method public androidx.car.app.CarListDialog create();
     method public androidx.car.app.CarListDialog.Builder setCancelable(boolean);
+    method public androidx.car.app.CarListDialog.Builder setDismissButton(CharSequence);
     method public androidx.car.app.CarListDialog.Builder setInitialPosition(int);
-    method public androidx.car.app.CarListDialog.Builder setItems(CharSequence![], android.content.DialogInterface.OnClickListener?);
+    method @Deprecated public androidx.car.app.CarListDialog.Builder setItems(CharSequence![], android.content.DialogInterface.OnClickListener?);
+    method public androidx.car.app.CarListDialog.Builder setItems(java.util.List<androidx.car.app.CarListDialog.Item!>, android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarListDialog.Builder setItems(androidx.car.app.CarListDialog.DialogSubSection![], android.content.DialogInterface.OnClickListener?);
     method public androidx.car.app.CarListDialog.Builder setOnCancelListener(android.content.DialogInterface.OnCancelListener);
     method public androidx.car.app.CarListDialog.Builder setOnDismissListener(android.content.DialogInterface.OnDismissListener);
@@ -39,10 +41,17 @@ package androidx.car.app {
   }
 
   public static class CarListDialog.DialogSubSection {
-    ctor public CarListDialog.DialogSubSection(CharSequence, CharSequence![]);
+    ctor @Deprecated public CarListDialog.DialogSubSection(CharSequence, CharSequence![]);
+    ctor public CarListDialog.DialogSubSection(CharSequence, java.util.List<androidx.car.app.CarListDialog.Item!>);
     method public int getItemCount();
-    method public CharSequence![] getItems();
+    method public java.util.List<androidx.car.app.CarListDialog.Item!> getItems();
     method public CharSequence getTitle();
+  }
+
+  public static class CarListDialog.Item {
+    ctor public CarListDialog.Item(CharSequence);
+    method public void setBody(CharSequence);
+    method public void setIconDrawable(android.graphics.drawable.Drawable);
   }
 
   public final class CarMultipleChoiceDialog extends android.app.Dialog {
