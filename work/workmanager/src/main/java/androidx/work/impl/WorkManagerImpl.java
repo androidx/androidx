@@ -93,7 +93,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static void setDelegate(WorkManagerImpl delegate) {
+    public static void setDelegate(@Nullable WorkManagerImpl delegate) {
         synchronized (sLock) {
             sDelegatedInstance = delegate;
         }
@@ -220,10 +220,33 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull Configuration configuration,
             @NonNull TaskExecutor workTaskExecutor,
             boolean useTestDatabase) {
+        this(context,
+                configuration,
+                workTaskExecutor,
+                WorkDatabase.create(
+                        context.getApplicationContext(),
+                        configuration.getTaskExecutor(),
+                        useTestDatabase)
+        );
+    }
 
+    /**
+     * Create an instance of {@link WorkManagerImpl}.
+     *
+     * @param context          The application {@link Context}
+     * @param configuration    The {@link Configuration} configuration
+     * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
+     *                         enqueueing, scheduling, cancellation, etc.
+     * @param database         The {@link WorkDatabase}
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkManagerImpl(
+            @NonNull Context context,
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor workTaskExecutor,
+            @NonNull WorkDatabase database) {
         Context applicationContext = context.getApplicationContext();
-        WorkDatabase database = WorkDatabase.create(
-                applicationContext, configuration.getTaskExecutor(), useTestDatabase);
         Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
         List<Scheduler> schedulers = createSchedulers(applicationContext, workTaskExecutor);
         Processor processor = new Processor(
