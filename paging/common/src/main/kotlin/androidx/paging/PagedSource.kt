@@ -134,6 +134,18 @@ abstract class PagedSource<Key : Any, Value : Any> {
      */
     data class LoadResult<Key : Any, Value : Any>(
         /**
+         * Loaded data
+         */
+        val data: List<Value>,
+        /**
+         * Only one of [itemsBefore] or [offset] should be used. This is a temporary placeholder
+         * shadowing [DataSource.BaseResult.offset] which simply forwards the params to backing
+         * implementations of [PagedSource].
+         *
+         * TODO: Investigate refactoring this out of the API now that tiling has been removed.
+         */
+        val offset: Int,
+        /**
          * Optional count of items before the loaded data.
          */
         @IntRange(from = COUNT_UNDEFINED.toLong())
@@ -150,19 +162,7 @@ abstract class PagedSource<Key : Any, Value : Any> {
         /**
          * Key for previous page - ignored unless you're using [KeyProvider.PageKey]
          */
-        val prevKey: Key? = null,
-        /**
-         * Loaded data
-         */
-        val data: List<Value>,
-        /**
-         * Only one of [itemsBefore] or [offset] should be used. This is a temporary placeholder
-         * shadowing [DataSource.BaseResult.offset] which simply forwards the params to backing
-         * implementations of [PagedSource].
-         *
-         * TODO: Investigate refactoring this out of the API now that tiling has been removed.
-         */
-        val offset: Int
+        val prevKey: Key? = null
     ) {
         internal val counted = itemsBefore != COUNT_UNDEFINED && itemsAfter != COUNT_UNDEFINED
 
@@ -170,7 +170,7 @@ abstract class PagedSource<Key : Any, Value : Any> {
             const val COUNT_UNDEFINED = -1
 
             @Suppress("MemberVisibilityCanBePrivate") // Prevent synthetic accessor generation.
-            internal val EMPTY = LoadResult(0, 0, null, null, emptyList(), 0)
+            internal val EMPTY = LoadResult(emptyList(), 0, 0, 0, null, null)
 
             @Suppress("UNCHECKED_CAST") // Can safely ignore, since the list is empty.
             internal fun <Key : Any, Value : Any> empty() = EMPTY as LoadResult<Key, Value>

@@ -111,10 +111,10 @@ class LivePagedListBuilderTest {
 
                 val data = listOf("a", "b")
                 return LoadResult(
-                    itemsBefore = 0,
-                    itemsAfter = 4 - data.size,
                     data = data,
-                    offset = 0
+                    offset = 0,
+                    itemsBefore = 0,
+                    itemsAfter = 4 - data.size
                 )
             }
 

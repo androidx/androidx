@@ -472,7 +472,7 @@ internal constructor(internal val type: KeyType) {
             }
             if (data.isEmpty() && (leadingNulls != 0 || trailingNulls != 0)) {
                 throw IllegalArgumentException(
-                    "Initial result cannot be empty if items are" + " present in data set."
+                    "Initial result cannot be empty if items are present in data set."
                 )
             }
             if (trailingNulls < 0) {
@@ -522,12 +522,12 @@ internal constructor(internal val type: KeyType) {
          */
         @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct Key type.
         internal fun <Key : Any> toLoadResult() = PagedSource.LoadResult(
+            data,
+            offset,
             if (counted) leadingNulls else COUNT_UNDEFINED,
             if (counted) trailingNulls else COUNT_UNDEFINED,
             nextKey as Key?,
-            prevKey as Key?,
-            data,
-            offset
+            prevKey as Key?
         )
 
         override fun equals(other: Any?) = when (other) {

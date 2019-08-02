@@ -281,14 +281,14 @@ package androidx.paging {
   }
 
   public static final class PagedSource.LoadResult<Key, Value> {
-    ctor public PagedSource.LoadResult(@IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset);
-    method public int component1();
+    ctor public PagedSource.LoadResult(java.util.List<? extends Value> data, int offset, @IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey);
+    method public java.util.List<Value> component1();
     method public int component2();
-    method public Key? component3();
-    method public Key? component4();
-    method public java.util.List<Value> component5();
-    method public int component6();
-    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey, java.util.List<? extends Value> data, int offset);
+    method public int component3();
+    method public int component4();
+    method public Key? component5();
+    method public Key? component6();
+    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(java.util.List<? extends Value> data, int offset, int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey);
     method public java.util.List<Value> getData();
     method public int getItemsAfter();
     method public int getItemsBefore();
