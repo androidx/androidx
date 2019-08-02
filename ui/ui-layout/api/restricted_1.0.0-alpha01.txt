@@ -144,6 +144,9 @@ package androidx.ui.layout {
 
   public final class ScrollerKt {
     ctor public ScrollerKt();
+    method public static void HorizontalScroller(androidx.ui.layout.ScrollerPosition scrollerPosition = +memo({ 
+    <init>()
+}), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollChanged = { position, _ -> scrollerPosition.position = position }, kotlin.jvm.functions.Function0<kotlin.Unit> child);
     method public static void VerticalScroller(androidx.ui.layout.ScrollerPosition scrollerPosition = +memo({ 
     <init>()
 }), kotlin.jvm.functions.Function2<? super androidx.ui.core.Px,? super androidx.ui.core.Px,kotlin.Unit> onScrollChanged = { position, _ -> scrollerPosition.position = position }, kotlin.jvm.functions.Function0<kotlin.Unit> child);
