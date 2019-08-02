@@ -241,14 +241,14 @@ package androidx.paging {
   public abstract class PagedSource<Key, Value> {
     ctor public PagedSource();
     method public final boolean getInvalid();
-    method public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
+    method public androidx.paging.PagedSource.KeyProvider<Key,Value> getKeyProvider();
     method public void invalidate();
-    method public abstract boolean isRetryableError(Throwable error);
+    method public boolean isRetryableError(Throwable error);
     method public abstract suspend Object load(androidx.paging.PagedSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagedSource.LoadResult<Key,Value>> p);
     method public final void registerInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     method public final void unregisterInvalidatedCallback(kotlin.jvm.functions.Function0<kotlin.Unit> onInvalidatedCallback);
     property public final boolean invalid;
-    property public abstract androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
+    property public androidx.paging.PagedSource.KeyProvider<Key,Value> keyProvider;
   }
 
   public abstract static sealed class PagedSource.KeyProvider<Key, Value> {
@@ -263,8 +263,8 @@ package androidx.paging {
     ctor public PagedSource.KeyProvider.PageKey();
   }
 
-  public static final class PagedSource.KeyProvider.Positional<Value> extends androidx.paging.PagedSource.KeyProvider<java.lang.Integer,Value> {
-    ctor public PagedSource.KeyProvider.Positional();
+  public static final class PagedSource.KeyProvider.Positional extends androidx.paging.PagedSource.KeyProvider<java.lang.Integer,java.lang.Object> {
+    field public static final androidx.paging.PagedSource.KeyProvider.Positional! INSTANCE;
   }
 
   public static final class PagedSource.LoadParams<Key> {

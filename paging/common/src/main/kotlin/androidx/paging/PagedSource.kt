@@ -185,15 +185,21 @@ abstract class PagedSource<Key : Any, Value : Any> {
      * * [ItemKey] Data in the last item in the page is used to load the next. Ideal for DB
      * pagination; offers granular continuation after [invalidate].
      */
-    sealed class KeyProvider<Key : Any, Value : Any> {
-        class Positional<Value : Any> : KeyProvider<Int, Value>()
+    sealed class KeyProvider<Key : Any, in Value : Any> {
+        object Positional : KeyProvider<Int, Any>()
         class PageKey<Key : Any, Value : Any> : KeyProvider<Key, Value>()
         abstract class ItemKey<Key : Any, Value : Any> : KeyProvider<Key, Value>() {
             abstract fun getKey(item: Value): Key
         }
+
+        internal companion object {
+            val pageKeyGlobal = PageKey<Any, Any>()
+            @Suppress("UNCHECKED_CAST")
+            fun <Key : Any, Value : Any> PageKeyGlobal() = pageKeyGlobal as PageKey<Key, Value>
+        }
     }
 
-    abstract val keyProvider: KeyProvider<Key, Value>
+    open val keyProvider: KeyProvider<Key, Value> = KeyProvider.PageKeyGlobal()
 
     private val onInvalidatedCallbacks = CopyOnWriteArrayList<() -> Unit>()
 
@@ -256,5 +262,5 @@ abstract class PagedSource<Key : Any, Value : Any> {
      * @param error Throwable returned from an attempted load from this [PagedSource].
      * @return `false` if the observed error should never be retried, `true` otherwise.
      */
-    abstract fun isRetryableError(error: Throwable): Boolean
+    open fun isRetryableError(error: Throwable): Boolean = true
 }

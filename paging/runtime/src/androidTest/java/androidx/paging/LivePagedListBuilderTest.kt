@@ -103,7 +103,7 @@ class LivePagedListBuilderTest {
         }
 
         private inner class MockPagedSource : PagedSource<Int, String>() {
-            override val keyProvider = KeyProvider.Positional<String>()
+            override val keyProvider = KeyProvider.Positional
 
             override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
                 LoadType.INITIAL -> loadInitial(params)

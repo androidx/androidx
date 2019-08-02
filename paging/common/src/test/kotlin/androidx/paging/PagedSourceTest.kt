@@ -22,11 +22,13 @@ import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
 import androidx.paging.PagedSource.LoadType
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertFailsWith
+import kotlin.test.fail
 
 @RunWith(JUnit4::class)
 class PagedSourceTest {
@@ -227,6 +229,23 @@ class PagedSourceTest {
                 dataSource.load(errorParams)
             }
         }
+    }
+
+    @Test
+    fun defaultKeyProviderInstance() {
+        fun pagedSource(): PagedSource<Int, String> {
+            return object : PagedSource<Int, String>() {
+                override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
+                    fail("load not expected")
+                }
+            }
+        }
+
+        val source = pagedSource()
+        // assert calling method doesn't allocate new
+        assertSame(source.keyProvider, source.keyProvider)
+        // assert reused across instances
+        assertSame(source.keyProvider, pagedSource().keyProvider)
     }
 
     internal data class Key(val name: String, val id: Int)
