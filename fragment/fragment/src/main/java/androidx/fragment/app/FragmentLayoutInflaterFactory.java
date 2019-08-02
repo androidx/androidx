@@ -125,7 +125,7 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
         // at the right phase of the lifecycle so that we will have mView populated
         // for compliant fragments below.
         if (mFragmentManager.mCurState < Fragment.CREATED && fragment.mFromLayout) {
-            mFragmentManager.moveToState(fragment, Fragment.CREATED, false);
+            mFragmentManager.moveToState(fragment, Fragment.CREATED);
         } else {
             mFragmentManager.moveToState(fragment);
         }
