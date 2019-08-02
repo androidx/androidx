@@ -84,10 +84,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             return when {
                 result == null -> throw Exception()
                 placeholdersEnabled -> LoadResult(
-                    itemsBefore = start,
-                    itemsAfter = listData.size - result.size - start,
                     data = result,
-                    offset = start
+                    offset = start,
+                    itemsBefore = start,
+                    itemsAfter = listData.size - result.size - start
                 )
                 else -> LoadResult(data = result, offset = 0)
             }
