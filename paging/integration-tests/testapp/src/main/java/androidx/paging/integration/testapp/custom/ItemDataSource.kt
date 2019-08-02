@@ -106,10 +106,10 @@ internal class ItemDataSource : PagedSource<Int, Item>() {
         val loadSize = minOf(COUNT - position, params.loadSize)
         val data = loadRangeInternal(position, loadSize)
         return LoadResult(
-            itemsBefore = position,
-            itemsAfter = COUNT - data.size - position,
             data = data,
-            offset = 0
+            offset = 0,
+            itemsBefore = position,
+            itemsAfter = COUNT - data.size - position
         )
     }
 

@@ -41,10 +41,10 @@ class PagedListTest {
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
                 when (params.loadType) {
                     LoadType.INITIAL -> LoadResult(
-                        0,
-                        0,
                         data = listOf("a"),
-                        offset = 0
+                        offset = 0,
+                        itemsBefore = 0,
+                        itemsAfter = 0
                     )
                     else -> throw NotImplementedError("Test should fail if we get here")
                 }

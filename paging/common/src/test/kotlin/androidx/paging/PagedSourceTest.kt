@@ -271,10 +271,10 @@ class PagedSourceTest {
             return if (params.placeholdersEnabled && counted) {
                 val data = items.subList(start, endExclusive)
                 LoadResult(
-                    itemsBefore = start,
-                    itemsAfter = items.size - data.size - start,
                     data = data,
-                    offset = start
+                    offset = start,
+                    itemsBefore = start,
+                    itemsAfter = items.size - data.size - start
                 )
             } else {
                 LoadResult(data = items.subList(start, endExclusive), offset = 0)
