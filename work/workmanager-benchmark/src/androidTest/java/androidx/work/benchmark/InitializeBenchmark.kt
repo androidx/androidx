@@ -30,7 +30,6 @@ import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
-import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -89,12 +88,9 @@ class InitializeBenchmark {
             val database = WorkDatabase.create(context, configuration.taskExecutor, false)
             WorkManagerImpl(context, configuration, taskExecutor, database)
             runWithTimingDisabled {
-                runBlocking {
-                    executor.job.children.forEach {
-                        it.join()
-                    }
-                }
+                executor.waitForIdle()
                 database.close()
+                context.deleteDatabase(WorkDatabase.DB_NAME)
             }
         }
     }
@@ -117,13 +113,12 @@ class InitializeBenchmark {
             WorkManagerImpl(context, configuration, taskExecutor, database)
             // Prune records for the next run.
             runWithTimingDisabled {
-                runBlocking {
-                    executor.job.children.forEach {
-                        it.join()
-                    }
+                executor.waitForIdle()
+                with(database) {
+                    workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
+                    close()
                 }
-                database.workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
-                database.close()
+                context.deleteDatabase(WorkDatabase.DB_NAME)
             }
         }
     }
