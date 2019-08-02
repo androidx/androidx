@@ -23,6 +23,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -37,9 +38,11 @@ final class ImageAnalysisNonBlockingCallback implements ImageReaderProxy.OnImage
 
     private static final String TAG = "NonBlockingCallback";
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final AtomicReference<ImageAnalysis.Analyzer> mSubscribedAnalyzer;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final AtomicInteger mRelativeRotation;
-
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Executor mBackgroundExecutor;
     private final Handler mUserHandler;
 
@@ -48,20 +51,23 @@ final class ImageAnalysisNonBlockingCallback implements ImageReaderProxy.OnImage
     @GuardedBy("this")
     private ImageProxy mCachedImage;
 
+    private AtomicBoolean mIsClosed;
+
     // Timestamp of the last image posted to user callback thread.
     private final AtomicLong mPostedImageTimestamp;
     // Timestamp of the last image finished being processed by user callback thread.
     private final AtomicLong mFinishedImageTimestamp;
 
     ImageAnalysisNonBlockingCallback(AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
-            AtomicInteger relativeRotation, Handler userHandler,
-            Executor backgroundExecutor) {
+            AtomicInteger relativeRotation, Handler userHandler, Executor executor) {
         mSubscribedAnalyzer = subscribedAnalyzer;
         mRelativeRotation = relativeRotation;
         mUserHandler = userHandler;
-        mBackgroundExecutor = backgroundExecutor;
-        mPostedImageTimestamp = new AtomicLong(-1);
-        mFinishedImageTimestamp = new AtomicLong(mPostedImageTimestamp.get());
+        mBackgroundExecutor = executor;
+        mPostedImageTimestamp = new AtomicLong();
+        mFinishedImageTimestamp = new AtomicLong();
+        mIsClosed = new AtomicBoolean();
+        open();
     }
 
     @Override
@@ -71,6 +77,27 @@ final class ImageAnalysisNonBlockingCallback implements ImageReaderProxy.OnImage
             return;
         }
         analyze(imageProxy);
+    }
+
+    /**
+     * Initialize the callback.
+     */
+    synchronized void open() {
+        mCachedImage = null;
+        mPostedImageTimestamp.set(-1);
+        mFinishedImageTimestamp.set(mPostedImageTimestamp.get());
+        mIsClosed.set(false);
+    }
+
+    /**
+     * Closes the callback so that it will stop posting to analyzer.
+     */
+    synchronized void close() {
+        mIsClosed.set(true);
+        if (mCachedImage != null) {
+            mCachedImage.close();
+            mCachedImage = null;
+        }
     }
 
     /**
@@ -91,6 +118,9 @@ final class ImageAnalysisNonBlockingCallback implements ImageReaderProxy.OnImage
      * @param imageProxy the incoming image frame.
      */
     private synchronized void analyze(@NonNull ImageProxy imageProxy) {
+        if (mIsClosed.get()) {
+            return;
+        }
         long postedImageTimestamp = mPostedImageTimestamp.get();
         long finishedImageTimestamp = mFinishedImageTimestamp.get();
 
@@ -138,6 +168,9 @@ final class ImageAnalysisNonBlockingCallback implements ImageReaderProxy.OnImage
     }
 
     synchronized void finishImage(ImageProxy imageProxy) {
+        if (mIsClosed.get()) {
+            return;
+        }
         mFinishedImageTimestamp.set(imageProxy.getTimestamp());
         imageProxy.close();
     }
