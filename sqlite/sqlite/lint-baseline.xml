@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 3.5.0-beta04" client="gradle" variant="debug" version="3.5.0-beta04">
+<issues format="5" by="lint 3.5.0-beta05" client="gradle" variant="all" version="3.5.0-beta05">
 
     <issue
         id="UnknownNullness"
@@ -389,22 +389,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    String getDatabaseName();"
-        errorLine2="    ~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="46"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    SupportSQLiteDatabase getWritableDatabase();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="80"
+            line="82"
             column="5"/>
     </issue>
 
@@ -415,151 +404,8 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="100"
+            line="102"
             column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onConfigure(SupportSQLiteDatabase db) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="149"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract void onCreate(SupportSQLiteDatabase db);"
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="159"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public abstract void onUpgrade(SupportSQLiteDatabase db, int oldVersion, int newVersion);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="181"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onDowngrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="200"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onOpen(SupportSQLiteDatabase db) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="218"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onCorruption(SupportSQLiteDatabase db) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="229"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public static Builder builder(Context context) {"
-        errorLine2="                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="330"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public static Builder builder(Context context) {"
-        errorLine2="                                      ~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="330"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            public Configuration build() {"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="342"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            public Builder name(@Nullable String name) {"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="362"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            public Builder callback(@NonNull Callback callback) {"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="371"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        SupportSQLiteOpenHelper create(Configuration configuration);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="390"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        SupportSQLiteOpenHelper create(Configuration configuration);"
-        errorLine2="                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sqlite/db/SupportSQLiteOpenHelper.java"
-            line="390"
-            column="40"/>
     </issue>
 
     <issue

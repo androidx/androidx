@@ -53,7 +53,7 @@ package androidx.sqlite.db {
 
   public interface SupportSQLiteOpenHelper extends java.io.Closeable {
     method public void close();
-    method public String! getDatabaseName();
+    method public String? getDatabaseName();
     method public androidx.sqlite.db.SupportSQLiteDatabase! getReadableDatabase();
     method public androidx.sqlite.db.SupportSQLiteDatabase! getWritableDatabase();
     method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void setWriteAheadLoggingEnabled(boolean);
@@ -61,30 +61,30 @@ package androidx.sqlite.db {
 
   public abstract static class SupportSQLiteOpenHelper.Callback {
     ctor public SupportSQLiteOpenHelper.Callback(int);
-    method public void onConfigure(androidx.sqlite.db.SupportSQLiteDatabase!);
-    method public void onCorruption(androidx.sqlite.db.SupportSQLiteDatabase!);
-    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase!);
-    method public void onDowngrade(androidx.sqlite.db.SupportSQLiteDatabase!, int, int);
-    method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase!);
-    method public abstract void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase!, int, int);
+    method public void onConfigure(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public void onCorruption(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public abstract void onCreate(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public void onDowngrade(androidx.sqlite.db.SupportSQLiteDatabase, int, int);
+    method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase);
+    method public abstract void onUpgrade(androidx.sqlite.db.SupportSQLiteDatabase, int, int);
     field public final int version;
   }
 
   public static class SupportSQLiteOpenHelper.Configuration {
-    method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder! builder(android.content.Context!);
+    method public static androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder builder(android.content.Context);
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Callback callback;
     field public final android.content.Context context;
     field public final String? name;
   }
 
   public static class SupportSQLiteOpenHelper.Configuration.Builder {
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration! build();
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder! callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback);
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder! name(String?);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration build();
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder callback(androidx.sqlite.db.SupportSQLiteOpenHelper.Callback);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder name(String?);
   }
 
   public static interface SupportSQLiteOpenHelper.Factory {
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper! create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration!);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration);
   }
 
   public interface SupportSQLiteProgram extends java.io.Closeable {
