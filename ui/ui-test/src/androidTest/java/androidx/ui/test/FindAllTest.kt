@@ -20,6 +20,9 @@ import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
+import androidx.ui.core.semantics.getOrNull
+import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.semantics.FoundationSemanticsProperties
 import androidx.ui.layout.Column
 import androidx.ui.material.Checkbox
 import androidx.ui.material.MaterialTheme
@@ -49,7 +52,10 @@ class FindAllTest {
             }
         }
 
-        findAll { isCheckable() && isChecked == true }
+        findAll {
+            getOrNull(FoundationSemanticsProperties.ToggleableState) == ToggleableState.Checked
+        }
+            .assertCountEquals(2)
             .forEach {
                 it.assertIsChecked()
             }
@@ -76,7 +82,8 @@ class FindAllTest {
             }
         }
 
-        findAll { isCheckable() }
+        findAll { isToggleable }
+            .assertCountEquals(2)
             .forEach {
                 it.doClick()
                 it.assertIsChecked()
@@ -84,7 +91,7 @@ class FindAllTest {
     }
 
     @Test
-    fun findAllTest_noCheckedComponent() {
+    fun findAllTest_noNonCheckedComponent() {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
@@ -96,7 +103,9 @@ class FindAllTest {
             }
         }
 
-        findAll { isCheckable() && isChecked == false }
+        findAll {
+            getOrNull(FoundationSemanticsProperties.ToggleableState) != ToggleableState.Checked
+        }
             .assertCountEquals(0)
     }
 
@@ -122,12 +131,12 @@ class FindAllTest {
             }
         }
 
-        findAll { isCheckable() }.apply {
+        findAll { isToggleable }.apply {
             get(0)
                 .doClick()
                 .assertIsChecked()
             get(1)
-                .assertIsNotChecked()
+                .assertIsUnchecked()
         }.assertCountEquals(2)
     }
 
@@ -161,16 +170,16 @@ class FindAllTest {
             }
         }
 
-        findAll { isCheckable() }.apply {
+        findAll { isToggleable }.assertCountEquals(2).apply {
             get(0)
-                .assertIsNotChecked()
+                .assertIsUnchecked()
                 .doClick()
                 .assertIsChecked()
         }
 
-        findAll { isCheckable() }.apply {
+        findAll { isToggleable }.assertCountEquals(3).apply {
             get(2)
-                .assertIsNotChecked()
+                .assertIsUnchecked()
         }
     }
 
@@ -199,9 +208,9 @@ class FindAllTest {
             }
         }
 
-        findAll { isCheckable() }.apply {
+        findAll { isToggleable }.assertCountEquals(2).apply {
             get(0)
-                .assertIsNotChecked()
+                .assertIsUnchecked()
                 .doClick()
                 .assertIsChecked()
             get(1)

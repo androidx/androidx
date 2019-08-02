@@ -17,6 +17,11 @@
 package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.getOrNull
+import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.semantics.FoundationSemanticsProperties
+import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.semantics.accessibilityValue
 
 /**
  * Asserts no items found given a criteria, throws [AssertionError] otherwise.
@@ -38,7 +43,7 @@ fun assertDoesNotExist(
 // TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
 fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
     verify({ "The component is not visible!" }) {
-        !it.isHidden
+        it.getOrNull(SemanticsProperties.Hidden) != true
     }
     return this
 }
@@ -50,7 +55,7 @@ fun SemanticsNodeInteraction.assertIsVisible(): SemanticsNodeInteraction {
  */
 fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
     verify({ "The component is visible!" }) {
-        it.isHidden
+        it.getOrNull(SemanticsProperties.Hidden) == true
     }
 
     return this
@@ -77,46 +82,57 @@ fun SemanticsNodeInteraction.assertNoLongerExists() {
 
 /**
  * Asserts that the current component is checked.
+ *
+ * Throws [AssertionError] if the component is not unchecked, indeterminate, or not toggleable.
  */
 fun SemanticsNodeInteraction.assertIsChecked(): SemanticsNodeInteraction {
-        // TODO(pavlis): Throw exception if component is not checkable
-    verify({ "The component is not checked!" }) {
-        it.isChecked == true
+    verify({ "Component is toggled off, expected it to be toggled on" }) {
+        it.getOrElse(FoundationSemanticsProperties.ToggleableState) {
+            throw AssertionError("Component is not toggleable")
+        } == ToggleableState.Checked
     }
     return this
 }
 
 /**
- * Asserts that the current component is not checked.
+ * Asserts that the current component is unchecked.
+ *
+ * Throws [AssertionError] if the component is checked, indeterminate, or not toggleable.
  */
-fun SemanticsNodeInteraction.assertIsNotChecked(): SemanticsNodeInteraction {
-        // TODO(pavlis): Throw exception if component is not checkable
-    verify({ "The component is checked!" }) {
-        it.isChecked != true
+fun SemanticsNodeInteraction.assertIsUnchecked(): SemanticsNodeInteraction {
+    verify({ "Component is toggled on, expected it to be toggled off" }) {
+        it.getOrElse(FoundationSemanticsProperties.ToggleableState) {
+            throw AssertionError("Component is not toggleable")
+        } == ToggleableState.Unchecked
     }
+
     return this
 }
 
 /**
  * Asserts that the current component is selected.
+ *
+ * Throws [AssertionError] if the component is unselected or not selectable.
  */
 fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction {
-        // TODO(pavlis): Throw exception if component is not selectable
-    verify(
-        { "The component is expected to be selected" }) {
-        it.isSelected == true
+    verify({ "Component is unselected, expected it to be selected" }) {
+        it.getOrElse(FoundationSemanticsProperties.Selected) {
+            throw AssertionError("Component is not selectable")
+        }
     }
     return this
 }
 
 /**
- * Asserts that the current component is not selected.
+ * Asserts that the current component is unselected.
+ *
+ * Throws [AssertionError] if the component is selected or not selectable.
  */
-fun SemanticsNodeInteraction.assertIsNotSelected(): SemanticsNodeInteraction {
-    // TODO(pavlis): Throw exception if component is not selectable
-    verify(
-        { "The component is expected to not be selected!" }) {
-        it.isSelected == false
+fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction {
+    verify({ "Component is selected, expected it to be unselected" }) {
+        !it.getOrElse(FoundationSemanticsProperties.Selected) {
+            throw AssertionError("Component is not selectable")
+        }
     }
     return this
 }
@@ -129,7 +145,7 @@ fun SemanticsNodeInteraction.assertIsNotSelected(): SemanticsNodeInteraction {
 fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeInteraction {
     // TODO(pavlis): Throw exception if component is not selectable
     verify(
-        { "The component is expected to be mutually exclusive group, but it's not!" }) {
+        { "The component is expected to be in a mutually exclusive group, but it's not!" }) {
         it.isInMutuallyExclusiveGroup
     }
     return this
@@ -138,11 +154,14 @@ fun SemanticsNodeInteraction.assertIsInMutuallyExclusiveGroup(): SemanticsNodeIn
 /**
  * Asserts the component's value equals the given value. This is used by
  * [CircularProgressIndicator] to check progress.
- * For further details please check [SemanticsConfiguration.value].
+ * For further details please check [SemanticsConfiguration.accessibilityValue].
+ * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
 fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInteraction {
-    verify({ node -> "Expected value: $value Actual value: ${node.value}" }) {
-        it.value == value
+    verify({ node -> "Expected value: $value, Actual value: ${node.accessibilityValue}" }) {
+        it.getOrElse(SemanticsProperties.AccessibilityValue) {
+            throw AssertionError("Expected value: $value, but had none")
+        } == value
     }
     return this
 }
@@ -174,7 +193,11 @@ fun List<SemanticsNodeInteraction>.assertCountEquals(
     return this
 }
 
-internal fun SemanticsNodeInteraction.verify(
+/**
+ * Verifies that the provided condition is true.
+ * Throws [AssertionError] if it is not.
+ */
+fun SemanticsNodeInteraction.verify(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
 ) {

@@ -16,13 +16,15 @@
 
 package androidx.ui.foundation.selection
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.semantics.SemanticsAction
-import androidx.ui.core.semantics.SemanticsActionType
-import androidx.ui.core.Semantics
+import androidx.ui.foundation.Strings
+import androidx.ui.foundation.semantics.toggleableState
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.enabled
+import androidx.ui.semantics.onClick
+import androidx.ui.semantics.accessibilityValue
 
 @Composable
 fun Toggleable(
@@ -30,26 +32,32 @@ fun Toggleable(
     onToggle: (() -> Unit)? = null,
     children: @Composable() () -> Unit
 ) {
-    val actions = if (onToggle != null) {
-        listOf(SemanticsAction(SemanticsActionType.Tap, onToggle))
-    } else {
-        emptyList()
-    }
     PressReleasedGestureDetector(
         onRelease = onToggle,
-        consumeDownOnStart = false) {
+        consumeDownOnStart = false
+    ) {
         // TODO: enabled should not be hardcoded
-        // TODO(pavlis): Semantics currently doesn't support 4 states (only checked / unchecked / not checkable).
-        Semantics(
-            checked = (value == ToggleableState.Checked),
-            enabled = true,
-            actions = actions
-        ) {
+        // TODO(pavlis): Handle multiple states for Semantics
+        Semantics(properties = {
+            this.accessibilityValue = when (value) {
+                // TODO(ryanmentley): These should be set by Checkbox, Switch, etc.
+                ToggleableState.Checked -> Strings.Checked
+                ToggleableState.Unchecked -> Strings.Unchecked
+                ToggleableState.Indeterminate -> Strings.Indeterminate
+            }
+            this.toggleableState = value
+            this.enabled = true
+
+            if (onToggle != null) {
+                onClick(action = onToggle, label = "Toggle")
+            }
+        }) {
             children()
         }
     }
 }
 
+// TODO: These shouldn't use checkbox-specific language
 enum class ToggleableState {
     Checked,
     Unchecked,

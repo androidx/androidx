@@ -46,8 +46,7 @@ class ButtonUiTest {
     val composeTestRule = createComposeRule()
 
     private val defaultButtonSemantics = createFullSemantics(
-        isEnabled = true,
-        isButton = true
+        isEnabled = true
     )
 
     @Test
@@ -79,8 +78,7 @@ class ButtonUiTest {
         findByTag("myButton")
             .assertSemanticsIsEqualTo(
                 createFullSemantics(
-                    isEnabled = false,
-                    isButton = true
+                    isEnabled = false
                 )
             )
     }

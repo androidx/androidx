@@ -20,7 +20,7 @@ import androidx.ui.core.SemanticsTreeNode
 
 /**
  * Represents a component with which one can interact with the hierarchy.
- * Examples of interactions include [findByTag], [isCheckable], [assertIsChecked], [doClick]
+ * Examples of interactions include [findByTag], [isToggleable], [assertIsChecked], [doClick]
  *
  * Example usage:
  * findByTag("myCheckbox")

@@ -710,74 +710,6 @@ package androidx.ui.core {
 
 }
 
-package androidx.ui.core.semantics {
-
-  public final class SemanticsAction<T> {
-    ctor public SemanticsAction(androidx.ui.core.semantics.SemanticsActionType<T> type, T handler);
-    method public androidx.ui.core.semantics.SemanticsActionType<T> component1();
-    method public T component2();
-    method public androidx.ui.core.semantics.SemanticsAction<T> copy(androidx.ui.core.semantics.SemanticsActionType<T> type, T handler);
-    method public T getHandler();
-    method public androidx.ui.core.semantics.SemanticsActionType<T> getType();
-    method public void invokeHandler(Object? args);
-  }
-
-  public final class SemanticsActionType<T> {
-    method public int getBitmask();
-    field public static final androidx.ui.core.semantics.SemanticsActionType.Companion! Companion;
-  }
-
-  public static final class SemanticsActionType.Companion {
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getCopy();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getCustomAction();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getCut();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getDecrease();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getDidGainAccessibilityFocus();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getDidLoseAccessibilityFocus();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getDismiss();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getIncrease();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getLongPress();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> getMoveCursorBackwardByCharacter();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> getMoveCursorBackwardByWord();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> getMoveCursorForwardByCharacter();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> getMoveCursorForwardByWord();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getPaste();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getScrollDown();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getScrollLeft();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getScrollRight();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getScrollUp();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<androidx.ui.text.TextSelection,kotlin.Unit>> getSetSelection();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getShowOnScreen();
-    method public androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> getTap();
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Copy;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> CustomAction;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Cut;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Decrease;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> DidGainAccessibilityFocus;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> DidLoseAccessibilityFocus;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Dismiss;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Increase;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> LongPress;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> MoveCursorBackwardByCharacter;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> MoveCursorBackwardByWord;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> MoveCursorForwardByCharacter;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>> MoveCursorForwardByWord;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Paste;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ScrollDown;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ScrollLeft;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ScrollRight;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ScrollUp;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function1<androidx.ui.text.TextSelection,kotlin.Unit>> SetSelection;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> ShowOnScreen;
-    property public final androidx.ui.core.semantics.SemanticsActionType<kotlin.jvm.functions.Function0<kotlin.Unit>> Tap;
-  }
-
-  public final class SemanticsActionsKt {
-    ctor public SemanticsActionsKt();
-  }
-
-}
-
 package androidx.ui.engine.geometry {
 
   public final class Offset implements androidx.ui.engine.geometry.OffsetBase {
@@ -1916,6 +1848,31 @@ package androidx.ui.painting {
     enum_constant public static final androidx.ui.painting.TileMode clamp;
     enum_constant public static final androidx.ui.painting.TileMode mirror;
     enum_constant public static final androidx.ui.painting.TileMode repeated;
+  }
+
+}
+
+package androidx.ui.semantics {
+
+  public final class AccessibilityAction<T extends kotlin.Function<? extends kotlin.Unit>> {
+    ctor public AccessibilityAction(String? label, T action);
+    method public String? component1();
+    method public T component2();
+    method public androidx.ui.semantics.AccessibilityAction<T> copy(String? label, T action);
+    method public T getAction();
+    method public String? getLabel();
+  }
+
+  public class SemanticsPropertyKey<T> implements kotlin.properties.ReadWriteProperty<androidx.ui.semantics.SemanticsPropertyReceiver,T> {
+    ctor public SemanticsPropertyKey(String name);
+    method public final String getName();
+    method public final T! getValue(androidx.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<?> property);
+    method public T! merge(T? existingValue, T? newValue);
+    method public final void setValue(androidx.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<?> property, T? value);
+  }
+
+  public interface SemanticsPropertyReceiver {
+    method public operator <T> void set(androidx.ui.semantics.SemanticsPropertyKey<T> key, T? value);
   }
 
 }

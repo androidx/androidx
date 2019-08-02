@@ -35,6 +35,8 @@ import androidx.ui.text.AnnotatedString
 import androidx.ui.text.ParagraphStyle
 import androidx.ui.core.selection.TextSelectionHandler
 import androidx.ui.core.selection.TextSelectionProcessor
+import androidx.ui.semantics.Semantics
+import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.text.TextSelection
 import androidx.ui.text.TextPainter
 import androidx.ui.text.TextSpan
@@ -198,7 +200,11 @@ fun Text(
     val density = +ambientDensity()
     val resourceLoader = +ambient(FontLoaderAmbient)
 
-    Semantics(label = text.text) {
+    Semantics(
+        properties = {
+            accessibilityLabel = text.text
+        }
+    ) {
         val textPainter = +memo(
             text,
             mergedStyle,

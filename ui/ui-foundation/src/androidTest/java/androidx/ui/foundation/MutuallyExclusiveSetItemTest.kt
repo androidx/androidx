@@ -22,14 +22,15 @@ import androidx.compose.unaryPlus
 import androidx.test.filters.MediumTest
 import androidx.ui.core.Text
 import androidx.ui.foundation.selection.MutuallyExclusiveSetItem
-import androidx.ui.test.assertIsNotSelected
 import androidx.ui.test.assertIsSelected
+import androidx.ui.test.assertIsUnselected
 import androidx.ui.test.assertSemanticsIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.createFullSemantics
 import androidx.ui.test.doClick
 import androidx.ui.test.find
 import androidx.ui.test.findAll
+import androidx.ui.test.isInMutuallyExclusiveGroup
 import com.google.common.truth.Truth
 import org.junit.Rule
 import org.junit.Test
@@ -71,11 +72,11 @@ class MutuallyExclusiveSetItemTest {
         }
 
         find { isInMutuallyExclusiveGroup }
-            .assertIsNotSelected()
+            .assertIsUnselected()
             .doClick()
             .assertIsSelected()
             .doClick()
-            .assertIsNotSelected()
+            .assertIsUnselected()
     }
 
     @Test
@@ -88,8 +89,8 @@ class MutuallyExclusiveSetItemTest {
         }
 
         find { isInMutuallyExclusiveGroup }
-            .assertIsNotSelected()
+            .assertIsUnselected()
             .doClick()
-            .assertIsNotSelected()
+            .assertIsUnselected()
     }
 }
