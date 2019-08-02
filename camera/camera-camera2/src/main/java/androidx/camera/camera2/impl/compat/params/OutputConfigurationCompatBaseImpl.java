@@ -18,6 +18,7 @@ package androidx.camera.camera2.impl.compat.params;
 
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
+import android.os.Build;
 import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
@@ -248,6 +249,10 @@ class OutputConfigurationCompatBaseImpl implements
                 Class<?> legacyCameraDeviceClass = Class.forName(LEGACY_CAMERA_DEVICE_CLASS);
                 Method detectSurfaceType = legacyCameraDeviceClass.getDeclaredMethod(
                         DETECT_SURFACE_TYPE_METHOD, Surface.class);
+                if (Build.VERSION.SDK_INT < 22) {
+                    // On API 21, 'detectSurfaceType()' is package private.
+                    detectSurfaceType.setAccessible(true);
+                }
                 return (int) detectSurfaceType.invoke(null, surface);
             } catch (ClassNotFoundException
                     | NoSuchMethodException
