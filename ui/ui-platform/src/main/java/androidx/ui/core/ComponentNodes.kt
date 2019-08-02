@@ -298,6 +298,17 @@ class RepaintBoundaryNode(val name: String?) : ComponentNode() {
         }
 
     /**
+     * The z-coordinate at which to place this physical object.
+     */
+    var elevation: Dp = 0.dp
+        set(value) {
+            if (field != value) {
+                field = value
+                owner?.onRepaintBoundaryParamsChange(this)
+            }
+        }
+
+    /**
      * The fraction of children's alpha value.
      */
     var opacity: Float = 1f

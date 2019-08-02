@@ -16,18 +16,17 @@
 
 package androidx.ui.material.surface
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.Clip
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.core.Dp
+import androidx.ui.core.DrawShadow
 import androidx.ui.core.Layout
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.core.ipx
-import androidx.ui.engine.geometry.addOutline
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.foundation.shape.DrawShape
@@ -87,7 +86,9 @@ fun Surface(
     children: @Composable() () -> Unit
 ) {
     SurfaceLayout {
-        DrawShadow(shape = shape, elevation = elevation)
+        if (elevation > 0.dp) {
+            DrawShadow(shape = shape, elevation = elevation)
+        }
         DrawShape(shape = shape, color = color)
         Clip(shape = shape) {
             RippleSurface(color = color) {
