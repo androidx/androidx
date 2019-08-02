@@ -21,9 +21,11 @@ import androidx.paging.PagedList.LoadState.IDLE
 import androidx.paging.PagedList.LoadState.LOADING
 import androidx.paging.PagedList.LoadType.END
 import androidx.paging.PagedList.LoadType.START
+import androidx.paging.PagedSource.LoadResult
 import androidx.paging.futures.DirectExecutor
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -69,7 +71,7 @@ class PagerTest {
 
     private data class Result(
         val type: PagedList.LoadType,
-        val pageResult: PagedSource.LoadResult<*, String>
+        val pageResult: LoadResult<*, String>
     )
 
     private data class StateChange(
@@ -97,7 +99,7 @@ class PagerTest {
 
         override fun onPageResult(
             type: PagedList.LoadType,
-            pageResult: PagedSource.LoadResult<*, String>
+            pageResult: LoadResult<*, String>
         ): Boolean {
             results.add(Result(type, pageResult))
             return false
@@ -112,19 +114,29 @@ class PagerTest {
         }
     }
 
-    private fun createPager(consumer: MockConsumer, start: Int = 0, end: Int = 10) = Pager(
-        GlobalScope,
-        PagedList.Config(2, 2, true, 10, PagedList.Config.MAX_SIZE_UNBOUNDED),
-        PagedSourceWrapper(ImmediateListDataSource(data)),
-        DirectExecutor,
-        DirectExecutor,
-        consumer,
-        PositionalDataSource.InitialResult(
-            data.subList(start, end),
-            start,
-            data.size
-        ).toLoadResult()
-    )
+    private fun createPager(
+        consumer: MockConsumer,
+        start: Int = 0,
+        end: Int = 10
+    ): Pager<Int, String> {
+        val initialData = data.subList(start, end)
+        val initialResult = LoadResult<Int, String>(
+            data = initialData,
+            offset = 0,
+            itemsBefore = start,
+            itemsAfter = data.size - initialData.size - start
+        )
+
+        return Pager(
+            GlobalScope,
+            PagedList.Config(2, 2, true, 10, PagedList.Config.MAX_SIZE_UNBOUNDED),
+            PagedSourceWrapper(ImmediateListDataSource(data)),
+            DirectExecutor.asCoroutineDispatcher(),
+            DirectExecutor.asCoroutineDispatcher(),
+            consumer,
+            initialResult
+        )
+    }
 
     @Test
     fun simplePagerAppend() {
@@ -138,9 +150,8 @@ class PagerTest {
 
         assertTrue(consumer.takeResults().isEmpty())
         assertEquals(
-            consumer.takeStateChanges(), listOf(
-                StateChange(END, PagedList.LoadState.LOADING)
-            )
+            consumer.takeStateChanges(),
+            listOf(StateChange(END, LOADING))
         )
 
         testExecutor.executeAll()
