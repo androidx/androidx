@@ -923,11 +923,12 @@ import java.util.Map;
 
         public void setNextMediaItems(List<MediaItem> mediaItems) {
             int size = mConcatenatingMediaSource.getSize();
+            List<MediaItemInfo> oldMediaItemInfos = new ArrayList<>(size > 1 ? size - 1 : 0);
             if (size > 1) {
                 mConcatenatingMediaSource.removeMediaSourceRange(
                         /* fromIndex= */ 1, /* toIndex= */ size);
                 while (mMediaItemInfos.size() > 1) {
-                    releaseMediaItem(mMediaItemInfos.removeLast());
+                    oldMediaItemInfos.add(mMediaItemInfos.removeLast());
                 }
             }
 
@@ -943,6 +944,13 @@ import java.util.Map;
                         mediaSources);
             }
             mConcatenatingMediaSource.addMediaSources(mediaSources);
+
+            // Release old media items after appending new ones, so that any items that are present
+            // both before and after this call have their reference counts incremented before they
+            // are decremented.
+            for (MediaItemInfo mediaItemInfo : oldMediaItemInfos) {
+                releaseMediaItem(mediaItemInfo);
+            }
         }
 
         public void preparePlayer() {
@@ -1089,8 +1097,7 @@ import java.util.Map;
                     mFileDescriptorRegistry.unregisterMediaItem(fileDescriptor);
                     ((FileMediaItem) mediaItem).decreaseRefCount();
                 } else if (mediaItem instanceof CallbackMediaItem) {
-                    ((CallbackMediaItem) mediaItemInfo.mMediaItem)
-                            .getDataSourceCallback().close();
+                    ((CallbackMediaItem) mediaItem).getDataSourceCallback().close();
                 }
             } catch (IOException e) {
                 Log.w(TAG, "Error releasing media item " + mediaItem, e);
