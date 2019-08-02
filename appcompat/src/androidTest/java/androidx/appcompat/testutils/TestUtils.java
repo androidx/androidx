@@ -419,9 +419,9 @@ public class TestUtils {
      * Executes the given shell command and returns true if any line matches the find predicate, or
      * false otherwise.
      * <p>
-     * Requires API 18+ due to UiAutomation dependency.
+     * Requires API 21+ due to UiAutomation.executeShellCommand() dependency.
      */
-    @RequiresApi(18)
+    @RequiresApi(21)
     public static boolean executeShellCommandAndFind(@NonNull String cmd,
             @NonNull Predicate<String> find) throws IOException {
         InputStream stdout = new ParcelFileDescriptor.AutoCloseInputStream(
