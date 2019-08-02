@@ -16,15 +16,16 @@
 
 package androidx.paging
 
-import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.asCoroutineDispatcher
 import java.util.concurrent.Executor
 
 /**
- * Builder for `LiveData<PagedList>`, given a [androidx.paging.DataSource.Factory] and a
- * [androidx.paging.PagedList.Config].
+ * Builder for `LiveData<PagedList>` for Java users, given a [androidx.paging.DataSource.Factory]
+ * and a [androidx.paging.PagedList.Config].
  *
  * The required parameters are in the constructor, so you can simply construct and build, or
  * optionally enable extra features (such as initial load key, or BoundaryCallback).
@@ -32,6 +33,8 @@ import java.util.concurrent.Executor
  * @param Key Type of input valued used to load data from the [DataSource]. Must be integer if
  * you're using [PositionalDataSource].
  * @param Value Item type being presented.
+ *
+ * @see toLiveData
  */
 class LivePagedListBuilder<Key : Any, Value : Any> {
     private val pagedSourceFactory: PagedSourceFactory<Key, Value>
@@ -39,7 +42,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     private var coroutineScope: CoroutineScope = GlobalScope
     private var initialLoadKey: Key? = null
     private var boundaryCallback: PagedList.BoundaryCallback<Value>? = null
-    private var fetchExecutor = ArchTaskExecutor.getIOThreadExecutor()
+    private var fetchDispatcher = Dispatchers.IO
 
     /**
      * Creates a [LivePagedListBuilder] with required parameters.
@@ -148,9 +151,9 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * Sets a [androidx.paging.PagedList.BoundaryCallback] on each PagedList created,
      * typically used to load additional data from network when paging from local storage.
      *
-     * Pass a BoundaryCallback to listen to when the PagedList runs out of data to load. If this
-     * method is not called, or `null` is passed, you will not be notified when each
-     * DataSource runs out of data to provide to its PagedList.
+     * Pass a [PagedList.BoundaryCallback] to listen to when the PagedList runs out of data to load.
+     * If this method is not called, or `null` is passed, you will not be notified when each
+     * [PagedSource] runs out of data to provide to its [PagedList].
      *
      * If you are paging from a DataSource.Factory backed by local storage, you can set a
      * BoundaryCallback to know when there is no more information to page from local storage.
@@ -169,15 +172,17 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
     }
 
     /**
-     * Sets executor used for background fetching of PagedLists, and the pages within.
+     * Sets [Executor] used for background fetching of [PagedList]s, and the pages within.
      *
-     * If not set, defaults to the Arch components I/O thread pool.
+     * The library will wrap this as a [kotlinx.coroutines.CoroutineDispatcher].
      *
-     * @param fetchExecutor Executor for fetching data from DataSources.
+     * If not set, defaults to [Dispatchers.IO].
+     *
+     * @param fetchExecutor [Executor] for fetching data from [PagedSource]s.
      * @return this
      */
     fun setFetchExecutor(fetchExecutor: Executor) = this.apply {
-        this.fetchExecutor = fetchExecutor
+        this.fetchDispatcher = fetchExecutor.asCoroutineDispatcher()
     }
 
     /**
@@ -186,7 +191,7 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
      * No work (such as loading) is done immediately, the creation of the first PagedList is is
      * deferred until the LiveData is observed.
      *
-     * @return The LiveData of PagedLists
+     * @return The [LiveData] of [PagedList]s
      */
     fun build(): LiveData<PagedList<Value>> {
         return LivePagedList(
@@ -195,8 +200,8 @@ class LivePagedListBuilder<Key : Any, Value : Any> {
             config,
             boundaryCallback,
             pagedSourceFactory,
-            ArchTaskExecutor.getMainThreadExecutor(),
-            fetchExecutor
+            Dispatchers.Main,
+            fetchDispatcher
         )
     }
 }

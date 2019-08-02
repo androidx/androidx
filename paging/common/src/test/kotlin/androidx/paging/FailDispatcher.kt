@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-import static androidx.build.dependencies.DependenciesKt.*
+package androidx.paging
 
-plugins {
-    id("AndroidXPlugin")
-    id("kotlin")
-}
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Runnable
+import org.junit.Assert.fail
+import kotlin.coroutines.CoroutineContext
 
-dependencies {
-    api(TRUTH)
-    api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES)
-}
-
-androidx {
-    toolingProject = true
+class FailDispatcher(
+    val string: String = "Executor expected to be unused"
+) : CoroutineDispatcher() {
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        fail(string)
+    }
 }

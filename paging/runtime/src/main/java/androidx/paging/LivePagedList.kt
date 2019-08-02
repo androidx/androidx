@@ -18,9 +18,11 @@ package androidx.paging
 
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
@@ -31,8 +33,8 @@ internal class LivePagedList<Key : Any, Value : Any>(
     private val config: PagedList.Config,
     private val boundaryCallback: PagedList.BoundaryCallback<Value>?,
     private val pagedSourceFactory: PagedSourceFactory<Key, Value>,
-    private val notifyExecutor: Executor,
-    private val fetchExecutor: Executor
+    private val notifyDispatcher: CoroutineDispatcher,
+    private val fetchDispatcher: CoroutineDispatcher
 ) : LiveData<PagedList<Value>>() {
     private var currentData: PagedList<Value>
     private var currentJob: Job? = null
@@ -77,14 +79,14 @@ internal class LivePagedList<Key : Any, Value : Any>(
         if (currentJob != null && !force) return
 
         currentJob?.cancel()
-        currentJob = coroutineScope.launch(fetchExecutor.asCoroutineDispatcher()) {
+        currentJob = coroutineScope.launch(fetchDispatcher) {
             try {
                 val pagedList = createPagedList()
-                withContext(notifyExecutor.asCoroutineDispatcher()) {
+                withContext(notifyDispatcher) {
                     onSuccess(pagedList)
                 }
             } catch (throwable: Throwable) {
-                withContext(notifyExecutor.asCoroutineDispatcher()) {
+                withContext(notifyDispatcher) {
                     onError(throwable)
                 }
             }
@@ -100,16 +102,19 @@ internal class LivePagedList<Key : Any, Value : Any>(
         val pagedSource = pagedSourceFactory()
         currentData.pagedSource.unregisterInvalidatedCallback(callback)
         pagedSource.registerInvalidatedCallback(callback)
-        currentData.setInitialLoadState(PagedList.LoadState.LOADING, null)
+
+        withContext(notifyDispatcher) {
+            currentData.setInitialLoadState(PagedList.LoadState.LOADING, null)
+        }
 
         @Suppress("UNCHECKED_CAST") // getLastKey guaranteed to be of 'Key' type
         val lastKey = currentData.lastKey as Key?
         return PagedList.create(
             pagedSource,
             coroutineScope,
-            notifyExecutor,
-            fetchExecutor,
-            fetchExecutor,
+            notifyDispatcher,
+            fetchDispatcher,
+            fetchDispatcher,
             boundaryCallback,
             config,
             lastKey
@@ -121,13 +126,13 @@ internal class LivePagedList<Key : Any, Value : Any>(
  * Constructs a `LiveData<PagedList>`, from this `DataSource.Factory`, convenience for
  * [LivePagedListBuilder].
  *
- * No work (such as loading) is done immediately, the creation of the first PagedList is is
- * deferred until the LiveData is observed.
+ * No work (such as loading) is done immediately, the creation of the first [PagedList] is deferred
+ * until the [LiveData] is observed.
  *
  * @param config Paging configuration.
- * @param initialLoadKey Initial load key passed to the first PagedList/DataSource.
- * @param boundaryCallback The boundary callback for listening to PagedList load state.
- * @param fetchExecutor Executor for fetching data from DataSources.
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [PagedSource].
+ * @param boundaryCallback The boundary callback for listening to [PagedList] load state.
+ * @param fetchExecutor [Executor] for fetching data from [PagedSource]s.
  *
  * @see LivePagedListBuilder
  */
@@ -150,12 +155,12 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  * Constructs a `LiveData<PagedList>`, from this `DataSource.Factory`, convenience for
  * [LivePagedListBuilder].
  *
- * No work (such as loading) is done immediately, the creation of the first PagedList is is
- * deferred until the LiveData is observed.
+ * No work (such as loading) is done immediately, the creation of the first [PagedList] is deferred
+ * until the [LiveData] is observed.
  *
  * @param pageSize Page size.
- * @param initialLoadKey Initial load key passed to the first PagedList/DataSource.
- * @param boundaryCallback The boundary callback for listening to PagedList load state.
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [PagedSource].
+ * @param boundaryCallback The boundary callback for listening to [PagedList] load state.
  * @param fetchExecutor Executor for fetching data from DataSources.
  *
  * @see LivePagedListBuilder
@@ -179,13 +184,18 @@ fun <Key : Any, Value : Any> DataSource.Factory<Key, Value>.toLiveData(
  * Constructs a `LiveData<PagedList>`, from this [PagedSourceFactory], convenience for
  * [LivePagedListBuilder].
  *
- * No work (such as loading) is done immediately, the creation of the first PagedList is is
- * deferred until the LiveData is observed.
+ * No work (such as loading) is done immediately, the creation of the first [PagedList] is deferred
+ * until the [LiveData] is observed.
  *
  * @param config Paging configuration.
- * @param initialLoadKey Initial load key passed to the first PagedList/PagedSource.
- * @param boundaryCallback The boundary callback for listening to PagedList load state.
- * @param fetchExecutor Executor for fetching data from PagedSources.
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [PagedSource].
+ * @param boundaryCallback The boundary callback for listening to [PagedList] load state.
+ * @param coroutineScope Set the [CoroutineScope] that page loads should be launched within. The
+ * set [coroutineScope] allows a [PagedSource] to cancel running load operations when the results
+ * are no longer needed - for example, when the containing activity is destroyed.
+ *
+ * Defaults to [GlobalScope].
+ * @param fetchDispatcher [CoroutineDispatcher] for fetching data from [PagedSource]s.
  *
  * @see LivePagedListBuilder
  */
@@ -193,26 +203,36 @@ fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
     config: PagedList.Config,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
-    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
+    coroutineScope: CoroutineScope = GlobalScope,
+    fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
 ): LiveData<PagedList<Value>> {
-    return LivePagedListBuilder(this, config)
-        .setInitialLoadKey(initialLoadKey)
-        .setBoundaryCallback(boundaryCallback)
-        .setFetchExecutor(fetchExecutor)
-        .build()
+    return LivePagedList(
+        coroutineScope,
+        initialLoadKey,
+        config,
+        boundaryCallback,
+        this,
+        Dispatchers.Main,
+        fetchDispatcher
+    )
 }
 
 /**
  * Constructs a `LiveData<PagedList>`, from this [PagedSourceFactory], convenience for
  * [LivePagedListBuilder].
  *
- * No work (such as loading) is done immediately, the creation of the first PagedList is is
- * deferred until the LiveData is observed.
+ * No work (such as loading) is done immediately, the creation of the first [PagedList] is deferred
+ * until the [LiveData] is observed.
  *
  * @param pageSize Page size.
- * @param initialLoadKey Initial load key passed to the first PagedList/PagedSource.
- * @param boundaryCallback The boundary callback for listening to PagedList load state.
- * @param fetchExecutor Executor for fetching data from PagedSources.
+ * @param initialLoadKey Initial load key passed to the first [PagedList] / [PagedSource].
+ * @param boundaryCallback The boundary callback for listening to [PagedList] load state.
+ * @param coroutineScope Set the [CoroutineScope] that page loads should be launched within. The
+ * set [coroutineScope] allows a [PagedSource] to cancel running load operations when the results
+ * are no longer needed - for example, when the containing activity is destroyed.
+ *
+ * Defaults to [GlobalScope].
+ * @param fetchDispatcher [CoroutineDispatcher] for fetching data from [PagedSource]s.
  *
  * @see LivePagedListBuilder
  */
@@ -220,11 +240,16 @@ fun <Key : Any, Value : Any> PagedSourceFactory<Key, Value>.toLiveData(
     pageSize: Int,
     initialLoadKey: Key? = null,
     boundaryCallback: PagedList.BoundaryCallback<Value>? = null,
-    fetchExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
+    coroutineScope: CoroutineScope = GlobalScope,
+    fetchDispatcher: CoroutineDispatcher = Dispatchers.IO
 ): LiveData<PagedList<Value>> {
-    return LivePagedListBuilder(this, Config(pageSize))
-        .setInitialLoadKey(initialLoadKey)
-        .setBoundaryCallback(boundaryCallback)
-        .setFetchExecutor(fetchExecutor)
-        .build()
+    return LivePagedList(
+        coroutineScope,
+        initialLoadKey,
+        PagedList.Config.Builder().setPageSize(pageSize).build(),
+        boundaryCallback,
+        this,
+        Dispatchers.Main,
+        fetchDispatcher
+    )
 }

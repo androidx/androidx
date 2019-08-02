@@ -16,10 +16,10 @@
 
 package androidx.paging
 
-import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.DirectDispatcher
+import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -54,15 +54,15 @@ class PagedListTest {
     }
 
     private val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-    private val mainThread = TestExecutor()
-    private val backgroundThread = TestExecutor()
+    private val mainThread = TestDispatcher()
+    private val backgroundThread = TestDispatcher()
 
     @Test
-    fun createLegacy() = runBlocking {
+    fun createLegacy() {
         @Suppress("DEPRECATION")
         val pagedList = PagedList.Builder(ListDataSource(ITEMS), 100)
-            .setNotifyExecutor(mainThread)
-            .setFetchExecutor(backgroundThread)
+            .setNotifyExecutor(TestExecutor())
+            .setFetchExecutor(TestExecutor())
             .build()
         // if build succeeds without flushing an executor, success!
         assertEquals(ITEMS, pagedList)
@@ -76,7 +76,7 @@ class PagedListTest {
             .build()
         var success = false
 
-        val job = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
+        val job = testCoroutineScope.async(backgroundThread) {
             val pagedList = PagedList.create(
                 PagedSourceWrapper(ListDataSource(ITEMS)),
                 testCoroutineScope,
@@ -116,7 +116,7 @@ class PagedListTest {
             .build()
         var success = false
         assertFails {
-            val job = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
+            val job = testCoroutineScope.async(backgroundThread) {
                 PagedList.create(
                     pagedSource,
                     testCoroutineScope,
@@ -140,8 +140,8 @@ class PagedListTest {
     @Test
     fun defaults() = runBlocking {
         val pagedList = PagedList.Builder(pagedSource, config)
-            .setNotifyExecutor(DirectExecutor)
-            .setFetchExecutor(DirectExecutor)
+            .setNotifyDispatcher(DirectDispatcher)
+            .setFetchDispatcher(DirectDispatcher)
             .buildAsync()
 
         assertEquals(pagedSource, pagedList.pagedSource)

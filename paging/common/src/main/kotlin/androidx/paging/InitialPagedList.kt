@@ -17,7 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.RestrictTo
-import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.DirectDispatcher
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -37,8 +37,8 @@ class InitialPagedList<K : Any, V : Any>(
 ) : ContiguousPagedList<K, V>(
     pagedSource,
     coroutineScope,
-    DirectExecutor,
-    DirectExecutor,
+    DirectDispatcher,
+    DirectDispatcher,
     null,
     config,
     PagedSource.LoadResult.empty(),

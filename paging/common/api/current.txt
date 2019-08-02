@@ -181,9 +181,11 @@ package androidx.paging {
     method public suspend Object buildAsync(kotlin.coroutines.Continuation<? super androidx.paging.PagedList<Value>> p);
     method public androidx.paging.PagedList.Builder<Key,Value> setBoundaryCallback(androidx.paging.PagedList.BoundaryCallback<Value>? boundaryCallback);
     method public androidx.paging.PagedList.Builder<Key,Value> setCoroutineScope(kotlinx.coroutines.CoroutineScope coroutineScope);
-    method public androidx.paging.PagedList.Builder<Key,Value> setFetchExecutor(java.util.concurrent.Executor fetchExecutor);
+    method public androidx.paging.PagedList.Builder<Key,Value> setFetchDispatcher(kotlinx.coroutines.CoroutineDispatcher fetchDispatcher);
+    method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setFetchExecutor(java.util.concurrent.Executor fetchExecutor);
     method public androidx.paging.PagedList.Builder<Key,Value> setInitialKey(Key? initialKey);
-    method public androidx.paging.PagedList.Builder<Key,Value> setNotifyExecutor(java.util.concurrent.Executor notifyExecutor);
+    method public androidx.paging.PagedList.Builder<Key,Value> setNotifyDispatcher(kotlinx.coroutines.CoroutineDispatcher notifyDispatcher);
+    method @Deprecated public androidx.paging.PagedList.Builder<Key,Value> setNotifyExecutor(java.util.concurrent.Executor notifyExecutor);
   }
 
   public abstract static class PagedList.Callback {
