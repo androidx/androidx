@@ -212,6 +212,7 @@ package androidx.ui.core {
     method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.Density> ambientDensity();
     method public static androidx.compose.Ambient<androidx.ui.autofill.Autofill> getAutofillAmbient();
     method public static androidx.compose.Ambient<androidx.ui.autofill.AutofillTree> getAutofillTreeAmbient();
+    method public static androidx.compose.Ambient<android.content.res.Configuration> getConfigurationAmbient();
     method public static androidx.compose.Ambient<android.content.Context> getContextAmbient();
     method public static androidx.compose.Ambient<kotlin.coroutines.CoroutineContext> getCoroutineContextAmbient();
     method public static androidx.compose.Ambient<androidx.ui.core.Density> getDensityAmbient();
