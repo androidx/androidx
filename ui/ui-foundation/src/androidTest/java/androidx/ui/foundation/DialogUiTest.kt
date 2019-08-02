@@ -23,6 +23,7 @@ import androidx.compose.unaryPlus
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import androidx.ui.core.Text
+import androidx.ui.semantics.accessibilityLabel
 import androidx.ui.test.assertDoesNotExist
 import androidx.ui.test.assertIsVisible
 import androidx.ui.test.doClick
@@ -103,7 +104,7 @@ class DialogUiTest {
         val outsideY = composeTestRule.displayMetrics.heightPixels / 2
         UiDevice.getInstance(getInstrumentation()).click(outsideX, outsideY)
 
-        assertDoesNotExist { label.equals(defaultText) }
+        assertDoesNotExist { accessibilityLabel == defaultText }
     }
 
     @Test
@@ -146,7 +147,7 @@ class DialogUiTest {
         // Click the back button to dismiss the Dialog
         UiDevice.getInstance(getInstrumentation()).pressBack()
 
-        assertDoesNotExist { label.equals(defaultText) }
+        assertDoesNotExist { accessibilityLabel == defaultText }
     }
 
     @Test

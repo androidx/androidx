@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.ui.test
+package androidx.ui.foundation
 
-import androidx.ui.semantics.testTag
-// TODO(b/133217292)
-fun SemanticsNodeInteraction.dumpSemantics(consumer: (String) -> Unit) {
-    val builder = StringBuilder()
-
-    semanticsTreeInteraction.findAllMatching().forEach {
-        builder.appendln("Label: '${it.semanticsTreeNode.data.testTag}'")
-    }
-
-    consumer.invoke(builder.toString())
+// TODO(b/138327849): (STOPSHIP) Move all of these to resources once we have a real resources system,
+//  then delete this class
+@Suppress("MayBeConstant") // The compiler gets unhappy if these are const (b/138328700)
+object Strings {
+    val Checked = "Checked"
+    val Unchecked = "Unchecked"
+    val Indeterminate = "Indeterminate"
+    val Selected = "Selected"
+    val NotSelected = "Not selected"
 }

@@ -16,23 +16,25 @@
 
 package androidx.ui.foundation.selection
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.ui.core.gesture.PressReleasedGestureDetector
-import androidx.ui.core.Semantics
-import androidx.ui.core.semantics.SemanticsAction
-import androidx.ui.core.semantics.SemanticsActionType
+import androidx.ui.foundation.Strings
+import androidx.ui.semantics.Semantics
+import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
+import androidx.ui.foundation.semantics.selected
+import androidx.ui.semantics.onClick
+import androidx.ui.semantics.accessibilityValue
 
 /**
- * Component for representing one option out of many
- * in mutually exclusion set, e.g [androidx.ui.material.RadioGroup]
- *
- * Provides click handling as well as [Semantics] for accessibility
- *
- * @param selected whether or not this item is selected in mutually exclusion set
- * @param onClick callback to invoke when this item is clicked
- */
+* Component for representing one option out of many
+* in mutually exclusion set, e.g [androidx.ui.material.RadioGroup]
+*
+* Provides click handling as well as [Semantics] for accessibility
+*
+* @param selected whether or not this item is selected in mutually exclusion set
+* @param onClick callback to invoke when this item is clicked
+*/
 @Composable
 fun MutuallyExclusiveSetItem(
     selected: Boolean,
@@ -40,11 +42,14 @@ fun MutuallyExclusiveSetItem(
     children: @Composable() () -> Unit
 ) {
     // TODO: when semantics can be merged, we should make this use Clickable internally rather
-    // than duplicating logic
+    //  than duplicating logic
     Semantics(
-        inMutuallyExclusiveGroup = true,
-        selected = selected,
-        actions = listOf<SemanticsAction<*>>(SemanticsAction(SemanticsActionType.Tap, onClick))) {
+        properties = {
+            inMutuallyExclusiveGroup = true
+            this.selected = selected
+            this.accessibilityValue = if (selected) Strings.Selected else Strings.NotSelected
+            onClick(action = onClick)
+        }) {
         PressReleasedGestureDetector(
             onRelease = onClick,
             consumeDownOnStart = false

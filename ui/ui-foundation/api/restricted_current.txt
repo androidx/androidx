@@ -27,6 +27,20 @@ package androidx.ui.foundation {
     method public static void SimpleImage(androidx.ui.painting.Image image, androidx.ui.graphics.Color? tint = null);
   }
 
+  public final class Strings {
+    method public String getChecked();
+    method public String getIndeterminate();
+    method public String getNotSelected();
+    method public String getSelected();
+    method public String getUnchecked();
+    property public final String Checked;
+    property public final String Indeterminate;
+    property public final String NotSelected;
+    property public final String Selected;
+    property public final String Unchecked;
+    field public static final androidx.ui.foundation.Strings! INSTANCE;
+  }
+
 }
 
 package androidx.ui.foundation.animation {
@@ -123,6 +137,30 @@ package androidx.ui.foundation.selection {
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Checked;
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Indeterminate;
     enum_constant public static final androidx.ui.foundation.selection.ToggleableState Unchecked;
+  }
+
+}
+
+package androidx.ui.foundation.semantics {
+
+  public final class FoundationSemanticsProperties {
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getInMutuallyExclusiveGroup();
+    method public androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getSelected();
+    method public androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.foundation.selection.ToggleableState> getToggleableState();
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> InMutuallyExclusiveGroup;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> Selected;
+    property public final androidx.ui.semantics.SemanticsPropertyKey<androidx.ui.foundation.selection.ToggleableState> ToggleableState;
+    field public static final androidx.ui.foundation.semantics.FoundationSemanticsProperties! INSTANCE;
+  }
+
+  public final class FoundationSemanticsPropertiesKt {
+    ctor public FoundationSemanticsPropertiesKt();
+    method public static boolean getInMutuallyExclusiveGroup(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static boolean getSelected(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static androidx.ui.foundation.selection.ToggleableState getToggleableState(androidx.ui.semantics.SemanticsPropertyReceiver);
+    method public static void setInMutuallyExclusiveGroup(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
+    method public static void setSelected(androidx.ui.semantics.SemanticsPropertyReceiver, boolean p);
+    method public static void setToggleableState(androidx.ui.semantics.SemanticsPropertyReceiver, androidx.ui.foundation.selection.ToggleableState p);
   }
 
 }

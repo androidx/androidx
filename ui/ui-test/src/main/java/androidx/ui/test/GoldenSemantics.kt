@@ -17,6 +17,12 @@
 package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.foundation.selection.ToggleableState
+import androidx.ui.foundation.semantics.inMutuallyExclusiveGroup
+import androidx.ui.foundation.semantics.selected
+import androidx.ui.foundation.semantics.toggleableState
+import androidx.ui.semantics.enabled
+import androidx.ui.semantics.accessibilityValue
 
 /**
  * Ensures the created [SemanticsConfiguration] object doesn't have any default values set.
@@ -27,17 +33,19 @@ import androidx.ui.core.semantics.SemanticsConfiguration
 // TODO(b/131309551): investigate the structure of this API
 fun createFullSemantics(
     isEnabled: Boolean? = null,
-    isChecked: Boolean? = null,
-    isSelected: Boolean = false,
-    isButton: Boolean = false,
-    inMutuallyExclusiveGroup: Boolean = false
+    value: String? = null,
+    toggleableState: ToggleableState? = null,
+    inMutuallyExclusiveGroup: Boolean? = null,
+    isSelected: Boolean? = null
 ): SemanticsConfiguration {
     return SemanticsConfiguration().also {
-        it.isEnabled = isEnabled
-        it.isChecked = isChecked
-        it.isInMutuallyExclusiveGroup = inMutuallyExclusiveGroup
-        it.isSelected = isSelected
-        it.isButton = isButton
+        isEnabled?.also { isEnabled -> it.enabled = isEnabled }
+        value?.also { value -> it.accessibilityValue = value }
+        toggleableState?.also { toggleableState -> it.toggleableState = toggleableState }
+        inMutuallyExclusiveGroup?.also {
+                inMutuallyExclusiveGroup -> it.inMutuallyExclusiveGroup = inMutuallyExclusiveGroup
+        }
+        isSelected?.also { selected -> it.selected = selected }
     }
 }
 
@@ -55,32 +63,22 @@ fun SemanticsConfiguration.copyWith(diff: SemanticsConfiguration.() -> Unit):
 fun SemanticsConfiguration.assertEquals(expected: SemanticsConfiguration) {
     val assertMessage = StringBuilder()
 
-    if (isEnabled != expected.isEnabled) {
-        assertMessage.append("\n- expected 'isEnabled' = ${expected.isEnabled} but was $isEnabled")
+    for ((key, expectedValue) in expected) {
+        if (this.contains(key)) {
+            val thisValue = this[key]
+            if (thisValue == expectedValue) {
+                continue
+            } else {
+                assertMessage.append("\n- expected ${key.name}" +
+                        " = '$expectedValue', but was $thisValue")
+            }
+        } else {
+            assertMessage.append("\n- expected ${key.name} = '$expectedValue', but was missing")
+        }
     }
 
-    if (isChecked != expected.isChecked) {
-        assertMessage.append("\n- expected 'isChecked' = ${expected.isChecked} but was $isChecked")
-    }
-
-    if (isInMutuallyExclusiveGroup != expected.isInMutuallyExclusiveGroup) {
-        assertMessage.append(
-            "\n- expected 'inMutuallyExclusiveGroup' = ${expected.isInMutuallyExclusiveGroup} " +
-                    "but was $isInMutuallyExclusiveGroup"
-        )
-    }
-
-    if (isSelected != expected.isSelected) {
-        assertMessage.append(
-            "\n- expected 'isSelected' = ${expected.isSelected} but was $isSelected"
-        )
-    }
-
-    if (isButton != expected.isButton) {
-        assertMessage.append(
-            "\n- expected 'isButton' = ${expected.isButton} but was $isButton"
-        )
-    }
+    // TODO(pavlis/ryanmentley): Should we also check that there are no _extra_ semantics?
+    //  I think the correct answer here is "no", but we should confirm
 
     if (assertMessage.isNotEmpty()) {
         throw AssertionError(

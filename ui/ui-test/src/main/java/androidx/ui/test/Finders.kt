@@ -17,6 +17,8 @@
 package androidx.ui.test
 
 import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.core.semantics.getOrNull
+import androidx.ui.semantics.SemanticsProperties
 
 /**
  * Extension methods that provide the entry point for the testing APIs.
@@ -29,7 +31,18 @@ import androidx.ui.core.semantics.SemanticsConfiguration
  */
 fun findByTag(testTag: String): SemanticsNodeInteraction {
     return find {
-        this.testTag == testTag
+        getOrNull(SemanticsProperties.TestTag) == testTag
+    }
+}
+
+/**
+ * Finds all components identified by the given tag.
+ *
+ * For usage patterns see [SemanticsNodeInteraction]
+ */
+fun findAllByTag(testTag: String): List<SemanticsNodeInteraction> {
+    return findAll {
+        getOrNull(SemanticsProperties.TestTag) == testTag
     }
 }
 
@@ -40,7 +53,7 @@ fun findByTag(testTag: String): SemanticsNodeInteraction {
  */
 fun findByText(text: String, ignoreCase: Boolean = false): SemanticsNodeInteraction {
     return find {
-        label.equals(text, ignoreCase)
+        getOrNull(SemanticsProperties.AccessibilityLabel).equals(text, ignoreCase)
     }
 }
 

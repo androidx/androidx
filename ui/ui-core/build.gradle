@@ -58,6 +58,6 @@ androidx {
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Werror", "-Xuse-experimental=kotlin.Experimental"]
+        freeCompilerArgs += ["-Werror", "-Xuse-experimental=kotlin.Experimental", "-XXLanguage:+InlineClasses"]
     }
 }
