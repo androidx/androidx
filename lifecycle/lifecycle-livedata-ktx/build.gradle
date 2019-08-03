@@ -46,7 +46,7 @@ dependencies {
     testImplementation("androidx.arch.core:core-testing:2.1.0-rc01")
     testImplementation(JUNIT)
     testImplementation(TRUTH)
-    testImplementation(KOTLIN_COROUTINES_TEST)
+    testImplementation(KOTLIN_COROUTINES_TEST_PREVIEW)
 }
 
 androidx {

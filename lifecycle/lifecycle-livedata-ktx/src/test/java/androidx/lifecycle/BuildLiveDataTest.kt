@@ -20,12 +20,9 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
@@ -33,7 +30,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.After
@@ -44,28 +42,20 @@ import org.junit.runners.JUnit4
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
-import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.coroutineContext
 
-@ObsoleteCoroutinesApi
+@ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class BuildLiveDataTest {
-    @ObsoleteCoroutinesApi
-    private val mainContext = TestCoroutineContext("test-main-context")
-    private val mainScope = CoroutineScope(mainContext)
-    @ObsoleteCoroutinesApi
-    private val testContext = TestCoroutineContext("test-other-context")
+    private val mainDispatcher = TestCoroutineDispatcher()
+    private val mainScope = TestCoroutineScope(mainDispatcher)
 
-    @ExperimentalCoroutinesApi
+    private val testDispatcher = TestCoroutineDispatcher()
+    private val testScope = TestCoroutineScope(testDispatcher)
+
     @Before
     fun initMain() {
-        lateinit var mainThread: Thread
-        runBlocking(mainContext) {
-            mainThread = Thread.currentThread()
-        }
-        Dispatchers.setMain(
-            mainContext[ContinuationInterceptor.Key] as CoroutineDispatcher
-        )
+        Dispatchers.setMain(mainDispatcher)
         ArchTaskExecutor.getInstance().setDelegate(
             object : TaskExecutor() {
                 override fun executeOnDiskIO(runnable: Runnable) {
@@ -79,22 +69,21 @@ class BuildLiveDataTest {
                 }
 
                 override fun isMainThread(): Boolean {
-                    return mainThread == Thread.currentThread()
+                    // we have only one thread in this test.
+                    return true
                 }
             }
         )
+        // manually roll the time
+        mainDispatcher.pauseDispatcher()
+        testScope.pauseDispatcher()
     }
 
-    @ExperimentalCoroutinesApi
     @After
     fun clear() {
         advanceTimeBy(100000)
-        mainContext.assertExceptions("shouldn't have any exceptions") {
-            it.isEmpty()
-        }
-        testContext.assertExceptions("shouldn't have any exceptions") {
-            it.isEmpty()
-        }
+        mainScope.cleanupTestCoroutines()
+        testScope.cleanupTestCoroutines()
         ArchTaskExecutor.getInstance().setDelegate(null)
         Dispatchers.resetMain()
     }
@@ -122,12 +111,12 @@ class BuildLiveDataTest {
             unsubscribe()
         }
         // trigger cancellation
-        mainContext.advanceTimeBy(100)
+        mainScope.advanceTimeBy(100)
         assertThat(ld.hasActiveObservers()).isFalse()
         ld.addObserver().apply {
             triggerAllActions()
             assertItems(2, 1, 2)
-            mainContext.advanceTimeBy(1001)
+            mainScope.advanceTimeBy(1001)
             assertItems(2, 1, 2, 3)
         }
     }
@@ -145,13 +134,13 @@ class BuildLiveDataTest {
             unsubscribe()
         }
         // advance some but not enough to cover the delay
-        mainContext.advanceTimeBy(500)
+        mainScope.advanceTimeBy(500)
         assertThat(ld.hasActiveObservers()).isFalse()
         assertThat(ld.value).isEqualTo(2)
         ld.addObserver().apply {
             assertItems(2)
             // advance enough to cover the rest of the delay
-            mainContext.advanceTimeBy(501)
+            mainScope.advanceTimeBy(501)
             assertItems(2, 3)
         }
     }
@@ -173,12 +162,12 @@ class BuildLiveDataTest {
             unsubscribe()
         }
         // advance some but not enough to cover the delay
-        mainContext.advanceTimeBy(4_000)
+        mainScope.advanceTimeBy(4_000)
         assertThat(running.isActive).isTrue()
         assertThat(ld.hasActiveObservers()).isFalse()
         assertThat(ld.value).isEqualTo(1)
         // advance time to finish
-        mainContext.advanceTimeBy(1_000)
+        mainScope.advanceTimeBy(1_000)
         // ensure it is not running anymore
         assertThat(running.isActive).isFalse()
         assertThat(ld.value).isEqualTo(1)
@@ -187,7 +176,7 @@ class BuildLiveDataTest {
     @Test
     fun ignoreCancelledYields() {
         val cancelMutex = Mutex(true)
-        val ld = liveData(timeoutInMs = 0, context = testContext) {
+        val ld = liveData(timeoutInMs = 0, context = testScope.coroutineContext) {
             emit(1)
             cancelMutex.withLock {
                 emit(2)
@@ -214,7 +203,7 @@ class BuildLiveDataTest {
     @Test
     fun readLatestValue() {
         val latest = AtomicReference<Int?>()
-        val ld = liveData<Int>(testContext) {
+        val ld = liveData<Int>(testScope.coroutineContext) {
             latest.set(latestValue)
         }
         runOnMain {
@@ -228,7 +217,7 @@ class BuildLiveDataTest {
     @Test
     fun readLatestValue_readWithinBlock() {
         val latest = AtomicReference<Int?>()
-        val ld = liveData<Int>(testContext) {
+        val ld = liveData<Int>(testScope.coroutineContext) {
             emit(5)
             latest.set(latestValue)
         }
@@ -240,7 +229,7 @@ class BuildLiveDataTest {
     @Test
     fun readLatestValue_keepYieldedFromBefore() {
         val latest = AtomicReference<Int?>()
-        val ld = liveData<Int>(testContext, 10) {
+        val ld = liveData<Int>(testScope.coroutineContext, 10) {
             if (latestValue == null) {
                 emit(5)
                 delay(500000) // wait for cancellation
@@ -293,7 +282,7 @@ class BuildLiveDataTest {
                 emit(it)
             }
         }
-        val ld = liveData(testContext) {
+        val ld = liveData(testScope.coroutineContext) {
             emitSource(odds)
             doneOddsYield.lock()
             emitSource(evens)
@@ -315,7 +304,7 @@ class BuildLiveDataTest {
             delay(1)
             emit(-1)
         }
-        val ld = liveData(testContext) {
+        val ld = liveData(testScope.coroutineContext) {
             emitSource(odds)
             doneOddsYield.lock()
             emit(10)
@@ -388,7 +377,7 @@ class BuildLiveDataTest {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             exception.complete(throwable)
         }
-        val ld = liveData(testContext + exceptionHandler, 10) {
+        val ld = liveData(testScope.coroutineContext + exceptionHandler, 10) {
             if (exception.isActive) {
                 throw IllegalArgumentException("i like to fail")
             } else {
@@ -415,7 +404,7 @@ class BuildLiveDataTest {
         val didCancel = AtomicBoolean(false)
         val unexpected = AtomicBoolean(false)
 
-        val ld = liveData<Int>(testContext, 10) {
+        val ld = liveData<Int>(testScope.coroutineContext, 10) {
             if (didCancel.compareAndSet(false, true)) {
                 coroutineContext.cancel()
             } else {
@@ -442,7 +431,7 @@ class BuildLiveDataTest {
         }
         val src = MutableLiveData<Int>()
         val ld = src.switchMap {
-            liveData(testContext + exceptionHandler) {
+            liveData(testScope.coroutineContext + exceptionHandler) {
                 if (exception.isActive) {
                     throw IllegalArgumentException("i like to fail")
                 } else {
@@ -469,21 +458,21 @@ class BuildLiveDataTest {
 
     private fun triggerAllActions() {
         do {
-            mainContext.triggerActions()
-            testContext.triggerActions()
-            val allIdle = listOf(mainContext, testContext).all {
+            mainScope.runCurrent()
+            testScope.runCurrent()
+            val allIdle = listOf(mainDispatcher, testDispatcher).all {
                 it.isIdle()
             }
         } while (!allIdle)
     }
 
     private fun advanceTimeBy(time: Long) {
-        mainContext.advanceTimeBy(time)
-        testContext.advanceTimeBy(time)
+        mainScope.advanceTimeBy(time)
+        testScope.advanceTimeBy(time)
         triggerAllActions()
     }
 
-    private fun TestCoroutineContext.isIdle(): Boolean {
+    private fun TestCoroutineDispatcher.isIdle(): Boolean {
         val queueField = this::class.java
             .getDeclaredField("queue")
         queueField.isAccessible = true
@@ -494,7 +483,7 @@ class BuildLiveDataTest {
         val timeField = nextTask::class.java.getDeclaredField("time")
         timeField.isAccessible = true
         val time = timeField.getLong(nextTask)
-        return time > now()
+        return time > testDispatcher.currentTime
     }
 
     private fun <T> runOnMain(block: () -> T): T {
@@ -502,7 +491,7 @@ class BuildLiveDataTest {
             val async = mainScope.async {
                 block()
             }
-            mainContext.triggerActions()
+            mainScope.runCurrent()
             async.await()
         }
     }
