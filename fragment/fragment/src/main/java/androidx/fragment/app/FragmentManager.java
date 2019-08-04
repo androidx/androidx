@@ -1074,7 +1074,8 @@ public abstract class FragmentManager {
         }
     }
 
-    private AnimationOrAnimator loadAnimation(Fragment fragment, int transit, boolean enter) {
+    private AnimationOrAnimator loadAnimation(Fragment fragment, boolean enter) {
+        int transit = fragment.getNextTransition();
         int nextAnim = fragment.getNextAnim();
         // Clear the Fragment animation
         fragment.setNextAnim(0);
@@ -1155,7 +1156,7 @@ public abstract class FragmentManager {
                 return;
             }
             f.mDeferStart = false;
-            moveToState(f, mCurState, 0, false);
+            moveToState(f, mCurState, false);
         }
     }
 
@@ -1164,7 +1165,7 @@ public abstract class FragmentManager {
     }
 
     @SuppressWarnings("ReferenceEquality")
-    void moveToState(Fragment f, int newState, int transit, boolean keepActive) {
+    void moveToState(Fragment f, int newState, boolean keepActive) {
         // Fragments that are not currently added will sit in the onCreate() state.
         if ((!f.mAdded || f.mDetached) && newState > Fragment.CREATED) {
             newState = Fragment.CREATED;
@@ -1204,7 +1205,7 @@ public abstract class FragmentManager {
                 // the animation is done, and then we can proceed from there.
                 f.setAnimatingAway(null);
                 f.setAnimator(null);
-                moveToState(f, f.getStateAfterAnimating(), 0, true);
+                moveToState(f, f.getStateAfterAnimating(), true);
             }
             switch (f.mState) {
                 case Fragment.INITIALIZING:
@@ -1251,7 +1252,7 @@ public abstract class FragmentManager {
                                         + " that does not belong to this FragmentManager!");
                             }
                             if (f.mTarget.mState < Fragment.CREATED) {
-                                moveToState(f.mTarget, Fragment.CREATED, 0, true);
+                                moveToState(f.mTarget, Fragment.CREATED, true);
                             }
                             f.mTargetWho = f.mTarget.mWho;
                             f.mTarget = null;
@@ -1264,7 +1265,7 @@ public abstract class FragmentManager {
                                         + " that does not belong to this FragmentManager!");
                             }
                             if (target.mState < Fragment.CREATED) {
-                                moveToState(target, Fragment.CREATED, 0, true);
+                                moveToState(target, Fragment.CREATED, true);
                             }
                         }
 
@@ -1407,7 +1408,7 @@ public abstract class FragmentManager {
                                 if (mCurState > Fragment.INITIALIZING && !mDestroyed
                                         && f.mView.getVisibility() == View.VISIBLE
                                         && f.mPostponedAlpha >= 0) {
-                                    anim = loadAnimation(f, transit, false);
+                                    anim = loadAnimation(f, false);
                                 }
                                 f.mPostponedAlpha = 0;
                                 if (anim != null) {
@@ -1535,7 +1536,7 @@ public abstract class FragmentManager {
                             if (fragment.getAnimatingAway() != null) {
                                 fragment.setAnimatingAway(null);
                                 destroyFragmentView(fragment);
-                                moveToState(fragment, fragment.getStateAfterAnimating(), 0, false);
+                                moveToState(fragment, fragment.getStateAfterAnimating(), false);
                             }
                         }
                     });
@@ -1559,7 +1560,7 @@ public abstract class FragmentManager {
                     fragment.setAnimator(null);
                     if (animator != null && container.indexOfChild(viewToAnimate) < 0) {
                         destroyFragmentView(fragment);
-                        moveToState(fragment, fragment.getStateAfterAnimating(), 0, false);
+                        moveToState(fragment, fragment.getStateAfterAnimating(), false);
                     }
                 }
             });
@@ -1582,7 +1583,7 @@ public abstract class FragmentManager {
     }
 
     void moveToState(Fragment f) {
-        moveToState(f, mCurState, 0, false);
+        moveToState(f, mCurState, false);
     }
 
     private void ensureInflatedFragmentView(Fragment f) {
@@ -1613,8 +1614,7 @@ public abstract class FragmentManager {
      */
     private void completeShowHideFragment(final Fragment fragment) {
         if (fragment.mView != null) {
-            AnimationOrAnimator anim = loadAnimation(fragment, fragment.getNextTransition(),
-                    !fragment.mHidden);
+            AnimationOrAnimator anim = loadAnimation(fragment, !fragment.mHidden);
             if (anim != null && anim.animator != null) {
                 anim.animator.setTarget(fragment.mView);
                 if (fragment.mHidden) {
@@ -1687,7 +1687,7 @@ public abstract class FragmentManager {
                 nextState = Math.min(nextState, Fragment.INITIALIZING);
             }
         }
-        moveToState(f, nextState, f.getNextTransition(), false);
+        moveToState(f, nextState, false);
 
         if (f.mView != null) {
             // Move the view if it is out of order
@@ -1711,7 +1711,7 @@ public abstract class FragmentManager {
                 f.mPostponedAlpha = 0f;
                 f.mIsNewlyAdded = false;
                 // run animations:
-                AnimationOrAnimator anim = loadAnimation(f, f.getNextTransition(), true);
+                AnimationOrAnimator anim = loadAnimation(f, true);
                 if (anim != null) {
                     if (anim.animation != null) {
                         f.mView.startAnimation(anim.animation);
@@ -2516,7 +2516,7 @@ public abstract class FragmentManager {
         for (int i = 0; i < numAdded; i++) {
             Fragment fragment = mAdded.get(i);
             if (fragment.mState < state) {
-                moveToState(fragment, state, fragment.getNextAnim(), false);
+                moveToState(fragment, state, false);
                 if (fragment.mView != null && !fragment.mHidden && fragment.mIsNewlyAdded) {
                     added.add(fragment);
                 }
@@ -2555,7 +2555,7 @@ public abstract class FragmentManager {
                     }
                     fragment.setAnimatingAway(null);
                     destroyFragmentView(fragment);
-                    moveToState(fragment, stateAfterAnimating, 0, false);
+                    moveToState(fragment, stateAfterAnimating, false);
                 } else if (fragment.getAnimator() != null) {
                     fragment.getAnimator().end();
                 }
@@ -2882,9 +2882,9 @@ public abstract class FragmentManager {
                 // We need to ensure that onDestroy and any other clean up is done
                 // so move the Fragment up to CREATED, then mark it as being removed, then
                 // destroy it.
-                moveToState(f, Fragment.CREATED, 0, false);
+                moveToState(f, Fragment.CREATED, false);
                 f.mRemoving = true;
-                moveToState(f, Fragment.INITIALIZING, 0, false);
+                moveToState(f, Fragment.INITIALIZING, false);
                 continue;
             }
             fs.mInstance = f;
