@@ -16,26 +16,16 @@
 
 package androidx.lifecycle
 
-import androidx.arch.core.executor.ArchTaskExecutor
-import androidx.arch.core.executor.TaskExecutor
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import org.junit.After
-import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -47,53 +37,17 @@ import kotlin.coroutines.coroutineContext
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
 class BuildLiveDataTest {
-    private val mainDispatcher = TestCoroutineDispatcher()
-    private val mainScope = TestCoroutineScope(mainDispatcher)
-
-    private val testDispatcher = TestCoroutineDispatcher()
-    private val testScope = TestCoroutineScope(testDispatcher)
-
-    @Before
-    fun initMain() {
-        Dispatchers.setMain(mainDispatcher)
-        ArchTaskExecutor.getInstance().setDelegate(
-            object : TaskExecutor() {
-                override fun executeOnDiskIO(runnable: Runnable) {
-                    error("unsupported")
-                }
-
-                override fun postToMainThread(runnable: Runnable) {
-                    mainScope.launch {
-                        runnable.run()
-                    }
-                }
-
-                override fun isMainThread(): Boolean {
-                    // we have only one thread in this test.
-                    return true
-                }
-            }
-        )
-        // manually roll the time
-        mainDispatcher.pauseDispatcher()
-        testScope.pauseDispatcher()
-    }
-
-    @After
-    fun clear() {
-        advanceTimeBy(100000)
-        mainScope.cleanupTestCoroutines()
-        testScope.cleanupTestCoroutines()
-        ArchTaskExecutor.getInstance().setDelegate(null)
-        Dispatchers.resetMain()
-    }
+    @get:Rule
+    val scopes = ScopesRule()
+    private val mainScope = scopes.mainScope
+    private val testScope = scopes.testScope
 
     @Test
     fun oneShot() {
         val liveData = liveData {
             emit(3)
         }
-        triggerAllActions()
+        scopes.triggerAllActions()
         assertThat(liveData.value).isNull()
         liveData.addObserver().assertItems(3)
     }
@@ -114,7 +68,7 @@ class BuildLiveDataTest {
         mainScope.advanceTimeBy(100)
         assertThat(ld.hasActiveObservers()).isFalse()
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems(2, 1, 2)
             mainScope.advanceTimeBy(1001)
             assertItems(2, 1, 2, 3)
@@ -183,19 +137,19 @@ class BuildLiveDataTest {
             }
         }
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems(1)
             unsubscribe()
             cancelMutex.unlock()
         }
         // let cancellation take place
-        triggerAllActions()
+        scopes.triggerAllActions()
         // emit should immediately trigger cancellation to happen
         assertThat(ld.value).isEqualTo(1)
         assertThat(ld.hasActiveObservers()).isFalse()
         // now because it was cancelled, re-observing should dispatch 1,1,2
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems(1, 1, 2)
         }
     }
@@ -206,11 +160,11 @@ class BuildLiveDataTest {
         val ld = liveData<Int>(testScope.coroutineContext) {
             latest.set(latestValue)
         }
-        runOnMain {
+        scopes.runOnMain {
             ld.value = 3
         }
         ld.addObserver()
-        triggerAllActions()
+        scopes.triggerAllActions()
         assertThat(latest.get()).isEqualTo(3)
     }
 
@@ -222,7 +176,7 @@ class BuildLiveDataTest {
             latest.set(latestValue)
         }
         ld.addObserver()
-        triggerAllActions()
+        scopes.triggerAllActions()
         assertThat(latest.get()).isEqualTo(5)
     }
 
@@ -238,16 +192,16 @@ class BuildLiveDataTest {
             latest.set(latestValue)
         }
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems(5)
             unsubscribe()
         }
-        triggerAllActions()
+        scopes.triggerAllActions()
         // wait for it to be cancelled
-        advanceTimeBy(10)
+        scopes.advanceTimeBy(10)
         assertThat(latest.get()).isNull()
         ld.addObserver()
-        triggerAllActions()
+        scopes.triggerAllActions()
         assertThat(latest.get()).isEqualTo(5)
     }
 
@@ -288,7 +242,7 @@ class BuildLiveDataTest {
             emitSource(evens)
         }
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems(1, 3, 5, 7, 9, 2, 4, 6, 8, 10)
         }
     }
@@ -310,8 +264,8 @@ class BuildLiveDataTest {
             emit(10)
         }
         ld.addObserver().apply {
-            triggerAllActions()
-            advanceTimeBy(100)
+            scopes.triggerAllActions()
+            scopes.advanceTimeBy(100)
             assertItems(1, 3, 5, 7, 9, 10)
         }
     }
@@ -328,10 +282,10 @@ class BuildLiveDataTest {
         }
         val ld = liveData {
             val disposable = emitSource(odds)
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertThat(odds.hasActiveObservers()).isEqualTo(true)
             disposable.dispose()
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertThat(odds.hasActiveObservers()).isEqualTo(false)
             doneOddsYield.unlock()
         }
@@ -349,16 +303,16 @@ class BuildLiveDataTest {
         }
         val ld = liveData {
             val disposable = emitSource(odds)
-            triggerAllActions()
+            scopes.triggerAllActions()
             disposable.dispose()
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertThat(odds.hasActiveObservers()).isEqualTo(false)
             // add observer via side channel.
             (this as LiveDataScopeImpl<Int>).target.addSource(odds) {}
-            triggerAllActions()
+            scopes.triggerAllActions()
             // redispose previous one should not impact
             disposable.dispose()
-            triggerAllActions()
+            scopes.triggerAllActions()
             // still has the observer we added from the side channel
             assertThat(odds.hasActiveObservers()).isEqualTo(true)
         }
@@ -385,16 +339,16 @@ class BuildLiveDataTest {
             }
         }
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems()
             runBlocking {
                 assertThat(exception.await()).hasMessageThat().contains("i like to fail")
             }
             unsubscribe()
         }
-        triggerAllActions()
+        scopes.triggerAllActions()
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems()
         }
     }
@@ -412,14 +366,14 @@ class BuildLiveDataTest {
             }
         }
         ld.addObserver().apply {
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems()
             unsubscribe()
         }
         assertThat(didCancel.get()).isTrue()
         ld.addObserver()
         // trigger cancelation
-        advanceTimeBy(11)
+        scopes.advanceTimeBy(11)
         assertThat(unexpected.get()).isFalse()
     }
 
@@ -441,66 +395,18 @@ class BuildLiveDataTest {
         }
         ld.addObserver().apply {
             assertItems()
-            runOnMain {
+            scopes.runOnMain {
                 src.value = 1
             }
-            triggerAllActions()
+            scopes.triggerAllActions()
             runBlocking {
                 assertThat(exception.await()).hasMessageThat().contains("i like to fail")
             }
-            runOnMain {
+            scopes.runOnMain {
                 src.value = 2
             }
-            triggerAllActions()
+            scopes.triggerAllActions()
             assertItems(3)
-        }
-    }
-
-    private fun triggerAllActions() {
-        do {
-            mainScope.runCurrent()
-            testScope.runCurrent()
-            val allIdle = listOf(mainDispatcher, testDispatcher).all {
-                it.isIdle()
-            }
-        } while (!allIdle)
-    }
-
-    private fun advanceTimeBy(time: Long) {
-        mainScope.advanceTimeBy(time)
-        testScope.advanceTimeBy(time)
-        triggerAllActions()
-    }
-
-    private fun TestCoroutineDispatcher.isIdle(): Boolean {
-        val queueField = this::class.java
-            .getDeclaredField("queue")
-        queueField.isAccessible = true
-        val queue = queueField.get(this)
-        val peekMethod = queue::class.java
-            .getDeclaredMethod("peek")
-        val nextTask = peekMethod.invoke(queue) ?: return true
-        val timeField = nextTask::class.java.getDeclaredField("time")
-        timeField.isAccessible = true
-        val time = timeField.getLong(nextTask)
-        return time > testDispatcher.currentTime
-    }
-
-    private fun <T> runOnMain(block: () -> T): T {
-        return runBlocking {
-            val async = mainScope.async {
-                block()
-            }
-            mainScope.runCurrent()
-            async.await()
-        }
-    }
-
-    private fun <T> LiveData<T>.addObserver(): CollectingObserver<T> {
-        return runOnMain {
-            val observer = CollectingObserver(this)
-            observeForever(observer)
-            observer
         }
     }
 
@@ -515,20 +421,5 @@ class BuildLiveDataTest {
         ld.addObserver().assertItems(4)
     }
 
-    inner class CollectingObserver<T>(
-        private val liveData: LiveData<T>
-    ) : Observer<T> {
-        private var items = mutableListOf<T>()
-        override fun onChanged(t: T) {
-            items.add(t)
-        }
-
-        fun assertItems(vararg expected: T) {
-            assertThat(items).containsExactly(*expected)
-        }
-
-        fun unsubscribe() = runOnMain {
-            liveData.removeObserver(this)
-        }
-    }
+    private fun <T> LiveData<T>.addObserver() = this.addObserver(scopes)
 }

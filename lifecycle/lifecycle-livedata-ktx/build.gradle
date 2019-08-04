@@ -41,7 +41,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-livedata-core-ktx"))
     api(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_CORE)
+    api(KOTLIN_COROUTINES_CORE_PREVIEW)
     testImplementation(project(":lifecycle:lifecycle-runtime"))
     testImplementation("androidx.arch.core:core-testing:2.1.0-rc01")
     testImplementation(JUNIT)
