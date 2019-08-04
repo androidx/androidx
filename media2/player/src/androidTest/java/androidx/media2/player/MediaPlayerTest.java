@@ -59,6 +59,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -109,6 +110,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @Test
     @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    @Ignore("Test disabled due to flakiness, see b/138474897")
     public void testPlayAudioOnce() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
