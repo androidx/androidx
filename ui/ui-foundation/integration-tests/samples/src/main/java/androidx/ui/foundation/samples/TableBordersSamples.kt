@@ -31,7 +31,7 @@ import androidx.ui.layout.Table
 @Composable
 fun SimpleTableWithBorders() {
     Padding(10.dp) {
-        Table {
+        Table(columnCount = 8) {
             drawBorders(
                 defaultBorder = Border(color = Color.Red, width = 2.dp)
             ) {
@@ -42,10 +42,8 @@ fun SimpleTableWithBorders() {
             }
             repeat(8) {
                 tableRow {
-                    repeat(8) {
-                        Padding(2.dp) {
-                            ColoredRect(color = Color.Fuchsia, height = 50.dp)
-                        }
+                    Padding(2.dp) {
+                        ColoredRect(color = Color.Fuchsia, height = 50.dp)
                     }
                 }
             }

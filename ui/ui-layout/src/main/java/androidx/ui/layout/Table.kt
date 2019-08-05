@@ -40,16 +40,19 @@ import androidx.ui.core.min
  * Collects information about the children of a [Table] when
  * its body is executed with a [TableChildren] as argument.
  */
-class TableChildren internal constructor() {
+class TableChildren internal constructor(private val columnCount: Int) {
 
     internal val tableChildren = mutableListOf<@Composable() () -> Unit>()
     internal val tableDecorations = mutableListOf<TableDecoration>()
 
-    private var rowGroup = 0
-
-    fun tableRow(children: @Composable() () -> Unit) {
+    fun tableRow(children: @Composable() (columnIndex: Int) -> Unit) {
+        val rowIndex = tableChildren.size
         tableChildren += {
-            ParentData(data = TableChildData(rowGroup++), children = children)
+            ParentData(data = TableChildData(rowIndex)) {
+                for (j in 0 until columnCount) {
+                    children(j)
+                }
+            }
         }
     }
 
@@ -64,9 +67,9 @@ typealias TableDecoration =
 /**
  * Parent data associated with children to assign a row group.
  */
-private data class TableChildData(val rowGroup: Int)
+private data class TableChildData(val rowIndex: Int)
 
-private val Measurable.rowGroup get() = (parentData as TableChildData).rowGroup
+private val Measurable.rowIndex get() = (parentData as TableChildData).rowIndex
 
 /**
  * Used to specify the size of a [Table]'s column.
@@ -119,6 +122,7 @@ sealed class TableColumnWidth {
  */
 @Composable
 fun Table(
+    columnCount: Int,
     childAlignment: Alignment = Alignment.TopLeft,
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flexible(1f) },
     @Children(composable = false) block: TableChildren.() -> Unit
@@ -126,7 +130,7 @@ fun Table(
     val verticalOffsets = +state { emptyArray<IntPx>() }
     val horizontalOffsets = +state { emptyArray<IntPx>() }
 
-    val children: @Composable() () -> Unit = with(TableChildren()) {
+    val children: @Composable() () -> Unit = with(TableChildren(columnCount)) {
         apply(block)
         val composable = @Composable {
             tableChildren.forEach { it() }
@@ -138,11 +142,10 @@ fun Table(
     }
 
     Layout(children) { m, constraints ->
-        // Group the measurables into rows using rowGroup.
-        val measurables = m.groupBy { it.rowGroup }.values.toTypedArray()
+        // Group the measurables into rows using row index.
+        val measurables = m.groupBy { it.rowIndex }.values.toTypedArray()
 
         val rowCount = measurables.size
-        val columnCount = measurables.map { it.size }.max() ?: 0
 
         var totalFlex = 0f
         var availableSpace = if (constraints.maxWidth.isFinite()) {
