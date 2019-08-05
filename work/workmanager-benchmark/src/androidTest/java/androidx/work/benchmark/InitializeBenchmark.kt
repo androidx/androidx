@@ -88,7 +88,7 @@ class InitializeBenchmark {
             val database = WorkDatabase.create(context, configuration.taskExecutor, false)
             WorkManagerImpl(context, configuration, taskExecutor, database)
             runWithTimingDisabled {
-                executor.waitForIdle()
+                executor.runAllCommands()
                 database.close()
                 context.deleteDatabase(WorkDatabase.DB_NAME)
             }
@@ -113,7 +113,7 @@ class InitializeBenchmark {
             WorkManagerImpl(context, configuration, taskExecutor, database)
             // Prune records for the next run.
             runWithTimingDisabled {
-                executor.waitForIdle()
+                executor.runAllCommands()
                 with(database) {
                     workSpecDao().pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
                     close()
