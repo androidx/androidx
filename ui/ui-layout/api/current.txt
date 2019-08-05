@@ -176,6 +176,7 @@ package androidx.ui.layout {
   }
 
   public final class TableChildren {
+    method public void addDecoration(kotlin.jvm.functions.Function2<? super androidx.ui.core.IntPx[],? super androidx.ui.core.IntPx[],kotlin.Unit> decoration);
     method public void tableRow(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 

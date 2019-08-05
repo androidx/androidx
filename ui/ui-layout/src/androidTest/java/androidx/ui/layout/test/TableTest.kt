@@ -18,6 +18,7 @@ package androidx.ui.layout.test
 
 import androidx.compose.composer
 import androidx.test.filters.SmallTest
+import androidx.ui.core.IntPx
 import androidx.ui.core.OnChildPositioned
 import androidx.ui.core.PxPosition
 import androidx.ui.core.PxSize
@@ -33,7 +34,6 @@ import androidx.ui.layout.Container
 import androidx.ui.layout.DpConstraints
 import androidx.ui.layout.Table
 import androidx.ui.layout.TableColumnWidth
-import androidx.ui.layout.sum
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -953,4 +953,7 @@ class TableTest : LayoutTest() {
             )
         }
     }
+
+    private fun Array<IntPx>.sum() = this.fold(IntPx.Zero) { a, b -> a + b }
+    private fun Collection<IntPx>.sum() = this.fold(IntPx.Zero) { a, b -> a + b }
 }
