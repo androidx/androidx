@@ -33,6 +33,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.BaseCamera;
@@ -74,6 +75,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -95,23 +97,7 @@ public class CameraImplTest {
     private static CameraFactory sCameraFactory;
 
     // For the purpose of this test, always say we have 1 camera available.
-    private static final int AVAILABLE_CAMERA_COUNT = 1;
-    private static Observable<Integer> sAvailableCameras = new Observable<Integer>() {
-        @NonNull
-        @Override
-        public ListenableFuture<Integer> fetchData() {
-            return Futures.immediateFuture(AVAILABLE_CAMERA_COUNT);
-        }
-
-        @Override
-        public void addObserver(@NonNull Executor executor, @NonNull Observer<Integer> observer) {
-            executor.execute(() -> observer.onNewData(AVAILABLE_CAMERA_COUNT));
-        }
-
-        @Override
-        public void removeObserver(@NonNull Observer<Integer> observer) {
-        }
-    };
+    private static final int DEFAULT_AVAILABLE_CAMERA_COUNT = 1;
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
@@ -121,6 +107,7 @@ public class CameraImplTest {
     private String mCameraId;
     private HandlerThread mCameraHandlerThread;
     private Handler mCameraHandler;
+    private SettableObservable<Integer> mAvailableCameras;
 
     private static String getCameraIdForLensFacingUnchecked(CameraX.LensFacing lensFacing) {
         try {
@@ -145,7 +132,8 @@ public class CameraImplTest {
         mCameraHandlerThread.start();
         mCameraHandler = new Handler(mCameraHandlerThread.getLooper());
         mSemaphore = new Semaphore(0);
-        mCamera = new Camera(CameraUtil.getCameraManager(), mCameraId, sAvailableCameras,
+        mAvailableCameras = new SettableObservable<>(DEFAULT_AVAILABLE_CAMERA_COUNT);
+        mCamera = new Camera(CameraUtil.getCameraManager(), mCameraId, mAvailableCameras,
                 mCameraHandler);
     }
 
@@ -682,6 +670,22 @@ public class CameraImplTest {
         assertThat(currentState).isEqualTo(BaseCamera.State.RELEASED);
     }
 
+    @Test
+    public void cameraStopsObservingAvailableCameras_afterRelease()
+            throws ExecutionException, InterruptedException {
+        // Camera should already be observing state after initialization
+        int observerCountBefore = mAvailableCameras.getObserverCount();
+
+        // Wait for camera to release
+        mCamera.release().get();
+
+        // Observer count should now be zero
+        int observerCountAfter = mAvailableCameras.getObserverCount();
+
+        assertThat(observerCountBefore).isEqualTo(1);
+        assertThat(observerCountAfter).isEqualTo(0);
+    }
+
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
         return useCase.getSessionConfig(mCameraId).getSurfaces().get(0);
     }
@@ -755,6 +759,76 @@ public class CameraImplTest {
 
             attachToCamera(cameraId, builder.build());
             return suggestedResolutionMap;
+        }
+    }
+
+    private final class SettableObservable<T> implements Observable<T> {
+
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private T mValue;
+
+        @GuardedBy("mLock")
+        private Map<Observer<T>, Executor> mObservers = new HashMap<>();
+
+        SettableObservable(@Nullable T initialValue) {
+            synchronized (mLock) {
+                mValue = initialValue;
+            }
+        }
+
+        void setValue(@Nullable final T value) {
+            Map<Observer<T>, Executor> notifyMap = null;
+            synchronized (mLock) {
+                if (!Objects.equals(mValue, value)) {
+                    mValue = value;
+
+                    if (!mObservers.isEmpty()) {
+                        notifyMap = new HashMap<>(mObservers);
+                    }
+                }
+            }
+
+            if (notifyMap != null) {
+                for (Map.Entry<Observer<T>, Executor> observer : notifyMap.entrySet()) {
+                    observer.getValue().execute(() -> observer.getKey().onNewData(value));
+                }
+            }
+        }
+
+        @NonNull
+        @Override
+        public ListenableFuture<T> fetchData() {
+            synchronized (mLock) {
+                return Futures.immediateFuture(mValue);
+            }
+        }
+
+        @Override
+        public void addObserver(@NonNull Executor executor, @NonNull Observer<T> observer) {
+            boolean needsUpdate = false;
+            T value;
+            synchronized (mLock) {
+                needsUpdate = !Objects.equals(mObservers.put(observer, executor), executor);
+                value = mValue;
+            }
+
+            if (needsUpdate) {
+                executor.execute(() -> observer.onNewData(value));
+            }
+        }
+
+        @Override
+        public void removeObserver(@NonNull Observer<T> observer) {
+            synchronized (mLock) {
+                mObservers.remove(observer);
+            }
+        }
+
+        int getObserverCount() {
+            synchronized (mLock) {
+                return mObservers.size();
+            }
         }
     }
 }
