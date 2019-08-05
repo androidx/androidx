@@ -160,7 +160,7 @@ class ConnectedControllersManager<T> {
      *
      * @param controllerKey key
      * @return sequenced future manager. Can be {@code null} if the controller was null or
-     *         disconencted.
+     *         disconnected.
      */
     public SequencedFutureManager getSequencedFutureManager(@Nullable T controllerKey) {
         ConnectedControllerRecord info;

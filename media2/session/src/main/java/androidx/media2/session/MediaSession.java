@@ -80,7 +80,7 @@ import java.util.concurrent.Executor;
  * instead. With it, your playback can be revived even after playback is finished. See
  * {@link MediaSessionService} for details.
  * <p>
- * Topic covered here:
+ * Topics covered here:
  * <ol>
  * <li><a href="#SessionLifecycle">Session Lifecycle</a>
  * <li><a href="#AudioFocusAndNoisyIntent">Audio focus and noisy intent</a>
@@ -339,7 +339,7 @@ public class MediaSession implements AutoCloseable {
     }
 
     /**
-     * Broadcasts custom command to all connected controllers.
+     * Broadcasts a custom command to all connected controllers.
      * <p>
      * This is synchronous call and doesn't wait for result from the controller. Use
      * {@link #sendCustomCommand(ControllerInfo, SessionCommand, Bundle)} for getting the result.
@@ -361,7 +361,7 @@ public class MediaSession implements AutoCloseable {
     }
 
     /**
-     * Send custom command to a specific controller.
+     * Sends a custom command to a specific controller.
      * <p>
      * A command is not accepted if it is not a custom command.
      *
@@ -958,9 +958,9 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Return if the controller has granted {@code android.permission.MEDIA_CONTENT_CONTROL} or
-         * has a enabled notification listener so can be trusted to accept connection and incoming
-         * command request.
+         * Returns if the controller has been granted
+         * {@code android.permission.MEDIA_CONTENT_CONTROL} or has a enabled notification listener
+         * so can be trusted to accept connection and incoming command request.
          *
          * @return {@code true} if the controller is trusted.
          * @hide
@@ -1035,8 +1035,8 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Get command associated with this button. Can be {@code null} if the button isn't enabled
-         * and only providing placeholder.
+         * Gets the command associated with this button. Can be {@code null} if the button isn't
+         * enabled and only providing placeholder.
          *
          * @return command or {@code null}
          */
@@ -1046,8 +1046,8 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Resource id of the button in this package. Can be {@code 0} if the command is predefined
-         * and custom icon isn't needed.
+         * Gets the resource id of the button in this package. Can be {@code 0} if the command is
+         * predefined and custom icon isn't needed.
          *
          * @return resource id of the icon. Can be {@code 0}.
          */
@@ -1056,8 +1056,8 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Display name of the button. Can be {@code null} or empty if the command is predefined
-         * and custom name isn't needed.
+         * Gets the display name of the button. Can be {@code null} or empty if the command is
+         * predefined and custom name isn't needed.
          *
          * @return custom display name. Can be {@code null} or empty.
          */
@@ -1067,7 +1067,8 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Extra information of the button. It's private information between session and controller.
+         * Gets extra information of the button. It's private information between session and
+         * controller.
          *
          * @return
          */
@@ -1077,7 +1078,7 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Return whether it's enabled.
+         * Returns whether it's enabled.
          *
          * @return {@code true} if enabled. {@code false} otherwise.
          */
@@ -1305,7 +1306,7 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Set an intent for launching UI for this Session. This can be used as a
+         * Sets an intent for launching UI for this Session. This can be used as a
          * quick link to an ongoing media screen. The intent should be for an
          * activity that may be started using {@link Context#startActivity(Intent)}.
          *
@@ -1319,7 +1320,8 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Set ID of the session. If it's not set, an empty string will be used to create a session.
+         * Sets the ID of the session. If it's not set, an empty string will be used to create a
+         * session.
          * <p>
          * Use this if and only if your app supports multiple playback at the same time and also
          * wants to provide external apps to have finer controls of them.
@@ -1341,10 +1343,10 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Set callback for the session.
+         * Sets callback for the session.
          *
          * @param executor callback executor
-         * @param callback session callback.
+         * @param callback session callback
          * @return
          */
         @SuppressWarnings("unchecked")
@@ -1362,10 +1364,10 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Set extras for the session token.  If not set, {@link SessionToken#getExtras()}
+         * Sets extras for the session token.  If not set, {@link SessionToken#getExtras()}
          * will return an empty {@link Bundle}.
          *
-         * @return The Builder to allow chaining
+         * @return the Builder to allow chaining
          * @throws IllegalArgumentException if the bundle contains any non-framework Parcelable
          * objects.
          * @see SessionToken#getExtras()
@@ -1385,10 +1387,10 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Build {@link MediaSession}.
+         * Builds a {@link MediaSession}.
          *
          * @return a new session
-         * @throws IllegalStateException if the session with the same id is already exists for the
+         * @throws IllegalStateException if the session with the same id already exists for the
          *      package.
          */
         @NonNull abstract T build();
