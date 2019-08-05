@@ -29,13 +29,11 @@ import androidx.ui.layout.TableColumnWidth
 @Composable
 fun SimpleTable() {
     Padding(2.dp) {
-        Table {
+        Table(columnCount = 8) {
             for (i in 0 until 8) {
                 tableRow {
-                    for (j in 0 until 8) {
-                        Padding(2.dp) {
-                            SizedRectangle(color = Color.Fuchsia, height = 50.dp)
-                        }
+                    Padding(2.dp) {
+                        SizedRectangle(color = Color.Fuchsia, height = 50.dp)
                     }
                 }
             }
@@ -48,6 +46,7 @@ fun SimpleTable() {
 fun TableWithDifferentColumnWidths() {
     Padding(2.dp) {
         Table(
+            columnCount = 5,
             columnWidth = { columnIndex ->
                 when (columnIndex) {
                     0 -> TableColumnWidth.Inflexible.Wrap
@@ -59,12 +58,11 @@ fun TableWithDifferentColumnWidths() {
             }
         ) {
             for (i in 0 until 8) {
-                tableRow {
+                tableRow { j ->
                     Padding(2.dp) {
-                        SizedRectangle(color = Color.Fuchsia, width = 25.dp, height = 25.dp)
-                    }
-                    for (j in 1 until 5) {
-                        Padding(2.dp) {
+                        if (j == 0) {
+                            SizedRectangle(color = Color.Fuchsia, width = 25.dp, height = 25.dp)
+                        } else {
                             SizedRectangle(color = Color.Fuchsia, height = 25.dp)
                         }
                     }

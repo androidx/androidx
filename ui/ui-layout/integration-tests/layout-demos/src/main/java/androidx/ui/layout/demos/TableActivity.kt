@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.compose.composer
 import androidx.ui.core.setContent
+import androidx.ui.layout.samples.SimpleTable
 import androidx.ui.layout.samples.TableWithDifferentColumnWidths
 
 class TableActivity : Activity() {
@@ -27,7 +28,7 @@ class TableActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TableWithDifferentColumnWidths()
+            SimpleTable()
         }
     }
 }
