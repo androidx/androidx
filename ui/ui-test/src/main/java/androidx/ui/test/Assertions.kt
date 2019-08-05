@@ -62,15 +62,6 @@ fun SemanticsNodeInteraction.assertIsHidden(): SemanticsNodeInteraction {
 }
 
 /**
- * Asserts that the component is still part of the component tree.
- */
-fun SemanticsNodeInteraction.assertStillExists() {
-    if (!semanticsTreeInteraction.contains(semanticsTreeNode.data)) {
-        throw AssertionError("Assert failed: The component does not exist!")
-    }
-}
-
-/**
  * Asserts that the component isn't part of the component tree anymore. If the component exists but
  * is hidden use [assertIsHidden] instead.
  */
@@ -86,10 +77,9 @@ fun SemanticsNodeInteraction.assertNoLongerExists() {
  * Throws [AssertionError] if the component is not unchecked, indeterminate, or not toggleable.
  */
 fun SemanticsNodeInteraction.assertIsChecked(): SemanticsNodeInteraction {
+    assertIsToggleable()
     verify({ "Component is toggled off, expected it to be toggled on" }) {
-        it.getOrElse(FoundationSemanticsProperties.ToggleableState) {
-            throw AssertionError("Component is not toggleable")
-        } == ToggleableState.Checked
+        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.Checked
     }
     return this
 }
@@ -100,10 +90,9 @@ fun SemanticsNodeInteraction.assertIsChecked(): SemanticsNodeInteraction {
  * Throws [AssertionError] if the component is checked, indeterminate, or not toggleable.
  */
 fun SemanticsNodeInteraction.assertIsUnchecked(): SemanticsNodeInteraction {
+    assertIsToggleable()
     verify({ "Component is toggled on, expected it to be toggled off" }) {
-        it.getOrElse(FoundationSemanticsProperties.ToggleableState) {
-            throw AssertionError("Component is not toggleable")
-        } == ToggleableState.Unchecked
+        it[FoundationSemanticsProperties.ToggleableState] == ToggleableState.Unchecked
     }
 
     return this
@@ -115,10 +104,10 @@ fun SemanticsNodeInteraction.assertIsUnchecked(): SemanticsNodeInteraction {
  * Throws [AssertionError] if the component is unselected or not selectable.
  */
 fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction {
+    assertIsSelectable()
+
     verify({ "Component is unselected, expected it to be selected" }) {
-        it.getOrElse(FoundationSemanticsProperties.Selected) {
-            throw AssertionError("Component is not selectable")
-        }
+        it[FoundationSemanticsProperties.Selected]
     }
     return this
 }
@@ -129,10 +118,10 @@ fun SemanticsNodeInteraction.assertIsSelected(): SemanticsNodeInteraction {
  * Throws [AssertionError] if the component is selected or not selectable.
  */
 fun SemanticsNodeInteraction.assertIsUnselected(): SemanticsNodeInteraction {
+    assertIsSelectable()
+
     verify({ "Component is selected, expected it to be unselected" }) {
-        !it.getOrElse(FoundationSemanticsProperties.Selected) {
-            throw AssertionError("Component is not selectable")
-        }
+        !it[FoundationSemanticsProperties.Selected]
     }
     return this
 }
@@ -173,14 +162,40 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
 fun SemanticsNodeInteraction.assertSemanticsIsEqualTo(
     expectedProperties: SemanticsConfiguration
 ): SemanticsNodeInteraction {
-    assertStillExists()
+    assertExists()
     semanticsTreeNode.data.assertEquals(expectedProperties)
 
     return this
 }
 
 /**
- * Asserts that given a list of components, it's size is equal to the passed in size.
+ * Asserts that the current component has a click action.
+ *
+ * Throws [AssertionError] if the component is doesn't have a click action.
+ */
+fun SemanticsNodeInteraction.assertHasClickAction(): SemanticsNodeInteraction {
+    verify({ "Component is not clickable, expected it to be clickable" }) {
+        it.hasClickAction
+    }
+
+    return this
+}
+
+/**
+ * Asserts that the current component doesn't have a click action.
+ *
+ * Throws [AssertionError] if the component has a click action.
+ */
+fun SemanticsNodeInteraction.assertHasNoClickAction(): SemanticsNodeInteraction {
+    verify({ "Component is clickable, expected it to not be clickable" }) {
+        !it.hasClickAction
+    }
+
+    return this
+}
+
+/**
+ * Asserts that given a list of components, its size is equal to the passed in size.
  */
 fun List<SemanticsNodeInteraction>.assertCountEquals(
     count: Int
@@ -201,10 +216,45 @@ fun SemanticsNodeInteraction.verify(
     assertionMessage: (SemanticsConfiguration) -> String,
     condition: (SemanticsConfiguration) -> Boolean
 ) {
-    assertStillExists()
+    assertExists()
 
     if (!condition.invoke(semanticsTreeNode.data)) {
         // TODO(b/133217292)
         throw AssertionError("Assert failed: ${assertionMessage(semanticsTreeNode.data)}")
     }
+}
+
+/**
+ * Asserts that the component is still part of the component tree.
+ */
+internal fun SemanticsNodeInteraction.assertExists() {
+    if (!semanticsTreeInteraction.contains(semanticsTreeNode.data)) {
+        throw AssertionError("The component does not exist!")
+    }
+}
+
+/**
+ * Asserts that the current component is toggleable.
+ *
+ * Throws [AssertionError] if the component is not toggleable.
+ */
+internal fun SemanticsNodeInteraction.assertIsToggleable(): SemanticsNodeInteraction {
+    verify({ "Component is not toggleable, expected it to be toggleable" }) {
+        it.isToggleable
+    }
+
+    return this
+}
+
+/**
+ * Asserts that the current component is selectable.
+ *
+ * Throws [AssertionError] if the component is not selectable.
+ */
+internal fun SemanticsNodeInteraction.assertIsSelectable(): SemanticsNodeInteraction {
+    verify({ "Component is not selectable, expected it to be selectable" }) {
+        it.getOrNull(FoundationSemanticsProperties.Selected) != null
+    }
+
+    return this
 }

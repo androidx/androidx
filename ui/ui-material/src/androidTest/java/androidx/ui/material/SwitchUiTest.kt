@@ -27,6 +27,7 @@ import androidx.ui.foundation.selection.ToggleableState
 import androidx.ui.foundation.semantics.toggleableState
 import androidx.ui.layout.Column
 import androidx.ui.semantics.accessibilityValue
+import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsChecked
 import androidx.ui.test.assertIsUnchecked
 import androidx.ui.test.assertSemanticsIsEqualTo
@@ -116,9 +117,7 @@ class SwitchUiTest {
             }
         }
         findByTag(defaultSwitchTag)
-            .assertIsUnchecked()
-            .doClick()
-            .assertIsUnchecked()
+            .assertHasNoClickAction()
     }
 
     @Test
