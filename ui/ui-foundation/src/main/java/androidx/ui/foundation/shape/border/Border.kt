@@ -22,8 +22,8 @@ import androidx.ui.graphics.vectorgraphics.Brush
 import androidx.ui.graphics.vectorgraphics.SolidColor
 
 /**
- * A border of a shape.
- * It will be drawn on top of the shape as an inner stroke.
+ * A border of a shape which will be drawn on top of the shape as an inner stroke.
+ * This can also be used for the border of a table layout.
  *
  * @param brush the brush to paint the border with.
  * @param width the width of the border. Use [Dp.Hairline] for a hairline border.
@@ -31,8 +31,8 @@ import androidx.ui.graphics.vectorgraphics.SolidColor
 data class Border(val brush: Brush, val width: Dp)
 
 /**
- * A border of a shape.
- * It will be drawn on top of the shape as an inner stroke.
+ * A border of a shape which will be drawn on top of the shape as an inner stroke.
+ * This can also be used for the border of a table layout.
  *
  * @param color the color to fill the border with.
  * @param width the width of the border. Use [Dp.Hairline] for a hairline border.
