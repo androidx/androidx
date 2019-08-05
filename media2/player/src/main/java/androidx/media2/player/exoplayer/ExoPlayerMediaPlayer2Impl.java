@@ -570,7 +570,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
                 }
             }
         }
-        mTaskHandler.removeCallbacksAndMessages(null);
         runPlayerCallableBlocking(new Callable<Void>() {
             @Override
             public Void call() {
@@ -591,13 +590,19 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             }
             mHandlerThread = null;
         }
-        runPlayerCallableBlocking(new Callable<Void>() {
+        final ResolvableFuture<Void> future = ResolvableFuture.create();
+        mTaskHandler.post(new Runnable() {
             @Override
-            public Void call() {
-                mPlayer.close();
-                return null;
+            public void run() {
+                try {
+                    mPlayer.close();
+                    future.set(null);
+                } catch (Throwable e) {
+                    future.setException(e);
+                }
             }
         });
+        getPlayerFuture(future);
         handlerThread.quit();
     }
 
@@ -826,22 +831,30 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
      * Runs the specified callable on the player thread, blocking the calling thread until a result
      * is returned.
      *
-     * <p>Note: ExoPlayer methods apart from {@link Player#release} are asynchronous, so calling
-     * player methods will not block the caller thread for a substantial amount of time.
+     * <p>Note: ExoPlayer methods do not block (except {@link Player#release}, which needs to
+     * block until resources have been released) so the caller thread will not be blocked for a
+     * substantial amount of time.
      */
     private <T> T runPlayerCallableBlocking(final Callable<T> callable) {
         final ResolvableFuture<T> future = ResolvableFuture.create();
-        boolean success = mTaskHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    future.set(callable.call());
-                } catch (Throwable e) {
-                    future.setException(e);
+        synchronized (mLock) {
+            Preconditions.checkNotNull(mHandlerThread);
+            boolean success = mTaskHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        future.set(callable.call());
+                    } catch (Throwable e) {
+                        future.setException(e);
+                    }
                 }
-            }
-        });
-        Preconditions.checkState(success);
+            });
+            Preconditions.checkState(success);
+        }
+        return getPlayerFuture(future);
+    }
+
+    private static <T> T getPlayerFuture(ResolvableFuture<T> future) {
         try {
             T result;
             boolean wasInterrupted = false;
