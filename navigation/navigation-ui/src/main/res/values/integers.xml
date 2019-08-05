@@ -16,5 +16,5 @@
   -->
 
 <resources>
-    <integer name="config_navAnimTime">220</integer>
+    <integer name="config_navAnimTime">500</integer>
 </resources>
