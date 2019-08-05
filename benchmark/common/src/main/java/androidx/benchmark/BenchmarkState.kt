@@ -34,8 +34,8 @@ import java.util.concurrent.TimeUnit
 /**
  * Control object for benchmarking in the code in Java.
  *
- * Query a state object with [BenchmarkRule.getState], and use it to measure a block of Java with
- * [BenchmarkState.keepRunning]:
+ * Query a state object with [androidx.benchmark.junit4.BenchmarkRule.getState], and use it to
+ * measure a block of Java with [BenchmarkState.keepRunning]:
  * ```
  * @Rule
  * public BenchmarkRule benchmarkRule = new BenchmarkRule();
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit
  * }
  * ```
  *
- * @see BenchmarkRule#getState()
+ * @see androidx.benchmark.junit4.BenchmarkRule#getState()
  */
 class BenchmarkState {
     /** @hide */
@@ -271,7 +271,7 @@ class BenchmarkState {
     /**
      * Inline fast-path function for inner benchmark loop.
      *
-     * Kotlin users should use [BenchmarkRule.measureRepeated]
+     * Kotlin users should use `BenchmarkRule.measureRepeated`
      *
      * This codepath uses exclusively @JvmField/const members, so there are no method calls at all
      * in the inlined loop. On recent Android Platform versions, ART inlines these accessors anyway,
@@ -492,7 +492,8 @@ class BenchmarkState {
         private var firstBenchmark = true
 
         /**
-         * Hooks for benchmarks not using [BenchmarkRule] to register results.
+         * Hooks for benchmarks not using [androidx.benchmark.junit4.BenchmarkRule] to register
+         * results.
          *
          * Results are printed to Studio console, and added to the output JSON file.
          *
