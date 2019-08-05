@@ -248,9 +248,9 @@ public final class SessionCommandGroup implements VersionedParcelable {
         }
 
         /**
-         * Builds {@link SessionCommandGroup}.
+         * Builds a {@link SessionCommandGroup}.
          *
-         * @return a new {@link SessionCommandGroup}.
+         * @return a new {@link SessionCommandGroup}
          */
         @NonNull
         public SessionCommandGroup build() {
