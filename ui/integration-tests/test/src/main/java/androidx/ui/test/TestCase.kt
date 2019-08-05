@@ -40,7 +40,7 @@ abstract class TestCase(
 ) {
     private val screenWithSpec: Int
     private val screenHeightSpec: Int
-    private val capture = if (SupportsRenderNode) PictureCapture() else PictureCapture()
+    private val capture = if (SupportsRenderNode) RenderNodeCapture() else PictureCapture()
     private var canvas: Canvas? = null
 
     lateinit var view: ViewGroup
