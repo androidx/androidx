@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,40 +37,75 @@ class NavDeepLink {
     private final ArrayList<String> mArguments = new ArrayList<>();
     private final Pattern mPattern;
     private final boolean mExactDeepLink;
+    private final boolean mIsParameterizedQuery;
+    private final Map<String, ParamQuery> mParamArgMap = new HashMap<>();
 
     /**
      * NavDestinations should be created via {@link Navigator#createDestination}.
      */
     NavDeepLink(@NonNull String uri) {
+        Uri parameterizedUri = Uri.parse(uri);
+        mIsParameterizedQuery = parameterizedUri.getQuery() != null;
         StringBuilder uriRegex = new StringBuilder("^");
 
         if (!SCHEME_PATTERN.matcher(uri).find()) {
             uriRegex.append("http[s]?://");
         }
         Pattern fillInPattern = Pattern.compile("\\{(.+?)\\}");
-        Matcher matcher = fillInPattern.matcher(uri);
-        int appendPos = 0;
-        // Track whether this is an exact deep link
-        boolean exactDeepLink = !uri.contains(".*");
-        while (matcher.find()) {
-            String argName = matcher.group(1);
-            mArguments.add(argName);
-            // Use Pattern.quote() to treat the input string as a literal
-            uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())));
-            uriRegex.append("(.+?)");
-            appendPos = matcher.end();
-            exactDeepLink = false;
-        }
-        if (appendPos < uri.length()) {
-            // Use Pattern.quote() to treat the input string as a literal
-            uriRegex.append(Pattern.quote(uri.substring(appendPos)));
+        if (mIsParameterizedQuery) {
+            Matcher matcher = Pattern.compile("(\\?)").matcher(uri);
+            if (matcher.find()) {
+                uriRegex.append(Pattern.quote(uri.substring(0, matcher.start())));
+                uriRegex.append("(.+)?");
+            }
+            mExactDeepLink = false;
+            for (String paramName : parameterizedUri.getQueryParameterNames()) {
+                StringBuilder argRegex = new StringBuilder();
+                String queryParam = parameterizedUri.getQueryParameter(paramName);
+                matcher = fillInPattern.matcher(queryParam);
+                int appendPos = 0;
+                ParamQuery param = new ParamQuery();
+                // Build the regex for each query param
+                while (matcher.find()) {
+                    param.addArgumentName(matcher.group(1));
+                    argRegex.append(Pattern.quote(queryParam.substring(appendPos,
+                            matcher.start())));
+                    argRegex.append("(.+?)?");
+                    appendPos = matcher.end();
+                }
+                if (appendPos < queryParam.length()) {
+                    argRegex.append(Pattern.quote(queryParam.substring(appendPos)));
+                }
+                // Save the regex with wildcards unquoted, and add the param to the map with its
+                // name as the key
+                param.setParamRegex(argRegex.toString().replace(".*", "\\E.*\\Q"));
+                mParamArgMap.put(paramName, param);
+            }
+        } else {
+            Matcher matcher = fillInPattern.matcher(uri);
+            int appendPos = 0;
+            // Track whether this is an exact deep link
+            boolean exactDeepLink = !uri.contains(".*");
+            while (matcher.find()) {
+                String argName = matcher.group(1);
+                mArguments.add(argName);
+                // Use Pattern.quote() to treat the input string as a literal
+                uriRegex.append(Pattern.quote(uri.substring(appendPos, matcher.start())));
+                uriRegex.append("(.+?)");
+                appendPos = matcher.end();
+                exactDeepLink = false;
+            }
+            if (appendPos < uri.length()) {
+                // Use Pattern.quote() to treat the input string as a literal
+                uriRegex.append(Pattern.quote(uri.substring(appendPos)));
+            }
+            mExactDeepLink = exactDeepLink;
         }
         // Since we've used Pattern.quote() above, we need to
         // specifically escape any .* instances to ensure
         // they are still treated as wildcards in our final regex
         String finalRegex = uriRegex.toString().replace(".*", "\\E.*\\Q");
         mPattern = Pattern.compile(finalRegex);
-        mExactDeepLink = exactDeepLink;
     }
 
     boolean matches(@NonNull Uri deepLink) {
@@ -88,25 +124,105 @@ class NavDeepLink {
             return null;
         }
         Bundle bundle = new Bundle();
-        int size = mArguments.size();
-        for (int index = 0; index < size; index++) {
-            String argumentName = mArguments.get(index);
-            String value = Uri.decode(matcher.group(index + 1));
-            NavArgument argument = arguments.get(argumentName);
-            if (argument != null) {
-                NavType type = argument.getType();
-                try {
-                    type.parseAndPut(bundle, argumentName, value);
-                } catch (IllegalArgumentException e) {
-                    // Failed to parse means this isn't a valid deep link
-                    // for the given URI - i.e., the URI contains a non-integer
-                    // value for an integer argument
+        if (mIsParameterizedQuery) {
+            // If there are query params that do not exists for this Deep Link we should throw
+            if (!mParamArgMap.keySet().containsAll(deepLink.getQueryParameterNames())) {
+                throw new IllegalArgumentException("Please ensure the given query parameters are a"
+                        + " subset of those in NavDeepLink " + this);
+            }
+            for (String paramName : mParamArgMap.keySet()) {
+                Matcher argMatcher = null;
+                ParamQuery storedParam = mParamArgMap.get(paramName);
+                String inputParams = deepLink.getQueryParameter(paramName);
+                if (inputParams != null) {
+                    // Match the input arguments with the saved regex
+                    argMatcher = Pattern.compile(storedParam.getParamRegex()).matcher(inputParams);
+                    if (!argMatcher.matches()) {
+                        return null;
+                    }
+                }
+                // Params could have multiple arguments, we need to handle them all
+                for (int index = 0; index < storedParam.size(); index++) {
+                    String value = null;
+                    if (argMatcher != null) {
+                        value = Uri.decode(argMatcher.group(index + 1));
+                    }
+                    String argName = storedParam.getArgumentName(index);
+                    NavArgument argument = arguments.get(argName);
+                    // Missing parameter so see if it has a default value or is Nullable
+                    if (argument != null
+                            && (value == null || value.replaceAll("[{}]", "").equals(argName))) {
+                        if (argument.getDefaultValue() != null) {
+                            value = argument.getDefaultValue().toString();
+                        } else if (argument.isNullable()) {
+                            value = "@null";
+                        }
+                    }
+                    if (parseArgument(bundle, argName, value, argument)) {
+                        return null;
+                    }
+                }
+            }
+        } else {
+            int size = mArguments.size();
+            for (int index = 0; index < size; index++) {
+                String argumentName = mArguments.get(index);
+                String value = Uri.decode(matcher.group(index + 1));
+                NavArgument argument = arguments.get(argumentName);
+                if (parseArgument(bundle, argumentName, value, argument)) {
                     return null;
                 }
-            } else {
-                bundle.putString(argumentName, value);
             }
         }
         return bundle;
+    }
+
+    private boolean parseArgument(Bundle bundle, String name, String value, NavArgument argument) {
+        if (argument != null) {
+            NavType<?> type = argument.getType();
+            try {
+                type.parseAndPut(bundle, name, value);
+            } catch (IllegalArgumentException e) {
+                // Failed to parse means this isn't a valid deep link
+                // for the given URI - i.e., the URI contains a non-integer
+                // value for an integer argument
+                return true;
+            }
+        } else {
+            bundle.putString(name, value);
+        }
+        return false;
+    }
+
+    /**
+     * Used to maintain query parameters and the mArguments they match with.
+     */
+    private class ParamQuery {
+        private String mParamRegex;
+        private ArrayList<String> mArguments;
+
+        ParamQuery() {
+            mArguments = new ArrayList<>();
+        }
+
+        void setParamRegex(String paramRegex) {
+            this.mParamRegex = paramRegex;
+        }
+
+        String getParamRegex() {
+            return mParamRegex;
+        }
+
+        void addArgumentName(String name) {
+            mArguments.add(name);
+        }
+
+        String getArgumentName(int index) {
+            return mArguments.get(index);
+        }
+
+        public int size() {
+            return mArguments.size();
+        }
     }
 }
