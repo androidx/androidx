@@ -16,12 +16,16 @@
 
 package androidx.work.impl.background.greedy;
 
+import static android.content.Context.ACTIVITY_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.os.Process;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
@@ -49,31 +53,50 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
 
     private static final String TAG = Logger.tagWithPrefix("GreedyScheduler");
 
-    private WorkManagerImpl mWorkManagerImpl;
-    private WorkConstraintsTracker mWorkConstraintsTracker;
+    private final Context mContext;
+    private final WorkManagerImpl mWorkManagerImpl;
+    private final WorkConstraintsTracker mWorkConstraintsTracker;
     private List<WorkSpec> mConstrainedWorkSpecs = new ArrayList<>();
     private boolean mRegisteredExecutionListener;
     private final Object mLock;
 
-    public GreedyScheduler(Context context,
-            TaskExecutor taskExecutor,
-            WorkManagerImpl workManagerImpl) {
+    // Internal State
+    private String mProcessName;
 
+    public GreedyScheduler(
+            @NonNull Context context,
+            @NonNull TaskExecutor taskExecutor,
+            @NonNull WorkManagerImpl workManagerImpl) {
+        mContext = context;
         mWorkManagerImpl = workManagerImpl;
         mWorkConstraintsTracker = new WorkConstraintsTracker(context, taskExecutor, this);
         mLock = new Object();
+        mProcessName = getProcessName();
     }
 
     @VisibleForTesting
-    public GreedyScheduler(WorkManagerImpl workManagerImpl,
-            WorkConstraintsTracker workConstraintsTracker) {
+    public GreedyScheduler(
+            @NonNull Context context,
+            @NonNull WorkManagerImpl workManagerImpl,
+            @NonNull WorkConstraintsTracker workConstraintsTracker) {
+        mContext = context;
         mWorkManagerImpl = workManagerImpl;
         mWorkConstraintsTracker = workConstraintsTracker;
         mLock = new Object();
+        mProcessName = getProcessName();
     }
 
     @Override
     public void schedule(@NonNull WorkSpec... workSpecs) {
+        // Package name is the default process name
+        if (!TextUtils.equals(mContext.getPackageName(), mProcessName)) {
+            Logger.get().info(
+                    TAG,
+                    String.format("Ignoring schedule request (Running in process %s)", mProcessName)
+            );
+            return;
+        }
+
         registerExecutionListenerIfNeeded();
 
         // Keep track of the list of new WorkSpecs whose constraints need to be tracked.
@@ -82,7 +105,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         // are updating mConstrainedWorkSpecs.
         List<WorkSpec> constrainedWorkSpecs = new ArrayList<>();
         List<String> constrainedWorkSpecIds = new ArrayList<>();
-        for (WorkSpec workSpec: workSpecs) {
+        for (WorkSpec workSpec : workSpecs) {
             if (workSpec.state == WorkInfo.State.ENQUEUED
                     && !workSpec.isPeriodic()
                     && workSpec.initialDelay == 0L
@@ -176,5 +199,25 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
             mWorkManagerImpl.getProcessor().addExecutionListener(this);
             mRegisteredExecutionListener = true;
         }
+    }
+
+    @Nullable
+    private String getProcessName() {
+        int pid = Process.myPid();
+        ActivityManager am =
+                (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
+
+        if (am != null) {
+            List<ActivityManager.RunningAppProcessInfo> processes = am.getRunningAppProcesses();
+            if (processes != null && !processes.isEmpty()) {
+                for (ActivityManager.RunningAppProcessInfo process : processes) {
+                    if (process.pid == pid) {
+                        return process.processName;
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 }
