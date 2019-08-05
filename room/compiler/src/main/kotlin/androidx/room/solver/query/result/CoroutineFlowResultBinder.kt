@@ -44,8 +44,7 @@ class CoroutineFlowResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
+        scope: CodeGenScope
     ) {
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
             createRunQueryAndReturnStatements(
@@ -55,7 +54,7 @@ class CoroutineFlowResultBinder(
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
-                cancellationSignalVar = cancellationSignalVar)
+                cancellationSignalVar = "null")
         }.build()
 
         scope.builder().apply {

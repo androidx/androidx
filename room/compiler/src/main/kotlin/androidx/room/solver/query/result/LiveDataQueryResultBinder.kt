@@ -48,8 +48,7 @@ class LiveDataQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
+        scope: CodeGenScope
     ) {
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
             createRunQueryAndReturnStatements(

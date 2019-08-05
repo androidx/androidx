@@ -111,6 +111,7 @@ object LifecyclesTypeNames {
 object AndroidTypeNames {
     val CURSOR: ClassName = ClassName.get("android.database", "Cursor")
     val BUILD: ClassName = ClassName.get("android.os", "Build")
+    val CANCELLATION_SIGNAL: ClassName = ClassName.get("android.os", "CancellationSignal")
 }
 
 object CollectionTypeNames {

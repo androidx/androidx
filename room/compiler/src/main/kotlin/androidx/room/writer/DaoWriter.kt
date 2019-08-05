@@ -273,8 +273,7 @@ class DaoWriter(
                         canReleaseQuery = shouldReleaseQuery,
                         dbField = dbField,
                         inTransaction = method.inTransaction,
-                        scope = scope,
-                        cancellationSignalVar = "null")
+                        scope = scope)
             }
             addCode(scope.builder().build())
         }.build()
@@ -425,8 +424,7 @@ class DaoWriter(
                 canReleaseQuery = true,
                 dbField = dbField,
                 inTransaction = method.inTransaction,
-                scope = scope,
-                cancellationSignalVar = "null")
+                scope = scope)
         return scope.builder().build()
     }
 

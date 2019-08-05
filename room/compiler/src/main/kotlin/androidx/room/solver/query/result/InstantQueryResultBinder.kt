@@ -33,8 +33,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
+        scope: CodeGenScope
     ) {
         scope.builder().apply {
             addStatement("$N.assertNotSuspendingTransaction()", DaoWriter.dbField)
@@ -57,7 +56,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
                 dbField,
                 roomSQLiteQueryVar,
                 if (shouldCopyCursor) "true" else "false",
-                cancellationSignalVar
+                "null"
             )
             beginControlFlow("try").apply {
                 adapter?.convert(outVar, cursorVar, scope)
