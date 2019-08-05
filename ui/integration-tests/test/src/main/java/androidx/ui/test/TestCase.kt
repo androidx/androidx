@@ -16,11 +16,13 @@
 
 package androidx.ui.test
 
+import android.annotation.TargetApi
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Picture
 import android.graphics.RenderNode
+import android.os.Build
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
@@ -36,10 +38,9 @@ import org.junit.Assert
 abstract class TestCase(
     val activity: Activity
 ) {
-
     private val screenWithSpec: Int
     private val screenHeightSpec: Int
-    private val renderNode = RenderNode("test")
+    private val capture = if (SupportsRenderNode) PictureCapture() else PictureCapture()
     private var canvas: Canvas? = null
 
     lateinit var view: ViewGroup
@@ -90,8 +91,7 @@ abstract class TestCase(
      * Do not measure this in benchmark.
      */
     fun prepareDraw() {
-        renderNode.setPosition(0, 0, view.width, view.height)
-        canvas = renderNode.beginRecording()
+        canvas = capture.beginRecording(view.width, view.height)
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class TestCase(
      * Do not measure this in benchmark.
      */
     fun finishDraw() {
-        renderNode.endRecording()
+        capture.endRecording()
     }
 
     /**
@@ -122,6 +122,10 @@ abstract class TestCase(
      */
     fun layout() {
         view.layout(view.left, view.top, view.right, view.bottom)
+    }
+
+    companion object {
+        private val SupportsRenderNode = Build.VERSION.SDK_INT >= 29
     }
 }
 
@@ -238,7 +242,16 @@ fun TestCase.capturePreviewPictureToActivity() {
     view.draw(canvas)
     picture.endRecording()
     val imageView = ImageView(activity)
-    imageView.setImageBitmap(Bitmap.createBitmap(picture))
+    val bitmap: Bitmap
+    if (Build.VERSION.SDK_INT >= 28) {
+        bitmap = Bitmap.createBitmap(picture)
+    } else {
+        val width = picture.width.coerceAtLeast(1)
+        val height = picture.height.coerceAtLeast(1)
+        bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        Canvas(bitmap).drawPicture(picture)
+    }
+    imageView.setImageBitmap(bitmap)
     activity.setContentView(imageView)
 }
 
@@ -269,4 +282,38 @@ private fun findComposeView(view: View): AndroidCraneView? {
         }
     }
     return null
+}
+
+// We must separate the use of RenderNode so that it isn't referenced in any
+// way on platforms that don't have it. This extracts RenderNode use to a
+// potentially unloaded class, RenderNodeCapture.
+private interface DrawCapture {
+    fun beginRecording(width: Int, height: Int): Canvas
+    fun endRecording()
+}
+
+@TargetApi(Build.VERSION_CODES.Q)
+private class RenderNodeCapture : DrawCapture {
+    private val renderNode = RenderNode("Test")
+
+    override fun beginRecording(width: Int, height: Int): Canvas {
+        renderNode.setPosition(0, 0, width, height)
+        return renderNode.beginRecording()
+    }
+
+    override fun endRecording() {
+        renderNode.endRecording()
+    }
+}
+
+private class PictureCapture : DrawCapture {
+    private val picture = Picture()
+
+    override fun beginRecording(width: Int, height: Int): Canvas {
+        return picture.beginRecording(width, height)
+    }
+
+    override fun endRecording() {
+        picture.endRecording()
+    }
 }

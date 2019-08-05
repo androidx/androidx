@@ -658,8 +658,7 @@ private class RepaintBoundaryView(
     }
 
     override fun detach() {
-        val parent = parent as ViewGroup
-        parent.removeView(this)
+        (parent as? ViewGroup)?.removeView(this)
     }
 
     fun drawChild(canvas: Canvas, child: View, drawingTime: Long) {
