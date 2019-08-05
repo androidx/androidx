@@ -604,6 +604,74 @@ class FragmentLifecycleTest {
             .isNull()
     }
 
+    @Test
+    @UiThreadTest
+    fun popBackStackImmediateAfterSaveState() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+
+        val fragment1 = StrictFragment()
+        fragment1.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment1, "1")
+            .commitNow()
+
+        // Now save the state of the FragmentManager
+        fc.dispatchPause()
+        fc.saveAllState()
+
+        val fragment2 = StrictFragment()
+        fragment2.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment2, "2")
+            .commitNowAllowingStateLoss()
+
+        try {
+            fm.popBackStackImmediate()
+            fail("PopBackStackImmediate after saveState should throw IllegalStateException")
+        } catch (e: IllegalStateException) {
+            assertWithMessage("popBackStackImmediate should throw an IllegalStateException")
+                .that(e)
+                .hasMessageThat()
+                .contains("Can not perform this action after onSaveInstanceState")
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    fun popBackStackAfterSaveState() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+
+        val fragment1 = StrictFragment()
+        fragment1.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment1, "1")
+            .commitNow()
+
+        // Now save the state of the FragmentManager
+        fc.dispatchPause()
+        fc.saveAllState()
+
+        val fragment2 = StrictFragment()
+        fragment2.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment2, "2")
+            .commitNowAllowingStateLoss()
+
+        try {
+            fm.popBackStack()
+            fail("PopBackStack after saveState should throw IllegalStateException")
+        } catch (e: IllegalStateException) {
+            assertWithMessage("popBackStack should throw an IllegalStateException")
+                .that(e)
+                .hasMessageThat()
+                .contains("Can not perform this action after onSaveInstanceState")
+        }
+    }
+
     /**
      * When a fragment is saved in non-config, it should be restored to the same index.
      */
