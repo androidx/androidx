@@ -67,17 +67,15 @@ class TableTest : LayoutTest() {
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Table {
+                        Table(columnCount = columns) {
                             for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                                tableRow { j ->
+                                    Container(height = sizeDp, expanded = true) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
                                     }
                                 }
                             }
@@ -131,20 +129,18 @@ class TableTest : LayoutTest() {
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Table {
+                        Table(columnCount = columns) {
                             for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(
-                                            height = if (j % 2 == 0) sizeDp else halfSizeDp,
-                                            expanded = true
-                                        ) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                                tableRow { j ->
+                                    Container(
+                                        height = if (j % 2 == 0) sizeDp else halfSizeDp,
+                                        expanded = true
+                                    ) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
                                     }
                                 }
                             }
@@ -199,19 +195,17 @@ class TableTest : LayoutTest() {
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Table(columnWidth = { j ->
+                        Table(columnCount = columns, columnWidth = { j ->
                             TableColumnWidth.Flexible(flex = flexes[j])
                         }) {
                             for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                                tableRow { j ->
+                                    Container(height = sizeDp, expanded = true) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
                                     }
                                 }
                             }
@@ -260,17 +254,18 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Inflexible.Wrap }) {
+                    Table(
+                        columnCount = columns,
+                        columnWidth = { TableColumnWidth.Inflexible.Wrap }
+                    ) {
                         for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                            tableRow { j ->
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
                                 }
                             }
                         }
@@ -318,17 +313,18 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Inflexible.Fixed(width = sizeDp) }) {
+                    Table(
+                        columnCount = columns,
+                        columnWidth = { TableColumnWidth.Inflexible.Fixed(width = sizeDp) }
+                    ) {
                         for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(height = sizeDp, expanded = true) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                            tableRow { j ->
+                                Container(height = sizeDp, expanded = true) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
                                 }
                             }
                         }
@@ -381,19 +377,17 @@ class TableTest : LayoutTest() {
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Table(columnWidth = { j ->
+                        Table(columnCount = columns, columnWidth = { j ->
                             TableColumnWidth.Inflexible.Fraction(fraction = fractions[j])
                         }) {
                             for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                                tableRow { j ->
+                                    Container(height = sizeDp, expanded = true) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
                                     }
                                 }
                             }
@@ -447,7 +441,7 @@ class TableTest : LayoutTest() {
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Table(columnWidth = { j ->
+                        Table(columnCount = columns, columnWidth = { j ->
                             TableColumnWidth.Inflexible.Min(
                                 a = TableColumnWidth.Inflexible.Fixed(width = minWidthDp),
                                 b = TableColumnWidth.Inflexible.Fraction(
@@ -456,15 +450,13 @@ class TableTest : LayoutTest() {
                             )
                         }) {
                             for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                                tableRow { j ->
+                                    Container(height = sizeDp, expanded = true) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
                                     }
                                 }
                             }
@@ -522,7 +514,7 @@ class TableTest : LayoutTest() {
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Table(columnWidth = { j ->
+                        Table(columnCount = columns, columnWidth = { j ->
                             TableColumnWidth.Inflexible.Max(
                                 a = TableColumnWidth.Inflexible.Fixed(width = maxWidthDp),
                                 b = TableColumnWidth.Inflexible.Fraction(
@@ -531,15 +523,13 @@ class TableTest : LayoutTest() {
                             )
                         }) {
                             for (i in 0 until rows) {
-                                tableRow {
-                                    for (j in 0 until columns) {
-                                        Container(height = sizeDp, expanded = true) {
-                                            SaveLayoutInfo(
-                                                size = childSize[i][j],
-                                                position = childPosition[i][j],
-                                                positionedLatch = positionedLatch
-                                            )
-                                        }
+                                tableRow { j ->
+                                    Container(height = sizeDp, expanded = true) {
+                                        SaveLayoutInfo(
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
+                                            positionedLatch = positionedLatch
+                                        )
                                     }
                                 }
                             }
@@ -594,20 +584,23 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Inflexible.Min(
-                        a = TableColumnWidth.Inflexible.Wrap,
-                        b = TableColumnWidth.Inflexible.Fixed(width = sizeDp)
-                    ) }) {
+                    Table(
+                        columnCount = columns,
+                        columnWidth = {
+                            TableColumnWidth.Inflexible.Min(
+                                a = TableColumnWidth.Inflexible.Wrap,
+                                b = TableColumnWidth.Inflexible.Fixed(width = sizeDp)
+                            )
+                        }
+                    ) {
                         for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = halfSizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                            tableRow { j ->
+                                Container(width = halfSizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
                                 }
                             }
                         }
@@ -657,20 +650,23 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Inflexible.Max(
-                        a = TableColumnWidth.Inflexible.Wrap,
-                        b = TableColumnWidth.Inflexible.Fixed(width = sizeDp)
-                    ) }) {
+                    Table(
+                        columnCount = columns,
+                        columnWidth = {
+                            TableColumnWidth.Inflexible.Max(
+                                a = TableColumnWidth.Inflexible.Wrap,
+                                b = TableColumnWidth.Inflexible.Fixed(width = sizeDp)
+                            )
+                        }
+                    ) {
                         for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = halfSizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                            tableRow { j ->
+                                Container(width = halfSizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
                                 }
                             }
                         }
@@ -718,20 +714,20 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Inflexible.Min(
-                        a = TableColumnWidth.Inflexible.Wrap,
-                        b = TableColumnWidth.Inflexible.Wrap
-                    ) }) {
+                    Table(columnCount = columns, columnWidth = {
+                        TableColumnWidth.Inflexible.Min(
+                            a = TableColumnWidth.Inflexible.Wrap,
+                            b = TableColumnWidth.Inflexible.Wrap
+                        )
+                    }) {
                         for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                            tableRow { j ->
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
                                 }
                             }
                         }
@@ -779,20 +775,20 @@ class TableTest : LayoutTest() {
                     tableSize.value = coordinates.size
                     positionedLatch.countDown()
                 }) {
-                    Table(columnWidth = { TableColumnWidth.Inflexible.Max(
-                        a = TableColumnWidth.Inflexible.Wrap,
-                        b = TableColumnWidth.Inflexible.Wrap
-                    ) }) {
+                    Table(columnCount = columns, columnWidth = {
+                        TableColumnWidth.Inflexible.Max(
+                            a = TableColumnWidth.Inflexible.Wrap,
+                            b = TableColumnWidth.Inflexible.Wrap
+                        )
+                    }) {
                         for (i in 0 until rows) {
-                            tableRow {
-                                for (j in 0 until columns) {
-                                    Container(width = sizeDp, height = sizeDp) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][j],
-                                            position = childPosition[i][j],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
+                            tableRow { j ->
+                                Container(width = sizeDp, height = sizeDp) {
+                                    SaveLayoutInfo(
+                                        size = childSize[i][j],
+                                        position = childPosition[i][j],
+                                        positionedLatch = positionedLatch
+                                    )
                                 }
                             }
                         }
@@ -845,7 +841,7 @@ class TableTest : LayoutTest() {
                         tableSize.value = coordinates.size
                         positionedLatch.countDown()
                     }) {
-                        Table(columnWidth = { j ->
+                        Table(columnCount = columns, columnWidth = { j ->
                             when (j) {
                                 0 -> TableColumnWidth.Inflexible.Wrap
                                 1 -> TableColumnWidth.Flexible(flex = 1f)
@@ -855,39 +851,15 @@ class TableTest : LayoutTest() {
                             }
                         }) {
                             for (i in 0 until rows) {
-                                tableRow {
-                                    Container(height = sizeDp, width = halfSizeDp) {
+                                tableRow { j ->
+                                    Container(
+                                        width = if (j == 0) halfSizeDp else null,
+                                        height = sizeDp,
+                                        expanded = j != 0
+                                    ) {
                                         SaveLayoutInfo(
-                                            size = childSize[i][0],
-                                            position = childPosition[i][0],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
-                                    Container(height = sizeDp, expanded = true) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][1],
-                                            position = childPosition[i][1],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
-                                    Container(height = sizeDp, expanded = true) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][2],
-                                            position = childPosition[i][2],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
-                                    Container(height = sizeDp, expanded = true) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][3],
-                                            position = childPosition[i][3],
-                                            positionedLatch = positionedLatch
-                                        )
-                                    }
-                                    Container(height = sizeDp, expanded = true) {
-                                        SaveLayoutInfo(
-                                            size = childSize[i][4],
-                                            position = childPosition[i][4],
+                                            size = childSize[i][j],
+                                            position = childPosition[i][j],
                                             positionedLatch = positionedLatch
                                         )
                                     }
