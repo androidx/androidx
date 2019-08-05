@@ -35,7 +35,6 @@ import androidx.compose.composer
  */
 @Composable
 fun Draw(
-    @Children(composable = false)
     onPaint: DensityReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode
@@ -60,7 +59,6 @@ fun Draw(
 @Composable
 fun Draw(
     children: @Composable() () -> Unit,
-    @Children(composable = false)
     onPaint: DrawReceiver.(canvas: Canvas, parentSize: PxSize) -> Unit
 ) {
     // Hide the internals of DrawNode

@@ -110,7 +110,7 @@ sealed class TableColumnWidth {
 fun Table(
     childAlignment: Alignment = Alignment.TopLeft,
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flexible(1f) },
-    @Children(composable = false) block: TableChildren.() -> Unit
+    block: TableChildren.() -> Unit
 ) {
     val children: @Composable() () -> Unit = with(TableChildren()) {
         apply(block)
