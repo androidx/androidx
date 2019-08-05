@@ -37,7 +37,6 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Phaser
 import java.util.concurrent.TimeUnit
 
 @MediumTest
@@ -90,28 +89,29 @@ class FlowQueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
-        val barrier = Phaser(2)
+        val firstResultLatch = CountDownLatch(1)
+        val secondResultLatch = CountDownLatch(1)
         val results = mutableListOf<List<Book>>()
         val job = async(Dispatchers.IO) {
             booksDao.getBooksFlow().collect {
                 when (results.size) {
                     0 -> {
                         results.add(it)
-                        barrier.arrive()
+                        firstResultLatch.countDown()
                     }
                     1 -> {
                         results.add(it)
-                        barrier.arrive()
+                        secondResultLatch.countDown()
                     }
                     else -> fail("Should have only collected 2 results.")
                 }
             }
         }
 
-        barrier.arriveAndAwaitAdvance()
+        firstResultLatch.await()
         booksDao.insertBookSuspend(TestUtil.BOOK_3)
 
-        barrier.arriveAndAwaitAdvance()
+        secondResultLatch.await()
         assertThat(results.size).isEqualTo(2)
         assertThat(results[0])
             .isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))

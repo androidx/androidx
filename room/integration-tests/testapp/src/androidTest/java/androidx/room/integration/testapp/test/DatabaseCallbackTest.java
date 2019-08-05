@@ -41,7 +41,6 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,11 +51,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class DatabaseCallbackTest {
 
     @Test
-    @MediumTest
     public void createAndOpen() {
         Context context = ApplicationProvider.getApplicationContext();
         TestDatabaseCallback callback1 = new TestDatabaseCallback();
@@ -95,7 +94,6 @@ public class DatabaseCallbackTest {
     }
 
     @Test
-    @SmallTest
     public void writeOnCreate() {
         Context context = ApplicationProvider.getApplicationContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
@@ -124,7 +122,6 @@ public class DatabaseCallbackTest {
     }
 
     @Test
-    @SmallTest
     public void exceptionOnCreate() {
         Context context = ApplicationProvider.getApplicationContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
@@ -155,7 +152,6 @@ public class DatabaseCallbackTest {
     }
 
     @Test
-    @MediumTest
     public void corruptExceptionOnCreate() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
 
@@ -188,7 +184,6 @@ public class DatabaseCallbackTest {
     }
 
     @Test
-    @SmallTest
     public void onDestructiveMigration_calledOnUpgrade() {
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase("products.db");
