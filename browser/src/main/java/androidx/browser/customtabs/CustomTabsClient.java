@@ -239,10 +239,19 @@ public class CustomTabsClient {
     private @Nullable CustomTabsSession newSessionInternal(final CustomTabsCallback callback,
                 @Nullable PendingIntent sessionId) {
         ICustomTabsCallback.Stub wrapper = createCallbackWrapper(callback);
-        Bundle extras = new Bundle();
-        if (sessionId != null) extras.putParcelable(CustomTabsIntent.EXTRA_SESSION_ID, sessionId);
+
         try {
-            if (!mService.newSessionWithExtras(wrapper, extras)) return null;
+            boolean success;
+
+            if (sessionId != null) {
+                Bundle extras = new Bundle();
+                extras.putParcelable(CustomTabsIntent.EXTRA_SESSION_ID, sessionId);
+                success = mService.newSessionWithExtras(wrapper, extras);
+            } else {
+                success = mService.newSession(wrapper);
+            }
+
+            if (!success) return null;
         } catch (RemoteException e) {
             return null;
         }
