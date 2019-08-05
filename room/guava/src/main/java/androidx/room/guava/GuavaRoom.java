@@ -18,7 +18,11 @@ package androidx.room.guava;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
+import android.os.CancellationSignal;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.RoomDatabase;
@@ -49,7 +53,7 @@ public class GuavaRoom {
      * {@link ArchTaskExecutor}'s background-threaded Executor.
      *
      * @deprecated Use {@link #createListenableFuture(RoomDatabase, boolean, Callable,
-     *             RoomSQLiteQuery, boolean)}
+     *             RoomSQLiteQuery, boolean, CancellationSignal)}
      */
     @Deprecated
     public static <T> ListenableFuture<T> createListenableFuture(
@@ -57,7 +61,7 @@ public class GuavaRoom {
             final RoomSQLiteQuery query,
             final boolean releaseQuery) {
         return createListenableFuture(
-                ArchTaskExecutor.getIOThreadExecutor(), callable, query, releaseQuery);
+                ArchTaskExecutor.getIOThreadExecutor(), callable, query, releaseQuery, null);
     }
 
     /**
@@ -65,7 +69,7 @@ public class GuavaRoom {
      * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
      *
      * @deprecated Use {@link #createListenableFuture(RoomDatabase, boolean, Callable,
-     *             RoomSQLiteQuery, boolean)}
+     *             RoomSQLiteQuery, boolean, CancellationSignal)}
      */
     @Deprecated
     public static <T> ListenableFuture<T> createListenableFuture(
@@ -74,13 +78,14 @@ public class GuavaRoom {
             final RoomSQLiteQuery query,
             final boolean releaseQuery) {
         return createListenableFuture(
-                roomDatabase.getQueryExecutor(), callable, query, releaseQuery);
+                roomDatabase.getQueryExecutor(), callable, query, releaseQuery, null);
     }
 
     /**
      * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
      * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
      */
+    @SuppressLint("LambdaLast")
     public static <T> ListenableFuture<T> createListenableFuture(
             final RoomDatabase roomDatabase,
             final boolean inTransaction,
@@ -88,15 +93,43 @@ public class GuavaRoom {
             final RoomSQLiteQuery query,
             final boolean releaseQuery) {
         return createListenableFuture(
-                getExecutor(roomDatabase, inTransaction), callable, query, releaseQuery);
+                getExecutor(roomDatabase, inTransaction), callable, query, releaseQuery, null);
+    }
+
+    /**
+     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
+     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
+     */
+    @NonNull
+    public static <T> ListenableFuture<T> createListenableFuture(
+            final @NonNull RoomDatabase roomDatabase,
+            final boolean inTransaction,
+            final @NonNull Callable<T> callable,
+            final @NonNull RoomSQLiteQuery query,
+            final boolean releaseQuery,
+            final @Nullable CancellationSignal cancellationSignal) {
+        return createListenableFuture(
+                getExecutor(roomDatabase, inTransaction), callable, query, releaseQuery,
+                cancellationSignal);
     }
 
     private static <T> ListenableFuture<T> createListenableFuture(
             final Executor executor,
             final Callable<T> callable,
             final RoomSQLiteQuery query,
-            final boolean releaseQuery) {
+            final boolean releaseQuery,
+            final @Nullable CancellationSignal cancellationSignal) {
         ListenableFutureTask<T> listenableFutureTask = ListenableFutureTask.create(callable);
+        if (cancellationSignal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            listenableFutureTask.addListener(new Runnable() {
+                @Override
+                public void run() {
+                    if (listenableFutureTask.isCancelled()) {
+                        cancellationSignal.cancel();
+                    }
+                }
+            }, directExecutor());
+        }
         executor.execute(listenableFutureTask);
 
         if (releaseQuery) {
@@ -126,9 +159,10 @@ public class GuavaRoom {
      * @deprecated Use {@link #createListenableFuture(RoomDatabase, boolean, Callable)}
      */
     @Deprecated
+    @NonNull
     public static <T> ListenableFuture<T> createListenableFuture(
-            final RoomDatabase roomDatabase,
-            final Callable<T> callable) {
+            final @NonNull RoomDatabase roomDatabase,
+            final @NonNull Callable<T> callable) {
         return createListenableFuture(roomDatabase, false, callable);
     }
 
@@ -136,10 +170,11 @@ public class GuavaRoom {
      * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
      * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
      */
+    @NonNull
     public static <T> ListenableFuture<T> createListenableFuture(
-            final RoomDatabase roomDatabase,
+            final @NonNull RoomDatabase roomDatabase,
             final boolean inTransaction,
-            final Callable<T> callable) {
+            final @NonNull Callable<T> callable) {
         ListenableFutureTask<T> listenableFutureTask = ListenableFutureTask.create(callable);
         getExecutor(roomDatabase, inTransaction).execute(listenableFutureTask);
         return listenableFutureTask;

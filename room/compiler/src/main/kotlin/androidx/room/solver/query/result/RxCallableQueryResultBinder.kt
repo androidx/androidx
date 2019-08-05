@@ -46,16 +46,14 @@ class RxCallableQueryResultBinder(
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
+        scope: CodeGenScope
     ) {
         val callable = CallableTypeSpecBuilder(typeArg.typeName()) {
             fillInCallMethod(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
-                scope = scope,
-                cancellationSignalVar = cancellationSignalVar)
+                scope = scope)
         }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
@@ -74,8 +72,7 @@ class RxCallableQueryResultBinder(
         roomSQLiteQueryVar: String,
         dbField: FieldSpec,
         inTransaction: Boolean,
-        scope: CodeGenScope,
-        cancellationSignalVar: String
+        scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
         val transactionWrapper = if (inTransaction) {
@@ -94,7 +91,7 @@ class RxCallableQueryResultBinder(
                 dbField,
                 roomSQLiteQueryVar,
                 if (shouldCopyCursor) "true" else "false",
-                cancellationSignalVar)
+                "null")
         beginControlFlow("try").apply {
             adapter?.convert(outVar, cursorVar, adapterScope)
             addCode(adapterScope.generate())
