@@ -20,6 +20,8 @@ import androidx.annotation.FloatRange
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.state
+import androidx.compose.unaryPlus
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
@@ -41,6 +43,8 @@ import androidx.ui.core.min
 class TableChildren internal constructor() {
 
     internal val tableChildren = mutableListOf<@Composable() () -> Unit>()
+    internal val tableDecorations = mutableListOf<TableDecoration>()
+
     private var rowGroup = 0
 
     fun tableRow(children: @Composable() () -> Unit) {
@@ -48,7 +52,14 @@ class TableChildren internal constructor() {
             ParentData(data = TableChildData(rowGroup++), children = children)
         }
     }
+
+    fun addDecoration(decoration: TableDecoration) {
+        tableDecorations += decoration
+    }
 }
+
+typealias TableDecoration =
+        @Composable() (verticalOffsets: Array<IntPx>, horizontalOffsets: Array<IntPx>) -> Unit
 
 /**
  * Parent data associated with children to assign a row group.
@@ -112,10 +123,16 @@ fun Table(
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flexible(1f) },
     @Children(composable = false) block: TableChildren.() -> Unit
 ) {
+    val verticalOffsets = +state { emptyArray<IntPx>() }
+    val horizontalOffsets = +state { emptyArray<IntPx>() }
+
     val children: @Composable() () -> Unit = with(TableChildren()) {
         apply(block)
         val composable = @Composable {
             tableChildren.forEach { it() }
+            tableDecorations.forEach { decoration ->
+                decoration(verticalOffsets.value, horizontalOffsets.value)
+            }
         }
         composable
     }
@@ -211,9 +228,25 @@ fun Table(
             }
         }
 
+        // Compute row/column offsets.
+        val rowOffsets = Array(rowCount + 1) { IntPx.Zero }
+        val columnOffsets = Array(columnCount + 1) { IntPx.Zero }
+        for (row in 0 until rowCount) {
+            rowOffsets[row + 1] = rowOffsets[row] + rowHeights[row]
+        }
+        for (column in 0 until columnCount) {
+            columnOffsets[column + 1] = columnOffsets[column] + columnWidths[column]
+        }
+
+        // Force recomposition of decorations.
+        verticalOffsets.value = rowOffsets
+        horizontalOffsets.value = columnOffsets
+
         // TODO(calintat): Figure out what to do when these exceed max constraints.
-        val tableWidth = columnWidths.sum().coerceIn(constraints.minWidth, constraints.maxWidth)
-        val tableHeight = rowHeights.sum().coerceIn(constraints.minHeight, constraints.maxHeight)
+        val tableWidth =
+            columnOffsets[columnCount].coerceIn(constraints.minWidth, constraints.maxWidth)
+        val tableHeight =
+            rowOffsets[rowCount].coerceIn(constraints.minHeight, constraints.maxHeight)
 
         layout(tableWidth, tableHeight) {
             for (row in 0 until rowCount) {
@@ -226,14 +259,11 @@ fun Table(
                         )
                     )
                     placeable.place(
-                        x = columnWidths.take(column).sum() + position.x,
-                        y = rowHeights.take(row).sum() + position.y
+                        x = columnOffsets[column] + position.x,
+                        y = rowOffsets[row] + position.y
                     )
                 }
             }
         }
     }
 }
-
-internal fun Array<IntPx>.sum() = this.fold(IntPx.Zero) { a, b -> a + b }
-internal fun Collection<IntPx>.sum() = this.fold(IntPx.Zero) { a, b -> a + b }

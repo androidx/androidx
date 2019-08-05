@@ -28,5 +28,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".TableBordersActivity"
+              android:configChanges="orientation|screenSize"
+              android:label="Foundation/TableBorders">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
