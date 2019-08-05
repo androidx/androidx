@@ -1056,6 +1056,8 @@ final class Camera implements BaseCamera {
                 mObservableState.postValue(State.CLOSED);
                 break;
             case PENDING_OPEN:
+                mObservableState.postValue(State.PENDING_OPEN);
+                break;
             case OPENING:
             case REOPENING:
                 mObservableState.postValue(State.OPENING);

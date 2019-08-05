@@ -659,6 +659,30 @@ public class CameraImplTest {
     }
 
     @Test
+    public void cameraTransitionsThroughPendingState_whenNoCamerasAvailable() {
+        @SuppressWarnings("unchecked") // Cannot mock generic type inline
+                Observable.Observer<BaseCamera.State> mockObserver =
+                mock(Observable.Observer.class);
+
+        // Set the available cameras to zero
+        mAvailableCameras.setValue(0);
+
+        mCamera.getCameraState().addObserver(CameraXExecutors.directExecutor(), mockObserver);
+
+        mCamera.open();
+
+        // Ensure that the camera gets to a PENDING_OPEN state
+        verify(mockObserver, timeout(3000)).onNewData(BaseCamera.State.PENDING_OPEN);
+
+        // Allow camera to be opened
+        mAvailableCameras.setValue(1);
+
+        verify(mockObserver, timeout(3000)).onNewData(BaseCamera.State.OPEN);
+
+        mCamera.getCameraState().removeObserver(mockObserver);
+    }
+
+    @Test
     public void cameraStateIsReleased_afterRelease()
             throws ExecutionException, InterruptedException {
         Observable<BaseCamera.State> state = mCamera.getCameraState();

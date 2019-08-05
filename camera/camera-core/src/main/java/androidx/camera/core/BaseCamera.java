@@ -40,6 +40,13 @@ public interface BaseCamera extends UseCase.StateChangeListener,
      */
     enum State {
         /**
+         * Camera is waiting for resources to become available before opening.
+         *
+         * <p>The camera will automatically transition to an {@link #OPENING} state once resources
+         * have become available. Resources are typically made available by other cameras closing.
+         */
+        PENDING_OPEN,
+        /**
          * Camera is in the process of opening.
          *
          * <p>This is a transitive state.
