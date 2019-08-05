@@ -35,7 +35,7 @@ class DispatchingExecutor : Executor {
         }
     }
 
-    fun waitForIdle() {
+    fun runAllCommands() {
         runBlocking {
             job.complete(Unit)
             job.join()
