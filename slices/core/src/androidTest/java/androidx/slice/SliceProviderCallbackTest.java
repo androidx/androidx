@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
 import androidx.remotecallback.RemoteCallable;
 import androidx.remotecallback.RemoteCallback;
 import androidx.test.core.app.ApplicationProvider;
@@ -156,7 +157,7 @@ public class SliceProviderCallbackTest {
         }
 
         @Override
-        public Slice onBindSlice(Uri sliceUri) {
+        public Slice onBindSlice(@NonNull Uri sliceUri) {
             return null;
         }
     }

@@ -129,12 +129,12 @@ public class SampleSliceProvider extends SliceProvider {
 
     @NonNull
     @Override
-    public Uri onMapIntentToUri(Intent intent) {
+    public Uri onMapIntentToUri(@NonNull Intent intent) {
         return getUri("wifi", getContext());
     }
 
     @Override
-    public Slice onBindSlice(Uri sliceUri) {
+    public Slice onBindSlice(@NonNull Uri sliceUri) {
         String path = sliceUri.getPath();
         if (!path.equals("/loadlist")) {
             mListSummaries.clear();
