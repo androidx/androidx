@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2019 The Android Open Source Project
  *
@@ -16,8 +17,8 @@
 
 package androidx.ui.material
 
-import androidx.compose.Children
 import androidx.compose.Composable
+import androidx.compose.Immutable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
 import androidx.ui.core.CurrentTextStyleProvider
@@ -26,6 +27,7 @@ import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Shape
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.border.Border
 import androidx.ui.graphics.Color
 import androidx.ui.layout.Container
@@ -36,62 +38,133 @@ import androidx.ui.material.surface.Surface
 import androidx.ui.text.TextStyle
 
 /**
- * [Button] with flexible user interface. You can provide any content you want as a
- * [children] composable.
+ * Styling params for the [Button].
+ *
+ * @param color The background color. Provide [Color.Transparent] to have no color.
+ * @param shape Defines the Button's shape as well its shadow.
+ * @param border Optional border to draw on top of the shape.
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ *  of the shadow below the button.
+ * @param paddings The paddings to apply for the Button's container.
+ * @param textStyle The text style to apply for the children [Text] components.
+ */
+@Immutable
+data class ButtonStyle(
+    val color: Color,
+    val shape: Shape,
+    val border: Border? = null,
+    val elevation: Dp = 0.dp,
+    val paddings: EdgeInsets = ButtonPaddings,
+    val textStyle: TextStyle? = null
+)
+
+/**
+ * Contained buttons are high-emphasis, distinguished by their use of elevation and fill. They
+ * contain actions that are primary to your app.
+ *
+ * @sample androidx.ui.material.samples.ContainedButtonSample
+ *
+ * @see OutlinedButtonStyle
+ * @see TextButtonStyle
+ *
+ * @param color The background color.
+ * @param shape Defines the Button's shape and shadow.
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ *  of the shadow below the button.
+ */
+fun ContainedButtonStyle(
+    color: Color = +themeColor { primary },
+    shape: Shape = +themeShape { button },
+    elevation: Dp = 0.dp // TODO update to 2.dp when DrawShadow will be ready
+) = ButtonStyle(
+    color = color,
+    shape = shape,
+    elevation = elevation
+)
+
+/**
+ * Outlined buttons are medium-emphasis buttons. They contain actions that are important, but aren’t
+ * the primary action in an app.
+ * Outlined buttons are also a lower emphasis alternative to contained buttons, or a higher emphasis
+ * alternative to text buttons.
+ *
+ * @sample androidx.ui.material.samples.OutlinedButtonSample
+ *
+ * @see ContainedButtonStyle
+ * @see TextButtonStyle
+ *
+ * @param border Border to draw on top of the button.
+ * @param color The background color. Provide [Color.Transparent] to have no color.
+ * @param shape Defines the Button's shape.
+ * @param elevation The z-coordinate at which to place this button. This controls the size
+ *  of the shadow below the button.
+ */
+fun OutlinedButtonStyle(
+    border: Border = Border(+themeColor { onSurface.copy(alpha = OutlinedStrokeOpacity) }, 1.dp),
+    color: Color = +themeColor { surface },
+    shape: Shape = +themeShape { button },
+    elevation: Dp = 0.dp
+) = ButtonStyle(
+    color = color,
+    shape = shape,
+    border = border,
+    elevation = elevation,
+    textStyle = TextStyle(color = +themeColor { primary })
+)
+
+/**
+ * Text buttons are typically used for less-pronounced actions, including those located in cards and
+ * dialogs.
+ *
+ * @sample androidx.ui.material.samples.TextButtonSample
+ *
+ * @see ContainedButtonStyle
+ * @see OutlinedButtonStyle
+ *
+ * @param shape Defines the Button's shape.
+ */
+fun TextButtonStyle(
+    shape: Shape = +themeShape { button }
+) = ButtonStyle(
+    color = Color.Transparent,
+    shape = shape,
+    paddings = TextButtonPaddings,
+    textStyle = TextStyle(color = +themeColor { primary })
+)
+
+/**
+ * Material Design implementation of [Button].
  *
  * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
  * also make this [Button] to be displayed as a disabled one.
- * You can specify a [shape] of the surface, it's background [color] and an [elevation].
  *
  * The text style for internal [Text] components will be changed to [MaterialTypography.button],
  * text color will try to match the correlated color for the background [color]. For example,
  * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used for text.
- * To modify these default style values use [CurrentTextStyleProvider].
  *
- * Example:
- *     Button(onClick = { ... }) {
- *         Padding(padding = EdgeInsets(16.dp)) {
- *             Text(text=TextSpan(text="CUSTOM BUTTON"))
- *         }
- *     }
+ * @sample androidx.ui.material.samples.ButtonSample
  *
- * @see Button overload for the default Material Design implementation of [Button] with text.
+ * @see BaseButton for the flexible variant that does not provide an internal padded container.
  *
  * @param onClick Will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
- *  the [Shapes.button] value from the theme.
- * @param color The background color. [MaterialColors.primary] is used when null
- *  is provided. Provide [Color.Transparent] to have no color.
- * @param border Optional border to draw on top of the shape.
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
+ * @param style Contains the styling params for the Button.
  */
 @Composable
 fun Button(
     onClick: (() -> Unit)? = null,
-    shape: Shape = +themeShape { button },
-    color: Color = +themeColor { primary },
-    border: Border? = null,
-    elevation: Dp = 0.dp,
+    style: ButtonStyle = ContainedButtonStyle(),
     children: @Composable() () -> Unit
 ) {
-    val textStyle = +themeTextStyle { button }
-    Surface(shape = shape, color = color, border = border, elevation = elevation) {
-        CurrentTextStyleProvider(value = textStyle) {
-            val clickableChildren = @Composable {
-                Clickable(onClick = onClick) {
-                    children()
-                }
-            }
-            if (onClick != null) {
-                Ripple(bounded = true) {
-                    clickableChildren()
-                }
-            } else {
-                clickableChildren()
-            }
-        }
+    BaseButton(
+        onClick = onClick,
+        color = style.color,
+        shape = style.shape,
+        border = style.border,
+        elevation = style.elevation,
+        defaultTextStyle = +themeTextStyle { button.merge(style.textStyle) }
+    ) {
+        Container(constraints = ButtonConstraints, padding = style.paddings, children = children)
     }
 }
 
@@ -100,96 +173,69 @@ fun Button(
  *
  * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
  * also make this [Button] to be displayed as a disabled one.
- * You can specify a [shape] of the surface, it's background [color] and [elevation].
  *
- * The text style for internal [Text] components will be changed to [MaterialTypography.button],
- * text color will try to match the correlated color for the background [color]. For example,
- * on [MaterialColors.primary] background [MaterialColors.onPrimary] will be used for text.
+ * The text style for internal [Text] components will be changed to [MaterialTypography.button].
  *
- * Example:
- *     Button(
- *         onClick = { ... },
- *         text="TEXT"))
+ * @sample androidx.ui.material.samples.ButtonWithTextSample
  *
- * @see Button for the flexible implementation with a customizable content.
- * @see TransparentButton for the version with no background.
+ * @see Button for the version with a slot for a text so you can customize the text style.
  *
  * @param text The text to display.
- * @param textStyle The optional text style to apply for the text.
  * @param onClick Will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
- *  the [Shapes.button] value from the theme.
- * @param color The background color. [MaterialColors.primary] is used when null
- *  is provided. Use [TransparentButton] to have no color.
- * @param border Optional border to draw on top of the shape.
- * @param elevation The z-coordinate at which to place this button. This controls the size
- *  of the shadow below the button.
+ * @param style Contains the styling params for the Button.
  */
 @Composable
 fun Button(
     text: String,
-    textStyle: TextStyle? = null,
     onClick: (() -> Unit)? = null,
-    shape: Shape = +themeShape { button },
-    color: Color = +themeColor { primary },
-    border: Border? = null,
-    elevation: Dp = 0.dp
+    style: ButtonStyle = ContainedButtonStyle()
 ) {
-    Button(
-        onClick = onClick,
-        elevation = elevation,
-        color = color,
-        border = border,
-        shape = shape
-    ) {
-        val hasBackground = color.alpha > 0 || border != null
-        Container(
-            constraints = ButtonConstraints,
-            padding = if (hasBackground) ButtonPaddings else ButtonPaddingsNoBg
-        ) {
-            Text(text = text, style = textStyle)
-        }
+    Button(style = style, onClick = onClick) {
+        Text(text = text)
     }
 }
 
 /**
- * Material Design implementation of [Button] with [text] and no background.
- * This will also apply [MaterialColors.primary] as a text color by default, but
- * you can override this with [textStyle].
+ * [Button] with flexible user interface. You can provide any content as a [children] lambda.
  *
  * To make a [Button] clickable, you must provide an [onClick]. Not providing it will
  * also make this [Button] to be displayed as a disabled one.
- * You can specify a [shape] of the surface, it's background [color] and [elevation].
  *
- * @param text The text to display.
- * @param textStyle The optional text style to apply for the text.
+ * @sample androidx.ui.material.samples.BaseButtonSample
+ *
+ * @see Button overload for the default Material Design implementation of [Button] with text.
+ *
  * @param onClick Will be called when user clicked on the button. The button will be disabled
  *  when it is null.
- * @param shape Defines the Button's shape as well its shadow. When null is provided it uses
- *  the [Shapes.button] from [CurrentShapeAmbient].
- * @param border Optional border to draw on top of the shape.
+ * @param color The background color. Provide [Color.Transparent] to have no color.
+ * @param shape Defines the Button's shape as well its shadow.
+ * @param border Optional border to draw on top of the button.
  * @param elevation The z-coordinate at which to place this button. This controls the size
  *  of the shadow below the button.
+ * @param defaultTextStyle The text style to apply for the children [Text] components.
  */
 @Composable
-fun TransparentButton(
-    text: String,
-    textStyle: TextStyle? = null,
+fun BaseButton(
     onClick: (() -> Unit)? = null,
-    shape: Shape = +themeShape { button },
+    color: Color = +themeColor { primary },
+    shape: Shape = RectangleShape,
     border: Border? = null,
-    elevation: Dp = 0.dp
+    elevation: Dp = 0.dp,
+    defaultTextStyle: TextStyle = +themeTextStyle { button },
+    children: @Composable() () -> Unit
 ) {
-    val finalTextStyle = TextStyle(color = +themeColor { primary }).merge(textStyle)
-    Button(
-        text = text,
-        onClick = onClick,
-        shape = shape,
-        elevation = elevation,
-        textStyle = finalTextStyle,
-        border = border,
-        color = Color.Transparent)
+    Surface(shape, color, border, elevation) {
+        CurrentTextStyleProvider(value = defaultTextStyle) {
+            if (onClick != null) {
+                Ripple(bounded = true) {
+                    Clickable(onClick = onClick, children = children)
+                }
+            } else {
+                Clickable(children = children)
+            }
+        }
+    }
 }
 
 // Specification for Material Button:
@@ -197,18 +243,17 @@ private val ButtonConstraints = DpConstraints(
     minWidth = 64.dp,
     minHeight = 36.dp
 )
-private val ButtonHorPadding = 16.dp
-private val ButtonHorPaddingNoBg = 8.dp
-private val ButtonVerPadding = 8.dp
+private val ButtonHorizontalPadding = 16.dp
+private val ButtonVerticalPadding = 8.dp
 private val ButtonPaddings = EdgeInsets(
-    left = ButtonHorPadding,
-    top = ButtonVerPadding,
-    right = ButtonHorPadding,
-    bottom = ButtonVerPadding
+    left = ButtonHorizontalPadding,
+    top = ButtonVerticalPadding,
+    right = ButtonHorizontalPadding,
+    bottom = ButtonVerticalPadding
 )
-private val ButtonPaddingsNoBg = EdgeInsets(
-    left = ButtonHorPaddingNoBg,
-    top = ButtonVerPadding,
-    right = ButtonHorPaddingNoBg,
-    bottom = ButtonVerPadding
+private val TextButtonHorizontalPadding = 8.dp
+private val TextButtonPaddings = ButtonPaddings.copy(
+    left = TextButtonHorizontalPadding,
+    right = TextButtonHorizontalPadding
 )
+private val OutlinedStrokeOpacity = 0.12f

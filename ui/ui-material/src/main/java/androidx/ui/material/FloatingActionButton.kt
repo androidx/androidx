@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.unaryPlus
@@ -66,7 +65,12 @@ fun FloatingActionButton(
     elevation: Dp = 0.dp, // TODO(Andrey) add the default elevation when it ready b/123215187
     children: @Composable() () -> Unit
 ) {
-    Button(color = color, onClick = onClick, shape = shape, elevation = elevation) {
+    BaseButton(
+        color = color,
+        shape = shape,
+        elevation = elevation,
+        onClick = onClick
+    ) {
         Container(constraints = DpConstraints(minWidth = minSize, minHeight = minSize)) {
             children()
         }

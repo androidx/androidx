@@ -29,6 +29,7 @@ import androidx.ui.layout.FixedSpacer
 import androidx.ui.layout.Wrap
 import androidx.ui.material.Button
 import androidx.ui.material.MaterialTheme
+import androidx.ui.material.OutlinedButtonStyle
 
 class CustomShapeActivity : MaterialDemoActivity() {
 
@@ -48,10 +49,12 @@ fun CustomShapeDemo() {
     MaterialTheme {
         Wrap(Alignment.Center) {
             Button(
-                shape = TriangleShape,
-                color = Color.Aqua,
                 onClick = {},
-                border = Border(Color.DarkGray, 1.dp)
+                style = OutlinedButtonStyle(
+                    shape = TriangleShape,
+                    color = Color.Aqua,
+                    border = Border(Color.DarkGray, 1.dp)
+                )
             ) {
                 FixedSpacer(100.dp, 100.dp)
             }
