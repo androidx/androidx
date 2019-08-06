@@ -37,9 +37,9 @@ dependencies {
     implementation "androidx.core:core:1.0.2"
 
     implementation project(":compose:compose-runtime")
-    implementation project(":ui:ui-core")
+    api project(":ui:ui-core")
     implementation project(":ui:ui-platform")
-    implementation project(":ui:ui-text")
+    api project(":ui:ui-text")
     implementation project(":ui:ui-vector")
 
     testImplementation(ANDROIDX_TEST_RULES)
