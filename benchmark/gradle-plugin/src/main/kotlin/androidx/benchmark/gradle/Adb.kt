@@ -43,6 +43,15 @@ class Adb {
         this.logger = logger
     }
 
+    fun isRooted(): Boolean {
+        val defaultUser = execSync("shell id").stdout
+        if (defaultUser.contains("uid=0(root)")) {
+            return true
+        }
+
+        return execSync("shell su exit", shouldThrow = false).exitValue == 0
+    }
+
     fun execSync(
         adbCmd: String,
         deviceId: String? = null,
