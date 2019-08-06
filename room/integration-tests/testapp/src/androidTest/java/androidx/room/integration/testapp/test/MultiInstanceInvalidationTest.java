@@ -190,7 +190,7 @@ public class MultiInstanceInvalidationTest {
 
         assertTrue(changed1.second.await(3, TimeUnit.SECONDS));
         assertTrue(changed2.second.await(3, TimeUnit.SECONDS));
-        assertFalse(changed3.second.await(300, TimeUnit.MILLISECONDS));
+        assertFalse(changed3.second.await(3, TimeUnit.SECONDS));
     }
 
     @Test
