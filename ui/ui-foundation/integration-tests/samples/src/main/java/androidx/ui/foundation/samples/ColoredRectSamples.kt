@@ -22,7 +22,7 @@ import androidx.compose.composer
 import androidx.ui.core.dp
 import androidx.ui.foundation.ColoredRect
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.vectorgraphics.SolidColor
+import androidx.ui.graphics.SolidColor
 
 @Sampled
 @Composable

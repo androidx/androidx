@@ -21,6 +21,13 @@ import android.util.AttributeSet
 import androidx.core.content.res.TypedArrayUtils
 import androidx.ui.core.Px
 import androidx.ui.core.vectorgraphics.VectorAssetBuilder
+
+import androidx.ui.graphics.EmptyBrush
+
+import androidx.ui.graphics.vectorgraphics.PathNode
+import androidx.ui.vector.addPathNodes
+import androidx.ui.painting.StrokeCap
+import androidx.ui.painting.StrokeJoin
 import androidx.ui.vector.DefaultPivotX
 import androidx.ui.vector.DefaultPivotY
 import androidx.ui.vector.DefaultRotation
@@ -28,12 +35,7 @@ import androidx.ui.vector.DefaultScaleX
 import androidx.ui.vector.DefaultScaleY
 import androidx.ui.vector.DefaultTranslationX
 import androidx.ui.vector.DefaultTranslationY
-import androidx.ui.graphics.vectorgraphics.EmptyBrush
 import androidx.ui.vector.EmptyPath
-import androidx.ui.graphics.vectorgraphics.PathNode
-import androidx.ui.vector.addPathNodes
-import androidx.ui.painting.StrokeCap
-import androidx.ui.painting.StrokeJoin
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
