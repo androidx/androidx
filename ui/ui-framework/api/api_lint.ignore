@@ -1,13 +1,13 @@
 // Baseline format: 1.0
-BannedThrow: androidx.ui.core.vectorgraphics.PathCommandKt#toPathCommand(char):
-    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
-BannedThrow: androidx.ui.core.vectorgraphics.PathParser#parsePathString(String):
-    Methods must not mention RuntimeException subclasses in throws clauses (was `java.lang.IllegalArgumentException`)
-
-
 CallbackName: androidx.ui.core.gesture.DragObserver:
     Class should be named DragCallback
 
 
-DocumentExceptions: androidx.ui.core.vectorgraphics.BrushKt#obtainBrush(Object):
-    Method BrushKt.obtainBrush appears to be throwing java.lang.IllegalArgumentException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
+MissingNullability: androidx.ui.core.LayoutResult#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.LayoutResult`
+MissingNullability: androidx.ui.core.TextSpanComposition#unaryPlus(androidx.compose.Effect<V>):
+    Missing nullability on method `unaryPlus` return
+MissingNullability: androidx.ui.semantics.SemanticsActions#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.semantics.SemanticsActions`
+MissingNullability: androidx.ui.semantics.SemanticsProperties#INSTANCE:
+    Missing nullability on field `INSTANCE` in class `class androidx.ui.semantics.SemanticsProperties`

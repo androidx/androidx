@@ -121,3 +121,91 @@ KotlinOperator: androidx.ui.text.TextRange#contains(int):
 
 MethodNameUnits: androidx.ui.core.Durations#inSeconds(androidx.ui.core.Duration):
     Returned time values must be in milliseconds, was `inSeconds`
+
+
+MissingNullability: androidx.ui.core.Constraints#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Constraints`
+MissingNullability: androidx.ui.core.DensityKt#withDensity(androidx.ui.core.Density, kotlin.jvm.functions.Function1<? super androidx.ui.core.DensityReceiver,? extends R>):
+    Missing nullability on method `withDensity` return
+MissingNullability: androidx.ui.core.Dp#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Dp`
+MissingNullability: androidx.ui.core.DpCubed#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.DpCubed#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.DpInverse#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.DpInverse#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.DpSquared#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.DpSquared#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.Duration#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Duration`
+MissingNullability: androidx.ui.core.IntPx#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.IntPx`
+MissingNullability: androidx.ui.core.Px#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Px`
+MissingNullability: androidx.ui.core.PxCubed#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.PxCubed#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.PxInverse#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.PxInverse#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.PxKt#getMinDimension(androidx.ui.core.PxSize):
+    Missing nullability on method `getMinDimension` return
+MissingNullability: androidx.ui.core.PxPosition#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.PxPosition`
+MissingNullability: androidx.ui.core.PxSize#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.PxSize`
+MissingNullability: androidx.ui.core.PxSquared#equals(Object) parameter #0:
+    Missing nullability on parameter `p` in method `equals`
+MissingNullability: androidx.ui.core.PxSquared#toString():
+    Missing nullability on method `toString` return
+MissingNullability: androidx.ui.core.Sp#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Sp`
+MissingNullability: androidx.ui.core.Velocity#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.core.Velocity`
+MissingNullability: androidx.ui.engine.geometry.Offset#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Offset`
+MissingNullability: androidx.ui.engine.geometry.RRect#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.RRect`
+MissingNullability: androidx.ui.engine.geometry.Radius#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Radius`
+MissingNullability: androidx.ui.engine.geometry.Rect#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Rect`
+MissingNullability: androidx.ui.engine.geometry.Size#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.engine.geometry.Size`
+MissingNullability: androidx.ui.graphics.Color#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.Color`
+MissingNullability: androidx.ui.graphics.ColorSpace#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.ColorSpace`
+MissingNullability: androidx.ui.graphics.ColorSpace.Connector#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.ColorSpace.Connector`
+MissingNullability: androidx.ui.graphics.ColorSpace.Named#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.ColorSpace.Named`
+MissingNullability: androidx.ui.graphics.ColorSpace.Rgb#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.graphics.ColorSpace.Rgb`
+MissingNullability: androidx.ui.painting.Gradient#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.painting.Gradient`
+MissingNullability: androidx.ui.painting.MaskFilter#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.painting.MaskFilter`
+MissingNullability: androidx.ui.painting.Path#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.painting.Path`
+MissingNullability: androidx.ui.semantics.SemanticsPropertyKey#getValue(androidx.ui.semantics.SemanticsPropertyReceiver, kotlin.reflect.KProperty<?>):
+    Missing nullability on method `getValue` return
+MissingNullability: androidx.ui.semantics.SemanticsPropertyKey#merge(T, T):
+    Missing nullability on method `merge` return
+MissingNullability: androidx.ui.text.TextSelection#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.text.TextSelection`
+MissingNullability: androidx.ui.util.Float16#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.util.Float16`
+MissingNullability: androidx.ui.vectormath64.Matrix2#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix2`
+MissingNullability: androidx.ui.vectormath64.Matrix3#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix3`
+MissingNullability: androidx.ui.vectormath64.Matrix4#Companion:
+    Missing nullability on field `Companion` in class `class androidx.ui.vectormath64.Matrix4`
