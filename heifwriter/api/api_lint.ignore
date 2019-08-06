@@ -3,6 +3,22 @@ GenericException: androidx.heifwriter.HeifWriter#stop(long):
     Methods must not throw generic exceptions (`java.lang.Exception`)
 
 
+MissingNullability: androidx.heifwriter.HeifWriter.Builder#build():
+    Missing nullability on method `build` return
+MissingNullability: androidx.heifwriter.HeifWriter.Builder#setGridEnabled(boolean):
+    Missing nullability on method `setGridEnabled` return
+MissingNullability: androidx.heifwriter.HeifWriter.Builder#setHandler(android.os.Handler):
+    Missing nullability on method `setHandler` return
+MissingNullability: androidx.heifwriter.HeifWriter.Builder#setMaxImages(int):
+    Missing nullability on method `setMaxImages` return
+MissingNullability: androidx.heifwriter.HeifWriter.Builder#setPrimaryIndex(int):
+    Missing nullability on method `setPrimaryIndex` return
+MissingNullability: androidx.heifwriter.HeifWriter.Builder#setQuality(int):
+    Missing nullability on method `setQuality` return
+MissingNullability: androidx.heifwriter.HeifWriter.Builder#setRotation(int):
+    Missing nullability on method `setRotation` return
+
+
 NoClone: androidx.heifwriter.HeifWriter.Builder#Builder(java.io.FileDescriptor, int, int, int) parameter #0:
     Must use ParcelFileDescriptor instead of FileDescriptor in parameter fd in androidx.heifwriter.HeifWriter.Builder(java.io.FileDescriptor fd, int width, int height, int inputMode)
 

@@ -1,0 +1,17 @@
+// Baseline format: 1.0
+MissingNullability: androidx.room.EmptyResultSetException#EmptyResultSetException(String) parameter #0:
+    Missing nullability on parameter `message` in method `EmptyResultSetException`
+MissingNullability: androidx.room.RxRoom#NOTHING:
+    Missing nullability on field `NOTHING` in class `class androidx.room.RxRoom`
+MissingNullability: androidx.room.RxRoom#createFlowable(androidx.room.RoomDatabase, java.lang.String...):
+    Missing nullability on method `createFlowable` return
+MissingNullability: androidx.room.RxRoom#createFlowable(androidx.room.RoomDatabase, java.lang.String...) parameter #0:
+    Missing nullability on parameter `database` in method `createFlowable`
+MissingNullability: androidx.room.RxRoom#createFlowable(androidx.room.RoomDatabase, java.lang.String...) parameter #1:
+    Missing nullability on parameter `tableNames` in method `createFlowable`
+MissingNullability: androidx.room.RxRoom#createObservable(androidx.room.RoomDatabase, java.lang.String...):
+    Missing nullability on method `createObservable` return
+MissingNullability: androidx.room.RxRoom#createObservable(androidx.room.RoomDatabase, java.lang.String...) parameter #0:
+    Missing nullability on parameter `database` in method `createObservable`
+MissingNullability: androidx.room.RxRoom#createObservable(androidx.room.RoomDatabase, java.lang.String...) parameter #1:
+    Missing nullability on parameter `tableNames` in method `createObservable`

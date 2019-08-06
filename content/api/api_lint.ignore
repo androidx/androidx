@@ -7,3 +7,13 @@ ActionValue: androidx.contentpager.content.ContentPager#EXTRA_SUGGESTED_LIMIT:
     Inconsistent extra value; expected `androidx.contentpager.content.extra.SUGGESTED_LIMIT`, was `android-support:extra-suggested-limit`
 ActionValue: androidx.contentpager.content.ContentPager#EXTRA_TOTAL_COUNT:
     Inconsistent extra value; expected `androidx.contentpager.content.extra.TOTAL_COUNT`, was `android.content.extra.TOTAL_COUNT`
+
+
+MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner) parameter #0:
+    Missing nullability on parameter `resolver` in method `ContentPager`
+MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner) parameter #1:
+    Missing nullability on parameter `queryRunner` in method `ContentPager`
+MissingNullability: androidx.contentpager.content.Query#equals(Object) parameter #0:
+    Missing nullability on parameter `obj` in method `equals`
+MissingNullability: androidx.contentpager.content.Query#toString():
+    Missing nullability on method `toString` return
