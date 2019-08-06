@@ -58,6 +58,8 @@ fun TouchSlopExceededGestureDetector(
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler, children = children)
 }
 
+// TODO(shepshapard): Shouldn't touchSlop be Px and not IntPx? What if the density bucket of the
+//  device is not a whole number?
 internal class TouchSlopExceededGestureRecognizer(private val touchSlop: IntPx) {
     private val pointerTrackers: MutableMap<Int, PointerTrackingData> = mutableMapOf()
     private var passedSlop = false
