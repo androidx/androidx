@@ -47,7 +47,7 @@ public class DataTest {
     public void testSerializeEmpty() {
         Data data = Data.EMPTY;
 
-        byte[] byteArray = Data.toByteArray(data);
+        byte[] byteArray = data.toByteArray();
         Data restoredData = Data.fromByteArray(byteArray);
 
         assertThat(restoredData, is(data));
@@ -62,7 +62,7 @@ public class DataTest {
                 .putString(KEY2, expectedValue2)
                 .build();
 
-        byte[] byteArray = Data.toByteArray(data);
+        byte[] byteArray = data.toByteArray();
         Data restoredData = Data.fromByteArray(byteArray);
 
         assertThat(restoredData, is(data));
