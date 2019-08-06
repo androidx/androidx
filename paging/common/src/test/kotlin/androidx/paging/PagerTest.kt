@@ -22,10 +22,9 @@ import androidx.paging.PagedList.LoadState.LOADING
 import androidx.paging.PagedList.LoadType.END
 import androidx.paging.PagedList.LoadType.START
 import androidx.paging.PagedSource.LoadResult
-import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.DirectDispatcher
 import androidx.testutils.TestExecutor
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -131,8 +130,8 @@ class PagerTest {
             GlobalScope,
             PagedList.Config(2, 2, true, 10, PagedList.Config.MAX_SIZE_UNBOUNDED),
             PagedSourceWrapper(ImmediateListDataSource(data)),
-            DirectExecutor.asCoroutineDispatcher(),
-            DirectExecutor.asCoroutineDispatcher(),
+            DirectDispatcher,
+            DirectDispatcher,
             consumer,
             initialResult
         )
@@ -254,7 +253,7 @@ class PagerTest {
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
             listOf(
-                Result(END, PagedSource.LoadResult.empty<Int, String>())
+                Result(END, LoadResult.empty<Int, String>())
             ), consumer.takeResults()
         )
         assertEquals(
@@ -274,7 +273,7 @@ class PagerTest {
         // Pager triggers an immediate empty response here, so we don't need to flush the executor
         assertEquals(
             listOf(
-                Result(START, PagedSource.LoadResult.empty<Int, String>())
+                Result(START, LoadResult.empty<Int, String>())
             ), consumer.takeResults()
         )
         assertEquals(

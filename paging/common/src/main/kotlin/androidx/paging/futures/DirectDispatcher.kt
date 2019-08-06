@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.paging
+package androidx.paging.futures
 
-import org.junit.Assert.fail
-import java.util.concurrent.Executor
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlin.coroutines.CoroutineContext
 
-class FailExecutor(val string: String = "Executor expected to be unused") : Executor {
-    override fun execute(runnable: Runnable?) {
-        fail(string)
+/**
+ * [CoroutineDispatcher] which immediately runs new jobs on the current thread.
+ */
+internal object DirectDispatcher : CoroutineDispatcher() {
+    override fun dispatch(context: CoroutineContext, block: Runnable) {
+        block.run()
     }
 }

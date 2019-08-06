@@ -27,7 +27,13 @@ import androidx.paging.PagedList.LoadState.LOADING
 import androidx.paging.PagedList.LoadState.RETRYABLE_ERROR
 import androidx.paging.PagedList.LoadType.REFRESH
 import androidx.test.filters.SmallTest
+import androidx.testutils.TestDispatcher
 import androidx.testutils.TestExecutor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Runnable
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -43,6 +49,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class LivePagedListBuilderTest {
+    private val mainDispatcher = TestDispatcher()
     private val backgroundExecutor = TestExecutor()
     private val lifecycleOwner = object : LifecycleOwner {
         private val lifecycle = LifecycleRegistry(this)
@@ -56,8 +63,10 @@ class LivePagedListBuilderTest {
         }
     }
 
+    @ExperimentalCoroutinesApi
     @Before
     fun setup() {
+        Dispatchers.setMain(mainDispatcher)
         ArchTaskExecutor.getInstance().setDelegate(object : TaskExecutor() {
             override fun executeOnDiskIO(runnable: Runnable) {
                 fail("IO executor should be overwritten")
@@ -74,10 +83,12 @@ class LivePagedListBuilderTest {
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START)
     }
 
+    @ExperimentalCoroutinesApi
     @After
     fun teardown() {
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_STOP)
         ArchTaskExecutor.getInstance().setDelegate(null)
+        Dispatchers.resetMain()
     }
 
     class MockDataSourceFactory {
@@ -126,8 +137,8 @@ class LivePagedListBuilderTest {
 
     @Test
     fun executorBehavior() {
-        // specify a background executor via builder, and verify it gets used for all loads,
-        // overriding default arch IO executor
+        // specify a background dispatcher via builder, and verify it gets used for all loads,
+        // overriding default IO dispatcher
         val livePagedList = LivePagedListBuilder(MockDataSourceFactory()::create, 2)
             .setFetchExecutor(backgroundExecutor)
             .build()
@@ -143,7 +154,7 @@ class LivePagedListBuilderTest {
         assertTrue(pagedListHolder[0] is InitialPagedList<*, *>)
 
         // flush loadInitial, done with passed executor
-        backgroundExecutor.executeAll()
+        drain()
 
         val pagedList = pagedListHolder[0]
         assertNotNull(pagedList)
@@ -151,7 +162,7 @@ class LivePagedListBuilderTest {
 
         // flush loadRange
         pagedList!!.loadAround(2)
-        backgroundExecutor.executeAll()
+        drain()
 
         assertEquals(listOf("a", "b", "c", "d"), pagedList)
     }
@@ -191,8 +202,8 @@ class LivePagedListBuilderTest {
         }
         initPagedList.addWeakLoadStateListener(loadStateChangedCallback)
 
-        // flush loadInitial, done with passed executor
-        backgroundExecutor.executeAll()
+        // flush loadInitial, done with passed dispatcher
+        drain()
 
         assertSame(initPagedList, pagedListHolder[0])
         // TODO: Investigate removing initial IDLE state from callback updates.
@@ -208,7 +219,8 @@ class LivePagedListBuilderTest {
         assertSame(initPagedList, pagedListHolder[0])
 
         // flush loadInitial, should succeed now
-        backgroundExecutor.executeAll()
+        drain()
+
         assertNotSame(initPagedList, pagedListHolder[0])
         assertEquals(listOf("a", "b", null, null), pagedListHolder[0])
 
@@ -233,6 +245,14 @@ class LivePagedListBuilderTest {
                 LoadState(REFRESH, IDLE, null)
             ), loadStates
         )
+    }
+
+    private fun drain() {
+        var executed: Boolean
+        do {
+            executed = backgroundExecutor.executeAll()
+            mainDispatcher.executeAll()
+        } while (executed || mainDispatcher.queue.isNotEmpty())
     }
 
     companion object {

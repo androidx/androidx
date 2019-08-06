@@ -16,7 +16,8 @@
 
 package androidx.paging
 
-import androidx.testutils.TestExecutor
+import androidx.testutils.TestDispatcher
+import kotlinx.coroutines.GlobalScope
 
 class StringPagedList constructor(
     leadingNulls: Int,
@@ -24,10 +25,11 @@ class StringPagedList constructor(
     vararg items: String,
     list: List<String> = items.toList()
 ) : PagedList<String>(
+    GlobalScope,
     PagedSourceWrapper(ListDataSource(list)),
     PagedStorage(),
-    TestExecutor(),
-    TestExecutor(),
+    TestDispatcher(),
+    TestDispatcher(),
     null,
     Config.Builder().setPageSize(1).build()
 ), PagedStorage.Callback {

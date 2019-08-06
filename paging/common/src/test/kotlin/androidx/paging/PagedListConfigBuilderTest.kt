@@ -26,8 +26,8 @@ class PagedListConfigBuilderTest {
     @Test
     fun defaults() {
         val config = PagedList.Config.Builder()
-                .setPageSize(10)
-                .build()
+            .setPageSize(10)
+            .build()
         Assert.assertEquals(10, config.pageSize)
         Assert.assertEquals(30, config.initialLoadSizeHint)
         Assert.assertEquals(true, config.enablePlaceholders)
@@ -38,18 +38,18 @@ class PagedListConfigBuilderTest {
     @Test(expected = IllegalArgumentException::class)
     fun maxSizeTooSmall() {
         PagedList.Config.Builder()
-                .setPageSize(20)
-                .setPrefetchDistance(15)
-                .setMaxSize(49)
-                .build()
+            .setPageSize(20)
+            .setPrefetchDistance(15)
+            .setMaxSize(49)
+            .build()
     }
 
     @Test
     fun maxSizeAccepted() {
         PagedList.Config.Builder()
-                .setPageSize(20)
-                .setPrefetchDistance(15)
-                .setMaxSize(50)
-                .build()
+            .setPageSize(20)
+            .setPrefetchDistance(15)
+            .setMaxSize(50)
+            .build()
     }
 }

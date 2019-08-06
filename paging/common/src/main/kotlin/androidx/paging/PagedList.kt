@@ -28,10 +28,13 @@ import androidx.paging.PagedList.Config.Companion.MAX_SIZE_UNBOUNDED
 import androidx.paging.PagedList.LoadState
 import androidx.paging.PagedList.LoadType
 import androidx.paging.PagedSource.KeyProvider
-import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.DirectDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
@@ -45,10 +48,11 @@ import java.util.concurrent.Executor
  *
  * Used to observe the [LoadState] of any [LoadType] (REFRESH/START/END). For UI purposes (swipe
  * refresh, loading spinner, retry button), this is typically done by registering a
- * [LoadStateListener] with the [PagedListAdapter] or [AsyncPagedListDiffer].
+ * [LoadStateListener] with the [androidx.paging.PagedListAdapter] or
+ * [androidx.paging.AsyncPagedListDiffer].
  *
- * These calls will be dispatched on the executor defined by [Builder.setNotifyExecutor], which is
- * generally the main/UI thread.
+ * These calls will be dispatched on the executor defined by [PagedList.Builder.setNotifyExecutor],
+ * which is generally the main/UI thread.
  *
  * Called when the LoadState has changed - whether the refresh, prepend, or append is idle, loading,
  * or has an error.
@@ -156,10 +160,10 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * thread,posting updates to the main thread.
          *
          * @param pagedSource [PagedSource] providing data to the [PagedList]
-         * @param notifyExecutor Thread tat will use and consume data from the [PagedList].
-         * Generally, this is the UI/main thread.
-         * @param fetchExecutor Data loading will be done via this executor - should be a background
-         * thread.
+         * @param notifyDispatcher [CoroutineDispatcher] that will use and consume data from the
+         * [PagedList]. Generally, this is the UI/main thread.
+         * @param fetchDispatcher Data loading jobs will be dispatched to this
+         * [CoroutineDispatcher] - should be a background thread.
          * @param boundaryCallback Optional boundary callback to attach to the list.
          * @param config [PagedList.Config], which defines how the [PagedList] will load data.
          * @param K Key type that indicates to the [PagedSource] what data to load.
@@ -175,9 +179,9 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         suspend fun <K : Any, T : Any> create(
             pagedSource: PagedSource<K, T>,
             coroutineScope: CoroutineScope,
-            notifyExecutor: Executor,
-            fetchExecutor: Executor,
-            initialLoadExecutor: Executor,
+            notifyDispatcher: CoroutineDispatcher,
+            fetchDispatcher: CoroutineDispatcher,
+            initialFetchDispatcher: CoroutineDispatcher,
             boundaryCallback: BoundaryCallback<T>?,
             config: Config,
             key: K?
@@ -195,15 +199,15 @@ abstract class PagedList<T : Any> : AbstractList<T> {
                 config.pageSize
             )
 
-            val initialResult = withContext(initialLoadExecutor.asCoroutineDispatcher()) {
+            val initialResult = withContext(initialFetchDispatcher) {
                 pagedSource.load(params)
             }
 
             return ContiguousPagedList(
                 pagedSource,
                 coroutineScope,
-                notifyExecutor,
-                fetchExecutor,
+                notifyDispatcher,
+                fetchDispatcher,
                 boundaryCallback,
                 config,
                 initialResult,
@@ -270,7 +274,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         /**
          * Loading hit a retryable error.
          *
-         * @see .retry
+         * @see retry
          */
         RETRYABLE_ERROR
     }
@@ -278,7 +282,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     /**
      * Builder class for [PagedList].
      *
-     * [PagedSource], [Config], main thread and background executor must all be provided.
+     * [pagedSource], [config], [notifyDispatcher] and [fetchDispatcher] must all be provided.
      *
      * A [PagedList] queries initial data from its [PagedSource] during construction, to avoid empty
      * PagedLists being presented to the UI when possible. It's preferred to present initial data,
@@ -295,8 +299,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         private val pagedSource: PagedSource<Key, Value>
         private val config: Config
         private var coroutineScope: CoroutineScope = GlobalScope
-        private var notifyExecutor: Executor? = null
-        private var fetchExecutor: Executor? = null
+        private var notifyDispatcher: CoroutineDispatcher? = null
+        private var fetchDispatcher: CoroutineDispatcher? = null
         private var boundaryCallback: BoundaryCallback<Value>? = null
         private var initialKey: Key? = null
 
@@ -378,18 +382,37 @@ abstract class PagedList<T : Any> : AbstractList<T> {
         }
 
         /**
-         * The executor defining where page loading updates are dispatched.
+         * The [Executor] defining where page loading updates are dispatched.
          *
-         * @param notifyExecutor Executor that receives [PagedList] updates, and where [Callback]
+         * @param notifyExecutor [Executor] that receives [PagedList] updates, and where [Callback]
          * calls are dispatched. Generally, this is the ui/main thread.
          * @return this
          */
+        @Deprecated(
+            message = "Passing an executor will cause it get wrapped as a CoroutineDispatcher, " +
+                    "consider passing a CoroutineDispatcher directly",
+            replaceWith = ReplaceWith(
+                "setNotifyDispatcher(fetchExecutor.asCoroutineDispatcher())",
+                "kotlinx.coroutines.asCoroutineDispatcher"
+            )
+        )
         fun setNotifyExecutor(notifyExecutor: Executor) = apply {
-            this.notifyExecutor = notifyExecutor
+            this.notifyDispatcher = notifyExecutor.asCoroutineDispatcher()
         }
 
         /**
-         * The executor used to fetch additional pages from the [PagedSource].
+         * The [CoroutineDispatcher] defining where page loading updates are dispatched.
+         *
+         * @param notifyDispatcher [CoroutineDispatcher] that receives [PagedList] updates, and where
+         * [Callback] calls are dispatched. Generally, this is the ui/main thread.
+         * @return this
+         */
+        fun setNotifyDispatcher(notifyDispatcher: CoroutineDispatcher) = apply {
+            this.notifyDispatcher = notifyDispatcher
+        }
+
+        /**
+         * The [Executor] used to fetch additional pages from the [PagedSource].
          *
          * Does not affect initial load, which will be done immediately on whichever thread the
          * [PagedList] is created on.
@@ -398,8 +421,30 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * thread pool for e.g. I/O or network loading.
          * @return this
          */
+        @Deprecated(
+            message = "Passing an executor will cause it get wrapped as a CoroutineDispatcher, " +
+                    "consider passing a CoroutineDispatcher directly",
+            replaceWith = ReplaceWith(
+                "setFetchDispatcher(fetchExecutor.asCoroutineDispatcher())",
+                "kotlinx.coroutines.asCoroutineDispatcher"
+            )
+        )
         fun setFetchExecutor(fetchExecutor: Executor) = apply {
-            this.fetchExecutor = fetchExecutor
+            this.fetchDispatcher = fetchExecutor.asCoroutineDispatcher()
+        }
+
+        /**
+         * The [CoroutineDispatcher] used to fetch additional pages from the [PagedSource].
+         *
+         * Does not affect initial load, which will be done immediately on whichever thread the
+         * [PagedList] is created on.
+         *
+         * @param fetchDispatcher [CoroutineDispatcher] used to fetch from [PagedSource]s,
+         * generally a background thread pool for e.g. I/O or network loading.
+         * @return this
+         */
+        fun setFetchDispatcher(fetchDispatcher: CoroutineDispatcher) = apply {
+            this.fetchDispatcher = fetchDispatcher
         }
 
         /**
@@ -444,25 +489,18 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * the [PagedList] will be immediately [detached][PagedList.isDetached], and you can retry
          * construction (including setting a new [PagedSource]).
          *
-         * @throws IllegalArgumentException if [notifyExecutor] or [fetchExecutor] are not set.
+         * @throws IllegalArgumentException if [notifyDispatcher] or [fetchDispatcher] are not set.
          *
          * @return The newly constructed [PagedList]
          */
         @WorkerThread
         @Deprecated(
-            "This method has no means of handling errors encountered during initial load, and" +
-                    " blocks on the initial load result. Use {@link #buildAsync()} instead."
+            message = "This method has no means of handling errors encountered during initial " +
+                    "load, and blocks on the initial load result.",
+            replaceWith = ReplaceWith("buildAsync()")
         )
-        fun build(): PagedList<Value> {
-            // TODO: define defaults, once they can be used in module without android dependency
-            if (notifyExecutor == null) {
-                throw IllegalArgumentException("MainThreadExecutor required")
-            }
-            if (fetchExecutor == null) {
-                throw IllegalArgumentException("BackgroundThreadExecutor required")
-            }
-
-            return runBlocking { create(DirectExecutor) }
+        fun build(): PagedList<Value> = runBlocking {
+            create(DirectDispatcher)
         }
 
         /**
@@ -472,41 +510,35 @@ abstract class PagedList<T : Any> : AbstractList<T> {
          * [PagedSource.LoadType.INITIAL], and return a [PagedList] once it completes, triggering
          * [loadStateListeners].
          *
-         * @throws IllegalArgumentException if [notifyExecutor] or [fetchExecutor] are not set.
+         * @throws IllegalArgumentException if [notifyDispatcher] or [fetchDispatcher] are not set.
          *
          * @return The newly constructed [PagedList]
          */
-        @Suppress("unused")
+        @Suppress("unused") // Public API
         suspend fun buildAsync(): PagedList<Value> {
-            // TODO: define defaults, once they can be used in module without android dependency
-            if (notifyExecutor == null) {
-                throw IllegalArgumentException("MainThreadExecutor required")
-            }
-            if (fetchExecutor == null) {
-                throw IllegalArgumentException("BackgroundThreadExecutor required")
-            }
-
-            return create(fetchExecutor!!)
+            return create(fetchDispatcher ?: Dispatchers.IO)
         }
 
-        private suspend fun create(initialFetchExecutor: Executor): PagedList<Value> =
-            create(
+        private suspend fun create(initialFetchDispatcher: CoroutineDispatcher): PagedList<Value> {
+            return create(
                 pagedSource,
                 coroutineScope,
-                notifyExecutor!!,
-                fetchExecutor!!,
-                initialFetchExecutor,
+                notifyDispatcher ?: Dispatchers.Main,
+                fetchDispatcher ?: Dispatchers.IO,
+                initialFetchDispatcher,
                 boundaryCallback,
                 config,
                 initialKey
             )
+        }
     }
 
     /**
      * Callback signaling when content is loaded into the list.
      *
      * Can be used to listen to items being paged in and out. These calls will be dispatched on
-     * the executor defined by [Builder.setNotifyExecutor], which is generally the main/UI thread.
+     * the dispatcher defined by [Builder.setNotifyDispatcher], which is generally the main/UI
+     * thread.
      */
     abstract class Callback {
         /**
@@ -924,19 +956,21 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor(
+        coroutineScope: CoroutineScope,
         pagedSource: PagedSource<*, T>,
         storage: PagedStorage<T>,
-        mainThreadExecutor: Executor,
-        backgroundThreadExecutor: Executor,
+        notifyDispatcher: CoroutineDispatcher,
+        backgroundDispatcher: CoroutineDispatcher,
         boundaryCallback: BoundaryCallback<T>?,
         config: Config
     ) : super() {
+        this.coroutineScope = coroutineScope
         this.pagedSource = pagedSource
         this.storage = storage
-        this.mainThreadExecutor = mainThreadExecutor
-        this.backgroundThreadExecutor = backgroundThreadExecutor
+        this.notifyDispatcher = notifyDispatcher
+        this.backgroundDispatcher = backgroundDispatcher
         this.boundaryCallback = boundaryCallback
         this.config = config
         this.callbacks = ArrayList()
@@ -952,8 +986,9 @@ abstract class PagedList<T : Any> : AbstractList<T> {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // protected otherwise
     fun getStorage() = storage
 
-    internal val mainThreadExecutor: Executor
-    internal val backgroundThreadExecutor: Executor
+    internal val notifyDispatcher: CoroutineDispatcher
+    internal val backgroundDispatcher: CoroutineDispatcher
+
     internal val boundaryCallback: BoundaryCallback<T>?
 
     internal var refreshRetryCallback: Runnable? = null
@@ -977,6 +1012,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * @return the Config of this PagedList
      */
     open val config: Config
+
+    internal val coroutineScope: CoroutineScope
 
     private val callbacks: MutableList<WeakReference<Callback>>
 
@@ -1012,7 +1049,10 @@ abstract class PagedList<T : Any> : AbstractList<T> {
      * @throws IllegalStateException if this [PagedList] was instantiated without a
      * [PagedSourceWrapper] wrapping a backing [DataSource]
      */
-    @Deprecated("DataSource is deprecated and has been replaced by PagedSource")
+    @Deprecated(
+        message = "DataSource is deprecated and has been replaced by PagedSource",
+        replaceWith = ReplaceWith("pagedSource")
+    )
     val dataSource: DataSource<*, T>
         get() {
             if (pagedSource is PagedSourceWrapper) return pagedSource.dataSource
@@ -1219,7 +1259,7 @@ abstract class PagedList<T : Any> : AbstractList<T> {
 
         if (deferEmpty || deferBegin || deferEnd) {
             // Post to the main thread, since we may be on creation thread currently
-            mainThreadExecutor.execute {
+            coroutineScope.launch(notifyDispatcher) {
                 // on is dispatched immediately, since items won't be accessed
 
                 if (deferEmpty) {
@@ -1258,7 +1298,9 @@ abstract class PagedList<T : Any> : AbstractList<T> {
             boundaryCallbackEndDeferred = false
         }
         if (post) {
-            mainThreadExecutor.execute { dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd) }
+            coroutineScope.launch(notifyDispatcher) {
+                dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd)
+            }
         } else {
             dispatchBoundaryCallbacks(dispatchBegin, dispatchEnd)
         }
@@ -1409,8 +1451,8 @@ abstract class PagedList<T : Any> : AbstractList<T> {
  * @param Value Type of items held and loaded by the [PagedList].
  * @param dataSource [DataSource] the [PagedList] will load from.
  * @param config Config that defines how the [PagedList] loads data from its [DataSource].
- * @param notifyExecutor Executor that receives [PagedList] updates, and where [PagedList.Callback]
- * calls are dispatched. Generally, this is the UI/main thread.
+ * @param notifyExecutor [Executor] that receives [PagedList] updates, and where
+ * [PagedList.Callback] calls are dispatched. Generally, this is the UI/main thread.
  * @param fetchExecutor [Executor] used to fetch from [DataSource]s, generally a background thread
  * pool for e.g. I/O or network loading.
  * @param boundaryCallback [PagedList.BoundaryCallback] for listening to out-of-data events.
