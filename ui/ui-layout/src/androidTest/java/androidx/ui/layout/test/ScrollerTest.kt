@@ -42,6 +42,8 @@ import androidx.ui.painting.PaintingStyle
 import androidx.compose.composer
 import androidx.test.filters.SdkSuppress
 import androidx.ui.core.setContent
+import androidx.ui.layout.HorizontalScroller
+import androidx.ui.layout.Row
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
@@ -76,17 +78,17 @@ class ScrollerTest : LayoutTest() {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verticalScroller_SmallContent() {
-        composeScroller()
+        composeVerticalScroller()
 
-        validateScroller(0, 40)
+        validateVerticalScroller(0, 40)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun verticalScroller_LargeContent_NoScroll() {
-        composeScroller(height = 30.ipx)
+        composeVerticalScroller(height = 30.ipx)
 
-        validateScroller(0, 30)
+        validateVerticalScroller(0, 30)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -95,11 +97,11 @@ class ScrollerTest : LayoutTest() {
         val scrollerPosition = ScrollerPosition()
 
         val changeListener = ScrollerChangeListener(scrollerPosition)
-        composeScroller(scrollerPosition, changeListener, height = 30.ipx)
+        composeVerticalScroller(scrollerPosition, changeListener, height = 30.ipx)
 
         changeListener.waitForChange()
 
-        validateScroller(0, 30)
+        validateVerticalScroller(0, 30)
 
         // The 'draw' method will no longer be called because only the position
         // changes during scrolling. Therefore, we should just wait until the draw stage
@@ -119,10 +121,59 @@ class ScrollerTest : LayoutTest() {
         runOnUiThread {
             activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
         }
-        validateScroller(10, 30)
+        validateVerticalScroller(10, 30)
     }
 
-    private fun composeScroller(
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun horizontalScroller_SmallContent() {
+        composeHorizontalScroller()
+
+        validateHorizontalScroller(0, 40)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun horizontalScroller_LargeContent_NoScroll() {
+        composeHorizontalScroller(width = 30.ipx)
+
+        validateHorizontalScroller(0, 30)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun horizontalScroller_LargeContent_ScrollToEnd() {
+        val scrollerPosition = ScrollerPosition()
+
+        val changeListener = ScrollerChangeListener(scrollerPosition)
+        composeHorizontalScroller(scrollerPosition, changeListener, width = 30.ipx)
+
+        changeListener.waitForChange()
+
+        validateHorizontalScroller(0, 30)
+
+        // The 'draw' method will no longer be called because only the position
+        // changes during scrolling. Therefore, we should just wait until the draw stage
+        // completes and the scrolling will be finished by then.
+        val latch = CountDownLatch(1)
+        val onDrawListener = object : ViewTreeObserver.OnDrawListener {
+            override fun onDraw() {
+                latch.countDown()
+            }
+        }
+        runOnUiThread {
+            activity.window.decorView.viewTreeObserver.addOnDrawListener(onDrawListener)
+            assertEquals(10.px, changeListener.maxPosition)
+            scrollerPosition.position = 10.px
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+        runOnUiThread {
+            activity.window.decorView.viewTreeObserver.removeOnDrawListener(onDrawListener)
+        }
+        validateHorizontalScroller(10, 30)
+    }
+
+    private fun composeVerticalScroller(
         scrollerPosition: ScrollerPosition = ScrollerPosition(),
         onScrollChanged: (position: Px, maxPosition: Px) -> Unit = { position, _ ->
             scrollerPosition.position = position
@@ -169,7 +220,54 @@ class ScrollerTest : LayoutTest() {
         }
     }
 
-    private fun validateScroller(
+    private fun composeHorizontalScroller(
+        scrollerPosition: ScrollerPosition = ScrollerPosition(),
+        onScrollChanged: (position: Px, maxPosition: Px) -> Unit = { position, _ ->
+            scrollerPosition.position = position
+        },
+        width: IntPx = 40.ipx
+    ) {
+        // We assume that the height of the device is more than 45 px
+        withDensity(density) {
+            val constraints = DpConstraints.tightConstraints(width.toDp(), 45.px.toDp())
+            val runnable: Runnable = object : Runnable {
+                override fun run() {
+                    activity.setContent {
+                        Align(alignment = Alignment.TopLeft) {
+                            ConstrainedBox(constraints = constraints) {
+                                HorizontalScroller(
+                                    scrollerPosition = scrollerPosition,
+                                    onScrollChanged = onScrollChanged
+                                ) {
+                                    Row(crossAxisAlignment = CrossAxisAlignment.Start) {
+                                        colors.forEach { color ->
+                                            Container(
+                                                width = 5.px.toDp(),
+                                                height = 45.px.toDp()
+                                            ) {
+                                                Draw { canvas, parentSize ->
+                                                    val paint = Paint()
+                                                    paint.color = color
+                                                    paint.style = PaintingStyle.fill
+                                                    canvas.drawRect(parentSize.toRect(), paint)
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                Draw { _, _ ->
+                                    drawLatch.countDown()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            activityTestRule.runOnUiThread(runnable)
+        }
+    }
+
+    private fun validateVerticalScroller(
         offset: Int,
         height: Int,
         width: Int = 45
@@ -184,6 +282,30 @@ class ScrollerTest : LayoutTest() {
             val expectedColor = colors[colorIndex]
 
             for (x in 0 until width) {
+                val pixel = bitmap.getPixel(x, y)
+                assertEquals(
+                    "Expected $expectedColor, but got ${Color(pixel)} at $x, $y",
+                    expectedColor.toArgb(), pixel
+                )
+            }
+        }
+    }
+
+    private fun validateHorizontalScroller(
+        offset: Int,
+        width: Int,
+        height: Int = 45
+    ) {
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+
+        val bitmap = waitAndScreenShot()
+        assertTrue(bitmap.height >= 45)
+        assertTrue(bitmap.width >= width)
+        for (x in 0 until width) {
+            val colorIndex = (offset + x) / 5
+            val expectedColor = colors[colorIndex]
+
+            for (y in 0 until height) {
                 val pixel = bitmap.getPixel(x, y)
                 assertEquals(
                     "Expected $expectedColor, but got ${Color(pixel)} at $x, $y",
