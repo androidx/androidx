@@ -27,7 +27,9 @@ import static org.mockito.Mockito.verify;
 
 import android.Manifest;
 import android.content.Context;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -38,6 +40,7 @@ import androidx.camera.camera2.Camera2AppConfig;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.impl.util.SemaphoreReleasingCamera2Callbacks.SessionCaptureCallback;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageAnalysis;
@@ -157,7 +160,18 @@ public final class Camera2ImplCameraXTest {
     }
 
     @Test
-    public void removedUseCase_doesNotStreamWhenLifecycleResumes() throws InterruptedException {
+    public void removedUseCase_doesNotStreamWhenLifecycleResumes() throws NullPointerException,
+            CameraAccessException, CameraInfoUnavailableException {
+        // Legacy device would not support two ImageAnalysis use cases combination.
+        int hardwareLevelValue;
+        CameraCharacteristics cameraCharacteristics =
+                CameraUtil.getCameraManager().getCameraCharacteristics(
+                        CameraX.getCameraWithLensFacing(DEFAULT_LENS_FACING));
+        hardwareLevelValue = cameraCharacteristics.get(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        assumeTrue(
+                hardwareLevelValue != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+
         Observer<Long> mockObserver = Mockito.mock(Observer.class);
         Observer<Long> mockObserver2 = Mockito.mock(Observer.class);
 
