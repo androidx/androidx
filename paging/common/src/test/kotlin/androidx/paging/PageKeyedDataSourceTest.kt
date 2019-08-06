@@ -16,11 +16,10 @@
 
 package androidx.paging
 
-import androidx.paging.futures.DirectExecutor
-import androidx.testutils.TestExecutor
+import androidx.paging.futures.DirectDispatcher
+import androidx.testutils.TestDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -39,8 +38,8 @@ import kotlin.test.assertFailsWith
 
 @RunWith(JUnit4::class)
 class PageKeyedDataSourceTest {
-    private val mainThread = TestExecutor()
-    private val backgroundThread = TestExecutor()
+    private val mainThread = TestDispatcher()
+    private val backgroundThread = TestDispatcher()
 
     internal data class Item(val name: String)
 
@@ -94,7 +93,7 @@ class PageKeyedDataSourceTest {
     fun loadFullVerify() {
         // validate paging entire ItemDataSource results in full, correctly ordered data
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-        val pagedListJob = testCoroutineScope.async(backgroundThread.asCoroutineDispatcher()) {
+        val pagedListJob = testCoroutineScope.async(backgroundThread) {
             PagedList.create(
                 PagedSourceWrapper(ItemDataSource()),
                 testCoroutineScope,
@@ -160,9 +159,9 @@ class PageKeyedDataSourceTest {
             PagedList.create(
                 PagedSourceWrapper(dataSource),
                 GlobalScope,
-                FailExecutor(),
-                DirectExecutor,
-                DirectExecutor,
+                FailDispatcher(),
+                DirectDispatcher,
+                DirectDispatcher,
                 null,
                 PagedList.Config.Builder()
                     .setPageSize(10)
@@ -260,16 +259,16 @@ class PageKeyedDataSourceTest {
         @Suppress("UNCHECKED_CAST")
         val boundaryCallback =
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
-        val executor = TestExecutor()
+        val dispatcher = TestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-        val pagedListJob = testCoroutineScope.async(executor.asCoroutineDispatcher()) {
+        val pagedListJob = testCoroutineScope.async(dispatcher) {
             PagedList.create(
                 PagedSourceWrapper(dataSource),
                 testCoroutineScope,
-                executor,
-                executor,
-                executor,
+                dispatcher,
+                dispatcher,
+                dispatcher,
                 boundaryCallback,
                 PagedList.Config.Builder()
                     .setPageSize(10)
@@ -278,14 +277,14 @@ class PageKeyedDataSourceTest {
             )
         }
 
-        executor.executeAll()
+        dispatcher.executeAll()
 
         val pagedList = runBlocking { pagedListJob.await() }
         pagedList.loadAround(0)
 
         verifyZeroInteractions(boundaryCallback)
 
-        executor.executeAll()
+        dispatcher.executeAll()
 
         // verify boundary callbacks are triggered
         verify(boundaryCallback).onItemAtFrontLoaded("A")
@@ -322,16 +321,16 @@ class PageKeyedDataSourceTest {
         @Suppress("UNCHECKED_CAST")
         val boundaryCallback =
             mock(PagedList.BoundaryCallback::class.java) as PagedList.BoundaryCallback<String>
-        val executor = TestExecutor()
+        val dispatcher = TestDispatcher()
 
         val testCoroutineScope = CoroutineScope(EmptyCoroutineContext)
-        val pagedListJob = testCoroutineScope.async(executor.asCoroutineDispatcher()) {
+        val pagedListJob = testCoroutineScope.async(dispatcher) {
             PagedList.create(
                 PagedSourceWrapper(dataSource),
                 testCoroutineScope,
-                executor,
-                executor,
-                executor,
+                dispatcher,
+                dispatcher,
+                dispatcher,
                 boundaryCallback,
                 PagedList.Config.Builder()
                     .setPageSize(10)
@@ -339,14 +338,14 @@ class PageKeyedDataSourceTest {
                 ""
             )
         }
-        executor.executeAll()
+        dispatcher.executeAll()
         val pagedList = runBlocking { pagedListJob.await() }
 
         pagedList.loadAround(0)
 
         verifyZeroInteractions(boundaryCallback)
 
-        executor.executeAll()
+        dispatcher.executeAll()
 
         // verify boundary callbacks are triggered
         verify(boundaryCallback).onItemAtFrontLoaded("B")
@@ -516,7 +515,6 @@ class PageKeyedDataSourceTest {
         private const val INIT_KEY: String = "key 2"
         private val PAGE_MAP: Map<String, Page>
         private val ITEM_LIST: List<Item>
-        private val EXCEPTION = Exception()
 
         init {
             val map = HashMap<String, Page>()
@@ -537,10 +535,9 @@ class PageKeyedDataSourceTest {
     }
 
     private fun drain() {
-        var executed: Boolean
-        do {
-            executed = backgroundThread.executeAll()
-            executed = mainThread.executeAll() || executed
-        } while (executed)
+        while (backgroundThread.queue.isNotEmpty() || mainThread.queue.isNotEmpty()) {
+            backgroundThread.executeAll()
+            mainThread.executeAll()
+        }
     }
 }

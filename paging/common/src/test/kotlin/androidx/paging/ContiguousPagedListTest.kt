@@ -20,8 +20,8 @@ import androidx.paging.ItemKeyedDataSourceTest.ItemDataSource
 import androidx.paging.PagedList.LoadState.IDLE
 import androidx.paging.PagedList.LoadState.LOADING
 import androidx.paging.PagedList.LoadState.RETRYABLE_ERROR
-import androidx.paging.futures.DirectExecutor
-import androidx.testutils.TestExecutor
+import androidx.paging.futures.DirectDispatcher
+import androidx.testutils.TestDispatcher
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
@@ -39,8 +39,8 @@ import kotlin.test.assertFailsWith
 
 @RunWith(Parameterized::class)
 class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
-    private val mainThread = TestExecutor()
-    private val backgroundThread = TestExecutor()
+    private val mainThread = TestDispatcher()
+    private val backgroundThread = TestDispatcher()
 
     private class Item(position: Int) {
         val pos: Int = position
@@ -179,7 +179,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
                 GlobalScope,
                 mainThread,
                 backgroundThread,
-                DirectExecutor,
+                DirectDispatcher,
                 boundaryCallback,
                 PagedList.Config.Builder()
                     .setPageSize(pageSize)
@@ -212,9 +212,9 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             PagedList.create(
                 PagedSourceWrapper(ItemDataSource()),
                 GlobalScope,
-                FailExecutor(),
-                DirectExecutor,
-                DirectExecutor,
+                FailDispatcher(),
+                DirectDispatcher,
+                DirectDispatcher,
                 null,
                 PagedList.Config.Builder().setPageSize(10).build(),
                 null
@@ -902,11 +902,10 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     }
 
     private fun drain() {
-        var executed: Boolean
-        do {
-            executed = backgroundThread.executeAll()
-            executed = mainThread.executeAll() || executed
-        } while (executed)
+        while (backgroundThread.queue.isNotEmpty() || mainThread.queue.isNotEmpty()) {
+            backgroundThread.executeAll()
+            mainThread.executeAll()
+        }
     }
 
     companion object {

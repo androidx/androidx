@@ -43,7 +43,9 @@ dependencies {
         exclude group: 'androidx.viewpager2', module: 'viewpager2'
     }
     androidTestImplementation(KOTLIN_STDLIB)
-    androidTestImplementation(project(":internal-testutils-ktx"))
+    androidTestImplementation(project(":internal-testutils-ktx"), {
+        exclude group: 'org.jetbrains.kotlinx'
+    })
 }
 
 android {

@@ -17,6 +17,7 @@
 package androidx.paging
 
 import androidx.paging.futures.DirectExecutor
+import androidx.paging.futures.DirectDispatcher
 import com.nhaarman.mockitokotlin2.capture
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.GlobalScope
@@ -291,9 +292,9 @@ class ItemKeyedDataSourceTest {
             PagedList.create(
                 PagedSourceWrapper(dataSource),
                 GlobalScope,
-                FailExecutor(),
-                DirectExecutor,
-                DirectExecutor,
+                FailDispatcher(),
+                DirectDispatcher,
+                DirectDispatcher,
                 null,
                 PagedList.Config.Builder()
                     .setPageSize(10)

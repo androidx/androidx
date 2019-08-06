@@ -20,9 +20,8 @@ import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.paging.PagedSource.KeyProvider
 import androidx.paging.PagedSource.LoadResult.Companion.COUNT_UNDEFINED
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.concurrent.Executor
 
 /**
  * @hide
@@ -31,17 +30,18 @@ import java.util.concurrent.Executor
 open class ContiguousPagedList<K : Any, V : Any>(
     pagedSource: PagedSource<K, V>,
     coroutineScope: CoroutineScope,
-    mainThreadExecutor: Executor,
-    backgroundThreadExecutor: Executor,
+    notifyDispatcher: CoroutineDispatcher,
+    backgroundDispatcher: CoroutineDispatcher,
     boundaryCallback: BoundaryCallback<V>?,
     config: Config,
     initialResult: PagedSource.LoadResult<K, V>,
     lastLoad: Int
 ) : PagedList<V>(
+    coroutineScope,
     pagedSource,
     PagedStorage<V>(),
-    mainThreadExecutor,
-    backgroundThreadExecutor,
+    notifyDispatcher,
+    backgroundDispatcher,
     boundaryCallback,
     config
 ), PagedStorage.Callback, Pager.PageConsumer<V> {
@@ -75,8 +75,8 @@ open class ContiguousPagedList<K : Any, V : Any>(
         coroutineScope,
         config,
         pagedSource,
-        mainThreadExecutor.asCoroutineDispatcher(),
-        backgroundThreadExecutor.asCoroutineDispatcher(),
+        notifyDispatcher,
+        backgroundDispatcher,
         this,
         initialResult,
         storage

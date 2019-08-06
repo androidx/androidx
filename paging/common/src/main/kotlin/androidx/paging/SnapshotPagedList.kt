@@ -17,10 +17,11 @@
 package androidx.paging
 
 internal class SnapshotPagedList<T : Any>(private val pagedList: PagedList<T>) : PagedList<T>(
+    pagedList.coroutineScope,
     pagedList.pagedSource,
     pagedList.storage.snapshot(),
-    pagedList.mainThreadExecutor,
-    pagedList.backgroundThreadExecutor,
+    pagedList.notifyDispatcher,
+    pagedList.backgroundDispatcher,
     null,
     pagedList.config
 ) {
