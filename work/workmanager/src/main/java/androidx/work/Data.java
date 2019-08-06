@@ -330,6 +330,20 @@ public final class Data {
     }
 
     /**
+     * Converts this Data to a byte array suitable for sending to other processes in your
+     * application.  There are no versioning guarantees with this byte array, so you should not
+     * use this for IPCs between applications or persistence.
+     *
+     * @return The byte array representation of the input
+     * @throws IllegalStateException if the serialized payload is bigger than
+     *                               {@link #MAX_DATA_BYTES}
+     */
+    @NonNull
+    public byte[] toByteArray() {
+        return Data.toByteArray(this);
+    }
+
+    /**
      * @return The number of elements in this Data object.
      * @hide
      */
@@ -345,8 +359,10 @@ public final class Data {
      * @param data The {@link Data} object to convert
      * @return The byte array representation of the input
      * @throws IllegalStateException if the serialized payload is bigger than
-     *         {@link #MAX_DATA_BYTES}
+     *                               {@link #MAX_DATA_BYTES}
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @TypeConverter
     public static @NonNull byte[] toByteArray(@NonNull Data data) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

@@ -80,7 +80,7 @@ package androidx.work {
     method public long[]? getLongArray(String);
     method public String? getString(String);
     method public String![]? getStringArray(String);
-    method public static byte[] toByteArray(androidx.work.Data);
+    method public byte[] toByteArray();
     field public static final androidx.work.Data! EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
   }

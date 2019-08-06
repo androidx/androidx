@@ -307,8 +307,8 @@ public class WorkDatabaseMigrationTest {
         contentValues.put("state", WorkTypeConverters.StateIds.ENQUEUED);
         contentValues.put("worker_class_name", TestWorker.class.getName());
         contentValues.put("input_merger_class_name", OverwritingInputMerger.class.getName());
-        contentValues.put("input", Data.toByteArray(Data.EMPTY));
-        contentValues.put("output", Data.toByteArray(Data.EMPTY));
+        contentValues.put("input", Data.EMPTY.toByteArray());
+        contentValues.put("output", Data.EMPTY.toByteArray());
         contentValues.put("initial_delay", 0L);
         contentValues.put("interval_duration", 0L);
         contentValues.put("flex_duration", 0L);
