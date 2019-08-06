@@ -76,7 +76,8 @@ internal object AndroidVectorResources {
         android.R.attr.strokeMiterLimit,
         android.R.attr.strokeAlpha,
         android.R.attr.fillAlpha,
-        android.R.attr.fillType
+        // android.R.attr.fillType is in API level 24+ use hardcoded value to extract the attribute if it exists
+        0x101051E
     )
     val STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_ALPHA = 12
     val STYLEABLE_VECTOR_DRAWABLE_PATH_FILL_COLOR = 1
