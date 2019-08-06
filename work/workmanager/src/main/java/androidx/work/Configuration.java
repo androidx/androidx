@@ -56,6 +56,7 @@ public final class Configuration {
     private final int mMinJobSchedulerId;
     private final int mMaxJobSchedulerId;
     private final int mMaxSchedulerLimit;
+    private final boolean mIsUsingDefaultTaskExecutor;
 
     Configuration(@NonNull Configuration.Builder builder) {
         if (builder.mExecutor == null) {
@@ -65,11 +66,13 @@ public final class Configuration {
         }
 
         if (builder.mTaskExecutor == null) {
+            mIsUsingDefaultTaskExecutor = true;
             // This executor is used for *both* WorkManager's tasks and Room's query executor.
             // So this should not be a single threaded executor. Writes will still be serialized
             // as this will be wrapped with an SerialExecutor.
             mTaskExecutor = createDefaultExecutor();
         } else {
+            mIsUsingDefaultTaskExecutor = false;
             mTaskExecutor = builder.mTaskExecutor;
         }
 
@@ -136,7 +139,7 @@ public final class Configuration {
      * {@link android.util.Log}
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public int getMinimumLoggingLevel() {
         return mLoggingLevel;
     }
@@ -186,6 +189,15 @@ public final class Configuration {
         } else {
             return mMaxSchedulerLimit;
         }
+    }
+
+    /**
+     * @return {@code true} If the default task {@link Executor} is being used
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isUsingDefaultTaskExecutor() {
+        return mIsUsingDefaultTaskExecutor;
     }
 
     private @NonNull Executor createDefaultExecutor() {
