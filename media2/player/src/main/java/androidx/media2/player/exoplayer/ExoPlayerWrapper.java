@@ -232,41 +232,23 @@ import java.util.Map;
 
     public void seekTo(long position, @MediaPlayer2.SeekMode int mode) {
         mPlayer.setSeekParameters(ExoPlayerUtils.getSeekParameters(mode));
-        MediaItem mediaItem = mMediaItemQueue.getCurrentMediaItem();
-        if (mediaItem != null) {
-            Preconditions.checkArgument(
-                    mediaItem.getStartPosition() <= position
-                            && mediaItem.getEndPosition() >= position,
-                    "Requested seek position is out of range : " + position);
-            position -= mediaItem.getStartPosition();
-        }
         mPlayer.seekTo(position);
     }
 
     public long getCurrentPosition() {
         Preconditions.checkState(getState() != MediaPlayer2.PLAYER_STATE_IDLE);
-        long position = Math.max(0, mPlayer.getCurrentPosition());
-        MediaItem mediaItem = mMediaItemQueue.getCurrentMediaItem();
-        if (mediaItem != null) {
-            position += mediaItem.getStartPosition();
-        }
-        return position;
+        return Math.max(0, mPlayer.getCurrentPosition());
     }
 
     public long getDuration() {
         Preconditions.checkState(getState() != MediaPlayer2.PLAYER_STATE_IDLE);
-        long duration = mMediaItemQueue.getCurrentMediaItemDuration();
+        long duration = mPlayer.getDuration();
         return duration == C.TIME_UNSET ? -1 : duration;
     }
 
     public long getBufferedPosition() {
         Preconditions.checkState(getState() != MediaPlayer2.PLAYER_STATE_IDLE);
-        long position = mPlayer.getBufferedPosition();
-        MediaItem mediaItem = mMediaItemQueue.getCurrentMediaItem();
-        if (mediaItem != null) {
-            position += mediaItem.getStartPosition();
-        }
-        return position;
+        return mPlayer.getBufferedPosition();
     }
 
     public @MediaPlayer2.MediaPlayer2State int getState() {
@@ -829,16 +811,10 @@ import java.util.Map;
     private static final class MediaItemInfo {
 
         final MediaItem mMediaItem;
-        @Nullable
-        final DurationProvidingMediaSource mDurationProvidingMediaSource;
         final boolean mIsRemote;
 
-        MediaItemInfo(
-                MediaItem mediaItem,
-                @Nullable DurationProvidingMediaSource durationProvidingMediaSource,
-                boolean isRemote) {
+        MediaItemInfo(MediaItem mediaItem, boolean isRemote) {
             mMediaItem = mediaItem;
-            mDurationProvidingMediaSource = durationProvidingMediaSource;
             mIsRemote = isRemote;
         }
 
@@ -962,19 +938,6 @@ import java.util.Map;
             return mMediaItemInfos.isEmpty() ? null : mMediaItemInfos.peekFirst().mMediaItem;
         }
 
-        public long getCurrentMediaItemDuration() {
-            if (mMediaItemInfos.isEmpty()) {
-                return C.TIME_UNSET;
-            }
-            DurationProvidingMediaSource durationProvidingMediaSource =
-                    mMediaItemInfos.peekFirst().mDurationProvidingMediaSource;
-            if (durationProvidingMediaSource != null) {
-                return durationProvidingMediaSource.getDurationMs();
-            } else {
-                return mPlayer.getDuration();
-            }
-        }
-
         public long getCurrentMediaItemPlayingTimeMs() {
             return C.usToMs(mCurrentMediaItemPlayingTimeUs);
         }
@@ -1063,16 +1026,16 @@ import java.util.Map;
             MediaSource mediaSource = ExoPlayerUtils.createUnclippedMediaSource(
                     mContext, dataSourceFactory, mediaItem);
 
-            // Apply clipping if needed. Because ExoPlayer doesn't expose the unclipped duration, we
-            // wrap the child source in an intermediate source that lets us access its duration.
-            DurationProvidingMediaSource durationProvidingMediaSource = null;
+            // Apply clipping if needed.
             long startPosition = mediaItem.getStartPosition();
             long endPosition = mediaItem.getEndPosition();
             if (startPosition != 0L || endPosition != MediaItem.POSITION_UNKNOWN) {
-                durationProvidingMediaSource = new DurationProvidingMediaSource(mediaSource);
+                if (endPosition == MediaItem.POSITION_UNKNOWN) {
+                    endPosition = C.TIME_END_OF_SOURCE;
+                }
                 // Disable the initial discontinuity to give seamless transitions to clips.
                 mediaSource = new ClippingMediaSource(
-                        durationProvidingMediaSource,
+                        mediaSource,
                         C.msToUs(startPosition),
                         C.msToUs(endPosition),
                         /* enableInitialDiscontinuity= */ false,
@@ -1083,8 +1046,7 @@ import java.util.Map;
             boolean isRemote = mediaItem instanceof UriMediaItem
                     && !Util.isLocalFileUri(((UriMediaItem) mediaItem).getUri());
             mediaSources.add(mediaSource);
-            mediaItemInfos.add(
-                    new MediaItemInfo(mediaItem, durationProvidingMediaSource, isRemote));
+            mediaItemInfos.add(new MediaItemInfo(mediaItem, isRemote));
         }
 
         private void releaseMediaItem(MediaItemInfo mediaItemInfo) {
