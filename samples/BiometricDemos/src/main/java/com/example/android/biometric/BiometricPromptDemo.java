@@ -39,15 +39,21 @@ public class BiometricPromptDemo extends FragmentActivity {
         setContentView(R.layout.biometric_prompt_demo);
         final Button hostInActivityButton = findViewById(R.id.host_in_activity_button);
         final Button hostInFragmentButton = findViewById(R.id.host_in_fragment_button);
-        final Button launchBiometricBoundSecretKeyDemo =
-                findViewById(R.id.launch_biometric_bound_secret_key_demo);
+        final Button biometricBoundKeyDemoButton =
+                findViewById(R.id.button_biometric_bound_key_demo);
+        final Button credentialBoundKeyDemoButton =
+                findViewById(R.id.button_credential_bound_key_demo);
         hostInActivityButton.setOnClickListener(view -> launchActivityHost());
         hostInFragmentButton.setOnClickListener(view -> launchFragmentHost());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            launchBiometricBoundSecretKeyDemo.setOnClickListener(view ->
-                    launchBiometricPromptWithBiometricBoundKey());
+            biometricBoundKeyDemoButton.setOnClickListener(view -> launchBiometricBoundKeyDemo());
         } else {
-            launchBiometricBoundSecretKeyDemo.setVisibility(View.GONE);
+            biometricBoundKeyDemoButton.setVisibility(View.GONE);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            credentialBoundKeyDemoButton.setOnClickListener(view -> launchCredentialBoundKeyDemo());
+        } else {
+            credentialBoundKeyDemoButton.setVisibility(View.GONE);
         }
     }
 
@@ -61,8 +67,13 @@ public class BiometricPromptDemo extends FragmentActivity {
         startActivity(intent);
     }
 
-    private void launchBiometricPromptWithBiometricBoundKey() {
+    private void launchBiometricBoundKeyDemo() {
         Intent intent = new Intent(this, BiometricPromptDemoBiometricBoundKeyActivity.class);
+        startActivity(intent);
+    }
+
+    private void launchCredentialBoundKeyDemo() {
+        Intent intent = new Intent(this, BiometricPromptDemoCredentialBoundKeyActivity.class);
         startActivity(intent);
     }
 }
