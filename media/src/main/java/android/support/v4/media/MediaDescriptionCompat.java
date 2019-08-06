@@ -38,6 +38,8 @@ import androidx.annotation.RestrictTo;
  */
 @SuppressLint("BanParcelableUsage")
 public final class MediaDescriptionCompat implements Parcelable {
+    private static final String TAG = "MediaDescriptionCompat";
+
     /**
      * Used as a long extra field to indicate the bluetooth folder type of the media item as
      * specified in the section 6.10.2.2 of the Bluetooth AVRCP 1.5. This is valid only for
@@ -385,9 +387,11 @@ public final class MediaDescriptionCompat implements Parcelable {
             bob.setIconBitmap(description.getIconBitmap());
             bob.setIconUri(description.getIconUri());
             Bundle extras = description.getExtras();
+            if (extras != null) {
+                extras = MediaSessionCompat.unparcelWithClassLoader(extras);
+            }
             Uri mediaUri = null;
             if (extras != null) {
-                MediaSessionCompat.ensureClassLoader(extras);
                 mediaUri = extras.getParcelable(DESCRIPTION_KEY_MEDIA_URI);
             }
             if (mediaUri != null) {
