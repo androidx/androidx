@@ -34,8 +34,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Constructs an intent to start a Trusted Web Activity (see {@link TrustedWebUtils} for more
- * details).
+ * Constructs instances of {@link TrustedWebActivityIntent} that can be used to start Trusted Web
+ * Activities (see {@link TrustedWebUtils} for more details).
  */
 public class TrustedWebActivityIntentBuilder {
     /**
@@ -165,12 +165,12 @@ public class TrustedWebActivityIntentBuilder {
     }
 
     /**
-     * Builds the Intent.
+     * Builds an instance of {@link TrustedWebActivityIntent].
      *
      * @param session The {@link CustomTabsSession} to use for launching a Trusted Web Activity.
      */
     @NonNull
-    public Intent build(@NonNull CustomTabsSession session) {
+    public TrustedWebActivityIntent build(@NonNull CustomTabsSession session) {
         if (session == null) {
             throw new NullPointerException("CustomTabsSession is required for launching a TWA");
         }
@@ -187,7 +187,7 @@ public class TrustedWebActivityIntentBuilder {
         if (mSplashScreenParams != null) {
             intent.putExtra(EXTRA_SPLASH_SCREEN_PARAMS, mSplashScreenParams);
         }
-        return intent;
+        return new TrustedWebActivityIntent(intent);
     }
 
     /**
