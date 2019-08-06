@@ -39,12 +39,8 @@ MissingNullability: androidx.slice.SliceUtils.SliceActionListener#onSliceAction(
     Missing nullability on parameter `intent` in method `onSliceAction`
 MissingNullability: androidx.slice.widget.EventInfo#toString():
     Missing nullability on method `toString` return
-MissingNullability: androidx.slice.widget.SliceLiveData#fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener):
-    Missing nullability on method `fromCachedSlice` return
 MissingNullability: androidx.slice.widget.SliceLiveData#fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener) parameter #2:
     Missing nullability on parameter `listener` in method `fromCachedSlice`
-MissingNullability: androidx.slice.widget.SliceLiveData#fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener):
-    Missing nullability on method `fromStream` return
 MissingNullability: androidx.slice.widget.SliceLiveData#fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener) parameter #2:
     Missing nullability on parameter `listener` in method `fromStream`
 MissingNullability: androidx.slice.widget.SliceView#SliceView(android.content.Context) parameter #0:

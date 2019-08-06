@@ -65,8 +65,6 @@ MissingNullability: androidx.slice.SliceProvider#onGetSliceDescendants(android.n
     Missing nullability on method `onGetSliceDescendants` return
 MissingNullability: androidx.slice.SliceProvider#onGetSliceDescendants(android.net.Uri) parameter #0:
     Missing nullability on parameter `uri` in method `onGetSliceDescendants`
-MissingNullability: androidx.slice.SliceProvider#onMapIntentToUri(android.content.Intent):
-    Missing nullability on method `onMapIntentToUri` return
 MissingNullability: androidx.slice.SliceProvider#onMapIntentToUri(android.content.Intent) parameter #0:
     Missing nullability on parameter `intent` in method `onMapIntentToUri`
 MissingNullability: androidx.slice.SliceProvider#onSlicePinned(android.net.Uri) parameter #0:

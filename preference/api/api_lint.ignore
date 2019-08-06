@@ -385,12 +385,8 @@ MissingNullability: androidx.preference.PreferenceDataStore#getInt(String, int) 
     Missing nullability on parameter `key` in method `getInt`
 MissingNullability: androidx.preference.PreferenceDataStore#getLong(String, long) parameter #0:
     Missing nullability on parameter `key` in method `getLong`
-MissingNullability: androidx.preference.PreferenceDataStore#getString(String, String):
-    Missing nullability on method `getString` return
 MissingNullability: androidx.preference.PreferenceDataStore#getString(String, String) parameter #0:
     Missing nullability on parameter `key` in method `getString`
-MissingNullability: androidx.preference.PreferenceDataStore#getStringSet(String, java.util.Set<java.lang.String>):
-    Missing nullability on method `getStringSet` return
 MissingNullability: androidx.preference.PreferenceDataStore#getStringSet(String, java.util.Set<java.lang.String>) parameter #0:
     Missing nullability on parameter `key` in method `getStringSet`
 MissingNullability: androidx.preference.PreferenceDataStore#putBoolean(String, boolean) parameter #0:
@@ -411,8 +407,6 @@ MissingNullability: androidx.preference.PreferenceDialogFragment#onClick(android
     Missing nullability on parameter `dialog` in method `onClick`
 MissingNullability: androidx.preference.PreferenceDialogFragment#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.PreferenceDialogFragment#onCreateDialog(android.os.Bundle):
-    Missing nullability on method `onCreateDialog` return
 MissingNullability: androidx.preference.PreferenceDialogFragment#onCreateDialog(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreateDialog`
 MissingNullability: androidx.preference.PreferenceDialogFragment#onCreateDialogView(android.content.Context) parameter #0:
@@ -429,8 +423,6 @@ MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onClick(a
     Missing nullability on parameter `dialog` in method `onClick`
 MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
-MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreateDialog(android.os.Bundle):
-    Missing nullability on method `onCreateDialog` return
 MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreateDialog(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreateDialog`
 MissingNullability: androidx.preference.PreferenceDialogFragmentCompat#onCreateDialogView(android.content.Context):

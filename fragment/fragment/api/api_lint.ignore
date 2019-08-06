@@ -41,8 +41,6 @@ MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderForR
     Missing nullability on parameter `intent` in method `startIntentSenderForResult`
 MissingNullability: androidx.fragment.app.FragmentActivity#startIntentSenderFromFragment(androidx.fragment.app.Fragment, android.content.IntentSender, int, android.content.Intent, int, int, int, android.os.Bundle) parameter #1:
     Missing nullability on parameter `intent` in method `startIntentSenderFromFragment`
-MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(java.util.List<androidx.fragment.app.Fragment>):
-    Missing nullability on method `getActiveFragments` return
 MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(java.util.List<androidx.fragment.app.Fragment>) parameter #0:
     Missing nullability on parameter `actives` in method `getActiveFragments`
 MissingNullability: androidx.fragment.app.FragmentController#restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String,androidx.loader.app.LoaderManager>) parameter #0:

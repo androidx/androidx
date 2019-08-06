@@ -63,8 +63,6 @@ MethodNameUnits: androidx.recyclerview.widget.OrientationHelper#getTotalSpace():
 
 MissingNullability: androidx.recyclerview.widget.AdapterListUpdateCallback#onChanged(int, int, Object) parameter #2:
     Missing nullability on parameter `payload` in method `onChanged`
-MissingNullability: androidx.recyclerview.widget.AsyncDifferConfig.Builder#setBackgroundThreadExecutor(java.util.concurrent.Executor):
-    Missing nullability on method `setBackgroundThreadExecutor` return
 MissingNullability: androidx.recyclerview.widget.AsyncDifferConfig.Builder#setBackgroundThreadExecutor(java.util.concurrent.Executor) parameter #0:
     Missing nullability on parameter `executor` in method `setBackgroundThreadExecutor`
 MissingNullability: androidx.recyclerview.widget.BatchingListUpdateCallback#onChanged(int, int, Object) parameter #2:
@@ -375,8 +373,6 @@ MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#createSnapScrol
     Missing nullability on method `createSnapScroller` return
 MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
     Missing nullability on parameter `layoutManager` in method `createSnapScroller`
-MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager):
-    Missing nullability on method `findSnapView` return
 MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
     Missing nullability on parameter `layoutManager` in method `findSnapView`
 MissingNullability: androidx.recyclerview.widget.PagerSnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
@@ -625,14 +621,10 @@ MissingNullability: androidx.recyclerview.widget.SimpleItemAnimator#onRemoveStar
     Missing nullability on parameter `item` in method `onRemoveStarting`
 MissingNullability: androidx.recyclerview.widget.SnapHelper#calculateScrollDistance(int, int):
     Missing nullability on method `calculateScrollDistance` return
-MissingNullability: androidx.recyclerview.widget.SnapHelper#createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager):
-    Missing nullability on method `createScroller` return
 MissingNullability: androidx.recyclerview.widget.SnapHelper#createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
     Missing nullability on parameter `layoutManager` in method `createScroller`
 MissingNullability: androidx.recyclerview.widget.SnapHelper#createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
     Missing nullability on parameter `layoutManager` in method `createSnapScroller`
-MissingNullability: androidx.recyclerview.widget.SnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager):
-    Missing nullability on method `findSnapView` return
 MissingNullability: androidx.recyclerview.widget.SnapHelper#findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager) parameter #0:
     Missing nullability on parameter `layoutManager` in method `findSnapView`
 MissingNullability: androidx.recyclerview.widget.SnapHelper#findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int) parameter #0:
@@ -663,8 +655,6 @@ MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#comp
     Missing nullability on parameter `o1` in method `compare`
 MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#compare(T2, T2) parameter #1:
     Missing nullability on parameter `o2` in method `compare`
-MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#getChangePayload(T2, T2):
-    Missing nullability on method `getChangePayload` return
 MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#getChangePayload(T2, T2) parameter #0:
     Missing nullability on parameter `item1` in method `getChangePayload`
 MissingNullability: androidx.recyclerview.widget.SortedList.BatchedCallback#getChangePayload(T2, T2) parameter #1:
@@ -683,8 +673,6 @@ MissingNullability: androidx.recyclerview.widget.SortedList.Callback#compare(T2,
     Missing nullability on parameter `o1` in method `compare`
 MissingNullability: androidx.recyclerview.widget.SortedList.Callback#compare(T2, T2) parameter #1:
     Missing nullability on parameter `o2` in method `compare`
-MissingNullability: androidx.recyclerview.widget.SortedList.Callback#getChangePayload(T2, T2):
-    Missing nullability on method `getChangePayload` return
 MissingNullability: androidx.recyclerview.widget.SortedList.Callback#getChangePayload(T2, T2) parameter #0:
     Missing nullability on parameter `item1` in method `getChangePayload`
 MissingNullability: androidx.recyclerview.widget.SortedList.Callback#getChangePayload(T2, T2) parameter #1:
@@ -757,8 +745,6 @@ MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onDe
     Missing nullability on parameter `view` in method `onDetachedFromWindow`
 MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onDetachedFromWindow(androidx.recyclerview.widget.RecyclerView, androidx.recyclerview.widget.RecyclerView.Recycler) parameter #1:
     Missing nullability on parameter `recycler` in method `onDetachedFromWindow`
-MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State):
-    Missing nullability on method `onFocusSearchFailed` return
 MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #0:
     Missing nullability on parameter `focused` in method `onFocusSearchFailed`
 MissingNullability: androidx.recyclerview.widget.StaggeredGridLayoutManager#onFocusSearchFailed(android.view.View, int, androidx.recyclerview.widget.RecyclerView.Recycler, androidx.recyclerview.widget.RecyclerView.State) parameter #2:
