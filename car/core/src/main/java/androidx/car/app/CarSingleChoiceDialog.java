@@ -166,7 +166,7 @@ public final class CarSingleChoiceDialog extends Dialog {
             positiveButtonView.requestLayout();
 
             int buttonExtraSpace = CarDialogUtil.calculateExtraButtonSpace(negativeButtonView);
-            negativeButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace);
+            negativeButtonLayoutParams.setMarginStart(buttonOffset - buttonExtraSpace / 2);
             negativeButtonLayoutParams.setMarginEnd(buttonSpacing);
             negativeButtonView.requestLayout();
         } else {
