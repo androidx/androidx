@@ -138,14 +138,6 @@ abstract class PagedSource<Key : Any, Value : Any> {
          */
         val data: List<Value>,
         /**
-         * Only one of [itemsBefore] or [offset] should be used. This is a temporary placeholder
-         * shadowing [DataSource.BaseResult.offset] which simply forwards the params to backing
-         * implementations of [PagedSource].
-         *
-         * TODO: Investigate refactoring this out of the API now that tiling has been removed.
-         */
-        val offset: Int,
-        /**
          * Optional count of items before the loaded data.
          */
         @IntRange(from = COUNT_UNDEFINED.toLong())
@@ -170,7 +162,7 @@ abstract class PagedSource<Key : Any, Value : Any> {
             const val COUNT_UNDEFINED = -1
 
             @Suppress("MemberVisibilityCanBePrivate") // Prevent synthetic accessor generation.
-            internal val EMPTY = LoadResult(emptyList(), 0, 0, 0, null, null)
+            internal val EMPTY = LoadResult(emptyList(), 0, 0, null, null)
 
             @Suppress("UNCHECKED_CAST") // Can safely ignore, since the list is empty.
             internal fun <Key : Any, Value : Any> empty() = EMPTY as LoadResult<Key, Value>

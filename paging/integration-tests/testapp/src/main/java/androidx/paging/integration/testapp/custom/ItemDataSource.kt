@@ -107,7 +107,6 @@ internal class ItemDataSource : PagedSource<Int, Item>() {
         val data = loadRangeInternal(position, loadSize)
         return LoadResult(
             data = data,
-            offset = 0,
             itemsBefore = position,
             itemsAfter = COUNT - data.size - position
         )
@@ -115,6 +114,6 @@ internal class ItemDataSource : PagedSource<Int, Item>() {
 
     private fun loadRange(params: LoadParams<Int>): LoadResult<Int, Item> {
         val data = loadRangeInternal(params.key ?: 0, params.loadSize)
-        return LoadResult(data = data, offset = 0)
+        return LoadResult(data)
     }
 }

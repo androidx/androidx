@@ -85,24 +85,23 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
                 result == null -> throw Exception()
                 placeholdersEnabled -> LoadResult(
                     data = result,
-                    offset = start,
                     itemsBefore = start,
                     itemsAfter = listData.size - result.size - start
                 )
-                else -> LoadResult(data = result, offset = 0)
+                else -> LoadResult(result)
             }
         }
 
         private fun loadAfter(params: LoadParams<Int>): LoadResult<Int, Item> {
             val result = getClampedRange(params.key!! + 1, params.key!! + 1 + params.loadSize)
                 ?: throw Exception()
-            return LoadResult(data = result, offset = 0)
+            return LoadResult(result)
         }
 
         private fun loadBefore(params: LoadParams<Int>): LoadResult<Int, Item> {
             val result =
                 getClampedRange(params.key!! - params.loadSize, params.key!!) ?: throw Exception()
-            return LoadResult(data = result, offset = 0)
+            return LoadResult(result)
         }
 
         private fun getClampedRange(startInc: Int, endExc: Int): List<Item>? {
