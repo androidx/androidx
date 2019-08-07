@@ -235,6 +235,7 @@ public abstract class SliceProvider extends ContentProvider implements
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
         if (Build.VERSION.SDK_INT < 19) return null;
+        if (extras == null) return null;
         return mCompat != null ? mCompat.call(method, arg, extras) : null;
     }
 
