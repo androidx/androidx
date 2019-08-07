@@ -2726,7 +2726,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
         }
         mChildFragmentManager.dispatchResume();
-        mChildFragmentManager.execPendingActions(true);
     }
 
     void noteStateNotSaved() {
