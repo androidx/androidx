@@ -66,7 +66,7 @@ fun DrawVector(
     defaultWidth: Px = Px(viewportWidth),
     defaultHeight: Px = Px(viewportHeight),
     name: String = "",
-    @Children children: @Composable() VectorScope.() -> Unit
+    children: @Composable() VectorScope.() -> Unit
 ) {
     val vector = +memo(name, viewportWidth, viewportHeight) {
         VectorComponent(
@@ -100,7 +100,7 @@ fun VectorScope.Group(
     translationX: Float = DefaultTranslationX,
     translationY: Float = DefaultTranslationY,
     clipPathData: PathData = EmptyPath,
-    @Children children: @Composable() VectorScope.() -> Unit
+    children: @Composable() VectorScope.() -> Unit
 ) {
 
     val clipPathNodes = +memo(clipPathData) {

@@ -55,7 +55,7 @@ fun Semantics(
      */
     explicitChildNodes: Boolean = false,
     properties: (SemanticsPropertyReceiver.() -> Unit)? = null,
-    @Children children: @Composable() () -> Unit
+    children: @Composable() () -> Unit
 ) {
     val providedTestTag = +ambient(TestTagAmbient)
     val semanticsConfiguration = SemanticsConfiguration().also {

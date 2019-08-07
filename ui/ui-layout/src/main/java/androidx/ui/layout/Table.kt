@@ -125,7 +125,7 @@ fun Table(
     columnCount: Int,
     childAlignment: Alignment = Alignment.TopLeft,
     columnWidth: (columnIndex: Int) -> TableColumnWidth = { TableColumnWidth.Flexible(1f) },
-    @Children(composable = false) block: TableChildren.() -> Unit
+    block: TableChildren.() -> Unit
 ) {
     val verticalOffsets = +state { emptyArray<IntPx>() }
     val horizontalOffsets = +state { emptyArray<IntPx>() }

@@ -59,7 +59,7 @@ import androidx.ui.layout.samples.SizedRectangle
  * A widget that forces its only child to be as wide as its min intrinsic width.
  */
 @Composable
-fun IntrinsicWidth(@Children() children: @Composable() () -> Unit) {
+fun IntrinsicWidth(children: @Composable() () -> Unit) {
     ComplexLayout(children = children, block = {
         layout { measurables, constraints ->
             // Force child be as wide as its min intrinsic width.

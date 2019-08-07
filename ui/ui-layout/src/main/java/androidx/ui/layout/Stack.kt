@@ -101,7 +101,7 @@ class StackChildren {
  */
 @Composable
 fun Stack(
-    @Children(composable = false) block: StackChildren.() -> Unit
+    block: StackChildren.() -> Unit
 ) {
     val children: @Composable() () -> Unit = with(StackChildren()) {
         apply(block)
