@@ -55,16 +55,18 @@ fun DoubleTapGestureDetector(
     children: @Composable() () -> Unit
 ) {
     val recognizer =
-        +memo { DoubleTapGestureRecognizer(onDoubleTap, +ambient(CoroutineContextAmbient)) }
+        +memo { DoubleTapGestureRecognizer(+ambient(CoroutineContextAmbient)) }
+    recognizer.onDoubleTap = onDoubleTap
+
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
         children()
     }
 }
 
 internal class DoubleTapGestureRecognizer(
-    val onDoubleTap: (PxPosition) -> Unit,
     coroutineContext: CoroutineContext
 ) {
+    lateinit var onDoubleTap: (PxPosition) -> Unit
 
     private enum class State {
         Idle, Down, Up, SecondDown, Cancelled
