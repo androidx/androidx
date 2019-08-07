@@ -2025,6 +2025,14 @@ public abstract class FragmentManager {
      */
     void enqueueAction(OpGenerator action, boolean allowStateLoss) {
         if (!allowStateLoss) {
+            if (mHost == null) {
+                if (mDestroyed) {
+                    throw new IllegalStateException("FragmentManager has been destroyed");
+                } else {
+                    throw new IllegalStateException("FragmentManager has not been attached to a "
+                            + "host.");
+                }
+            }
             checkStateLoss();
         }
         synchronized (mPendingActions) {

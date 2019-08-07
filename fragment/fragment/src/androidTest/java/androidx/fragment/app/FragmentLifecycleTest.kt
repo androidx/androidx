@@ -672,6 +672,62 @@ class FragmentLifecycleTest {
         }
     }
 
+    @Test
+    @UiThreadTest
+    fun popBackStackAfterManagerDestroyed() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+        val fm = fc.supportFragmentManager
+
+        val fragment1 = StrictFragment()
+        fragment1.retainInstance = true
+        fm.beginTransaction()
+            .add(fragment1, "1")
+            .commitNow()
+
+        // Now destroy the Fragment Manager
+        fc.dispatchPause()
+        fc.dispatchStop()
+        fc.dispatchDestroy()
+
+        try {
+            fm.popBackStack()
+            fail("PopBackStack after FragmentManager destroyed should throw IllegalStateException")
+        } catch (e: IllegalStateException) {
+            assertWithMessage("popBackStack should throw an IllegalStateException")
+                .that(e)
+                .hasMessageThat()
+                .contains("FragmentManager has been destroyed")
+        }
+    }
+
+    @Test
+    @UiThreadTest
+    fun commitWhenFragmentManagerNeverAttached() {
+        val viewModelStore = ViewModelStore()
+        val fc = FragmentController.createController(
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
+        )
+        val fm = fc.supportFragmentManager
+
+        val fragment1 = StrictFragment()
+        fragment1.retainInstance = true
+
+        try {
+            fm.beginTransaction()
+                .add(fragment1, "1")
+                .commit()
+            fail("Commit when FragmentManager never attached should throw " +
+                    "IllegalStateException")
+        } catch (e: IllegalStateException) {
+            assertWithMessage("Commit when FragmentManager never attached should throw an " +
+                    "IllegalStateException")
+                .that(e)
+                .hasMessageThat()
+                .contains("FragmentManager has not been attached to a host.")
+        }
+    }
+
     /**
      * When a fragment is saved in non-config, it should be restored to the same index.
      */
