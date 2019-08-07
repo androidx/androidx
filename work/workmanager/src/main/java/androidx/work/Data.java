@@ -343,6 +343,21 @@ public final class Data {
         return Data.toByteArray(this);
     }
 
+     /**
+     * Returns {@code true} if the instance of {@link Data} has a non-null value corresponding to
+     * the given {@link String} key with the expected type of {@code T}.
+     *
+     * @param key   The {@link String} key
+     * @param klass The {@link Class} container for the expected type
+     * @param <T>   The expected type
+     * @return {@code true} If the instance of {@link Data} has a value for the given
+     * {@link String} key with the expected type.
+     */
+    public <T> boolean containsKey(@NonNull String key, @NonNull Class<T> klass) {
+        Object value = mValues.get(key);
+        return value != null && klass.isAssignableFrom(value.getClass());
+    }
+
     /**
      * @return The number of elements in this Data object.
      * @hide

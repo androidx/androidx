@@ -19,16 +19,17 @@ package androidx.work
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class DataTest {
-
     @Test
-    fun testToWorkDataOf() {
+    fun testDataExtensions() {
         val data = workDataOf("one" to 1,
                 "two" to 2L,
                 "three" to "Three",
@@ -41,5 +42,11 @@ class DataTest {
         assertEquals(longArray!!.size, 2)
         assertEquals(longArray[0], 1L)
         assertEquals(longArray[1], 2L)
+        assertTrue(data.containsKey<Int>("one"))
+        assertTrue(data.containsKey<Long>("two"))
+        assertTrue(data.containsKey<String>("three"))
+        assertTrue(data.containsKey<Array<Long>>("four"))
+        assertFalse(data.containsKey<Any>("nothing"))
+        assertFalse(data.containsKey<Float>("two"))
     }
 }
