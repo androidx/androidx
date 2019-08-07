@@ -418,7 +418,7 @@ public abstract class FragmentManager {
     private Runnable mExecCommit = new Runnable() {
         @Override
         public void run() {
-            execPendingActions();
+            execPendingActions(true);
         }
     };
 
@@ -494,7 +494,7 @@ public abstract class FragmentManager {
      * executed.
      */
     public boolean executePendingTransactions() {
-        boolean updates = execPendingActions();
+        boolean updates = execPendingActions(true);
         forcePostponedTransactions();
         return updates;
     }
@@ -543,7 +543,7 @@ public abstract class FragmentManager {
         // up to date view of the world just in case anyone is queuing
         // up transactions that change the back stack then immediately
         // calling onBackPressed()
-        execPendingActions();
+        execPendingActions(true);
         if (mOnBackPressedCallback.isEnabled()) {
             // We still have a back stack, so we can pop
             popBackStackImmediate();
@@ -574,7 +574,6 @@ public abstract class FragmentManager {
      * @return Returns true if there was something popped, else false.
      */
     public boolean popBackStackImmediate() {
-        checkStateLoss();
         return popBackStackImmediate(null, -1, 0);
     }
 
@@ -602,7 +601,6 @@ public abstract class FragmentManager {
      * @return Returns true if there was something popped, else false.
      */
     public boolean popBackStackImmediate(@Nullable String name, int flags) {
-        checkStateLoss();
         return popBackStackImmediate(name, -1, flags);
     }
 
@@ -634,8 +632,6 @@ public abstract class FragmentManager {
      * @return Returns true if there was something popped, else false.
      */
     public boolean popBackStackImmediate(int id, int flags) {
-        checkStateLoss();
-        execPendingActions();
         if (id < 0) {
             throw new IllegalArgumentException("Bad id: " + id);
         }
@@ -650,7 +646,7 @@ public abstract class FragmentManager {
      * @return true if the pop operation did anything or false otherwise.
      */
     private boolean popBackStackImmediate(String name, int id, int flags) {
-        execPendingActions();
+        execPendingActions(false);
         ensureExecReady(true);
 
         if (mPrimaryNav != null // We have a primary nav fragment
@@ -2026,10 +2022,18 @@ public abstract class FragmentManager {
      */
     void enqueueAction(OpGenerator action, boolean allowStateLoss) {
         if (!allowStateLoss) {
+            if (mHost == null) {
+                if (mDestroyed) {
+                    throw new IllegalStateException("FragmentManager has been destroyed");
+                } else {
+                    throw new IllegalStateException("FragmentManager has not been attached to a "
+                            + "host.");
+                }
+            }
             checkStateLoss();
         }
         synchronized (mPendingActions) {
-            if (mDestroyed || mHost == null) {
+            if (mHost == null) {
                 if (allowStateLoss) {
                     // This FragmentManager isn't attached, so drop the entire transaction.
                     return;
@@ -2077,7 +2081,11 @@ public abstract class FragmentManager {
         }
 
         if (mHost == null) {
-            throw new IllegalStateException("Fragment host has been destroyed");
+            if (mDestroyed) {
+                throw new IllegalStateException("FragmentManager has been destroyed");
+            } else {
+                throw new IllegalStateException("FragmentManager has not been attached to a host.");
+            }
         }
 
         if (Looper.myLooper() != mHost.getHandler().getLooper()) {
@@ -2133,8 +2141,8 @@ public abstract class FragmentManager {
     /**
      * Only call from main thread!
      */
-    boolean execPendingActions() {
-        ensureExecReady(true);
+    boolean execPendingActions(boolean allowStateLoss) {
+        ensureExecReady(allowStateLoss);
 
         boolean didSomething = false;
         while (generateOpsForPendingActions(mTmpRecords, mTmpIsPop)) {
@@ -2734,7 +2742,7 @@ public abstract class FragmentManager {
         // our state update-to-date.
         forcePostponedTransactions();
         endAnimatingAwayFragments();
-        execPendingActions();
+        execPendingActions(true);
 
         mStateSaved = true;
 
@@ -3055,7 +3063,7 @@ public abstract class FragmentManager {
 
     void dispatchDestroy() {
         mDestroyed = true;
-        execPendingActions();
+        execPendingActions(true);
         dispatchStateChange(Fragment.INITIALIZING);
         mHost = null;
         mContainer = null;
@@ -3075,7 +3083,7 @@ public abstract class FragmentManager {
         } finally {
             mExecutingActions = false;
         }
-        execPendingActions();
+        execPendingActions(true);
     }
 
     void dispatchMultiWindowModeChanged(boolean isInMultiWindowMode) {
