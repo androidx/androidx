@@ -68,7 +68,7 @@ class VectorGraphicsActivity : Activity() {
     }
 
     @Composable
-    fun FixedLayout(width: IntPx, height: IntPx, @Children child: @Composable() () -> Unit) {
+    fun FixedLayout(width: IntPx, height: IntPx, child: @Composable() () -> Unit) {
         Layout(children = { child() },
             layoutBlock = { _, _ ->
                 layout(width, height) {}

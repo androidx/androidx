@@ -278,7 +278,7 @@ class ComplexLayoutReceiver internal constructor(internal val layoutState: Compl
 @Composable
 fun ComplexLayout(
     children: @Composable() () -> Unit,
-    @Children(composable = false) block: ComplexLayoutReceiver.() -> Unit
+    block: ComplexLayoutReceiver.() -> Unit
 ) {
     val density = +ambientDensity()
     val layoutState = +memo { ComplexLayoutState(density = density) }
@@ -359,7 +359,7 @@ private val LayoutMeasure = { m: Measurable, c: Constraints -> (m as ComplexLayo
 @Composable
 fun Layout(
     children: @Composable() () -> Unit,
-    @Children(composable = false) layoutBlock: LayoutBlock
+    layoutBlock: LayoutBlock
 ) {
     trace("UI:Layout") {
         ComplexLayout(children = children, block = {
@@ -451,7 +451,7 @@ internal data class ChildrenEndParentData(val children: @Composable() () -> Unit
 @Composable
 fun Layout(
     childrenArray: Array<@Composable() () -> Unit>,
-    @Children(composable = false) layoutBlock: LayoutBlock
+    layoutBlock: LayoutBlock
 ) {
     val ChildrenEndMarker = @Composable { children: @Composable() () -> Unit ->
         ParentData(data = ChildrenEndParentData(children)) {

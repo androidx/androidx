@@ -101,7 +101,7 @@ fun FlexRow(
     mainAxisSize: FlexSize = FlexSize.Max,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
     crossAxisSize: FlexSize = FlexSize.Min,
-    @Children(composable = false) block: FlexChildren.() -> Unit
+    block: FlexChildren.() -> Unit
 ) {
     Flex(
         orientation = FlexOrientation.Horizontal,
@@ -144,7 +144,7 @@ fun FlexColumn(
     mainAxisSize: FlexSize = FlexSize.Max,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
     crossAxisSize: FlexSize = FlexSize.Min,
-    @Children(composable = false) block: FlexChildren.() -> Unit
+    block: FlexChildren.() -> Unit
 ) {
     Flex(
         orientation = FlexOrientation.Vertical,
@@ -476,7 +476,7 @@ private fun Flex(
     mainAxisAlignment: MainAxisAlignment = MainAxisAlignment.Start,
     crossAxisSize: FlexSize = FlexSize.Min,
     crossAxisAlignment: CrossAxisAlignment = CrossAxisAlignment.Center,
-    @Children(composable = false) block: FlexChildren.() -> Unit
+    block: FlexChildren.() -> Unit
 ) {
     fun Placeable.mainAxisSize() = if (orientation == FlexOrientation.Horizontal) width else height
     fun Placeable.crossAxisSize() = if (orientation == FlexOrientation.Horizontal) height else width
