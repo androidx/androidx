@@ -57,6 +57,7 @@ fun PressReleasedGestureDetector(
     val recognizer = +memo { PressReleaseGestureRecognizer() }
     recognizer.onRelease = onRelease
     recognizer.consumeDownOnStart = consumeDownOnStart
+
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
         children()
     }
