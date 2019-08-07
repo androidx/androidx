@@ -165,14 +165,10 @@ ListenerInterface: androidx.core.view.OneShotPreDrawListener:
 
 MissingNullability: androidx.core.app.ActivityCompat#invalidateOptionsMenu(android.app.Activity) parameter #0:
     Missing nullability on parameter `activity` in method `invalidateOptionsMenu`
-MissingNullability: androidx.core.app.ActivityCompat#requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent):
-    Missing nullability on method `requestDragAndDropPermissions` return
 MissingNullability: androidx.core.app.ActivityCompat#requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent) parameter #0:
     Missing nullability on parameter `activity` in method `requestDragAndDropPermissions`
 MissingNullability: androidx.core.app.ActivityCompat#requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent) parameter #1:
     Missing nullability on parameter `dragEvent` in method `requestDragAndDropPermissions`
-MissingNullability: androidx.core.app.ActivityOptionsCompat#makeSceneTransitionAnimation(android.app.Activity, androidx.core.util.Pair<android.view.View,java.lang.String>...):
-    Missing nullability on method `makeSceneTransitionAnimation` return
 MissingNullability: androidx.core.app.ActivityOptionsCompat#makeSceneTransitionAnimation(android.app.Activity, androidx.core.util.Pair<android.view.View,java.lang.String>...) parameter #1:
     Missing nullability on parameter `sharedElements` in method `makeSceneTransitionAnimation`
 MissingNullability: androidx.core.app.JobIntentService#onBind(android.content.Intent):
@@ -199,8 +195,6 @@ MissingNullability: androidx.core.app.NotificationCompat#getContentTitle(android
     Missing nullability on method `getContentTitle` return
 MissingNullability: androidx.core.app.NotificationCompat#getContentTitle(android.app.Notification) parameter #0:
     Missing nullability on parameter `notification` in method `getContentTitle`
-MissingNullability: androidx.core.app.NotificationCompat#getExtras(android.app.Notification):
-    Missing nullability on method `getExtras` return
 MissingNullability: androidx.core.app.NotificationCompat#getExtras(android.app.Notification) parameter #0:
     Missing nullability on parameter `notification` in method `getExtras`
 MissingNullability: androidx.core.app.NotificationCompat#getGroup(android.app.Notification):
@@ -603,8 +597,6 @@ MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessa
     Missing nullability on method `addMessage` return
 MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#addMessage(androidx.core.app.NotificationCompat.MessagingStyle.Message) parameter #0:
     Missing nullability on parameter `message` in method `addMessage`
-MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#extractMessagingStyleFromNotification(android.app.Notification):
-    Missing nullability on method `extractMessagingStyleFromNotification` return
 MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#extractMessagingStyleFromNotification(android.app.Notification) parameter #0:
     Missing nullability on parameter `notification` in method `extractMessagingStyleFromNotification`
 MissingNullability: androidx.core.app.NotificationCompat.MessagingStyle#getMessages():
@@ -809,8 +801,6 @@ MissingNullability: androidx.core.content.FileProvider#update(android.net.Uri, a
     Missing nullability on parameter `values` in method `update`
 MissingNullability: androidx.core.content.pm.ShortcutInfoCompat#toShortcutInfo():
     Missing nullability on method `toShortcutInfo` return
-MissingNullability: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIcon(androidx.core.graphics.drawable.IconCompat):
-    Missing nullability on method `setIcon` return
 MissingNullability: androidx.core.content.pm.ShortcutInfoCompat.Builder#setIcon(androidx.core.graphics.drawable.IconCompat) parameter #0:
     Missing nullability on parameter `icon` in method `setIcon`
 MissingNullability: androidx.core.database.DatabaseUtilsCompat#appendSelectionArgs(String[], String[]) parameter #0:
@@ -987,8 +977,6 @@ MissingNullability: androidx.core.text.BidiFormatter.Builder#setTextDirectionHeu
     Missing nullability on parameter `heuristic` in method `setTextDirectionHeuristic`
 MissingNullability: androidx.core.text.BidiFormatter.Builder#stereoReset(boolean):
     Missing nullability on method `stereoReset` return
-MissingNullability: androidx.core.text.ICUCompat#maximizeAndGetScript(java.util.Locale):
-    Missing nullability on method `maximizeAndGetScript` return
 MissingNullability: androidx.core.text.ICUCompat#maximizeAndGetScript(java.util.Locale) parameter #0:
     Missing nullability on parameter `locale` in method `maximizeAndGetScript`
 MissingNullability: androidx.core.text.PrecomputedTextCompat#create(CharSequence, androidx.core.text.PrecomputedTextCompat.Params):
@@ -1947,8 +1935,6 @@ MissingNullability: androidx.core.view.accessibility.AccessibilityNodeInfoCompat
     Missing nullability on method `obtain` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCompat#AccessibilityNodeProviderCompat(Object) parameter #0:
     Missing nullability on parameter `provider` in method `AccessibilityNodeProviderCompat`
-MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCompat#findAccessibilityNodeInfosByText(String, int):
-    Missing nullability on method `findAccessibilityNodeInfosByText` return
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCompat#findAccessibilityNodeInfosByText(String, int) parameter #0:
     Missing nullability on parameter `text` in method `findAccessibilityNodeInfosByText`
 MissingNullability: androidx.core.view.accessibility.AccessibilityNodeProviderCompat#getProvider():
@@ -2015,8 +2001,6 @@ MissingNullability: androidx.core.view.animation.PathInterpolatorCompat#create(f
     Missing nullability on method `create` return
 MissingNullability: androidx.core.view.animation.PathInterpolatorCompat#create(float, float, float, float):
     Missing nullability on method `create` return
-MissingNullability: androidx.core.view.inputmethod.EditorInfoCompat#getContentMimeTypes(android.view.inputmethod.EditorInfo):
-    Missing nullability on method `getContentMimeTypes` return
 MissingNullability: androidx.core.view.inputmethod.EditorInfoCompat#getContentMimeTypes(android.view.inputmethod.EditorInfo) parameter #0:
     Missing nullability on parameter `editorInfo` in method `getContentMimeTypes`
 MissingNullability: androidx.core.view.inputmethod.InputConnectionCompat.OnCommitContentListener#onCommitContent(androidx.core.view.inputmethod.InputContentInfoCompat, int, android.os.Bundle) parameter #0:

@@ -55,8 +55,6 @@ MissingNullability: androidx.car.uxrestrictions.CarUxRestrictions#toString():
     Missing nullability on method `toString` return
 MissingNullability: androidx.car.uxrestrictions.OnUxRestrictionsChangedListener#onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions) parameter #0:
     Missing nullability on parameter `restrictionInfo` in method `onUxRestrictionsChanged`
-MissingNullability: androidx.car.widget.ActionListItem#createViewHolder(android.view.View):
-    Missing nullability on method `createViewHolder` return
 MissingNullability: androidx.car.widget.ActionListItem#createViewHolder(android.view.View) parameter #0:
     Missing nullability on parameter `itemView` in method `createViewHolder`
 MissingNullability: androidx.car.widget.ActionListItem#onBind(androidx.car.widget.ActionListItem.ViewHolder) parameter #0:
@@ -201,8 +199,6 @@ MissingNullability: androidx.car.widget.PagedScrollBarView#setPaginationListener
     Missing nullability on parameter `listener` in method `setPaginationListener`
 MissingNullability: androidx.car.widget.PagedScrollBarView#setUpButtonIcon(android.graphics.drawable.Drawable) parameter #0:
     Missing nullability on parameter `icon` in method `setUpButtonIcon`
-MissingNullability: androidx.car.widget.SeekbarListItem#createViewHolder(android.view.View):
-    Missing nullability on method `createViewHolder` return
 MissingNullability: androidx.car.widget.SeekbarListItem#createViewHolder(android.view.View) parameter #0:
     Missing nullability on parameter `itemView` in method `createViewHolder`
 MissingNullability: androidx.car.widget.SeekbarListItem#onBind(androidx.car.widget.SeekbarListItem.ViewHolder) parameter #0:
@@ -217,8 +213,6 @@ MissingNullability: androidx.car.widget.SeekbarListItem.ViewHolder#ViewHolder(an
     Missing nullability on parameter `itemView` in method `ViewHolder`
 MissingNullability: androidx.car.widget.SeekbarListItem.ViewHolder#onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions) parameter #0:
     Missing nullability on parameter `restrictionsInfo` in method `onUxRestrictionsChanged`
-MissingNullability: androidx.car.widget.SubheaderListItem#createViewHolder(android.view.View):
-    Missing nullability on method `createViewHolder` return
 MissingNullability: androidx.car.widget.SubheaderListItem#createViewHolder(android.view.View) parameter #0:
     Missing nullability on parameter `itemView` in method `createViewHolder`
 MissingNullability: androidx.car.widget.SubheaderListItem#onBind(androidx.car.widget.SubheaderListItem.ViewHolder) parameter #0:
@@ -227,8 +221,6 @@ MissingNullability: androidx.car.widget.SubheaderListItem.ViewHolder#ViewHolder(
     Missing nullability on parameter `itemView` in method `ViewHolder`
 MissingNullability: androidx.car.widget.SubheaderListItem.ViewHolder#onUxRestrictionsChanged(androidx.car.uxrestrictions.CarUxRestrictions) parameter #0:
     Missing nullability on parameter `restrictionsInfo` in method `onUxRestrictionsChanged`
-MissingNullability: androidx.car.widget.TextListItem#createViewHolder(android.view.View):
-    Missing nullability on method `createViewHolder` return
 MissingNullability: androidx.car.widget.TextListItem#createViewHolder(android.view.View) parameter #0:
     Missing nullability on parameter `itemView` in method `createViewHolder`
 MissingNullability: androidx.car.widget.TextListItem#onBind(androidx.car.widget.TextListItem.ViewHolder) parameter #0:
