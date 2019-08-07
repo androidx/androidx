@@ -31,6 +31,42 @@ package androidx.ui {
 
 }
 
+package androidx.ui.autofill {
+
+  public interface Autofill {
+    method public void cancelAutofillForNode(androidx.ui.autofill.AutofillNode autofillNode);
+    method public void requestAutofillForNode(androidx.ui.autofill.AutofillNode autofillNode);
+  }
+
+  public final class AutofillNode {
+    ctor public AutofillNode(java.util.List<? extends androidx.ui.autofill.AutofillType> autofillTypes, android.graphics.Rect? boundingBox, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>? onFill);
+    method public java.util.List<androidx.ui.autofill.AutofillType> component1();
+    method public android.graphics.Rect? component2();
+    method public kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit>? component3();
+    method public androidx.ui.autofill.AutofillNode copy(java.util.List<? extends androidx.ui.autofill.AutofillType> autofillTypes, android.graphics.Rect? boundingBox, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit>? onFill);
+    method public java.util.List<androidx.ui.autofill.AutofillType> getAutofillTypes();
+    method public android.graphics.Rect? getBoundingBox();
+    method public int getId();
+    method public kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit>? getOnFill();
+    method public void setBoundingBox(android.graphics.Rect? p);
+    property public final int id;
+  }
+
+  public final class AutofillTree {
+    ctor public AutofillTree();
+    method public java.util.Map<java.lang.Integer,androidx.ui.autofill.AutofillNode> getChildren();
+    method public kotlin.Unit? performAutofill(int id, String value);
+    method public operator void plusAssign(androidx.ui.autofill.AutofillNode autofillNode);
+    property public final java.util.Map<java.lang.Integer,androidx.ui.autofill.AutofillNode> children;
+  }
+
+  public enum AutofillType {
+    enum_constant public static final androidx.ui.autofill.AutofillType EmailAddress;
+    enum_constant public static final androidx.ui.autofill.AutofillType Name;
+  }
+
+}
+
 package androidx.ui.core {
 
   public final class Bounds {

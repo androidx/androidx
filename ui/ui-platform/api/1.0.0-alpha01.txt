@@ -1,4 +1,12 @@
 // Signature format: 3.0
+package androidx.ui.autofill {
+
+  public final class AndroidAutofillKt {
+    ctor public AndroidAutofillKt();
+  }
+
+}
+
 package androidx.ui.core {
 
   public final class AndroidCraneView extends android.view.ViewGroup implements androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
@@ -6,6 +14,8 @@ package androidx.ui.core {
     method public androidx.ui.core.PxPosition calculatePosition();
     method public void callDraw(androidx.ui.painting.Canvas canvas, androidx.ui.core.ComponentNode node, androidx.ui.core.PxSize parentSize, androidx.ui.core.DensityReceiver densityReceiver);
     method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
+    method public androidx.ui.autofill.Autofill? getAutofill();
+    method public androidx.ui.autofill.AutofillTree getAutofillTree();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getCommitUnsubscribe();
     method public androidx.ui.core.Constraints getConstraints();
     method public long getMeasureIteration();
@@ -26,6 +36,8 @@ package androidx.ui.core {
     method public void setCommitUnsubscribe(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
+    property public final androidx.ui.autofill.Autofill? autofill;
+    property public final androidx.ui.autofill.AutofillTree autofillTree;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? commitUnsubscribe;
     property public final androidx.ui.core.Constraints constraints;
     property public long measureIteration;
