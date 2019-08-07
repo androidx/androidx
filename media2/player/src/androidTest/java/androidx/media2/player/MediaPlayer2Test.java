@@ -2641,7 +2641,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final int resid2 = R.raw.testvideo;
         final long start2 = 3000;
         final long end2 = 5000;
-        final int expectedDuration2 = 11047;
+        final int expectedDuration2 = 2000;
         MediaItem item2;
         try (AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2)) {
             item2 = new FileMediaItem.Builder(
@@ -2656,9 +2656,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.setMediaItem(item1);
         mPlayer.setNextMediaItem(item2);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-
-        final Monitor seekDone = new Monitor();
-        final int[] seekResults = new int[1];
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onInfo(MediaPlayer2 mp, MediaItem item, int what, int extra) {
@@ -2675,9 +2672,6 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
                     mOnPlayCalled.signal();
-                } else if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
-                    seekResults[0] = status;
-                    seekDone.signal();
                 }
             }
         };
@@ -2693,25 +2687,13 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
-        assertTrue(mPlayer.getCurrentPosition() >= start1);
-
         mOnCompletionCalled.waitForSignal();
-        assertTrue(mPlayer.getCurrentPosition() >= start2);
         mPlayer.setPlaybackParams(new PlaybackParams.Builder().setSpeed(0.5f).build());
-
         mOnCompletionCalled.reset();
         mOnCompletionCalled.waitForSignal();
-        assertTrue(Math.abs(mPlayer.getCurrentPosition() - end2) < PLAYBACK_COMPLETE_TOLERANCE_MS);
-
-        seekDone.reset();
-        mPlayer.seekTo(start2 - 1000);
-        seekDone.waitForSignal();
-        assertEquals(MediaPlayer2.CALL_STATUS_BAD_VALUE, seekResults[0]);
-
-        mPlayer.seekTo(end2 + 1000);
-        seekDone.waitForSignal();
-        assertEquals(MediaPlayer2.CALL_STATUS_BAD_VALUE, seekResults[0]);
-
+        assertTrue(
+                Math.abs(mPlayer.getCurrentPosition() - expectedDuration2)
+                        < PLAYBACK_COMPLETE_TOLERANCE_MS);
         assertEquals(expectedDuration2, mPlayer.getDuration());
     }
 
@@ -2722,6 +2704,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start = 6000;
         final long end = 8000;
+        final long expectedDuration = 2000;
         MediaItem item;
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
             item = new FileMediaItem.Builder(
@@ -2772,22 +2755,17 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
         assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
-        assertTrue(mPlayer.getCurrentPosition() >= start);
-
         onDataSourceRepeatCalled.waitForSignal();
         assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
-        assertTrue(mPlayer.getCurrentPosition() >= start);
-        onDataSourceRepeatCalled.waitForCountedSignals(2);
-        assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
-        assertTrue(mPlayer.getCurrentPosition() >= start);
-
         mOnCompletionCalled.reset();
         mPlayer.loopCurrent(false);
         mOnCompletionCalled.waitForSignal();
         assertEquals(MediaPlayer2.PLAYER_STATE_PAUSED, mPlayer.getState());
         long pos = mPlayer.getCurrentPosition();
-        assertTrue("current pos (" + pos + "us) does not match requested pos (" + end + "us).",
-                Math.abs(pos - end) < PLAYBACK_COMPLETE_TOLERANCE_MS);
+        assertTrue(
+                "current pos (" + pos + " ms) does not match requested pos ("
+                        + expectedDuration + " ms).",
+                Math.abs(pos - expectedDuration) < PLAYBACK_COMPLETE_TOLERANCE_MS);
     }
 
     @Test
