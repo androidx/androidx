@@ -1039,18 +1039,6 @@ class FragmentViewTest {
         return activityRule.activity.findViewById(viewId)
     }
 
-    private fun assertChildren(container: ViewGroup, vararg fragments: Fragment) {
-        val numFragments = fragments.size
-        assertWithMessage("There aren't the correct number of fragment Views in its container")
-            .that(container.childCount)
-            .isEqualTo(numFragments)
-        for (i in 0 until numFragments) {
-            assertWithMessage("Wrong Fragment View order for [$i]")
-                .that(fragments[i].view)
-                .isEqualTo(container.getChildAt(i))
-        }
-    }
-
     class InvisibleFragment : StrictViewFragment() {
         var visibility = View.INVISIBLE
 
