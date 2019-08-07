@@ -61,7 +61,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     private final Object mLock;
 
     // Internal State
-    private String mProcessName;
+    private Boolean mIsMainProcess;
 
     public GreedyScheduler(
             @NonNull Context context,
@@ -71,7 +71,6 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         mWorkManagerImpl = workManagerImpl;
         mWorkConstraintsTracker = new WorkConstraintsTracker(context, taskExecutor, this);
         mLock = new Object();
-        mProcessName = getProcessName();
     }
 
     @VisibleForTesting
@@ -83,17 +82,17 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         mWorkManagerImpl = workManagerImpl;
         mWorkConstraintsTracker = workConstraintsTracker;
         mLock = new Object();
-        mProcessName = getProcessName();
     }
 
     @Override
     public void schedule(@NonNull WorkSpec... workSpecs) {
-        // Package name is the default process name
-        if (!TextUtils.equals(mContext.getPackageName(), mProcessName)) {
-            Logger.get().info(
-                    TAG,
-                    String.format("Ignoring schedule request (Running in process %s)", mProcessName)
-            );
+        if (mIsMainProcess == null) {
+            // The default process name is the package name.
+            mIsMainProcess = TextUtils.equals(mContext.getPackageName(), getProcessName());
+        }
+
+        if (!mIsMainProcess) {
+            Logger.get().info(TAG, "Ignoring schedule request in non-main process");
             return;
         }
 
@@ -146,6 +145,16 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
 
     @Override
     public void cancel(@NonNull String workSpecId) {
+        if (mIsMainProcess == null) {
+            // The default process name is the package name.
+            mIsMainProcess = TextUtils.equals(mContext.getPackageName(), getProcessName());
+        }
+
+        if (!mIsMainProcess) {
+            Logger.get().info(TAG, "Ignoring schedule request in non-main process");
+            return;
+        }
+
         registerExecutionListenerIfNeeded();
         Logger.get().debug(TAG, String.format("Cancelling work ID %s", workSpecId));
         // onExecutionCompleted does the cleanup.
