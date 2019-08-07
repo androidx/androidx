@@ -33,12 +33,10 @@ class PagedSourceWrapper<Key : Any, Value : Any>(
         dataSource.addInvalidatedCallback { invalidate() }
     }
 
-    override val keyProvider: KeyProvider<Key, Value> = when (dataSource.type) {
-        DataSource.KeyType.POSITIONAL -> {
-            @Suppress("UNCHECKED_CAST") // Guaranteed to be the correct key type.
-            KeyProvider.Positional<Value>() as KeyProvider<Key, Value>
-        }
-        DataSource.KeyType.PAGE_KEYED -> KeyProvider.PageKey()
+    @Suppress("UNCHECKED_CAST")
+    override val keyProvider = when (dataSource.type) {
+        DataSource.KeyType.POSITIONAL -> KeyProvider.Positional as KeyProvider<Key, Value>
+        DataSource.KeyType.PAGE_KEYED -> KeyProvider.PageKeyGlobal()
         DataSource.KeyType.ITEM_KEYED -> object : KeyProvider.ItemKey<Key, Value>() {
             override fun getKey(item: Value) = dataSource.getKeyInternal(item)
         }
