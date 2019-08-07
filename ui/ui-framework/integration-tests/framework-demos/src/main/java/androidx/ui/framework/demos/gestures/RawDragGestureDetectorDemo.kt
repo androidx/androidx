@@ -27,12 +27,12 @@ import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
 import androidx.compose.composer
 import androidx.ui.core.dp
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.RawDragGestureDetector
 
 /**
  * Simple demo that shows off DragGestureDetector.
  */
-class DragGestureDetectorDemo : Activity() {
+class RawDragGestureDetectorDemo : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -47,7 +47,7 @@ class DragGestureDetectorDemo : Activity() {
                 }
             }
 
-            DragGestureDetector(dragObserver = dragObserver) {
+            RawDragGestureDetector(dragObserver = dragObserver) {
                 MatchParent {
                     DrawBox(
                         xOffset.value,

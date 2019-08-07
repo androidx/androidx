@@ -23,7 +23,7 @@ import androidx.compose.unaryPlus
 import androidx.ui.core.PxPosition
 import androidx.ui.foundation.animation.AnimatedFloatDragController
 import androidx.ui.foundation.animation.AnchorsFlingConfig
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.px
 
@@ -33,7 +33,7 @@ import androidx.ui.core.px
  * The common usecase for this component is when you need to be able to drag/scroll something
  * on the screen and represent it as one value via [DragValueController].
  *
- * If you need to control the whole dragging flow, consider using [DragGestureDetector] instead.
+ * If you need to control the whole dragging flow, consider using [TouchSlopDragGestureDetector] instead.
  *
  * @sample androidx.ui.foundation.samples.DraggableSample
  *
@@ -64,10 +64,7 @@ fun Draggable(
     +memo(valueController, minValue, maxValue) {
         valueController.setBounds(minValue, maxValue)
     }
-    DragGestureDetector(
-        canDrag = { direction ->
-            dragDirection.isDraggableInDirection(direction, minValue, current(), maxValue)
-        },
+    TouchSlopDragGestureDetector(
         dragObserver = object : DragObserver {
 
             override fun onDrag(dragDistance: PxPosition): PxPosition {
@@ -89,12 +86,14 @@ fun Draggable(
                     callback?.notifyFinished(it)
                 }
             }
+        },
+        canDrag = { direction ->
+            dragDirection.isDraggableInDirection(direction, minValue, current(), maxValue)
         }
     ) {
         children(current())
     }
 }
-
 
 class DraggableCallback(
     private val onDragStarted: () -> Unit = {},

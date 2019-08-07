@@ -28,7 +28,7 @@ import androidx.ui.core.Draw
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.setContent
@@ -62,7 +62,7 @@ class AnimatableSeekBar : Activity() {
     @Composable
     fun MovingTargetExample() {
             val animValue = +animatedFloat(0f)
-            DragGestureDetector(canDrag = { true }, dragObserver = object : DragObserver {
+            RawDragGestureDetector(dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
                     animValue.snapTo(animValue.targetValue + dragDistance.x.value)
                     return dragDistance

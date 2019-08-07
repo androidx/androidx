@@ -22,7 +22,7 @@ import androidx.compose.ambient
 import androidx.compose.memo
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.TouchSlopDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.gesture.PressGestureDetector
 import androidx.ui.core.input.FocusManager
@@ -312,7 +312,7 @@ private fun DragPositionGestureDetector(
         },
         onRelease = { onRelease(tracker.value.getPosition()) }
     ) {
-        DragGestureDetector(
+        TouchSlopDragGestureDetector(
             dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
                     tracker.value.onDrag(dragDistance)

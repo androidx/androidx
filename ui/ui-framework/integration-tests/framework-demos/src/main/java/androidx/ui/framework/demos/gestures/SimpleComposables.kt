@@ -16,7 +16,6 @@
 
 package androidx.ui.framework.demos.gestures
 
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.memo
 import androidx.compose.unaryPlus

@@ -15,16 +15,16 @@
   -->
 
 <manifest
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        package="androidx.ui.framework.demos">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.ui.framework.demos">
 
     <application>
         <activity android:name=".AnimationGestureSemanticsActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Semantics/Animations Gestures and Semantics">
+                  android:configChanges="orientation|screenSize"
+                  android:label="Semantics/Animations Gestures and Semantics">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
         <activity android:name=".autofill.ExplicitAutofillTypesActivity"
@@ -39,26 +39,42 @@
                   android:configChanges="orientation|screenSize"
                   android:label="Graphics/Vector graphics">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
 
         <!-- Gestures -->
-        <activity android:name=".gestures.DragGestureDetectorDemo"
-            android:configChanges="orientation|screenSize"
-            android:label="Gestures/Single GestureDetectors/DragGestureDetector">
+        <activity android:name=".gestures.RawDragGestureDetectorDemo"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Gestures/Single GestureDetectors/RawDragGestureDetector">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
         <activity android:name=".gestures.LongPressGestureDetectorDemo"
-            android:configChanges="orientation|screenSize"
-            android:label="Gestures/Single GestureDetectors/LongPressGestureDetectorDemo">
+                  android:configChanges="orientation|screenSize"
+                  android:label="Gestures/Single GestureDetectors/LongPressGestureDetectorDemo">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".gestures.TouchSlopDragGestureDetectorDemo"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Gestures/Single GestureDetectors/TouchSlopDragGestureDetector">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".gestures.TouchSlopExceededGestureDetectorDemo"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Gestures/Single GestureDetectors/TouchSlopExceededGestureFilter">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
         <activity android:name=".gestures.DoubleTapGestureDetectorDemo"
@@ -70,20 +86,20 @@
             </intent-filter>
         </activity>
         <activity android:name=".gestures.NestedScrollingDemo"
-            android:configChanges="orientation|screenSize"
-            android:label="Gestures/Complex Demos/Nested Scrolling">
+                  android:configChanges="orientation|screenSize"
+                  android:label="Gestures/Complex Demos/Nested Scrolling">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
 
         <activity android:name=".MultipleCollectActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="Layout/Multiple collects measure">
+                  android:configChanges="orientation|screenSize"
+                  android:label="Layout/Multiple collects measure">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
     </application>
