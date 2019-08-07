@@ -18,6 +18,7 @@ package androidx.lifecycle {
 
   public final class FlowLiveDataKt {
     ctor public FlowLiveDataKt();
+    method public static <T> kotlinx.coroutines.flow.Flow<T> asFlow(androidx.lifecycle.LiveData<T>);
     method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, kotlin.coroutines.CoroutineContext context = EmptyCoroutineContext, long timeoutInMs = 5000L);
   }
 
