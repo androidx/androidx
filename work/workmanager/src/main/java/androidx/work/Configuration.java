@@ -48,14 +48,23 @@ public final class Configuration {
      */
     public static final int MIN_SCHEDULER_LIMIT = 20;
 
-    private final @NonNull Executor mExecutor;
-    private final @NonNull Executor mTaskExecutor;
-    private final @NonNull WorkerFactory mWorkerFactory;
-    private final @NonNull InputMergerFactory mInputMergerFactory;
-    private final int mLoggingLevel;
-    private final int mMinJobSchedulerId;
-    private final int mMaxJobSchedulerId;
-    private final int mMaxSchedulerLimit;
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    final @NonNull Executor mExecutor;
+    @SuppressWarnings("WeakerAccess")
+    final @NonNull Executor mTaskExecutor;
+    @SuppressWarnings("WeakerAccess")
+    final @NonNull WorkerFactory mWorkerFactory;
+    @SuppressWarnings("WeakerAccess")
+    final @NonNull InputMergerFactory mInputMergerFactory;
+    @SuppressWarnings("WeakerAccess")
+    final int mLoggingLevel;
+    @SuppressWarnings("WeakerAccess")
+    final int mMinJobSchedulerId;
+    @SuppressWarnings("WeakerAccess")
+    final int mMaxJobSchedulerId;
+    @SuppressWarnings("WeakerAccess")
+    final int mMaxSchedulerLimit;
     private final boolean mIsUsingDefaultTaskExecutor;
 
     Configuration(@NonNull Configuration.Builder builder) {
@@ -216,10 +225,41 @@ public final class Configuration {
         InputMergerFactory mInputMergerFactory;
         Executor mTaskExecutor;
 
-        int mLoggingLevel = Log.INFO;
-        int mMinJobSchedulerId = IdGenerator.INITIAL_ID;
-        int mMaxJobSchedulerId = Integer.MAX_VALUE;
-        int mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
+        int mLoggingLevel;
+        int mMinJobSchedulerId;
+        int mMaxJobSchedulerId;
+        int mMaxSchedulerLimit;
+
+        /**
+         * Creates a new {@link Configuration.Builder}.
+         */
+        public Builder() {
+            mLoggingLevel = Log.INFO;
+            mMinJobSchedulerId = IdGenerator.INITIAL_ID;
+            mMaxJobSchedulerId = Integer.MAX_VALUE;
+            mMaxSchedulerLimit = MIN_SCHEDULER_LIMIT;
+        }
+
+        /**
+         * Creates a new {@link Configuration.Builder} with an existing {@link Configuration} as its
+         * template.
+         *
+         * @param configuration An existing {@link Configuration} to use as a template
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Builder(@NonNull Configuration configuration) {
+            // Note that these must be accessed through fields and not the getters, which can
+            // otherwise manipulate the returned value (see getMaxSchedulerLimit(), for example).
+            mExecutor = configuration.mExecutor;
+            mWorkerFactory = configuration.mWorkerFactory;
+            mInputMergerFactory = configuration.mInputMergerFactory;
+            mTaskExecutor = configuration.mTaskExecutor;
+            mLoggingLevel = configuration.mLoggingLevel;
+            mMinJobSchedulerId = configuration.mMinJobSchedulerId;
+            mMaxJobSchedulerId = configuration.mMaxJobSchedulerId;
+            mMaxSchedulerLimit = configuration.mMaxSchedulerLimit;
+        }
 
         /**
          * Specifies a custom {@link WorkerFactory} for WorkManager.

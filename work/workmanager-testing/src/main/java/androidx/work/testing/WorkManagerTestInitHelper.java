@@ -56,16 +56,8 @@ public final class WorkManagerTestInitHelper {
         // Check if the configuration being used has overridden the task executor. If not,
         // swap to SynchronousExecutor. This is to preserve existing behavior.
         if (configuration.isUsingDefaultTaskExecutor()) {
-            Configuration.Builder builder = new Configuration.Builder()
-                    .setExecutor(configuration.getExecutor())
-                    .setTaskExecutor(new SynchronousExecutor())
-                    .setInputMergerFactory(configuration.getInputMergerFactory())
-                    .setJobSchedulerJobIdRange(configuration.getMinJobSchedulerId(),
-                            configuration.getMaxJobSchedulerId())
-                    .setMaxSchedulerLimit(configuration.getMaxSchedulerLimit())
-                    .setMinimumLoggingLevel(configuration.getMinimumLoggingLevel())
-                    .setWorkerFactory(configuration.getWorkerFactory());
-
+            Configuration.Builder builder = new Configuration.Builder(configuration)
+                    .setTaskExecutor(new SynchronousExecutor());
             configuration = builder.build();
         }
 
