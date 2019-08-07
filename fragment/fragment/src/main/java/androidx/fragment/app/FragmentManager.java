@@ -2033,7 +2033,7 @@ public abstract class FragmentManager {
             checkStateLoss();
         }
         synchronized (mPendingActions) {
-            if (mDestroyed || mHost == null) {
+            if (mHost == null) {
                 if (allowStateLoss) {
                     // This FragmentManager isn't attached, so drop the entire transaction.
                     return;
