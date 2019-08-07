@@ -40,7 +40,7 @@ open class LockClocksTask : DefaultTask() {
         val adb = Adb(adbPath.get(), logger)
 
         // Skip "adb root" if already rooted as it will fail.
-        if (adb.execSync("shell su exit", shouldThrow = false).exitValue != 0) {
+        if (adb.isRooted()) {
             adb.execSync("root", silent = true)
         }
 
