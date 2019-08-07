@@ -47,12 +47,13 @@ class LongPressGestureDetectorTest {
 
     private val LongPressTimeoutMillis = 100.milliseconds
     private val testContext = TestCoroutineContext()
-    private val listener: (PxPosition) -> Unit = mock()
+    private val onLongPress: (PxPosition) -> Unit = mock()
     private lateinit var mRecognizer: LongPressGestureRecognizer
 
     @Before
     fun setup() {
-        mRecognizer = LongPressGestureRecognizer(listener, testContext)
+        mRecognizer = LongPressGestureRecognizer(testContext)
+        mRecognizer.onLongPress = onLongPress
         mRecognizer.longPressTimeout = LongPressTimeoutMillis
     }
 
@@ -61,14 +62,14 @@ class LongPressGestureDetectorTest {
     @Test
     fun pointerInputHandler_down_onLongPressNotCalled() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
-        verify(mRecognizer.onLongPress, never()).invoke(any())
+        verify(onLongPress, never()).invoke(any())
     }
 
     @Test
     fun pointerInputHandler_downWithinTimeout_onLongPressNotCalled() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
         testContext.advanceTimeBy(99, TimeUnit.MILLISECONDS)
-        verify(mRecognizer.onLongPress, never()).invoke(any())
+        verify(onLongPress, never()).invoke(any())
     }
 
     @Test
@@ -81,7 +82,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(move))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress, never()).invoke(any())
+        verify(onLongPress, never()).invoke(any())
     }
 
     @Test
@@ -96,7 +97,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(move0, move1))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress, never()).invoke(any())
+        verify(onLongPress, never()).invoke(any())
     }
 
     @Test
@@ -109,7 +110,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(up))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress, never()).invoke(any())
+        verify(onLongPress, never()).invoke(any())
     }
 
     @Test
@@ -122,7 +123,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(up))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress, never()).invoke(any())
+        verify(onLongPress, never()).invoke(any())
     }
 
     @Test
@@ -156,7 +157,7 @@ class LongPressGestureDetectorTest {
 
         // Assert
 
-        verify(mRecognizer.onLongPress, never()).invoke(any())
+        verify(onLongPress, never()).invoke(any())
     }
 
     // Tests that verify conditions under which onLongPress will be called.
@@ -165,14 +166,14 @@ class LongPressGestureDetectorTest {
     fun pointerInputHandler_downBeyondTimeout_onLongPressCalled() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down()))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
-        verify(mRecognizer.onLongPress).invoke(any())
+        verify(onLongPress).invoke(any())
     }
 
     @Test
     fun pointerInputHandler_2DownBeyondTimeout_onLongPressCalled() {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down(0), down(1)))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
-        verify(mRecognizer.onLongPress).invoke(any())
+        verify(onLongPress).invoke(any())
     }
 
     @Test
@@ -208,7 +209,7 @@ class LongPressGestureDetectorTest {
 
         // Assert
 
-        verify(mRecognizer.onLongPress).invoke(any())
+        verify(onLongPress).invoke(any())
     }
 
     @Test
@@ -221,7 +222,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(move))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress).invoke(any())
+        verify(onLongPress).invoke(any())
     }
 
     // Tests that verify correctness of PxPosition value passed to onLongPress
@@ -233,7 +234,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(down))
         testContext.advanceTimeBy(100, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress).invoke(PxPosition(13.px, 17.px))
+        verify(onLongPress).invoke(PxPosition(13.px, 17.px))
     }
 
     @Test
@@ -246,7 +247,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(move))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress).invoke(PxPosition((-7).px, 5.px))
+        verify(onLongPress).invoke(PxPosition((-7).px, 5.px))
     }
 
     @Test
@@ -261,7 +262,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(move0, down1))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress).invoke(PxPosition(13.px, 17.px))
+        verify(onLongPress).invoke(PxPosition(13.px, 17.px))
     }
 
     @Test
@@ -281,7 +282,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(up0, move1))
         testContext.advanceTimeBy(25, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress).invoke(PxPosition(11.px, 19.px))
+        verify(onLongPress).invoke(PxPosition(11.px, 19.px))
     }
 
     @Test
@@ -296,7 +297,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(move0, down1))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress).invoke(PxPosition(27.px, 29.px))
+        verify(onLongPress).invoke(PxPosition(27.px, 29.px))
     }
 
     @Test
@@ -316,7 +317,7 @@ class LongPressGestureDetectorTest {
         mRecognizer.pointerInputHandler.invokeOverAllPasses(listOf(up0, move1))
         testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
 
-        verify(mRecognizer.onLongPress).invoke(PxPosition(27.px, 23.px))
+        verify(onLongPress).invoke(PxPosition(27.px, 23.px))
     }
 
     // Tests that verify that consumption behavior

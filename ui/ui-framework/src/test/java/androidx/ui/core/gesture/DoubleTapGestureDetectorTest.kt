@@ -54,7 +54,8 @@ class DoubleTapGestureDetectorTest {
 
     @Before
     fun setup() {
-        mRecognizer = DoubleTapGestureRecognizer(onDoubleTap, testContext)
+        mRecognizer = DoubleTapGestureRecognizer(testContext)
+        mRecognizer.onDoubleTap = onDoubleTap
         mRecognizer.doubleTapTimeout = DoubleTapTimeoutMillis
     }
 

@@ -49,16 +49,18 @@ fun LongPressGestureDetector(
     children: @Composable() () -> Unit
 ) {
     val recognizer =
-        +memo { LongPressGestureRecognizer(onLongPress, +ambient(CoroutineContextAmbient)) }
+        +memo { LongPressGestureRecognizer(+ambient(CoroutineContextAmbient)) }
+    recognizer.onLongPress = onLongPress
+
     PointerInputWrapper(pointerInputHandler = recognizer.pointerInputHandler) {
         children()
     }
 }
 
 internal class LongPressGestureRecognizer(
-    val onLongPress: (PxPosition) -> Unit,
     coroutineContext: CoroutineContext
 ) {
+    lateinit var onLongPress: (PxPosition) -> Unit
 
     private enum class State {
         Idle, Primed, Fired
