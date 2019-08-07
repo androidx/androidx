@@ -397,8 +397,6 @@ MissingNullability: androidx.tvprovider.media.tv.TvContractCompat#requestChannel
     Missing nullability on parameter `context` in method `requestChannelBrowsable`
 MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Channels#CONTENT_URI:
     Missing nullability on field `CONTENT_URI` in class `class androidx.tvprovider.media.tv.TvContractCompat.Channels`
-MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Channels#getVideoResolution(String):
-    Missing nullability on method `getVideoResolution` return
 MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.Channels#getVideoResolution(String) parameter #0:
     Missing nullability on parameter `videoFormat` in method `getVideoResolution`
 MissingNullability: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#CONTENT_URI:

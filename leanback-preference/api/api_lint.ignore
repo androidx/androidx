@@ -45,8 +45,6 @@ MissingNullability: androidx.leanback.preference.LeanbackListPreferenceDialogFra
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.leanback.preference.LeanbackListPreferenceDialogFragment#onCreateAdapter():
     Missing nullability on method `onCreateAdapter` return
-MissingNullability: androidx.leanback.preference.LeanbackListPreferenceDialogFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle):
-    Missing nullability on method `onCreateView` return
 MissingNullability: androidx.leanback.preference.LeanbackListPreferenceDialogFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #0:
     Missing nullability on parameter `inflater` in method `onCreateView`
 MissingNullability: androidx.leanback.preference.LeanbackListPreferenceDialogFragment#onCreateView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle) parameter #1:

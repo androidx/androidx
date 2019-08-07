@@ -367,8 +367,6 @@ MissingNullability: androidx.appcompat.app.AppCompatCallback#onSupportActionMode
     Missing nullability on parameter `mode` in method `onSupportActionModeFinished`
 MissingNullability: androidx.appcompat.app.AppCompatCallback#onSupportActionModeStarted(androidx.appcompat.view.ActionMode) parameter #0:
     Missing nullability on parameter `mode` in method `onSupportActionModeStarted`
-MissingNullability: androidx.appcompat.app.AppCompatCallback#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback):
-    Missing nullability on method `onWindowStartingSupportActionMode` return
 MissingNullability: androidx.appcompat.app.AppCompatCallback#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback) parameter #0:
     Missing nullability on parameter `callback` in method `onWindowStartingSupportActionMode`
 MissingNullability: androidx.appcompat.app.AppCompatDelegate#addContentView(android.view.View, android.view.ViewGroup.LayoutParams) parameter #0:
@@ -421,8 +419,6 @@ MissingNullability: androidx.appcompat.app.AppCompatDialog#onSupportActionModeFi
     Missing nullability on parameter `mode` in method `onSupportActionModeFinished`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#onSupportActionModeStarted(androidx.appcompat.view.ActionMode) parameter #0:
     Missing nullability on parameter `mode` in method `onSupportActionModeStarted`
-MissingNullability: androidx.appcompat.app.AppCompatDialog#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback):
-    Missing nullability on method `onWindowStartingSupportActionMode` return
 MissingNullability: androidx.appcompat.app.AppCompatDialog#onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback) parameter #0:
     Missing nullability on parameter `callback` in method `onWindowStartingSupportActionMode`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#setContentView(android.view.View) parameter #0:
@@ -433,92 +429,62 @@ MissingNullability: androidx.appcompat.app.AppCompatDialog#setContentView(androi
     Missing nullability on parameter `params` in method `setContentView`
 MissingNullability: androidx.appcompat.app.AppCompatDialog#setTitle(CharSequence) parameter #0:
     Missing nullability on parameter `title` in method `setTitle`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createAutoCompleteTextView(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createAutoCompleteTextView` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createAutoCompleteTextView(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createAutoCompleteTextView`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createAutoCompleteTextView(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createAutoCompleteTextView`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createButton(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createButton` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createButton(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createButton`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createButton(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createButton`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createCheckBox(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createCheckBox` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createCheckBox(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createCheckBox`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createCheckBox(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createCheckBox`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createCheckedTextView(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createCheckedTextView` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createCheckedTextView(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createCheckedTextView`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createCheckedTextView(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createCheckedTextView`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createEditText(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createEditText` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createEditText(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createEditText`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createEditText(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createEditText`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createImageButton(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createImageButton` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createImageButton(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createImageButton`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createImageButton(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createImageButton`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createImageView(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createImageView` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createImageView(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createImageView`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createImageView(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createImageView`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createMultiAutoCompleteTextView` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createMultiAutoCompleteTextView`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createMultiAutoCompleteTextView`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createRadioButton(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createRadioButton` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createRadioButton(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createRadioButton`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createRadioButton(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createRadioButton`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createRatingBar(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createRatingBar` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createRatingBar(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createRatingBar`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createRatingBar(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createRatingBar`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createSeekBar(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createSeekBar` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createSeekBar(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createSeekBar`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createSeekBar(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createSeekBar`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createSpinner(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createSpinner` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createSpinner(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createSpinner`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createSpinner(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createSpinner`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createTextView(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createTextView` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createTextView(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createTextView`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createTextView(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createTextView`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createToggleButton(android.content.Context, android.util.AttributeSet):
-    Missing nullability on method `createToggleButton` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createToggleButton(android.content.Context, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createToggleButton`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createToggleButton(android.content.Context, android.util.AttributeSet) parameter #1:
     Missing nullability on parameter `attrs` in method `createToggleButton`
-MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createView(android.content.Context, String, android.util.AttributeSet):
-    Missing nullability on method `createView` return
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createView(android.content.Context, String, android.util.AttributeSet) parameter #0:
     Missing nullability on parameter `context` in method `createView`
 MissingNullability: androidx.appcompat.app.AppCompatViewInflater#createView(android.content.Context, String, android.util.AttributeSet) parameter #1:

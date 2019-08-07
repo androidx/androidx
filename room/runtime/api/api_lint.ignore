@@ -9,14 +9,10 @@ MissingNullability: androidx.room.InvalidationTracker.Observer#Observer(String, 
     Missing nullability on parameter `rest` in method `Observer`
 MissingNullability: androidx.room.RoomDatabase#compileStatement(String):
     Missing nullability on method `compileStatement` return
-MissingNullability: androidx.room.RoomDatabase#createOpenHelper(androidx.room.DatabaseConfiguration):
-    Missing nullability on method `createOpenHelper` return
 MissingNullability: androidx.room.RoomDatabase#createOpenHelper(androidx.room.DatabaseConfiguration) parameter #0:
     Missing nullability on parameter `config` in method `createOpenHelper`
 MissingNullability: androidx.room.RoomDatabase#runInTransaction(java.util.concurrent.Callable<V>):
     Missing nullability on method `runInTransaction` return
-MissingNullability: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...):
-    Missing nullability on method `fallbackToDestructiveMigrationFrom` return
 MissingNullability: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...) parameter #0:
     Missing nullability on parameter `startVersions` in method `fallbackToDestructiveMigrationFrom`
 
