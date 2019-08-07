@@ -23,7 +23,7 @@
     <application>
         <activity
             android:name=".DeviceCredentialHandlerActivity"
-            android:theme="@style/Theme.AppCompat.Transparent" />
+            android:theme="@style/DeviceCredentialHandlerTheme" />
     </application>
 
 </manifest>

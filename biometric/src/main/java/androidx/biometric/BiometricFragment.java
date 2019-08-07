@@ -134,6 +134,7 @@ public class BiometricFragment extends Fragment {
             };
 
     // Also created once and retained.
+    @SuppressWarnings("deprecation")
     private final DialogInterface.OnClickListener mDeviceCredentialButtonListener =
             (dialog, which) -> {
                 if (which == DialogInterface.BUTTON_NEGATIVE) {
@@ -160,8 +161,14 @@ public class BiometricFragment extends Fragment {
                         subtitle = null;
                     }
 
+                    // Prevent the bridge from resetting until the confirmation activity finishes.
+                    DeviceCredentialHandlerBridge bridge =
+                            DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+                    if (bridge != null) {
+                        bridge.startIgnoringReset();
+                    }
+
                     // Launch a new instance of the confirm device credential Settings activity.
-                    @SuppressWarnings("deprecation")
                     final Intent intent = km.createConfirmDeviceCredentialIntent(title, subtitle);
                     intent.setFlags(
                             Intent.FLAG_ACTIVITY_MULTIPLE_TASK | Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
@@ -220,17 +227,10 @@ public class BiometricFragment extends Fragment {
         if (getFragmentManager() != null) {
             getFragmentManager().beginTransaction().detach(this).commitAllowingStateLoss();
         }
-        maybeFinishHandler(activity);
+        Utils.maybeFinishHandler(activity);
     }
 
-    private void maybeFinishHandler(@Nullable FragmentActivity activity) {
-        if (activity instanceof DeviceCredentialHandlerActivity && !activity.isFinishing()
-                && mBundle != null && mBundle.getBoolean(
-                BiometricPrompt.KEY_HANDLING_DEVICE_CREDENTIAL_RESULT)) {
-            activity.finish();
-        }
-    }
-
+    @Nullable
     protected CharSequence getNegativeButtonText() {
         return mNegativeButtonText;
     }

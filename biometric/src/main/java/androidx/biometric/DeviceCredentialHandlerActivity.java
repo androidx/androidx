@@ -18,12 +18,10 @@ package androidx.biometric;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -35,7 +33,6 @@ import androidx.appcompat.app.AppCompatActivity;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@RequiresApi(Build.VERSION_CODES.P)
 @SuppressLint("SyntheticAccessor")
 public class DeviceCredentialHandlerActivity extends AppCompatActivity {
     private static final String TAG = "DeviceCredentialHandler";
@@ -47,6 +44,15 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        // Apply the client activity's theme to ensure proper dialog styling.
+        DeviceCredentialHandlerBridge bridge =
+                DeviceCredentialHandlerBridge.getInstanceIfNotNull();
+        if (bridge != null && bridge.getClientThemeResId() != 0) {
+            setTheme(bridge.getClientThemeResId());
+            getTheme().applyStyle(R.style.TransparentStyle, true /* force */);
+        }
+
+        // Must be called after setting the theme.
         super.onCreate(savedInstanceState);
         setTitle(null);
         setContentView(R.layout.device_credential_handler_activity);
@@ -55,6 +61,7 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
         if (mBridge.getExecutor() == null || mBridge.getAuthenticationCallback() == null) {
             Log.e(TAG, "onCreate: Executor and/or callback was null!");
         } else {
+            // (Re)connect to and launch a biometric prompt within this activity.
             final BiometricPrompt biometricPrompt = new BiometricPrompt(this,
                     mBridge.getExecutor(), mBridge.getAuthenticationCallback());
             final Bundle infoBundle = getIntent().getBundleExtra(EXTRA_PROMPT_INFO_BUNDLE);
@@ -63,7 +70,18 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Prevent the client from resetting the bridge in onPause if just changing configuration.
+        if (isChangingConfigurations() && mBridge != null) {
+            mBridge.ignoreNextReset();
+        }
+    }
+
     // Handles the result of startActivity invoked by the attached BiometricPrompt.
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -71,13 +89,10 @@ public class DeviceCredentialHandlerActivity extends AppCompatActivity {
         if (mBridge == null || mBridge.getAuthenticationCallback() == null) {
             Log.e(TAG, "onActivityResult: Bridge or callback was null!");
         } else if (resultCode == RESULT_OK) {
-            mBridge.getAuthenticationCallback().onAuthenticationSucceeded(
-                    new BiometricPrompt.AuthenticationResult(null /* crypto */));
+            mBridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_SUCCESS);
         } else {
             // Treat any non-OK result as a user cancellation.
-            mBridge.getAuthenticationCallback().onAuthenticationError(
-                    BiometricConstants.ERROR_USER_CANCELED,
-                    getString(R.string.generic_error_user_canceled));
+            mBridge.setDeviceCredentialResult(DeviceCredentialHandlerBridge.RESULT_ERROR);
         }
 
         finish();

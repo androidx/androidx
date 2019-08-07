@@ -51,7 +51,7 @@ import javax.crypto.SecretKey;
 /**
  * Demo activity that shows how BiometricPrompt can be used with credential bound secret keys.
  */
-@RequiresApi(api = Build.VERSION_CODES.P)
+@RequiresApi(api = Build.VERSION_CODES.M)
 public class BiometricPromptDemoCredentialBoundKeyActivity extends FragmentActivity {
 
     private static final String TAG = "bio_prompt_demo_control";
