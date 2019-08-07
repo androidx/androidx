@@ -28,7 +28,7 @@ val dataSourceError = AtomicBoolean(false)
  * Sample data source with artificial data.
  */
 internal class ItemDataSource : PagedSource<Int, Item>() {
-    override val keyProvider = KeyProvider.Positional<Item>()
+    override val keyProvider = KeyProvider.Positional
 
     override suspend fun load(params: LoadParams<Int>) = when (params.loadType) {
         LoadType.INITIAL -> loadInitial(params)

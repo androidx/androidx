@@ -36,7 +36,7 @@ class PagedListTest {
         private val config = Config(10)
 
         private val pagedSource = object : PagedSource<Int, String>() {
-            override val keyProvider = KeyProvider.Positional<String>()
+            override val keyProvider = KeyProvider.Positional
 
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> =
                 when (params.loadType) {
@@ -101,7 +101,7 @@ class PagedListTest {
     @Test
     fun createAsyncThrow() {
         val pagedSource = object : PagedSource<Int, String>() {
-            override val keyProvider = KeyProvider.Positional<String>()
+            override val keyProvider = KeyProvider.Positional
 
             override suspend fun load(params: LoadParams<Int>): LoadResult<Int, String> {
                 throw Exception()
