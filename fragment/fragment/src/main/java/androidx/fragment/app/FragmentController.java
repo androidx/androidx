@@ -444,7 +444,7 @@ public class FragmentController {
      * @return {@code true} if queued actions were performed
      */
     public boolean execPendingActions() {
-        return mHost.mFragmentManager.execPendingActions();
+        return mHost.mFragmentManager.execPendingActions(true);
     }
 
     /**

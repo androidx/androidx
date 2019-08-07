@@ -2696,7 +2696,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performStart() {
         mChildFragmentManager.noteStateNotSaved();
-        mChildFragmentManager.execPendingActions();
+        mChildFragmentManager.execPendingActions(true);
         mState = STARTED;
         mCalled = false;
         onStart();
@@ -2713,7 +2713,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performResume() {
         mChildFragmentManager.noteStateNotSaved();
-        mChildFragmentManager.execPendingActions();
+        mChildFragmentManager.execPendingActions(true);
         mState = RESUMED;
         mCalled = false;
         onResume();
@@ -2726,7 +2726,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mViewLifecycleOwner.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
         }
         mChildFragmentManager.dispatchResume();
-        mChildFragmentManager.execPendingActions();
+        mChildFragmentManager.execPendingActions(true);
     }
 
     void noteStateNotSaved() {
