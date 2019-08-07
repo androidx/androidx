@@ -114,8 +114,10 @@ package androidx.slice.widget {
   @RequiresApi(19) public final class SliceLiveData {
     method public static androidx.slice.widget.SliceLiveData.CachedSliceLiveData fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener!);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromIntent(android.content.Context, android.content.Intent);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromIntent(android.content.Context, android.content.Intent, androidx.slice.widget.SliceLiveData.OnErrorListener?);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener!);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromUri(android.content.Context, android.net.Uri);
+    method public static androidx.lifecycle.LiveData<androidx.slice.Slice!> fromUri(android.content.Context, android.net.Uri, androidx.slice.widget.SliceLiveData.OnErrorListener?);
   }
 
   public static class SliceLiveData.CachedSliceLiveData extends androidx.lifecycle.LiveData<androidx.slice.Slice> {
