@@ -46,7 +46,7 @@ public class SliceTestProvider extends androidx.slice.SliceProvider {
     }
 
     @Override
-    public Slice onBindSlice(Uri sliceUri) {
+    public Slice onBindSlice(@NonNull Uri sliceUri) {
         switch (sliceUri.getPath()) {
             case "/set_flag":
                 SliceTest.sFlag = true;

@@ -44,17 +44,17 @@ package androidx.slice {
     method @RequiresApi(19) public final android.net.Uri? canonicalize(android.net.Uri);
     method public final int delete(android.net.Uri, String?, String![]?);
     method @RequiresApi(19) public java.util.List<android.net.Uri!> getPinnedSlices();
-    method public final String! getType(android.net.Uri!);
-    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public Object! getWrapper();
+    method public final String? getType(android.net.Uri);
+    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public Object? getWrapper();
     method public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
-    method @RequiresApi(19) public abstract androidx.slice.Slice! onBindSlice(android.net.Uri!);
+    method @RequiresApi(19) public abstract androidx.slice.Slice? onBindSlice(android.net.Uri);
     method public final boolean onCreate();
     method public android.app.PendingIntent? onCreatePermissionRequest(android.net.Uri, String);
     method @RequiresApi(19) public abstract boolean onCreateSliceProvider();
-    method @RequiresApi(19) public java.util.Collection<android.net.Uri!>! onGetSliceDescendants(android.net.Uri!);
-    method @RequiresApi(19) public android.net.Uri onMapIntentToUri(android.content.Intent!);
-    method @RequiresApi(19) public void onSlicePinned(android.net.Uri!);
-    method @RequiresApi(19) public void onSliceUnpinned(android.net.Uri!);
+    method @RequiresApi(19) public java.util.Collection<android.net.Uri!> onGetSliceDescendants(android.net.Uri);
+    method @RequiresApi(19) public android.net.Uri onMapIntentToUri(android.content.Intent);
+    method @RequiresApi(19) public void onSlicePinned(android.net.Uri);
+    method @RequiresApi(19) public void onSliceUnpinned(android.net.Uri);
     method public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?);
     method @RequiresApi(28) public final android.database.Cursor? query(android.net.Uri, String![]?, android.os.Bundle?, android.os.CancellationSignal?);
     method @RequiresApi(16) public final android.database.Cursor? query(android.net.Uri, String![]?, String?, String![]?, String?, android.os.CancellationSignal?);
@@ -63,8 +63,8 @@ package androidx.slice {
 
   public abstract class SliceProviderWithCallbacks<T extends androidx.slice.SliceProviderWithCallbacks> extends androidx.slice.SliceProvider implements androidx.remotecallback.CallbackBase<T> androidx.remotecallback.CallbackReceiver<T> {
     ctor public SliceProviderWithCallbacks();
-    method public T! createRemoteCallback(android.content.Context!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback! toRemoteCallback(Class<T!>!, android.content.Context!, String!, android.os.Bundle!, String!);
+    method public T createRemoteCallback(android.content.Context);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String?);
   }
 
 }
