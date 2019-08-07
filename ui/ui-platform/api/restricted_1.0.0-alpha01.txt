@@ -1,6 +1,10 @@
 // Signature format: 3.0
 package androidx.ui.autofill {
 
+  public final class AndroidAutofillDebugUtilsKt {
+    ctor public AndroidAutofillDebugUtilsKt();
+  }
+
   public final class AndroidAutofillKt {
     ctor public AndroidAutofillKt();
   }

@@ -54,6 +54,8 @@ import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
 import androidx.ui.autofill.performAutofill
 import androidx.ui.autofill.populateViewStructure
+import androidx.ui.autofill.registerCallback
+import androidx.ui.autofill.unregisterCallback
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 class AndroidCraneView constructor(context: Context)
@@ -480,12 +482,14 @@ class AndroidCraneView constructor(context: Context)
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         commitUnsubscribe = registerCommitObserver(commitObserver)
+        ifDebug { if (autofillSupported()) _autofill?.registerCallback() }
         root.attach(this)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         commitUnsubscribe?.invoke()
+        ifDebug { if (autofillSupported()) _autofill?.unregisterCallback() }
         root.detach()
     }
 
