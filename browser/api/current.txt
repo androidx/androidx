@@ -244,9 +244,14 @@ package androidx.browser.customtabs {
 
 package androidx.browser.trusted {
 
+  public final class TrustedWebActivityIntent {
+    method public android.content.Intent getIntent();
+    method public void launchTrustedWebActivity(android.content.Context);
+  }
+
   public class TrustedWebActivityIntentBuilder {
     ctor public TrustedWebActivityIntentBuilder(android.net.Uri);
-    method public android.content.Intent build(androidx.browser.customtabs.CustomTabsSession);
+    method public androidx.browser.trusted.TrustedWebActivityIntent build(androidx.browser.customtabs.CustomTabsSession);
     method public androidx.browser.customtabs.CustomTabsIntent buildCustomTabsIntent();
     method public android.net.Uri getUrl();
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(java.util.List<java.lang.String!>);

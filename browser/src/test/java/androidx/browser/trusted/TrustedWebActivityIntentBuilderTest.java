@@ -78,7 +78,8 @@ public class TrustedWebActivityIntentBuilderTest {
                         .setColorSchemeParams(COLOR_SCHEME_DARK, colorSchemeParams)
                         .setAdditionalTrustedOrigins(additionalTrustedOrigins)
                         .setSplashScreenParams(splashScreenParams)
-                        .build(session);
+                        .build(session)
+                        .getIntent();
 
         assertTrue(intent.getBooleanExtra(EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY, false));
         TestUtil.assertIntentHasSession(intent, session);
