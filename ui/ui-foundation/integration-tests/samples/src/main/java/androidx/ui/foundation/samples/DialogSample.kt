@@ -21,17 +21,26 @@ import androidx.compose.Composable
 import androidx.compose.composer
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.Text
+import androidx.ui.core.dp
 import androidx.ui.foundation.Dialog
+import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.shape.corner.CircleShape
+import androidx.ui.graphics.Color
+import androidx.ui.layout.Container
 
 @Sampled
 @Composable
 fun DialogSample() {
     val openDialog = +state { true }
+    val dialogWidth = 200.dp
+    val dialogHeight = 50.dp
 
     if (openDialog.value) {
         Dialog(onCloseRequest = { openDialog.value = false }) {
-            Text("This is a Dialog. Click outside to dismiss.")
+            // Draw a rectangle shape with rounded corners inside the dialog
+            Container(width = dialogWidth, height = dialogHeight) {
+                DrawShape(CircleShape, Color.White)
+            }
         }
     }
 }
