@@ -250,11 +250,6 @@ package androidx.ui.core.gesture {
     method public static void DoubleTapGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.PxPosition,kotlin.Unit> onDoubleTap, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
-  public final class DragGestureDetectorKt {
-    ctor public DragGestureDetectorKt();
-    method public static void DragGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, androidx.ui.core.gesture.DragObserver? dragObserver = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-  }
-
   public interface DragObserver {
     method public default androidx.ui.core.PxPosition onDrag(androidx.ui.core.PxPosition dragDistance);
     method public default void onStart();
@@ -279,6 +274,21 @@ package androidx.ui.core.gesture {
   public final class PressReleasedGestureDetectorKt {
     ctor public PressReleasedGestureDetectorKt();
     method public static void PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, boolean consumeDownOnStart = true, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class RawDragGestureDetectorKt {
+    ctor public RawDragGestureDetectorKt();
+    method public static void RawDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function0<java.lang.Boolean>? canStartDragging = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class TouchSlopDragGestureDetectorKt {
+    ctor public TouchSlopDragGestureDetectorKt();
+    method public static void TouchSlopDragGestureDetector(androidx.ui.core.gesture.DragObserver dragObserver, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class TouchSlopExceededGestureDetectorKt {
+    ctor public TouchSlopExceededGestureDetectorKt();
+    method public static void TouchSlopExceededGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> onTouchSlopExceeded, kotlin.jvm.functions.Function1<? super androidx.ui.core.Direction,java.lang.Boolean>? canDrag = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
 }

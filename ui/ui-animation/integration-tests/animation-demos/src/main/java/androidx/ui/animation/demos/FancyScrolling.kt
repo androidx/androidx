@@ -35,7 +35,7 @@ import androidx.ui.core.Layout
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Text
 import androidx.ui.core.dp
-import androidx.ui.core.gesture.DragGestureDetector
+import androidx.ui.core.gesture.RawDragGestureDetector
 import androidx.ui.core.gesture.DragObserver
 import androidx.ui.core.setContent
 import androidx.ui.core.sp
@@ -65,7 +65,7 @@ class FancyScrolling : Activity() {
             }
             val animScroll = +animatedFloat(0f)
             val itemWidth = +state { 0f }
-            DragGestureDetector(canDrag = { true }, dragObserver = object : DragObserver {
+            RawDragGestureDetector(dragObserver = object : DragObserver {
                 override fun onDrag(dragDistance: PxPosition): PxPosition {
                     // Snap to new drag position
                     animScroll.snapTo(animScroll.value + dragDistance.x.value)
