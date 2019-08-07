@@ -635,7 +635,6 @@ public abstract class FragmentManager {
      */
     public boolean popBackStackImmediate(int id, int flags) {
         checkStateLoss();
-        execPendingActions();
         if (id < 0) {
             throw new IllegalArgumentException("Bad id: " + id);
         }
