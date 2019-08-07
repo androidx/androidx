@@ -56,6 +56,8 @@
         <activity android:name=".BiometricPromptDemoFragmentHostActivity"
             android:theme="@style/AppTheme" />
 
+        <activity android:name=".BiometricPromptDemoBiometricBoundKeyActivity"
+            android:theme="@style/AppTheme"/>
     </application>
 
 </manifest>

@@ -21,7 +21,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,27 +33,11 @@ import androidx.annotation.Nullable;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
 import java.util.concurrent.Executor;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 /**
  * Controller for the biometric prompt demo app. Coordinates the logic of initializing buttons,
- * generating the info and crypto objects for the biometric prompt, and launching the prompt itself.
+ * generating the info, and launching the prompt itself.
  */
 abstract class BiometricPromptDemoController {
 
@@ -62,8 +45,6 @@ abstract class BiometricPromptDemoController {
 
     private static final String KEY_COUNTER = "saved_counter";
     private static final String KEY_LOG = "saved_log";
-
-    private static final String DEFAULT_KEY_NAME = "default_key";
 
     private static final String BIOMETRIC_SUCCESS_MESSAGE = "BIOMETRIC_SUCCESS_MESSAGE";
     private static final String BIOMETRIC_ERROR_HW_UNAVAILABLE_MESSAGE =
@@ -84,13 +65,12 @@ abstract class BiometricPromptDemoController {
     final Executor mExecutor = mHandler::post;
     private int mCounter;
 
-    private final Button mGenerateKeyButton;
     private final Button mCanAuthenticateButton;
     private final Button mAuthenticateButton;
-    private final CheckBox mUseCryptoCheckbox;
     private final CheckBox mRequireConfirmationCheckbox;
     private final CheckBox mAllowDeviceCredentialCheckbox;
     private final RadioGroup mBiometricPromptConfigurationRadioGroup;
+
     private final TextView mLogView;
 
     final BiometricPrompt.AuthenticationCallback mAuthenticationCallback =
@@ -104,22 +84,10 @@ abstract class BiometricPromptDemoController {
                 }
 
                 @Override
-                public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
-                    log("onAuthenticationSucceeded, crypto: " + result.getCryptoObject());
+                public void onAuthenticationSucceeded(
+                        @NonNull BiometricPrompt.AuthenticationResult result) {
+                    log("onAuthenticationSucceeded");
                     mNumberFailedAttempts = 0;
-
-                    if (result.getCryptoObject() != null) {
-                        Cipher cipher = result.getCryptoObject().getCipher();
-                        try {
-                            byte[] encrypted = cipher.doFinal(
-                                    "hello".getBytes(Charset.defaultCharset()));
-                            String message = Arrays.toString(
-                                    Base64.encode(encrypted, 0 /* flags */));
-                            log("Message: " + message);
-                        } catch (BadPaddingException | IllegalBlockSizeException e) {
-                            log("Error encrypting");
-                        }
-                    }
                 }
 
                 @Override
@@ -152,15 +120,12 @@ abstract class BiometricPromptDemoController {
     BiometricPromptDemoController(@NonNull View inflatedRootView) {
         mCanAuthenticateButton = inflatedRootView.findViewById(R.id.can_authenticate);
         mAuthenticateButton = inflatedRootView.findViewById(R.id.button_authenticate);
-        mUseCryptoCheckbox = inflatedRootView.findViewById(
-                R.id.checkbox_use_crypto);
         mRequireConfirmationCheckbox = inflatedRootView.findViewById(
                 R.id.checkbox_require_confirmation);
         mAllowDeviceCredentialCheckbox = inflatedRootView.findViewById(
                 R.id.checkbox_allow_device_credential);
         mBiometricPromptConfigurationRadioGroup = inflatedRootView.findViewById(
                 R.id.radio_group_biometric_prompt_configuration);
-        mGenerateKeyButton = inflatedRootView.findViewById(R.id.button_generate_key);
 
         mLogView = inflatedRootView.findViewById(R.id.log_text);
 
@@ -173,26 +138,6 @@ abstract class BiometricPromptDemoController {
         if (savedInstanceState != null) {
             mCounter = savedInstanceState.getInt(KEY_COUNTER);
             mLogView.setText(savedInstanceState.getCharSequence(KEY_LOG));
-        }
-
-        if (!useCrypto()) {
-            mGenerateKeyButton.setVisibility(View.GONE);
-        } else {
-            mGenerateKeyButton.setVisibility(View.VISIBLE);
-        }
-        mUseCryptoCheckbox.setOnClickListener(this::onCheckboxClicked);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mGenerateKeyButton.setOnClickListener(v -> {
-                try {
-                    BiometricPromptDemoSecretKeyHelper.generateBiometricBoundKey(
-                            DEFAULT_KEY_NAME,
-                            true);
-                } catch (InvalidAlgorithmParameterException | NoSuchAlgorithmException
-                        | NoSuchProviderException e) {
-                    e.printStackTrace();
-                }
-            });
         }
         mAuthenticateButton.setOnClickListener(v -> startAuthentication());
 
@@ -260,38 +205,8 @@ abstract class BiometricPromptDemoController {
         BiometricPrompt.PromptInfo info = builder.build();
         mCounter++;
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && useCrypto()) {
-            try {
-                Cipher cipher = BiometricPromptDemoSecretKeyHelper.getCipher();
-                SecretKey key = BiometricPromptDemoSecretKeyHelper.getSecretKey(DEFAULT_KEY_NAME);
-                cipher.init(Cipher.ENCRYPT_MODE, key);
-                BiometricPrompt.CryptoObject crypto = new BiometricPrompt.CryptoObject(cipher);
-                // Show the biometric prompt.
-                mBiometricPrompt.authenticate(info, crypto);
-            } catch (RuntimeException | NoSuchPaddingException | NoSuchAlgorithmException
-                    | KeyStoreException | CertificateException | IOException
-                    | UnrecoverableKeyException | InvalidKeyException e) {
-                log(e.getMessage());
-            }
-        } else {
-            // Show the biometric prompt.
-            mBiometricPrompt.authenticate(info);
-        }
-    }
-
-    private boolean useCrypto() {
-        return mUseCryptoCheckbox.isChecked();
-    }
-
-    /**
-     * Callback when the checkbox is clicked.
-     */
-    private void onCheckboxClicked(View view) {
-        final boolean checked = ((CheckBox) view).isChecked();
-
-        if (view.getId() == R.id.checkbox_use_crypto) {
-            mGenerateKeyButton.setVisibility(checked ? View.VISIBLE : View.GONE);
-        }
+        // Show the biometric prompt.
+        mBiometricPrompt.authenticate(info);
     }
 
     /**

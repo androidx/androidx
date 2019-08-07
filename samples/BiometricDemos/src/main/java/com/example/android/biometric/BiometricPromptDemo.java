@@ -17,7 +17,9 @@
 package com.example.android.biometric;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
@@ -37,8 +39,16 @@ public class BiometricPromptDemo extends FragmentActivity {
         setContentView(R.layout.biometric_prompt_demo);
         final Button hostInActivityButton = findViewById(R.id.host_in_activity_button);
         final Button hostInFragmentButton = findViewById(R.id.host_in_fragment_button);
+        final Button launchBiometricBoundSecretKeyDemo =
+                findViewById(R.id.launch_biometric_bound_secret_key_demo);
         hostInActivityButton.setOnClickListener(view -> launchActivityHost());
         hostInFragmentButton.setOnClickListener(view -> launchFragmentHost());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            launchBiometricBoundSecretKeyDemo.setOnClickListener(view ->
+                    launchBiometricPromptWithBiometricBoundKey());
+        } else {
+            launchBiometricBoundSecretKeyDemo.setVisibility(View.GONE);
+        }
     }
 
     private void launchActivityHost() {
@@ -48,6 +58,11 @@ public class BiometricPromptDemo extends FragmentActivity {
 
     private void launchFragmentHost() {
         Intent intent = new Intent(this, BiometricPromptDemoFragmentHostActivity.class);
+        startActivity(intent);
+    }
+
+    private void launchBiometricPromptWithBiometricBoundKey() {
+        Intent intent = new Intent(this, BiometricPromptDemoBiometricBoundKeyActivity.class);
         startActivity(intent);
     }
 }

@@ -16,34 +16,42 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/label_choose_mode" />
+        android:id="@+id/text_view_activity_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/host_in_activity_button"
+        android:id="@+id/button_generate_key"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_host_in_activity"
-        android:textSize="12sp" />
+        android:text="@string/button_generate_key" />
 
     <Button
-        android:id="@+id/host_in_fragment_button"
+        android:id="@+id/button_unlock_and_use_key"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_host_in_fragment"
-        android:textSize="12sp" />
+        android:text="@string/button_unlock_and_use_key" />
 
     <Button
-        android:id="@+id/launch_biometric_bound_secret_key_demo"
+        android:id="@+id/button_clear_log"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button_biometric_bound_demo"
-        android:textSize="12sp" />
+        android:text="@string/button_clear_log" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/text_view_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </ScrollView>
 
 </LinearLayout>
