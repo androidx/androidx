@@ -725,7 +725,7 @@ class PathParser {
         val resultLength = end - start
         val copyLength = Math.min(resultLength, originalLength - start)
         val result = FloatArray(resultLength)
-        System.arraycopy(original, start, result, 0, copyLength)
+        original.copyInto(result, 0, start, start + copyLength)
         return result
     }
 
