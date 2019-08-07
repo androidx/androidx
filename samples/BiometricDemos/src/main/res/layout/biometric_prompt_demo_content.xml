@@ -36,10 +36,10 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/button_enable_biometric_with_crypto"
+                android:id="@+id/button_generate_key"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/button_enable_biometric_with_crypto"/>
+                android:text="@string/button_generate_key"/>
 
             <Button
                 android:id="@+id/can_authenticate"
@@ -70,7 +70,7 @@
                     android:text="@string/checkbox_text_require_confirmation"
                     android:checked="true"/>
                 <CheckBox
-                    android:id="@+id/checkbox_enable_fallback"
+                    android:id="@+id/checkbox_allow_device_credential"
                     android:layout_weight="1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -78,7 +78,7 @@
             </LinearLayout>
 
             <RadioGroup
-                android:id="@+id/radio_group"
+                android:id="@+id/radio_group_biometric_prompt_configuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
@@ -102,7 +102,7 @@
             </RadioGroup>
 
             <Button
-                android:id="@+id/log_clear"
+                android:id="@+id/button_clear_log"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/button_clear_log"/>
