@@ -151,5 +151,23 @@
                   android:label="Material Theme Settings"
                   android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
         </activity>
+
+        <activity android:name=".SideBySideAlertDialogActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/AlertDialog.SideBySide">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".StackedAlertDialogActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Material/AlertDialog.Stacked">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
