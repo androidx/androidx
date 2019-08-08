@@ -283,19 +283,17 @@ package androidx.paging {
   }
 
   public static final class PagedSource.LoadResult<Key, Value> {
-    ctor public PagedSource.LoadResult(java.util.List<? extends Value> data, int offset, @IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey);
+    ctor public PagedSource.LoadResult(java.util.List<? extends Value> data, @IntRange(from=null) int itemsBefore, @IntRange(from=null) int itemsAfter, Key? nextKey, Key? prevKey);
     method public java.util.List<Value> component1();
     method public int component2();
     method public int component3();
-    method public int component4();
+    method public Key? component4();
     method public Key? component5();
-    method public Key? component6();
-    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(java.util.List<? extends Value> data, int offset, int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey);
+    method public androidx.paging.PagedSource.LoadResult<Key,Value> copy(java.util.List<? extends Value> data, int itemsBefore, int itemsAfter, Key? nextKey, Key? prevKey);
     method public java.util.List<Value> getData();
     method public int getItemsAfter();
     method public int getItemsBefore();
     method public Key? getNextKey();
-    method public int getOffset();
     method public Key? getPrevKey();
     field public static final int COUNT_UNDEFINED = -1; // 0xffffffff
     field public static final androidx.paging.PagedSource.LoadResult.Companion! Companion;

@@ -291,12 +291,11 @@ class PagedSourceTest {
                 val data = items.subList(start, endExclusive)
                 LoadResult(
                     data = data,
-                    offset = start,
                     itemsBefore = start,
                     itemsAfter = items.size - data.size - start
                 )
             } else {
-                LoadResult(data = items.subList(start, endExclusive), offset = 0)
+                LoadResult(items.subList(start, endExclusive))
             }
         }
 
@@ -309,7 +308,7 @@ class PagedSourceTest {
             val start = findFirstIndexAfter(params.key!!)
             val endExclusive = minOf(start + params.loadSize, items.size)
 
-            return LoadResult(data = items.subList(start, endExclusive), offset = 0)
+            return LoadResult(items.subList(start, endExclusive))
         }
 
         private fun loadBefore(params: LoadParams<Key>): LoadResult<Key, Item> {
@@ -322,7 +321,7 @@ class PagedSourceTest {
             val endExclusive = maxOf(0, firstIndexBefore + 1)
             val start = maxOf(0, firstIndexBefore - params.loadSize + 1)
 
-            return LoadResult(data = items.subList(start, endExclusive), offset = 0)
+            return LoadResult(items.subList(start, endExclusive))
         }
 
         private fun findFirstIndexAfter(key: Key): Int {

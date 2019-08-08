@@ -209,7 +209,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0,
                 initialResult.data,
                 if (initialResult.itemsAfter != COUNT_UNDEFINED) initialResult.itemsAfter else 0,
-                initialResult.offset,
+                0,
                 this
             )
         } else {
@@ -219,7 +219,7 @@ open class ContiguousPagedList<K : Any, V : Any>(
                 0,
                 initialResult.data,
                 0,
-                initialResult.itemsBefore + initialResult.offset,
+                if (initialResult.itemsBefore != COUNT_UNDEFINED) initialResult.itemsBefore else 0,
                 this
             )
         }
@@ -315,7 +315,10 @@ open class ContiguousPagedList<K : Any, V : Any>(
     @MainThread
     override fun onInitialized(count: Int) {
         notifyInserted(0, count)
-        // simple heuristic to decide if, when dropping pages, we should replace with placeholders
+        // Simple heuristic to decide if, when dropping pages, we should replace with placeholders.
+        // If we're not presenting placeholders at initialization time, we won't add them when
+        // we drop a page. Note that we don't use config.enablePlaceholders, since the
+        // PagedSource may have opted not to load any.
         replacePagesWithNulls = storage.leadingNullCount > 0 || storage.trailingNullCount > 0
     }
 

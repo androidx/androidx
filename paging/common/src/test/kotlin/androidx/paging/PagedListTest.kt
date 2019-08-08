@@ -42,7 +42,6 @@ class PagedListTest {
                 when (params.loadType) {
                     LoadType.INITIAL -> LoadResult(
                         data = listOf("a"),
-                        offset = 0,
                         itemsBefore = 0,
                         itemsAfter = 0
                     )

@@ -123,14 +123,13 @@ class LivePagedListBuilderTest {
                 val data = listOf("a", "b")
                 return LoadResult(
                     data = data,
-                    offset = 0,
                     itemsBefore = 0,
                     itemsAfter = 4 - data.size
                 )
             }
 
             private fun loadRange(): LoadResult<Int, String> {
-                return LoadResult(data = listOf("c", "d"), offset = 0)
+                return LoadResult(listOf("c", "d"))
             }
         }
     }
