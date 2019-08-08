@@ -55,8 +55,6 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -69,6 +67,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -78,7 +77,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private static final String LOG_TAG = "MediaPlayerTest";
 
     private static final int SLEEP_TIME = 1000;
-    private static final int WAIT_TIME_MS = 300;
+    private static final long WAIT_TIME_MS = 300;
     private static final float FLOAT_TOLERANCE = .0001f;
     private static final int INVALID_SHUFFLE_MODE = -1000;
     private static final int INVALID_REPEAT_MODE = -1000;
@@ -116,7 +115,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                 .build();
-        mPlayer.setAudioAttributes(attributes);
+        Future<PlayerResult> setAttrFuture = mPlayer.setAudioAttributes(attributes);
 
         final TestUtils.Monitor playing = new TestUtils.Monitor();
         mPlayer.registerPlayerCallback(mExecutor, new SessionPlayer.PlayerCallback() {
@@ -126,10 +125,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         });
 
-        mPlayer.prepare();
-        mPlayer.play();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
 
         assertTrue(playing.waitForSignal(SLEEP_TIME));
+        assertFutureSuccess(setAttrFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
     }
 
     @Test
@@ -141,8 +143,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int tolerance = 100;
         final int seekDuration = 100;
 
+        Future<PlayerResult> setItemFuture;
         try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
-            mPlayer.setMediaItem(new FileMediaItem.Builder(
+            setItemFuture = mPlayer.setMediaItem(new FileMediaItem.Builder(
                     ParcelFileDescriptor.dup(afd.getFileDescriptor()))
                     .setFileDescriptorOffset(afd.getStartOffset())
                     .setFileDescriptorLength(afd.getLength())
@@ -151,31 +154,28 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                 .build();
-        mPlayer.setAudioAttributes(attributes);
+        Future<PlayerResult> setAttrFuture = mPlayer.setAudioAttributes(attributes);
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        assertFutureSuccess(setItemFuture);
+        assertFutureSuccess(setAttrFuture);
+        assertFutureSuccess(prepareFuture);
 
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
-
-        assertFalse(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
-        future = mPlayer.play();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        assertNotEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
+        assertFutureSuccess(mPlayer.play());
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         assertEquals(mp3Duration, mPlayer.getDuration(), tolerance);
         long pos = mPlayer.getCurrentPosition();
         assertTrue(pos >= 0);
         assertTrue(pos < mp3Duration - seekDuration);
 
-        future = mPlayer.seekTo(pos + seekDuration, MediaPlayer.SEEK_PREVIOUS_SYNC);
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(mPlayer.seekTo(pos + seekDuration, MediaPlayer.SEEK_PREVIOUS_SYNC));
         assertEquals(pos + seekDuration, mPlayer.getCurrentPosition(), tolerance);
 
-        future = mPlayer.pause();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
-        assertFalse(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
-        future = mPlayer.play();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        assertFutureSuccess(mPlayer.pause());
+        assertNotEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
+        assertFutureSuccess(mPlayer.play());
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // waiting to complete
         while (mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING) {
@@ -194,7 +194,8 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int height = 288;
         final float volume = 0.5f;
 
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
 
         final TestUtils.Monitor onVideoSizeChangedCalled = new TestUtils.Monitor();
         final TestUtils.Monitor onVideoRenderingStartCalled = new TestUtils.Monitor();
@@ -235,13 +236,16 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
-        mPlayer.prepare();
-        mPlayer.play();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
 
         onVideoSizeChangedCalled.waitForCountedSignals(2);
         onVideoRenderingStartCalled.waitForSignal();
 
-        mPlayer.setPlayerVolume(volume);
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
+        assertFutureSuccess(mPlayer.setPlayerVolume(volume));
 
         // waiting to complete
         while (mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING) {
@@ -304,7 +308,8 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int width = 352;
         final int height = 288;
 
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
 
         final TestUtils.Monitor onVideoSizeChangedCalled = new TestUtils.Monitor();
         final TestUtils.Monitor onVideoRenderingStartCalled = new TestUtils.Monitor();
@@ -345,11 +350,15 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
-        mPlayer.prepare();
-        mPlayer.play();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
 
         onVideoSizeChangedCalled.waitForCountedSignals(2);
         onVideoRenderingStartCalled.waitForSignal();
+
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
     }
 
     @Test
@@ -362,12 +371,14 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int expectedDuration = 11047;
         final int tolerance = 70;
 
-        mPlayer.setSurface(mActivity.getSurfaceHolder2().getSurface());
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder2().getSurface());
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
         assertEquals(MediaPlayer.UNKNOWN_TIME, mPlayer.getDuration());
 
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
 
         assertEquals(MediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
         assertEquals(expectedDuration, mPlayer.getDuration(), tolerance);
@@ -410,32 +421,33 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             fail();
         }
 
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
 
         float[] rates = {0.25f, 0.5f, 1.0f, 2.0f};
         for (float playbackRate : rates) {
-            mPlayer.seekTo(0, MediaPlayer.SEEK_PREVIOUS_SYNC);
+            Future<PlayerResult> seekFuture = mPlayer.seekTo(0, MediaPlayer.SEEK_PREVIOUS_SYNC);
             Thread.sleep(1000);
             int playTime = 4000;  // The testing clip is about 10 second long.
             int privState = mPlayer.getPlayerState();
 
-            future = mPlayer.setPlaybackParams(
+            Future<PlayerResult> setParamsFuture = mPlayer.setPlaybackParams(
                     new PlaybackParams.Builder().setSpeed(playbackRate).build());
-            assertEquals(RESULT_SUCCESS, future.get().getResultCode());
-            assertTrue("setPlaybackParams() should not change player state. "
-                    + mPlayer.getPlayerState(), mPlayer.getPlayerState() == privState);
+            assertFutureSuccess(seekFuture);
+            assertFutureSuccess(setParamsFuture);
+            assertEquals("setPlaybackParams() should not change player state. "
+                    + mPlayer.getPlayerState(), privState, mPlayer.getPlayerState());
 
-            future = mPlayer.play();
-            assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+            Future<PlayerResult> playFuture = mPlayer.play();
             Thread.sleep(playTime);
 
             PlaybackParams pbp = mPlayer.getPlaybackParams();
             assertEquals(playbackRate, pbp.getSpeed(), FLOAT_TOLERANCE);
-            assertTrue("The player should still be playing",
-                    mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+            assertEquals("The player should still be playing",
+                    MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
             long playedMediaDurationMs = mPlayer.getCurrentPosition();
             int diff = Math.abs((int) (playedMediaDurationMs / playbackRate) - playTime);
@@ -443,8 +455,8 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 fail("Media player had error in playback rate " + playbackRate
                         + ", play time is " + playTime + " vs expected " + playedMediaDurationMs);
             }
-            future = mPlayer.pause();
-            assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+            assertFutureSuccess(playFuture);
+            assertFutureSuccess(mPlayer.pause());
 
             pbp = mPlayer.getPlaybackParams();
             assertEquals("pause() should not change the playback rate property.",
@@ -463,12 +475,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             fail();
         }
 
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
-
-        mPlayer.play();
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
 
         final long seekPosMs = 3000;
         final long timeToleranceMs = 100;
@@ -507,8 +520,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         int timeRemainedMs = 10000;  // total time for testing
         final int timeToleranceMs = 100;
 
-        ListenableFuture<PlayerResult> future = mPlayer.seekTo(seekPosMs, seekMode);
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(mPlayer.seekTo(seekPosMs, seekMode));
 
         long cp = -seekPosMs;
         while (timeRemainedMs > 0) {
@@ -536,45 +548,49 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             fail();
         }
 
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-
-        ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
-
-        mPlayer.play();
-        mPlayer.setPlaybackParams(new PlaybackParams.Builder().setSpeed(playbackRate).build());
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
+        Future<PlayerResult> setParamsFuture = mPlayer.setPlaybackParams(
+                new PlaybackParams.Builder().setSpeed(playbackRate).build());
         Thread.sleep(SLEEP_TIME);  // let player get into stable state.
         long nt1 = System.nanoTime();
         MediaTimestamp ts1 = mPlayer.getTimestamp();
         long nt2 = System.nanoTime();
-        assertTrue("Media player should return a valid time stamp", ts1 != null);
+        assertNotNull("Media player should return a valid time stamp", ts1);
         assertEquals("MediaPlayer had error in clockRate " + ts1.getMediaClockRate(),
-                playbackRate, ts1.getMediaClockRate(), 0.001f);
+                playbackRate, ts1.getMediaClockRate(), FLOAT_TOLERANCE);
         assertTrue("The nanoTime of Media timestamp should be taken when getTimestamp is called.",
                 nt1 <= ts1.getAnchorSystemNanoTime() && ts1.getAnchorSystemNanoTime() <= nt2);
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
+        assertFutureSuccess(setParamsFuture);
 
-        future = mPlayer.pause();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(mPlayer.pause());
 
         ts1 = mPlayer.getTimestamp();
-        assertTrue("Media player should return a valid time stamp", ts1 != null);
-        assertTrue("Media player should have play rate of 0.0f when paused",
-                ts1.getMediaClockRate() == 0.0f);
+        assertNotNull("Media player should return a valid time stamp", ts1);
+        assertEquals("Media player should have play rate of 0.0f when paused",
+                0.0f, ts1.getMediaClockRate(), FLOAT_TOLERANCE);
 
-        mPlayer.seekTo(0, MediaPlayer.SEEK_PREVIOUS_SYNC);
-        mPlayer.play();
+        Future<PlayerResult> seekFuture = mPlayer.seekTo(0, MediaPlayer.SEEK_PREVIOUS_SYNC);
+        playFuture = mPlayer.play();
         Thread.sleep(SLEEP_TIME);  // let player get into stable state.
         int playTime = 4000;  // The testing clip is about 10 second long.
         ts1 = mPlayer.getTimestamp();
-        assertTrue("Media player should return a valid time stamp", ts1 != null);
+        assertNotNull("Media player should return a valid time stamp", ts1);
         Thread.sleep(playTime);
         MediaTimestamp ts2 = mPlayer.getTimestamp();
-        assertTrue("Media player should return a valid time stamp", ts2 != null);
-        assertTrue("The clockRate should not be changed.",
-                ts1.getMediaClockRate() == ts2.getMediaClockRate());
+        assertNotNull("Media player should return a valid time stamp", ts2);
+        assertEquals("The clockRate should not be changed.",
+                ts1.getMediaClockRate(), ts2.getMediaClockRate(), FLOAT_TOLERANCE);
         assertEquals("MediaPlayer had error in timestamp.",
                 ts1.getAnchorMediaTimeUs() + (long) (playTime * ts1.getMediaClockRate() * 1000),
                 ts2.getAnchorMediaTimeUs(), toleranceUs);
+        assertFutureSuccess(seekFuture);
+        assertFutureSuccess(playFuture);
 
         mPlayer.reset();
     }
@@ -607,7 +623,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private int selectSubtitleTrack(int index) throws Exception {
         assertTrue(index < mSubtitleTrackInfos.size());
         final TrackInfo track = mSubtitleTrackInfos.get(index);
-        ListenableFuture<PlayerResult> future = mPlayer.selectTrack(track);
+        Future<PlayerResult> future = mPlayer.selectTrack(track);
         int result = future.get().getResultCode();
         if (result == RESULT_SUCCESS) {
             mSelectedTrack = track;
@@ -618,7 +634,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     private int deselectSubtitleTrack(int index) throws Exception {
         assertTrue(index < mSubtitleTrackInfos.size());
         final TrackInfo track = mSubtitleTrackInfos.get(index);
-        ListenableFuture<PlayerResult> future = mPlayer.deselectTrack(track);
+        Future<PlayerResult> future = mPlayer.deselectTrack(track);
         int result = future.get().getResultCode();
         if (result == RESULT_SUCCESS) {
             mSelectedTrack = null;
@@ -657,9 +673,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
-        mPlayer.play().get();
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
         assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // Closed caption tracks are in-band.
@@ -714,9 +734,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
-        mPlayer.play().get();
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
         assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // Closed caption tracks are in-band.
@@ -760,9 +784,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
-        mPlayer.play().get();
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
         assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // The media metadata will be changed while playing since closed caption tracks are in-band
@@ -797,9 +825,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
-        mPlayer.prepare();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
 
         mTracksFullyFound.waitForSignal(1500);
+        assertFutureSuccess(prepareFuture);
 
         readTracks();
 
@@ -838,26 +867,31 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
-        mPlayer.prepare();
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
 
         // Timestamp needs to be reported when playback starts.
         mOnMediaTimeDiscontinuityCalled.reset();
-        mPlayer.play();
+        Future<PlayerResult> playFuture = mPlayer.play();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
         do {
             assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
         } while (Math.abs(timestamps.getLast().getMediaClockRate() - 1.0f) > 0.01f);
 
         // Timestamp needs to be reported when seeking is done.
         mOnMediaTimeDiscontinuityCalled.reset();
-        assertEquals(RESULT_SUCCESS, mPlayer.seekTo(3000).get().getResultCode());
+        assertFutureSuccess(mPlayer.seekTo(3000));
         do {
             assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
         } while (Math.abs(timestamps.getLast().getMediaClockRate() - 1.0f) > 0.01f);
 
         // Timestamp needs to be updated when playback rate changes.
         mOnMediaTimeDiscontinuityCalled.reset();
-        mPlayer.setPlaybackParams(new PlaybackParams.Builder().setSpeed(0.5f).build());
+        assertFutureSuccess(mPlayer.setPlaybackParams(
+                new PlaybackParams.Builder().setSpeed(0.5f).build()));
         mOnMediaTimeDiscontinuityCalled.waitForSignal();
         do {
             assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
@@ -865,7 +899,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         // Timestamp needs to be updated when player is paused.
         mOnMediaTimeDiscontinuityCalled.reset();
-        mPlayer.pause();
+        assertFutureSuccess(mPlayer.pause());
         mOnMediaTimeDiscontinuityCalled.waitForSignal();
         do {
             assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
@@ -885,30 +919,35 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 TestDataSourceCallback.fromAssetFd(mResources.openRawResourceFd(resid));
         // Test returning -1 from getSize() to indicate unknown size.
         dataSource.returnFromGetSize(-1);
-        mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
-        mPlayer.prepare();
-        mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        Future<PlayerResult> setItemFuture = mPlayer.setMediaItem(
+                new CallbackMediaItem.Builder(dataSource).build());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        Future<PlayerResult> playFuture = mPlayer.play();
+        assertFutureSuccess(setItemFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // Test pause and restart.
-        mPlayer.pause();
-        Thread.sleep(SLEEP_TIME);
-        assertFalse(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        assertFutureSuccess(mPlayer.pause());
+        assertNotEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
-        mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        assertFutureSuccess(mPlayer.play());
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // Test reset.
         mPlayer.reset();
-        mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
-
-        mPlayer.prepare();
-        mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
+        setItemFuture = mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
+        prepareFuture = mPlayer.prepare();
+        playFuture = mPlayer.play();
+        assertFutureSuccess(setItemFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(playFuture);
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         // Test seek. Note: the seek position is cached and returned as the
         // current position so there's no point in comparing them.
-        mPlayer.seekTo(duration - SLEEP_TIME, MediaPlayer.SEEK_PREVIOUS_SYNC);
+        assertFutureSuccess(mPlayer.seekTo(duration - SLEEP_TIME, MediaPlayer.SEEK_PREVIOUS_SYNC));
         while (mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING) {
             Thread.sleep(SLEEP_TIME);
         }
@@ -919,7 +958,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testNullMedia2DataSourceIsRejected() throws Exception {
         try {
-            mPlayer.setMediaItem(null);
+            assertNotNull(mPlayer.setMediaItem(null));
             fail();
         } catch (NullPointerException e) {
             // Expected exception
@@ -931,9 +970,8 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testMedia2DataSourceIsClosedOnReset() throws Exception {
         TestDataSourceCallback dataSource = new TestDataSourceCallback(new byte[0]);
-        assertEquals(RESULT_SUCCESS,
-                mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build()).get()
-                        .getResultCode());
+        assertFutureSuccess(mPlayer.setMediaItem(
+                new CallbackMediaItem.Builder(dataSource).build()));
         mPlayer.reset();
         assertTrue(dataSource.isClosed());
     }
@@ -957,12 +995,14 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 TestDataSourceCallback.fromAssetFd(mResources.openRawResourceFd(resid));
         // Ensure that we throw after reading enough data for preparation to complete.
         dataSource.throwFromReadAtPosition(500_000);
-        mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
-
-        mPlayer.prepare().get();
+        Future<PlayerResult> setItemFuture = mPlayer.setMediaItem(
+                new CallbackMediaItem.Builder(dataSource).build());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        assertFutureSuccess(setItemFuture);
+        assertFutureSuccess(prepareFuture);
 
         mOnErrorCalled.reset();
-        mPlayer.play();
+        assertFutureSuccess(mPlayer.play());
         assertTrue(mOnErrorCalled.waitForSignal());
     }
 
@@ -1001,8 +1041,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         List<MediaItem> items = new ArrayList<>();
         items.add(dsd1);
         items.add(dsd2);
-        mPlayer.setPlaylist(items, null);
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> setListFuture = mPlayer.setPlaylist(items, null);
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
 
         final Monitor onCompletionCalled = new Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
@@ -1013,10 +1054,16 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
-        mPlayer.prepare().get();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        assertFutureSuccess(setListFuture);
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
 
-        mPlayer.setPlaybackParams(new PlaybackParams.Builder().setSpeed(2.0f).build());
-        mPlayer.play();
+        Future<PlayerResult> setParamsFuture = mPlayer.setPlaybackParams(
+                new PlaybackParams.Builder().setSpeed(2.0f).build());
+        Future<PlayerResult> playFuture = mPlayer.play();
+        assertFutureSuccess(setParamsFuture);
+        assertFutureSuccess(playFuture);
 
         onCompletionCalled.waitForSignal();
         assertEquals(dsd2, mPlayer.getCurrentMediaItem());
@@ -1030,7 +1077,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         if (!loadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             fail();
         }
-        mPlayer.prepare().get();
+        assertFutureSuccess(mPlayer.prepare());
 
         PlaybackParams playbackParams = mPlayer.getPlaybackParams();
         assertEquals(PlaybackParams.AUDIO_FALLBACK_MODE_DEFAULT,
@@ -1081,22 +1128,25 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
-        mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
+        Future<PlayerResult> setItemFuture = mPlayer.setMediaItem(
+                new CallbackMediaItem.Builder(dataSource).build());
 
         mOnErrorCalled.reset();
 
         // prepare() will be pending until readAllowed is signaled.
-        mPlayer.prepare();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
 
-        ListenableFuture<PlayerResult> seekFuture1 = mPlayer.seekTo(3000);
-        ListenableFuture<PlayerResult> seekFuture2 = mPlayer.seekTo(2000);
-        ListenableFuture<PlayerResult> seekFuture3 = mPlayer.seekTo(1000);
+        Future<PlayerResult> seekFuture1 = mPlayer.seekTo(3000);
+        Future<PlayerResult> seekFuture2 = mPlayer.seekTo(2000);
+        Future<PlayerResult> seekFuture3 = mPlayer.seekTo(1000);
 
         readAllowed.signal();
 
-        assertEquals(RESULT_INFO_SKIPPED, seekFuture1.get().getResultCode());
-        assertEquals(RESULT_INFO_SKIPPED, seekFuture2.get().getResultCode());
-        assertEquals(RESULT_SUCCESS, seekFuture3.get().getResultCode());
+        assertFutureSuccess(setItemFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureStateEquals(seekFuture1, RESULT_INFO_SKIPPED);
+        assertFutureStateEquals(seekFuture2, RESULT_INFO_SKIPPED);
+        assertFutureSuccess(seekFuture3);
         assertFalse(mOnErrorCalled.isSignalled());
     }
 
@@ -1107,28 +1157,27 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         if (!loadResource(R.raw.testvideo)) {
             fail();
         }
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
 
-        ListenableFuture<PlayerResult> future;
         assertEquals(MediaPlayer.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
 
-        future = mPlayer.prepare();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
 
         assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
         assertEquals(MediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
 
-        future = mPlayer.play();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(mPlayer.play());
 
         assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
         assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
-        future = mPlayer.pause();
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(mPlayer.pause());
 
         assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
@@ -1148,7 +1197,6 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             return; // skip;
         }
 
-        ListenableFuture<PlayerResult> future;
         final TestUtils.Monitor onSeekCompleteCalled = new TestUtils.Monitor();
         final TestUtils.Monitor onPlayerStateChangedCalled = new TestUtils.Monitor();
         final AtomicInteger playerState = new AtomicInteger();
@@ -1183,16 +1231,18 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
-        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        Future<PlayerResult> setSurfaceFuture = mPlayer.setSurface(
+                mActivity.getSurfaceHolder().getSurface());
 
         onPlayerStateChangedCalled.reset();
         onBufferingStateChangedCalled.reset();
-        future = mPlayer.prepare();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
         do {
             assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
         } while (bufferingState.get() != MediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED);
 
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(setSurfaceFuture);
+        assertFutureSuccess(prepareFuture);
 
         do {
             assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
@@ -1202,11 +1252,11 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         } while (bufferingState.get() != MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
 
         onSeekCompleteCalled.reset();
-        mPlayer.seekTo(mp4Duration >> 1);
+        assertFutureSuccess(mPlayer.seekTo(mp4Duration >> 1));
         onSeekCompleteCalled.waitForSignal();
 
         onPlaybackSpeedChanged.reset();
-        mPlayer.setPlaybackSpeed(0.5f);
+        assertFutureSuccess(mPlayer.setPlaybackSpeed(0.5f));
         do {
             assertTrue(onPlaybackSpeedChanged.waitForSignal(1000));
         } while (Math.abs(playbackSpeed.get() - 0.5f) > FLOAT_TOLERANCE);
@@ -1222,16 +1272,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSetPlaybackSpeedWithIllegalArguments() throws Throwable {
         // Zero is not allowed.
-        ListenableFuture<PlayerResult> future = mPlayer.setPlaybackSpeed(0.0f);
-        PlayerResult result = future.get();
-        assertNotNull(result);
-        assertEquals(RESULT_ERROR_BAD_VALUE, result.getResultCode());
+        assertFutureStateEquals(mPlayer.setPlaybackSpeed(0.0f), RESULT_ERROR_BAD_VALUE);
 
         // Negative values are not allowed.
-        future = mPlayer.setPlaybackSpeed(-1.0f);
-        result = future.get();
-        assertNotNull(result);
-        assertEquals(RESULT_ERROR_BAD_VALUE, result.getResultCode());
+        assertFutureStateEquals(mPlayer.setPlaybackSpeed(-1.0f), RESULT_ERROR_BAD_VALUE);
     }
 
     @Test
@@ -1242,9 +1286,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                 .build();
-        mPlayer.setAudioAttributes(attributes);
-        mPlayer.prepare();
-        mPlayer.play();
+        assertNotNull(mPlayer.setAudioAttributes(attributes));
+        assertNotNull(mPlayer.prepare());
+        assertNotNull(mPlayer.play());
         mPlayer.close();
 
         // Set the player to null so we don't try to close it again in tearDown().
@@ -1262,7 +1306,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                 .build();
-        mPlayer.setAudioAttributes(attributes);
+        assertNotNull(mPlayer.setAudioAttributes(attributes));
 
         mPlayer.reset();
 
@@ -1312,13 +1356,14 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         mOnErrorCalled.reset();
 
-        mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
+        Future<PlayerResult> setItemFuture = mPlayer.setMediaItem(
+                new CallbackMediaItem.Builder(dataSource).build());
 
         // prepare() will be pending until readAllowed is signaled.
-        mPlayer.prepare();
+        Future<PlayerResult> prepareFuture = mPlayer.prepare();
 
-        ListenableFuture<PlayerResult> seekFuture = mPlayer.seekTo(1000);
-        ListenableFuture<PlayerResult> volumeFuture = mPlayer.setPlayerVolume(0.7f);
+        Future<PlayerResult> seekFuture = mPlayer.seekTo(1000);
+        Future<PlayerResult> volumeFuture = mPlayer.setPlayerVolume(0.7f);
 
         readRequested.waitForSignal();
 
@@ -1328,7 +1373,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         // Make the on-going prepare operation resumed and check the results.
         readAllowed.signal();
-        mPlayer.setSurface(null).get();
+        assertFutureSuccess(setItemFuture);
+        assertFutureSuccess(prepareFuture);
+        assertFutureSuccess(mPlayer.setSurface(null));
 
         assertEquals(0 /* default value */, mPlayer.getCurrentPosition());
         assertEquals(1.0f /* default value */, mPlayer.getPlayerVolume(), 0.001f);
@@ -1352,44 +1399,35 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
         int shuffleMode = mPlayer.getShuffleMode();
-        ListenableFuture<PlayerResult> future;
-        PlayerResult result;
         if (shuffleMode != SessionPlayer.SHUFFLE_MODE_NONE) {
             onShuffleModeChangedMonitor.reset();
-            future = mPlayer.setShuffleMode(SessionPlayer.SHUFFLE_MODE_NONE);
+            assertFutureSuccess(mPlayer.setShuffleMode(SessionPlayer.SHUFFLE_MODE_NONE));
             assertTrue(onShuffleModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-            result = future.get();
             assertEquals(mPlayer, mPlayerCbArg1);
-            assertEquals(RESULT_SUCCESS, result.getResultCode());
             assertEquals(SessionPlayer.SHUFFLE_MODE_NONE, ((Integer) mPlayerCbArg2).intValue());
             assertEquals(SessionPlayer.SHUFFLE_MODE_NONE, mPlayer.getShuffleMode());
         }
 
         onShuffleModeChangedMonitor.reset();
-        future = mPlayer.setShuffleMode(SessionPlayer.SHUFFLE_MODE_ALL);
+        assertFutureSuccess(mPlayer.setShuffleMode(SessionPlayer.SHUFFLE_MODE_ALL));
         assertTrue(onShuffleModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-        result = future.get();
         assertEquals(mPlayer, mPlayerCbArg1);
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(SessionPlayer.SHUFFLE_MODE_ALL, ((Integer) mPlayerCbArg2).intValue());
         assertEquals(SessionPlayer.SHUFFLE_MODE_ALL, mPlayer.getShuffleMode());
 
         onShuffleModeChangedMonitor.reset();
-        future = mPlayer.setShuffleMode(SessionPlayer.SHUFFLE_MODE_GROUP);
+        assertFutureSuccess(mPlayer.setShuffleMode(SessionPlayer.SHUFFLE_MODE_GROUP));
         assertTrue(onShuffleModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-        result = future.get();
         assertEquals(mPlayer, mPlayerCbArg1);
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(SessionPlayer.SHUFFLE_MODE_GROUP, ((Integer) mPlayerCbArg2).intValue());
         assertEquals(SessionPlayer.SHUFFLE_MODE_GROUP, mPlayer.getShuffleMode());
 
         // INVALID_SHUFFLE_MODE will not change the shuffle mode.
         onShuffleModeChangedMonitor.reset();
-        future = mPlayer.setShuffleMode(INVALID_SHUFFLE_MODE);
+        assertFutureStateEquals(mPlayer.setShuffleMode(INVALID_SHUFFLE_MODE),
+                RESULT_ERROR_BAD_VALUE);
         assertFalse(onShuffleModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-        result = future.get();
         assertEquals(mPlayer, mPlayerCbArg1);
-        assertEquals(RESULT_ERROR_BAD_VALUE, result.getResultCode());
         assertEquals(SessionPlayer.SHUFFLE_MODE_GROUP, mPlayer.getShuffleMode());
     }
 
@@ -1409,44 +1447,34 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
         int repeatMode = mPlayer.getRepeatMode();
-        ListenableFuture<PlayerResult> future;
-        PlayerResult result;
         if (repeatMode != SessionPlayer.REPEAT_MODE_NONE) {
             onRepeatModeChangedMonitor.reset();
-            future = mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE);
+            assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE));
             assertTrue(onRepeatModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-            result = future.get();
             assertEquals(mPlayer, mPlayerCbArg1);
-            assertEquals(RESULT_SUCCESS, result.getResultCode());
             assertEquals(SessionPlayer.REPEAT_MODE_NONE, ((Integer) mPlayerCbArg2).intValue());
             assertEquals(SessionPlayer.REPEAT_MODE_NONE, mPlayer.getRepeatMode());
         }
 
         onRepeatModeChangedMonitor.reset();
-        future = mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL);
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL));
         assertTrue(onRepeatModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-        result = future.get();
         assertEquals(mPlayer, mPlayerCbArg1);
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(SessionPlayer.REPEAT_MODE_ALL, ((Integer) mPlayerCbArg2).intValue());
         assertEquals(SessionPlayer.REPEAT_MODE_ALL, mPlayer.getRepeatMode());
 
         onRepeatModeChangedMonitor.reset();
-        future = mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_GROUP);
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_GROUP));
         assertTrue(onRepeatModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-        result = future.get();
         assertEquals(mPlayer, mPlayerCbArg1);
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(SessionPlayer.REPEAT_MODE_GROUP, ((Integer) mPlayerCbArg2).intValue());
         assertEquals(SessionPlayer.REPEAT_MODE_GROUP, mPlayer.getRepeatMode());
 
         // INVALID_REPEAT_MODE will not change the repeat mode.
         onRepeatModeChangedMonitor.reset();
-        future = mPlayer.setRepeatMode(INVALID_REPEAT_MODE);
+        assertFutureStateEquals(mPlayer.setRepeatMode(INVALID_REPEAT_MODE), RESULT_ERROR_BAD_VALUE);
         assertFalse(onRepeatModeChangedMonitor.waitForSignal(WAIT_TIME_MS));
-        result = future.get();
         assertEquals(mPlayer, mPlayerCbArg1);
-        assertEquals(RESULT_ERROR_BAD_VALUE, result.getResultCode());
         assertEquals(SessionPlayer.REPEAT_MODE_GROUP, mPlayer.getRepeatMode());
     }
 
@@ -1460,7 +1488,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
 
         try {
-            mPlayer.setPlaylist(null, null);
+            assertNotNull(mPlayer.setPlaylist(null, null));
             fail();
         } catch (Exception e) {
             // pass-through
@@ -1468,15 +1496,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         try {
             List<MediaItem> list = new ArrayList<>();
             list.add(null);
-            mPlayer.setPlaylist(list, null);
+            assertNotNull(mPlayer.setPlaylist(list, null));
             fail();
         } catch (Exception e) {
             // pass-through
         }
-        ListenableFuture<PlayerResult> future = mPlayer.setPlaylist(playlist, null);
-        PlayerResult result = future.get();
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(playlist.size(), mPlayer.getPlaylist().size());
         assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
     }
@@ -1488,7 +1514,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaItem closedItem = createMediaItem();
         ((FileMediaItem) closedItem).close();
         try {
-            mPlayer.setMediaItem(closedItem);
+            assertNotNull(mPlayer.setMediaItem(closedItem));
             fail();
         } catch (Exception e) {
             // Expected.
@@ -1497,25 +1523,24 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final List<MediaItem> closedPlaylist = createPlaylist(1);
         ((FileMediaItem) closedPlaylist.get(0)).close();
         try {
-            mPlayer.setPlaylist(closedPlaylist, null);
+            assertNotNull(mPlayer.setPlaylist(closedPlaylist, null));
             fail();
         } catch (Exception e) {
             // Expected.
         }
 
         List<MediaItem> playlist = createPlaylist(2);
-        ListenableFuture<PlayerResult> future = mPlayer.setPlaylist(playlist, null);
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
 
         try {
-            mPlayer.addPlaylistItem(0, closedItem);
+            assertNotNull(mPlayer.addPlaylistItem(0, closedItem));
             fail();
         } catch (Exception e) {
             // Expected.
         }
 
         try {
-            mPlayer.replacePlaylistItem(0, closedItem);
+            assertNotNull(mPlayer.replacePlaylistItem(0, closedItem));
             fail();
         } catch (Exception e) {
             // Expected.
@@ -1523,8 +1548,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         List<MediaItem> reversedList = new ArrayList<>(
                 Arrays.asList(playlist.get(1), playlist.get(0)));
-        future = mPlayer.setPlaylist(playlist, null);
-        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(reversedList, null));
     }
 
     @Test
@@ -1544,54 +1568,44 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         MediaItem item1 = playlist.get(1);
         MediaItem item2 = playlist.get(2);
         MediaItem item3 = createMediaItem();
-        ListenableFuture<PlayerResult> future = mPlayer.setPlaylist(playlist, null);
-        PlayerResult result = future.get();
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertTrue(playlistChangeMonitor.waitForSignal(WAIT_TIME_MS));
         playlistChangeMonitor.reset();
         // mPlayer's playlist will be [0 (current) 1 2]
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(playlist.size(), mPlayer.getPlaylist().size());
         assertEquals(item0, mPlayer.getCurrentMediaItem());
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(1, mPlayer.getNextMediaItemIndex());
 
-        future = mPlayer.addPlaylistItem(0, item3);
-        result = future.get();
+        assertFutureSuccess(mPlayer.addPlaylistItem(0, item3));
         assertTrue(playlistChangeMonitor.waitForSignal(WAIT_TIME_MS));
         playlistChangeMonitor.reset();
         // mPlayer's playlist will be [3 0 (current) 1 2]
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(playlist.size() + 1, mPlayer.getPlaylist().size());
         assertEquals(item0, mPlayer.getCurrentMediaItem());
         assertEquals(1, mPlayer.getCurrentMediaItemIndex());
         assertEquals(2, mPlayer.getNextMediaItemIndex());
 
-        future = mPlayer.removePlaylistItem(1);
-        result = future.get();
+        assertFutureSuccess(mPlayer.removePlaylistItem(1));
         assertTrue(playlistChangeMonitor.waitForSignal(WAIT_TIME_MS));
         playlistChangeMonitor.reset();
         // mPlayer's playlist will be [3 1 (current) 2]
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(playlist.size(), mPlayer.getPlaylist().size());
         assertEquals(item1, mPlayer.getCurrentMediaItem());
         assertEquals(1, mPlayer.getCurrentMediaItemIndex());
         assertEquals(2, mPlayer.getNextMediaItemIndex());
 
-        future = mPlayer.movePlaylistItem(1, 0);
-        result = future.get();
+        assertFutureSuccess(mPlayer.movePlaylistItem(1, 0));
         assertTrue(playlistChangeMonitor.waitForSignal(WAIT_TIME_MS));
         playlistChangeMonitor.reset();
         // mPlayer's playlist will be [1 (current), 3, 2]
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(playlist.size(), mPlayer.getPlaylist().size());
         assertEquals(item1, mPlayer.getCurrentMediaItem());
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(1, mPlayer.getNextMediaItemIndex());
 
-        future = mPlayer.skipToNextPlaylistItem();
-        result = future.get();
+        assertFutureSuccess(mPlayer.skipToNextPlaylistItem());
         // mPlayer's playlist will be [1, 3 (current), 2]
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(playlist.size(), mPlayer.getPlaylist().size());
         assertEquals(item3, mPlayer.getCurrentMediaItem());
         assertEquals(1, mPlayer.getCurrentMediaItemIndex());
@@ -1608,16 +1622,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.registerPlayerCallback(mExecutor,
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
 
-        PlayerResult result = mPlayer.setPlaylist(playlist, null).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
-        mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE));
 
         // Test skipToPlaylistItem
         for (int i = listSize - 1; i >= 0; --i) {
-            result = mPlayer.skipToPlaylistItem(i).get();
-            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertFutureSuccess(mPlayer.skipToPlaylistItem(i));
             assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
             assertEquals(i, mPlayer.getCurrentMediaItemIndex());
             assertEquals(playlist.get(i), mPlayer.getCurrentMediaItem());
@@ -1634,23 +1645,19 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.registerPlayerCallback(mExecutor,
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
 
-        PlayerResult result = mPlayer.setPlaylist(playlist, null).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
-        mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE));
 
         // Test skipToNextPlaylistItem
         // curPlayPos = 0
         for (int curPlayPos = 0; curPlayPos < listSize - 1; ++curPlayPos) {
-            result = mPlayer.skipToNextPlaylistItem().get();
-            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertFutureSuccess(mPlayer.skipToNextPlaylistItem());
             assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
             assertEquals(curPlayPos + 1, mPlayer.getCurrentMediaItemIndex());
             assertEquals(playlist.get(curPlayPos + 1), mPlayer.getCurrentMediaItem());
         }
-        result = mPlayer.skipToNextPlaylistItem().get();
-        assertEquals(RESULT_ERROR_INVALID_STATE, result.getResultCode());
+        assertFutureStateEquals(mPlayer.skipToNextPlaylistItem(), RESULT_ERROR_INVALID_STATE);
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, false);
         assertEquals(listSize - 1, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(listSize - 1), mPlayer.getCurrentMediaItem());
@@ -1666,27 +1673,22 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.registerPlayerCallback(mExecutor,
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
 
-        PlayerResult result = mPlayer.setPlaylist(playlist, null).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
-        mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE));
 
-        result = mPlayer.skipToPlaylistItem(listSize - 1).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.skipToPlaylistItem(listSize - 1));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
 
         // Test skipToPrevious
         // curPlayPos = listSize - 1
         for (int curPlayPos = listSize - 1; curPlayPos > 0; --curPlayPos) {
-            result = mPlayer.skipToPreviousPlaylistItem().get();
-            assertEquals(RESULT_SUCCESS, result.getResultCode());
+            assertFutureSuccess(mPlayer.skipToPreviousPlaylistItem());
             assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
             assertEquals(curPlayPos - 1, mPlayer.getCurrentMediaItemIndex());
             assertEquals(playlist.get(curPlayPos - 1), mPlayer.getCurrentMediaItem());
         }
-        result = mPlayer.skipToPreviousPlaylistItem().get();
-        assertEquals(RESULT_ERROR_INVALID_STATE, result.getResultCode());
+        assertFutureStateEquals(mPlayer.skipToPreviousPlaylistItem(), RESULT_ERROR_INVALID_STATE);
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, false);
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
@@ -1702,22 +1704,18 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.registerPlayerCallback(mExecutor,
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
 
-        PlayerResult result = mPlayer.setPlaylist(playlist, null).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
-        result = mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL));
 
         assertEquals(listSize - 1, mPlayer.getPreviousMediaItemIndex());
-        result = mPlayer.skipToPreviousPlaylistItem().get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.skipToPreviousPlaylistItem());
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
         assertEquals(listSize - 1, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(listSize - 1), mPlayer.getCurrentMediaItem());
 
         assertEquals(0, mPlayer.getNextMediaItemIndex());
-        result = mPlayer.skipToNextPlaylistItem().get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.skipToNextPlaylistItem());
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
@@ -1732,29 +1730,24 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
         mPlayer.registerPlayerCallback(mExecutor,
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
-        PlayerResult result = mPlayer.setPlaylist(playlist, null).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
 
-        result = mPlayer.skipToNextPlaylistItem().get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.skipToNextPlaylistItem());
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
         assertEquals(1, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(1), mPlayer.getCurrentMediaItem());
 
         // Will not go to the next if the next is end of the playlist
-        result = mPlayer.skipToNextPlaylistItem().get();
-        assertEquals(RESULT_ERROR_INVALID_STATE, result.getResultCode());
+        assertFutureStateEquals(mPlayer.skipToNextPlaylistItem(), RESULT_ERROR_INVALID_STATE);
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, false);
         assertEquals(1, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(1), mPlayer.getCurrentMediaItem());
 
-        result = mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
-        result = mPlayer.skipToNextPlaylistItem().get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL));
+        assertFutureSuccess(mPlayer.skipToNextPlaylistItem());
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
@@ -1769,23 +1762,19 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
         mPlayer.registerPlayerCallback(mExecutor,
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
-        PlayerResult result = mPlayer.setPlaylist(playlist, null).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
 
         // Will not go to the previous if the current is the first one
-        result = mPlayer.skipToPreviousPlaylistItem().get();
-        assertEquals(RESULT_ERROR_INVALID_STATE, result.getResultCode());
+        assertFutureStateEquals(mPlayer.skipToPreviousPlaylistItem(), RESULT_ERROR_INVALID_STATE);
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, false);
         assertEquals(0, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(0), mPlayer.getCurrentMediaItem());
 
-        result = mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
-        result = mPlayer.skipToPreviousPlaylistItem().get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_ALL));
+        assertFutureSuccess(mPlayer.skipToPreviousPlaylistItem());
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
         assertEquals(1, mPlayer.getCurrentMediaItemIndex());
         assertEquals(playlist.get(1), mPlayer.getCurrentMediaItem());
@@ -1810,13 +1799,11 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
-        PlayerResult result1 = mPlayer.setMediaItem(item1).get();
-        assertEquals(RESULT_SUCCESS, result1.getResultCode());
+        assertFutureSuccess(mPlayer.setMediaItem(item1));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
 
         // Test if multiple calls to setMediaItem calls onCurrentMediaItemChanged.
-        PlayerResult result2 = mPlayer.setMediaItem(item2).get();
-        assertEquals(RESULT_SUCCESS, result2.getResultCode());
+        assertFutureSuccess(mPlayer.setMediaItem(item2));
         assertWaitForSignalAndReset(onCurrentMediaItemChangedMonitor, true);
     }
 
@@ -1825,15 +1812,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testCurrentMediaItemChangedCalledAfterSetPlayList() throws Exception {
         int listSize = 2;
-        final int currentIdx = 0;
         List<MediaItem> playlist = createPlaylist(listSize);
 
         TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
         mPlayer.registerPlayerCallback(mExecutor,
                 new PlayerCallbackForPlaylist(playlist, onCurrentMediaItemChangedMonitor));
 
-        PlayerResult result = mPlayer.setPlaylist(playlist, null).get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertFutureSuccess(mPlayer.setPlaylist(playlist, null));
         assertTrue(onCurrentMediaItemChangedMonitor.waitForSignal(WAIT_TIME_MS));
     }
 
