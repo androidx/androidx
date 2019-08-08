@@ -17,10 +17,7 @@
 package com.example.android.biometric;
 
 import android.content.Context;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.RadioGroup;
-import android.widget.TextView;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.biometric.BiometricPrompt;
@@ -36,18 +33,8 @@ class BiometricPromptDemoActivityController extends BiometricPromptDemoControlle
 
     BiometricPromptDemoActivityController(
             @NonNull FragmentActivity activity,
-            @NonNull Button createKeysButton,
-            @NonNull Button authenticateButton,
-            @NonNull Button canAuthenticateButton,
-            @NonNull CheckBox useCryptoCheckbox,
-            @NonNull CheckBox confirmationRequiredCheckbox,
-            @NonNull CheckBox deviceCredentialAllowedCheckbox,
-            @NonNull RadioGroup radioGroup,
-            @NonNull Button clearLogButton,
-            @NonNull TextView logView) {
-        super(createKeysButton, authenticateButton, canAuthenticateButton, useCryptoCheckbox,
-                confirmationRequiredCheckbox, deviceCredentialAllowedCheckbox, radioGroup,
-                clearLogButton, logView);
+            @NonNull View inflatedRootView) {
+        super(inflatedRootView);
         mActivity = activity;
     }
 

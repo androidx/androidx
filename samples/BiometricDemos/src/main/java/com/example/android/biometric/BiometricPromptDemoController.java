@@ -21,9 +21,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.security.keystore.KeyGenParameterSpec;
-import android.security.keystore.KeyProperties;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -33,33 +30,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.biometric.BiometricManager;
 import androidx.biometric.BiometricPrompt;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
-import java.util.Arrays;
 import java.util.concurrent.Executor;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
 
 /**
  * Controller for the biometric prompt demo app. Coordinates the logic of initializing buttons,
- * generating the info and crypto objects for the biometric prompt, and launching the prompt itself.
+ * generating the info, and launching the prompt itself.
  */
 abstract class BiometricPromptDemoController {
 
@@ -67,8 +45,6 @@ abstract class BiometricPromptDemoController {
 
     private static final String KEY_COUNTER = "saved_counter";
     private static final String KEY_LOG = "saved_log";
-
-    private static final String DEFAULT_KEY_NAME = "default_key";
 
     private static final String BIOMETRIC_SUCCESS_MESSAGE = "BIOMETRIC_SUCCESS_MESSAGE";
     private static final String BIOMETRIC_ERROR_HW_UNAVAILABLE_MESSAGE =
@@ -84,25 +60,23 @@ abstract class BiometricPromptDemoController {
     private static final int MODE_CANCEL_ON_CONFIGURATION_CHANGE = 2;
     private static final int MODE_CANCEL_AFTER_THREE_FAILURES = 3;
 
-    private Handler mHandler = new Handler(Looper.getMainLooper());
-    private KeyStore mKeyStore;
-    private int mCounter;
-    private int mNumberFailedAttempts;
-
-    private Button mCreateKeysButton;
-    private Button mAuthenticateButton;
-    private Button mCanAuthenticateButton;
-    private CheckBox mUseCryptoCheckbox;
-    private CheckBox mConfirmationRequiredCheckbox;
-    private CheckBox mDeviceCredentialAllowedCheckbox;
-    private RadioGroup mRadioGroup;
-    private TextView mLogView;
-
     BiometricPrompt mBiometricPrompt;
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    final Executor mExecutor = mHandler::post;
+    private int mCounter;
 
-    final Executor mExecutor = runnable -> mHandler.post(runnable);
+    private final Button mCanAuthenticateButton;
+    private final Button mAuthenticateButton;
+    private final CheckBox mRequireConfirmationCheckbox;
+    private final CheckBox mAllowDeviceCredentialCheckbox;
+    private final RadioGroup mBiometricPromptConfigurationRadioGroup;
+
+    private final TextView mLogView;
+
     final BiometricPrompt.AuthenticationCallback mAuthenticationCallback =
             new BiometricPrompt.AuthenticationCallback() {
+                private int mNumberFailedAttempts = 0;
+
                 @Override
                 public void onAuthenticationError(int err, @NonNull CharSequence message) {
                     log("onAuthenticationError " + err + ": " + message);
@@ -110,22 +84,10 @@ abstract class BiometricPromptDemoController {
                 }
 
                 @Override
-                public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
-                    log("onAuthenticationSucceeded, crypto: " + result.getCryptoObject());
+                public void onAuthenticationSucceeded(
+                        @NonNull BiometricPrompt.AuthenticationResult result) {
+                    log("onAuthenticationSucceeded");
                     mNumberFailedAttempts = 0;
-
-                    if (result.getCryptoObject() != null) {
-                        Cipher cipher = result.getCryptoObject().getCipher();
-                        try {
-                            byte[] encrypted = cipher.doFinal(
-                                    "hello".getBytes(Charset.defaultCharset()));
-                            String message = Arrays.toString(
-                                    Base64.encode(encrypted, 0 /* flags */));
-                            log("Message: " + message);
-                        } catch (BadPaddingException | IllegalBlockSizeException e) {
-                            log("Error encrypting");
-                        }
-                    }
                 }
 
                 @Override
@@ -155,25 +117,20 @@ abstract class BiometricPromptDemoController {
      */
     abstract void reconnect();
 
-    BiometricPromptDemoController(@NonNull Button createKeysButton,
-            @NonNull Button authenticateButton,
-            @NonNull Button canAuthenticateButton,
-            @NonNull CheckBox useCryptoCheckbox,
-            @NonNull CheckBox confirmationRequiredCheckbox,
-            @NonNull CheckBox deviceCredentialAllowedCheckbox,
-            @NonNull RadioGroup radioGroup,
-            @NonNull Button clearLogButton,
-            @NonNull TextView logView) {
-        mCreateKeysButton = createKeysButton;
-        mAuthenticateButton = authenticateButton;
-        mCanAuthenticateButton = canAuthenticateButton;
-        mUseCryptoCheckbox = useCryptoCheckbox;
-        mConfirmationRequiredCheckbox = confirmationRequiredCheckbox;
-        mDeviceCredentialAllowedCheckbox = deviceCredentialAllowedCheckbox;
-        mRadioGroup = radioGroup;
-        mLogView = logView;
+    BiometricPromptDemoController(@NonNull View inflatedRootView) {
+        mCanAuthenticateButton = inflatedRootView.findViewById(R.id.can_authenticate);
+        mAuthenticateButton = inflatedRootView.findViewById(R.id.button_authenticate);
+        mRequireConfirmationCheckbox = inflatedRootView.findViewById(
+                R.id.checkbox_require_confirmation);
+        mAllowDeviceCredentialCheckbox = inflatedRootView.findViewById(
+                R.id.checkbox_allow_device_credential);
+        mBiometricPromptConfigurationRadioGroup = inflatedRootView.findViewById(
+                R.id.radio_group_biometric_prompt_configuration);
 
-        clearLogButton.setOnClickListener((view1) -> logView.setText(""));
+        mLogView = inflatedRootView.findViewById(R.id.log_text);
+
+        Button clearLogButton = inflatedRootView.findViewById(R.id.button_clear_log);
+        clearLogButton.setOnClickListener((view1) -> mLogView.setText(""));
     }
 
     /** Sets up button callbacks and other state for the biometric prompt demo controller. */
@@ -181,23 +138,6 @@ abstract class BiometricPromptDemoController {
         if (savedInstanceState != null) {
             mCounter = savedInstanceState.getInt(KEY_COUNTER);
             mLogView.setText(savedInstanceState.getCharSequence(KEY_LOG));
-        }
-
-        try {
-            mKeyStore = KeyStore.getInstance("AndroidKeyStore");
-        } catch (java.security.KeyStoreException e) {
-            throw new RuntimeException("Failed to get an instance of KeyStore", e);
-        }
-
-        if (!useCrypto()) {
-            mCreateKeysButton.setVisibility(View.GONE);
-        } else {
-            mCreateKeysButton.setVisibility(View.VISIBLE);
-        }
-        mUseCryptoCheckbox.setOnClickListener(this::onCheckboxClicked);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            mCreateKeysButton.setOnClickListener(v -> enableBiometricWithCrypto());
         }
         mAuthenticateButton.setOnClickListener(v -> startAuthentication());
 
@@ -225,8 +165,8 @@ abstract class BiometricPromptDemoController {
 
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            mDeviceCredentialAllowedCheckbox.setEnabled(false);
-            mDeviceCredentialAllowedCheckbox.setChecked(false);
+            mAllowDeviceCredentialCheckbox.setEnabled(false);
+            mAllowDeviceCredentialCheckbox.setChecked(false);
         }
     }
 
@@ -239,18 +179,6 @@ abstract class BiometricPromptDemoController {
     void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putInt(KEY_COUNTER, mCounter);
         outState.putCharSequence(KEY_LOG, mLogView.getText());
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private void enableBiometricWithCrypto() {
-        // Create the key, this is usually done when the user allows Biometric
-        // authentication in the app. This key is invalidated by new biometric enrollment
-        // (done in createKey())
-        try {
-            createKey(DEFAULT_KEY_NAME, true);
-        } catch (RuntimeException e) {
-            log(e.getMessage());
-        }
     }
 
     private void startAuthentication() {
@@ -266,128 +194,26 @@ abstract class BiometricPromptDemoController {
                 .setDescription(
                         "Lorem ipsum dolor sit amet, consecte etur adipisicing elit. "
                                 + mCounter)
-                .setConfirmationRequired(mConfirmationRequiredCheckbox.isChecked());
+                .setConfirmationRequired(mRequireConfirmationCheckbox.isChecked());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            if (mDeviceCredentialAllowedCheckbox.isChecked()) {
-                builder.setDeviceCredentialAllowed(true);
-            } else {
-                builder.setNegativeButtonText("Negative Button " + mCounter);
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
+                && mAllowDeviceCredentialCheckbox.isChecked()) {
+            builder.setDeviceCredentialAllowed(true);
         } else {
             builder.setNegativeButtonText("Negative Button " + mCounter);
         }
         BiometricPrompt.PromptInfo info = builder.build();
         mCounter++;
 
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && useCrypto()) {
-            try {
-                // Initialize the cipher. The cipher will be unlocked by KeyStore after the user has
-                // authenticated via biometrics.
-                Cipher defaultCipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
-                        + KeyProperties.BLOCK_MODE_CBC + "/"
-                        + KeyProperties.ENCRYPTION_PADDING_PKCS7);
-
-                if (initCipher(defaultCipher, DEFAULT_KEY_NAME)) {
-                    BiometricPrompt.CryptoObject crypto =
-                            new BiometricPrompt.CryptoObject(
-                                    defaultCipher);
-
-                    // Show the biometric prompt.
-                    mBiometricPrompt.authenticate(info, crypto);
-                }
-            } catch (RuntimeException e) {
-                log(e.getMessage());
-                return;
-            } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
-                throw new RuntimeException("Failed to get an instance of Cipher", e);
-            }
-        } else {
-            // Show the biometric prompt.
-            mBiometricPrompt.authenticate(info);
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private boolean initCipher(Cipher cipher, String keyName) {
-        try {
-            mKeyStore.load(null);
-            SecretKey key = (SecretKey) mKeyStore.getKey(keyName, null);
-            cipher.init(Cipher.ENCRYPT_MODE, key);
-            return true;
-        } catch (KeyStoreException | CertificateException | UnrecoverableKeyException | IOException
-                | NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException("Failed to init Cipher", e);
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.M)
-    private void createKey(String keyName, boolean invalidatedByBiometricEnrollment) {
-        KeyGenerator keyGenerator;
-
-        try {
-            keyGenerator = KeyGenerator
-                    .getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-            throw new RuntimeException("Failed to get an instance of KeyGenerator", e);
-        }
-
-        // The enrolling flow for fingerprint. This is where you ask the user to set up fingerprint
-        // for your flow. Use of keys is necessary if you need to know if the set of
-        // enrolled fingerprints has changed.
-        try {
-            mKeyStore.load(null);
-
-            // Set the alias of the entry in Android KeyStore where the key will appear
-            // and the constrains (purposes) in the constructor of the Builder
-            KeyGenParameterSpec.Builder builder = new KeyGenParameterSpec.Builder(
-                    keyName,
-                    KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
-                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
-                    // Require the user to authenticate with a fingerprint to authorize every use
-                    // of the key
-                    .setUserAuthenticationRequired(true)
-                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7);
-
-            // This is a workaround to avoid crashes on devices whose API level is < 24
-            // because KeyGenParameterSpec.Builder#setInvalidatedByBiometricEnrollment is only
-            // visible on API level 24+.
-            // Ideally there should be a compat library for KeyGenParameterSpec.Builder but
-            // which isn't available yet.
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                // Invalidate the keys if a new biometric has been enrolled.
-                builder.setInvalidatedByBiometricEnrollment(invalidatedByBiometricEnrollment);
-            }
-            keyGenerator.init(builder.build());
-            keyGenerator.generateKey();
-        } catch (NoSuchAlgorithmException | InvalidAlgorithmParameterException
-                | CertificateException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private boolean useCrypto() {
-        return mUseCryptoCheckbox.isChecked();
-    }
-
-    /**
-     * Callback when the checkbox is clicked.
-     */
-    private void onCheckboxClicked(View view) {
-        final boolean checked = ((CheckBox) view).isChecked();
-
-        switch (view.getId()) {
-            case R.id.checkbox_use_crypto:
-                mCreateKeysButton.setVisibility(checked ? View.VISIBLE : View.GONE);
-                break;
-        }
+        // Show the biometric prompt.
+        mBiometricPrompt.authenticate(info);
     }
 
     /**
      * @return The currently selected configuration.
      */
     private int getMode() {
-        int id = mRadioGroup.getCheckedRadioButtonId();
+        int id = mBiometricPromptConfigurationRadioGroup.getCheckedRadioButtonId();
         switch (id) {
             case R.id.radio_persist_across_configuration_changes:
                 return MODE_PERSIST_ACROSS_CONFIGURATION_CHANGES;
