@@ -17,6 +17,7 @@ package androidx.ui.core
 
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
 import android.view.ViewGroup
 import androidx.annotation.CheckResult
 import androidx.ui.core.input.FocusManager
@@ -33,6 +34,7 @@ import androidx.compose.compositionReference
 import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.onPreCommit
+import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.autofill.Autofill
 import androidx.ui.autofill.AutofillTree
@@ -150,6 +152,17 @@ private fun WrapWithAmbients(
     // TODO(nona): Tie the focus manger lifecycle to Window, otherwise FocusManager won't work
     //             with nested AndroidCraneView case
     val focusManager = +memo { FocusManager() }
+    val configuration = +state { context.applicationContext.resources.configuration }
+    +memo {
+        craneView.configurationChangeObserver = {
+            // onConfigurationChange is the correct hook to update configuration, however it is
+            // possible that the configuration object itself may come from a wrapped
+            // context / themed activity, and may not actually reflect the system. So instead we
+            // use this hook to grab the applicationContext's configuration, which accurately
+            // reflects the state of the application / system.
+            configuration.value = context.applicationContext.resources.configuration
+        }
+    }
     ContextAmbient.Provider(value = context) {
         CoroutineContextAmbient.Provider(value = coroutineContext) {
             DensityAmbient.Provider(value = Density(context)) {
@@ -158,7 +171,9 @@ private fun WrapWithAmbients(
                         FontLoaderAmbient.Provider(value = AndroidFontResourceLoader(context)) {
                             AutofillTreeAmbient.Provider(value = craneView.autofillTree) {
                                 AutofillAmbient.Provider(value = craneView.autofill) {
-                                    content()
+                                    ConfigurationAmbient.Provider(value = configuration.value) {
+                                        content()
+                                    }
                                 }
                             }
                         }
@@ -174,6 +189,8 @@ val ContextAmbient = Ambient.of<Context>()
 val DensityAmbient = Ambient.of<Density>()
 
 val CoroutineContextAmbient = Ambient.of<CoroutineContext>()
+
+val ConfigurationAmbient = Ambient.of<Configuration>()
 
 val AutofillAmbient = Ambient.of<Autofill?>()
 

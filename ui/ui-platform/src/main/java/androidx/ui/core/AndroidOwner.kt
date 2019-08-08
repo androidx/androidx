@@ -17,6 +17,7 @@ package androidx.ui.core
 
 import android.annotation.TargetApi
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.RenderNode
 import android.os.Build
 import android.os.Looper
@@ -96,6 +97,11 @@ class AndroidCraneView constructor(context: Context)
 
     // Used for tracking which nodes a frame read is applied to
     internal var currentNode: ComponentNode? = null
+
+    // Used for updating the ConfigurationAmbient when configuration changes - consume the
+    // configuration ambient instead of changing this observer if you are writing a component that
+    // adapts to configuration changes.
+    var configurationChangeObserver: () -> Unit = {}
 
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
     val autofill: Autofill? get() = _autofill
@@ -545,6 +551,11 @@ class AndroidCraneView constructor(context: Context)
         val positionArray = intArrayOf(0, 0)
         getLocationInWindow(positionArray)
         return PxPosition(positionArray[0].ipx, positionArray[1].ipx)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        configurationChangeObserver()
     }
 
     private fun callMeasure(constraints: Constraints) {

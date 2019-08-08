@@ -17,6 +17,7 @@ package androidx.ui.core {
     method public androidx.ui.autofill.Autofill? getAutofill();
     method public androidx.ui.autofill.AutofillTree getAutofillTree();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getCommitUnsubscribe();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getConfigurationChangeObserver();
     method public androidx.ui.core.Constraints getConstraints();
     method public long getMeasureIteration();
     method public androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? getRef();
@@ -34,11 +35,13 @@ package androidx.ui.core {
     method public void onStartMeasure(androidx.ui.core.LayoutNode layoutNode);
     method public void sendEvent(android.view.MotionEvent event);
     method public void setCommitUnsubscribe(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
+    method public void setConfigurationChangeObserver(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setRef(androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? value);
     property public final androidx.ui.autofill.Autofill? autofill;
     property public final androidx.ui.autofill.AutofillTree autofillTree;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? commitUnsubscribe;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> configurationChangeObserver;
     property public final androidx.ui.core.Constraints constraints;
     property public long measureIteration;
     property public final androidx.ui.core.Ref<androidx.ui.core.AndroidCraneView>? ref;
