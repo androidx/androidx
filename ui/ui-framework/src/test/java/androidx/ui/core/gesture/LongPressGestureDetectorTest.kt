@@ -380,7 +380,7 @@ class LongPressGestureDetectorTest {
     }
 
     @Test
-    fun pointerInputHandler_1DownUOverTimeUp_upConsumedOnInitialDown() {
+    fun pointerInputHandler_1DownOverTimeUp_upConsumedOnInitialDown() {
 
         // Arrange
 
@@ -400,5 +400,27 @@ class LongPressGestureDetectorTest {
         // Assert
 
         assertThat(result[0].consumed.downChange).isTrue()
+    }
+
+    @Test
+    fun pointerInputHandler_1DownOverTimeMoveConsumedUp_upNotConsumed() {
+
+        // Arrange
+
+        var pointer = down(0, 0L.millisecondsToTimestamp())
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+        testContext.advanceTimeBy(50, TimeUnit.MILLISECONDS)
+        pointer = pointer.moveTo(50L.millisecondsToTimestamp(), 5f).consume(1f)
+        mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+
+        // Act
+
+        testContext.advanceTimeBy(51, TimeUnit.MILLISECONDS)
+        pointer = pointer.up(100L.millisecondsToTimestamp())
+        val result = mRecognizer.pointerInputHandler.invokeOverAllPasses(pointer)
+
+        // Assert
+
+        assertThat(result[0].consumed.downChange).isFalse()
     }
 }

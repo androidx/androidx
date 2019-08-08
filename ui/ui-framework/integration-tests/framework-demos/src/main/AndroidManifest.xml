@@ -86,6 +86,14 @@
                 <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
+        <activity android:name=".gestures.LongPressDragGestureDetectorDemo"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Gestures/Simple - Movement/LongPressDragGestureDetectorDemo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
         <activity android:name=".gestures.RawDragGestureDetectorDemo"
                   android:configChanges="orientation|screenSize"
                   android:label="Gestures/Simple - Movement/RawDragGestureDetector">
@@ -96,7 +104,7 @@
         </activity>
         <activity android:name=".gestures.TouchSlopExceededGestureDetectorDemo"
                   android:configChanges="orientation|screenSize"
-                  android:label="Gestures/Simple - Movement/TouchSlopExceededGestureFilter">
+                  android:label="Gestures/Simple - Movement/TouchSlopExceededGestureDetector">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="androidx.ui.demos.SAMPLE_CODE"/>
