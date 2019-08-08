@@ -52,14 +52,25 @@ import java.util.Arrays;
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplBase")
 @RestrictTo(LIBRARY)
 public class AudioAttributesImplBase implements AudioAttributesImpl {
+    /** @hide */
+    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
     @ParcelField(1)
-    int mUsage = USAGE_UNKNOWN;
+    public int mUsage = USAGE_UNKNOWN;
+
+    /** @hide */
+    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
     @ParcelField(2)
-    int mContentType = CONTENT_TYPE_UNKNOWN;
+    public int mContentType = CONTENT_TYPE_UNKNOWN;
+
+    /** @hide */
+    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
     @ParcelField(3)
-    int mFlags = 0x0;
+    public int mFlags = 0x0;
+
+    /** @hide */
+    @RestrictTo(LIBRARY) // Dejetified Parcelizer may not access the field unless it's public
     @ParcelField(4)
-    int mLegacyStream = INVALID_STREAM_TYPE;
+    public int mLegacyStream = INVALID_STREAM_TYPE;
 
     /**
      * Used for VersionedParcelable
