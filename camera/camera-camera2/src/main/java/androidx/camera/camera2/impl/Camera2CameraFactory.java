@@ -32,6 +32,7 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.LensFacingCameraIdFilter;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -47,8 +48,11 @@ import java.util.Set;
 public final class Camera2CameraFactory implements CameraFactory {
     private static final String TAG = "Camera2CameraFactory";
 
+    private static final int DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS = 1;
+
     private static final HandlerThread sHandlerThread = new HandlerThread(CameraXThreads.TAG);
     private static final Handler sHandler;
+    private final CameraAvailabilityRegistry mAvailabilityRegistry;
 
     static {
         sHandlerThread.start();
@@ -57,16 +61,24 @@ public final class Camera2CameraFactory implements CameraFactory {
 
     private final CameraManager mCameraManager;
 
-    public Camera2CameraFactory(Context context) {
+    public Camera2CameraFactory(@NonNull Context context) {
         mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        mAvailabilityRegistry = new CameraAvailabilityRegistry(
+                DEFAULT_ALLOWED_CONCURRENT_OPEN_CAMERAS,
+                CameraXExecutors.newHandlerExecutor(sHandler));
     }
 
     @Override
-    public BaseCamera getCamera(String cameraId) {
-        return new Camera(mCameraManager, cameraId, sHandler);
+    @NonNull
+    public BaseCamera getCamera(@NonNull String cameraId) {
+        Camera camera = new Camera(mCameraManager, cameraId,
+                mAvailabilityRegistry.getAvailableCameraCount(), sHandler);
+        mAvailabilityRegistry.registerCamera(camera);
+        return camera;
     }
 
     @Override
+    @NonNull
     public Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException {
         List<String> camerasList = null;
         try {

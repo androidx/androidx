@@ -30,8 +30,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Size;
 
-import androidx.annotation.NonNull;
-import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraDeviceConfig;
 import androidx.camera.core.CameraFactory;
@@ -58,8 +56,7 @@ import org.mockito.Mockito;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutionException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -72,9 +69,6 @@ public final class CameraTest {
     TestUseCase mFakeUseCase;
     OnImageAvailableListener mMockOnImageAvailableListener;
     String mCameraId;
-
-    private CountDownLatch mLatchForDeviceClose;
-    private CameraDevice.StateCallback mDeviceStateCallback;
 
     private static String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
         try {
@@ -95,26 +89,6 @@ public final class CameraTest {
         assumeTrue(CameraUtil.deviceHasCamera());
         mMockOnImageAvailableListener = Mockito.mock(ImageReader.OnImageAvailableListener.class);
 
-        mLatchForDeviceClose = new CountDownLatch(1);
-        mDeviceStateCallback = new CameraDevice.StateCallback() {
-            @Override
-            public void onOpened(@NonNull CameraDevice camera) {
-            }
-
-            @Override
-            public void onClosed(@NonNull CameraDevice camera) {
-                mLatchForDeviceClose.countDown();
-            }
-
-            @Override
-            public void onDisconnected(@NonNull CameraDevice camera) {
-            }
-
-            @Override
-            public void onError(@NonNull CameraDevice camera, int error) {
-            }
-        };
-
         mCameraId = getCameraIdForLensFacingUnchecked(DEFAULT_LENS_FACING);
         mCamera = sCameraFactory.getCamera(mCameraId);
 
@@ -122,18 +96,18 @@ public final class CameraTest {
                 new FakeUseCaseConfig.Builder()
                         .setTargetName("UseCase")
                         .setLensFacing(DEFAULT_LENS_FACING);
-        new Camera2Config.Extender(configBuilder).setDeviceStateCallback(mDeviceStateCallback);
         mFakeUseCase = new TestUseCase(configBuilder.build(), mMockOnImageAvailableListener);
     }
 
     @After
-    public void teardown() throws InterruptedException {
+    public void teardown() throws InterruptedException, ExecutionException {
         // Need to release the camera no matter what is done, otherwise the CameraDevice is not
         // closed.
         // When the CameraDevice is not closed, then it can cause problems with interferes with
         // other test cases.
         if (mCamera != null) {
-            mCamera.release();
+            // Wait for camera release to complete
+            mCamera.release().get();
             mCamera = null;
         }
 
@@ -141,10 +115,6 @@ public final class CameraTest {
         if (mFakeUseCase != null) {
             mFakeUseCase.close();
             mFakeUseCase = null;
-        }
-
-        if (mLatchForDeviceClose != null) {
-            mLatchForDeviceClose.await(2, TimeUnit.SECONDS);
         }
     }
 
@@ -206,8 +176,6 @@ public final class CameraTest {
 
     @Test
     public void releaseUnopenedCamera() {
-        // bypass camera close checking
-        mLatchForDeviceClose = null;
         // Checks that if a camera has been released then calling open() will no longer open it.
         mCamera.release();
         mCamera.open();
@@ -220,8 +188,6 @@ public final class CameraTest {
 
     @Test
     public void releasedOpenedCamera() {
-        // bypass camera close checking
-        mLatchForDeviceClose = null;
         mCamera.open();
         mCamera.release();
 

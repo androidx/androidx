@@ -16,8 +16,11 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
 
@@ -29,6 +32,52 @@ import java.util.Collection;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface BaseCamera extends UseCase.StateChangeListener,
         CameraControlInternal.ControlUpdateListener {
+    /**
+     * The state of a camera within the process.
+     *
+     * <p>The camera state is used to communicate events like when the camera is opening or
+     * closing and can be used to determine when it is safe to interact with the camera.
+     */
+    enum State {
+        /**
+         * Camera is waiting for resources to become available before opening.
+         *
+         * <p>The camera will automatically transition to an {@link #OPENING} state once resources
+         * have become available. Resources are typically made available by other cameras closing.
+         */
+        PENDING_OPEN,
+        /**
+         * Camera is in the process of opening.
+         *
+         * <p>This is a transitive state.
+         */
+        OPENING,
+        /**
+         * Camera is open and producing (or ready to produce) image data.
+         */
+        OPEN,
+        /**
+         * Camera is in the process of closing.
+         *
+         * <p>This is a transitive state.
+         */
+        CLOSING,
+        /**
+         * Camera has been closed and should not be producing data.
+         */
+        CLOSED,
+        /**
+         * Camera is in the process of being released and cannot be reopened.
+         *
+         * <p>This is a transitive state.
+         */
+        RELEASING,
+        /**
+         * Camera has been closed and has released all held resources.
+         */
+        RELEASED
+    }
+
     /**
      * Open the camera asynchronously.
      *
@@ -51,23 +100,32 @@ public interface BaseCamera extends UseCase.StateChangeListener,
      * <p>Once the camera is released it is permanently closed. A new instance must be created to
      * access the camera.
      */
-    void release();
+    @NonNull
+    ListenableFuture<Void> release();
+
+    /**
+     * Retrieves an observable stream of the current state of the camera.
+     */
+    @NonNull
+    Observable<State> getCameraState();
 
     /**
      * Sets the use case to be in the state where the capture session will be configured to handle
      * capture requests from the use cases.
      */
-    void addOnlineUseCase(Collection<UseCase> useCases);
+    void addOnlineUseCase(@NonNull Collection<UseCase> useCases);
 
     /**
      * Removes the use case to be in the state where the capture session will be configured to
      * handle capture requests from the use cases.
      */
-    void removeOnlineUseCase(Collection<UseCase> useCases);
+    void removeOnlineUseCase(@NonNull Collection<UseCase> useCases);
 
     /** Returns the global CameraControlInternal attached to this camera. */
+    @NonNull
     CameraControlInternal getCameraControlInternal();
 
     /** Returns an interface to retrieve characteristics of the camera. */
+    @NonNull
     CameraInfo getCameraInfo() throws CameraInfoUnavailableException;
 }

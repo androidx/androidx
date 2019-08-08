@@ -28,9 +28,14 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CaptureConfig;
 import androidx.camera.core.DeferrableSurface;
 import androidx.camera.core.DeferrableSurfaces;
+import androidx.camera.core.Observable;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseAttachState;
+import androidx.camera.core.impl.LiveDataObservable;
+import androidx.camera.core.impl.utils.futures.Futures;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +48,8 @@ import java.util.List;
 public class FakeCamera implements BaseCamera {
     private static final String TAG = "FakeCamera";
     private static final String DEFAULT_CAMERA_ID = "0";
+    private final LiveDataObservable<BaseCamera.State> mObservableState =
+            new LiveDataObservable<>();
     private final CameraControlInternal mCameraControlInternal;
     private final CameraInfo mCameraInfo;
     private String mCameraId;
@@ -60,22 +67,24 @@ public class FakeCamera implements BaseCamera {
         this(DEFAULT_CAMERA_ID, new FakeCameraInfo(), /*cameraControl=*/null);
     }
 
-    public FakeCamera(String cameraId) {
+    public FakeCamera(@NonNull String cameraId) {
         this(cameraId, new FakeCameraInfo(), /*cameraControl=*/null);
     }
 
-    public FakeCamera(CameraInfo cameraInfo, @Nullable CameraControlInternal cameraControl) {
+    public FakeCamera(@NonNull CameraInfo cameraInfo,
+            @Nullable CameraControlInternal cameraControl) {
         this(DEFAULT_CAMERA_ID, cameraInfo, cameraControl);
     }
 
-    public FakeCamera(String cameraId,
-            CameraInfo cameraInfo,
+    public FakeCamera(@NonNull String cameraId,
+            @NonNull CameraInfo cameraInfo,
             @Nullable CameraControlInternal cameraControl) {
         mCameraInfo = cameraInfo;
         mCameraId = cameraId;
         mUseCaseAttachState = new UseCaseAttachState(cameraId);
         mCameraControlInternal = cameraControl == null ? new FakeCameraControl(this)
                 : cameraControl;
+        mObservableState.postValue(BaseCamera.State.CLOSED);
     }
 
     @Override
@@ -83,6 +92,7 @@ public class FakeCamera implements BaseCamera {
         checkNotReleased();
         if (mState == State.INITIALIZED) {
             mState = State.OPENED;
+            mObservableState.postValue(BaseCamera.State.OPEN);
         }
     }
 
@@ -93,21 +103,31 @@ public class FakeCamera implements BaseCamera {
             mSessionConfig = null;
             reconfigure();
             mState = State.INITIALIZED;
+            mObservableState.postValue(BaseCamera.State.CLOSED);
         }
     }
 
     @Override
-    public void release() {
+    @NonNull
+    public ListenableFuture<Void> release() {
         checkNotReleased();
         if (mState == State.OPENED) {
             close();
         }
 
         mState = State.RELEASED;
+        mObservableState.postValue(BaseCamera.State.RELEASED);
+        return Futures.immediateFuture(null);
+    }
+
+    @NonNull
+    @Override
+    public Observable<BaseCamera.State> getCameraState() {
+        return mObservableState;
     }
 
     @Override
-    public void onUseCaseActive(final UseCase useCase) {
+    public void onUseCaseActive(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
 
         mUseCaseAttachState.setUseCaseActive(useCase);
@@ -116,7 +136,7 @@ public class FakeCamera implements BaseCamera {
 
     /** Removes the use case from a state of issuing capture requests. */
     @Override
-    public void onUseCaseInactive(final UseCase useCase) {
+    public void onUseCaseInactive(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " INACTIVE for camera " + mCameraId);
 
         mUseCaseAttachState.setUseCaseInactive(useCase);
@@ -125,7 +145,7 @@ public class FakeCamera implements BaseCamera {
 
     /** Updates the capture requests based on the latest settings. */
     @Override
-    public void onUseCaseUpdated(final UseCase useCase) {
+    public void onUseCaseUpdated(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
 
         mUseCaseAttachState.updateUseCase(useCase);
@@ -133,7 +153,7 @@ public class FakeCamera implements BaseCamera {
     }
 
     @Override
-    public void onUseCaseReset(@NonNull final UseCase useCase) {
+    public void onUseCaseReset(@NonNull UseCase useCase) {
         Log.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
 
         mUseCaseAttachState.updateUseCase(useCase);
@@ -146,7 +166,7 @@ public class FakeCamera implements BaseCamera {
      * capture requests from the use case.
      */
     @Override
-    public void addOnlineUseCase(final Collection<UseCase> useCases) {
+    public void addOnlineUseCase(@NonNull final Collection<UseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
@@ -166,7 +186,7 @@ public class FakeCamera implements BaseCamera {
      * handle capture requests from the use case.
      */
     @Override
-    public void removeOnlineUseCase(final Collection<UseCase> useCases) {
+    public void removeOnlineUseCase(@NonNull final Collection<UseCase> useCases) {
         if (useCases.isEmpty()) {
             return;
         }
@@ -187,11 +207,13 @@ public class FakeCamera implements BaseCamera {
 
     // Returns fixed CameraControlInternal instance in order to verify the instance is correctly
     // attached.
+    @NonNull
     @Override
     public CameraControlInternal getCameraControlInternal() {
         return mCameraControlInternal;
     }
 
+    @NonNull
     @Override
     public CameraInfo getCameraInfo() {
         return mCameraInfo;
@@ -238,7 +260,9 @@ public class FakeCamera implements BaseCamera {
         if (validatingBuilder.isValid()) {
             // Apply CameraControlInternal's SessionConfig to let CameraControlInternal be able
             // to control Repeating Request and process results.
-            validatingBuilder.add(mCameraControlSessionConfig);
+            if (mCameraControlSessionConfig != null) {
+                validatingBuilder.add(mCameraControlSessionConfig);
+            }
 
             mSessionConfig = validatingBuilder.build();
         }
