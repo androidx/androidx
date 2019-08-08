@@ -450,13 +450,13 @@ public class SliceViewTest {
         Slice s = lb.build();
 
         mSliceView.setSlice(s);
-        mSliceView.showTitleItems(true);
+        mSliceView.setShowTitleItems(true);
 
         RowContent row = (RowContent) mSliceView.mListContent.getRowItems().get(0);
         assertTrue(row.hasTitleItems());
         assertNotNull(row.getStartItem());
 
-        mSliceView.showTitleItems(false);
+        mSliceView.setShowTitleItems(false);
 
         assertFalse(row.hasTitleItems());
         assertNull(row.getStartItem());
@@ -473,7 +473,7 @@ public class SliceViewTest {
         Slice s = lb.build();
 
         mSliceView.setSlice(s);
-        mSliceView.showHeaderDivider(true);
+        mSliceView.setShowHeaderDivider(true);
 
         assertFalse(mSliceView.mListContent.getHeader().hasBottomDivider());
     }
@@ -493,7 +493,7 @@ public class SliceViewTest {
         Slice s = lb.build();
 
         mSliceView.setSlice(s);
-        mSliceView.showHeaderDivider(true);
+        mSliceView.setShowHeaderDivider(true);
 
         assertTrue(mSliceView.mListContent.getHeader().hasBottomDivider());
     }
@@ -525,7 +525,7 @@ public class SliceViewTest {
         Slice s = lb.build();
 
         mSliceView.setSlice(s);
-        mSliceView.showActionDividers(true);
+        mSliceView.setShowActionDividers(true);
 
         RowContent row = (RowContent) mSliceView.mListContent.getRowItems().get(0);
         assertTrue(row.hasActionDivider());
