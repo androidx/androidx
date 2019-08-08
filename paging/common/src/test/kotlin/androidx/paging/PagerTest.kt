@@ -121,7 +121,6 @@ class PagerTest {
         val initialData = data.subList(start, end)
         val initialResult = LoadResult<Int, String>(
             data = initialData,
-            offset = 0,
             itemsBefore = start,
             itemsAfter = data.size - initialData.size - start
         )

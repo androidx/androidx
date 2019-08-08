@@ -56,7 +56,7 @@ internal class Pager<K : Any, V : Any>(
         this.adjacentProvider.onPageResultResolution(LoadType.REFRESH, result)
         totalCount = when (result.counted) {
             // only one of leadingNulls / offset may be used
-            true -> result.itemsBefore + result.offset + result.data.size + result.itemsAfter
+            true -> result.itemsBefore + result.data.size + result.itemsAfter
             else -> COUNT_UNDEFINED
         }
     }
@@ -258,7 +258,7 @@ internal class Pager<K : Any, V : Any>(
                     trailingUnloadedCount -= result.data.size
                 }
             } else {
-                firstLoadedItemIndex = result.itemsBefore + result.offset
+                firstLoadedItemIndex = result.itemsBefore
                 lastLoadedItemIndex = firstLoadedItemIndex + result.data.size - 1
                 firstLoadedItem = result.data[0]
                 lastLoadedItem = result.data.last()
