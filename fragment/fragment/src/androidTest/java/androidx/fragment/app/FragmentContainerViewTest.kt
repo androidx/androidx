@@ -26,6 +26,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowInsets
+import android.view.animation.Animation
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -243,13 +244,18 @@ class FragmentContainerViewTest {
 
     @Test
     fun removeAllViewsInLayout() {
+        val removingView1 = ChildView(context)
+        val removingView2 = ChildView(context)
+
         val view = setupRemoveTestsView(
-            FragmentContainerView(context),
-            FragmentContainerView(context)
+            removingView1,
+            removingView2
         )
 
         view.removeAllViewsInLayout()
 
+        assertThat(removingView1.getAnimationCount).isEqualTo(2)
+        assertThat(removingView2.getAnimationCount).isEqualTo(2)
         assertThat(view.childCount).isEqualTo(0)
     }
 
@@ -268,8 +274,8 @@ class FragmentContainerViewTest {
     }
 
     private fun setupRemoveTestsView(
-        childView1: FragmentContainerView,
-        childView2: FragmentContainerView
+        childView1: View,
+        childView2: View
     ): FragmentContainerView {
         val view = FragmentContainerView(context)
         val fragment1 = Fragment()
@@ -330,9 +336,16 @@ class FragmentContainerViewTest {
     }
 
     class ChildView(context: Context?) : View(context) {
+        var getAnimationCount = 0
+
         override fun onDraw(canvas: Canvas?) {
             super.onDraw(canvas)
             setDrawnFirstView(this)
+        }
+
+        override fun getAnimation(): Animation? {
+            getAnimationCount++
+            return super.getAnimation()
         }
     }
 
