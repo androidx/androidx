@@ -19,8 +19,8 @@ package androidx.ui.foundation
 import android.app.Dialog
 import android.content.Context
 import android.view.MotionEvent
+import android.view.Window
 import android.widget.FrameLayout
-import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.disposeComposition
@@ -69,6 +69,8 @@ fun Dialog(onCloseRequest: () -> Unit, children: @Composable() () -> Unit) {
 private class DialogWrapper(context: Context, val onCloseRequest: () -> Unit) : Dialog(context) {
     val frameLayout = FrameLayout(context)
     init {
+        window?.requestFeature(Window.FEATURE_NO_TITLE)
+        window?.setBackgroundDrawableResource(android.R.color.transparent)
         setContentView(frameLayout)
     }
 
