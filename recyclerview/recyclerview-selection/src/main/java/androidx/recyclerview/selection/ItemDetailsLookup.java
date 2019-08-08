@@ -45,9 +45,9 @@ import androidx.recyclerview.widget.RecyclerView;
  *   }
  *
  *   public ItemDetails<Uri> getItemDetails(MotionEvent e) {
- *       View view = mRecView.findChildViewUnder(e.getX(), e.getY());
+ *       View view = mRecyclerView.findChildViewUnder(e.getX(), e.getY());
  *       if (view != null) {
- *           ViewHolder holder = mRecView.getChildViewHolder(view);
+ *           ViewHolder holder = mRecyclerView.getChildViewHolder(view);
  *           if (holder instanceof MyHolder) {
  *               return ((MyHolder) holder).getItemDetails();
  *           }
