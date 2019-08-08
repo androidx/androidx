@@ -240,7 +240,7 @@ public class FragmentContainerView extends FrameLayout {
 
     @Override
     public void removeAllViewsInLayout() {
-        for (int i = getChildCount() - 1; i > 0; i--) {
+        for (int i = getChildCount() - 1; i >= 0; i--) {
             final View view = getChildAt(i);
             addDisappearingFragmentView(view);
         }
