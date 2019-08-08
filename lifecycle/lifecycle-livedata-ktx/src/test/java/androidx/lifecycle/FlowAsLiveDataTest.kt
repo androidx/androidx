@@ -38,7 +38,7 @@ import kotlin.coroutines.coroutineContext
 
 @ExperimentalCoroutinesApi
 @RunWith(JUnit4::class)
-class FlowLiveDataTest {
+class FlowAsLiveDataTest {
     @get:Rule
     val scopes = ScopesRule()
     private val mainScope = scopes.mainScope
