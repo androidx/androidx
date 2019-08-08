@@ -28,9 +28,12 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.browser.customtabs.TrustedWebUtils;
+import androidx.browser.trusted.sharing.ShareData;
+import androidx.browser.trusted.sharing.ShareTarget;
 import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -60,11 +63,20 @@ public class TrustedWebActivityIntentBuilder {
     public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS =
             "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
 
+    /** Extra for the share target, see {@link #setShareParams}. */
+    public static final String EXTRA_SHARE_TARGET = "androidx.browser.trusted.extra.SHARE_TARGET";
+
+    /** Extra for the share data, see {@link #setShareParams}. */
+    public static final String EXTRA_SHARE_DATA = "androidx.browser.trusted.extra.SHARE_DATA";
+
     @NonNull private final Uri mUri;
     @NonNull private final CustomTabsIntent.Builder mIntentBuilder = new CustomTabsIntent.Builder();
 
     @Nullable private List<String> mAdditionalTrustedOrigins;
     @Nullable private Bundle mSplashScreenParams;
+
+    @Nullable private ShareData mShareData;
+    @Nullable private ShareTarget mShareTarget;
 
     /**
      * Creates a Builder given the required parameters.
@@ -165,6 +177,21 @@ public class TrustedWebActivityIntentBuilder {
     }
 
     /**
+     * Sets the parameters for delivering data to a Web Share Target via a Trusted Web Activity.
+     *
+     * @param shareTarget A {@link ShareTarget} object describing the Web Share Target.
+     * @param shareData A {@link ShareData} object containing the data to be sent to the Web Share
+     * Target.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setShareParams(@NonNull ShareTarget shareTarget,
+            @NonNull ShareData shareData) {
+        mShareTarget = shareTarget;
+        mShareData = shareData;
+        return this;
+    }
+
+    /**
      * Builds an instance of {@link TrustedWebActivityIntent].
      *
      * @param session The {@link CustomTabsSession} to use for launching a Trusted Web Activity.
@@ -187,7 +214,15 @@ public class TrustedWebActivityIntentBuilder {
         if (mSplashScreenParams != null) {
             intent.putExtra(EXTRA_SPLASH_SCREEN_PARAMS, mSplashScreenParams);
         }
-        return new TrustedWebActivityIntent(intent);
+        List<Uri> sharedUris = Collections.emptyList();
+        if (mShareTarget != null && mShareData != null) {
+            intent.putExtra(EXTRA_SHARE_TARGET, mShareTarget.toBundle());
+            intent.putExtra(EXTRA_SHARE_DATA, mShareData.toBundle());
+            if (mShareData.uris != null) {
+                sharedUris = mShareData.uris;
+            }
+        }
+        return new TrustedWebActivityIntent(intent, sharedUris);
     }
 
     /**

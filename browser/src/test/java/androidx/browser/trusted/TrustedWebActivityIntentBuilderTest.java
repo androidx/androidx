@@ -31,6 +31,8 @@ import androidx.browser.customtabs.CustomTabColorSchemeParams;
 import androidx.browser.customtabs.CustomTabsIntent;
 import androidx.browser.customtabs.CustomTabsSession;
 import androidx.browser.customtabs.TestUtil;
+import androidx.browser.trusted.sharing.ShareData;
+import androidx.browser.trusted.sharing.ShareTarget;
 import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
 import androidx.test.filters.SmallTest;
 
@@ -63,11 +65,14 @@ public class TrustedWebActivityIntentBuilderTest {
 
         Bundle splashScreenParams = new Bundle();
         int splashBgColor = 0x112233;
-        splashScreenParams.putInt(
-                SplashScreenParamKey.BACKGROUND_COLOR, splashBgColor);
+        splashScreenParams.putInt(SplashScreenParamKey.BACKGROUND_COLOR, splashBgColor);
 
         CustomTabColorSchemeParams colorSchemeParams = new CustomTabColorSchemeParams.Builder()
                     .setToolbarColor(0xff112233).build();
+
+        ShareData shareData = new ShareData("share_title", "share_text", null);
+        ShareTarget shareTarget = new ShareTarget("action", null, null,
+                new ShareTarget.Params(null, null, null));
 
         CustomTabsSession session = TestUtil.makeMockSession();
 
@@ -78,6 +83,7 @@ public class TrustedWebActivityIntentBuilderTest {
                         .setColorSchemeParams(COLOR_SCHEME_DARK, colorSchemeParams)
                         .setAdditionalTrustedOrigins(additionalTrustedOrigins)
                         .setSplashScreenParams(splashScreenParams)
+                        .setShareParams(shareTarget, shareData)
                         .build(session)
                         .getIntent();
 
@@ -100,5 +106,15 @@ public class TrustedWebActivityIntentBuilderTest {
         // No need to test every splash screen param: they are sent in as-is in provided Bundle.
         assertEquals(splashBgColor, splashScreenParamsReceived.getInt(
                 SplashScreenParamKey.BACKGROUND_COLOR));
+
+        ShareData shareDataFromIntent = ShareData.fromBundle(intent.getBundleExtra(
+                TrustedWebActivityIntentBuilder.EXTRA_SHARE_DATA));
+        // Bundling-unbundling of the ShareData and ShareTarget is tested in more detail elsewhere.
+        // Here we only check that the Builder correctly added the extras.
+        assertEquals(shareData.title, shareDataFromIntent.title);
+
+        ShareTarget shareTargetFromIntent = ShareTarget.fromBundle(intent.getBundleExtra(
+                TrustedWebActivityIntentBuilder.EXTRA_SHARE_TARGET));
+        assertEquals(shareTarget.action, shareTargetFromIntent.action);
     }
 }
