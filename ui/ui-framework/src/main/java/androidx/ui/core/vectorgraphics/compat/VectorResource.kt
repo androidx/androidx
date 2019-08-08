@@ -20,8 +20,10 @@ import androidx.compose.composer
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.util.Xml
+import androidx.annotation.CheckResult
 import androidx.compose.Composable
 import androidx.compose.ambient
+import androidx.compose.effectOf
 import androidx.compose.memo
 import androidx.compose.unaryPlus
 import androidx.ui.core.ContextAmbient
@@ -29,21 +31,34 @@ import androidx.ui.core.vectorgraphics.DrawVector
 import androidx.ui.core.vectorgraphics.VectorAsset
 import org.xmlpull.v1.XmlPullParserException
 
+/**
+ * Convenience method to simultaneously load and draw a vector resource
+ */
 @Composable
-fun VectorResource(resId: Int) {
+fun DrawVectorResource(resId: Int) = DrawVector(vectorImage = +vectorResource(resId))
+
+/**
+ * Effect used to load a [VectorAsset] from an Android resource id
+ * This is useful for querying top level properties of the [VectorAsset]
+ * such as it's intrinsic width and height to be able to size components
+ * based off of it's dimensions appropriately
+ */
+@CheckResult(suggest = "+")
+fun vectorResource(resId: Int) = effectOf<VectorAsset> {
     val context = +ambient(ContextAmbient)
     val res = context.resources
     val theme = context.theme
-    val vectorImage = +memo(resId) {
+    +memo(resId) {
         loadVectorResource(theme, res, resId)
     }
-    DrawVector(vectorImage = vectorImage)
 }
 
 @Throws(XmlPullParserException::class)
 @SuppressWarnings("RestrictedApi")
-fun loadVectorResource(theme: Resources.Theme? = null, res: Resources, resId: Int): VectorAsset {
-
+fun loadVectorResource(
+    theme: Resources.Theme? = null,
+    res: Resources, resId: Int
+): VectorAsset {
     @SuppressLint("ResourceType") val parser = res.getXml(resId)
     val attrs = Xml.asAttributeSet(parser)
     val builder = parser.seekToStartTag().createVectorImageBuilder(res, theme, attrs)

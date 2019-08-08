@@ -429,8 +429,9 @@ package androidx.ui.core.vectorgraphics.compat {
 
   public final class VectorResourceKt {
     ctor public VectorResourceKt();
-    method public static void VectorResource(int resId);
+    method public static void DrawVectorResource(int resId);
     method public static androidx.ui.core.vectorgraphics.VectorAsset loadVectorResource(android.content.res.Resources.Theme? theme = null, android.content.res.Resources res, int resId) throws org.xmlpull.v1.XmlPullParserException;
+    method @CheckResult(suggest="+") public static androidx.compose.Effect<androidx.ui.core.vectorgraphics.VectorAsset> vectorResource(int resId);
   }
 
   public final class XmlVectorParserKt {

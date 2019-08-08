@@ -22,9 +22,12 @@ import android.os.Bundle
 import androidx.compose.Children
 import androidx.compose.Composable
 import androidx.compose.composer
+import androidx.compose.unaryPlus
+import androidx.ui.core.Dp
 import androidx.ui.core.IntPx
 import androidx.ui.core.Layout
 import androidx.ui.core.Px
+import androidx.ui.core.WithDensity
 import androidx.ui.core.dp
 import androidx.ui.core.px
 import androidx.ui.core.round
@@ -34,7 +37,10 @@ import androidx.ui.core.vectorgraphics.Path
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vectorgraphics.HorizontalGradient
 import androidx.ui.graphics.vectorgraphics.PathBuilder
-import androidx.ui.graphics.vectorgraphics.PathDelegate
+import androidx.ui.core.setContent
+import androidx.ui.core.vectorgraphics.DrawVector
+import androidx.ui.core.vectorgraphics.Group
+import androidx.ui.core.vectorgraphics.Path
 import androidx.ui.graphics.vectorgraphics.RadialGradient
 import androidx.ui.graphics.vectorgraphics.VerticalGradient
 import androidx.ui.layout.Center
@@ -42,7 +48,8 @@ import androidx.ui.layout.Column
 import androidx.ui.layout.Container
 import androidx.ui.painting.TileMode
 import androidx.ui.core.setContent
-import androidx.ui.core.vectorgraphics.compat.VectorResource
+import androidx.ui.core.vectorgraphics.compat.vectorResource
+import androidx.ui.graphics.vectorgraphics.PathDelegate
 import androidx.ui.vector.VectorScope
 
 class VectorGraphicsActivity : Activity() {
@@ -52,8 +59,13 @@ class VectorGraphicsActivity : Activity() {
 
         setContent {
             Column {
-                Container(width = 480.dp, height = 480.dp) {
-                    VectorResource(resId = R.drawable.ic_crane)
+                val vectorAsset = +vectorResource(R.drawable.ic_crane)
+                WithDensity {
+                    val width = vectorAsset.defaultWidth.toDp()
+                    val height = vectorAsset.defaultHeight.toDp()
+                    Container(width = width, height = height) {
+                        DrawVector(vectorAsset)
+                    }
                 }
 
                 Center {
