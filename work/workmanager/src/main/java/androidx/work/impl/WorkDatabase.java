@@ -106,11 +106,11 @@ public abstract class WorkDatabase extends RoomDatabase {
             builder = Room.inMemoryDatabaseBuilder(context, WorkDatabase.class)
                     .allowMainThreadQueries();
         } else {
-            builder = Room.databaseBuilder(context, WorkDatabase.class, DB_NAME)
-                    .setQueryExecutor(queryExecutor);
+            builder = Room.databaseBuilder(context, WorkDatabase.class, DB_NAME);
         }
 
-        return builder.addCallback(generateCleanupCallback())
+        return builder.setQueryExecutor(queryExecutor)
+                .addCallback(generateCleanupCallback())
                 .addMigrations(WorkDatabaseMigrations.MIGRATION_1_2)
                 .addMigrations(
                         new WorkDatabaseMigrations.WorkMigration(context, VERSION_2, VERSION_3))
