@@ -17,9 +17,6 @@
 package com.example.android.biometric;
 
 import android.os.Bundle;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -42,29 +39,8 @@ public class BiometricPromptDemoActivityHost extends FragmentActivity {
         final TextView hostTypeTextView = findViewById(R.id.host_type_text_view);
         hostTypeTextView.setText(R.string.label_host_type_activity);
 
-        final Button createKeysButton = findViewById(R.id.button_enable_biometric_with_crypto);
-        final Button authenticateButton = findViewById(R.id.button_authenticate);
-        final Button canAuthenticateButton = findViewById(R.id.can_authenticate);
-        final CheckBox useCryptoCheckbox = findViewById(R.id.checkbox_use_crypto);
-        final CheckBox confirmationRequiredCheckbox = findViewById(
-                R.id.checkbox_require_confirmation);
-        final CheckBox deviceCredentialAllowedCheckbox = findViewById(
-                R.id.checkbox_enable_fallback);
-        final RadioGroup radioGroup = findViewById(R.id.radio_group);
-        final Button clearLogButton = findViewById(R.id.log_clear);
-        final TextView logView = findViewById(R.id.log_text);
-
-        mController = new BiometricPromptDemoActivityController(
-                this,
-                createKeysButton,
-                authenticateButton,
-                canAuthenticateButton,
-                useCryptoCheckbox,
-                confirmationRequiredCheckbox,
-                deviceCredentialAllowedCheckbox,
-                radioGroup,
-                clearLogButton,
-                logView);
+        mController = new BiometricPromptDemoActivityController(this,
+                findViewById(android.R.id.content));
         mController.init(savedInstanceState);
         mController.reconnect();
     }
