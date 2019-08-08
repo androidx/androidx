@@ -86,10 +86,10 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
         }
 
         val newBuffer = CharArray(newCapacity)
-        System.arraycopy(buffer, 0, newBuffer, 0, gapStart)
+        buffer.copyInto(newBuffer, 0, 0, gapStart)
         val tailLength = capacity - gapEnd
         val newEnd = newCapacity - tailLength
-        System.arraycopy(buffer, gapEnd, newBuffer, newEnd, tailLength)
+        buffer.copyInto(newBuffer, newEnd, gapEnd, gapEnd + tailLength)
 
         buffer = newBuffer
         capacity = newCapacity
@@ -119,7 +119,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
             //
             // Output:       ABCD******************KLKMNOPQRSTUVWXYZ
             val copyLen = gapStart - end
-            System.arraycopy(buffer, end, buffer, gapEnd - copyLen, copyLen)
+            buffer.copyInto(buffer, gapEnd - copyLen, end, gapStart)
             gapStart = start
             gapEnd -= copyLen
         } else if (start < gapStart && end >= gapStart) {
@@ -154,7 +154,7 @@ private class GapBuffer(initBuffer: CharArray, initGapStart: Int, initGapEnd: In
             val startInBuffer = start + gapLength()
             val endInBuffer = end + gapLength()
             val copyLen = startInBuffer - gapEnd
-            System.arraycopy(buffer, gapEnd, buffer, gapStart, copyLen)
+            buffer.copyInto(buffer, gapStart, gapEnd, startInBuffer)
             gapStart += copyLen
             gapEnd = endInBuffer
         }
