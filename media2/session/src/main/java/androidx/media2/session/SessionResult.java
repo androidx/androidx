@@ -16,6 +16,7 @@
 
 package androidx.media2.session;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
@@ -29,8 +30,9 @@ import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.SessionPlayer;
+import androidx.versionedparcelable.CustomVersionedParcelable;
+import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
-import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -43,7 +45,7 @@ import java.lang.annotation.RetentionPolicy;
  * {@link MediaSession} and {@link MediaController}.
  */
 @VersionedParcelize
-public class SessionResult implements RemoteResult, VersionedParcelable {
+public class SessionResult extends CustomVersionedParcelable implements RemoteResult {
     /**
      * Result code representing that the command is successfully completed.
      * <p>
@@ -84,8 +86,10 @@ public class SessionResult implements RemoteResult, VersionedParcelable {
     long mCompletionTime;
     @ParcelField(3)
     Bundle mCustomCommandResult;
-    @ParcelField(4)
+    @NonParcelField
     MediaItem mItem;
+    @ParcelField(4)
+    MediaItem mParcelableItem;
 
     /**
      * Constructor to be used by {@link MediaSession.SessionCallback#onCustomCommand(
@@ -207,5 +211,24 @@ public class SessionResult implements RemoteResult, VersionedParcelable {
     @Nullable
     public MediaItem getMediaItem() {
         return mItem;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @Override
+    public void onPreParceling(boolean isStream) {
+        mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    @Override
+    public void onPostParceling() {
+        mItem = mParcelableItem;
+        mParcelableItem = null;
     }
 }

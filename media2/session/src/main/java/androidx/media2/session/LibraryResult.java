@@ -72,8 +72,10 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     int mResultCode;
     @ParcelField(2)
     long mCompletionTime;
-    @ParcelField(3)
+    @NonParcelField
     MediaItem mItem;
+    @ParcelField(3)
+    MediaItem mParcelableItem;
     @ParcelField(4)
     MediaLibraryService.LibraryParams mParams;
     // Mark list of media items NonParcelField to send the list through the ParcelImpListSlice.
@@ -221,6 +223,7 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     @RestrictTo(LIBRARY)
     @Override
     public void onPreParceling(boolean isStream) {
+        mParcelableItem = MediaUtils.upcastForPreparceling(mItem);
         mItemListSlice = MediaUtils.convertMediaItemListToParcelImplListSlice(mItemList);
     }
 
@@ -230,6 +233,8 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
     @RestrictTo(LIBRARY)
     @Override
     public void onPostParceling() {
+        mItem = mParcelableItem;
+        mParcelableItem = null;
         mItemList = MediaUtils.convertParcelImplListSliceToMediaItemList(mItemListSlice);
         mItemListSlice = null;
     }

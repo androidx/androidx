@@ -130,6 +130,24 @@ public class MediaUtils {
     }
 
     /**
+     * Upcasts a {@link MediaItem} to the {@link MediaItem} type for pre-parceling. Note that
+     * {@link MediaItem}'s subclass object cannot be parceled due to the security issue.
+     *
+     * @param item an item
+     * @return
+     */
+    // TODO(b/139255697): Provide the functionality in the media2-common.
+    public static MediaItem upcastForPreparceling(MediaItem item) {
+        if (item == null || item.getClass() == MediaItem.class) {
+            return item;
+        }
+        return new MediaItem.Builder()
+                .setStartPosition(item.getStartPosition())
+                .setEndPosition(item.getEndPosition())
+                .setMetadata(item.getMetadata()).build();
+    }
+
+    /**
      * Creates a {@link MediaBrowserCompat.MediaItem} from the {@link MediaItem}.
      *
      * @param item2 an item.
@@ -805,7 +823,7 @@ public class MediaUtils {
      */
     @NonNull
     public static SessionCommandGroup convertToSessionCommandGroup(long sessionFlags,
-            PlaybackStateCompat state) {
+            @Nullable PlaybackStateCompat state) {
         SessionCommandGroup.Builder commandsBuilder = new SessionCommandGroup.Builder();
         commandsBuilder.addAllPlayerBasicCommands(COMMAND_VERSION_CURRENT);
         boolean includePlaylistCommands = (sessionFlags & FLAG_HANDLES_QUEUE_COMMANDS) != 0;
@@ -836,7 +854,7 @@ public class MediaUtils {
      * @return custom layout. Always non-null.
      */
     @NonNull
-    public static List<CommandButton> convertToCustomLayout(PlaybackStateCompat state) {
+    public static List<CommandButton> convertToCustomLayout(@Nullable PlaybackStateCompat state) {
         List<CommandButton> layout = new ArrayList<>();
         if (state == null) {
             return layout;
