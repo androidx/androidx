@@ -12,6 +12,11 @@ package androidx.ui.foundation {
     method public static void ColoredRect(androidx.ui.graphics.Color color, androidx.ui.core.Dp? width = null, androidx.ui.core.Dp? height = null);
   }
 
+  public final class DarkThemeKt {
+    ctor public DarkThemeKt();
+    method public static androidx.compose.Effect<java.lang.Boolean> isSystemInDarkTheme();
+  }
+
   public final class DeterminateProgressIndicatorKt {
     ctor public DeterminateProgressIndicatorKt();
     method public static void DeterminateProgressIndicator(@FloatRange(from=0.0, to=1.0) float progress, kotlin.jvm.functions.Function0<kotlin.Unit> children);
