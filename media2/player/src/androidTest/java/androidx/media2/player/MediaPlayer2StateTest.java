@@ -1122,20 +1122,20 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
         }
         setupPlayer();
 
-        final List<Pair<Integer, Integer>> callCompletes = new ArrayList();
+        final List<Pair<Integer, Integer>> callCompletes = new ArrayList<>();
         final Monitor callCompleteCalled = new Monitor();
         final Monitor commandLabelReachedCalled = new Monitor();
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onCallCompleted(
                     MediaPlayer2 mp, MediaItem item, int what, int status) {
-                callCompletes.add(new Pair<Integer, Integer>(what, status));
+                callCompletes.add(new Pair<>(what, status));
                 callCompleteCalled.signal();
             }
 
             @Override
             public void onCommandLabelReached(MediaPlayer2 mp, Object label) {
-                callCompletes.add(new Pair<Integer, Integer>(
+                callCompletes.add(new Pair<>(
                             CALL_COMPLETED_NOTIFY_WHEN_COMMAND_LABEL_REACHED,
                             CALL_STATUS_NO_ERROR));
                 callCompleteCalled.signal();
