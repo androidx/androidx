@@ -54,8 +54,7 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
     /**
      * The editable buffer used for BaseInputConnection.
      */
-    private val imm =
-        view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    private lateinit var imm: InputMethodManager
 
     /**
      * Creates new input connection.
@@ -92,6 +91,7 @@ internal class TextInputServiceAndroid(val view: View) : TextInputService {
         onEditCommand: (List<EditOperation>) -> Unit,
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
+        imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         editorHasFocus = true
         state = initModel.toInputState()
         this.keyboardType = keyboardType
