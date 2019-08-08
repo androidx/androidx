@@ -26,20 +26,12 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <p> Used with {@link ImageAnalysis}.
  */
-final class ImageAnalysisBlockingCallback implements ImageReaderProxy.OnImageAvailableListener {
+final class ImageAnalysisBlockingAnalyzer extends ImageAnalysisAbstractAnalyzer {
 
-    private static final String TAG = "BlockingCallback";
-
-    final AtomicReference<ImageAnalysis.Analyzer> mSubscribedAnalyzer;
-    final AtomicInteger mRelativeRotation;
-
-    private final Handler mUserHandler;
-
-    ImageAnalysisBlockingCallback(AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
+    ImageAnalysisBlockingAnalyzer(
+            AtomicReference<ImageAnalysis.Analyzer> subscribedAnalyzer,
             AtomicInteger relativeRotation, Handler userHandler) {
-        mSubscribedAnalyzer = subscribedAnalyzer;
-        mRelativeRotation = relativeRotation;
-        mUserHandler = userHandler;
+        super(subscribedAnalyzer, relativeRotation, userHandler);
     }
 
     @Override
@@ -53,10 +45,7 @@ final class ImageAnalysisBlockingCallback implements ImageReaderProxy.OnImageAva
                 @Override
                 public void run() {
                     try {
-                        ImageAnalysis.Analyzer analyzer = mSubscribedAnalyzer.get();
-                        if (analyzer != null) {
-                            analyzer.analyze(image, mRelativeRotation.get());
-                        }
+                        analyzeImage(image);
                     } finally {
                         image.close();
                     }
